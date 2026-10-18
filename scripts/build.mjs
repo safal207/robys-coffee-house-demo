@@ -53,6 +53,11 @@ choiceHelpSource = synchronizeModuleImport(choiceHelpSource, "menu-catalog.js", 
 writeFileSync("src/choice-help.js", choiceHelpSource);
 writeFileSync("choice-help.js", compileMenuRuntime(choiceHelpSource));
 const choiceHelpRevision = revisionFor("choice-help.js");
+let choiceHelpEntrySource = readFileSync("src/choice-help-entry.js", "utf8");
+choiceHelpEntrySource = synchronizeModuleImport(choiceHelpEntrySource, "choice-help.js", choiceHelpRevision);
+writeFileSync("src/choice-help-entry.js", choiceHelpEntrySource);
+writeFileSync("choice-help-entry.js", compileMenuRuntime(choiceHelpEntrySource));
+const choiceHelpEntryRevision = revisionFor("choice-help-entry.js");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
@@ -63,6 +68,7 @@ writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
+  external: ["./choice-help.js*"],
   bundle: true,
   minify: true,
   format: "iife",
@@ -451,8 +457,12 @@ for (const file of choiceSurfaces) {
     page = synchronizeStylesheet(page, `${prefix}choice-help.css`, choiceHelpCssRevision);
     page = synchronizeStylesheet(page, `${prefix}combo-entry.css`, comboEntryCssRevision);
   }
-  if (!page.includes(`src="${prefix}choice-help.js`)) page = page.replace("</body>", `  <script type="module" src="${prefix}choice-help.js"></script>\n</body>`);
-  page = synchronizeModuleScript(page, `${prefix}choice-help.js`, choiceHelpRevision);
+  if (["index.html", "menu.html"].includes(file)) {
+    page = page.replace(/\s*<script type="module" src="choice-help-entry\.js(?:\?[^\"]*)?"><\/script>/, "");
+  } else {
+    if (!page.includes(`src="${prefix}choice-help-entry.js`)) page = page.replace("</body>", `  <script type="module" src="${prefix}choice-help-entry.js"></script>\n</body>`);
+    page = synchronizeModuleScript(page, `${prefix}choice-help-entry.js`, choiceHelpEntryRevision);
+  }
   writeFileSync(file, page);
 }
 
@@ -466,7 +476,7 @@ const familyPhotoAssets = [
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
 for (const asset of [MENU_STYLESHEET_FILE, "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
-  "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
+  "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -495,7 +505,7 @@ const familyCacheRevision = createHash("sha256")
 serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
 const combosCacheRevision = createHash("sha256")
-  .update([menuCombosRevision, menuCombosCssRevision, comboEntryCssRevision, choiceHelpRevision, choiceHelpCssRevision, discoverCopyRevision,
+  .update([menuCombosRevision, menuCombosCssRevision, comboEntryCssRevision, choiceHelpEntryRevision, choiceHelpRevision, choiceHelpCssRevision, discoverCopyRevision,
     ...choiceSurfaces.map(revisionFor), ...comboPhotoAssets.map(revisionFor)].join(":"))
   .digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-occasion-combos-[a-f0-9]{12}/, "");
@@ -546,6 +556,7 @@ for (const [filePath, revision] of [
   ["menu-combos.css", menuCombosCssRevision],
   ["combo-entry.css", comboEntryCssRevision],
   ["choice-help.js", choiceHelpRevision],
+  ["choice-help-entry.js", choiceHelpEntryRevision],
   ["choice-help.css", choiceHelpCssRevision],
   ["discover-copy.js", discoverCopyRevision],
   ["menu-pairing.js", menuPairingRevision],

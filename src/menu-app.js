@@ -1,5 +1,6 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
+import "./src/choice-help-entry.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 const supportedLanguages = ["tr", "en", "ru"];

@@ -12,7 +12,7 @@ import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 // this harness recompiles, substitutes or invokes production mutation helpers.
 const repo = resolve(new URL("..", import.meta.url).pathname);
 process.chdir(repo);
-for (const name of ["menu-combos-ui", "choice-help"]) {
+for (const name of ["menu-combos-ui", "choice-help-entry", "choice-help"]) {
   assert.equal(readFileSync(`${name}.js`, "utf8"), compileMenuRuntime(readFileSync(`src/${name}.js`, "utf8")),
     `${name}.js must exactly match the built current source before runtime verification`);
 }
@@ -39,10 +39,10 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
 const storageKey = "robys-menu-order.v2";
-const assets = ["menu.html", "menu-app.js", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
+const assets = ["app.js", "src/app.ts", "menu.html", "menu-app.js", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
   "index.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html",
-  "combo-entry.css", "choice-help.js", "choice-help.css", "sw.js", "sw-core-v64.js", "scripts/test-menu-combos-browser.mjs",
-  "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help.js", "order-storage.js",
+  "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "sw.js", "sw-core-v64.js", "scripts/test-menu-combos-browser.mjs",
+  "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help-entry.js", "src/choice-help.js", "order-storage.js",
   "src/brand/robys-compact-master-v1.svg", "src/brand/robys-takeaway-cup-v1.webp",
   ...["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
     .map(id => `src/products/occasion-sets-v1/${id}.webp`)];
@@ -415,6 +415,51 @@ try {
         return { language, views: observations };
       }, { language });
 
+      await run(browser, `${name}-helper-notifications-keep-storage-lazy-until-eligible`, async context => {
+        const page = await context.newPage(); await installClock(page);
+        const storageRequests = [];
+        page.on("request", request => {
+          if (new URL(request.url()).pathname === "/order-storage.js") storageRequests.push(request.url());
+        });
+        await page.goto(`${origin}/index.html?entry=off`, { waitUntil: "domcontentloaded" });
+        await page.locator(".choice-help-entry").waitFor();
+        await page.evaluate(() => {
+          // Notifications are advisory, including their newValue payload. They
+          // must neither start ordering nor treat a disposable projection as
+          // the canonical basket. Do not seed or mutate an authoritative order.
+          const projection = JSON.stringify({ version: 1, lines: [{ id: "brew-hot:milk", quantity: 2 }] });
+          window.dispatchEvent(new StorageEvent("storage", { key: "robys-menu-order.v2", newValue: projection }));
+          window.dispatchEvent(new CustomEvent("robys:order-change", { detail: { origin: "qa-peer-notification" } }));
+          window.dispatchEvent(new Event("focus"));
+        });
+        await page.waitForLoadState("networkidle");
+        assert.deepEqual(storageRequests, [], "Projection, order-change and focus notifications do not download authoritative storage");
+        await page.clock.runFor(34_000);
+        assert.deepEqual(storageRequests, [], "The35second offer threshold remains a lazy boundary after notifications");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
+
+        const peer = await context.newPage(); await openMenu(peer); await openRecipe(peer, "student");
+        await preview(peer).locator(".menu-combos-add").click(); await peer.locator("#menu-cart-dialog[open]").waitFor();
+        const revision = await assertLines(peer, linesFor("student"));
+        await peer.evaluate(() => {
+          // Simulate a failed disposable mirror after a real UI commit. Keep
+          // the independently verified IndexedDB record entirely untouched.
+          for (const storage of [localStorage, sessionStorage]) for (const key of
+            ["robys-menu-order.v2", "robys-menu-order.v1", "robys-menu-order.tab.v1"]) storage.removeItem(key);
+        });
+        await page.bringToFront();
+        assert.deepEqual(storageRequests, [], "A peer commit notification is still not local ordering intent");
+        assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"));
+        await page.clock.runFor(9_000);
+        await page.waitForLoadState("networkidle");
+        assert.equal(storageRequests.length, 1, "An eligible idle offer must read the actual basket even when its mirror is absent");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "The nonempty canonical basket suppresses the automatic offer");
+        assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"), "Assistance cannot mutate the peer's order");
+        return { notificationTypes: ["storage projection", "robys:order-change", "focus"], before34sStorageRequests: 0,
+          eligibleStorageRequests: storageRequests.length, authoritativePeerOrder: linesFor("student"), canonicalRevision: revision,
+          missingDisposableMirror: true, nonemptyCanonicalOrderSuppressesOffer: true };
+      });
+
       for (const language of ["tr", "en", "ru"]) await run(browser, `${name}-quiet-helper-once-${language}`, async context => {
         const page = await context.newPage();
         await installClock(page);
@@ -422,6 +467,11 @@ try {
         await page.locator(".choice-help-entry").waitFor();
         await page.locator("#menu-search").focus();
         await page.clock.runFor(40_000);
+        // At35seconds the small entry driver imports the suggestion module.
+        // Let that real network work settle before measuring a new idle window
+        // with frozen virtual time; otherwise its initialization can straddle
+        // the focus change and require a subsequent timer tick to revalidate.
+        await page.waitForLoadState("networkidle");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "No interruption while typing/search has focus");
         await page.locator("#menu-share-button").focus();
         await page.clock.runFor(7_000);

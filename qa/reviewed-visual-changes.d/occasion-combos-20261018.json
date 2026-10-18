@@ -1,0 +1,3218 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "occasion-combos-20261018",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/439",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "reviewerIdentity": {
+        "primary": "Codex assistant /root/combo_photo_export",
+        "supplemental": "Codex assistant /root/combo_domain_ui",
+        "supplementalScope": "Menu-full four viewports, menu-share six viewports; supplemental reviewer authored the earlier combo UI and is not represented as an independent design approval."
+      },
+      "reviewedAt": "2026-10-18T20:02:38.354071+00:00",
+      "sourceHead": "f927944b18f61408f71d16528bff7325d6d13264",
+      "sourceState": "Final frozen working tree based on sourceHead with pending lazy-helper, entry bundling and unchanged analytics coalescing fixes. Exact file identity is the contentBindings map, not sourceHead alone.",
+      "pendingChangesAtCapture": [
+        " M app.js",
+        " M choice-help.css",
+        " M choice-help.js",
+        " M discover.html",
+        " M docs/qa/occasion-combos-20261018/README.md",
+        " M docs/qa/occasion-combos-20261018/offline-report.json",
+        " M docs/qa/occasion-combos-20261018/report.json",
+        " M experience/index.html",
+        " M index.html",
+        " M integrity-manifest.json",
+        " M menu-app.js",
+        " M menu-runtime.css",
+        " M menu.html",
+        " M qa/gallery.spec.ts",
+        " M ru/coffee-gazipasa.html",
+        " M scripts/audit-dependencies.mjs",
+        " M scripts/build.mjs",
+        " M scripts/menu-runtime-source.mjs",
+        " M scripts/test-combo-offline.mjs",
+        " M scripts/test-menu-combos-browser.mjs",
+        " M smart-choice/index.html",
+        " M src/app.ts",
+        " M src/choice-help.js",
+        " M src/menu-app.js",
+        " M sw-core-v64.js",
+        "?? choice-help-entry.js",
+        "?? qa/reviewed-visual-changes.d/occasion-combos-20261018.json",
+        "?? src/choice-help-entry.js"
+      ],
+      "baselineHead": "2ac573a2709bcb67a5e7998b96aa5e97b6571cc2",
+      "baselineState": "Exact clean committed base worktree, no source replacement or baseline update. Its committed emitted assets were served directly.",
+      "evidenceKind": "local-locked-toolchain-captures",
+      "summary": "The final frozen bundle produced 43 complete comparisons: 21 failures and 22 passes, with all 21 failing comparison metrics and dimensions identical to both earlier reviewed captures. One already-passing hero360 comparison improves from 105 differing pixels to 0; the other 42 comparison rows are identical. Every failing comparison was visually inspected. Full-page dimension differences are consistent with the new authored combo entry sections and expanded menu introduction; existing product/photo/price/action/footer structures remain represented in the sampled views. Existing social/share/map/menu-preview crops retain content and controls with small paint or one-pixel crop differences. No new blocking visual defect was observed. Minor zero-gap manual-help border adjacency is disclosed below. This is assistant visual inspection of exact final frozen working-tree blobs, not a claim that clean sourceHead, a later commit, the whole CI job or the live deployment was tested. Global capture budgets, scenarios, browser lock and verifier are unchanged.",
+      "contentBindings": {
+        ".gitattributes": "01ab4d3d221989959cf258190bafc87b08277843",
+        ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
+        "404.html": "5be4ea1b3624924525ab1d2064fe437c437f49de",
+        "analytics.js": "9ad1eff5f0fb31d2a53e9f259e2ca8f5acee8842",
+        "app.js": "ddfe8a334636308fb4c071537f5e56e7e721f298",
+        "bootstrap-v2.js": "f9a75f4a7638d69f3cab462f3b91f3e10b6b933b",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "cashier.html": "1b2aa861ff4014a156bb53d1beb6d0b39f367d42",
+        "cashier.js": "bdbc59557ca60bcb934021da4420f24b5395a437",
+        "choice-help-entry.js": "8536aa10b12b8893d1f4db7537b9532b72c3534e",
+        "choice-help.css": "bfc2465e647aa669bfc4647de38246787819c015",
+        "choice-help.js": "da880595d05754a97296e5d81bf388e76b11b7af",
+        "coffee-paths.css": "2e099c7c8bdb5e7474d43c0eae8fd7af8269fbcd",
+        "combo-entry.css": "2a8c20ef27557d456aac0c19832a2b0cc40ebb0a",
+        "community-reel-v2.css": "e67437b719c14082712c1863b2c5deb106462326",
+        "community-reel.css": "e67437b719c14082712c1863b2c5deb106462326",
+        "conversion.css": "3eace373b7435b2bdf42d13f270126c1dedbf907",
+        "conversion.js": "203a94ff2b042ec85e1ad93399f42fb722ff5fc5",
+        "data/featured-products.json": "c660938ae08cafe456123b8dcc91e705f9738aed",
+        "day-night-entry.js": "ebfb9f3ec789bd4b122d94546dd035d1da3632c7",
+        "discover-copy.js": "c9b0db56c867a1f2e51eb3b8cefbec7bef6ab27e",
+        "discover-deck.css": "4758606da09b1070ddd8bfc822509eb2b4cb0818",
+        "discover-deck.js": "9915a50413dc9d650bb72abbd4791b29e4da0510",
+        "discover-journeys-v2.js": "1fd7e32ba8e75b23f64d8bfc5d7cb21d3e75c3cf",
+        "discover-journeys.js": "976c598e61b89b2794cdc2be8f23d8a8319264cc",
+        "discover-rotation-v2.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-rotation-v3.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-rotation.css": "df96f55c7d03fa339dfb2f3e749abe621f16f361",
+        "discover-rotation.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-v2.js": "c574d052c829951d174b0f195a7f53a0f60910e7",
+        "discover-weather-guard.js": "8a0986af569743ee356ea936cc327e0d2fbc677d",
+        "discover.css": "ac03708c1d95e1dfd4df4f2b3aff4df21934390d",
+        "discover.html": "09793efbbf45452b62cd82741d112e4a21d7f7ab",
+        "discover.js": "8b977c7da2cd977ba0cff41a27a21bc2156c069d",
+        "experience/brand-fidelity.css": "28874a97e7a9aff0ac4c30d400c00c57d69d0e9b",
+        "experience/cinematic-environments.css": "16f60963b327ce365d2b73d48ed3b39332c5169a",
+        "experience/environments/energy.svg": "1639a2b5c824b5b00b5f01c55cdd759d0ad06258",
+        "experience/environments/finale.svg": "9edb305b7421b0f4cb4351f12940e36c7292cc98",
+        "experience/environments/moment.svg": "ebf34a1d1434355d472eaeffc86a1c825357cf44",
+        "experience/environments/move.svg": "934dc134f7c185ae027aafe1c05f0f807b882d0c",
+        "experience/environments/origin.svg": "34958dc06263e691fc748a4d0f9730d5b9bc949c",
+        "experience/environments/pair.svg": "e18bc16c4633507a4230877f62a787a9dff8fc7b",
+        "experience/experience-pwa.js": "d736388cb4d78435e278229ae5321eced61a79de",
+        "experience/experience-state.css": "487566c21248541667ca8ab73fa99f66e681538e",
+        "experience/experience.css": "1a89ef21f47c0d936a0d34ecd52885c36cbd93ce",
+        "experience/experience.js": "9b23b47f89a3de66a4a67f192750b66c27b2e82d",
+        "experience/index.html": "e5050f3ff981a79078e393b570d72b83be3bbd80",
+        "featured-gallery.css": "2f73520206ca458cfbdfde529e1e923724706f46",
+        "featured-gallery.js": "8a609758a8e90d40f31ba1ba5be04fb36372ccc0",
+        "featured-strip.css": "833f9bfec5642070712345caa089fd2439dd2a81",
+        "final-qa-v2.css": "68be65202d440734d92e6299c7fb17906384a327",
+        "final-qa.css": "68be65202d440734d92e6299c7fb17906384a327",
+        "gallery-clean.css": "7dcc1a17d57fb1d106656f9eacf81e7c63035fe8",
+        "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
+        "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
+        "index.html": "9b939f7de5e94f03ec480d9ac219faf8ac7b5d29",
+        "integrity-manifest.json": "8592a9cfea0b2c7645030fd141f4869925f4e4bd",
+        "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
+        "menu-app.js": "a80983d2e8748d31b59f9f909f15bf6d69ab19b6",
+        "menu-catalog.js": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
+        "menu-combos-ui.js": "98b0c8b3e0d9b7aebc068e7c2485fe43ba9876ea",
+        "menu-combos.css": "687452cafd4070ea2840f95d67772caa0f642af6",
+        "menu-family-ui.js": "370e1a9df93683ff6a92b70f1b02c9cbe72335cf",
+        "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
+        "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
+        "menu-order-ui.js": "e154a9afc8674eeb68cda919ecefc90e52bdf5d5",
+        "menu-pairing.js": "14e553167322ed1ff1500e450f251c8eb90f66ba",
+        "menu-premium.css": "f7039a5740f99d7abc583bc8edbab88a069df77b",
+        "menu-preview.css": "8c254911011482cdef6c12b6c859b2ebd4f6cbfb",
+        "menu-product-reveal-runtime.js": "870a8d3263b4f462b7c8e3827d758a3d026cdd6c",
+        "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+        "menu-product-reveal.js": "4c7ab586cdfcfd66a832aa5e3120873c0e41189e",
+        "menu-pwa.js": "1415bd00f34c3c2fe2d52007da28b2a74b036627",
+        "menu-ready.js": "07d7bdef30e9742a2eb3038ff4cea425fe67295d",
+        "menu-runtime.css": "f79376f9293d7674f580d6a310929458408eb0b6",
+        "menu-search-clear.js": "b6ada733cd40c68ee74d2eb37b53efbda1afac9a",
+        "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
+        "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
+        "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
+        "menu.html": "ce5a558e0b36d554cd026756857e720d933d53bf",
+        "mobile.css": "9f992b12b781b223e656363a1d05c96f897f2b60",
+        "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
+        "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
+        "order-checkout.css": "e785fde8b4760b74c6d4c0fc1203e4bbbf160d03",
+        "order-checkout.js": "82cdaeb73ee5bd14d72d8a5b6dcdc4d32f0f41bb",
+        "order-storage.js": "5adb7bb57a1b841ec1cf576f8fd8945ede4e2cc5",
+        "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+        "package.json": "3d832ab0be18c3edd6af88926b22db595d59a653",
+        "pairing-posters.css": "4b27164c15f2f28b6773cda0b15db720ff60e467",
+        "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+        "pairing-preview.css": "be0768a2cbc2e34f21627f359b8522bb59a36c9d",
+        "pwa-pairing-fix.js": "a138644bfb34cd531f1f3706115a08516726df60",
+        "pwa.js": "a138644bfb34cd531f1f3706115a08516726df60",
+        "qa.js": "49f618033371682c8f80d31f8a9a70fc3517e105",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "refresh.html": "54b746a5436e17831faa10b773d890752afe5854",
+        "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
+        "ru/coffee-gazipasa.html": "69fff81c05d60ab4f6c445f119fcf936a852dece",
+        "scripts/build.mjs": "9ef2a97fefce2fb43b0ba8af7f543e6f81228e57",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "scripts/menu-runtime-source.mjs": "3b976fa9d17fc2103c5701d7062306e62c41b124",
+        "scripts/menu-styles-bundle.mjs": "0f7446ee35f43c8b788b28b55ea88380d34244ac",
+        "scripts/smart-choice-catalog-external.mjs": "72a75359ef4f88119afbe8012a2364c57a73715b",
+        "scripts/test-visual-toolchain.mjs": "95982b9806d10ebf4ccadf730cb69f372ee0a500",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/verify-visual-toolchain.mjs": "b64d143d3c810d60f5c432545c3ee483ccd1fbaf",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "sitemap.xml": "a91e7eebf88575c587ad2ae3a60f615b19203459",
+        "smart-choice/analytics-v2.js": "d8295df1717ea3681e571c4627a1d4bbad671f0d",
+        "smart-choice/app-v2.js": "869910a25740bcbabd651119675152dc64a6117c",
+        "smart-choice/brand-v4.css": "ab4d2cb3a97b88f59338dc17e4ddb98986066eb6",
+        "smart-choice/cart-v2.js": "6ecb03c0448011a3f455685ad095741de57963dc",
+        "smart-choice/cart.css": "4e4b2972a2d42102b66d4d41ae8f3b2195f6b7f9",
+        "smart-choice/decision-trace-v2.js": "6a5b4c17ba9911df444aa8d6ba5e0462cf3d705b",
+        "smart-choice/decision-trace.css": "dc8006afd0c3f1cc674b0ad8b4be6c6298e38a79",
+        "smart-choice/experiments-v2.js": "bceeb9b50bc5b7d91f5104eb390763bee6dcac7a",
+        "smart-choice/index.html": "82de1b2d862825025350086fc7955559175771ea",
+        "smart-choice/pwa.js": "f6fbd5e2b4c3fb880b53221ce945d20897956c19",
+        "smart-choice/release-qa.css": "e0423315709f0769bda56e59a7c222f02650a45e",
+        "smart-choice/release-qa.js": "ad8bd768f79fcf973cae488d33d38c8b24a5a019",
+        "smart-choice/simulator-v2.js": "51d40c407b95d72bb3bb61ef40a753a1548b9df7",
+        "smart-choice/simulator.css": "316352a84bd2af8bbb393a24977bee206cf02d23",
+        "smart-choice/simulator.html": "9042cb47c83d13f3f83bd885b88918bbfcace2db",
+        "smart-choice/style.css": "c9c11118d4172dced6cb3c1b215f2aa09ae26f69",
+        "social-offer.css": "36a262c7c596c1c6aeb7260ca3ef336bd94fc3f8",
+        "social-offer.js": "85eb159cb377e9519242450281b7373f265f8e7d",
+        "src/.parts/main.04.txt": "f799f7dcbfd189b0f6f76765e4cc80d56ba829fe",
+        "src/amenities.ts": "20f6756ae071955d9ae14dd5fddf54c987af3bc6",
+        "src/app.ts": "d2023fce15d22db9992d8ae361f2e019d57109d2",
+        "src/brand/robys-compact-master-v1.svg": "808c11a8d3109b03fe5ef6b173d93cd79392128a",
+        "src/brand/robys-header-master-v1.svg": "ccf15f06963a7b49d5e1a7e6acc9a1f5010726fa",
+        "src/brand/robys-mark-master-v1.svg": "e9fa0ded61a0a671750ba0908b6ba8d6dd6f9ca7",
+        "src/brand/robys-organic-ring.svg": "94257521dc816f87cf3ea9003e303eba5d97831f",
+        "src/brand/robys-primary-master-v1.svg": "eb9199d1e34572b2e31b1fdf6b185f72e0536016",
+        "src/brand/robys-takeaway-cup-v1.webp": "105ebbcbd9dd2b20502dcf1251334259393be035",
+        "src/cashier.js": "c70aee7e1cd906dd5971c0a860e099527a684f64",
+        "src/choice-help-entry.js": "136e30f5f9dda7c31f71684e357787305a6612da",
+        "src/choice-help.js": "9c8f4e8206417f5210ad764de4b596f774adb175",
+        "src/conversion.js": "f366a5b49123fbd9020bf1b53871bd863c66530e",
+        "src/discover-rotation.ts": "ec96ecf32907a4cce0e2a65b2000230f4bdd9339",
+        "src/featured-gallery.ts": "516e4513719349b4d972bd006f800812b4dc51d0",
+        "src/i18n.ts": "6ccb1c729de38370872024f0ab2440e0392d379d",
+        "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+        "src/menu-app.js": "cb68d2b600bc53a916a19320d92fd695e76508b1",
+        "src/menu-combos-ui.js": "4c3abc79c2c67a702e6e1b2472d6ad4da0b2a97e",
+        "src/menu-combos.js": "b8740172a380b6c897d8153bf39549ed11a25de9",
+        "src/menu-family-ui.js": "9a78f36025f2c0ca4b44ef00161c07991a5d2b8b",
+        "src/menu-family.js": "7fdcbf57d375cfefbd2c3cddf6c941d033fd359c",
+        "src/menu-icons/cold.svg": "5d1e35e02796b57d3f60a6dd6c3d7c402ae5f3df",
+        "src/menu-icons/dessert.svg": "6f51819e2613bf98668ed99937048bcc3b64b93e",
+        "src/menu-icons/food.svg": "44d1a9d16940870c0445781fcf597d4e14516c26",
+        "src/menu-icons/hot.svg": "1b1ee23c3236d812f3c67d2e21b8f0f26b79731b",
+        "src/menu-icons/refreshers.svg": "49aa82bd84aee142f4bb654e9f1b723e560ec9cb",
+        "src/menu-icons/tea.svg": "412c807141e28669ad403c024ae4d8d5a82c420d",
+        "src/menu-order-ui.js": "5534d2cb199a1a4826790b7af65e83d79e76df9d",
+        "src/menu-pairing-view.js": "17db0869a680168220474edde9e2ba09ffe4eef2",
+        "src/menu-pairing.js": "65a6f79dd24138ba5b51d9c513f47ddcf05c9693",
+        "src/menu-promo-pair.js": "c9212ce95370739cfbac7d28aa39a954879874cf",
+        "src/order-checkout.d.ts": "4205db559e8103515daa6fbe2d61238c5af5dfd0",
+        "src/order-checkout.js": "43543f2a8fd0888fac8cbe56ae0a4bae2411ae14",
+        "src/order-draft.d.ts": "f3be614ca2319a6ededc0a1233c6768c851f85f1",
+        "src/order-draft.js": "35c4afebe0f9fffdd01a4c57f41af0e29dc51f66",
+        "src/order-storage-notice.d.ts": "022dbc36cfbf5cf52411250eac1cbde2eef723a4",
+        "src/order-storage-notice.js": "100fc3c021b099514bf03c9c3be10303f85fe9a0",
+        "src/order-storage.d.ts": "e4fa6cf614b62d699651428479a9a2556c1b2c27",
+        "src/order-storage.js": "bcd6d414764bf057d6471ef9191d1e24f171b315",
+        "src/order-ticket-storage.js": "0f3c9c56106693dda49dc2e92125aedb1c1e1bac",
+        "src/order-ticket.js": "4e9c6613bd355ef83245be5cdeddbf81c488ceec",
+        "src/pairings-data/approved/iced-san-sebastian-hq.png": "c245947657e69f719fa2fcc74ddc48e6acd5b922",
+        "src/pairings-data/approved/iced-san-sebastian-hq.webp": "1ddfcb88d413a90b1b53cf01b830e02fc1ec0526",
+        "src/pairings-data/final/cool-lime-macaron-hq.webp": "6fb62e29d3466d5c9c2085a2ed4c84e005821f7a",
+        "src/pairings-data/final/cool-lime-macaron-price-free.webp": "4f12c50a8d431e9e5943ff8d1e417752a505d42c",
+        "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "fe02d9dcb0519a147822e1ec8894f2b3f902deb0",
+        "src/pairings-data/final/filter-lotus.webp.b64.txt": "de942d76ec9148f2d9e81c63ac9d792d6cb893d2",
+        "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "723965f3f43ac5d7311c277283158d93a47fd3e2",
+        "src/pairings-data/final/latte-nutella.webp.b64.txt": "a63677d2cf20824615e8b1f6a6bf4d5a8dea1761",
+        "src/pairings-data/final/relax-lotus.webp.b64.txt": "cde1f1956c984fa038637595e8efc338ce431566",
+        "src/products/README.txt": "e2888b098d0157e2637a8b9c7bffb07e956f79ca",
+        "src/products/cards/iced-latte-card.v1.webp": "e1508babd0ceae93d72bf312823c216b198f5f31",
+        "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
+        "src/products/cards/lotus-card.v3.svg": "3223b568934cec3aa6486ee6cf1c0f9629907ca4",
+        "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b",
+        "src/products/cards/pairing-cool-lime-macaron.webp": "1e3f27a7a28c8c962b31e9a90df75e91480d1a77",
+        "src/products/cards/pairing-iced-san-sebastian.webp": "b7498e8aa246ef74230fca8580d70a3f9d5b3873",
+        "src/products/cards/san-sebastian-card.v3.svg": "05b9457467dd14c5231913e69d3d477766fae52d",
+        "src/products/carrot-cake.svg": "cc8207284439c2adb000c02ef8d06eade0b36c11",
+        "src/products/cold-drinks.svg": "1da406dd4c3fab711db13b1e438cccdb0a3da112",
+        "src/products/croissant.webp": "2bb887796a71bfc4c1fa75669f5d4f79e4bbeded",
+        "src/products/family-sets-v1/kids-box.webp": "8e6993ee1ec48f53221109761155759fc78192de",
+        "src/products/family-sets-v1/milk-cookie.webp": "b4aeb7bfef256089338ec18444b412d9b7704f2a",
+        "src/products/family-sets-v1/milk-roll.webp": "1a4f184c500e73212050af3c20ab7c251f6db6b4",
+        "src/products/family-sets-v1/simit-break.webp": "45488b7418f9ceb0213e9dc5824666d3a87c241b",
+        "src/products/file_00000000d248720a8ca18bad97b2053a.png": "87c46b876846474ae916f422045ccc7f81fb9ca3",
+        "src/products/gallery-v4/iced-latte.webp": "0ef2bd91694042303e9eb46063f7c08017887418",
+        "src/products/gallery-v4/latte.webp": "c297075617c32180b8469ece3bdb931006122a9c",
+        "src/products/gallery-v4/lotus-cheesecake.webp": "0fc36cb5b94d55f63ecd9b83c316a6df0a28c785",
+        "src/products/gallery-v4/nutella-croissant.webp": "cba431652191d40122a153548399590d3d2f2d46",
+        "src/products/gallery-v4/san-sebastian.webp": "54c83960dd6a6993a24b1aaae10f3ce595117c6f",
+        "src/products/gallery-v5/croissant-828.webp": "885f7aa49ccab06233f55fbcaf109810cd1eff32",
+        "src/products/gallery-v5/croissant.webp": "0fb72716df96cfea8bb7349fba120bea9fc34d12",
+        "src/products/gallery-v5/iced-latte-828.webp": "017f92e8aa03df22f48c6bf5479e85a18b300af8",
+        "src/products/gallery-v5/iced-latte.webp": "d74cd591483dc5692e9226789c659537c48b7e3e",
+        "src/products/gallery-v5/latte-828.webp": "1b985cef3ded6ac109999f5a8a4f1e7c2775c565",
+        "src/products/gallery-v5/latte.webp": "244fefb8e3107c73037d96bdf5af58c05c60e7cc",
+        "src/products/gallery-v5/lotus-cheesecake-828.webp": "518493196df16d24275a6b894cd7f1ecb3d664df",
+        "src/products/gallery-v5/lotus-cheesecake.webp": "836ce0bb0ed76a79f83859233854321ee2785582",
+        "src/products/gallery-v5/nutella-croissant-828.webp": "c038dc84cc4741d41e24331c779c83dc9cdfa067",
+        "src/products/gallery-v5/nutella-croissant.webp": "49c3e4fb1efeb79dc8b99e87ee08547ee9c9d3a3",
+        "src/products/gallery-v5/san-sebastian-828.webp": "0a2cc2fb6d77d5d63716eba1a3055084a78452b9",
+        "src/products/gallery-v5/san-sebastian.webp": "3e072eb8ddc10c754827d93c715e70f811d6a0ad",
+        "src/products/latte-premium.svg": "5560733fa2830e97703ec8ee5207068f77ea0dcc",
+        "src/products/latte.webp": "41d948ad1ca3f273c4340c678b8e60ad2708de7c",
+        "src/products/lemon-cheesecake.svg": "500e066454c8d66c377ff0a54c40ffdf8678aa99",
+        "src/products/lotus-cheesecake-menu.svg": "b6a77f30fa46017b67511dde2ae2d56a513b63cf",
+        "src/products/lotus-cheesecake-v2.svg": "bbba62cbd7f850e4ee1cc8582d668242c49a3652",
+        "src/products/lotus-cheesecake.webp": "4a4a74259c33df76bdb07e483fae6c9594062717",
+        "src/products/manifest.json": "c64f4ae219741424400cf1f409620c0a3b17fdb8",
+        "src/products/menu-note.txt": "708673f2806271cb04c6ca0c75b4afa96f90f933",
+        "src/products/menu-v1/_anchors/cold-cup-branded.webp": "ee0d73d8f11e9a335e94321afe7e2c76e206bab9",
+        "src/products/menu-v1/_anchors/demitasse-branded.webp": "22df80238f34ad9a9b7f932bf9d5b51ee50f64f3",
+        "src/products/menu-v1/_anchors/dessert-plate.webp": "746e250a93c97d064c13655f7260791661b5c235",
+        "src/products/menu-v1/_anchors/hot-cup-branded.webp": "6b8e0ba29d5db340170f33051f873c690985010b",
+        "src/products/menu-v1/brew-hot--black-tea.webp": "d670e391badd6d822dbcac32e7e12a0e49ffdd43",
+        "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "9f83f8e9dc127b3327e69e66c1916e63724c3f83",
+        "src/products/menu-v1/brew-hot--filter-coffee.webp": "2a1713ab0be689516f5b5ec74244bbb691825a9d",
+        "src/products/menu-v1/brew-hot--hot-chocolate.webp": "64d740c4175d600ed2fec960bca2e53c353135da",
+        "src/products/menu-v1/brew-hot--milk.webp": "0f5f0cdee1f71ed8e72b564792c3c9e6fe44f170",
+        "src/products/menu-v1/brew-hot--salep.webp": "e4918578c5c0d961f8c17d8c44b705741c6c7fcb",
+        "src/products/menu-v1/brew-hot--turkish-coffee.webp": "cd09128bca95f1fe1ae66dfdd7a9d7023de8ff19",
+        "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp": "783724d456e646095a6d8cd9971f3a4da56be806",
+        "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp": "3a21e214c4eb0245522c7de925d296969bd8790b",
+        "src/products/menu-v1/cold-coffee--iced-americano.webp": "5e862838b1272633edc6f288555d2fcce5861d1d",
+        "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": "b68f148133697d190551d3ca36c02d3ac70b6662",
+        "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": "97ed4219f03ba9741b68e70f8233035efe4fe2ad",
+        "src/products/menu-v1/cold-coffee--iced-mocha.webp": "8cf53b16f7b5c4e91b284ea530bc6dbaa702748e",
+        "src/products/menu-v1/cold-coffee--milkshake.webp": "4cef8963bed6869026bfd85dff18d718fbc755c2",
+        "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp": "ebf4ac67a4c2de73d0c9508a8b3934b28f90a3c2",
+        "src/products/menu-v1/desserts--almond-tart.webp": "42569edb231e5a0aa68a25601cf2fb0c552af326",
+        "src/products/menu-v1/desserts--brownie.webp": "a152f245b19724d4db8eff389268f25d6875b2ee",
+        "src/products/menu-v1/desserts--cake-roll.webp": "4e55458cf7566b2a210f2af9a09513c824fc39fb",
+        "src/products/menu-v1/desserts--chocolate-cake.webp": "9d8309446574d0397f654ac238e6155b9b760615",
+        "src/products/menu-v1/desserts--cookie.webp": "6de63cc5b29ec67bebbeaf1ec4b51ecf6453d09d",
+        "src/products/menu-v1/desserts--lotus-cheesecake.webp": "8bf7ffc18ae523f682ceb1f605d51d1c31591e10",
+        "src/products/menu-v1/desserts--macaron.webp": "fc7f833f3eb91910926a80c2515cca00ff32f3e2",
+        "src/products/menu-v1/desserts--mosaic-cake.webp": "ad9ac222169e3d60c4dec513be14c490f8a6166a",
+        "src/products/menu-v1/desserts--raspberry-cheesecake.webp": "524d4a7bf40ec87269b7c0aabf2abf9ba707b9f7",
+        "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": "cd13536a793388fa3e3fe9b39a097a0da456cadd",
+        "src/products/menu-v1/desserts--savoury-cookie.webp": "a2d664e9db8f5337f545eb97814d3c2bd5f885d6",
+        "src/products/menu-v1/desserts--tiramisu.webp": "0cf8725669332239c80d4d340f5e0b993aa470c8",
+        "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": "0e6958af46149ea068bc1f3a47ce2ebd025ed13a",
+        "src/products/menu-v1/food--nutella-croissant.webp": "19b026ec4fdac8afc1625fb607e3ae8a0e71d6ff",
+        "src/products/menu-v1/food--sesame-simit.webp": "8217a24ad37ba9401f8226cfa80d2c9eaeb15308",
+        "src/products/menu-v1/food--three-cheese-croissant.webp": "b11e6a92ea44cc842079427594c85e1aab67d080",
+        "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": "2355e7e17c75e4cea54947d8d0d4aab16f33ce05",
+        "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": "a262aa89b36b3709566e43a180cc639f563d146d",
+        "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp": "af8995270b6b777189793897b34d615de5849494",
+        "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp": "ddfb1ecc149201f348221cfc2655f08e24721326",
+        "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": "8c0636b0aa88eb236389e98f7370cff3078ad756",
+        "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp": "ab2120cfaa3f97000bf5075c50c27a43c69f6f64",
+        "src/products/menu-v1/hot-coffee--americano.webp": "d301b03cc9d2cf2cb06baefba8f028f4278bbf04",
+        "src/products/menu-v1/hot-coffee--caffe-latte.webp": "6702e3b3527bd8344edecb2a254d9184c64cef92",
+        "src/products/menu-v1/hot-coffee--caffe-mocha.webp": "88fef6fc9da5cdd462199340de983a4f4fa6c45b",
+        "src/products/menu-v1/hot-coffee--cappuccino.webp": "60dc20655eeb07fe0607f8d50b13a98cf52cd286",
+        "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": "6d09c966e48b2e581a2eea9ee630b5e0bccfa668",
+        "src/products/menu-v1/hot-coffee--caramel-latte.webp": "dd0afb6d5b2ba2c4348f4c547fd0d2a2bf835330",
+        "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": "3b0a52b0f997289a8e057e6cb118c655fecbf653",
+        "src/products/menu-v1/hot-coffee--cinnamon-latte.webp": "09d11cb972e9fc383e70e8f94e3c553686963085",
+        "src/products/menu-v1/hot-coffee--cortado.webp": "285dac10b17d4a7fed459a18d12ac59c776bedb7",
+        "src/products/menu-v1/hot-coffee--espresso-macchiato.webp": "48776a57c92644c830e902f8c3fd6f9f207ee3ef",
+        "src/products/menu-v1/hot-coffee--espresso.webp": "a0dd681d1fc560b794d3e6d5d23bbfc25f0d4d18",
+        "src/products/menu-v1/hot-coffee--flat-white.webp": "9be0e89d67f40e8beed730be395b7c2ffa8fb740",
+        "src/products/menu-v1/hot-coffee--hazelnut-latte.webp": "d4e59a4de7ab99efd86a718b3c663218120dc4fa",
+        "src/products/menu-v1/hot-coffee--vanilla-latte.webp": "ee387a80ba93212ca6a41fcd05e94c496d6e09c3",
+        "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": "bd83e49882a9cc70d9ce3c31924cb88bddd19832",
+        "src/products/menu-v1/refreshers--berry-hibiscus.webp": "75b04752bf74e35307632f006258c5d66f2da3b0",
+        "src/products/menu-v1/refreshers--berry-lemonade.webp": "22d5405759d6d3b66e9cfacd7eeb64dc35199df7",
+        "src/products/menu-v1/refreshers--cool-lime.webp": "0795da16dd7c4f68062cbb4dbaeb44d650b38ae1",
+        "src/products/menu-v1/refreshers--mango-passionfruit.webp": "6324ee071cfed13d1d86d0f6f91cb45ea9e1127f",
+        "src/products/menu-v1/refreshers--pineapple-berry.webp": "b249eade545182451af0457d787e5a3f807e1ff2",
+        "src/products/menu-v1/refreshers--strawberry-lime.webp": "a025a3d86f19ec1135a9841ce1ccdbbf62ae11e7",
+        "src/products/menu-v1/refreshers--summer-pine.webp": "cf30ebadb6211e42612ac44f2d768933c5901ec0",
+        "src/products/menu-v1/refreshers--tropical-mango.webp": "c92608ab411c2df31ded50fcecb3b7a007b90c6a",
+        "src/products/menu-v1/refreshers--yuzu-popcorn.webp": "3553883a50116faee4358809a1e45190fd7be4f5",
+        "src/products/nutella-croissant.svg": "d09d5b534bfe5aa0893d1f884d1b8bd08127f85e",
+        "src/products/nutella-croissant.webp": "ceac59e7d00d2722b9d8f9dcefa88cb226e885fa",
+        "src/products/occasion-sets-v1/cycle.webp": "d6430795c88a3daf04f029dede751871c89cdd1e",
+        "src/products/occasion-sets-v1/family.webp": "a07d21f0751f2dba987472c3efb2827804f44b11",
+        "src/products/occasion-sets-v1/go.webp": "6e791cfab8b3cc522c7fa919f0acfd51aeef0020",
+        "src/products/occasion-sets-v1/hearty.webp": "f015cee8e98202600f6d1fa800df0f129fe936e0",
+        "src/products/occasion-sets-v1/local.webp": "136988f894f1ef09b371356fdc499f52878afe5e",
+        "src/products/occasion-sets-v1/morning.webp": "b064a1a652678ebb890dd4f23c534abfa5090351",
+        "src/products/occasion-sets-v1/provenance.json": "00e7b442395a59e73e7f2a6ceb4079cce8f0c772",
+        "src/products/occasion-sets-v1/rain.webp": "94178e25f3cfea18e578944571682c4cd847322f",
+        "src/products/occasion-sets-v1/refresh.webp": "5ce0905605bf5da1820245fca4c0266faec8e59c",
+        "src/products/occasion-sets-v1/student.webp": "fdabe464c09ba61f5cfddf7cc5fcb87d4cb8d60b",
+        "src/products/occasion-sets-v1/sweet.webp": "bf531cb0293f9a5e1d3e3dbbd223521410afe1e4",
+        "src/products/occasion-sets-v1/tea.webp": "2ad4a5ec76199f586be0362cc0dbfacd287ffe2e",
+        "src/products/occasion-sets-v1/together.webp": "57b8a9e8385d96d36b4d408e71856e1dd0973eb3",
+        "src/products/quick-choice-v1/coffee.webp": "bc7c1ee6fed29c2e3ca1fc8e57b515ba115b1955",
+        "src/products/quick-choice-v1/cold.webp": "9365ad8fe02309237a21375908f4f3aefe5f3d66",
+        "src/products/quick-choice-v1/tea.webp": "9dafec82ec3eab9a010715b035ab06f1e94eec96",
+        "src/products/raspberry-cheesecake.svg": "0a58bb037a186407acc46bba1d09adf87a796787",
+        "src/products/san-sebastian-premium.svg": "a5711e91ed000edb0f3a1ceb25192e6988f4f6cf",
+        "src/products/san-sebastian.webp": "cd13536a793388fa3e3fe9b39a097a0da456cadd",
+        "src/products/san-sebastian.webp.base64.txt": "3710094643ef0e6772523080ad74c844d652d054",
+        "src/products/sets-v1/cool-lime-macaron.webp": "dd7147898ce753bed4e477d3d25177594d8f3d82",
+        "src/products/sets-v1/filter-lotus.webp": "3eb32f0ecafa2d0f7c1869574b4d1ba6020f0d2f",
+        "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4": "826eff744ed2193dbd47d18efb7a327cdd4acb1b",
+        "src/products/sets-v1/iced-san-sebastian.webp": "5b97fce642c626311b77af03f1482e4dc9517bd5",
+        "src/products/sets-v1/latte-nutella.webp": "1949d0a0b927237e208f3ac5a971d23b8fb57e2e",
+        "src/products/sets-v1/relax-lotus.webp": "18a6bc096e572b54ac2dc803c329a413ea29b059",
+        "src/products/triple-cookie.svg": "455180a36f27fa45278c30d1f0ede00987df165e",
+        "src/robys-ambience-clean.mp4": "2a26e3e7b57c21fadbbe3e307c9c0b3bb1da076e",
+        "src/robys-gallery-croissant.svg": "c57da207d2757cb3a03c0577d2fdf3bfc7231157",
+        "src/robys-gallery-croissant.webp": "fe85bd1752abef9c3d0dfe5cf1f9681d07ac8d45",
+        "src/robys-gallery-latte-art.svg": "43332b7d29ddc882dd3b92243a21f102cbe20e23",
+        "src/robys-gallery-latte-art.webp": "d520880812a1a12a1a222794482c3aff7d7acbde",
+        "src/robys-gallery-signature.svg": "0ff8ddb6a2a57c5b4a01fa558a810bcca48a80f4",
+        "src/robys-gallery-signature.webp": "751307499047040a183fbe294c8f0a32f1bcbbbe",
+        "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
+        "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
+        "src/smart-choice/analytics-dedupe.ts": "89fb91cd480e460ab80fa16fce2fec9f8ff98e96",
+        "src/smart-choice/analytics-domain.ts": "ec363559b85037ae273544456d9600128cfe6622",
+        "src/smart-choice/analytics.ts": "3d745937fdd660dcb2b9b97c38107981b53a289f",
+        "src/smart-choice/cart-copy.ts": "76bbbe47151213b21d922a3e61f7255d09fe8add",
+        "src/smart-choice/cart-domain.ts": "e6b97adf4d0a702a2bbb5a6ea19ce9d6ea827f4a",
+        "src/smart-choice/cart.ts": "716e3d9ac83acfcab66f53a16c6847db050cbb73",
+        "src/smart-choice/catalog.ts": "af3ffe6c2fed98803c5e6b5b6f6ef2433dc55059",
+        "src/smart-choice/checkout-link.ts": "32a6ce04cc74d5fa49f600024706a06e61988f7a",
+        "src/smart-choice/decision-trace-domain.ts": "74bd8a96a581ded34fdcc514a3336e7588e4003f",
+        "src/smart-choice/decision-trace.ts": "be2b08745978851eed05399416e5641aa423ced4",
+        "src/smart-choice/engine.ts": "9ce837b417013289f7b47687fd85c1e21e6f32a6",
+        "src/smart-choice/experiment-domain.ts": "322164dd31c905921c2c1bc64c1558b23bdc21cc",
+        "src/smart-choice/experiments.ts": "828067229d017e17b03603336e124ee400cd359f",
+        "src/smart-choice/helpful-options.ts": "94313fa898cabb8c32553e0e234e1e5c4e16b09c",
+        "src/smart-choice/page.ts": "cb7b7cb9def6a343607f72bf1d490750a554502f",
+        "src/smart-choice/quick-builder-domain.ts": "263f13793d2b187e147f4894993346be60d7f6af",
+        "src/smart-choice/quick-builder.ts": "e32c23dcb52b675f09f7ca6ed7faf02a29fb35ca",
+        "src/smart-choice/release-qa-domain.ts": "3028075ceac789007b88d673b0e38cb6020930a1",
+        "src/smart-choice/release-qa.ts": "cb5ad7f4d3625e3e6b8f16980e24cbafc2486ee8",
+        "src/smart-choice/revenue-simulator-domain.ts": "760df0bdf5c011290ab6cd721e203210b3cc1a6c",
+        "src/smart-choice/revenue-simulator.ts": "188aa4a55777c003a8499e9d8e35276ea6484ea9",
+        "src/smart-choice/shared-order.ts": "183c5d70073b64b09f9527f3f43e314d8fb255c2",
+        "src/social-offer.ts": "953c527684d66acd69229acfbcc3273ddbd325d6",
+        "styles-v2.css": "f74df9b9b83ae9edf882f945e66a4072f350c1d1",
+        "sw-core-v64.js": "ac57a92730a7e7f64869fec0f8a9aa7747bfc0b6",
+        "sw.js": "eb44e5325f793744d8a77bdefd797a0c2504030c",
+        "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
+        "tsconfig.json": "c9658e19f3fcf59c267f0a537dc6c9f11ccec2c6",
+        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8147 vs 320x8684"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11761 vs 320x11935"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x3045 vs 320x3607"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "totalPixels": 93760,
+          "maxDiffPixelRatio": 0.024754692832764505
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x264 vs 360x265"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 167040,
+          "maxDiffPixelRatio": 0.005238266283524904
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8644 vs 390x9135"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x11451 vs 390x11625"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x3021 vs 390x3537"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x950 vs 390x949"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "totalPixels": 530400,
+          "maxDiffPixelRatio": 0.008940422322775265
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x245 vs 390x246"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "totalPixels": 176750,
+          "maxDiffPixelRatio": 0.014161244695898162
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7161 vs 768x7637"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x12998 vs 768x13107"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x2995 vs 768x3503"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x219 vs 768x218"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1366x214 vs 1366x215"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x6901 vs 1440x7241"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7517 vs 1440x7561"
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x2875 vs 1440x3247"
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "file": "landing-full__phone-320.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/landing-full__phone-320.png",
+                "sha256": "1fd7bfd483e22ee0656533684ca43d4c7a08577943db8977db46ceed80e3d46f",
+                "dimensions": [
+                  320,
+                  8147
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/landing-full__phone-320.png",
+                "sha256": "e6ac0777b41f4724fc66d4cb8b3fe275d9baa36501602fbe4cee78406737b45c",
+                "dimensions": [
+                  320,
+                  8684
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/landing-full__phone-320.png",
+                "sha256": "3be2d83059baa523747f3dc8a7c1ffb251ac61213b9c46cb5e26d2a224d76298",
+                "dimensions": [
+                  320,
+                  8147
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/landing-full__phone-320.png",
+                "sha256": "6519a774409334bbb890a34242a6540b1302c2359a83ded1d8fa53359c07cb03",
+                "dimensions": [
+                  320,
+                  8684
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/landing-full__phone-320.png",
+                "sha256": "3be2d83059baa523747f3dc8a7c1ffb251ac61213b9c46cb5e26d2a224d76298",
+                "dimensions": [
+                  320,
+                  8147
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/landing-full__phone-320.png",
+                "sha256": "6519a774409334bbb890a34242a6540b1302c2359a83ded1d8fa53359c07cb03",
+                "dimensions": [
+                  320,
+                  8684
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "file": "menu-full__phone-320.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-full__phone-320.png",
+                "sha256": "1a2156bd7b8d32a2ae23aaaf3b290e0f87d17cf3863f40092d9a105fe2d71ea9",
+                "dimensions": [
+                  320,
+                  11761
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-full__phone-320.png",
+                "sha256": "4dc960eae28937c48438e9ae3b52f0f0bd9c50c4caa2d6b9bdd59e89abe2e6cd",
+                "dimensions": [
+                  320,
+                  11935
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-full__phone-320.png",
+                "sha256": "1a2156bd7b8d32a2ae23aaaf3b290e0f87d17cf3863f40092d9a105fe2d71ea9",
+                "dimensions": [
+                  320,
+                  11761
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-full__phone-320.png",
+                "sha256": "4dc960eae28937c48438e9ae3b52f0f0bd9c50c4caa2d6b9bdd59e89abe2e6cd",
+                "dimensions": [
+                  320,
+                  11935
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-full__phone-320.png",
+                "sha256": "1a2156bd7b8d32a2ae23aaaf3b290e0f87d17cf3863f40092d9a105fe2d71ea9",
+                "dimensions": [
+                  320,
+                  11761
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-full__phone-320.png",
+                "sha256": "af24b22f1ce6a609a55869ce04a1f44bb146bc44b7549113b099b3fa2f2e88e2",
+                "dimensions": [
+                  320,
+                  11935
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-320",
+          "file": "discover-full__phone-320.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/discover-full__phone-320.png",
+                "sha256": "b2be541e1d794d31a66757321d24e31e297a9c5799c12c085126fdac15de897f",
+                "dimensions": [
+                  320,
+                  3045
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/discover-full__phone-320.png",
+                "sha256": "dd1aee3b10491d6a6da15618a5b8a0e045d6178d632d162409394abd6a78ccad",
+                "dimensions": [
+                  320,
+                  3607
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/discover-full__phone-320.png",
+                "sha256": "c58ebb3c4339eecd09fb7342b752b9ab1d420f37a6a369a8c0df11a10b863281",
+                "dimensions": [
+                  320,
+                  3045
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/discover-full__phone-320.png",
+                "sha256": "dd1aee3b10491d6a6da15618a5b8a0e045d6178d632d162409394abd6a78ccad",
+                "dimensions": [
+                  320,
+                  3607
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/discover-full__phone-320.png",
+                "sha256": "8299d90c6d25374545547e9b77c1878f7aa0da77f8563fe9935bc2af667f0423",
+                "dimensions": [
+                  320,
+                  3045
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/discover-full__phone-320.png",
+                "sha256": "a336eeea2a418dd5a51ea20f712bd2cf3088d752b26b7f5e908ad173da8f1305",
+                "dimensions": [
+                  320,
+                  3607
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "file": "social-offer__phone-320.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/social-offer__phone-320.png",
+                "sha256": "0980c9a315ef81d4049ddf78a88b50a2c9aee415f04c119a5e9a82c6d7de2d7b",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/social-offer__phone-320.png",
+                "sha256": "bd564077eba6f5b80b51017b8165381d2baf7a2706903dbdd736f4555306557f",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-1/diff/social-offer__phone-320.png",
+                "sha256": "c04ce378df8b94ea837ed632fc904ade58d5cebc71bf306a1179fbdddf5d49ac",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/social-offer__phone-320.png",
+                "sha256": "0980c9a315ef81d4049ddf78a88b50a2c9aee415f04c119a5e9a82c6d7de2d7b",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/social-offer__phone-320.png",
+                "sha256": "bd564077eba6f5b80b51017b8165381d2baf7a2706903dbdd736f4555306557f",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-2/diff/social-offer__phone-320.png",
+                "sha256": "c04ce378df8b94ea837ed632fc904ade58d5cebc71bf306a1179fbdddf5d49ac",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/social-offer__phone-320.png",
+                "sha256": "0980c9a315ef81d4049ddf78a88b50a2c9aee415f04c119a5e9a82c6d7de2d7b",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/social-offer__phone-320.png",
+                "sha256": "bd564077eba6f5b80b51017b8165381d2baf7a2706903dbdd736f4555306557f",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-4-final-bundles/diff/social-offer__phone-320.png",
+                "sha256": "c04ce378df8b94ea837ed632fc904ade58d5cebc71bf306a1179fbdddf5d49ac",
+                "dimensions": [
+                  320,
+                  293
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "file": "social-offer__phone-360-short.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/social-offer__phone-360-short.png",
+                "sha256": "21758b71f9bdbc4d32565ca9d9ac25f14f45dbaa9dc0db3563717e78445be425",
+                "dimensions": [
+                  360,
+                  264
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/social-offer__phone-360-short.png",
+                "sha256": "e64f46c94f7454572f1fc15f808e32f9cec0ff9276be0cbc743b98acb54a4f8e",
+                "dimensions": [
+                  360,
+                  265
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/social-offer__phone-360-short.png",
+                "sha256": "21758b71f9bdbc4d32565ca9d9ac25f14f45dbaa9dc0db3563717e78445be425",
+                "dimensions": [
+                  360,
+                  264
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/social-offer__phone-360-short.png",
+                "sha256": "e64f46c94f7454572f1fc15f808e32f9cec0ff9276be0cbc743b98acb54a4f8e",
+                "dimensions": [
+                  360,
+                  265
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/social-offer__phone-360-short.png",
+                "sha256": "21758b71f9bdbc4d32565ca9d9ac25f14f45dbaa9dc0db3563717e78445be425",
+                "dimensions": [
+                  360,
+                  264
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/social-offer__phone-360-short.png",
+                "sha256": "e64f46c94f7454572f1fc15f808e32f9cec0ff9276be0cbc743b98acb54a4f8e",
+                "dimensions": [
+                  360,
+                  265
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "file": "menu-share__phone-360-short.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-share__phone-360-short.png",
+                "sha256": "6afd7a39776704044eeb63b2888cdf28ecfb1602201970f62f205efc835ef733",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-share__phone-360-short.png",
+                "sha256": "c54bd8e1d6e47553674007e66144411c81d3da252b3dc824ad9d47ff0e58cd26",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-1/diff/menu-share__phone-360-short.png",
+                "sha256": "b0b084913e2095bfbdaa60be188bc377d9f8fdaeaf1c379028ebf3d03e8c588d",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-share__phone-360-short.png",
+                "sha256": "6afd7a39776704044eeb63b2888cdf28ecfb1602201970f62f205efc835ef733",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-share__phone-360-short.png",
+                "sha256": "c54bd8e1d6e47553674007e66144411c81d3da252b3dc824ad9d47ff0e58cd26",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-2/diff/menu-share__phone-360-short.png",
+                "sha256": "b0b084913e2095bfbdaa60be188bc377d9f8fdaeaf1c379028ebf3d03e8c588d",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-share__phone-360-short.png",
+                "sha256": "6afd7a39776704044eeb63b2888cdf28ecfb1602201970f62f205efc835ef733",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-share__phone-360-short.png",
+                "sha256": "c54bd8e1d6e47553674007e66144411c81d3da252b3dc824ad9d47ff0e58cd26",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-4-final-bundles/diff/menu-share__phone-360-short.png",
+                "sha256": "b0b084913e2095bfbdaa60be188bc377d9f8fdaeaf1c379028ebf3d03e8c588d",
+                "dimensions": [
+                  320,
+                  522
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "file": "landing-full__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/landing-full__phone-390.png",
+                "sha256": "592d23c429a4567883809cde0724dda79817cd9a8b0a4930b9585a1f8a54f06f",
+                "dimensions": [
+                  390,
+                  8644
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/landing-full__phone-390.png",
+                "sha256": "1de73a6f51edc20f414116e2fb2c5fff71deb90dbaf7851f935365b4d4df67fd",
+                "dimensions": [
+                  390,
+                  9135
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/landing-full__phone-390.png",
+                "sha256": "05bf27df24f1929f47d923588771e078740ff3935d7ef7b3b99a4ef83ca6f489",
+                "dimensions": [
+                  390,
+                  8644
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/landing-full__phone-390.png",
+                "sha256": "1de73a6f51edc20f414116e2fb2c5fff71deb90dbaf7851f935365b4d4df67fd",
+                "dimensions": [
+                  390,
+                  9135
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/landing-full__phone-390.png",
+                "sha256": "592d23c429a4567883809cde0724dda79817cd9a8b0a4930b9585a1f8a54f06f",
+                "dimensions": [
+                  390,
+                  8644
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/landing-full__phone-390.png",
+                "sha256": "1de73a6f51edc20f414116e2fb2c5fff71deb90dbaf7851f935365b4d4df67fd",
+                "dimensions": [
+                  390,
+                  9135
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "file": "menu-full__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-full__phone-390.png",
+                "sha256": "c7827ea312bbf02e89bfb45c3f8f0eb18a6bb4528c82f627879344acd9f695bd",
+                "dimensions": [
+                  390,
+                  11451
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-full__phone-390.png",
+                "sha256": "2d094b9bfe447d5d9a83674334a8389dd3cf983ceab0bdc1507f2a68fcb9dae5",
+                "dimensions": [
+                  390,
+                  11625
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-full__phone-390.png",
+                "sha256": "c7827ea312bbf02e89bfb45c3f8f0eb18a6bb4528c82f627879344acd9f695bd",
+                "dimensions": [
+                  390,
+                  11451
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-full__phone-390.png",
+                "sha256": "2d094b9bfe447d5d9a83674334a8389dd3cf983ceab0bdc1507f2a68fcb9dae5",
+                "dimensions": [
+                  390,
+                  11625
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-full__phone-390.png",
+                "sha256": "c7827ea312bbf02e89bfb45c3f8f0eb18a6bb4528c82f627879344acd9f695bd",
+                "dimensions": [
+                  390,
+                  11451
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-full__phone-390.png",
+                "sha256": "2d094b9bfe447d5d9a83674334a8389dd3cf983ceab0bdc1507f2a68fcb9dae5",
+                "dimensions": [
+                  390,
+                  11625
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "phone-390",
+          "file": "discover-full__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/discover-full__phone-390.png",
+                "sha256": "3007da8ed3bd20a36379d6fbb04bd50c84a39749bd92aa7b183b001e0b5f9bf9",
+                "dimensions": [
+                  390,
+                  3021
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/discover-full__phone-390.png",
+                "sha256": "e3e402b6892cb89604269a3c8468d509102a122520d8082e444cf8645dc1afee",
+                "dimensions": [
+                  390,
+                  3537
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/discover-full__phone-390.png",
+                "sha256": "3007da8ed3bd20a36379d6fbb04bd50c84a39749bd92aa7b183b001e0b5f9bf9",
+                "dimensions": [
+                  390,
+                  3021
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/discover-full__phone-390.png",
+                "sha256": "e3e402b6892cb89604269a3c8468d509102a122520d8082e444cf8645dc1afee",
+                "dimensions": [
+                  390,
+                  3537
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/discover-full__phone-390.png",
+                "sha256": "3007da8ed3bd20a36379d6fbb04bd50c84a39749bd92aa7b183b001e0b5f9bf9",
+                "dimensions": [
+                  390,
+                  3021
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/discover-full__phone-390.png",
+                "sha256": "e3e402b6892cb89604269a3c8468d509102a122520d8082e444cf8645dc1afee",
+                "dimensions": [
+                  390,
+                  3537
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "phone-390",
+          "file": "menu-preview__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-preview__phone-390.png",
+                "sha256": "9a7a21ea490df9a1dc2b1f1a5bf0b49c61556bbd083deb17e380bb487fcbaccc",
+                "dimensions": [
+                  390,
+                  950
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-preview__phone-390.png",
+                "sha256": "64c7c597d4a5fd76d1bafe4d1295005e70cbb23bf1ce9f8d3bf025cbc476a03c",
+                "dimensions": [
+                  390,
+                  949
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-preview__phone-390.png",
+                "sha256": "a5c60a92d68996227ac976ee1ecdce81e0d6c64f182dad5842e3ac4af8d95875",
+                "dimensions": [
+                  390,
+                  950
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-preview__phone-390.png",
+                "sha256": "8367d34f0bb4cf8fa5b0d457c91bcd961c34831f0b48f1f425f90d5cafe5a3ea",
+                "dimensions": [
+                  390,
+                  949
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-preview__phone-390.png",
+                "sha256": "9a7a21ea490df9a1dc2b1f1a5bf0b49c61556bbd083deb17e380bb487fcbaccc",
+                "dimensions": [
+                  390,
+                  950
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-preview__phone-390.png",
+                "sha256": "8367d34f0bb4cf8fa5b0d457c91bcd961c34831f0b48f1f425f90d5cafe5a3ea",
+                "dimensions": [
+                  390,
+                  949
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "file": "visit-map__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/visit-map__phone-390.png",
+                "sha256": "7f796e3943da06c616cd15f51e5aa3f27881b463388e7099fc664a284a8aa818",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/visit-map__phone-390.png",
+                "sha256": "6beb24e75913f8897646c3849ff417e1947e9d8101cd674072d2ade4c3787ce2",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-1/diff/visit-map__phone-390.png",
+                "sha256": "4d7d0f367fd44b7698907678e7ccfd8575370e937ee612b5e10af51350551452",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/visit-map__phone-390.png",
+                "sha256": "7f796e3943da06c616cd15f51e5aa3f27881b463388e7099fc664a284a8aa818",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/visit-map__phone-390.png",
+                "sha256": "84637d4a54a8c11452550c927c9467ccadef2cc5c78f2f23d9f9f2ab31657441",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-2/diff/visit-map__phone-390.png",
+                "sha256": "4d7d0f367fd44b7698907678e7ccfd8575370e937ee612b5e10af51350551452",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/visit-map__phone-390.png",
+                "sha256": "7f796e3943da06c616cd15f51e5aa3f27881b463388e7099fc664a284a8aa818",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/visit-map__phone-390.png",
+                "sha256": "6beb24e75913f8897646c3849ff417e1947e9d8101cd674072d2ade4c3787ce2",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-4-final-bundles/diff/visit-map__phone-390.png",
+                "sha256": "4d7d0f367fd44b7698907678e7ccfd8575370e937ee612b5e10af51350551452",
+                "dimensions": [
+                  390,
+                  1360
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "file": "social-offer__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/social-offer__phone-390.png",
+                "sha256": "c181512959ee94e7e8e98626d4376a3d0c2bf59a35fe0d99f4071f9e50ca8527",
+                "dimensions": [
+                  390,
+                  245
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/social-offer__phone-390.png",
+                "sha256": "054e0e309b206165c721be2692fe58529e671c5ac47dd908c298d8e587a41316",
+                "dimensions": [
+                  390,
+                  246
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/social-offer__phone-390.png",
+                "sha256": "c181512959ee94e7e8e98626d4376a3d0c2bf59a35fe0d99f4071f9e50ca8527",
+                "dimensions": [
+                  390,
+                  245
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/social-offer__phone-390.png",
+                "sha256": "054e0e309b206165c721be2692fe58529e671c5ac47dd908c298d8e587a41316",
+                "dimensions": [
+                  390,
+                  246
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/social-offer__phone-390.png",
+                "sha256": "c181512959ee94e7e8e98626d4376a3d0c2bf59a35fe0d99f4071f9e50ca8527",
+                "dimensions": [
+                  390,
+                  245
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/social-offer__phone-390.png",
+                "sha256": "054e0e309b206165c721be2692fe58529e671c5ac47dd908c298d8e587a41316",
+                "dimensions": [
+                  390,
+                  246
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-390",
+          "file": "menu-share__phone-390.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-share__phone-390.png",
+                "sha256": "30a0bd97eca560b310edda82aace860729d64a8bd9b607d03e58d1236af8c1df",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-share__phone-390.png",
+                "sha256": "bc0cd8a31ea9cbb4b1003f155c4878e57baa6397abf7935408f5fa56db270437",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-1/diff/menu-share__phone-390.png",
+                "sha256": "a79cf7dc26fb496e60dd863b7c590ac0c6abbfbff0167e2928c090aeb59df946",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-share__phone-390.png",
+                "sha256": "30a0bd97eca560b310edda82aace860729d64a8bd9b607d03e58d1236af8c1df",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-share__phone-390.png",
+                "sha256": "bc0cd8a31ea9cbb4b1003f155c4878e57baa6397abf7935408f5fa56db270437",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-2/diff/menu-share__phone-390.png",
+                "sha256": "a79cf7dc26fb496e60dd863b7c590ac0c6abbfbff0167e2928c090aeb59df946",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-share__phone-390.png",
+                "sha256": "30a0bd97eca560b310edda82aace860729d64a8bd9b607d03e58d1236af8c1df",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-share__phone-390.png",
+                "sha256": "bc0cd8a31ea9cbb4b1003f155c4878e57baa6397abf7935408f5fa56db270437",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              },
+              "diff": {
+                "artifactPath": "attempt-4-final-bundles/diff/menu-share__phone-390.png",
+                "sha256": "a79cf7dc26fb496e60dd863b7c590ac0c6abbfbff0167e2928c090aeb59df946",
+                "dimensions": [
+                  350,
+                  505
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "file": "landing-full__tablet-768.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/landing-full__tablet-768.png",
+                "sha256": "2a5682f3f859db699df83546148eef7fb67391151d0d3bb9a23387d54a8e767c",
+                "dimensions": [
+                  768,
+                  7161
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/landing-full__tablet-768.png",
+                "sha256": "5287ca0598ab30402fc5bb48f6cf182b6e16cbd36f0830ce2e040c7afaf8e2ae",
+                "dimensions": [
+                  768,
+                  7637
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/landing-full__tablet-768.png",
+                "sha256": "2a5682f3f859db699df83546148eef7fb67391151d0d3bb9a23387d54a8e767c",
+                "dimensions": [
+                  768,
+                  7161
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/landing-full__tablet-768.png",
+                "sha256": "5287ca0598ab30402fc5bb48f6cf182b6e16cbd36f0830ce2e040c7afaf8e2ae",
+                "dimensions": [
+                  768,
+                  7637
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/landing-full__tablet-768.png",
+                "sha256": "2a5682f3f859db699df83546148eef7fb67391151d0d3bb9a23387d54a8e767c",
+                "dimensions": [
+                  768,
+                  7161
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/landing-full__tablet-768.png",
+                "sha256": "5287ca0598ab30402fc5bb48f6cf182b6e16cbd36f0830ce2e040c7afaf8e2ae",
+                "dimensions": [
+                  768,
+                  7637
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "file": "menu-full__tablet-768.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-full__tablet-768.png",
+                "sha256": "a4a492b79482a6e2e1c9f809207be7103486556610fb795a3332121772a97901",
+                "dimensions": [
+                  768,
+                  12998
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-full__tablet-768.png",
+                "sha256": "b2ba46630a6275b08ec6bbbc214da236f106244e8353734e60a32327d32501d4",
+                "dimensions": [
+                  768,
+                  13107
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-full__tablet-768.png",
+                "sha256": "a4a492b79482a6e2e1c9f809207be7103486556610fb795a3332121772a97901",
+                "dimensions": [
+                  768,
+                  12998
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-full__tablet-768.png",
+                "sha256": "b2ba46630a6275b08ec6bbbc214da236f106244e8353734e60a32327d32501d4",
+                "dimensions": [
+                  768,
+                  13107
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-full__tablet-768.png",
+                "sha256": "a4a492b79482a6e2e1c9f809207be7103486556610fb795a3332121772a97901",
+                "dimensions": [
+                  768,
+                  12998
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-full__tablet-768.png",
+                "sha256": "b2ba46630a6275b08ec6bbbc214da236f106244e8353734e60a32327d32501d4",
+                "dimensions": [
+                  768,
+                  13107
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "tablet-768",
+          "file": "discover-full__tablet-768.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/discover-full__tablet-768.png",
+                "sha256": "8a6b13dd2a4de7b7d64bd43412d39a0033db73726c07125d733a904d7b60f161",
+                "dimensions": [
+                  768,
+                  2995
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/discover-full__tablet-768.png",
+                "sha256": "bd85824be015a3fab3815d0e58c3c03d7567b4ed52a9b0ca8946998d7f376e9c",
+                "dimensions": [
+                  768,
+                  3503
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/discover-full__tablet-768.png",
+                "sha256": "8a6b13dd2a4de7b7d64bd43412d39a0033db73726c07125d733a904d7b60f161",
+                "dimensions": [
+                  768,
+                  2995
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/discover-full__tablet-768.png",
+                "sha256": "bd85824be015a3fab3815d0e58c3c03d7567b4ed52a9b0ca8946998d7f376e9c",
+                "dimensions": [
+                  768,
+                  3503
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/discover-full__tablet-768.png",
+                "sha256": "8a6b13dd2a4de7b7d64bd43412d39a0033db73726c07125d733a904d7b60f161",
+                "dimensions": [
+                  768,
+                  2995
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/discover-full__tablet-768.png",
+                "sha256": "bd85824be015a3fab3815d0e58c3c03d7567b4ed52a9b0ca8946998d7f376e9c",
+                "dimensions": [
+                  768,
+                  3503
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "file": "social-offer__tablet-768.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/social-offer__tablet-768.png",
+                "sha256": "262513a125d8240362b7d7ffabb28f8eb2745172296371f66c428706898be373",
+                "dimensions": [
+                  768,
+                  219
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/social-offer__tablet-768.png",
+                "sha256": "6982cb33abf3b696e2e8450431d555e57657930df55b67508f38132c9ecffd31",
+                "dimensions": [
+                  768,
+                  218
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/social-offer__tablet-768.png",
+                "sha256": "262513a125d8240362b7d7ffabb28f8eb2745172296371f66c428706898be373",
+                "dimensions": [
+                  768,
+                  219
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/social-offer__tablet-768.png",
+                "sha256": "6982cb33abf3b696e2e8450431d555e57657930df55b67508f38132c9ecffd31",
+                "dimensions": [
+                  768,
+                  218
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/social-offer__tablet-768.png",
+                "sha256": "262513a125d8240362b7d7ffabb28f8eb2745172296371f66c428706898be373",
+                "dimensions": [
+                  768,
+                  219
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/social-offer__tablet-768.png",
+                "sha256": "6982cb33abf3b696e2e8450431d555e57657930df55b67508f38132c9ecffd31",
+                "dimensions": [
+                  768,
+                  218
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "laptop-1366",
+          "file": "social-offer__laptop-1366.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/social-offer__laptop-1366.png",
+                "sha256": "fb06e6dfd200e8c6c2c349cf03d9bbb12be9de33f35f46400a885a7093de1739",
+                "dimensions": [
+                  1366,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/social-offer__laptop-1366.png",
+                "sha256": "67f68a256b30530911301bcd6e21599cf0abc52561300d8a92ca1b711bc20c32",
+                "dimensions": [
+                  1366,
+                  215
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/social-offer__laptop-1366.png",
+                "sha256": "fb06e6dfd200e8c6c2c349cf03d9bbb12be9de33f35f46400a885a7093de1739",
+                "dimensions": [
+                  1366,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/social-offer__laptop-1366.png",
+                "sha256": "67f68a256b30530911301bcd6e21599cf0abc52561300d8a92ca1b711bc20c32",
+                "dimensions": [
+                  1366,
+                  215
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/social-offer__laptop-1366.png",
+                "sha256": "fb06e6dfd200e8c6c2c349cf03d9bbb12be9de33f35f46400a885a7093de1739",
+                "dimensions": [
+                  1366,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/social-offer__laptop-1366.png",
+                "sha256": "67f68a256b30530911301bcd6e21599cf0abc52561300d8a92ca1b711bc20c32",
+                "dimensions": [
+                  1366,
+                  215
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "file": "landing-full__desktop-1440.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/landing-full__desktop-1440.png",
+                "sha256": "647ee9f09d7494359b30d235f857f673ef37c9eccefc3f161096d0d25abe68e1",
+                "dimensions": [
+                  1440,
+                  6901
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/landing-full__desktop-1440.png",
+                "sha256": "d9bcd7b7b626e0e5120e33f60bc19ddbb215180d5a17b07b93cc54da4022a353",
+                "dimensions": [
+                  1440,
+                  7241
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/landing-full__desktop-1440.png",
+                "sha256": "647ee9f09d7494359b30d235f857f673ef37c9eccefc3f161096d0d25abe68e1",
+                "dimensions": [
+                  1440,
+                  6901
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/landing-full__desktop-1440.png",
+                "sha256": "d9bcd7b7b626e0e5120e33f60bc19ddbb215180d5a17b07b93cc54da4022a353",
+                "dimensions": [
+                  1440,
+                  7241
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/landing-full__desktop-1440.png",
+                "sha256": "647ee9f09d7494359b30d235f857f673ef37c9eccefc3f161096d0d25abe68e1",
+                "dimensions": [
+                  1440,
+                  6901
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/landing-full__desktop-1440.png",
+                "sha256": "d9bcd7b7b626e0e5120e33f60bc19ddbb215180d5a17b07b93cc54da4022a353",
+                "dimensions": [
+                  1440,
+                  7241
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "file": "menu-full__desktop-1440.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/menu-full__desktop-1440.png",
+                "sha256": "2e15085909ee30328936a078efa1a05d4d16d360dadf2a0f86f50c80253604b3",
+                "dimensions": [
+                  1440,
+                  7517
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/menu-full__desktop-1440.png",
+                "sha256": "11afaaf6ac17b9ef04bb4ab662524b52e2b3efabf425f7a103e40f880e988f0b",
+                "dimensions": [
+                  1440,
+                  7561
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/menu-full__desktop-1440.png",
+                "sha256": "2e15085909ee30328936a078efa1a05d4d16d360dadf2a0f86f50c80253604b3",
+                "dimensions": [
+                  1440,
+                  7517
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/menu-full__desktop-1440.png",
+                "sha256": "11afaaf6ac17b9ef04bb4ab662524b52e2b3efabf425f7a103e40f880e988f0b",
+                "dimensions": [
+                  1440,
+                  7561
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/menu-full__desktop-1440.png",
+                "sha256": "2e15085909ee30328936a078efa1a05d4d16d360dadf2a0f86f50c80253604b3",
+                "dimensions": [
+                  1440,
+                  7517
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/menu-full__desktop-1440.png",
+                "sha256": "11afaaf6ac17b9ef04bb4ab662524b52e2b3efabf425f7a103e40f880e988f0b",
+                "dimensions": [
+                  1440,
+                  7561
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "discover-full",
+          "viewport": "desktop-1440",
+          "file": "discover-full__desktop-1440.png",
+          "rawAttempts": {
+            "attempt-1": {
+              "baseline": {
+                "artifactPath": "attempt-1/baseline/discover-full__desktop-1440.png",
+                "sha256": "1c4103e80762e507a823697b41ee2744012f581009df1261d907bad765129295",
+                "dimensions": [
+                  1440,
+                  2875
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-1/current/discover-full__desktop-1440.png",
+                "sha256": "78ad23ac5b8b8e3d2b01cc9da223f1b03c249e78205f652f27a646d15880c7e5",
+                "dimensions": [
+                  1440,
+                  3247
+                ]
+              }
+            },
+            "attempt-2": {
+              "baseline": {
+                "artifactPath": "attempt-2/baseline/discover-full__desktop-1440.png",
+                "sha256": "1c4103e80762e507a823697b41ee2744012f581009df1261d907bad765129295",
+                "dimensions": [
+                  1440,
+                  2875
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-2/current/discover-full__desktop-1440.png",
+                "sha256": "78ad23ac5b8b8e3d2b01cc9da223f1b03c249e78205f652f27a646d15880c7e5",
+                "dimensions": [
+                  1440,
+                  3247
+                ]
+              }
+            },
+            "attempt-4-final-bundles": {
+              "baseline": {
+                "artifactPath": "attempt-4-final-bundles/baseline/discover-full__desktop-1440.png",
+                "sha256": "1c4103e80762e507a823697b41ee2744012f581009df1261d907bad765129295",
+                "dimensions": [
+                  1440,
+                  2875
+                ]
+              },
+              "current": {
+                "artifactPath": "attempt-4-final-bundles/current/discover-full__desktop-1440.png",
+                "sha256": "78ad23ac5b8b8e3d2b01cc9da223f1b03c249e78205f652f27a646d15880c7e5",
+                "dimensions": [
+                  1440,
+                  3247
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "repeatEvidence": {
+        "attemptSummariesSha256": {
+          "attempt-1": "522a6057c58e6665491f9d0c743970de046232bf6f9024e446e34654ec76466c",
+          "attempt-2": "f3bba28a695002df2692dbadd0f24e591c5c849327e9b00bf42c3b190ea4636f",
+          "attempt-4-final-bundles": "5b6257277b11b2bbf5f71391daefb9da8e95ad9d03cc2a5f1cebb1dfe2f28b22"
+        },
+        "comparisonsPerAttempt": 43,
+        "failuresPerAttempt": 21,
+        "passesPerAttempt": 22,
+        "identicalFailureSet": true,
+        "identicalComparisonMetrics": false,
+        "rawPngPairs": 90,
+        "byteIdenticalPngPairs": 82,
+        "varyingRawPairs": [
+          {
+            "kind": "baseline",
+            "file": "discover-full__phone-320.png"
+          },
+          {
+            "kind": "baseline",
+            "file": "discover-pairing__phone-320.png"
+          },
+          {
+            "kind": "baseline",
+            "file": "landing-full__phone-320.png"
+          },
+          {
+            "kind": "baseline",
+            "file": "landing-full__phone-390.png"
+          },
+          {
+            "kind": "baseline",
+            "file": "menu-preview__phone-390.png"
+          },
+          {
+            "kind": "current",
+            "file": "landing-full__phone-320.png"
+          },
+          {
+            "kind": "current",
+            "file": "menu-preview__phone-390.png"
+          },
+          {
+            "kind": "current",
+            "file": "visit-map__phone-390.png"
+          }
+        ],
+        "filesUnchangedAtReview": true,
+        "rawVariationReview": "For the two earlier reviewed attempts, all43 comparison metrics and dimensions are identical despite eight nonidentical raw PNG pairs. Every changed region of those eight pairs was inspected: small language/control glyphs, gallery SET-arrow glyphs, map badge glyph and fixed mobile dock paint retain their content. The final rerun has the same21 failing metrics/dimensions; only one already-passing hero360 metric improves from105 pixels to0. Final differing PNG regions were separately inspected as recorded in finalRepeatRawComparison.",
+        "rawVariationRegions": [
+          {
+            "kind": "baseline",
+            "file": "discover-full__phone-320.png",
+            "bbox": [
+              220,
+              60,
+              285,
+              104
+            ],
+            "width": 320,
+            "height": 3045,
+            "first": "attempt-1/baseline/discover-full__phone-320.png",
+            "second": "attempt-2/baseline/discover-full__phone-320.png",
+            "rowGroups": [
+              [
+                60,
+                62
+              ],
+              [
+                101,
+                103
+              ]
+            ]
+          },
+          {
+            "kind": "baseline",
+            "file": "discover-pairing__phone-320.png",
+            "bbox": [
+              200,
+              35,
+              265,
+              38
+            ],
+            "width": 280,
+            "height": 780,
+            "first": "attempt-1/baseline/discover-pairing__phone-320.png",
+            "second": "attempt-2/baseline/discover-pairing__phone-320.png",
+            "rowGroups": [
+              [
+                35,
+                37
+              ]
+            ]
+          },
+          {
+            "kind": "baseline",
+            "file": "landing-full__phone-320.png",
+            "bbox": [
+              146,
+              40,
+              273,
+              2969
+            ],
+            "width": 320,
+            "height": 8147,
+            "first": "attempt-1/baseline/landing-full__phone-320.png",
+            "second": "attempt-2/baseline/landing-full__phone-320.png",
+            "rowGroups": [
+              [
+                40,
+                47
+              ],
+              [
+                2958,
+                2968
+              ]
+            ]
+          },
+          {
+            "kind": "baseline",
+            "file": "landing-full__phone-390.png",
+            "bbox": [
+              58,
+              40,
+              343,
+              7765
+            ],
+            "width": 390,
+            "height": 8644,
+            "first": "attempt-1/baseline/landing-full__phone-390.png",
+            "second": "attempt-2/baseline/landing-full__phone-390.png",
+            "rowGroups": [
+              [
+                40,
+                47
+              ],
+              [
+                3239,
+                3249
+              ],
+              [
+                7752,
+                7764
+              ]
+            ]
+          },
+          {
+            "kind": "baseline",
+            "file": "menu-preview__phone-390.png",
+            "bbox": [
+              10,
+              843,
+              374,
+              893
+            ],
+            "width": 390,
+            "height": 950,
+            "first": "attempt-1/baseline/menu-preview__phone-390.png",
+            "second": "attempt-2/baseline/menu-preview__phone-390.png",
+            "rowGroups": [
+              [
+                843,
+                892
+              ]
+            ]
+          },
+          {
+            "kind": "current",
+            "file": "landing-full__phone-320.png",
+            "bbox": [
+              146,
+              40,
+              251,
+              48
+            ],
+            "width": 320,
+            "height": 8684,
+            "first": "attempt-1/current/landing-full__phone-320.png",
+            "second": "attempt-2/current/landing-full__phone-320.png",
+            "rowGroups": [
+              [
+                40,
+                47
+              ]
+            ]
+          },
+          {
+            "kind": "current",
+            "file": "menu-preview__phone-390.png",
+            "bbox": [
+              10,
+              842,
+              374,
+              892
+            ],
+            "width": 390,
+            "height": 949,
+            "first": "attempt-1/current/menu-preview__phone-390.png",
+            "second": "attempt-2/current/menu-preview__phone-390.png",
+            "rowGroups": [
+              [
+                842,
+                891
+              ]
+            ]
+          },
+          {
+            "kind": "current",
+            "file": "visit-map__phone-390.png",
+            "bbox": [
+              199,
+              155,
+              210,
+              199
+            ],
+            "width": 390,
+            "height": 1360,
+            "first": "attempt-1/current/visit-map__phone-390.png",
+            "second": "attempt-2/current/visit-map__phone-390.png",
+            "rowGroups": [
+              [
+                155,
+                198
+              ]
+            ]
+          }
+        ],
+        "includedAttempts": [
+          "attempt-1",
+          "attempt-2",
+          "attempt-4-final-bundles"
+        ],
+        "identicalFailureMetrics": true,
+        "finalMetricDifferences": [
+          {
+            "earlier": {
+              "id": "hero",
+              "viewport": "phone-360-short",
+              "file": "hero__phone-360-short.png",
+              "passed": true,
+              "diffPixels": 105,
+              "totalPixels": 244440,
+              "diffPixelRatio": 0.000429553264604811,
+              "maxDiffPixelRatio": 0.003
+            },
+            "final": {
+              "id": "hero",
+              "viewport": "phone-360-short",
+              "file": "hero__phone-360-short.png",
+              "passed": true,
+              "diffPixels": 0,
+              "totalPixels": 244440,
+              "diffPixelRatio": 0,
+              "maxDiffPixelRatio": 0.003
+            }
+          }
+        ],
+        "earlierFrozenFileSha256": {
+          ".gitattributes": "e5a01de6e867e128651d703bc5eed42f25ad24c20e0f478a6e31e5824b5c2f1d",
+          ".github/workflows/visual-regression.yml": "cda54382b6ca466ce675e11e0fd6627f3d73448681a14ba94f1a3557bc949352",
+          "404.html": "f0280814f7aca95944d15d1c4649017cf84cb908585ee8e6323ab9292de2c8b9",
+          "analytics.js": "6089fae48e0ee8528209e8f8d4741cab034ef67182360843dbeb31981c34d9c3",
+          "app.js": "ad71d6b67116eaf889530974b3f27bf4247dc04a1c0069d427b0a9844d1448c8",
+          "bootstrap-v2.js": "845efb76f38432f10a37df56aaa7225dc0c0a09e3cc81de638ec6f7f30c4f51e",
+          "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+          "cashier.html": "0ab46a7f9af7dd5d9b3a427ff3078144e88a70edb375af21387c04bd386c2b03",
+          "cashier.js": "da2e9cde6859ac91c275f3ad3136a53b4ec0ae1edb9d4ef006b86f0396ccd37c",
+          "choice-help-entry.js": "a07dc0e704cbc7458e520a8645766fbc7a71a1637318c3983ccd1755ca72ebcb",
+          "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+          "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
+          "coffee-paths.css": "54035247389ec3692da6e863d63ef0b0ecfb365741e74fbe53c1698af35a966c",
+          "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+          "community-reel-v2.css": "fd0051060777f04e305e5becaa2aadcc1fbe6a598a942d6c57a33f1e48534d67",
+          "community-reel.css": "fd0051060777f04e305e5becaa2aadcc1fbe6a598a942d6c57a33f1e48534d67",
+          "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+          "conversion.js": "455b2f39607a4b566f28712bbef6ef4b896026953053176cd80b303347d016eb",
+          "data/featured-products.json": "f162fa46f2f578352b13611167117198841faf6457e16e0018beb56121969602",
+          "day-night-entry.js": "912a04638dad18b983530192a52a40b4ebef60b229639d0ff38b40a82acaf1b6",
+          "discover-copy.js": "748cea1d06ec5ee76ba7adbee576ef0d6e42809262b3ad952af252d8c1ea78f5",
+          "discover-deck.css": "14bb488e526af10c0439353c0753a6d7458d3f2bca6e5eb1650f4a406dd8b96a",
+          "discover-deck.js": "16c7c7dc859096ed09bf54bd586012c758ea193362625d4e1d65b1854e0f67ef",
+          "discover-journeys-v2.js": "eda91557419c7828a390c83e2121a7f621a0b89a1c300b35fc1933ea41de7de4",
+          "discover-journeys.js": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5",
+          "discover-rotation-v2.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-rotation-v3.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-rotation.css": "96b566c9731e8978a87ac65fe014826b9227a26d3bae23f17bdd0345d4032316",
+          "discover-rotation.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-v2.js": "7b9e7a630fd1c00f2696372ec05a23ba8df0f7d42c705b6970b50aa592a2f8fb",
+          "discover-weather-guard.js": "a09208a9fac5ec0faa75cad2539f8d0c79db5aa987dec9e609e4558f4009265e",
+          "discover.css": "27f4dfa8c27e1cec5a245c9b94a4b551967716dd972c5139a8b84e3b6a1fb0f2",
+          "discover.html": "d5cfa593b42e0b7ad2f2a5d118d71cd70c3c8601f067726a02c6e37732846815",
+          "discover.js": "0c92df7b0f5404b194a691de30794d1f8b79c0ac73be476ec04910ce205fded5",
+          "experience/brand-fidelity.css": "1124cdd229035d69838723c249f8422667774e3f1d3e5de5b208589f7aeec2b1",
+          "experience/cinematic-environments.css": "76e6ccf04650a086bdf97cb1372c820cc897023dd6607557c30a29b548caf6a5",
+          "experience/environments/energy.svg": "763f3ca80be7043f8cc24542d56758a521a810bfd394bfd3788ac76d287a6a53",
+          "experience/environments/finale.svg": "fb371d27c4283bc6c20276e7d78a4d057eff519340ef3efac22ba150b25b8a4a",
+          "experience/environments/moment.svg": "1ed58ad2b6faa0bcb5974274949e5e69dd1f4339c9587dac1a64ccd8f9b9c4b9",
+          "experience/environments/move.svg": "9815d8f61a63228c2418cb69e0a95e6b99c2b11ee5c30b6e9bea8ba99a3399a7",
+          "experience/environments/origin.svg": "72b518cd81cab3d38fff02fb2c9552d9a13a54af3444606f9901bcc08a442b21",
+          "experience/environments/pair.svg": "35401ccb58f0a3a516ca4e00eae44be205ae54fcdf6070b1fb09cbad36592baa",
+          "experience/experience-pwa.js": "d8be62f9f9c224b6924c29ba0785867c87d256008f48759dbb3601bc88e7d290",
+          "experience/experience-state.css": "ccb9ced40708e79ebb7ae9ae1eff88e581bb4d2f981c8c4f332842b686b19263",
+          "experience/experience.css": "ff925b1ea26253c89300ed006b90283fd8eb44c417c459ce50b334c07e9bc04c",
+          "experience/experience.js": "b818597a4d32476bf5165da92edb4d78a3edd605751464bc8e1e5698c037c979",
+          "experience/index.html": "fcdfab9c85844a3b84cf6559efd15c48acff2b35bc7bb68913e77e68e855f597",
+          "featured-gallery.css": "12ec7abefc736fff05d8515187c94732c0fb91f806ddf851f113246a05ee85c1",
+          "featured-gallery.js": "5a90456cb0d741f584e4b9db8a07a99d52c01cac2e6892e74f6bdbf77f260c0d",
+          "featured-strip.css": "7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf",
+          "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+          "final-qa.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+          "gallery-clean.css": "273585a89f27f1f06486e87bd3f86b7420dde9a11440531aa15123e4ac3ed8da",
+          "hero-balance.css": "a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba",
+          "icon.svg": "f06bf925852c14604e76ae0949e1b19af7594a9b0b5dd20bdcac659c9454e045",
+          "index.html": "c20c542f336bb96fdb223cbc089303bd4669d47a38b01294b330ec66b116daef",
+          "integrity-manifest.json": "0f583fcd18c15ba2f9d95350a7438879f44be4ca26c29e276850a82aea14805f",
+          "map-live.css": "52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157",
+          "menu-app.js": "1edcbbc8dd42ac0ed8c219282c27a09e81ec05b5e0979b8d616ac05d587562b0",
+          "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+          "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+          "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+          "menu-family-ui.js": "f6778abdbe89a95a47add76a387ded006bdc9a8e7501c5f323c949e14278b397",
+          "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+          "menu-interactions.js": "da67255ac42d80ae50f3746aed462158c76c0b88a998cf5591a6b3d31ad6ccc8",
+          "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+          "menu-pairing.js": "6b033c91bf9a38296894fffdfed1811b6716a120497f4ddbe66d78170a143198",
+          "menu-premium.css": "335c05ace22acaf4352158c3ae5222c2d2047b92ffbeef15c8f8652c4691905b",
+          "menu-preview.css": "3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545",
+          "menu-product-reveal-runtime.js": "fd2730c787d9ba8f4458cc8d6042d3a983c561fa1ed2701894db01729144d063",
+          "menu-product-reveal.css": "80aa0282d8513614f6cb54147cb319b6da56cd47f8e6de1d8cecb7503d9cf949",
+          "menu-product-reveal.js": "6ae2dd3ba2e7312d9169b6e1ae4f2d2ce1c233e7b861aabd1f4b9127a88b093e",
+          "menu-pwa.js": "633a4aec6167baff0e9e9b10803412f5205a3aa3f18fb913c2cde10591f7411c",
+          "menu-ready.js": "294908a0f2596ef861fac5f0da62fb8efe6cb3fa8030fea16e47fa009cbafe7b",
+          "menu-runtime.css": "ad3f190d6b6b56ddd2586790dfef77c94678a529ed332aae036d240b6f80d791",
+          "menu-search-clear.js": "f521a59859c6cd108f14a2427afd05d2a806b11aa8e8b925b5d0b53dfa264cd8",
+          "menu-security-v2.css": "c9ec36b38ff321621eb7b7995b01aec733e2ba55c03118d6565b47ab2b25ce1d",
+          "menu-stability-v2.css": "84e172cb281bc76d14cec3b163e6b911842f3e99519a3b46dadb123f96c9161a",
+          "menu-stability.css": "84e172cb281bc76d14cec3b163e6b911842f3e99519a3b46dadb123f96c9161a",
+          "menu.html": "156fae0dc4edf524a4d4e5098d1c11623f8771be5375aa926372ca022277f7e5",
+          "mobile.css": "6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52",
+          "morning-entry-v2.js": "8a158515f4de14a965f68d3a7d762df69fa7a81e7a7b23cdca615c12013210a9",
+          "offline.css": "6cc9953fd296558305d6187fb359ccc26057558c0e38164c7b302092ae123342",
+          "order-checkout.css": "9ead86a924fa619eee57f9be74276c1411e78c975c07b6821eb2d2ec70872542",
+          "order-checkout.js": "5f9a05cab98822a1e8ec5f60abd8cd5f67397ef14ca00f3659905ef0841c048a",
+          "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+          "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+          "package.json": "f403c5064d8704f92ce199e5b1993b791647d4e9a1047b6585394776365bca62",
+          "pairing-posters.css": "882faab929d12a13ca35cb417cf508da92dd80e68ee1d9d20d322e8399552734",
+          "pairing-posters.js": "024743e64919f882e4504e31990fdbc6eb6d206d941d848265ba506ad24b3a5f",
+          "pairing-preview.css": "1e697eaee2c438e4db396c0785ddf1ff8baf6305fbc66d7e80227d7589354b90",
+          "pwa-pairing-fix.js": "8526c985cbff347009a49af35c052c676556f5d5bac18ef27bd8d637571a11a5",
+          "pwa.js": "8526c985cbff347009a49af35c052c676556f5d5bac18ef27bd8d637571a11a5",
+          "qa.js": "c92a09cf9501cefb3a4ca449a1a853849da732e40d07bab35776651d8a787f48",
+          "qa/visual-regression.json": "9ef6c9397abec3ae019d6b35c3e5a4a29456c33c8cb62718312ec3cf9a6f01e9",
+          "refresh.html": "cf1236be987de85a1d2d4266197daced7aac156697daf440b2ecca44212d3c1a",
+          "robots.txt": "605a1b944b1c88224d570600eaa8c8762be12e35645c30ad4b6d9759d1cf1d6c",
+          "ru/coffee-gazipasa.html": "19c0711cdba3b8f6856d9f84c14c5252dc23d2ce864af98631fd749bd4467447",
+          "scripts/build.mjs": "9e9dbf9344c0955ca980cbf5f5bd86e15fd5ff0b4004824c48704c02ab5027b1",
+          "scripts/capture-document-region.mjs": "bcbca93c760b3eac46484234b080926dae2caaf46f58f0f5a1ab60ac6e9c1939",
+          "scripts/menu-runtime-source.mjs": "9ae6110fd517bcd73802daf8b6d3866a5624c567b9e13c125f3d3f49149947f4",
+          "scripts/menu-styles-bundle.mjs": "4fe045de4512fcb544b59b2fd71f149509b03c858889455cb2ed2ca8fffc26c3",
+          "scripts/smart-choice-catalog-external.mjs": "d705b684737eeaa639ea1a165d662c996a1a1e6305b11698a070d42d58c3d4b0",
+          "scripts/test-visual-toolchain.mjs": "6e4cc545c43197a56abde9ca9a2327dcf1748922a76f86e62d3f1ff9be76a470",
+          "scripts/verify-reviewed-visual-change.mjs": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+          "scripts/verify-visual-toolchain.mjs": "3b20b2c0c47d26f923507ae3d22960d9280e2a02e2f9863c7cf014ec05713ad5",
+          "scripts/visual-regression.mjs": "3d5b365ba9a4531377e65c6ea05d13ace72655953976cb840d97030f96e5ed2e",
+          "sitemap.xml": "7d768329ebd65a52a891b2bd9b5117f8b4ba357860292e982a10271454a3ec88",
+          "smart-choice/analytics-v2.js": "535cf3f274187ee2509ecf8f2ca39fa6914bc5350b532f6f0696c66728e37bde",
+          "smart-choice/app-v2.js": "78d63233b7d3f2f34ac9687f133743b56f201b4dfe5e711d9547fb4b5eb7fdef",
+          "smart-choice/brand-v4.css": "3f74e0358fb82d60e8056e67d20f6f8f1e0812d904338d2f16a9cd475620762b",
+          "smart-choice/cart-v2.js": "847fee89f1dab731cb019e27a297fd097a1473719d077fa443bd8849add3e120",
+          "smart-choice/cart.css": "42034af591c08085c2998e30371d1de73d1fcd94325b09cd080ecd700260c1ed",
+          "smart-choice/decision-trace-v2.js": "1b7d1934cf2e84e56dc5eeef02ed815f368477381110a0845840af2be339c001",
+          "smart-choice/decision-trace.css": "caa831d49b1f0e135240fffa28633c909c8bb4b300305f4fa8b5b22fc56d34d9",
+          "smart-choice/experiments-v2.js": "7392addbe349ed96ca07fbfa929776c807a27e25394a60c8ce5fe5db5cecbd55",
+          "smart-choice/index.html": "e6488e03b3123bb3d863d434d812879d78b014b9ca09fd1e27f3bdc8bed43939",
+          "smart-choice/pwa.js": "abd438f54ae3bc9f1a6f9c55bb0093252d9bde86189b6d2c04c0f9bf9e003f9b",
+          "smart-choice/release-qa.css": "382f68926f7d5f0ef852af25bd7cc01cf03e4c6a1ba4dd9ab7b8ecac58309b91",
+          "smart-choice/release-qa.js": "2811759ef7b24aeec36381bac44110bd94ce83931b72ded248ad7b5dfaa8969a",
+          "smart-choice/simulator-v2.js": "61580d63024c126d32dc0ceaa21ba615c646962d8e2e0848ff1383d3594b7978",
+          "smart-choice/simulator.css": "b39978b525a7239c9da04a600c4d4431f54946fc909b653baf9ced50e5e57a8c",
+          "smart-choice/simulator.html": "87ddbdd049db946e7aad65098e503fbbe146c08148908d78d762806e217c97ad",
+          "smart-choice/style.css": "f13f6d7611af4e99db347a1f0d3031faf9de0eb833d385227195844920ce7bc1",
+          "social-offer.css": "d27720e5102f6993d8c743bbe3d80a5106fd247109b5406200dd71c2a53771f2",
+          "social-offer.js": "cf339e8c8777416d98f9ae9c659549946d8ae25f8c1e6ed965587ac7907c2340",
+          "src/.parts/main.04.txt": "5b1ced74a40c6428b7212ff3e297d5f508d27a7d3f3b80e5198fb0dc374721de",
+          "src/amenities.ts": "e2f7a9ebc57e19d87fd297d5166dd394567f9208f5ef56ebb3bf065081d3565b",
+          "src/app.ts": "976d8a12d9996c602f40db196fb2dd84670d54add8a08b8cacf028a2fe6b81d5",
+          "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+          "src/brand/robys-header-master-v1.svg": "dd7cb530cf587ed6a09e582fd683a87be98973a264f2981e67ca86157a60df20",
+          "src/brand/robys-mark-master-v1.svg": "4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111",
+          "src/brand/robys-organic-ring.svg": "d9db73c46de87075124d85ad2d5bc341fa03acb1ea93b388ee9f1887f3fd6fbe",
+          "src/brand/robys-primary-master-v1.svg": "7a17488e6cbd98376141179c24cc27b38ab062a38098e8fd08c5587c0fa16ac2",
+          "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+          "src/cashier.js": "eacf0b9fe575903eea3ab6fe38d16fe68887629a17d75bd8284294c07ef7daab",
+          "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
+          "src/choice-help.js": "bde746ff1c5d40b15d34ddcce95dcd6c5a616ac6f3d486eb20a8510e22520b05",
+          "src/conversion.js": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965",
+          "src/discover-rotation.ts": "30ea672972abc5d23f0831552702fc78b456ed4dc4c99292b22e8e5c321e5d79",
+          "src/featured-gallery.ts": "7be983e21f1284b0bf7fe66497cb2cf1c163d4d5286983f5bd417345c315b793",
+          "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+          "src/menu-actions-loader.js": "42b3723e4c4fd4b61aa122a30e54c06adfcb44c3997d907bb8dbe46455186612",
+          "src/menu-app.js": "49ef9deec3f2f56fdea49b470b6e9764caf301e90c3212d8b362de9f5fb65a4a",
+          "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+          "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+          "src/menu-family-ui.js": "21397921d53c9f8912bbea6edd058d2ee7b9e0a6c1d6e4cd7fb2d31ae94587ea",
+          "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+          "src/menu-icons/cold.svg": "20332190f47f2dcb0f099d31d07b6e6d1f1c075bc1c1331eb316e56dc1858e7e",
+          "src/menu-icons/dessert.svg": "0e9c4e81532be49eb99f5fcac08ca732b69c170608880ea277fc09df47757686",
+          "src/menu-icons/food.svg": "4f448649705214571b705da97a57be1217b2a266ca477ca5be313239a5de1fcd",
+          "src/menu-icons/hot.svg": "00a1cf696fdb9346075dc673a3b5c0af91d8eb30ad0b18d5a9978338f4880af0",
+          "src/menu-icons/refreshers.svg": "b6323a987911af3d3eef89d7bfb75b4a5027bf4a47b63816ae8c3adb378da658",
+          "src/menu-icons/tea.svg": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f",
+          "src/menu-order-ui.js": "761458ffbe1210935dd7f455c3ae94bd0faaa33ef7e4f4fc4169b475a6ce9040",
+          "src/menu-pairing-view.js": "f1a0d116899fd83a137c6a778de86cc3e39677b58af4ac6e410f4fe60597e078",
+          "src/menu-pairing.js": "dd0ad0c6eef58d76027a1f0b55da505be4a1fc3cae998836b4b569f0fdf70f35",
+          "src/menu-promo-pair.js": "44d93e266ca57eceeb8d5f40d06e01305ddec1d391d41c7a54daf5630c679845",
+          "src/order-checkout.d.ts": "60c8270a6596721b50951757bd2efc8854ac9e0c058ac5af4794f98bb2003c2f",
+          "src/order-checkout.js": "7236a16ed33dcfd2a295f58878954df780e1f26e2171b49d1f8f6e226ad76ce5",
+          "src/order-draft.d.ts": "4c9ee3cee2f40643f445fd2a4fc2e172810f9a46e0ae10171e5f8b28eca631f0",
+          "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+          "src/order-storage-notice.d.ts": "b99715e50cab527a888f8af7b5a96d46d54cbadcdf7755fd67d9a94e58d63a48",
+          "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+          "src/order-storage.d.ts": "46e5a99d60c7586cd442c55e1e537c99411d972a81af58981ab78ed4f5994373",
+          "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+          "src/order-ticket-storage.js": "d250c14a6719be3296742043d5c48539f4a9ac9ed2ac6f260be698b2b7991b62",
+          "src/order-ticket.js": "87f4ddcd69ee9fd97451c3cff19e0587379378de9eabab2610ceec92596fb2d3",
+          "src/pairings-data/approved/iced-san-sebastian-hq.png": "6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329",
+          "src/pairings-data/approved/iced-san-sebastian-hq.webp": "6857186c53c9844a0d5969f42c3246ec66848b7bd2fce1274492c7806d76bf56",
+          "src/pairings-data/final/cool-lime-macaron-hq.webp": "746851c8c0ea9fffb1d7597ac64db4d626268b46a92bd9c26bd9ed99448eba89",
+          "src/pairings-data/final/cool-lime-macaron-price-free.webp": "337ee60fc97ffae7b9acd3968a0ddedfcf3e683e41da43f5ff6b77a432958e36",
+          "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "5fc1cc32bbd66437c80a0874537ff49f3bba2b84183227e1ac90a3358966bbcf",
+          "src/pairings-data/final/filter-lotus.webp.b64.txt": "a3cee27505bd9c606d4a484a122328d9e2ae2050f2ee8983a86ef2b956e720e3",
+          "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "7030ee6148db107ccc9d86caf76d41d14d039494838a854dee8ac451adcb8150",
+          "src/pairings-data/final/latte-nutella.webp.b64.txt": "e8e1cc537d483c111d2017323f1bc63393f752f954348a7e47b295ec4aed44bb",
+          "src/pairings-data/final/relax-lotus.webp.b64.txt": "0a8a432623203148dff204bc826edff0602f4a05b8a34fcf7d5f4291c074f96e",
+          "src/products/README.txt": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54",
+          "src/products/cards/iced-latte-card.v1.webp": "9ba78bc08cdf239afb7eb52df25658da082ec7ca5a1bb18dfc1d4bbaefcd85a8",
+          "src/products/cards/latte-card.v3.svg": "72559527a547a2b6e190002703ab091804c20f9aee529b2937d604bf59883072",
+          "src/products/cards/lotus-card.v3.svg": "9e7134721fa81e91184d7ff619bd82774b427ec30605157fa1b9a4fb4240f37f",
+          "src/products/cards/nutella-card.v3.svg": "d6c1c3ade45f00f5132efcfc34deaf45f5b548bedbda8c2fd33837135e405a29",
+          "src/products/cards/pairing-cool-lime-macaron.webp": "326083ee741969ae43cf1f00e0a66b6612a373225c68e28d443450648452828f",
+          "src/products/cards/pairing-iced-san-sebastian.webp": "aa0ac91c9444da5cc299fa370088fa8f775d67d3e15bf4b9777a7930901e63c2",
+          "src/products/cards/san-sebastian-card.v3.svg": "acbd5fabf50a3b32e8329ed9d54a408eb4cc3886e0fab283f58361838bba02c0",
+          "src/products/carrot-cake.svg": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8",
+          "src/products/cold-drinks.svg": "43a24aa3a191199009b5dc8d94bbf18949b31e1d88a2b5527c9b5b91f6a29940",
+          "src/products/croissant.webp": "4bdeaa66add7d73b591a26a5da78558b9e028b5e34ed34a17ab390e1eb945492",
+          "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e",
+          "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+          "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+          "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+          "src/products/file_00000000d248720a8ca18bad97b2053a.png": "a33caf70eeee30b85182b98fdebb8986698cecc190579e02ef534387ace9f6cb",
+          "src/products/gallery-v4/iced-latte.webp": "fb26d21073c707eb805a7f32f469551358ae51b1a13319f19d5711a2b2cc7d49",
+          "src/products/gallery-v4/latte.webp": "3da159bdda3186fa028d39246f539ab955acc452a395f7139a21f058889af25f",
+          "src/products/gallery-v4/lotus-cheesecake.webp": "91fc95f5c68d12303768559c5cf9287cbb09664733afcef93a07e63f7a906088",
+          "src/products/gallery-v4/nutella-croissant.webp": "fa54e86f07c0057fce8f459e4ec933f4c80cde69242bc1a4bd5f89a3c0cee1d6",
+          "src/products/gallery-v4/san-sebastian.webp": "6629f82575b022b038c971855ec8a942bc5795de86d0091bd93e1d181848e02b",
+          "src/products/gallery-v5/croissant-828.webp": "a53a0a5976e4d3cec3f1faa6fe6cac826030cfd32dad6cb403f58796189ac000",
+          "src/products/gallery-v5/croissant.webp": "43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262",
+          "src/products/gallery-v5/iced-latte-828.webp": "1fbece31ba0dd3191525c0325552008ed5ddd2a9b862eadc90bf8075dac1cdcf",
+          "src/products/gallery-v5/iced-latte.webp": "bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15",
+          "src/products/gallery-v5/latte-828.webp": "26b4031bde763cd17b2f2d8dce2202cac14621106d395afac044662a9b1f733c",
+          "src/products/gallery-v5/latte.webp": "62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043",
+          "src/products/gallery-v5/lotus-cheesecake-828.webp": "2c0a180ef8434c2bd369a804f0d6ea06720ef4034a2c4d1ecf4ee697df595a82",
+          "src/products/gallery-v5/lotus-cheesecake.webp": "383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9",
+          "src/products/gallery-v5/nutella-croissant-828.webp": "166fe971e74a8891fe2132e1af99c40c1a16c58705c6f11028415d7799068f07",
+          "src/products/gallery-v5/nutella-croissant.webp": "320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d",
+          "src/products/gallery-v5/san-sebastian-828.webp": "4bcabf3ed7866c39034c9324e2dd9a187bc84d5d4beced2f540ec31aae2df9c0",
+          "src/products/gallery-v5/san-sebastian.webp": "911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05",
+          "src/products/latte-premium.svg": "6332f62a08b42ad217e0717126fafd4cf20f53c102682d3b9fc300395992b0d8",
+          "src/products/latte.webp": "920b67ccb31048ec6f43a07ae252af3dbcad048f39ddaa941f69d8ae6de59150",
+          "src/products/lemon-cheesecake.svg": "b159dbb91499031f1ab39e2ceeb26f7002723caa44e57630ecfbda63a4aaa79c",
+          "src/products/lotus-cheesecake-menu.svg": "a3681067d03ae7cdd60c99364c21181e14adaab5a12cc4bffcff46d24bb358c1",
+          "src/products/lotus-cheesecake-v2.svg": "361728701e6a4e0e956c870923e8c16d48b01dc41c9287bdb4b425fe3dd1cbc9",
+          "src/products/lotus-cheesecake.webp": "b3ab356f5a49be00b7e9c566623f70c4dfb94d187c8a87c5c72fa6289b68af49",
+          "src/products/manifest.json": "2468048044f8abd1f17fb4ccd6114d4506972bf33ebf854f2136d36a824321b5",
+          "src/products/menu-note.txt": "55d80b3dc3286286f5518b793f457f3f8e5d760f009903baf5148c1bee00498c",
+          "src/products/menu-v1/_anchors/cold-cup-branded.webp": "64605bfe123a854ba53f76c0fa68c93a436e5cee2d056f9eb65332ecd9145017",
+          "src/products/menu-v1/_anchors/demitasse-branded.webp": "02a4fadd5b634c3cf582bda025775b30b4111a44547fe7a7fef97732d63610dd",
+          "src/products/menu-v1/_anchors/dessert-plate.webp": "ced48fa1105ca6fafdbf6a4f60792c52df6c225d7236ed4e632dc808ce0ec432",
+          "src/products/menu-v1/_anchors/hot-cup-branded.webp": "eaa14479f27564d7c2c5abacfedb2cb4435d1bea5f72ba91e6323f3328b1757b",
+          "src/products/menu-v1/brew-hot--black-tea.webp": "96016711fe99aaf0c89927b73179f45c154f7a44c15e4d79f8d59772c75d1640",
+          "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "a6d218204de4eaf20089fa0c40b2f8e8f3f72589e451ce8e4eebd681fed826a6",
+          "src/products/menu-v1/brew-hot--filter-coffee.webp": "27fbd6f0c65d72dcbd590e5b7de395492d3192d2166f0904854e322c2a2c5abd",
+          "src/products/menu-v1/brew-hot--hot-chocolate.webp": "c4851ac7910eba433d1a88d1a6066fba9386149d71feaefb8e0197cfb772f32c",
+          "src/products/menu-v1/brew-hot--milk.webp": "770b4156e46822a1fcfe1a643c1935b4be3a8bb4d7dd8a7f988e1fede4cd4be0",
+          "src/products/menu-v1/brew-hot--salep.webp": "68797040c0e9e72c39d9b172465e1843eeff0e38c44345585db78414415caf18",
+          "src/products/menu-v1/brew-hot--turkish-coffee.webp": "78789ed8e4b00f3f1c0e8104c728c6b3b781fa221c37c9b828e4cc7771ea0266",
+          "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp": "f7a9d51c7e3ff5a4bf64480d3ba1c2d5969124c62c429bed2d02b0f7978792fd",
+          "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp": "706de883652756824745ceb6f9d1842de5204926ebdf5c59beafe183f1075338",
+          "src/products/menu-v1/cold-coffee--iced-americano.webp": "83b4fee1ea93a82d9f97b02373398db10b8b874d11d101a8cac0fedf082d9903",
+          "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": "490062813c350107548f791f5b07b7e19ef5622905fe5a2c73e7411474a812ef",
+          "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": "8b17a4c61c8b578d5aa96170df85c04db64e4ef63fefec70f70a224ad0ca242b",
+          "src/products/menu-v1/cold-coffee--iced-mocha.webp": "3814b654244997d522085808639d3f83a0c98f5b2ed69405ef1173a936af442a",
+          "src/products/menu-v1/cold-coffee--milkshake.webp": "97be5c5d079e53295e209d9e795aa0e90f822fab41b476cadd1d889b45ad3278",
+          "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp": "b5a88be5330923bb8f860c418f54b8617072b84a96a5dc2ec947d4485ef52501",
+          "src/products/menu-v1/desserts--almond-tart.webp": "d49d286958e20530bcc5634f4824f96f5fbaf48d9d31720ac6c71a35e017f5bf",
+          "src/products/menu-v1/desserts--brownie.webp": "60acee5688b87fc43c2e947e953a87e9ba3029746b503a164e4ce27bc27b27fc",
+          "src/products/menu-v1/desserts--cake-roll.webp": "0b217928759d251c131a7ed9f8d615892f43100451acda8c1c0da66fd9fe6fc6",
+          "src/products/menu-v1/desserts--chocolate-cake.webp": "168fa354480b98311e86b5620e16ab160d5026bdcb451169c7ae40f0f4703b34",
+          "src/products/menu-v1/desserts--cookie.webp": "89122ffc87a88670057f47775b2795fc4f97a7fb294825e3509a4998f86250f6",
+          "src/products/menu-v1/desserts--lotus-cheesecake.webp": "cfc8b63aae670d977908e5d2c4e3c84af24ea295152689d67c8ad8f97d785c68",
+          "src/products/menu-v1/desserts--macaron.webp": "3bec3fce0f62d9a9e3731711a4463a097828be24ab2168472ae8a3d79d6e47ce",
+          "src/products/menu-v1/desserts--mosaic-cake.webp": "ce41ac050aa8f565a26f9d016ab40558d2f676426c68c1ef1d25603a33fa2ffa",
+          "src/products/menu-v1/desserts--raspberry-cheesecake.webp": "76c33722630550946150820c10210010f5906368af57f6bc86ff60a3a5e8b6cf",
+          "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": "4093302be7d2409381965abcd9cfea14cc15e93ac2fd0c6bee52bc2051750855",
+          "src/products/menu-v1/desserts--savoury-cookie.webp": "97da5bb96b12b51adf0121edcf73ec12899effdc420c25b3af0ac695b99a2604",
+          "src/products/menu-v1/desserts--tiramisu.webp": "2b0eaed94ed82163562d2929d0afef7ab901454d5d15d45768b002018a6c0bbe",
+          "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": "b5687be1001710693bddefb9556e5f99869c82a4a393ecbfec06244af023bc5d",
+          "src/products/menu-v1/food--nutella-croissant.webp": "a589ceca10e28a4441e9eb670a790db24671b4577c69d8858e5422640e6a7d6a",
+          "src/products/menu-v1/food--sesame-simit.webp": "7ff690066a8f5d611d192eddcc17976ea8894384549b1653649a8b6775e9c1a7",
+          "src/products/menu-v1/food--three-cheese-croissant.webp": "c0fb87e1a40e2ea29a7a8248e6d16b5d706fcb08fb66628367e33c471166cf5c",
+          "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": "b14d0ec491f4efb706270ee6122725a656903ccf10d13ac50640da1a1a6cb0a1",
+          "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": "6231866d1d19e718932fe3fc377c5aae820059446a527d245c53a68eac150cf8",
+          "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp": "9411bd475a283f942a1dff253c19b998f282fecc03895db51e195f23633bb1ed",
+          "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp": "e0db6c55c4c9bb82ba1a77912921b4f311fa67ffb7689de48a8d95d6661818c8",
+          "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": "78a2d9b6946a6142c81d19a81dd8b2891dffd8f0a346804f2968b030b95fe2d6",
+          "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp": "8707f2c072eff77030641c1704be848cfe0fe6f25954f48f0b040fd818d7bcfb",
+          "src/products/menu-v1/hot-coffee--americano.webp": "9cde8bad634634f8a62685c0b9b93b9b352900b3f6e3466e75fc658410b6c303",
+          "src/products/menu-v1/hot-coffee--caffe-latte.webp": "2340d439078ecc8fbcb2143073c9fedf5552db353cb79a702aa39e17b0fbb68d",
+          "src/products/menu-v1/hot-coffee--caffe-mocha.webp": "28edb23701e1b2081c2f34b48f4f9ca892121dbc48769ad22814a8fe28bdfbce",
+          "src/products/menu-v1/hot-coffee--cappuccino.webp": "087e9798fad9f55068578f355f4fcd266dfbdd61a20bd90b4cca3c128f06ea5b",
+          "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": "8e7163039486fe85ba101678d32b8c279c99f65698e2958fd34070668e337ca5",
+          "src/products/menu-v1/hot-coffee--caramel-latte.webp": "ba7c11162c753abc252118eabc64af21c0c42233393bab5723ff22c323eb635a",
+          "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": "a2ad38e5db3152c971fa9a273916dc5c812f8d01da47a3786139f6e375d9b70c",
+          "src/products/menu-v1/hot-coffee--cinnamon-latte.webp": "5744eb8f70e76ac9b328369fee2fe5d4791b55ef46906680ffcc7661e1192b28",
+          "src/products/menu-v1/hot-coffee--cortado.webp": "a591f800cb6f9e1dd8e68641994541e214b3398dacf3a9d28e918ee6c6a31a02",
+          "src/products/menu-v1/hot-coffee--espresso-macchiato.webp": "ac3ca5cac28e644c0846abda4f7872a673b5ac55e1411d695cffa4be3b07d1e5",
+          "src/products/menu-v1/hot-coffee--espresso.webp": "62ac47f2f0dedf9e5f95f207fa7b4af0de7d35ac64c845353d6f1cd1829b1da6",
+          "src/products/menu-v1/hot-coffee--flat-white.webp": "accf9d507aee844fe5cef0c4bff39006ea2170656f0b7832967a950ef8f3d5fe",
+          "src/products/menu-v1/hot-coffee--hazelnut-latte.webp": "7da1d39aa859ba1f23448fc87ef2471b5ba3f5698278f5386236e9fa3c7e2bfb",
+          "src/products/menu-v1/hot-coffee--vanilla-latte.webp": "5410ec12a2aa04ae5c58e4aab16e19ea1d13cb725c7ff7a496b8361ce149fb5a",
+          "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": "66079b113b005faece68e2870be060f549a34d528520ae9923186fb2b021217e",
+          "src/products/menu-v1/refreshers--berry-hibiscus.webp": "efe27181617d801f8dc079c828e811762931869cf732f72318386de19e473bc3",
+          "src/products/menu-v1/refreshers--berry-lemonade.webp": "1910f28bf86bb20da59eb32630fb8728f5a5eb34a2865a3e1542b5bdeae1d9a0",
+          "src/products/menu-v1/refreshers--cool-lime.webp": "0dd4b28f9fe0dcfdec85267c5868ca790f079716869ebe143fa30f90c3196e0e",
+          "src/products/menu-v1/refreshers--mango-passionfruit.webp": "651b8cf2f8b586c33519a9bb2d0e86252df098bfb5dd864d864cde3ea797e6b0",
+          "src/products/menu-v1/refreshers--pineapple-berry.webp": "ae2e21000119dd4530905f618d1143f29e00450755ec6dcbf5622f12542b1bc6",
+          "src/products/menu-v1/refreshers--strawberry-lime.webp": "9bec6674d1eb564abe76d09142201005356e34eca04734d63b0286bc7ea8031e",
+          "src/products/menu-v1/refreshers--summer-pine.webp": "38b4f7925d5fcea1be570a88a334985506bf17c56531b2baa9918e7a2bf8107d",
+          "src/products/menu-v1/refreshers--tropical-mango.webp": "d143d18c1d573f74dc1ace3f5bf221403aaf2ba8bf60aaf8bf3ba3c83db04d77",
+          "src/products/menu-v1/refreshers--yuzu-popcorn.webp": "3b1d2980840011c9d452cbc86ba79134c057adfd9f81fc71e634e69a358fc764",
+          "src/products/nutella-croissant.svg": "148f61d1ec8dc1c5d4566e96f7ba9b38774304811e4245efed9432e156bd6b74",
+          "src/products/nutella-croissant.webp": "4959606777bddc81188c26373f324297b0803fceae9e821988712af8689fd1fc",
+          "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+          "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+          "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+          "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9",
+          "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+          "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+          "src/products/occasion-sets-v1/provenance.json": "5ae0a8c291219ac5664ef192c86af1612d3551cbc590c26e606454b639a45865",
+          "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+          "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+          "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+          "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+          "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+          "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+          "src/products/quick-choice-v1/coffee.webp": "311479da1249fb1c9ce7eb4a0c58c75f3f3b240825a3a97e153779a2e1bb0ff0",
+          "src/products/quick-choice-v1/cold.webp": "af28ec5e0ff0b9c5c5c55ad44f4708f2ff1cf4618ea7b9b63f79c839030c8eaf",
+          "src/products/quick-choice-v1/tea.webp": "5b601f22bc07dcc4322f67bbcf48b19b389079f20c07ccbec6ed1eea70336ffc",
+          "src/products/raspberry-cheesecake.svg": "cb37a84b67b80888d2017030ff648c556b7280e5f52381e39f1a3eb3acf884d0",
+          "src/products/san-sebastian-premium.svg": "fb2786ae5050e0456b66602a52be702e510fa5a759713fb6f4ea5eb478b29fb8",
+          "src/products/san-sebastian.webp": "4093302be7d2409381965abcd9cfea14cc15e93ac2fd0c6bee52bc2051750855",
+          "src/products/san-sebastian.webp.base64.txt": "bb121d0030e18c8e9c44f8eafe949d960207d78ed095265410358e3289db99ab",
+          "src/products/sets-v1/cool-lime-macaron.webp": "0b7baea6fd5756d019b5414cff9424cab42ca5a69042697b1f3a5ec5c52560d4",
+          "src/products/sets-v1/filter-lotus.webp": "f97b147bb15eb6085a543095cd44f7d1480e9b6024388c8d3183ca5e64faaec5",
+          "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4": "29a75b89cb208a1471823671c05e2c8b27438dbc42a99c00af1eed02840d0bbf",
+          "src/products/sets-v1/iced-san-sebastian.webp": "5375ec1c1ed730a8d829e971efb3fd04c1777e510570bcfac21c3050a59bae99",
+          "src/products/sets-v1/latte-nutella.webp": "2db329a943a5e1bec86ec9db1cc4fb57b4743325fb8f1bd5f4810d3ea7d1af4f",
+          "src/products/sets-v1/relax-lotus.webp": "6d05c3fa2bf91cee04d294bc3adea3d16312b42b4c78976bd1da13231e3fbcc1",
+          "src/products/triple-cookie.svg": "472eb8da517f88d6e3dd5cba67ed992ffb254aadee8f1d50075e15dfdb723458",
+          "src/robys-ambience-clean.mp4": "2f52191d25ee6766dd1ebab330d343afd71e8bd8c2651b15f61d6834d9043dd2",
+          "src/robys-gallery-croissant.svg": "4eac342e4eabddeec111ad4f617dd3a2177322c1c0736ee3218d7a4f56b2e440",
+          "src/robys-gallery-croissant.webp": "c1867765c1b86d8723f5abb387bca8ef0019c7555023ed8f34938f1b7837ee8f",
+          "src/robys-gallery-latte-art.svg": "253012b46ced6fad86d3901db633be458e80c8f9a856bd37c8f4df2d6470e77b",
+          "src/robys-gallery-latte-art.webp": "b9450d364dd6dad476c6e7794f0ecdaf432c3c2a8f6e3881af2397d6d5771123",
+          "src/robys-gallery-signature.svg": "59e56acf18613df9f650ea0db55164a1362d3f2c4f6b7df53fbb6a0111205f78",
+          "src/robys-gallery-signature.webp": "9182271e978e8635a0630481c3994ab8d479f2c0c7a45c36dde717d1f811aa58",
+          "src/robys-hero-mobile-lite.mp4": "342fef1a1fec8b79ca9c2627f2a4931e3ab42f0ca9aa499ccd4830279ea0b29d",
+          "src/robys-hero-poster.jpg": "dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e",
+          "src/smart-choice/analytics-dedupe.ts": "4601a7c0dd2dd26ab12015241fa97ba2950b6f6325317fd29afec5f675eebf2c",
+          "src/smart-choice/analytics-domain.ts": "6d357ede753850525084fe3964fc73f3014fcccb7882a6cead2eaac0c59bc0c6",
+          "src/smart-choice/analytics.ts": "486aa402765ce8b72ec09d5ea69b8ab8987c44a3b0d35bfccc4c0530f4428916",
+          "src/smart-choice/cart-copy.ts": "eb5c81c6430e530842cc4ff85947e7b7b74e9b346c174a7375565cee66a4111a",
+          "src/smart-choice/cart-domain.ts": "6fc5275c221d311e1c7ee4469bca25bebdb6ed5fb59fc2db0d46efbcf3ef6f2c",
+          "src/smart-choice/cart.ts": "c20c08c855c84bf558d68a2891f91e0b66394765d80cfa009b9c39c1ef8f3038",
+          "src/smart-choice/catalog.ts": "61af39f819e4b8ead5b5f55909d1e9bf0a8e600ae3fde768e34e034aa60dc668",
+          "src/smart-choice/checkout-link.ts": "f2e3bffedac00fe379e34fa74ad6e3d73d8427b90e16ccd2f932486333c370a3",
+          "src/smart-choice/decision-trace-domain.ts": "7594b4af8c668037dc13bbaca4e016f8168b3cbfea2f38c8e6de1b108ccdca6e",
+          "src/smart-choice/decision-trace.ts": "18cc2af7632709c7d30c1556797e16f48b6c37a7128bed2eb7fcd32654310a07",
+          "src/smart-choice/engine.ts": "7311fe30321edef93a3499710618a6d4ed85d588b246a6300fcded268b130253",
+          "src/smart-choice/experiment-domain.ts": "2a0b6d3c1e2381a826ead6c31bf40f452e01e417cb2338579cc3d09372a69cf9",
+          "src/smart-choice/experiments.ts": "09b0270fadfe353287834dc18b4b302ed9eaa528b967d5d3d271c1a6352f880b",
+          "src/smart-choice/helpful-options.ts": "8a4dde770744094b6991506dd9797d1812d36d5db6595cb7aed4ebf37b65dc77",
+          "src/smart-choice/page.ts": "c309acbc74a1f32b2b250e9616108cd166fcf3d17ff87be6686aae5597fc7e6e",
+          "src/smart-choice/quick-builder-domain.ts": "72a7eb8a3bf520c72fd092c7ff2f83166bc633368fe48b93264b471205b36b7c",
+          "src/smart-choice/quick-builder.ts": "d87bd40fda5994c048bf1380b41f13d9668cb935967328ed587e35583db9a07c",
+          "src/smart-choice/release-qa-domain.ts": "319c30c685bdb39498d47d42151dd8ff573c724304ed1f5a319d8af724c7acb7",
+          "src/smart-choice/release-qa.ts": "44601146931f0a27235425f05c638c341830bc09c36c3f5f3ab39b87f3cadd4a",
+          "src/smart-choice/revenue-simulator-domain.ts": "5ecc4f4889418fdc38d835313d77515e3d4bf628368d05c0ce4b004c62c63c8a",
+          "src/smart-choice/revenue-simulator.ts": "dc7f9ace47f32c0a2920d51ddb6ccad4b4de73963473b7030f8c4035b4029451",
+          "src/smart-choice/shared-order.ts": "a6b33f8b533b2ea785dc7d7b98b7d0ed2fc0a81927bbbc8ee2a0c90a7a49614f",
+          "src/social-offer.ts": "5096adf58b7c62ebe51cc4d7bd0348495da39e64e4e721b69898d7f91ed21d56",
+          "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+          "sw-core-v64.js": "63b804909500d5ff5d88ff502158f07fdd08ba6e2994fd41085ef9657e910677",
+          "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+          "takeaway-entry.js": "e42f8fe96069a87025fb71187ef09df2fc2ccb7801dc5ab3865f28f045017773",
+          "tsconfig.json": "8454d5a3dd0664e6d14c6647ae255f46de54b09189b2b905fd4660a530a3e4ee",
+          "wordmark-responsive.css": "82f15d016cdf72a5dddb74202f9908d4da0c13150c987b6bd0b14557c3436532"
+        },
+        "finalFrozenFileSha256": {
+          ".gitattributes": "e5a01de6e867e128651d703bc5eed42f25ad24c20e0f478a6e31e5824b5c2f1d",
+          ".github/workflows/visual-regression.yml": "cda54382b6ca466ce675e11e0fd6627f3d73448681a14ba94f1a3557bc949352",
+          "404.html": "f0280814f7aca95944d15d1c4649017cf84cb908585ee8e6323ab9292de2c8b9",
+          "analytics.js": "6089fae48e0ee8528209e8f8d4741cab034ef67182360843dbeb31981c34d9c3",
+          "app.js": "e7e9d1431d790496a0537a9c0bdba0e94c2a22b54854d8563e615169f0815634",
+          "bootstrap-v2.js": "845efb76f38432f10a37df56aaa7225dc0c0a09e3cc81de638ec6f7f30c4f51e",
+          "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+          "cashier.html": "0ab46a7f9af7dd5d9b3a427ff3078144e88a70edb375af21387c04bd386c2b03",
+          "cashier.js": "da2e9cde6859ac91c275f3ad3136a53b4ec0ae1edb9d4ef006b86f0396ccd37c",
+          "choice-help-entry.js": "a07dc0e704cbc7458e520a8645766fbc7a71a1637318c3983ccd1755ca72ebcb",
+          "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+          "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
+          "coffee-paths.css": "54035247389ec3692da6e863d63ef0b0ecfb365741e74fbe53c1698af35a966c",
+          "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+          "community-reel-v2.css": "fd0051060777f04e305e5becaa2aadcc1fbe6a598a942d6c57a33f1e48534d67",
+          "community-reel.css": "fd0051060777f04e305e5becaa2aadcc1fbe6a598a942d6c57a33f1e48534d67",
+          "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+          "conversion.js": "455b2f39607a4b566f28712bbef6ef4b896026953053176cd80b303347d016eb",
+          "data/featured-products.json": "f162fa46f2f578352b13611167117198841faf6457e16e0018beb56121969602",
+          "day-night-entry.js": "912a04638dad18b983530192a52a40b4ebef60b229639d0ff38b40a82acaf1b6",
+          "discover-copy.js": "748cea1d06ec5ee76ba7adbee576ef0d6e42809262b3ad952af252d8c1ea78f5",
+          "discover-deck.css": "14bb488e526af10c0439353c0753a6d7458d3f2bca6e5eb1650f4a406dd8b96a",
+          "discover-deck.js": "16c7c7dc859096ed09bf54bd586012c758ea193362625d4e1d65b1854e0f67ef",
+          "discover-journeys-v2.js": "eda91557419c7828a390c83e2121a7f621a0b89a1c300b35fc1933ea41de7de4",
+          "discover-journeys.js": "992b7f33ebe70ffb5513d57334513fcd85bbe19446aca09edeeac881355548c5",
+          "discover-rotation-v2.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-rotation-v3.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-rotation.css": "96b566c9731e8978a87ac65fe014826b9227a26d3bae23f17bdd0345d4032316",
+          "discover-rotation.js": "b7b8c4df73db633a6a1947f67771ddd5c97ca262974ab0cce91162ac088b4a23",
+          "discover-v2.js": "7b9e7a630fd1c00f2696372ec05a23ba8df0f7d42c705b6970b50aa592a2f8fb",
+          "discover-weather-guard.js": "a09208a9fac5ec0faa75cad2539f8d0c79db5aa987dec9e609e4558f4009265e",
+          "discover.css": "27f4dfa8c27e1cec5a245c9b94a4b551967716dd972c5139a8b84e3b6a1fb0f2",
+          "discover.html": "d5cfa593b42e0b7ad2f2a5d118d71cd70c3c8601f067726a02c6e37732846815",
+          "discover.js": "0c92df7b0f5404b194a691de30794d1f8b79c0ac73be476ec04910ce205fded5",
+          "experience/brand-fidelity.css": "1124cdd229035d69838723c249f8422667774e3f1d3e5de5b208589f7aeec2b1",
+          "experience/cinematic-environments.css": "76e6ccf04650a086bdf97cb1372c820cc897023dd6607557c30a29b548caf6a5",
+          "experience/environments/energy.svg": "763f3ca80be7043f8cc24542d56758a521a810bfd394bfd3788ac76d287a6a53",
+          "experience/environments/finale.svg": "fb371d27c4283bc6c20276e7d78a4d057eff519340ef3efac22ba150b25b8a4a",
+          "experience/environments/moment.svg": "1ed58ad2b6faa0bcb5974274949e5e69dd1f4339c9587dac1a64ccd8f9b9c4b9",
+          "experience/environments/move.svg": "9815d8f61a63228c2418cb69e0a95e6b99c2b11ee5c30b6e9bea8ba99a3399a7",
+          "experience/environments/origin.svg": "72b518cd81cab3d38fff02fb2c9552d9a13a54af3444606f9901bcc08a442b21",
+          "experience/environments/pair.svg": "35401ccb58f0a3a516ca4e00eae44be205ae54fcdf6070b1fb09cbad36592baa",
+          "experience/experience-pwa.js": "d8be62f9f9c224b6924c29ba0785867c87d256008f48759dbb3601bc88e7d290",
+          "experience/experience-state.css": "ccb9ced40708e79ebb7ae9ae1eff88e581bb4d2f981c8c4f332842b686b19263",
+          "experience/experience.css": "ff925b1ea26253c89300ed006b90283fd8eb44c417c459ce50b334c07e9bc04c",
+          "experience/experience.js": "b818597a4d32476bf5165da92edb4d78a3edd605751464bc8e1e5698c037c979",
+          "experience/index.html": "fcdfab9c85844a3b84cf6559efd15c48acff2b35bc7bb68913e77e68e855f597",
+          "featured-gallery.css": "12ec7abefc736fff05d8515187c94732c0fb91f806ddf851f113246a05ee85c1",
+          "featured-gallery.js": "5a90456cb0d741f584e4b9db8a07a99d52c01cac2e6892e74f6bdbf77f260c0d",
+          "featured-strip.css": "7f5066724dd12c2bd300eeff3f73d29002352d31e6a91434af18f848566f87bf",
+          "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+          "final-qa.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+          "gallery-clean.css": "273585a89f27f1f06486e87bd3f86b7420dde9a11440531aa15123e4ac3ed8da",
+          "hero-balance.css": "a97d8184a25cae537092346753aa1b4a7f619be3119b35c920a5b6b535b090ba",
+          "icon.svg": "f06bf925852c14604e76ae0949e1b19af7594a9b0b5dd20bdcac659c9454e045",
+          "index.html": "190e8a0a52834555e6315a6a6ae342abb033ca0ffc9c9cc9284cb5453e50857d",
+          "integrity-manifest.json": "0ad46cf19966436297e5fc41f1039fce82919abcac16edc4788d05853789338c",
+          "map-live.css": "52d42dddb58cf9432d2e9510c05449b656cff980d8ee735e674d58abb0155157",
+          "menu-app.js": "54cab80ab43948eea993b46966c80dd70eaa3f786cb46872bd5c87db773e63c4",
+          "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+          "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+          "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
+          "menu-family-ui.js": "f6778abdbe89a95a47add76a387ded006bdc9a8e7501c5f323c949e14278b397",
+          "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+          "menu-interactions.js": "da67255ac42d80ae50f3746aed462158c76c0b88a998cf5591a6b3d31ad6ccc8",
+          "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+          "menu-pairing.js": "6b033c91bf9a38296894fffdfed1811b6716a120497f4ddbe66d78170a143198",
+          "menu-premium.css": "335c05ace22acaf4352158c3ae5222c2d2047b92ffbeef15c8f8652c4691905b",
+          "menu-preview.css": "3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545",
+          "menu-product-reveal-runtime.js": "fd2730c787d9ba8f4458cc8d6042d3a983c561fa1ed2701894db01729144d063",
+          "menu-product-reveal.css": "80aa0282d8513614f6cb54147cb319b6da56cd47f8e6de1d8cecb7503d9cf949",
+          "menu-product-reveal.js": "6ae2dd3ba2e7312d9169b6e1ae4f2d2ce1c233e7b861aabd1f4b9127a88b093e",
+          "menu-pwa.js": "633a4aec6167baff0e9e9b10803412f5205a3aa3f18fb913c2cde10591f7411c",
+          "menu-ready.js": "294908a0f2596ef861fac5f0da62fb8efe6cb3fa8030fea16e47fa009cbafe7b",
+          "menu-runtime.css": "ad3f190d6b6b56ddd2586790dfef77c94678a529ed332aae036d240b6f80d791",
+          "menu-search-clear.js": "f521a59859c6cd108f14a2427afd05d2a806b11aa8e8b925b5d0b53dfa264cd8",
+          "menu-security-v2.css": "c9ec36b38ff321621eb7b7995b01aec733e2ba55c03118d6565b47ab2b25ce1d",
+          "menu-stability-v2.css": "84e172cb281bc76d14cec3b163e6b911842f3e99519a3b46dadb123f96c9161a",
+          "menu-stability.css": "84e172cb281bc76d14cec3b163e6b911842f3e99519a3b46dadb123f96c9161a",
+          "menu.html": "aa1e1c90135301b020898fdf56d21f0af3b174f103199a97f0e0437d6ada91b7",
+          "mobile.css": "6be435be51d67ce0c11c3640e5fe23eb266e589bfdb40cfa4497ca688bc30e52",
+          "morning-entry-v2.js": "8a158515f4de14a965f68d3a7d762df69fa7a81e7a7b23cdca615c12013210a9",
+          "offline.css": "6cc9953fd296558305d6187fb359ccc26057558c0e38164c7b302092ae123342",
+          "order-checkout.css": "9ead86a924fa619eee57f9be74276c1411e78c975c07b6821eb2d2ec70872542",
+          "order-checkout.js": "5f9a05cab98822a1e8ec5f60abd8cd5f67397ef14ca00f3659905ef0841c048a",
+          "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+          "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+          "package.json": "f403c5064d8704f92ce199e5b1993b791647d4e9a1047b6585394776365bca62",
+          "pairing-posters.css": "882faab929d12a13ca35cb417cf508da92dd80e68ee1d9d20d322e8399552734",
+          "pairing-posters.js": "024743e64919f882e4504e31990fdbc6eb6d206d941d848265ba506ad24b3a5f",
+          "pairing-preview.css": "1e697eaee2c438e4db396c0785ddf1ff8baf6305fbc66d7e80227d7589354b90",
+          "pwa-pairing-fix.js": "8526c985cbff347009a49af35c052c676556f5d5bac18ef27bd8d637571a11a5",
+          "pwa.js": "8526c985cbff347009a49af35c052c676556f5d5bac18ef27bd8d637571a11a5",
+          "qa.js": "c92a09cf9501cefb3a4ca449a1a853849da732e40d07bab35776651d8a787f48",
+          "qa/visual-regression.json": "9ef6c9397abec3ae019d6b35c3e5a4a29456c33c8cb62718312ec3cf9a6f01e9",
+          "refresh.html": "cf1236be987de85a1d2d4266197daced7aac156697daf440b2ecca44212d3c1a",
+          "robots.txt": "605a1b944b1c88224d570600eaa8c8762be12e35645c30ad4b6d9759d1cf1d6c",
+          "ru/coffee-gazipasa.html": "19c0711cdba3b8f6856d9f84c14c5252dc23d2ce864af98631fd749bd4467447",
+          "scripts/build.mjs": "d775bbd8b8f2d79fc40b594937c0c1122f551c8de39c63f6bae33bde256d508a",
+          "scripts/capture-document-region.mjs": "bcbca93c760b3eac46484234b080926dae2caaf46f58f0f5a1ab60ac6e9c1939",
+          "scripts/menu-runtime-source.mjs": "39d536c55fd049f546d4a8e88d40448a7b9ab21c184df455b9ddd27f0dd5c6e5",
+          "scripts/menu-styles-bundle.mjs": "4fe045de4512fcb544b59b2fd71f149509b03c858889455cb2ed2ca8fffc26c3",
+          "scripts/smart-choice-catalog-external.mjs": "d705b684737eeaa639ea1a165d662c996a1a1e6305b11698a070d42d58c3d4b0",
+          "scripts/test-visual-toolchain.mjs": "6e4cc545c43197a56abde9ca9a2327dcf1748922a76f86e62d3f1ff9be76a470",
+          "scripts/verify-reviewed-visual-change.mjs": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+          "scripts/verify-visual-toolchain.mjs": "3b20b2c0c47d26f923507ae3d22960d9280e2a02e2f9863c7cf014ec05713ad5",
+          "scripts/visual-regression.mjs": "3d5b365ba9a4531377e65c6ea05d13ace72655953976cb840d97030f96e5ed2e",
+          "sitemap.xml": "7d768329ebd65a52a891b2bd9b5117f8b4ba357860292e982a10271454a3ec88",
+          "smart-choice/analytics-v2.js": "535cf3f274187ee2509ecf8f2ca39fa6914bc5350b532f6f0696c66728e37bde",
+          "smart-choice/app-v2.js": "78d63233b7d3f2f34ac9687f133743b56f201b4dfe5e711d9547fb4b5eb7fdef",
+          "smart-choice/brand-v4.css": "3f74e0358fb82d60e8056e67d20f6f8f1e0812d904338d2f16a9cd475620762b",
+          "smart-choice/cart-v2.js": "847fee89f1dab731cb019e27a297fd097a1473719d077fa443bd8849add3e120",
+          "smart-choice/cart.css": "42034af591c08085c2998e30371d1de73d1fcd94325b09cd080ecd700260c1ed",
+          "smart-choice/decision-trace-v2.js": "1b7d1934cf2e84e56dc5eeef02ed815f368477381110a0845840af2be339c001",
+          "smart-choice/decision-trace.css": "caa831d49b1f0e135240fffa28633c909c8bb4b300305f4fa8b5b22fc56d34d9",
+          "smart-choice/experiments-v2.js": "7392addbe349ed96ca07fbfa929776c807a27e25394a60c8ce5fe5db5cecbd55",
+          "smart-choice/index.html": "e6488e03b3123bb3d863d434d812879d78b014b9ca09fd1e27f3bdc8bed43939",
+          "smart-choice/pwa.js": "abd438f54ae3bc9f1a6f9c55bb0093252d9bde86189b6d2c04c0f9bf9e003f9b",
+          "smart-choice/release-qa.css": "382f68926f7d5f0ef852af25bd7cc01cf03e4c6a1ba4dd9ab7b8ecac58309b91",
+          "smart-choice/release-qa.js": "2811759ef7b24aeec36381bac44110bd94ce83931b72ded248ad7b5dfaa8969a",
+          "smart-choice/simulator-v2.js": "61580d63024c126d32dc0ceaa21ba615c646962d8e2e0848ff1383d3594b7978",
+          "smart-choice/simulator.css": "b39978b525a7239c9da04a600c4d4431f54946fc909b653baf9ced50e5e57a8c",
+          "smart-choice/simulator.html": "87ddbdd049db946e7aad65098e503fbbe146c08148908d78d762806e217c97ad",
+          "smart-choice/style.css": "f13f6d7611af4e99db347a1f0d3031faf9de0eb833d385227195844920ce7bc1",
+          "social-offer.css": "d27720e5102f6993d8c743bbe3d80a5106fd247109b5406200dd71c2a53771f2",
+          "social-offer.js": "cf339e8c8777416d98f9ae9c659549946d8ae25f8c1e6ed965587ac7907c2340",
+          "src/.parts/main.04.txt": "5b1ced74a40c6428b7212ff3e297d5f508d27a7d3f3b80e5198fb0dc374721de",
+          "src/amenities.ts": "e2f7a9ebc57e19d87fd297d5166dd394567f9208f5ef56ebb3bf065081d3565b",
+          "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
+          "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+          "src/brand/robys-header-master-v1.svg": "dd7cb530cf587ed6a09e582fd683a87be98973a264f2981e67ca86157a60df20",
+          "src/brand/robys-mark-master-v1.svg": "4ab074ce8f22f949185b83d7412ccd5b5b7f085fcdbdb5740e79ff1e7190f111",
+          "src/brand/robys-organic-ring.svg": "d9db73c46de87075124d85ad2d5bc341fa03acb1ea93b388ee9f1887f3fd6fbe",
+          "src/brand/robys-primary-master-v1.svg": "7a17488e6cbd98376141179c24cc27b38ab062a38098e8fd08c5587c0fa16ac2",
+          "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+          "src/cashier.js": "eacf0b9fe575903eea3ab6fe38d16fe68887629a17d75bd8284294c07ef7daab",
+          "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
+          "src/choice-help.js": "bde746ff1c5d40b15d34ddcce95dcd6c5a616ac6f3d486eb20a8510e22520b05",
+          "src/conversion.js": "e13b6c8c7ddbe8eb71fbb9e880caa7939ed3e0abe8bfbc27d58d506eaf99b965",
+          "src/discover-rotation.ts": "30ea672972abc5d23f0831552702fc78b456ed4dc4c99292b22e8e5c321e5d79",
+          "src/featured-gallery.ts": "7be983e21f1284b0bf7fe66497cb2cf1c163d4d5286983f5bd417345c315b793",
+          "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+          "src/menu-actions-loader.js": "42b3723e4c4fd4b61aa122a30e54c06adfcb44c3997d907bb8dbe46455186612",
+          "src/menu-app.js": "ae9ed03d3c7f944bf3b63ee701844502e71fbd76115374071c58ff1bd3323902",
+          "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+          "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+          "src/menu-family-ui.js": "21397921d53c9f8912bbea6edd058d2ee7b9e0a6c1d6e4cd7fb2d31ae94587ea",
+          "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+          "src/menu-icons/cold.svg": "20332190f47f2dcb0f099d31d07b6e6d1f1c075bc1c1331eb316e56dc1858e7e",
+          "src/menu-icons/dessert.svg": "0e9c4e81532be49eb99f5fcac08ca732b69c170608880ea277fc09df47757686",
+          "src/menu-icons/food.svg": "4f448649705214571b705da97a57be1217b2a266ca477ca5be313239a5de1fcd",
+          "src/menu-icons/hot.svg": "00a1cf696fdb9346075dc673a3b5c0af91d8eb30ad0b18d5a9978338f4880af0",
+          "src/menu-icons/refreshers.svg": "b6323a987911af3d3eef89d7bfb75b4a5027bf4a47b63816ae8c3adb378da658",
+          "src/menu-icons/tea.svg": "51c4f489a4696b9dc1beeaca3cac79e8fe4eda86d5ed7483bbdcac8d52bb497f",
+          "src/menu-order-ui.js": "761458ffbe1210935dd7f455c3ae94bd0faaa33ef7e4f4fc4169b475a6ce9040",
+          "src/menu-pairing-view.js": "f1a0d116899fd83a137c6a778de86cc3e39677b58af4ac6e410f4fe60597e078",
+          "src/menu-pairing.js": "dd0ad0c6eef58d76027a1f0b55da505be4a1fc3cae998836b4b569f0fdf70f35",
+          "src/menu-promo-pair.js": "44d93e266ca57eceeb8d5f40d06e01305ddec1d391d41c7a54daf5630c679845",
+          "src/order-checkout.d.ts": "60c8270a6596721b50951757bd2efc8854ac9e0c058ac5af4794f98bb2003c2f",
+          "src/order-checkout.js": "7236a16ed33dcfd2a295f58878954df780e1f26e2171b49d1f8f6e226ad76ce5",
+          "src/order-draft.d.ts": "4c9ee3cee2f40643f445fd2a4fc2e172810f9a46e0ae10171e5f8b28eca631f0",
+          "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+          "src/order-storage-notice.d.ts": "b99715e50cab527a888f8af7b5a96d46d54cbadcdf7755fd67d9a94e58d63a48",
+          "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+          "src/order-storage.d.ts": "46e5a99d60c7586cd442c55e1e537c99411d972a81af58981ab78ed4f5994373",
+          "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+          "src/order-ticket-storage.js": "d250c14a6719be3296742043d5c48539f4a9ac9ed2ac6f260be698b2b7991b62",
+          "src/order-ticket.js": "87f4ddcd69ee9fd97451c3cff19e0587379378de9eabab2610ceec92596fb2d3",
+          "src/pairings-data/approved/iced-san-sebastian-hq.png": "6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329",
+          "src/pairings-data/approved/iced-san-sebastian-hq.webp": "6857186c53c9844a0d5969f42c3246ec66848b7bd2fce1274492c7806d76bf56",
+          "src/pairings-data/final/cool-lime-macaron-hq.webp": "746851c8c0ea9fffb1d7597ac64db4d626268b46a92bd9c26bd9ed99448eba89",
+          "src/pairings-data/final/cool-lime-macaron-price-free.webp": "337ee60fc97ffae7b9acd3968a0ddedfcf3e683e41da43f5ff6b77a432958e36",
+          "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "5fc1cc32bbd66437c80a0874537ff49f3bba2b84183227e1ac90a3358966bbcf",
+          "src/pairings-data/final/filter-lotus.webp.b64.txt": "a3cee27505bd9c606d4a484a122328d9e2ae2050f2ee8983a86ef2b956e720e3",
+          "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "7030ee6148db107ccc9d86caf76d41d14d039494838a854dee8ac451adcb8150",
+          "src/pairings-data/final/latte-nutella.webp.b64.txt": "e8e1cc537d483c111d2017323f1bc63393f752f954348a7e47b295ec4aed44bb",
+          "src/pairings-data/final/relax-lotus.webp.b64.txt": "0a8a432623203148dff204bc826edff0602f4a05b8a34fcf7d5f4291c074f96e",
+          "src/products/README.txt": "2674368b5dc23cd7bad8831f42d40c2942803cc091e84732d03fec64486b9e54",
+          "src/products/cards/iced-latte-card.v1.webp": "9ba78bc08cdf239afb7eb52df25658da082ec7ca5a1bb18dfc1d4bbaefcd85a8",
+          "src/products/cards/latte-card.v3.svg": "72559527a547a2b6e190002703ab091804c20f9aee529b2937d604bf59883072",
+          "src/products/cards/lotus-card.v3.svg": "9e7134721fa81e91184d7ff619bd82774b427ec30605157fa1b9a4fb4240f37f",
+          "src/products/cards/nutella-card.v3.svg": "d6c1c3ade45f00f5132efcfc34deaf45f5b548bedbda8c2fd33837135e405a29",
+          "src/products/cards/pairing-cool-lime-macaron.webp": "326083ee741969ae43cf1f00e0a66b6612a373225c68e28d443450648452828f",
+          "src/products/cards/pairing-iced-san-sebastian.webp": "aa0ac91c9444da5cc299fa370088fa8f775d67d3e15bf4b9777a7930901e63c2",
+          "src/products/cards/san-sebastian-card.v3.svg": "acbd5fabf50a3b32e8329ed9d54a408eb4cc3886e0fab283f58361838bba02c0",
+          "src/products/carrot-cake.svg": "00d4ea871ac251e07e586ae40faa86161dc27b0e296de83659725697e6f8dbd8",
+          "src/products/cold-drinks.svg": "43a24aa3a191199009b5dc8d94bbf18949b31e1d88a2b5527c9b5b91f6a29940",
+          "src/products/croissant.webp": "4bdeaa66add7d73b591a26a5da78558b9e028b5e34ed34a17ab390e1eb945492",
+          "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e",
+          "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+          "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+          "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+          "src/products/file_00000000d248720a8ca18bad97b2053a.png": "a33caf70eeee30b85182b98fdebb8986698cecc190579e02ef534387ace9f6cb",
+          "src/products/gallery-v4/iced-latte.webp": "fb26d21073c707eb805a7f32f469551358ae51b1a13319f19d5711a2b2cc7d49",
+          "src/products/gallery-v4/latte.webp": "3da159bdda3186fa028d39246f539ab955acc452a395f7139a21f058889af25f",
+          "src/products/gallery-v4/lotus-cheesecake.webp": "91fc95f5c68d12303768559c5cf9287cbb09664733afcef93a07e63f7a906088",
+          "src/products/gallery-v4/nutella-croissant.webp": "fa54e86f07c0057fce8f459e4ec933f4c80cde69242bc1a4bd5f89a3c0cee1d6",
+          "src/products/gallery-v4/san-sebastian.webp": "6629f82575b022b038c971855ec8a942bc5795de86d0091bd93e1d181848e02b",
+          "src/products/gallery-v5/croissant-828.webp": "a53a0a5976e4d3cec3f1faa6fe6cac826030cfd32dad6cb403f58796189ac000",
+          "src/products/gallery-v5/croissant.webp": "43413f12c3b6a0def291d17bf5eee49670f15711ffcf528804ccf1d8ca06e262",
+          "src/products/gallery-v5/iced-latte-828.webp": "1fbece31ba0dd3191525c0325552008ed5ddd2a9b862eadc90bf8075dac1cdcf",
+          "src/products/gallery-v5/iced-latte.webp": "bef853e69d52d9e2e697c9bdf6aafef58d836bb65bbed04d339a177dcb19ca15",
+          "src/products/gallery-v5/latte-828.webp": "26b4031bde763cd17b2f2d8dce2202cac14621106d395afac044662a9b1f733c",
+          "src/products/gallery-v5/latte.webp": "62ba58ef9eff6fa6c254f221284a5c5ebcb2d8499fa3dd0aab8404ce25a40043",
+          "src/products/gallery-v5/lotus-cheesecake-828.webp": "2c0a180ef8434c2bd369a804f0d6ea06720ef4034a2c4d1ecf4ee697df595a82",
+          "src/products/gallery-v5/lotus-cheesecake.webp": "383afbeb93e9775ede54e798d61c5821c54f1b51f89ec1bc8d17a4d4258f26a9",
+          "src/products/gallery-v5/nutella-croissant-828.webp": "166fe971e74a8891fe2132e1af99c40c1a16c58705c6f11028415d7799068f07",
+          "src/products/gallery-v5/nutella-croissant.webp": "320cd8a4561cd399347f91bb6c1fc0609c784841ef8fc1b51f6381a129bb715d",
+          "src/products/gallery-v5/san-sebastian-828.webp": "4bcabf3ed7866c39034c9324e2dd9a187bc84d5d4beced2f540ec31aae2df9c0",
+          "src/products/gallery-v5/san-sebastian.webp": "911db6cb3238bb14f9a29e4a706ff6729090aa35165f7c85517290aee96aed05",
+          "src/products/latte-premium.svg": "6332f62a08b42ad217e0717126fafd4cf20f53c102682d3b9fc300395992b0d8",
+          "src/products/latte.webp": "920b67ccb31048ec6f43a07ae252af3dbcad048f39ddaa941f69d8ae6de59150",
+          "src/products/lemon-cheesecake.svg": "b159dbb91499031f1ab39e2ceeb26f7002723caa44e57630ecfbda63a4aaa79c",
+          "src/products/lotus-cheesecake-menu.svg": "a3681067d03ae7cdd60c99364c21181e14adaab5a12cc4bffcff46d24bb358c1",
+          "src/products/lotus-cheesecake-v2.svg": "361728701e6a4e0e956c870923e8c16d48b01dc41c9287bdb4b425fe3dd1cbc9",
+          "src/products/lotus-cheesecake.webp": "b3ab356f5a49be00b7e9c566623f70c4dfb94d187c8a87c5c72fa6289b68af49",
+          "src/products/manifest.json": "2468048044f8abd1f17fb4ccd6114d4506972bf33ebf854f2136d36a824321b5",
+          "src/products/menu-note.txt": "55d80b3dc3286286f5518b793f457f3f8e5d760f009903baf5148c1bee00498c",
+          "src/products/menu-v1/_anchors/cold-cup-branded.webp": "64605bfe123a854ba53f76c0fa68c93a436e5cee2d056f9eb65332ecd9145017",
+          "src/products/menu-v1/_anchors/demitasse-branded.webp": "02a4fadd5b634c3cf582bda025775b30b4111a44547fe7a7fef97732d63610dd",
+          "src/products/menu-v1/_anchors/dessert-plate.webp": "ced48fa1105ca6fafdbf6a4f60792c52df6c225d7236ed4e632dc808ce0ec432",
+          "src/products/menu-v1/_anchors/hot-cup-branded.webp": "eaa14479f27564d7c2c5abacfedb2cb4435d1bea5f72ba91e6323f3328b1757b",
+          "src/products/menu-v1/brew-hot--black-tea.webp": "96016711fe99aaf0c89927b73179f45c154f7a44c15e4d79f8d59772c75d1640",
+          "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "a6d218204de4eaf20089fa0c40b2f8e8f3f72589e451ce8e4eebd681fed826a6",
+          "src/products/menu-v1/brew-hot--filter-coffee.webp": "27fbd6f0c65d72dcbd590e5b7de395492d3192d2166f0904854e322c2a2c5abd",
+          "src/products/menu-v1/brew-hot--hot-chocolate.webp": "c4851ac7910eba433d1a88d1a6066fba9386149d71feaefb8e0197cfb772f32c",
+          "src/products/menu-v1/brew-hot--milk.webp": "770b4156e46822a1fcfe1a643c1935b4be3a8bb4d7dd8a7f988e1fede4cd4be0",
+          "src/products/menu-v1/brew-hot--salep.webp": "68797040c0e9e72c39d9b172465e1843eeff0e38c44345585db78414415caf18",
+          "src/products/menu-v1/brew-hot--turkish-coffee.webp": "78789ed8e4b00f3f1c0e8104c728c6b3b781fa221c37c9b828e4cc7771ea0266",
+          "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp": "f7a9d51c7e3ff5a4bf64480d3ba1c2d5969124c62c429bed2d02b0f7978792fd",
+          "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp": "706de883652756824745ceb6f9d1842de5204926ebdf5c59beafe183f1075338",
+          "src/products/menu-v1/cold-coffee--iced-americano.webp": "83b4fee1ea93a82d9f97b02373398db10b8b874d11d101a8cac0fedf082d9903",
+          "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": "490062813c350107548f791f5b07b7e19ef5622905fe5a2c73e7411474a812ef",
+          "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": "8b17a4c61c8b578d5aa96170df85c04db64e4ef63fefec70f70a224ad0ca242b",
+          "src/products/menu-v1/cold-coffee--iced-mocha.webp": "3814b654244997d522085808639d3f83a0c98f5b2ed69405ef1173a936af442a",
+          "src/products/menu-v1/cold-coffee--milkshake.webp": "97be5c5d079e53295e209d9e795aa0e90f822fab41b476cadd1d889b45ad3278",
+          "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp": "b5a88be5330923bb8f860c418f54b8617072b84a96a5dc2ec947d4485ef52501",
+          "src/products/menu-v1/desserts--almond-tart.webp": "d49d286958e20530bcc5634f4824f96f5fbaf48d9d31720ac6c71a35e017f5bf",
+          "src/products/menu-v1/desserts--brownie.webp": "60acee5688b87fc43c2e947e953a87e9ba3029746b503a164e4ce27bc27b27fc",
+          "src/products/menu-v1/desserts--cake-roll.webp": "0b217928759d251c131a7ed9f8d615892f43100451acda8c1c0da66fd9fe6fc6",
+          "src/products/menu-v1/desserts--chocolate-cake.webp": "168fa354480b98311e86b5620e16ab160d5026bdcb451169c7ae40f0f4703b34",
+          "src/products/menu-v1/desserts--cookie.webp": "89122ffc87a88670057f47775b2795fc4f97a7fb294825e3509a4998f86250f6",
+          "src/products/menu-v1/desserts--lotus-cheesecake.webp": "cfc8b63aae670d977908e5d2c4e3c84af24ea295152689d67c8ad8f97d785c68",
+          "src/products/menu-v1/desserts--macaron.webp": "3bec3fce0f62d9a9e3731711a4463a097828be24ab2168472ae8a3d79d6e47ce",
+          "src/products/menu-v1/desserts--mosaic-cake.webp": "ce41ac050aa8f565a26f9d016ab40558d2f676426c68c1ef1d25603a33fa2ffa",
+          "src/products/menu-v1/desserts--raspberry-cheesecake.webp": "76c33722630550946150820c10210010f5906368af57f6bc86ff60a3a5e8b6cf",
+          "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": "4093302be7d2409381965abcd9cfea14cc15e93ac2fd0c6bee52bc2051750855",
+          "src/products/menu-v1/desserts--savoury-cookie.webp": "97da5bb96b12b51adf0121edcf73ec12899effdc420c25b3af0ac695b99a2604",
+          "src/products/menu-v1/desserts--tiramisu.webp": "2b0eaed94ed82163562d2929d0afef7ab901454d5d15d45768b002018a6c0bbe",
+          "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": "b5687be1001710693bddefb9556e5f99869c82a4a393ecbfec06244af023bc5d",
+          "src/products/menu-v1/food--nutella-croissant.webp": "a589ceca10e28a4441e9eb670a790db24671b4577c69d8858e5422640e6a7d6a",
+          "src/products/menu-v1/food--sesame-simit.webp": "7ff690066a8f5d611d192eddcc17976ea8894384549b1653649a8b6775e9c1a7",
+          "src/products/menu-v1/food--three-cheese-croissant.webp": "c0fb87e1a40e2ea29a7a8248e6d16b5d706fcb08fb66628367e33c471166cf5c",
+          "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": "b14d0ec491f4efb706270ee6122725a656903ccf10d13ac50640da1a1a6cb0a1",
+          "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": "6231866d1d19e718932fe3fc377c5aae820059446a527d245c53a68eac150cf8",
+          "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp": "9411bd475a283f942a1dff253c19b998f282fecc03895db51e195f23633bb1ed",
+          "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp": "e0db6c55c4c9bb82ba1a77912921b4f311fa67ffb7689de48a8d95d6661818c8",
+          "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": "78a2d9b6946a6142c81d19a81dd8b2891dffd8f0a346804f2968b030b95fe2d6",
+          "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp": "8707f2c072eff77030641c1704be848cfe0fe6f25954f48f0b040fd818d7bcfb",
+          "src/products/menu-v1/hot-coffee--americano.webp": "9cde8bad634634f8a62685c0b9b93b9b352900b3f6e3466e75fc658410b6c303",
+          "src/products/menu-v1/hot-coffee--caffe-latte.webp": "2340d439078ecc8fbcb2143073c9fedf5552db353cb79a702aa39e17b0fbb68d",
+          "src/products/menu-v1/hot-coffee--caffe-mocha.webp": "28edb23701e1b2081c2f34b48f4f9ca892121dbc48769ad22814a8fe28bdfbce",
+          "src/products/menu-v1/hot-coffee--cappuccino.webp": "087e9798fad9f55068578f355f4fcd266dfbdd61a20bd90b4cca3c128f06ea5b",
+          "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": "8e7163039486fe85ba101678d32b8c279c99f65698e2958fd34070668e337ca5",
+          "src/products/menu-v1/hot-coffee--caramel-latte.webp": "ba7c11162c753abc252118eabc64af21c0c42233393bab5723ff22c323eb635a",
+          "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": "a2ad38e5db3152c971fa9a273916dc5c812f8d01da47a3786139f6e375d9b70c",
+          "src/products/menu-v1/hot-coffee--cinnamon-latte.webp": "5744eb8f70e76ac9b328369fee2fe5d4791b55ef46906680ffcc7661e1192b28",
+          "src/products/menu-v1/hot-coffee--cortado.webp": "a591f800cb6f9e1dd8e68641994541e214b3398dacf3a9d28e918ee6c6a31a02",
+          "src/products/menu-v1/hot-coffee--espresso-macchiato.webp": "ac3ca5cac28e644c0846abda4f7872a673b5ac55e1411d695cffa4be3b07d1e5",
+          "src/products/menu-v1/hot-coffee--espresso.webp": "62ac47f2f0dedf9e5f95f207fa7b4af0de7d35ac64c845353d6f1cd1829b1da6",
+          "src/products/menu-v1/hot-coffee--flat-white.webp": "accf9d507aee844fe5cef0c4bff39006ea2170656f0b7832967a950ef8f3d5fe",
+          "src/products/menu-v1/hot-coffee--hazelnut-latte.webp": "7da1d39aa859ba1f23448fc87ef2471b5ba3f5698278f5386236e9fa3c7e2bfb",
+          "src/products/menu-v1/hot-coffee--vanilla-latte.webp": "5410ec12a2aa04ae5c58e4aab16e19ea1d13cb725c7ff7a496b8361ce149fb5a",
+          "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": "66079b113b005faece68e2870be060f549a34d528520ae9923186fb2b021217e",
+          "src/products/menu-v1/refreshers--berry-hibiscus.webp": "efe27181617d801f8dc079c828e811762931869cf732f72318386de19e473bc3",
+          "src/products/menu-v1/refreshers--berry-lemonade.webp": "1910f28bf86bb20da59eb32630fb8728f5a5eb34a2865a3e1542b5bdeae1d9a0",
+          "src/products/menu-v1/refreshers--cool-lime.webp": "0dd4b28f9fe0dcfdec85267c5868ca790f079716869ebe143fa30f90c3196e0e",
+          "src/products/menu-v1/refreshers--mango-passionfruit.webp": "651b8cf2f8b586c33519a9bb2d0e86252df098bfb5dd864d864cde3ea797e6b0",
+          "src/products/menu-v1/refreshers--pineapple-berry.webp": "ae2e21000119dd4530905f618d1143f29e00450755ec6dcbf5622f12542b1bc6",
+          "src/products/menu-v1/refreshers--strawberry-lime.webp": "9bec6674d1eb564abe76d09142201005356e34eca04734d63b0286bc7ea8031e",
+          "src/products/menu-v1/refreshers--summer-pine.webp": "38b4f7925d5fcea1be570a88a334985506bf17c56531b2baa9918e7a2bf8107d",
+          "src/products/menu-v1/refreshers--tropical-mango.webp": "d143d18c1d573f74dc1ace3f5bf221403aaf2ba8bf60aaf8bf3ba3c83db04d77",
+          "src/products/menu-v1/refreshers--yuzu-popcorn.webp": "3b1d2980840011c9d452cbc86ba79134c057adfd9f81fc71e634e69a358fc764",
+          "src/products/nutella-croissant.svg": "148f61d1ec8dc1c5d4566e96f7ba9b38774304811e4245efed9432e156bd6b74",
+          "src/products/nutella-croissant.webp": "4959606777bddc81188c26373f324297b0803fceae9e821988712af8689fd1fc",
+          "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+          "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+          "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+          "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9",
+          "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+          "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+          "src/products/occasion-sets-v1/provenance.json": "5ae0a8c291219ac5664ef192c86af1612d3551cbc590c26e606454b639a45865",
+          "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+          "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+          "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+          "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+          "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+          "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+          "src/products/quick-choice-v1/coffee.webp": "311479da1249fb1c9ce7eb4a0c58c75f3f3b240825a3a97e153779a2e1bb0ff0",
+          "src/products/quick-choice-v1/cold.webp": "af28ec5e0ff0b9c5c5c55ad44f4708f2ff1cf4618ea7b9b63f79c839030c8eaf",
+          "src/products/quick-choice-v1/tea.webp": "5b601f22bc07dcc4322f67bbcf48b19b389079f20c07ccbec6ed1eea70336ffc",
+          "src/products/raspberry-cheesecake.svg": "cb37a84b67b80888d2017030ff648c556b7280e5f52381e39f1a3eb3acf884d0",
+          "src/products/san-sebastian-premium.svg": "fb2786ae5050e0456b66602a52be702e510fa5a759713fb6f4ea5eb478b29fb8",
+          "src/products/san-sebastian.webp": "4093302be7d2409381965abcd9cfea14cc15e93ac2fd0c6bee52bc2051750855",
+          "src/products/san-sebastian.webp.base64.txt": "bb121d0030e18c8e9c44f8eafe949d960207d78ed095265410358e3289db99ab",
+          "src/products/sets-v1/cool-lime-macaron.webp": "0b7baea6fd5756d019b5414cff9424cab42ca5a69042697b1f3a5ec5c52560d4",
+          "src/products/sets-v1/filter-lotus.webp": "f97b147bb15eb6085a543095cd44f7d1480e9b6024388c8d3183ca5e64faaec5",
+          "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4": "29a75b89cb208a1471823671c05e2c8b27438dbc42a99c00af1eed02840d0bbf",
+          "src/products/sets-v1/iced-san-sebastian.webp": "5375ec1c1ed730a8d829e971efb3fd04c1777e510570bcfac21c3050a59bae99",
+          "src/products/sets-v1/latte-nutella.webp": "2db329a943a5e1bec86ec9db1cc4fb57b4743325fb8f1bd5f4810d3ea7d1af4f",
+          "src/products/sets-v1/relax-lotus.webp": "6d05c3fa2bf91cee04d294bc3adea3d16312b42b4c78976bd1da13231e3fbcc1",
+          "src/products/triple-cookie.svg": "472eb8da517f88d6e3dd5cba67ed992ffb254aadee8f1d50075e15dfdb723458",
+          "src/robys-ambience-clean.mp4": "2f52191d25ee6766dd1ebab330d343afd71e8bd8c2651b15f61d6834d9043dd2",
+          "src/robys-gallery-croissant.svg": "4eac342e4eabddeec111ad4f617dd3a2177322c1c0736ee3218d7a4f56b2e440",
+          "src/robys-gallery-croissant.webp": "c1867765c1b86d8723f5abb387bca8ef0019c7555023ed8f34938f1b7837ee8f",
+          "src/robys-gallery-latte-art.svg": "253012b46ced6fad86d3901db633be458e80c8f9a856bd37c8f4df2d6470e77b",
+          "src/robys-gallery-latte-art.webp": "b9450d364dd6dad476c6e7794f0ecdaf432c3c2a8f6e3881af2397d6d5771123",
+          "src/robys-gallery-signature.svg": "59e56acf18613df9f650ea0db55164a1362d3f2c4f6b7df53fbb6a0111205f78",
+          "src/robys-gallery-signature.webp": "9182271e978e8635a0630481c3994ab8d479f2c0c7a45c36dde717d1f811aa58",
+          "src/robys-hero-mobile-lite.mp4": "342fef1a1fec8b79ca9c2627f2a4931e3ab42f0ca9aa499ccd4830279ea0b29d",
+          "src/robys-hero-poster.jpg": "dcceab8e536d07532f006378bf07b54ddb003c71e7799a4b02c0088f6a26d04e",
+          "src/smart-choice/analytics-dedupe.ts": "4601a7c0dd2dd26ab12015241fa97ba2950b6f6325317fd29afec5f675eebf2c",
+          "src/smart-choice/analytics-domain.ts": "6d357ede753850525084fe3964fc73f3014fcccb7882a6cead2eaac0c59bc0c6",
+          "src/smart-choice/analytics.ts": "486aa402765ce8b72ec09d5ea69b8ab8987c44a3b0d35bfccc4c0530f4428916",
+          "src/smart-choice/cart-copy.ts": "eb5c81c6430e530842cc4ff85947e7b7b74e9b346c174a7375565cee66a4111a",
+          "src/smart-choice/cart-domain.ts": "6fc5275c221d311e1c7ee4469bca25bebdb6ed5fb59fc2db0d46efbcf3ef6f2c",
+          "src/smart-choice/cart.ts": "c20c08c855c84bf558d68a2891f91e0b66394765d80cfa009b9c39c1ef8f3038",
+          "src/smart-choice/catalog.ts": "61af39f819e4b8ead5b5f55909d1e9bf0a8e600ae3fde768e34e034aa60dc668",
+          "src/smart-choice/checkout-link.ts": "f2e3bffedac00fe379e34fa74ad6e3d73d8427b90e16ccd2f932486333c370a3",
+          "src/smart-choice/decision-trace-domain.ts": "7594b4af8c668037dc13bbaca4e016f8168b3cbfea2f38c8e6de1b108ccdca6e",
+          "src/smart-choice/decision-trace.ts": "18cc2af7632709c7d30c1556797e16f48b6c37a7128bed2eb7fcd32654310a07",
+          "src/smart-choice/engine.ts": "7311fe30321edef93a3499710618a6d4ed85d588b246a6300fcded268b130253",
+          "src/smart-choice/experiment-domain.ts": "2a0b6d3c1e2381a826ead6c31bf40f452e01e417cb2338579cc3d09372a69cf9",
+          "src/smart-choice/experiments.ts": "09b0270fadfe353287834dc18b4b302ed9eaa528b967d5d3d271c1a6352f880b",
+          "src/smart-choice/helpful-options.ts": "8a4dde770744094b6991506dd9797d1812d36d5db6595cb7aed4ebf37b65dc77",
+          "src/smart-choice/page.ts": "c309acbc74a1f32b2b250e9616108cd166fcf3d17ff87be6686aae5597fc7e6e",
+          "src/smart-choice/quick-builder-domain.ts": "72a7eb8a3bf520c72fd092c7ff2f83166bc633368fe48b93264b471205b36b7c",
+          "src/smart-choice/quick-builder.ts": "d87bd40fda5994c048bf1380b41f13d9668cb935967328ed587e35583db9a07c",
+          "src/smart-choice/release-qa-domain.ts": "319c30c685bdb39498d47d42151dd8ff573c724304ed1f5a319d8af724c7acb7",
+          "src/smart-choice/release-qa.ts": "44601146931f0a27235425f05c638c341830bc09c36c3f5f3ab39b87f3cadd4a",
+          "src/smart-choice/revenue-simulator-domain.ts": "5ecc4f4889418fdc38d835313d77515e3d4bf628368d05c0ce4b004c62c63c8a",
+          "src/smart-choice/revenue-simulator.ts": "dc7f9ace47f32c0a2920d51ddb6ccad4b4de73963473b7030f8c4035b4029451",
+          "src/smart-choice/shared-order.ts": "a6b33f8b533b2ea785dc7d7b98b7d0ed2fc0a81927bbbc8ee2a0c90a7a49614f",
+          "src/social-offer.ts": "5096adf58b7c62ebe51cc4d7bd0348495da39e64e4e721b69898d7f91ed21d56",
+          "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+          "sw-core-v64.js": "c74ae1c905c43ad8351763bb55ced75196f8146218b692cdb3ba1545d5794bb7",
+          "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+          "takeaway-entry.js": "e42f8fe96069a87025fb71187ef09df2fc2ccb7801dc5ab3865f28f045017773",
+          "tsconfig.json": "8454d5a3dd0664e6d14c6647ae255f46de54b09189b2b905fd4660a530a3e4ee",
+          "wordmark-responsive.css": "82f15d016cdf72a5dddb74202f9908d4da0c13150c987b6bd0b14557c3436532"
+        },
+        "finalFilesUnchangedAtReview": true,
+        "sourceTransition": {
+          "description": "After the first two reviewed runs, unchanged lazy-entry/search-clear/analytics behavior was coalesced into existing app/menu bundles to meet the existing transfer budget. Source/script references changed; all CSS and visible page content stayed the same. The final complete capture rerun is bound to the final blob map. An intermediate attempt3 is not used as final-source evidence because another bundling change was announced during that phase.",
+          "changedBindings": {
+            "app.js": {
+              "earlier": "bb385d5904ed05c686654a94767bcdc80aa0d7b6",
+              "final": "ddfe8a334636308fb4c071537f5e56e7e721f298"
+            },
+            "index.html": {
+              "earlier": "c6db340b62fcccb3ad4479cfe84b06ee1a0803e6",
+              "final": "9b939f7de5e94f03ec480d9ac219faf8ac7b5d29"
+            },
+            "integrity-manifest.json": {
+              "earlier": "d0aed77916e91bccdaf0cba985986d170e3b5861",
+              "final": "8592a9cfea0b2c7645030fd141f4869925f4e4bd"
+            },
+            "menu-app.js": {
+              "earlier": "2c8cace261db6df9eec01eab492f5475bea8a64c",
+              "final": "a80983d2e8748d31b59f9f909f15bf6d69ab19b6"
+            },
+            "menu.html": {
+              "earlier": "f835c4e8a44b3e64066432f91704289ee364a8bc",
+              "final": "ce5a558e0b36d554cd026756857e720d933d53bf"
+            },
+            "scripts/build.mjs": {
+              "earlier": "163d01e24414a0179580a00ee4bbb19108bc6e64",
+              "final": "9ef2a97fefce2fb43b0ba8af7f543e6f81228e57"
+            },
+            "scripts/menu-runtime-source.mjs": {
+              "earlier": "6d35b3f4a6689e573ea19e4df8320096da38a98b",
+              "final": "3b976fa9d17fc2103c5701d7062306e62c41b124"
+            },
+            "src/app.ts": {
+              "earlier": "05e35157a406094f41b87443bb0af23cd514e85a",
+              "final": "d2023fce15d22db9992d8ae361f2e019d57109d2"
+            },
+            "src/menu-app.js": {
+              "earlier": "d63ff0e5b4f99ba5d7770f3dd3f9c021ee47e7d5",
+              "final": "cb68d2b600bc53a916a19320d92fd695e76508b1"
+            },
+            "sw-core-v64.js": {
+              "earlier": "afd9ea03722803bad84c955b5d08355004bf9e0f",
+              "final": "ac57a92730a7e7f64869fec0f8a9aa7747bfc0b6"
+            }
+          }
+        },
+        "finalRepeatRawComparison": {
+          "against": "attempt-2",
+          "final": "attempt-4-final-bundles",
+          "rawPngPairs": 90,
+          "byteIdenticalPngPairs": 82,
+          "varyingRawPairs": [
+            {
+              "kind": "baseline",
+              "file": "discover-full__phone-320.png",
+              "width": 320,
+              "height": 3045,
+              "bbox": [
+                112,
+                14,
+                285,
+                104
+              ],
+              "rowGroups": [
+                [
+                  14,
+                  62
+                ],
+                [
+                  101,
+                  103
+                ]
+              ],
+              "first": "attempt-2/baseline/discover-full__phone-320.png",
+              "second": "attempt-4-final-bundles/baseline/discover-full__phone-320.png"
+            },
+            {
+              "kind": "baseline",
+              "file": "discover-pairing__phone-320.png",
+              "width": 280,
+              "height": 780,
+              "bbox": [
+                200,
+                35,
+                265,
+                38
+              ],
+              "rowGroups": [
+                [
+                  35,
+                  37
+                ]
+              ],
+              "first": "attempt-2/baseline/discover-pairing__phone-320.png",
+              "second": "attempt-4-final-bundles/baseline/discover-pairing__phone-320.png"
+            },
+            {
+              "kind": "baseline",
+              "file": "landing-full__phone-390.png",
+              "width": 390,
+              "height": 8644,
+              "bbox": [
+                58,
+                40,
+                343,
+                7765
+              ],
+              "rowGroups": [
+                [
+                  40,
+                  47
+                ],
+                [
+                  3239,
+                  3249
+                ],
+                [
+                  7752,
+                  7764
+                ]
+              ],
+              "first": "attempt-2/baseline/landing-full__phone-390.png",
+              "second": "attempt-4-final-bundles/baseline/landing-full__phone-390.png"
+            },
+            {
+              "kind": "baseline",
+              "file": "menu-preview__phone-390.png",
+              "width": 390,
+              "height": 950,
+              "bbox": [
+                10,
+                843,
+                374,
+                893
+              ],
+              "rowGroups": [
+                [
+                  843,
+                  892
+                ]
+              ],
+              "first": "attempt-2/baseline/menu-preview__phone-390.png",
+              "second": "attempt-4-final-bundles/baseline/menu-preview__phone-390.png"
+            },
+            {
+              "kind": "current",
+              "file": "discover-full__phone-320.png",
+              "width": 320,
+              "height": 3607,
+              "bbox": [
+                112,
+                14,
+                119,
+                45
+              ],
+              "rowGroups": [
+                [
+                  14,
+                  44
+                ]
+              ],
+              "first": "attempt-2/current/discover-full__phone-320.png",
+              "second": "attempt-4-final-bundles/current/discover-full__phone-320.png"
+            },
+            {
+              "kind": "current",
+              "file": "hero__phone-360-short.png",
+              "width": 360,
+              "height": 679,
+              "bbox": [
+                182,
+                40,
+                287,
+                48
+              ],
+              "rowGroups": [
+                [
+                  40,
+                  47
+                ]
+              ],
+              "first": "attempt-2/current/hero__phone-360-short.png",
+              "second": "attempt-4-final-bundles/current/hero__phone-360-short.png"
+            },
+            {
+              "kind": "current",
+              "file": "menu-full__phone-320.png",
+              "width": 320,
+              "height": 11935,
+              "bbox": [
+                37,
+                521,
+                271,
+                550
+              ],
+              "rowGroups": [
+                [
+                  521,
+                  549
+                ]
+              ],
+              "first": "attempt-2/current/menu-full__phone-320.png",
+              "second": "attempt-4-final-bundles/current/menu-full__phone-320.png"
+            },
+            {
+              "kind": "current",
+              "file": "visit-map__phone-390.png",
+              "width": 390,
+              "height": 1360,
+              "bbox": [
+                199,
+                155,
+                210,
+                199
+              ],
+              "rowGroups": [
+                [
+                  155,
+                  198
+                ]
+              ],
+              "first": "attempt-2/current/visit-map__phone-390.png",
+              "second": "attempt-4-final-bundles/current/visit-map__phone-390.png"
+            }
+          ],
+          "visualInspection": "All eight nonidentical PNG pairs against attempt2 were visually inspected around every changed row group. Variations remain in language/control glyphs, the existing gallery SET arrow, the fixed mobile dock, and menu search/cart control paint. No new content disappearance, clipping or layout harm was observed; no rendering cause is claimed."
+        }
+      },
+      "inspection": {
+        "allFailingComparisonsReviewed": 21,
+        "method": "Baseline/current raw PNGs and native-browser display sheets were viewed. Primary reviewer inspected all failing comparison types and viewports; supplemental reviewer inspected full-menu top/middle/bottom with registration by observed height delta and all six share states. Long pages were reviewed using overview and selected top/body/footer bands, not OCR or a guarantee for every product pixel.",
+        "landingFull": {
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "heightDeltaPixels": [
+            537,
+            491,
+            476,
+            340
+          ],
+          "finding": "New cream entry section contains three separate routes for together/to-go/kids and native manual help. Its insertion increases page height. Hero/logo/language controls, featured product images, category section, map/social offer and footer remain represented; sampled views show no new overlap or cropped action."
+        },
+        "menuFull": {
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "heightDeltaPixels": [
+            174,
+            174,
+            109,
+            44
+          ],
+          "finding": "One kids link becomes three menu entry links plus manual help. They wrap at narrower widths; the introduction becomes taller. Catalog grids, existing item names/prices/images, share block and footer remain represented below the shifted introduction. No new clipping or obscured catalog controls were observed."
+        },
+        "discoverFull": {
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "heightDeltaPixels": [
+            562,
+            516,
+            508,
+            372
+          ],
+          "finding": "New entry section follows the existing pairing card before the explanatory principles. Three routes stack on narrower viewports and occupy one row on desktop. Existing pairing photo/title/actions, next-pairing price and principles/footer remain represented with no new clipped text or action."
+        },
+        "existingComponents": {
+          "socialOffer": "All five failing social-offer comparisons were viewed. Lotus Cheesecake + Latte, 370 price and Instagram action remain visible. Four failures are one-pixel crop-height changes; phone320 shows small border/glyph/paint displacement with matching dimensions. The social-offer source/style bytes are unchanged against the baseline. No claim of a measured business impact or fully proved rendering cause is made.",
+          "menuShare": "Both failing share states (360-short and 390) retain the heading, copy, share, Instagram and Google Maps actions. Differences are small glyph/border paint shifts with matching dimensions. All six share comparisons received supplemental visual inspection.",
+          "menuPreview": "390 crop differs by one pixel in height; six category cards, labels and existing fixed mobile dock remain present. The dock was restored to its original DOM location before freeze.",
+          "visitMap": "390 crop retains address, opening hours, Instagram and map actions with matching dimensions. The sticky site header overlaps the top of this selector screenshot in BOTH baseline and current; this is not recorded as a newly introduced defect. Full-page footer/map samples were also viewed."
+        },
+        "minorPolish": [
+          {
+            "finding": "The new manual-help button top border directly adjoins the preceding kids link/card border in the captured states. Controls remain separate and there is no text clipping or overlap.",
+            "severity": "low / cosmetic",
+            "suggestion": "Add about 8px vertical spacing in a future intentional design revision if desired.",
+            "disposition": "Disclosed; no production change was made during this frozen visual review."
+          }
+        ],
+        "unexpectedBlockingDefectsObserved": 0
+      },
+      "toolchain": {
+        "packages": {
+          "playwright": "1.55.1",
+          "pixelmatch": "6.0.0",
+          "pngjs": "7.0.0"
+        },
+        "browser": {
+          "name": "chromium-headless-shell",
+          "revision": "1193",
+          "version": "140.0.7339.186"
+        },
+        "lockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+        "visualDependencyClosureChanged": false,
+        "packageVerificationSha256": "0e398ce24d4b263a5268771c2a6535336f3a96b7ec6898664bd0920d10390412",
+        "browserVerificationSha256": "5bf852cb8f9f5fb3e638f55ee85c827f1fc630516ac8a838c2b06caad0f67446",
+        "environment": "Local Linux x64, Node24.19.0. Committed visual script uses Turkish locale, fixed date, reduced motion, blocked service workers and its existing bypassCSP screenshot stabilizer. Production-CSP interaction and offline checks are separate evidence."
+      },
+      "reproduction": {
+        "command": "VISUAL_CURRENT_DIR=<current-checkout> VISUAL_BASELINE_DIR=<clean-2ac573a2-worktree> VISUAL_RESULTS_DIR=<new-attempt-dir> node scripts/visual-regression.mjs",
+        "reviewGate": "VISUAL_RESULTS_DIR=<new-attempt-dir> node scripts/verify-reviewed-visual-change.mjs",
+        "captureArtifacts": "Local evidence directory occasion-visual-review contains both complete raw matrices, logs, toolchain proofs and display sheets. Capture hashes and exact observations are retained in this record; the fresh CI run must independently verify its own captured failure set."
+      },
+      "scopeLimits": [
+        "Assistant inspection; neither reviewer is a human approver. The primary reviewer exported the approved imagery and authored an offline test; the supplemental reviewer authored the combo UI. No independent-human approval is claimed.",
+        "Default Turkish captured Chromium states at the committed viewports only. Locale interactions, accessibility conformance, physical devices, backend behavior, conversion outcomes and live publication are outside this record.",
+        "Long full pages are sampled with overview/top/body/footer views; not every product pixel is reviewed. Display-sheet crop boundaries are diagnostic framing, not claims of page clipping.",
+        "The new combo cards are collapsed in this regression matrix; their expanded editor/filters/photography are covered by the separate built-runtime browser suite.",
+        "A content-bound record accepts only the complete observed failure set at these exact file blobs and metrics/dimensions. It does not change global thresholds, update baseline images or retroactively turn a failed screenshot comparison into a pass."
+      ],
+      "reviewGateControls": {
+        "framework": "Unmodified scripts/verify-reviewed-visual-change.mjs, isolated temporary fixture; no production or baseline mutation.",
+        "results": [
+          {
+            "name": "exact-current-content-and-complete-failure-set",
+            "expected": "accept",
+            "actual": "accept",
+            "exitCode": 0
+          },
+          {
+            "name": "stale-public-file-blob-binding",
+            "expected": "reject",
+            "actual": "reject",
+            "exitCode": 1
+          },
+          {
+            "name": "one-reviewed-failure-missing",
+            "expected": "reject",
+            "actual": "reject",
+            "exitCode": 1
+          },
+          {
+            "name": "unexpected-extra-failure",
+            "expected": "reject",
+            "actual": "reject",
+            "exitCode": 1
+          },
+          {
+            "name": "unreviewed-dimension-change",
+            "expected": "reject",
+            "actual": "reject",
+            "exitCode": 1
+          },
+          {
+            "name": "ratio-exceeds-exact-observed-bound",
+            "expected": "reject",
+            "actual": "reject",
+            "exitCode": 1
+          }
+        ]
+      },
+      "captureSummarySha256": "5b6257277b11b2bbf5f71391daefb9da8e95ad9d03cc2a5f1cebb1dfe2f28b22"
+    }
+  ]
+}

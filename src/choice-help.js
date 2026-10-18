@@ -62,9 +62,10 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   const memoryKey = Symbol.for("robys.choice-help.session.v1");
   const memory = window[memoryKey] ??= { seen: false, elapsed: 0 };
   let seen = session?.seen === true || memory.seen;
-  let elapsed = Math.max(0, Math.min(OFFER_AFTER_MS, Number(session?.elapsed) || memory.elapsed));
+  let elapsed = Math.max(0, Math.min(OFFER_AFTER_MS,
+    Math.max(Number(session?.elapsed) || 0, memory.elapsed, Number(options.initialElapsed) || 0)));
   let lastTick = now();
-  let lastActivity = lastTick;
+  let lastActivity = lastTick - Math.max(0, Number(options.initialIdle) || 0);
   let checking = false;
   let generation = 0;
   let destroyed = false;
@@ -72,7 +73,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   let manuallyOpened = false;
   let timer;
 
-  const entry = document.createElement("button");
+  const entry = options.entry ?? document.createElement("button");
   entry.type = "button";
   entry.className = "choice-help-entry";
   entry.setAttribute("aria-expanded", "false");
@@ -104,7 +105,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   actions.append(combos, smart);
   status.append(title, body);
   panel.append(close, status, actions);
-  host.append(entry);
+  if (entry.parentNode !== host) host.append(entry);
   document.body.append(panel);
 
   function language() {
@@ -242,12 +243,10 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   }
   function orderChange() {
     hide();
-    // Always read after a commit, including commits whose localStorage mirror
-    // failed. A positive basket is remembered until a fresh empty read.
-    const token = generation;
-    void readDraft().then(draft => {
-      if (!destroyed && token === generation) cartKnownBusy = hasDraftItems(draft);
-    }).catch(() => { if (!destroyed && token === generation) cartKnownBusy = true; });
+    // Projection/focus notifications are not ordering intent. Invalidate the
+    // cached answer without downloading the authoritative store. The next
+    // eligible automatic offer reads the latest committed draft before showing.
+    cartKnownBusy = false;
   }
   function storage(event) {
     if (event.key === LANGUAGE_KEY || event.key === null) translate();
@@ -290,6 +289,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
 
   return {
     show: () => offer(true),
+    offerAutomatic: () => offer(),
     dismiss,
     destroy() {
       if (destroyed) return;
@@ -318,5 +318,3 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
     }
   };
 }
-
-if (typeof document !== "undefined") initChoiceHelp();

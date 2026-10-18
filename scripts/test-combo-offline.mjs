@@ -17,9 +17,9 @@ const revision = bytes => digest(bytes).slice(0, 12);
 const photoIds = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"];
 const photoFiles = photoIds.map(id => `src/products/occasion-sets-v1/${id}.webp`);
 const surfaces = ["index.html", "menu.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html"];
-const versionedFiles = ["menu-app.js", "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help.js", "choice-help.css", "discover-copy.js", "menu-catalog.js", "order-storage.js", "menu-runtime.css"];
-const namespaceFiles = ["menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help.js", "choice-help.css", "discover-copy.js", ...surfaces, ...photoFiles];
-const trackedFiles = [...new Set(["sw.js", "sw-core-v64.js", "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help.js", ...versionedFiles, ...surfaces, ...photoFiles])];
+const versionedFiles = ["menu-app.js", "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", "menu-catalog.js", "order-storage.js", "menu-runtime.css"];
+const namespaceFiles = ["menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...surfaces, ...photoFiles];
+const trackedFiles = [...new Set(["sw.js", "sw-core-v64.js", "app.js", "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help.js", "src/choice-help-entry.js", ...versionedFiles, ...surfaces, ...photoFiles])];
 const output = resolve(process.env.ROBYS_COMBO_OFFLINE_QA_DIR ?? ".artifacts/combo-offline");
 mkdirSync(output, { recursive: true });
 const report = { startedAt: new Date().toISOString(), mode: "Unmodified emitted files and production CSP; actual Chromium service worker; server closes all connections during offline phase", cases: [] };
@@ -29,7 +29,7 @@ const input = readInputs();
 report.assetHashesStart = Object.fromEntries(Object.entries(input.files).map(([file, bytes]) => [file, digest(bytes)]));
 
 function verifyBuiltContract({ files }) {
-  for (const [source, runtime] of [["src/menu-app.js", "menu-app.js"], ["src/menu-combos-ui.js", "menu-combos-ui.js"], ["src/choice-help.js", "choice-help.js"]]) {
+  for (const [source, runtime] of [["src/menu-app.js", "menu-app.js"], ["src/menu-combos-ui.js", "menu-combos-ui.js"], ["src/choice-help.js", "choice-help.js"], ["src/choice-help-entry.js", "choice-help-entry.js"]]) {
     assert.equal(files[runtime].toString(), compileMenuRuntime(files[source].toString()), `${runtime}: emitted bytes must match current source and dependencies`);
   }
   const worker = files["sw-core-v64.js"].toString();
@@ -46,7 +46,11 @@ function verifyBuiltContract({ files }) {
   for (const file of ["src/menu-app.js", "menu-app.js"]) assert.ok(files[file].toString().includes(comboImport), `${file}: combo loader must use the current exact revision`);
   for (const file of surfaces) {
     const prefix = file.includes("/") ? "../" : "";
-    assert.ok(files[file].toString().includes(`src="${prefix}choice-help.js?v=${revision(files["choice-help.js"])}"`), `${file}: helper must use its current exact revision`);
+    if (["index.html", "menu.html"].includes(file)) {
+      const runtime = file === "index.html" ? "app.js" : "menu-app.js";
+      assert.ok(files[runtime].toString().includes(`import("./choice-help.js?v=${revision(files["choice-help.js"])}")`), `${runtime}: bundled entry must request the current lazy helper`);
+      assert.ok(!files[file].toString().includes('src="choice-help-entry.js'), `${file}: initial entry must not load twice`);
+    } else assert.ok(files[file].toString().includes(`src="${prefix}choice-help-entry.js?v=${revision(files["choice-help-entry.js"])}"`), `${file}: helper must use its current exact revision`);
   }
   return { namespace, cacheName: worker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1], worker };
 }

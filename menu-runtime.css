@@ -1506,6 +1506,8 @@ body.menu-combos-open{overflow:hidden}
 @media (max-width: 480px) { .choice-help-panel { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); padding: 22px 18px 16px; } }
 @media (prefers-reduced-motion: reduce) { .choice-help-panel { animation: none; } }
 
+.choice-help-entry > [lang]{display:none}.choice-help-entry > [lang="tr"]{display:inline}html[lang="en"] .choice-help-entry > [lang="tr"],html[lang="ru"] .choice-help-entry > [lang="tr"]{display:none}html[lang="en"] .choice-help-entry > [lang="en"],html[lang="ru"] .choice-help-entry > [lang="ru"]{display:inline}
+
 .menu-search input{padding-right:58px}
 .menu-search-clear{position:absolute;top:50%;right:9px;display:grid;width:34px;height:34px;place-items:center;padding:0;color:var(--muted);background:transparent;border:0;border-radius:50%;cursor:pointer;font:500 1.35rem/1 var(--sans);transform:translateY(-50%);transition:color .18s,background .18s,transform .18s}
 .menu-search-clear:hover{color:var(--ink);background:rgba(47,39,37,.08)}

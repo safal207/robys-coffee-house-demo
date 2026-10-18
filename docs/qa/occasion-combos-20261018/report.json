@@ -1,47 +1,36 @@
 {
-  "startedAt": "2026-10-18T19:35:44.099Z",
-  "head": "2ac573a2709bcb67a5e7998b96aa5e97b6571cc2",
+  "startedAt": "2026-10-18T20:02:55.642Z",
+  "head": "f927944b18f61408f71d16528bff7325d6d13264",
   "dirtyFilesAtStart": [
-    "M .github/workflows/order-reliability.yml",
-    " M discover-copy.js",
-    " M discover-v2.js",
+    "M app.js",
+    " M choice-help.css",
+    " M choice-help.js",
     " M discover.html",
+    " M docs/qa/occasion-combos-20261018/README.md",
+    " M docs/qa/occasion-combos-20261018/offline-report.json",
+    " M docs/qa/occasion-combos-20261018/report.json",
     " M experience/index.html",
     " M index.html",
     " M integrity-manifest.json",
     " M menu-app.js",
     " M menu-runtime.css",
     " M menu.html",
-    " M package.json",
+    " M qa/gallery.spec.ts",
     " M ru/coffee-gazipasa.html",
     " M scripts/audit-dependencies.mjs",
     " M scripts/build.mjs",
     " M scripts/menu-runtime-source.mjs",
-    " M scripts/menu-styles-bundle.mjs",
-    " M scripts/test-brand-wordmark.mjs",
-    " M scripts/test-menu-order-loader.mjs",
-    " M scripts/test-menu-styles-bundle.mjs",
-    " M scripts/verify-brand-identity-assets.mjs",
-    " M scripts/verify-menu-order.mjs",
-    " M smart-choice/app-v2.js",
+    " M scripts/test-combo-offline.mjs",
+    " M scripts/test-menu-combos-browser.mjs",
+    " M scripts/verify-pairing-cta-static.mjs",
     " M smart-choice/index.html",
+    " M src/app.ts",
+    " M src/choice-help.js",
     " M src/menu-app.js",
-    " M src/smart-choice/page.ts",
     " M sw-core-v64.js",
-    "?? choice-help.css",
-    "?? choice-help.js",
-    "?? combo-entry.css",
-    "?? docs/qa/occasion-combos-20261018/",
-    "?? menu-combos-ui.js",
-    "?? menu-combos.css",
-    "?? scripts/test-choice-help.mjs",
-    "?? scripts/test-combo-offline.mjs",
-    "?? scripts/test-menu-combos-browser.mjs",
-    "?? scripts/test-menu-combos.mjs",
-    "?? src/choice-help.js",
-    "?? src/menu-combos-ui.js",
-    "?? src/menu-combos.js",
-    "?? src/products/occasion-sets-v1/"
+    "?? choice-help-entry.js",
+    "?? qa/reviewed-visual-changes.d/occasion-combos-20261018.json",
+    "?? src/choice-help-entry.js"
   ],
   "mode": "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
   "environment": {
@@ -51,27 +40,31 @@
     "authoritativeStore": "readonly IDB verification"
   },
   "assetHashesStart": {
-    "menu.html": "2e692b4f52ffffd58e3855b3725ccf54d6884a773767243a360de6c8d58d06ec",
-    "menu-app.js": "1edcbbc8dd42ac0ed8c219282c27a09e81ec05b5e0979b8d616ac05d587562b0",
+    "app.js": "e7e9d1431d790496a0537a9c0bdba0e94c2a22b54854d8563e615169f0815634",
+    "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
+    "menu.html": "aa1e1c90135301b020898fdf56d21f0af3b174f103199a97f0e0437d6ada91b7",
+    "menu-app.js": "54cab80ab43948eea993b46966c80dd70eaa3f786cb46872bd5c87db773e63c4",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
     "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
-    "index.html": "4ac4e1d83248434ea612ec8cb7d1a6f8ad4b3f1e7b196a910d750e648925b0a5",
-    "discover.html": "f964c92ba966ea50b587618de1b4b3fef260a629ebd594caf456762387a34e26",
-    "experience/index.html": "51c8c00ea017d1c40cd55ad248c68ed405fe86cd3475270d858c322c38f66df7",
-    "smart-choice/index.html": "0f5660f617e22770a0a35b95b6ea5188fb85e940cc92172c529b782ecd1d1f5e",
-    "ru/coffee-gazipasa.html": "2ed7efb07b49f7752c9978fb41545cb5747cd6640da7eea4bc853182eefbd2d9",
+    "index.html": "190e8a0a52834555e6315a6a6ae342abb033ca0ffc9c9cc9284cb5453e50857d",
+    "discover.html": "d5cfa593b42e0b7ad2f2a5d118d71cd70c3c8601f067726a02c6e37732846815",
+    "experience/index.html": "fcdfab9c85844a3b84cf6559efd15c48acff2b35bc7bb68913e77e68e855f597",
+    "smart-choice/index.html": "e6488e03b3123bb3d863d434d812879d78b014b9ca09fd1e27f3bdc8bed43939",
+    "ru/coffee-gazipasa.html": "19c0711cdba3b8f6856d9f84c14c5252dc23d2ce864af98631fd749bd4467447",
     "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
-    "choice-help.js": "4cd7020420779adf798387f7368a0dc4b55005878bee90c46b4dd135fe50f07e",
-    "choice-help.css": "8b952c93e8ce6ed4f31980abe6bde8e715d3869b2efc51f7bdff46b3b9a0f505",
+    "choice-help-entry.js": "a07dc0e704cbc7458e520a8645766fbc7a71a1637318c3983ccd1755ca72ebcb",
+    "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
+    "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "9583ac617ed2af8c44145dc9b813d4a506ae4296bf3b8929e0bbcd5b7276c4f3",
-    "scripts/test-menu-combos-browser.mjs": "8fadb1b464233c3540b37cba1429c8a53c548270c3e9addf322b4ff7b9b28c90",
-    "src/menu-app.js": "49ef9deec3f2f56fdea49b470b6e9764caf301e90c3212d8b362de9f5fb65a4a",
+    "sw-core-v64.js": "c74ae1c905c43ad8351763bb55ced75196f8146218b692cdb3ba1545d5794bb7",
+    "scripts/test-menu-combos-browser.mjs": "d306340297cf66320608a0163ee4e5df4ce9f49a3d071208f9fd5531435d0f77",
+    "src/menu-app.js": "ae9ed03d3c7f944bf3b63ee701844502e71fbd76115374071c58ff1bd3323902",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
     "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
-    "src/choice-help.js": "c54ce069dc4ebfb0b03c9ab97e20ae07d577452ee79c1adea6899289412a0ca2",
+    "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
+    "src/choice-help.js": "bde746ff1c5d40b15d34ddcce95dcd6c5a616ac6f3d486eb20a8510e22520b05",
     "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
     "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
     "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
@@ -95,7 +88,7 @@
     {
       "id": "chromium-catalog-and-edit-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:44.165Z",
+      "startedAt": "2026-10-18T20:02:55.718Z",
       "facts": {
         "language": "tr",
         "recipes": [
@@ -362,7 +355,7 @@
     {
       "id": "chromium-exact-add-together-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:46.806Z",
+      "startedAt": "2026-10-18T20:02:58.697Z",
       "facts": {
         "language": "tr",
         "recipe": "together",
@@ -384,7 +377,7 @@
     {
       "id": "chromium-exact-add-family-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:47.234Z",
+      "startedAt": "2026-10-18T20:02:59.197Z",
       "facts": {
         "language": "tr",
         "recipe": "family",
@@ -414,7 +407,7 @@
     {
       "id": "chromium-catalog-and-edit-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:47.704Z",
+      "startedAt": "2026-10-18T20:02:59.668Z",
       "facts": {
         "language": "en",
         "recipes": [
@@ -681,7 +674,7 @@
     {
       "id": "chromium-exact-add-together-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:50.124Z",
+      "startedAt": "2026-10-18T20:03:02.289Z",
       "facts": {
         "language": "en",
         "recipe": "together",
@@ -703,7 +696,7 @@
     {
       "id": "chromium-exact-add-family-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:50.579Z",
+      "startedAt": "2026-10-18T20:03:02.814Z",
       "facts": {
         "language": "en",
         "recipe": "family",
@@ -733,7 +726,7 @@
     {
       "id": "chromium-catalog-and-edit-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:51.064Z",
+      "startedAt": "2026-10-18T20:03:03.338Z",
       "facts": {
         "language": "ru",
         "recipes": [
@@ -1000,7 +993,7 @@
     {
       "id": "chromium-exact-add-together-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:53.787Z",
+      "startedAt": "2026-10-18T20:03:06.061Z",
       "facts": {
         "language": "ru",
         "recipe": "together",
@@ -1022,7 +1015,7 @@
     {
       "id": "chromium-exact-add-family-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:54.256Z",
+      "startedAt": "2026-10-18T20:03:06.619Z",
       "facts": {
         "language": "ru",
         "recipe": "family",
@@ -1052,7 +1045,7 @@
     {
       "id": "chromium-layout-320x700-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:54.911Z",
+      "startedAt": "2026-10-18T20:03:07.162Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -1075,7 +1068,7 @@
     {
       "id": "chromium-layout-320x700-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:55.279Z",
+      "startedAt": "2026-10-18T20:03:07.479Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -1098,7 +1091,7 @@
     {
       "id": "chromium-layout-320x700-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:55.622Z",
+      "startedAt": "2026-10-18T20:03:07.867Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -1121,7 +1114,7 @@
     {
       "id": "chromium-layout-390x844-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:56.305Z",
+      "startedAt": "2026-10-18T20:03:08.495Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -1144,7 +1137,7 @@
     {
       "id": "chromium-layout-390x844-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:56.656Z",
+      "startedAt": "2026-10-18T20:03:08.871Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -1167,7 +1160,7 @@
     {
       "id": "chromium-layout-390x844-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:57.002Z",
+      "startedAt": "2026-10-18T20:03:09.254Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -1190,7 +1183,7 @@
     {
       "id": "chromium-layout-768x1024-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:57.641Z",
+      "startedAt": "2026-10-18T20:03:09.878Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1213,7 +1206,7 @@
     {
       "id": "chromium-layout-768x1024-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:58.070Z",
+      "startedAt": "2026-10-18T20:03:10.269Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1236,7 +1229,7 @@
     {
       "id": "chromium-layout-768x1024-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:58.484Z",
+      "startedAt": "2026-10-18T20:03:10.825Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -1259,7 +1252,7 @@
     {
       "id": "chromium-layout-1440x1000-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:58.869Z",
+      "startedAt": "2026-10-18T20:03:11.192Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1282,7 +1275,7 @@
     {
       "id": "chromium-layout-1440x1000-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:59.210Z",
+      "startedAt": "2026-10-18T20:03:11.560Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1305,7 +1298,7 @@
     {
       "id": "chromium-layout-1440x1000-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:35:59.513Z",
+      "startedAt": "2026-10-18T20:03:11.979Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -1328,7 +1321,7 @@
     {
       "id": "chromium-layout-844x390-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:00.093Z",
+      "startedAt": "2026-10-18T20:03:12.573Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1351,7 +1344,7 @@
     {
       "id": "chromium-layout-844x390-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:00.431Z",
+      "startedAt": "2026-10-18T20:03:12.912Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1374,7 +1367,7 @@
     {
       "id": "chromium-layout-844x390-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:00.725Z",
+      "startedAt": "2026-10-18T20:03:13.307Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1397,7 +1390,7 @@
     {
       "id": "chromium-two-tabs-preserve-combo-additions",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:01.339Z",
+      "startedAt": "2026-10-18T20:03:13.987Z",
       "facts": {
         "nativeAddHandlers": 2,
         "exactLines": [
@@ -1425,7 +1418,7 @@
     {
       "id": "chromium-busy-double-activation-adds-once",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:02.159Z",
+      "startedAt": "2026-10-18T20:03:14.842Z",
       "facts": {
         "activation": "Two immediate DOM button.click() attempts, actual production handler",
         "commits": 1,
@@ -1453,7 +1446,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-cart-intent",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:02.580Z",
+      "startedAt": "2026-10-18T20:03:15.279Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerCartRemainsOpen": true,
@@ -1463,7 +1456,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-category",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:03.404Z",
+      "startedAt": "2026-10-18T20:03:16.098Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "category",
@@ -1474,7 +1467,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-search",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:04.201Z",
+      "startedAt": "2026-10-18T20:03:16.938Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "search",
@@ -1485,7 +1478,7 @@
     {
       "id": "chromium-delayed-combo-loader-keeps-newer-hash",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:05.014Z",
+      "startedAt": "2026-10-18T20:03:17.680Z",
       "facts": {
         "delayedModule": "menu-combos-ui.js",
         "newerChoice": "hash",
@@ -1496,7 +1489,7 @@
     {
       "id": "chromium-same-hash-helper-reopens-hidden-combos",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:05.784Z",
+      "startedAt": "2026-10-18T20:03:18.472Z",
       "facts": {
         "sameHash": "#menu-combos",
         "hiddenThenReopened": true,
@@ -1506,7 +1499,7 @@
     {
       "id": "chromium-all-view-entry-points-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:06.176Z",
+      "startedAt": "2026-10-18T20:03:18.900Z",
       "facts": {
         "language": "tr",
         "views": [
@@ -1636,7 +1629,7 @@
     {
       "id": "chromium-all-view-entry-points-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:08.136Z",
+      "startedAt": "2026-10-18T20:03:21.007Z",
       "facts": {
         "language": "en",
         "views": [
@@ -1766,7 +1759,7 @@
     {
       "id": "chromium-all-view-entry-points-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:10.198Z",
+      "startedAt": "2026-10-18T20:03:23.283Z",
       "facts": {
         "language": "ru",
         "views": [
@@ -1894,9 +1887,36 @@
       }
     },
     {
+      "id": "chromium-helper-notifications-keep-storage-lazy-until-eligible",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:03:25.423Z",
+      "facts": {
+        "notificationTypes": [
+          "storage projection",
+          "robys:order-change",
+          "focus"
+        ],
+        "before34sStorageRequests": 0,
+        "eligibleStorageRequests": 1,
+        "authoritativePeerOrder": [
+          {
+            "id": "brew-hot:black-tea",
+            "quantity": 1
+          },
+          {
+            "id": "food:sesame-simit",
+            "quantity": 1
+          }
+        ],
+        "canonicalRevision": 1,
+        "missingDisposableMirror": true,
+        "nonemptyCanonicalOrderSuppressesOffer": true
+      }
+    },
+    {
       "id": "chromium-quiet-helper-once-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:12.195Z",
+      "startedAt": "2026-10-18T20:03:26.824Z",
       "facts": {
         "language": "tr",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1921,7 +1941,7 @@
     {
       "id": "chromium-quiet-helper-once-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:12.882Z",
+      "startedAt": "2026-10-18T20:03:28.026Z",
       "facts": {
         "language": "en",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1946,7 +1966,7 @@
     {
       "id": "chromium-quiet-helper-once-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:13.628Z",
+      "startedAt": "2026-10-18T20:03:29.272Z",
       "facts": {
         "language": "ru",
         "virtualVisibleTimeBeforeOffer": 49000,
@@ -1971,7 +1991,7 @@
     {
       "id": "chromium-helper-timing-and-immediate-dismissal",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:14.436Z",
+      "startedAt": "2026-10-18T20:03:30.589Z",
       "facts": {
         "before34s": "hidden",
         "after36s": "visible",
@@ -1982,7 +2002,7 @@
     {
       "id": "chromium-helper-suppressed-by-order-and-dialog",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:14.906Z",
+      "startedAt": "2026-10-18T20:03:31.072Z",
       "facts": {
         "selectionDialogSuppressed": true,
         "cartSuppressed": true,
@@ -2003,7 +2023,7 @@
     {
       "id": "chromium-closed-combo-dialog-allows-helper",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:15.847Z",
+      "startedAt": "2026-10-18T20:03:31.946Z",
       "facts": {
         "closedDialog": "combo",
         "automaticHelpAllowedAfterClosing": true,
@@ -2013,7 +2033,7 @@
     {
       "id": "chromium-closed-family-dialog-allows-helper",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:16.375Z",
+      "startedAt": "2026-10-18T20:03:32.526Z",
       "facts": {
         "closedDialog": "family",
         "automaticHelpAllowedAfterClosing": true,
@@ -2023,7 +2043,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:17.023Z",
+      "startedAt": "2026-10-18T20:03:33.163Z",
       "facts": {
         "language": "tr",
         "usefulExit": "menu.html#menu-combos",
@@ -2033,7 +2053,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:17.275Z",
+      "startedAt": "2026-10-18T20:03:33.463Z",
       "facts": {
         "language": "en",
         "usefulExit": "menu.html#menu-combos",
@@ -2043,7 +2063,7 @@
     {
       "id": "chromium-smart-choice-helper-has-useful-exit-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:17.518Z",
+      "startedAt": "2026-10-18T20:03:33.748Z",
       "facts": {
         "language": "ru",
         "usefulExit": "menu.html#menu-combos",
@@ -2053,7 +2073,7 @@
     {
       "id": "chromium-helper-short-viewport-remains-quiet",
       "status": "PASS",
-      "startedAt": "2026-10-18T19:36:17.761Z",
+      "startedAt": "2026-10-18T20:03:34.036Z",
       "facts": {
         "automaticOfferSuppressed": true,
         "manualPanelFits": true,
@@ -2064,29 +2084,33 @@
       }
     }
   ],
-  "finishedAt": "2026-10-18T19:36:18.156Z",
+  "finishedAt": "2026-10-18T20:03:34.478Z",
   "assetHashesEnd": {
-    "menu.html": "2e692b4f52ffffd58e3855b3725ccf54d6884a773767243a360de6c8d58d06ec",
-    "menu-app.js": "1edcbbc8dd42ac0ed8c219282c27a09e81ec05b5e0979b8d616ac05d587562b0",
+    "app.js": "e7e9d1431d790496a0537a9c0bdba0e94c2a22b54854d8563e615169f0815634",
+    "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
+    "menu.html": "aa1e1c90135301b020898fdf56d21f0af3b174f103199a97f0e0437d6ada91b7",
+    "menu-app.js": "54cab80ab43948eea993b46966c80dd70eaa3f786cb46872bd5c87db773e63c4",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
     "menu-combos.css": "d3c129dd83561a38853d7a7bb7f9a353c3a03b21bc0b987f4a4d9456c9a79893",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
-    "index.html": "4ac4e1d83248434ea612ec8cb7d1a6f8ad4b3f1e7b196a910d750e648925b0a5",
-    "discover.html": "f964c92ba966ea50b587618de1b4b3fef260a629ebd594caf456762387a34e26",
-    "experience/index.html": "51c8c00ea017d1c40cd55ad248c68ed405fe86cd3475270d858c322c38f66df7",
-    "smart-choice/index.html": "0f5660f617e22770a0a35b95b6ea5188fb85e940cc92172c529b782ecd1d1f5e",
-    "ru/coffee-gazipasa.html": "2ed7efb07b49f7752c9978fb41545cb5747cd6640da7eea4bc853182eefbd2d9",
+    "index.html": "190e8a0a52834555e6315a6a6ae342abb033ca0ffc9c9cc9284cb5453e50857d",
+    "discover.html": "d5cfa593b42e0b7ad2f2a5d118d71cd70c3c8601f067726a02c6e37732846815",
+    "experience/index.html": "fcdfab9c85844a3b84cf6559efd15c48acff2b35bc7bb68913e77e68e855f597",
+    "smart-choice/index.html": "e6488e03b3123bb3d863d434d812879d78b014b9ca09fd1e27f3bdc8bed43939",
+    "ru/coffee-gazipasa.html": "19c0711cdba3b8f6856d9f84c14c5252dc23d2ce864af98631fd749bd4467447",
     "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
-    "choice-help.js": "4cd7020420779adf798387f7368a0dc4b55005878bee90c46b4dd135fe50f07e",
-    "choice-help.css": "8b952c93e8ce6ed4f31980abe6bde8e715d3869b2efc51f7bdff46b3b9a0f505",
+    "choice-help-entry.js": "a07dc0e704cbc7458e520a8645766fbc7a71a1637318c3983ccd1755ca72ebcb",
+    "choice-help.js": "6aa7f180e4c7f4e6d5dc861f7a72ee9f5af64f6c6a30e0c0b0ee028afd738c32",
+    "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "9583ac617ed2af8c44145dc9b813d4a506ae4296bf3b8929e0bbcd5b7276c4f3",
-    "scripts/test-menu-combos-browser.mjs": "8fadb1b464233c3540b37cba1429c8a53c548270c3e9addf322b4ff7b9b28c90",
-    "src/menu-app.js": "49ef9deec3f2f56fdea49b470b6e9764caf301e90c3212d8b362de9f5fb65a4a",
+    "sw-core-v64.js": "c74ae1c905c43ad8351763bb55ced75196f8146218b692cdb3ba1545d5794bb7",
+    "scripts/test-menu-combos-browser.mjs": "d306340297cf66320608a0163ee4e5df4ce9f49a3d071208f9fd5531435d0f77",
+    "src/menu-app.js": "ae9ed03d3c7f944bf3b63ee701844502e71fbd76115374071c58ff1bd3323902",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
     "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
-    "src/choice-help.js": "c54ce069dc4ebfb0b03c9ab97e20ae07d577452ee79c1adea6899289412a0ca2",
+    "src/choice-help-entry.js": "32e35f1a34c62b5fe5857eb78e5c6080639d6a7b091f236cccc3e5bba3e61990",
+    "src/choice-help.js": "bde746ff1c5d40b15d34ddcce95dcd6c5a616ac6f3d486eb20a8510e22520b05",
     "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
     "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
     "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
@@ -2105,17 +2129,17 @@
   },
   "assetsUnchanged": true,
   "requests": {
-    "/analytics.js": 6,
-    "/app.js": 6,
-    "/bootstrap-v2.js": 65,
-    "/brand-photo-logo.css": 18,
-    "/choice-help.css": 21,
-    "/choice-help.js": 77,
-    "/coffee-paths.css": 6,
-    "/combo-entry.css": 21,
-    "/community-reel-v2.css": 6,
-    "/conversion.css": 6,
-    "/conversion.js": 6,
+    "/app.js": 7,
+    "/bootstrap-v2.js": 67,
+    "/brand-photo-logo.css": 19,
+    "/choice-help-entry.js": 15,
+    "/choice-help.css": 22,
+    "/choice-help.js": 16,
+    "/coffee-paths.css": 7,
+    "/combo-entry.css": 22,
+    "/community-reel-v2.css": 7,
+    "/conversion.css": 7,
+    "/conversion.js": 7,
     "/discover-copy.js": 3,
     "/discover-deck.css": 3,
     "/discover-deck.js": 3,
@@ -2139,33 +2163,32 @@
     "/experience/experience-state.css": 3,
     "/experience/experience.css": 3,
     "/experience/experience.js": 3,
-    "/featured-gallery.css": 6,
-    "/featured-gallery.js": 6,
-    "/featured-strip.css": 6,
-    "/final-qa-v2.css": 6,
-    "/gallery-clean.css": 6,
-    "/hero-balance.css": 6,
-    "/index.html": 6,
-    "/map-live.css": 6,
-    "/menu-app.js": 56,
-    "/menu-catalog.js": 74,
-    "/menu-combos-ui.js": 50,
+    "/featured-gallery.css": 7,
+    "/featured-gallery.js": 7,
+    "/featured-strip.css": 7,
+    "/final-qa-v2.css": 7,
+    "/gallery-clean.css": 7,
+    "/hero-balance.css": 7,
+    "/index.html": 7,
+    "/map-live.css": 7,
+    "/menu-app.js": 57,
+    "/menu-catalog.js": 76,
+    "/menu-combos-ui.js": 51,
     "/menu-family-ui.js": 1,
-    "/menu-interactions.js": 42,
-    "/menu-order-ui.js": 16,
-    "/menu-preview.css": 6,
-    "/menu-product-reveal.js": 56,
-    "/menu-pwa.js": 56,
-    "/menu-runtime.css": 56,
-    "/menu-search-clear.js": 56,
-    "/menu.html": 56,
-    "/mobile.css": 9,
+    "/menu-interactions.js": 43,
+    "/menu-order-ui.js": 17,
+    "/menu-preview.css": 7,
+    "/menu-product-reveal.js": 57,
+    "/menu-pwa.js": 57,
+    "/menu-runtime.css": 57,
+    "/menu.html": 57,
+    "/mobile.css": 10,
     "/order-checkout.css": 6,
-    "/order-storage.js": 27,
-    "/pairing-posters.js": 56,
-    "/pairing-preview.css": 6,
-    "/pwa-pairing-fix.js": 6,
-    "/qa.js": 6,
+    "/order-storage.js": 29,
+    "/pairing-posters.js": 57,
+    "/pairing-preview.css": 7,
+    "/pwa-pairing-fix.js": 7,
+    "/qa.js": 7,
     "/ru/coffee-gazipasa.html": 3,
     "/smart-choice/": 6,
     "/smart-choice/analytics-v2.js": 6,
@@ -2180,31 +2203,31 @@
     "/smart-choice/release-qa.css": 6,
     "/smart-choice/release-qa.js": 6,
     "/smart-choice/style.css": 6,
-    "/social-offer.css": 6,
-    "/social-offer.js": 6,
-    "/src/brand/robys-compact-master-v1.svg": 83,
+    "/social-offer.css": 7,
+    "/social-offer.js": 7,
+    "/src/brand/robys-compact-master-v1.svg": 85,
     "/src/brand/robys-header-master-v1.svg": 3,
-    "/src/brand/robys-mark-master-v1.svg": 9,
-    "/src/brand/robys-primary-master-v1.svg": 56,
+    "/src/brand/robys-mark-master-v1.svg": 10,
+    "/src/brand/robys-primary-master-v1.svg": 57,
     "/src/brand/robys-takeaway-cup-v1.webp": 3,
-    "/src/menu-icons/cold.svg": 6,
-    "/src/menu-icons/dessert.svg": 6,
-    "/src/menu-icons/food.svg": 6,
-    "/src/menu-icons/hot.svg": 6,
-    "/src/menu-icons/refreshers.svg": 6,
-    "/src/menu-icons/tea.svg": 6,
+    "/src/menu-icons/cold.svg": 7,
+    "/src/menu-icons/dessert.svg": 7,
+    "/src/menu-icons/food.svg": 7,
+    "/src/menu-icons/hot.svg": 7,
+    "/src/menu-icons/refreshers.svg": 7,
+    "/src/menu-icons/tea.svg": 7,
     "/src/pairings-data/final/cool-lime-macaron-price-free.webp": 6,
     "/src/products/family-sets-v1/kids-box.webp": 1,
     "/src/products/family-sets-v1/milk-cookie.webp": 1,
     "/src/products/family-sets-v1/milk-roll.webp": 1,
     "/src/products/family-sets-v1/simit-break.webp": 1,
-    "/src/products/gallery-v5/croissant-828.webp": 9,
-    "/src/products/gallery-v5/iced-latte-828.webp": 6,
-    "/src/products/gallery-v5/latte-828.webp": 11,
+    "/src/products/gallery-v5/croissant-828.webp": 10,
+    "/src/products/gallery-v5/iced-latte-828.webp": 7,
+    "/src/products/gallery-v5/latte-828.webp": 14,
     "/src/products/gallery-v5/lotus-cheesecake-828.webp": 7,
-    "/src/products/gallery-v5/nutella-croissant-828.webp": 6,
-    "/src/products/gallery-v5/san-sebastian-828.webp": 9,
-    "/src/products/menu-v1/brew-hot--black-tea.webp": 33,
+    "/src/products/gallery-v5/nutella-croissant-828.webp": 7,
+    "/src/products/gallery-v5/san-sebastian-828.webp": 10,
+    "/src/products/menu-v1/brew-hot--black-tea.webp": 34,
     "/src/products/menu-v1/brew-hot--filter-coffee.webp": 9,
     "/src/products/menu-v1/brew-hot--hot-chocolate.webp": 6,
     "/src/products/menu-v1/brew-hot--milk.webp": 18,
@@ -2212,25 +2235,25 @@
     "/src/products/menu-v1/brew-hot--turkish-coffee.webp": 9,
     "/src/products/menu-v1/cold-coffee--iced-americano.webp": 4,
     "/src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": 1,
-    "/src/products/menu-v1/desserts--almond-tart.webp": 4,
-    "/src/products/menu-v1/desserts--brownie.webp": 4,
-    "/src/products/menu-v1/desserts--cake-roll.webp": 4,
-    "/src/products/menu-v1/desserts--chocolate-cake.webp": 5,
-    "/src/products/menu-v1/desserts--cookie.webp": 40,
-    "/src/products/menu-v1/desserts--lotus-cheesecake.webp": 5,
-    "/src/products/menu-v1/desserts--macaron.webp": 6,
-    "/src/products/menu-v1/desserts--mosaic-cake.webp": 4,
-    "/src/products/menu-v1/desserts--raspberry-cheesecake.webp": 5,
-    "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": 14,
-    "/src/products/menu-v1/desserts--savoury-cookie.webp": 4,
-    "/src/products/menu-v1/desserts--tiramisu.webp": 4,
-    "/src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": 7,
-    "/src/products/menu-v1/food--nutella-croissant.webp": 3,
-    "/src/products/menu-v1/food--sesame-simit.webp": 49,
-    "/src/products/menu-v1/food--three-cheese-croissant.webp": 21,
-    "/src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": 9,
-    "/src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": 8,
-    "/src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": 5,
+    "/src/products/menu-v1/desserts--almond-tart.webp": 6,
+    "/src/products/menu-v1/desserts--brownie.webp": 6,
+    "/src/products/menu-v1/desserts--cake-roll.webp": 6,
+    "/src/products/menu-v1/desserts--chocolate-cake.webp": 6,
+    "/src/products/menu-v1/desserts--cookie.webp": 42,
+    "/src/products/menu-v1/desserts--lotus-cheesecake.webp": 6,
+    "/src/products/menu-v1/desserts--macaron.webp": 8,
+    "/src/products/menu-v1/desserts--mosaic-cake.webp": 6,
+    "/src/products/menu-v1/desserts--raspberry-cheesecake.webp": 6,
+    "/src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": 15,
+    "/src/products/menu-v1/desserts--savoury-cookie.webp": 6,
+    "/src/products/menu-v1/desserts--tiramisu.webp": 6,
+    "/src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": 8,
+    "/src/products/menu-v1/food--nutella-croissant.webp": 4,
+    "/src/products/menu-v1/food--sesame-simit.webp": 52,
+    "/src/products/menu-v1/food--three-cheese-croissant.webp": 22,
+    "/src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": 10,
+    "/src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": 9,
+    "/src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": 6,
     "/src/products/menu-v1/hot-coffee--americano.webp": 10,
     "/src/products/menu-v1/hot-coffee--caffe-latte.webp": 18,
     "/src/products/menu-v1/hot-coffee--caffe-mocha.webp": 6,
@@ -2247,27 +2270,27 @@
     "/src/products/menu-v1/hot-coffee--vanilla-latte.webp": 6,
     "/src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": 6,
     "/src/products/menu-v1/refreshers--cool-lime.webp": 3,
-    "/src/products/occasion-sets-v1/cycle.webp": 53,
-    "/src/products/occasion-sets-v1/family.webp": 56,
-    "/src/products/occasion-sets-v1/go.webp": 52,
-    "/src/products/occasion-sets-v1/hearty.webp": 52,
-    "/src/products/occasion-sets-v1/local.webp": 53,
-    "/src/products/occasion-sets-v1/morning.webp": 52,
-    "/src/products/occasion-sets-v1/rain.webp": 53,
-    "/src/products/occasion-sets-v1/refresh.webp": 53,
-    "/src/products/occasion-sets-v1/student.webp": 53,
-    "/src/products/occasion-sets-v1/sweet.webp": 52,
-    "/src/products/occasion-sets-v1/tea.webp": 53,
-    "/src/products/occasion-sets-v1/together.webp": 53,
-    "/src/products/quick-choice-v1/coffee.webp": 12,
-    "/src/products/quick-choice-v1/cold.webp": 12,
+    "/src/products/occasion-sets-v1/cycle.webp": 54,
+    "/src/products/occasion-sets-v1/family.webp": 57,
+    "/src/products/occasion-sets-v1/go.webp": 54,
+    "/src/products/occasion-sets-v1/hearty.webp": 54,
+    "/src/products/occasion-sets-v1/local.webp": 54,
+    "/src/products/occasion-sets-v1/morning.webp": 54,
+    "/src/products/occasion-sets-v1/rain.webp": 54,
+    "/src/products/occasion-sets-v1/refresh.webp": 54,
+    "/src/products/occasion-sets-v1/student.webp": 54,
+    "/src/products/occasion-sets-v1/sweet.webp": 54,
+    "/src/products/occasion-sets-v1/tea.webp": 54,
+    "/src/products/occasion-sets-v1/together.webp": 54,
+    "/src/products/quick-choice-v1/coffee.webp": 13,
+    "/src/products/quick-choice-v1/cold.webp": 13,
     "/src/products/quick-choice-v1/tea.webp": 6,
-    "/src/products/sets-v1/cool-lime-macaron.webp": 62,
-    "/src/products/sets-v1/iced-san-sebastian.webp": 20,
-    "/src/robys-hero-poster.jpg": 15,
-    "/styles-v2.css": 12,
+    "/src/products/sets-v1/cool-lime-macaron.webp": 63,
+    "/src/products/sets-v1/iced-san-sebastian.webp": 21,
+    "/src/robys-hero-poster.jpg": 17,
+    "/styles-v2.css": 13,
     "/wordmark-responsive.css": 3
   },
-  "passed": 45,
+  "passed": 46,
   "failed": 0
 }

@@ -141,7 +141,14 @@ test("bottom panel remains actionable while the gallery is active", async ({ pag
     await action.click({ trial: true });
   }
 
-  const tabTo = async (target: Locator, maximumTabs = 40) => {
+  const tabTo = async (target: Locator) => {
+    // Trial clicks retain the browser's sequential-focus starting point. New
+    // legitimate menu links must not invalidate an arbitrary forty-key cap;
+    // require reachability within one complete visible focus cycle instead.
+    const maximumTabs = await page.locator('a[href],button,input,select,textarea,iframe,[tabindex]').evaluateAll(nodes =>
+      nodes.filter(node => node instanceof HTMLElement && node.tabIndex >= 0
+        && node.getClientRects().length > 0 && getComputedStyle(node).visibility !== 'hidden'
+        && !node.closest('[inert]') && !node.matches(':disabled')).length) + 2;
     for (let index = 0; index < maximumTabs; index += 1) {
       await page.keyboard.press("Tab");
       if (await target.evaluate((element) => document.activeElement === element)) return;
