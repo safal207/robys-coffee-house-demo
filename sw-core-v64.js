@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-54035247389e-family-menu-696c2d6971a7-occasion-combos-abd1d9354eb5-custom-pair-1349da07aafd-menu-css-475ce4d2f30a-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-e5dc41400cfe-family-menu-696c2d6971a7-occasion-combos-8b144ead5f97-custom-pair-1349da07aafd-menu-css-475ce4d2f30a-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -111,7 +111,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./coffee-paths.css?v=54035247389e",
+  "./coffee-paths.css?v=e5dc41400cfe",
   "./social-offer.js?v=cf339e8c8777",
   "./menu-premium.css?v=335c05ace22a",
   "./pairing-posters.css?v=882faab929d1",
