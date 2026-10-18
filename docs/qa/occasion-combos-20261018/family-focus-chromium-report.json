@@ -1,0 +1,523 @@
+{
+  "startedAt": "2026-10-18T20:22:38.224Z",
+  "head": "a9fe1c31d5582e84c9dc4302d210160b59d0e851",
+  "mode": "Desktop browser engines in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
+  "sourceHashes": {
+    "scripts/test-menu-family-browser.mjs": "c62746f5b20d200f6c1dde0870287ef5e3658affc59bba7b0dd555154a58c0d0",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+    "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+    "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+    "src/menu-family-ui.js": "21397921d53c9f8912bbea6edd058d2ee7b9e0a6c1d6e4cd7fb2d31ae94587ea",
+    "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+    "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+    "src/menu-order-ui.js": "761458ffbe1210935dd7f455c3ae94bd0faaa33ef7e4f4fc4169b475a6ce9040",
+    "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+    "menu.html": "2edccbe2127b53b96b4a5c97a460cedfd7c07cb26f5404dbd11d738fb192a22c",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+    "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+    "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+    "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+  },
+  "cases": [
+    {
+      "id": "thin-catalog-family-do-not-load-order-storage",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:38.324Z",
+      "finishedAt": "2026-10-18T20:22:38.789Z",
+      "facts": {
+        "authoritativeStorageRequests": 0,
+        "orderWrites": 0,
+        "familyRevealAndPreviewReadOnly": true,
+        "focusAndV2ProjectionReadOnly": true,
+        "thinBadge": {
+          "quantity": 2,
+          "total": "120 ₺"
+        }
+      }
+    },
+    {
+      "id": "kids-box-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:38.821Z",
+      "finishedAt": "2026-10-18T20:22:40.589Z",
+      "facts": {
+        "language": "tr",
+        "photo": {
+          "src": "/src/products/family-sets-v1/kids-box.webp",
+          "width": 900,
+          "height": 900,
+          "loading": "lazy",
+          "decoding": "async",
+          "left": 37,
+          "right": 353,
+          "renderedWidth": 316,
+          "renderedHeight": 316,
+          "viewportWidth": 390,
+          "objectFit": "cover"
+        },
+        "concept": "Set konsepti",
+        "status": "Yakında satışta. Kasada sorun.",
+        "nonOrderable": true,
+        "dialogsClosed": true,
+        "canonicalDraftUnchanged": true,
+        "languageChanges": [
+          "en",
+          "ru",
+          "tr"
+        ],
+        "existingOrder": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "kids-box-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:40.643Z",
+      "finishedAt": "2026-10-18T20:22:42.384Z",
+      "facts": {
+        "language": "en",
+        "photo": {
+          "src": "/src/products/family-sets-v1/kids-box.webp",
+          "width": 900,
+          "height": 900,
+          "loading": "lazy",
+          "decoding": "async",
+          "left": 37,
+          "right": 353,
+          "renderedWidth": 316,
+          "renderedHeight": 316,
+          "viewportWidth": 390,
+          "objectFit": "cover"
+        },
+        "concept": "Set concept",
+        "status": "Coming soon. Ask at the counter.",
+        "nonOrderable": true,
+        "dialogsClosed": true,
+        "canonicalDraftUnchanged": true,
+        "languageChanges": [
+          "tr",
+          "ru",
+          "en"
+        ],
+        "existingOrder": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "kids-box-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:42.427Z",
+      "finishedAt": "2026-10-18T20:22:44.033Z",
+      "facts": {
+        "language": "ru",
+        "photo": {
+          "src": "/src/products/family-sets-v1/kids-box.webp",
+          "width": 900,
+          "height": 900,
+          "loading": "lazy",
+          "decoding": "async",
+          "left": 37,
+          "right": 353,
+          "renderedWidth": 316,
+          "renderedHeight": 316,
+          "viewportWidth": 390,
+          "objectFit": "cover"
+        },
+        "concept": "Концепт набора",
+        "status": "Скоро в продаже. Спрашивайте у кассира.",
+        "nonOrderable": true,
+        "dialogsClosed": true,
+        "canonicalDraftUnchanged": true,
+        "languageChanges": [
+          "tr",
+          "en",
+          "ru"
+        ],
+        "existingOrder": [
+          {
+            "id": "brew-hot:milk",
+            "quantity": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "recipes-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:44.073Z",
+      "finishedAt": "2026-10-18T20:22:45.892Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "recipes-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:45.932Z",
+      "finishedAt": "2026-10-18T20:22:47.623Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "recipes-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:47.652Z",
+      "finishedAt": "2026-10-18T20:22:49.353Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "layout-320",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:49.378Z",
+      "finishedAt": "2026-10-18T20:22:50.479Z",
+      "facts": {
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "bounds": {
+          "left": 19,
+          "right": 301,
+          "top": 47.5625,
+          "bottom": 796.4375,
+          "width": 320,
+          "height": 844
+        },
+        "photoStripHeights": [
+          246,
+          246,
+          246
+        ],
+        "kidsBox": {
+          "language": "ru",
+          "photo": {
+            "src": "/src/products/family-sets-v1/kids-box.webp",
+            "width": 900,
+            "height": 900,
+            "loading": "lazy",
+            "decoding": "async",
+            "left": 37,
+            "right": 283,
+            "renderedWidth": 246,
+            "renderedHeight": 246,
+            "viewportWidth": 320,
+            "objectFit": "cover"
+          },
+          "concept": "Концепт набора",
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "nonOrderable": true,
+          "dialogsClosed": true,
+          "canonicalDraftUnchanged": true
+        }
+      }
+    },
+    {
+      "id": "layout-390",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:50.507Z",
+      "finishedAt": "2026-10-18T20:22:51.680Z",
+      "facts": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "bounds": {
+          "left": 19,
+          "right": 371,
+          "top": 110.703125,
+          "bottom": 733.296875,
+          "width": 390,
+          "height": 844
+        },
+        "photoStripHeights": [
+          316,
+          316,
+          316
+        ],
+        "kidsBox": {
+          "language": "ru",
+          "photo": {
+            "src": "/src/products/family-sets-v1/kids-box.webp",
+            "width": 900,
+            "height": 900,
+            "loading": "lazy",
+            "decoding": "async",
+            "left": 37,
+            "right": 353,
+            "renderedWidth": 316,
+            "renderedHeight": 316,
+            "viewportWidth": 390,
+            "objectFit": "cover"
+          },
+          "concept": "Концепт набора",
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "nonOrderable": true,
+          "dialogsClosed": true,
+          "canonicalDraftUnchanged": true
+        }
+      }
+    },
+    {
+      "id": "layout-1440",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:51.705Z",
+      "finishedAt": "2026-10-18T20:22:53.010Z",
+      "facts": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "bounds": {
+          "left": 410,
+          "right": 1030,
+          "top": 133.140625,
+          "bottom": 766.859375,
+          "width": 1440,
+          "height": 900
+        },
+        "photoStripHeights": [
+          343,
+          343,
+          343
+        ],
+        "kidsBox": {
+          "language": "ru",
+          "photo": {
+            "src": "/src/products/family-sets-v1/kids-box.webp",
+            "width": 900,
+            "height": 900,
+            "loading": "lazy",
+            "decoding": "async",
+            "left": 149,
+            "right": 594.59375,
+            "renderedWidth": 445.59375,
+            "renderedHeight": 445.59375,
+            "viewportWidth": 1440,
+            "objectFit": "cover"
+          },
+          "concept": "Концепт набора",
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "nonOrderable": true,
+          "dialogsClosed": true,
+          "canonicalDraftUnchanged": true
+        }
+      }
+    },
+    {
+      "id": "missing-composite-photo-fallback",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:53.039Z",
+      "finishedAt": "2026-10-18T20:22:53.415Z",
+      "facts": {
+        "combinedPhotoBlocked": true,
+        "existingComponentPhotosLoaded": 2,
+        "localizedRibbonRetained": true,
+        "chooseAndPricePreserved": true
+      }
+    },
+    {
+      "id": "text-200-percent",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:53.442Z",
+      "finishedAt": "2026-10-18T20:22:54.208Z",
+      "facts": {
+        "textScale": "200%",
+        "allThreeComponentsAdded": true,
+        "noDialogHorizontalOverflow": true
+      }
+    },
+    {
+      "id": "dialog-fallback-keyboard",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:54.250Z",
+      "finishedAt": "2026-10-18T20:22:54.555Z",
+      "facts": {
+        "showModalUnavailable": true,
+        "keyboardLoop": true,
+        "escapeReturnsFocus": true
+      }
+    },
+    {
+      "id": "late-capacity-atomic-and-double-click",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:54.597Z",
+      "finishedAt": "2026-10-18T20:22:55.096Z",
+      "facts": {
+        "reReadLatestDraft": true,
+        "blockedWholeSelection": true,
+        "doubleActivationAddsMilkOnce": true
+      }
+    },
+    {
+      "id": "lazy-load-escape-and-retry",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:55.125Z",
+      "finishedAt": "2026-10-18T20:22:55.474Z",
+      "facts": {
+        "lazyUntilIntent": true,
+        "escapeCancelsPendingReveal": true,
+        "nextClickOpensWithoutAdding": true
+      }
+    },
+    {
+      "id": "latest-product-supersedes-family",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:55.503Z",
+      "finishedAt": "2026-10-18T20:22:55.918Z",
+      "facts": {
+        "delayedFamilyLoad": true,
+        "latest": "product",
+        "backgroundStayedHidden": true,
+        "before": {
+          "scroll": 9796,
+          "focus": ""
+        },
+        "after": {
+          "scroll": 9796,
+          "focus": ""
+        }
+      }
+    },
+    {
+      "id": "latest-cart-supersedes-family",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:55.949Z",
+      "finishedAt": "2026-10-18T20:22:56.319Z",
+      "facts": {
+        "delayedFamilyLoad": true,
+        "latest": "cart",
+        "backgroundStayedHidden": true,
+        "before": {
+          "scroll": 0,
+          "focus": "menu-cart-title"
+        },
+        "after": {
+          "scroll": 0,
+          "focus": "menu-cart-title"
+        }
+      }
+    },
+    {
+      "id": "latest-family-supersedes-product",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:56.344Z",
+      "finishedAt": "2026-10-18T20:22:56.702Z",
+      "facts": {
+        "delayedProductLoad": true,
+        "latestFamilyKeptFocus": true,
+        "noDelayedProductPopup": true
+      }
+    },
+    {
+      "id": "repeated-family-intent-latest-language",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:56.732Z",
+      "finishedAt": "2026-10-18T20:22:57.126Z",
+      "facts": {
+        "repeatedClicks": 2,
+        "downloads": 1,
+        "latestLanguage": "en",
+        "singleInitialReveal": true,
+        "hideAndReopen": true
+      }
+    },
+    {
+      "id": "family-preview-supersedes-product",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:57.148Z",
+      "finishedAt": "2026-10-18T20:22:57.526Z",
+      "facts": {
+        "familyCardWinsOverPendingProduct": true,
+        "noFocusTheft": true,
+        "closeWorks": true
+      }
+    },
+    {
+      "id": "deep-link",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:57.551Z",
+      "finishedAt": "2026-10-18T20:22:57.719Z",
+      "facts": {
+        "directMenuFamilyHash": true,
+        "noAutomaticAddition": true
+      }
+    },
+    {
+      "id": "optional-module-failure-recovery",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:57.746Z",
+      "finishedAt": "2026-10-18T20:22:58.049Z",
+      "facts": {
+        "firstOptionalImportBlocked": true,
+        "secondIntentRecovered": true,
+        "distinctModuleUrls": true
+      }
+    },
+    {
+      "id": "escape-during-cart-load",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:58.076Z",
+      "finishedAt": "2026-10-18T20:22:58.466Z",
+      "facts": {
+        "orderUiLoadDelayed": true,
+        "escapeCancelledPopup": true,
+        "explicitlyAddedSelectionPreserved": true
+      }
+    },
+    {
+      "id": "pending-family-save-keeps-new-preview-busy",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:58.491Z",
+      "finishedAt": "2026-10-18T20:22:59.371Z",
+      "facts": {
+        "firstSaveCommittedAndProjectedBeforeHeldCallback": true,
+        "secondSaveHeldSeparately": true,
+        "oldCompletionRanWhileNewPending": true,
+        "oldCompletionPreservesNewBusyState": true,
+        "eachConfirmedSelectionAddedOnce": true
+      }
+    },
+    {
+      "id": "no-js-fallback",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:59.399Z",
+      "finishedAt": "2026-10-18T20:22:59.524Z",
+      "facts": {
+        "javaScriptDisabled": true,
+        "anchorReached": true,
+        "existingProductPhotoOpened": true
+      }
+    }
+  ],
+  "browserName": "chromium",
+  "browserVersion": "140.0.7339.186",
+  "finishedAt": "2026-10-18T20:22:59.541Z",
+  "summary": {
+    "passed": 25,
+    "failed": 0
+  }
+}

@@ -412,6 +412,10 @@ try {
     else await page.locator("#menu-cart-trigger").click();
     const dialog = page.locator(latest === "product" ? "#menu-product-dialog[open]" : "#menu-cart-dialog[open]");
     await dialog.waitFor();
+    // The cart deliberately focuses its title on the next animation frame.
+    // Establish the newer intent's completed focus before releasing the older
+    // family module, so that legitimate cart focus is not mistaken for theft.
+    if (latest === "cart") await page.waitForFunction(() => document.activeElement === document.querySelector("#menu-cart-title"));
     const before = await page.evaluate(() => ({ scroll: scrollY, focus: document.activeElement?.id }));
     release();
     await page.locator(".menu-family-card").first().waitFor({ state: "attached" });

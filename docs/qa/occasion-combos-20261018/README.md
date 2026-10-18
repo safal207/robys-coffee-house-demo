@@ -1,13 +1,13 @@
 # Occasion selections and quiet choice help — browser evidence
 
-The local built-runtime runs passed **46 of 46 scenarios in Chromium and 46 of
-46 in WebKit**, with zero uncaught application errors. `report.json` and
+The local built-runtime runs passed **48 of 48 scenarios in Chromium and 48 of
+48 in WebKit**, with zero uncaught application errors. `report.json` and
 `webkit-report.json` record browser versions, timestamps, individual observations
 and SHA-256 hashes before and after each run. Both engines tested the same 41
 hashed files; those files remained unchanged during execution.
 
 This is evidence for the recorded working-tree bytes on base revision
-`c16d7620a66d00c09abe2146612b308dc99283e0`. It is not a claim that these local runs
+`a9fe1c31d5582e84c9dc4302d210160b59d0e851`. It is not a claim that these local runs
 tested a later commit, a deployed site, physical phones or another browser engine.
 The CI workflow runs the same script for each configured browser engine.
 
@@ -64,6 +64,11 @@ The covered flows are:
 - Closed combo and family dialogs do not block later assistance; the same hash
   reopens hidden selections; Smart Choice omits a link back to itself; a short
   viewport receives no automatic popup while explicit help remains usable.
+- On the home and Russian local landing views, the full mobile navigation
+  suppresses automatic suggestions and basket reads while open. Closing it and
+  waiting through the idle interval permits an offer. Reopening navigation hides
+  an existing offer within one frame and preserves toggle focus; manual help
+  remains available after navigation closes.
 
 The WebKit focus/idle test was isolated from native scrolling. A control trace
 showed footer-button focus at 40.243 seconds followed by a native scroll at 47.243;
@@ -71,6 +76,11 @@ the latter correctly restarted the application's eight-second idle window.
 The focus-only scenario now uses `focus({preventScroll:true})`, allowing it to
 measure editing and idle behavior without a later scroll resetting the clock.
 No production behavior was changed for that harness correction.
+
+The separate `family-focus-barrier.md` explains the later cart-focus test
+correction and links its source-fixture reports. That test now establishes the
+newer cart's intended animation-frame focus before releasing the older family
+module. It retains every delayed-load, visibility, focus and scroll assertion.
 
 Service workers are blocked in this suite. The separate `offline-report.json`
 records **four passing checks** from:

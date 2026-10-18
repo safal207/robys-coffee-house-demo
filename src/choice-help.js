@@ -144,7 +144,8 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   }
 
   function overlay() {
-    return Array.from(document.querySelectorAll("dialog[open], [aria-modal='true']:not([hidden]), [data-checkout-complete]"))
+    return document.body.classList.contains("menu-open")
+      || Array.from(document.querySelectorAll("dialog[open], [aria-modal='true']:not([hidden]), [data-checkout-complete]"))
       .some(node => node.tagName === "DIALOG" ? node.hasAttribute("open") : node.getClientRects().length > 0);
   }
 
@@ -259,13 +260,16 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
     lastActivity = lastTick;
     if (!seen && !timer) timer = window.setInterval(tick, 1000);
   }
-  const observer = new MutationObserver(() => {
-    translate();
+  const observer = new MutationObserver(records => {
+    if (records.some(record => record.attributeName === "lang")) translate();
     if (!panel.hidden && overlay()) hide();
   });
   // Observe open/aria-modal directly, so an order dialog never waits for a tick
   // to cover a helper that was already on screen.
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  // Home and the Russian landing use a fullscreen navigation overlay rather
+  // than a dialog. Observe its body state even after the offer timer stops.
+  observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
   const overlays = new MutationObserver(() => { if (!panel.hidden && overlay()) hide(); });
   overlays.observe(document.body, { subtree: true, childList: true, attributes: true,
     attributeFilter: ["open", "aria-modal", "hidden", "data-checkout-complete"] });

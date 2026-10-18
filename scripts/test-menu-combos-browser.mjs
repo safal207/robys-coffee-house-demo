@@ -584,6 +584,44 @@ try {
         return { language, usefulExit: "menu.html#menu-combos", selfLinkHidden: true };
       }, { language });
 
+      for (const [view, path] of [["home", "index.html?entry=off"], ["ru-local", "ru/coffee-gazipasa.html"]]) {
+        await run(browser, `${name}-mobile-navigation-suppresses-helper-${view}`, async context => {
+          const page = await context.newPage(); await installClock(page);
+          const storageRequests = [];
+          page.on("request", request => {
+            if (new URL(request.url()).pathname === "/order-storage.js") storageRequests.push(request.url());
+          });
+          await page.goto(`${origin}/${path}`, { waitUntil: "domcontentloaded" });
+          const toggle = page.locator(".menu-toggle");
+          await toggle.click();
+          assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+          assert.equal(await page.locator("body").evaluate(body => body.classList.contains("menu-open")), true);
+          await page.clock.runFor(40_000); await page.waitForLoadState("networkidle");
+          assert.equal(await page.locator(".choice-help-panel").isHidden(), true,
+            "The full mobile navigation suppresses an automatic suggestion beyond both timing thresholds");
+          assert.deepEqual(storageRequests, [], "An open navigation does not trigger an unnecessary basket read");
+
+          await toggle.click();
+          assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+          await page.clock.runFor(9_000);
+          await page.locator(".choice-help-panel:not([hidden])").waitFor();
+          await toggle.click();
+          await page.clock.runFor(20); // One frame, before the next one-second eligibility tick.
+          assert.equal(await page.locator("body").evaluate(body => body.classList.contains("menu-open")), true);
+          assert.equal(await page.locator(".choice-help-panel").isHidden(), true,
+            "Opening mobile navigation immediately hides a suggestion that is already visible");
+          assert.equal(await toggle.evaluate(button => document.activeElement === button), true,
+            "Hiding a suggestion preserves the navigation toggle's focus");
+
+          await toggle.click();
+          await page.locator(".choice-help-entry").click();
+          await page.locator(".choice-help-panel:not([hidden])").waitFor();
+          return { view, viewport: { width: 390, height: 844 }, navigationOpenSuppressesAutomaticOffer: true,
+            navigationOpenBasketRequests: 0, closeThenIdleAllowsOffer: true, openingNavigationHidesVisibleOfferWithinMs: 20,
+            navigationFocusPreserved: true, explicitHelpAfterNavigationClose: true };
+        });
+      }
+
       await run(browser, `${name}-helper-short-viewport-remains-quiet`, async context => {
         const page = await context.newPage(); await installClock(page);
         await openMenu(page, ""); await page.clock.runFor(40_000);
