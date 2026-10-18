@@ -81,7 +81,8 @@
     "dev": "vite",
     "test:takeaway-entry": "node --test scripts/test-takeaway-entry.mjs",
     "test:ordering": "node --test scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs",
-    "test:choice-funnel": "node scripts/verify-pairing-cta-static.mjs && node scripts/test-choice-funnel-browser.mjs"
+    "test:choice-funnel": "node scripts/verify-pairing-cta-static.mjs && node scripts/test-choice-funnel-browser.mjs",
+    "test:choice-funnel:firefox": "CHOICE_FUNNEL_BROWSER=firefox npm run test:choice-funnel"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

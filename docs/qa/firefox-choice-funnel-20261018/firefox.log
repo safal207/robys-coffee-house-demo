@@ -1,0 +1,51 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:choice-funnel:firefox
+> CHOICE_FUNNEL_BROWSER=firefox npm run test:choice-funnel
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> robys-coffee-house@2.0.0 test:choice-funnel
+> node scripts/verify-pairing-cta-static.mjs && node scripts/test-choice-funnel-browser.mjs
+
+PASS: static pairing CTA and cache revision are bound
+(node:40) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/bc8412d49a54/robys-coffee-house-demo/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: firefox 320x900 tr landing and menu route
+PASS: firefox 320x900 en landing and menu route
+PASS: firefox 320x900 ru landing and menu route
+PASS: firefox 360x640 tr landing and menu route
+PASS: firefox 360x640 en landing and menu route
+PASS: firefox 360x640 ru landing and menu route
+PASS: firefox 390x900 tr keyboard order, reload and QR
+PASS: firefox 390x900 en keyboard order, reload and QR
+PASS: firefox 390x900 ru keyboard order, reload and QR
+PASS: firefox 768x900 tr landing and menu route
+PASS: firefox 768x900 en landing and menu route
+PASS: firefox 768x900 ru landing and menu route
+PASS: firefox 1440x900 tr keyboard order, reload and QR
+PASS: firefox 1440x900 en keyboard order, reload and QR
+PASS: firefox 1440x900 ru keyboard order, reload and QR
+PASS: firefox CUSTOM-PAIRING-CATALOG-001: all27 hot drinks are eligible; cold and dessert products remain ordinary
+PASS: firefox CUSTOM-PAIRING-PHOTOS-001: all12 sweet choices use actual catalog photos, names and summed prices
+PASS: firefox CUSTOM-PAIRING-ORDER-001: tr/native: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-ORDER-001: tr/fallback: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-ORDER-001: en/native: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-ORDER-001: en/fallback: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-ORDER-001: ru/native: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-ORDER-001: ru/fallback: quantity2 adds one pair group and preserves existing order
+PASS: firefox CUSTOM-PAIRING-RESET-001: Escape, reopening, deselection, drink-only addition, Back and reload preserve only committed lines
+PASS: firefox CUSTOM-PAIRING-GROUP-EDIT-001: two drinks sharing one dessert stay separate pairs when edited or removed
+PASS: firefox MENU-VARIANT-IDENTITY-001: flavor is required and distinct flavors remain distinct cart selections
+PASS: firefox MENU-LEGACY-FLAVOR-001: a restored order can choose its missing flavor directly in the cart
+PASS: firefox MENU-CATEGORY-SEARCH-001: category-name searches and Turkish I work across languages
+PASS: firefox CUSTOM-PAIRING-CAPACITY-001: hot-coffee:espresso: tighter remaining capacity limits both lines atomically
+PASS: firefox CUSTOM-PAIRING-CAPACITY-001: desserts:san-sebastian-cheesecake: tighter remaining capacity limits both lines atomically
+PASS: firefox CUSTOM-PAIRING-ZERO-CAPACITY-001: a full dessert line blocks the complete pair without partially adding the drink
+PASS: firefox CUSTOM-PAIRING-FALLBACK-FOCUS-001: fallback Tab cycles the checked radio, disclosure and close when order controls are disabled
+PASS: firefox CUSTOM-PAIRING-GEOMETRY-001: representative long names fit320/390/768/1440 at100/200% text
+PASS: firefox CUSTOM-PAIRING-LAZY-FAILURE-001: blocked optional view reports failure and retains drink-only ordering
+PASS: firefox CUSTOM-PAIRING-RETRY-001: a previously blocked optional module recovers after explicit retry without silently ordering
+PASS: 42 firefox choice-funnel scenarios

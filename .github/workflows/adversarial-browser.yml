@@ -16,6 +16,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  choice-funnel-firefox:
+    name: Firefox choice-to-counter
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Install locked Firefox
+        run: npx --no-install playwright install --with-deps firefox
+      - name: Run existing choice funnel in Firefox
+        run: |
+          mkdir -p .artifacts/choice-funnel
+          set -o pipefail
+          npm run test:choice-funnel:firefox 2>&1 | tee .artifacts/choice-funnel/firefox.log
+      - name: Upload Firefox evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: choice-funnel-firefox-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/choice-funnel/
+          if-no-files-found: warn
+          retention-days: 30
+
   browser-probes:
     name: ADV-001 browser probes
     runs-on: ubuntu-latest

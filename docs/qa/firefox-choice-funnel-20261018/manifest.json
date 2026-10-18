@@ -1,0 +1,73 @@
+{
+  "schema": "robys.firefox-choice-funnel.evidence.v1",
+  "repository": "safal207/robys-coffee-house-demo",
+  "inspectedMain": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+  "expectedSourceHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "initialSourceHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "finalSourceHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "collectedAt": "2026-10-18T08:02:15.421376+00:00",
+  "executionState": "PASS_LOCAL",
+  "reviewState": "Assistant inspection; no independent human approval claimed.",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 6319,
+      "sha256": "aa22078c6620a5c7dddaa28767db0621d245dad408a4aa1293f4d93ff32326e8"
+    },
+    {
+      "path": "calibration.json",
+      "bytes": 12348,
+      "sha256": "fe5bdcf56ea80335646652798fcb0abe1fafb42bbb249352cd3226a4a879ca06"
+    },
+    {
+      "path": "cart-390-ru.png",
+      "bytes": 69738,
+      "sha256": "200f5c3de5a5981e036515d4900089690e23df7788e9e9585865f94b8ee0f7f2"
+    },
+    {
+      "path": "chromium-pairing-report.json",
+      "bytes": 50804,
+      "sha256": "8e144763136f0bbe35987e4edac69dd2fca8c5d82d57bd73e7dbc637baa738c2"
+    },
+    {
+      "path": "chromium-report.json",
+      "bytes": 11549,
+      "sha256": "9e209ef0a70247890b5238ef71c7a1b39a72a72f5cb42f746d584e14cf66cd66"
+    },
+    {
+      "path": "chromium.log",
+      "bytes": 3966,
+      "sha256": "a630496d56eba6e6505aedca66971a85e92179b00aa7a965d4a6dea960223a60"
+    },
+    {
+      "path": "firefox-pairing-report.json",
+      "bytes": 52690,
+      "sha256": "eeba193fb800c3345018934569d2eee3f16bf5d098977b88c12ec51e12681b7b"
+    },
+    {
+      "path": "firefox-report.json",
+      "bytes": 11538,
+      "sha256": "a6eea737b22b3e0702ee6bc9de1baa901397166c98828f516ab766f7f9c9651d"
+    },
+    {
+      "path": "firefox.log",
+      "bytes": 4144,
+      "sha256": "a6be969dc1087d29af598aaab4511ba107fdcabd94058a7e6aa640be5ebc3f3f"
+    },
+    {
+      "path": "pairing-390-ru.png",
+      "bytes": 272935,
+      "sha256": "a5b2ca131b8ad89275031ec893d5595a776d1e78d7924e63228a0fa3228b2772"
+    },
+    {
+      "path": "qr-1440-ru.png",
+      "bytes": 74736,
+      "sha256": "1c0ffe65b24d4280d71d7b7b975df72bb0910939fd73815e56fbd4c3a5806c6c"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 2821,
+      "sha256": "2dfecb7c90b507649471750b3e53283f8214232ebc777441463d448baafa9ab0"
+    }
+  ]
+}

@@ -1,0 +1,1763 @@
+[
+  {
+    "id": "CUSTOM-PAIRING-CATALOG-001",
+    "passed": true,
+    "message": "all27 hot drinks are eligible; cold and dessert products remain ordinary",
+    "evidence": {
+      "eligible": [
+        "hot-coffee:espresso",
+        "hot-coffee:americano",
+        "hot-coffee:espresso-macchiato",
+        "hot-coffee:cortado",
+        "hot-coffee:flat-white",
+        "hot-coffee:cappuccino",
+        "hot-coffee:caramel-cappuccino",
+        "hot-coffee:caffe-latte",
+        "hot-coffee:chocolate-cookie-latte",
+        "hot-coffee:cinnamon-latte",
+        "hot-coffee:caramel-latte",
+        "hot-coffee:vanilla-latte",
+        "hot-coffee:hazelnut-latte",
+        "hot-coffee:caffe-mocha",
+        "hot-coffee:white-chocolate-mocha",
+        "brew-hot:filter-coffee",
+        "brew-hot:turkish-coffee",
+        "brew-hot:black-tea",
+        "brew-hot:hot-chocolate",
+        "brew-hot:milk",
+        "brew-hot:salep",
+        "brew-hot:chai-tea-latte",
+        "herbal-tea:beauty-tea-floral-white-tea",
+        "herbal-tea:tahiti-tea-hibiscus-lemongrass",
+        "herbal-tea:maroc-tea-mint-green-tea",
+        "herbal-tea:relax-tea-lavender-rooibos",
+        "herbal-tea:balance-tea-detox-green-tea"
+      ],
+      "choices": [
+        "desserts:san-sebastian-cheesecake",
+        "desserts:lotus-cheesecake",
+        "desserts:raspberry-cheesecake",
+        "desserts:chocolate-cake",
+        "desserts:almond-tart",
+        "desserts:cake-roll",
+        "desserts:mosaic-cake",
+        "desserts:tiramisu",
+        "desserts:brownie",
+        "desserts:cookie",
+        "desserts:macaron",
+        "food:nutella-croissant"
+      ],
+      "lazyViewRequests": 1,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-PHOTOS-001",
+    "passed": true,
+    "message": "all12 sweet choices use actual catalog photos, names and summed prices",
+    "evidence": {
+      "choices": [
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:san-sebastian-cheesecake",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp"
+          ],
+          "unitTotal": 300
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:lotus-cheesecake",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--lotus-cheesecake.webp"
+          ],
+          "unitTotal": 300
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:raspberry-cheesecake",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--raspberry-cheesecake.webp"
+          ],
+          "unitTotal": 300
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:chocolate-cake",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--chocolate-cake.webp"
+          ],
+          "unitTotal": 300
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:almond-tart",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--almond-tart.webp"
+          ],
+          "unitTotal": 290
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:cake-roll",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--cake-roll.webp"
+          ],
+          "unitTotal": 280
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:mosaic-cake",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--mosaic-cake.webp"
+          ],
+          "unitTotal": 280
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:tiramisu",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--tiramisu.webp"
+          ],
+          "unitTotal": 280
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:brownie",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--brownie.webp"
+          ],
+          "unitTotal": 260
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:cookie",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--cookie.webp"
+          ],
+          "unitTotal": 210
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "desserts:macaron",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/desserts--macaron.webp"
+          ],
+          "unitTotal": 140
+        },
+        {
+          "drink": "hot-coffee:espresso",
+          "dessert": "food:nutella-croissant",
+          "photos": [
+            "src/products/menu-v1/hot-coffee--espresso.webp",
+            "src/products/menu-v1/food--nutella-croissant.webp"
+          ],
+          "unitTotal": 280
+        }
+      ],
+      "deselectRestoresDrinkOnly": true,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "tr/native: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "tr",
+      "fallback": false,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "tr/fallback: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "tr",
+      "fallback": true,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "en/native: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "en",
+      "fallback": false,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "en/fallback: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "en",
+      "fallback": true,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "ru/native: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "ru",
+      "fallback": false,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ORDER-001",
+    "passed": true,
+    "message": "ru/fallback: quantity2 adds one pair group and preserves existing order",
+    "evidence": {
+      "language": "ru",
+      "fallback": true,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": "recommendation",
+            "source": "recommendation",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 2
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 2
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 2
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ],
+        "recommendation": {
+          "token": "existing-browser-draft",
+          "signature": "independent-existing-selection",
+          "lines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "selectedLines": [
+            {
+              "id": "refreshers:cool-lime",
+              "quantity": 1
+            }
+          ],
+          "removedLines": []
+        }
+      },
+      "pairQuantity": 2,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-RESET-001",
+    "passed": true,
+    "message": "Escape, reopening, deselection, drink-only addition, Back and reload preserve only committed lines",
+    "evidence": {
+      "committed": [
+        [
+          "brew-hot:black-tea",
+          1
+        ]
+      ],
+      "reopenedChoiceMatchesLastPreference": true,
+      "backAndReloadPreserve": true,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-GROUP-EDIT-001",
+    "passed": true,
+    "message": "two drinks sharing one dessert stay separate pairs when edited or removed",
+    "evidence": {
+      "groups": [
+        {
+          "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+          "source": "menu",
+          "items": [
+            {
+              "id": "hot-coffee:espresso",
+              "quantity": 1
+            },
+            {
+              "id": "desserts:san-sebastian-cheesecake",
+              "quantity": 1
+            }
+          ],
+          "quantity": 1
+        }
+      ],
+      "errors": []
+    }
+  },
+  {
+    "id": "MENU-VARIANT-IDENTITY-001",
+    "passed": true,
+    "message": "flavor is required and distinct flavors remain distinct cart selections",
+    "evidence": {
+      "variants": [
+        "caramel",
+        "vanilla"
+      ],
+      "groups": [
+        {
+          "id": "menu:[{\"id\":\"cold-coffee:flavoured-iced-caffe-latte\",\"variant\":\"caramel\",\"quantity\":1}]",
+          "source": "menu",
+          "items": [
+            {
+              "id": "cold-coffee:flavoured-iced-caffe-latte",
+              "variant": "caramel",
+              "quantity": 1
+            }
+          ],
+          "quantity": 1
+        },
+        {
+          "id": "menu:[{\"id\":\"cold-coffee:flavoured-iced-caffe-latte\",\"variant\":\"vanilla\",\"quantity\":1}]",
+          "source": "menu",
+          "items": [
+            {
+              "id": "cold-coffee:flavoured-iced-caffe-latte",
+              "variant": "vanilla",
+              "quantity": 1
+            }
+          ],
+          "quantity": 1
+        }
+      ],
+      "errors": []
+    }
+  },
+  {
+    "id": "MENU-LEGACY-FLAVOR-001",
+    "passed": true,
+    "message": "a restored order can choose its missing flavor directly in the cart",
+    "evidence": {
+      "product": "cold-coffee:flavoured-iced-caffe-latte",
+      "flavor": "caramel",
+      "quantity": 2,
+      "correctedInCart": true,
+      "errors": []
+    }
+  },
+  {
+    "id": "MENU-CATEGORY-SEARCH-001",
+    "passed": true,
+    "message": "category-name searches and Turkish I work across languages",
+    "evidence": {
+      "categorySearch": true,
+      "turkishCasefold": true,
+      "hashFilter": "brew-hot",
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-CAPACITY-001",
+    "passed": true,
+    "message": "hot-coffee:espresso: tighter remaining capacity limits both lines atomically",
+    "evidence": {
+      "capped": "hot-coffee:espresso",
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              }
+            ],
+            "quantity": 98
+          },
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 3
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 1
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 99
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ]
+      },
+      "bothLinesAdded": 1,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-CAPACITY-001",
+    "passed": true,
+    "message": "desserts:san-sebastian-cheesecake: tighter remaining capacity limits both lines atomically",
+    "evidence": {
+      "capped": "desserts:san-sebastian-cheesecake",
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 98
+          },
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 3
+          },
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 99
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 1
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ]
+      },
+      "bothLinesAdded": 1,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-ZERO-CAPACITY-001",
+    "passed": true,
+    "message": "a full dessert line blocks the complete pair without partially adding the drink",
+    "evidence": {
+      "remainingPairCapacity": 0,
+      "drinkOnlyStillAvailable": true,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 99
+          },
+          {
+            "id": "menu:[{\"id\":\"refreshers:cool-lime\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "refreshers:cool-lime",
+                "quantity": 1
+              }
+            ],
+            "quantity": 3
+          },
+          {
+            "id": "menu:[{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 99
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 1
+          },
+          {
+            "id": "refreshers:cool-lime",
+            "quantity": 3
+          }
+        ]
+      },
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-FALLBACK-FOCUS-001",
+    "passed": true,
+    "message": "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled",
+    "evidence": {
+      "fallback": true,
+      "drinkCapacity": 0,
+      "actualTabStops": [
+        "close",
+        "checked drink-only radio",
+        "dessert disclosure"
+      ],
+      "delayedFocusFrameMs": 100,
+      "reopenedEscapeCloses": true,
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-GEOMETRY-001",
+    "passed": true,
+    "message": "representative long names fit320/390/768/1440 at100/200% text",
+    "evidence": {
+      "drink": "herbal-tea:tahiti-tea-hibiscus-lemongrass",
+      "dessert": "desserts:san-sebastian-cheesecake",
+      "states": [
+        {
+          "label": "ru/320px/100%",
+          "viewport": 320,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 40,
+              "right": 155,
+              "top": 270.73333740234375,
+              "bottom": 370.73333740234375,
+              "width": 115,
+              "height": 100,
+              "loaded": true
+            },
+            {
+              "left": 165,
+              "right": 280,
+              "top": 270.73333740234375,
+              "bottom": 370.73333740234375,
+              "width": 115,
+              "height": 100,
+              "loaded": true
+            }
+          ],
+          "sideBySide": true,
+          "photosSeparate": true,
+          "actionHeight": 72.80000305175781,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 275.5333251953125,
+              "bottom": 317.5333251953125,
+              "clipTop": 7,
+              "clipBottom": 586.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 377.73333740234375,
+              "bottom": 459.1333312988281,
+              "clipTop": 7,
+              "clipBottom": 586.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 377.73333740234375,
+              "bottom": 439.53334045410156,
+              "clipTop": 7,
+              "clipBottom": 586.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 525.13330078125,
+              "bottom": 546.7333068847656,
+              "clipTop": 7,
+              "clipBottom": 586.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 599.2833251953125,
+              "bottom": 619.2499847412109,
+              "clipTop": 586.2833251953125,
+              "clipBottom": 836.9999847412109,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 637.25,
+              "bottom": 683.25,
+              "clipTop": 586.2833251953125,
+              "clipBottom": 836.9999847412109,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/320px/200%",
+          "viewport": 320,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 40,
+              "right": 280,
+              "top": -92.08332824707031,
+              "bottom": 7.9166717529296875,
+              "width": 240,
+              "height": 100,
+              "loaded": true
+            },
+            {
+              "left": 40,
+              "right": 280,
+              "top": 184.71665954589844,
+              "bottom": 284.71665954589844,
+              "width": 240,
+              "height": 100,
+              "loaded": true
+            }
+          ],
+          "sideBySide": false,
+          "photosSeparate": true,
+          "actionHeight": 207.1999969482422,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 53.116668701171875,
+              "bottom": 221.11666870117188,
+              "clipTop": 7,
+              "clipBottom": 267.6333312988281,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 56.91667175292969,
+              "bottom": 216.71665954589844,
+              "clipTop": 7,
+              "clipBottom": 267.6333312988281,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 76.71665954589844,
+              "bottom": 197.31666564941406,
+              "clipTop": 7,
+              "clipBottom": 267.6333312988281,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 185.78334045410156,
+              "bottom": 228.98333740234375,
+              "clipTop": 7,
+              "clipBottom": 267.6333312988281,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 280.6333312988281,
+              "bottom": 320.56666564941406,
+              "clipTop": 267.6333312988281,
+              "clipBottom": 837.0000305175781,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 338.566650390625,
+              "bottom": 401.99998474121094,
+              "clipTop": 267.6333312988281,
+              "clipBottom": 837.0000305175781,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/390px/100%",
+          "viewport": 390,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 40,
+              "right": 190,
+              "top": 348.16668701171875,
+              "bottom": 448.16668701171875,
+              "width": 150,
+              "height": 100,
+              "loaded": true
+            },
+            {
+              "left": 200,
+              "right": 350,
+              "top": 348.16668701171875,
+              "bottom": 448.16668701171875,
+              "width": 150,
+              "height": 100,
+              "loaded": true
+            }
+          ],
+          "sideBySide": true,
+          "photosSeparate": true,
+          "actionHeight": 50.40000915527344,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 313.9666748046875,
+              "bottom": 355.9666748046875,
+              "clipTop": 7,
+              "clipBottom": 662.9666748046875,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 455.16668701171875,
+              "bottom": 536.5666809082031,
+              "clipTop": 7,
+              "clipBottom": 662.9666748046875,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 455.16668701171875,
+              "bottom": 516.9666748046875,
+              "clipTop": 7,
+              "clipBottom": 662.9666748046875,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 602.566650390625,
+              "bottom": 624.1666564941406,
+              "clipTop": 7,
+              "clipBottom": 662.9666748046875,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 688.9833374023438,
+              "bottom": 708.9499969482422,
+              "clipTop": 662.9666748046875,
+              "clipBottom": 837.0000152587891,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 675.9666748046875,
+              "bottom": 721.9666748046875,
+              "clipTop": 662.9666748046875,
+              "clipBottom": 837.0000152587891,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/390px/200%",
+          "viewport": 390,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 40,
+              "right": 350,
+              "top": -32.366668701171875,
+              "bottom": 67.63333129882812,
+              "width": 310,
+              "height": 100,
+              "loaded": true
+            },
+            {
+              "left": 40,
+              "right": 350,
+              "top": 244.43333435058594,
+              "bottom": 344.43333435058594,
+              "width": 310,
+              "height": 100,
+              "loaded": true
+            }
+          ],
+          "sideBySide": false,
+          "photosSeparate": true,
+          "actionHeight": 117.59999084472656,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 135.63333129882812,
+              "bottom": 261.6333312988281,
+              "clipTop": 7,
+              "clipBottom": 389.8666687011719,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 118.63333129882812,
+              "bottom": 278.43333435058594,
+              "clipTop": 7,
+              "clipBottom": 389.8666687011719,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 138.43333435058594,
+              "bottom": 259.03334045410156,
+              "clipTop": 7,
+              "clipBottom": 389.8666687011719,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 308.1166687011719,
+              "bottom": 351.31666564941406,
+              "clipTop": 7,
+              "clipBottom": 389.8666687011719,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 402.8666687011719,
+              "bottom": 442.8000030517578,
+              "clipTop": 389.8666687011719,
+              "clipBottom": 837,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 460.79998779296875,
+              "bottom": 524.2333221435547,
+              "clipTop": 389.8666687011719,
+              "clipBottom": 837,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/768px/100%",
+          "viewport": 768,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 460.3666687011719,
+              "right": 577.1833343505859,
+              "top": 377.6499938964844,
+              "bottom": 494.46665954589844,
+              "width": 116.81666564941406,
+              "height": 116.81666564941406,
+              "loaded": true
+            },
+            {
+              "left": 587.183349609375,
+              "right": 704.0000152587891,
+              "top": 377.6499938964844,
+              "bottom": 494.46665954589844,
+              "width": 116.81666564941406,
+              "height": 116.81666564941406,
+              "loaded": true
+            }
+          ],
+          "sideBySide": true,
+          "photosSeparate": true,
+          "actionHeight": 50.399993896484375,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 346.45001220703125,
+              "bottom": 388.45001220703125,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 501.4666748046875,
+              "bottom": 582.8666839599609,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 501.4666748046875,
+              "bottom": 563.2666778564453,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 648.86669921875,
+              "bottom": 670.4666900634766,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 749.5,
+              "bottom": 769.4666595458984,
+              "clipTop": 717.2833251953125,
+              "clipBottom": 826.9999847412109,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 736.4833374023438,
+              "bottom": 782.4833374023438,
+              "clipTop": 717.2833251953125,
+              "clipBottom": 826.9999847412109,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/768px/200%",
+          "viewport": 768,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 460.3666687011719,
+              "right": 704,
+              "top": -65.85000610351562,
+              "bottom": 177.78334045410156,
+              "width": 243.63333129882812,
+              "height": 243.6333465576172,
+              "loaded": true
+            },
+            {
+              "left": 460.3666687011719,
+              "right": 704,
+              "top": 354.58331298828125,
+              "bottom": 598.2166442871094,
+              "width": 243.63333129882812,
+              "height": 243.63333129882812,
+              "loaded": true
+            }
+          ],
+          "sideBySide": false,
+          "photosSeparate": true,
+          "actionHeight": 117.60000610351562,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 223.35000610351562,
+              "bottom": 391.3500061035156,
+              "clipTop": 17,
+              "clipBottom": 597.36669921875,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 227.78334045410156,
+              "bottom": 387.5833282470703,
+              "clipTop": 17,
+              "clipBottom": 597.36669921875,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 247.21665954589844,
+              "bottom": 367.81666564941406,
+              "clipTop": 17,
+              "clipBottom": 597.36669921875,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 507.01666259765625,
+              "bottom": 550.2166595458984,
+              "clipTop": 17,
+              "clipBottom": 597.36669921875,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 614.36669921875,
+              "bottom": 654.3000335693359,
+              "clipTop": 597.36669921875,
+              "clipBottom": 827.0000305175781,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 672.2999877929688,
+              "bottom": 735.7333221435547,
+              "clipTop": 597.36669921875,
+              "clipBottom": 827.0000305175781,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/1440px/100%",
+          "viewport": 1440,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 806.11669921875,
+              "right": 979.0666961669922,
+              "top": 340.3500061035156,
+              "bottom": 513.3000030517578,
+              "width": 172.9499969482422,
+              "height": 172.9499969482422,
+              "loaded": true
+            },
+            {
+              "left": 989.066650390625,
+              "right": 1162.0166473388672,
+              "top": 340.3500061035156,
+              "bottom": 513.3000030517578,
+              "width": 172.9499969482422,
+              "height": 172.9499969482422,
+              "loaded": true
+            }
+          ],
+          "sideBySide": true,
+          "photosSeparate": true,
+          "actionHeight": 50.399993896484375,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 346.54998779296875,
+              "bottom": 388.54998779296875,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 520.2999877929688,
+              "bottom": 582.0999908447266,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 520.2999877929688,
+              "bottom": 582.0999908447266,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 648.0999755859375,
+              "bottom": 669.6999664306641,
+              "clipTop": 17,
+              "clipBottom": 717.2833251953125,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 749.5,
+              "bottom": 769.4666595458984,
+              "clipTop": 717.2833251953125,
+              "clipBottom": 826.9999847412109,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 736.4833374023438,
+              "bottom": 782.4833374023438,
+              "clipTop": 717.2833251953125,
+              "clipBottom": 826.9999847412109,
+              "overlap": false
+            }
+          ]
+        },
+        {
+          "label": "ru/1440px/200%",
+          "viewport": 1440,
+          "overflow": false,
+          "insideViewport": true,
+          "photos": [
+            {
+              "left": 806.11669921875,
+              "right": 1162.0000305175781,
+              "top": -158.01666259765625,
+              "bottom": 197.86666870117188,
+              "width": 355.8833312988281,
+              "height": 355.8833312988281,
+              "loaded": true
+            },
+            {
+              "left": 806.11669921875,
+              "right": 1162.0000305175781,
+              "top": 335.4666748046875,
+              "bottom": 691.3500366210938,
+              "width": 355.8833312988281,
+              "height": 355.88336181640625,
+              "loaded": true
+            }
+          ],
+          "sideBySide": false,
+          "photosSeparate": true,
+          "actionHeight": 117.60000610351562,
+          "optionsTouchable": true,
+          "clippedText": [],
+          "reachability": [
+            {
+              "text": "Цена за одну пару · один напиток + один десерт: 320 ₺",
+              "top": 245.98333740234375,
+              "bottom": 371.98333740234375,
+              "clipTop": 17,
+              "clipBottom": 601.13330078125,
+              "overlap": false
+            },
+            {
+              "text": "Tahiti Tea / Гибискус и лемонграсс130 ₺",
+              "top": 248.86666870117188,
+              "bottom": 369.46665954589844,
+              "clipTop": 17,
+              "clipBottom": 601.13330078125,
+              "overlap": false
+            },
+            {
+              "text": "Чизкейк Сан-Себастьян190 ₺",
+              "top": 248.35000610351562,
+              "bottom": 368.9499969482422,
+              "clipTop": 17,
+              "clipBottom": 601.13330078125,
+              "overlap": false
+            },
+            {
+              "text": "320 ₺",
+              "top": 511.0333251953125,
+              "bottom": 554.2333221435547,
+              "clipTop": 17,
+              "clipBottom": 601.13330078125,
+              "overlap": false
+            },
+            {
+              "text": "Количество пар",
+              "top": 656.9666748046875,
+              "bottom": 696.9000091552734,
+              "clipTop": 601.13330078125,
+              "clipBottom": 826.9999694824219,
+              "overlap": false
+            },
+            {
+              "text": "\n            −\n            1\n            +\n          ",
+              "top": 645.2166748046875,
+              "bottom": 708.6500091552734,
+              "clipTop": 601.13330078125,
+              "clipBottom": 826.9999694824219,
+              "overlap": false
+            }
+          ]
+        }
+      ],
+      "screenshots": [
+        {
+          "path": ".artifacts/choice-funnel/firefox/custom-pairing/ru-320-100-drink-only.png",
+          "width": 320,
+          "textScale": 100,
+          "selection": "drink-only"
+        },
+        {
+          "path": ".artifacts/choice-funnel/firefox/custom-pairing/ru-320-100.png",
+          "width": 320,
+          "textScale": 100,
+          "selection": "desserts:san-sebastian-cheesecake"
+        },
+        {
+          "path": ".artifacts/choice-funnel/firefox/custom-pairing/ru-320-200.png",
+          "width": 320,
+          "textScale": 200,
+          "selection": "desserts:san-sebastian-cheesecake"
+        },
+        {
+          "path": ".artifacts/choice-funnel/firefox/custom-pairing/ru-390-100.png",
+          "width": 390,
+          "textScale": 100,
+          "selection": "desserts:san-sebastian-cheesecake"
+        },
+        {
+          "path": ".artifacts/choice-funnel/firefox/custom-pairing/ru-1440-100.png",
+          "width": 1440,
+          "textScale": 100,
+          "selection": "desserts:san-sebastian-cheesecake"
+        }
+      ],
+      "textScaleMethod": "document root font16/32px; text enlargement, not browser zoom",
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-LAZY-FAILURE-001",
+    "passed": true,
+    "message": "blocked optional view reports failure and retains drink-only ordering",
+    "evidence": {
+      "feedback": "Не удалось открыть выбор сладкого. Можно добавить только напиток.",
+      "optionalLoadBlocked": true,
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          }
+        ],
+        "lines": [
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 1
+          }
+        ]
+      },
+      "errors": []
+    }
+  },
+  {
+    "id": "CUSTOM-PAIRING-RETRY-001",
+    "passed": true,
+    "message": "a previously blocked optional module recovers after explicit retry without silently ordering",
+    "evidence": {
+      "recoveredAfterRetry": true,
+      "preview": {
+        "drink": "hot-coffee:espresso",
+        "dessert": "desserts:san-sebastian-cheesecake",
+        "photos": [
+          "src/products/menu-v1/hot-coffee--espresso.webp",
+          "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp"
+        ],
+        "unitTotal": 300
+      },
+      "draft": {
+        "version": 1,
+        "groups": [
+          {
+            "id": "menu:[{\"id\":\"desserts:san-sebastian-cheesecake\",\"quantity\":1},{\"id\":\"hot-coffee:espresso\",\"quantity\":1}]",
+            "source": "menu",
+            "items": [
+              {
+                "id": "hot-coffee:espresso",
+                "quantity": 1
+              },
+              {
+                "id": "desserts:san-sebastian-cheesecake",
+                "quantity": 1
+              }
+            ],
+            "quantity": 1
+          }
+        ],
+        "lines": [
+          {
+            "id": "desserts:san-sebastian-cheesecake",
+            "quantity": 1
+          },
+          {
+            "id": "hot-coffee:espresso",
+            "quantity": 1
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+]

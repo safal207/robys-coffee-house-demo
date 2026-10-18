@@ -1,0 +1,374 @@
+[
+  {
+    "attempt": "firefox-attempt2",
+    "disposition": "Environment setup: a manually selected port 4190 is forbidden by fetch; default port retained.",
+    "source_kind": "historical development worktree",
+    "report": {
+      "browser": "firefox",
+      "sourceHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "startedAt": "2026-10-18T07:45:22.736Z",
+      "playwrightVersion": "1.55.1",
+      "nodeVersion": "v24.19.0",
+      "platform": "linux/x64",
+      "status": "FAIL",
+      "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+      "testDefinitions": {
+        "scripts/test-choice-funnel-browser.mjs": "06fb49d2a0cb3229c2c3c2cae0b9d00247c101410dec0571125903866600c687",
+        "scripts/test-menu-custom-pairing-browser.mjs": "e6bd5958eec1ec8321dc9abdb2e4fe5a2dd1ea9679ce3367ec2534280dbec1e7",
+        "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51"
+      },
+      "checks": [],
+      "error": "AssertionError [ERR_ASSERTION]: isolated local server must be ready\n    at file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:59:10",
+      "finalHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "completedAt": "2026-10-18T07:45:26.786Z"
+    }
+  },
+  {
+    "attempt": "firefox-attempt4",
+    "disposition": "Harness: wait for complete image requests before decode; loaded images remain mandatory.",
+    "source_kind": "historical development worktree",
+    "report": {
+      "browser": "firefox",
+      "sourceHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "startedAt": "2026-10-18T07:49:08.304Z",
+      "playwrightVersion": "1.55.1",
+      "nodeVersion": "v24.19.0",
+      "platform": "linux/x64",
+      "status": "FAIL",
+      "runtimeOptions": {
+        "firefoxContentSandboxDisabled": true
+      },
+      "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+      "testDefinitions": {
+        "scripts/test-choice-funnel-browser.mjs": "6f6ff96da703cff7b249d7fd2b345c6264f69d16e6f4615f7e262e4920926a00",
+        "scripts/test-menu-custom-pairing-browser.mjs": "e6bd5958eec1ec8321dc9abdb2e4fe5a2dd1ea9679ce3367ec2534280dbec1e7",
+        "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51"
+      },
+      "checks": [
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        }
+      ],
+      "browserVersion": "141.0",
+      "error": "locator.evaluateAll: Invalid image request.\n    at /workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:83:32",
+      "finalHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "completedAt": "2026-10-18T07:49:11.308Z"
+    }
+  },
+  {
+    "attempt": "firefox-attempt6",
+    "disposition": "Harness: native forward Tab exits the Firefox document; navigate backwards where appropriate.",
+    "source_kind": "historical development worktree",
+    "report": {
+      "browser": "firefox",
+      "sourceHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "startedAt": "2026-10-18T07:52:00.313Z",
+      "playwrightVersion": "1.55.1",
+      "nodeVersion": "v24.19.0",
+      "platform": "linux/x64",
+      "status": "FAIL",
+      "runtimeOptions": {
+        "firefoxContentSandboxDisabled": true
+      },
+      "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+      "testDefinitions": {
+        "scripts/test-choice-funnel-browser.mjs": "7aabf4a0a98749aba20be78724c3de09fdb0f2d52ae6e3e67a40f88bbfdcc1e1",
+        "scripts/test-menu-custom-pairing-browser.mjs": "e6bd5958eec1ec8321dc9abdb2e4fe5a2dd1ea9679ce3367ec2534280dbec1e7",
+        "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51"
+      },
+      "checks": [
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 390,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        }
+      ],
+      "browserVersion": "141.0",
+      "error": "AssertionError [ERR_ASSERTION]: Keyboard cannot reach locator('#menu-cart-trigger')\n    at tabTo (file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:41:10)\n    at async activate (file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:44:3)\n    at async file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:175:7",
+      "finalHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "completedAt": "2026-10-18T07:52:10.957Z"
+    }
+  },
+  {
+    "attempt": "chromium-attempt1",
+    "disposition": "Harness: top-level language fixture must not write sandboxed third-party frame storage.",
+    "source_kind": "historical development worktree",
+    "report": {
+      "browser": "chromium",
+      "sourceHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "startedAt": "2026-10-18T07:49:08.185Z",
+      "playwrightVersion": "1.55.1",
+      "nodeVersion": "v24.19.0",
+      "platform": "linux/x64",
+      "status": "FAIL",
+      "runtimeOptions": {
+        "firefoxContentSandboxDisabled": false
+      },
+      "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+      "testDefinitions": {
+        "scripts/test-choice-funnel-browser.mjs": "6f6ff96da703cff7b249d7fd2b345c6264f69d16e6f4615f7e262e4920926a00",
+        "scripts/test-menu-custom-pairing-browser.mjs": "e6bd5958eec1ec8321dc9abdb2e4fe5a2dd1ea9679ce3367ec2534280dbec1e7",
+        "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51"
+      },
+      "checks": [
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 320,
+          "height": 900,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 360,
+          "height": 640,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 390,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "pair-to-QR",
+          "width": 390,
+          "height": 900,
+          "language": "tr",
+          "total": 740,
+          "noAutomaticAddition": true,
+          "expandedChoices": 12,
+          "focusRestored": true,
+          "keyboardOnlyOrder": true,
+          "cartIncreaseDecrease": true,
+          "reloadPreserves": true,
+          "restoredOrderReachesQR": true,
+          "lines": [
+            {
+              "id": "desserts:lotus-cheesecake",
+              "quantity": 2
+            },
+            {
+              "id": "hot-coffee:caffe-latte",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "type": "landing",
+          "width": 390,
+          "height": 900,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "pair-to-QR",
+          "width": 390,
+          "height": 900,
+          "language": "en",
+          "total": 740,
+          "noAutomaticAddition": true,
+          "expandedChoices": 12,
+          "focusRestored": true,
+          "keyboardOnlyOrder": true,
+          "cartIncreaseDecrease": true,
+          "reloadPreserves": true,
+          "restoredOrderReachesQR": true,
+          "lines": [
+            {
+              "id": "desserts:lotus-cheesecake",
+              "quantity": 2
+            },
+            {
+              "id": "hot-coffee:caffe-latte",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "type": "landing",
+          "width": 390,
+          "height": 900,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "pair-to-QR",
+          "width": 390,
+          "height": 900,
+          "language": "ru",
+          "total": 740,
+          "noAutomaticAddition": true,
+          "expandedChoices": 12,
+          "focusRestored": true,
+          "keyboardOnlyOrder": true,
+          "cartIncreaseDecrease": true,
+          "reloadPreserves": true,
+          "restoredOrderReachesQR": true,
+          "lines": [
+            {
+              "id": "desserts:lotus-cheesecake",
+              "quantity": 2
+            },
+            {
+              "id": "hot-coffee:caffe-latte",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "type": "landing",
+          "width": 768,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 768,
+          "height": 900,
+          "language": "en",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 768,
+          "height": 900,
+          "language": "ru",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        },
+        {
+          "type": "landing",
+          "width": 1440,
+          "height": 900,
+          "language": "tr",
+          "overflow": false,
+          "clipping": false,
+          "photos": true
+        }
+      ],
+      "browserVersion": "140.0.7339.186",
+      "error": "AssertionError [ERR_ASSERTION]: 1440/tr: complete order has no application exceptions\n+ actual - expected\n\n+ [\n+   \"Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\"\n+ ]\n- []\n\n    at file:///workspace/scratch/bc8412d49a54/robys-coffee-house-demo/scripts/test-choice-funnel-browser.mjs:170:14",
+      "finalHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "completedAt": "2026-10-18T07:49:27.237Z"
+    }
+  }
+]
