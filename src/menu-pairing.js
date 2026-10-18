@@ -1,3 +1,5 @@
+import { isEditablePairDrink } from "./menu-promo-pair.js";
+
 export function isHotDrink(product) {
   return ["hot-coffee", "brew-hot", "herbal-tea"].includes(product?.category?.id);
 }
@@ -18,7 +20,7 @@ function validSelection(products) {
       && product.id.startsWith(`${product.category.id}:`)
       && Number.isFinite(product.item?.price) && product.item.price > 0)
     && new Set(products.map((product) => product.id)).size === products.length
-    && (products.length === 1 || products.some(isHotDrink) && products.some(isSweetProduct));
+    && (products.length === 1 || products.some(isEditablePairDrink) && products.some(isSweetProduct));
 }
 
 export function quoteMenuSelection(cart, products, requestedQty, max = 99) {

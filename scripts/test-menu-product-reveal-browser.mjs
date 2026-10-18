@@ -109,8 +109,9 @@ try {
   assert.equal(await bridge.isHidden(), true, "Pairing product must not recursively show the pairing bridge");
 
   await page.locator("#menu-add-to-cart").click();
-  assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Pairing must add as one existing catalog line");
   await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
+  assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 1, "Pairing must add as one existing catalog line");
+  assert.equal(Number(await page.locator("#menu-cart-dialog .menu-cart-line-controls span").textContent()), 1);
   assert.equal(await page.locator("#menu-cart-title").innerText(), "Добавлено в заказ");
   assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
   assert.equal(await page.getByRole("button", { name: "Получить QR для кассы", exact: true }).isVisible(), true);

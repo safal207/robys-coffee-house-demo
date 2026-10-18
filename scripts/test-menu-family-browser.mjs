@@ -6,7 +6,7 @@ import { dirname, resolve, join, extname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
 import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -44,12 +44,15 @@ await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 origin = `https://127.0.0.1:${server.address().port}`;
 const report = {
   startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
-  mode: "Chromium in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
-  sourceHashes: Object.fromEntries(["src/menu-app.js", "src/menu-family-ui.js", "src/menu-family.js", "src/order-draft.js", "src/menu-order-ui.js", "menu-family.css", "menu.html", "menu-catalog.js"]
+  mode: "Desktop browser engines in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
+  sourceHashes: Object.fromEntries(["src/menu-app.js", "src/menu-family-ui.js", "src/menu-family.js", "src/order-draft.js", "src/menu-order-ui.js", "menu-family.css", "menu.html", "menu-catalog.js",
+    "src/products/family-v1/milk-cookie.webp", "src/products/family-v1/simit-break.webp", "src/products/family-v1/milk-roll.webp"]
     .map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")])), cases: []
 };
 const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
 let browser;
+const browserName = process.env.ROBYS_FAMILY_BROWSER ?? "chromium";
+assert.ok(["chromium", "firefox", "webkit"].includes(browserName), "Choose chromium, firefox or webkit");
 
 async function run(id, callback, { width = 390, height = 844, javaScriptEnabled = true } = {}) {
   if (process.env.ROBYS_FAMILY_FILTER && !id.includes(process.env.ROBYS_FAMILY_FILTER)) return;
@@ -91,18 +94,48 @@ async function openMenu(page, language = "ru", { fallback = false, deepLink = fa
 
 async function clearCart(page, returnButton) {
   const cart = page.locator("#menu-cart-dialog[open]");
-  while (await cart.locator(".menu-cart-remove").count()) await cart.locator(".menu-cart-remove").first().click();
+  while (await cart.locator(".menu-cart-remove").count()) {
+    const previous = await cart.locator(".menu-cart-remove").count();
+    await cart.locator(".menu-cart-remove").first().click();
+    await page.waitForFunction(count => document.querySelectorAll("#menu-cart-dialog .menu-cart-remove").length < count, previous);
+  }
   await page.keyboard.press("Escape");
   assert.equal(await returnButton.evaluate(button => document.activeElement === button), true, "Cart returns focus to its recipe card");
 }
 
+async function assertRecipePhotos(page, language) {
+  const recipeIds = ["milk-cookie", "simit-break", "milk-roll"];
+  for (const recipeId of recipeIds) {
+    const image = page.locator(`[data-family-recipe="${recipeId}"] .menu-family-photos > img`);
+    await image.scrollIntoViewIfNeeded();
+    const actual = await image.evaluate(async node => {
+      await node.decode();
+      return { src: new URL(node.currentSrc).pathname, width: node.naturalWidth, height: node.naturalHeight };
+    });
+    assert.deepEqual(actual, { src: `/src/products/family-v1/${recipeId}.webp`, width: 1024, height: 1024 });
+  }
+  const title = { tr: "Çocuklarla", en: "With kids", ru: "С ребёнком" }[language];
+  assert.deepEqual(await page.locator(".menu-family-ribbon").allTextContents(), Array(3).fill(`❤${title}`));
+  assert.equal(await page.locator('.menu-family-ribbon span[aria-hidden="true"]').count(), 3);
+}
+
+async function captureCard(page, recipeId, filename) {
+  const card = page.locator(`[data-family-recipe="${recipeId}"]`);
+  await card.evaluate(node => node.scrollIntoView({ block: "center" }));
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await card.screenshot({ path: join(output, filename) });
+}
+
 try {
-  browser = await chromium.launch({ headless: true });
+  browser = await ({ chromium, firefox, webkit })[browserName].launch({ headless: true });
+  report.browserName = browserName;
   report.browserVersion = browser.version();
   for (const language of ["tr", "en", "ru"]) await run(`recipes-${language}`, async page => {
     await openMenu(page, language);
     assert.equal(await page.locator(".menu-family-card").count(), 3);
     assert.deepEqual(await page.locator(".menu-family-price").allTextContents(), ["160 ₺", "195 ₺", "230 ₺"]);
+    await assertRecipePhotos(page, language);
+    await captureCard(page, "milk-cookie", `card-${language}-390.png`);
     const first = page.locator('[data-family-recipe="milk-cookie"] button');
     await first.click();
     assert.equal(await page.locator("#menu-cart-count").textContent(), "0", "Opening a recipe never adds it");
@@ -128,6 +161,7 @@ try {
     assert.ok(groups.every(group => group.items.length === 1), "Each component remains independently editable");
     await page.locator("#menu-cart-dialog .menu-cart-line").filter({ hasText: language === "ru" ? "Молоко" : language === "en" ? "Milk" : "Süt" })
       .locator(".menu-cart-remove").click();
+    await page.waitForFunction(() => document.querySelectorAll("#menu-cart-dialog .menu-cart-line").length === 1);
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v1")).lines), [{ id: "food:sesame-simit", quantity: 1 }]);
     await clearCart(page, second);
 
@@ -146,11 +180,15 @@ try {
     return { recipes: 3, completedSelections: 3, cancelPreservedDraft: true, separateComponentRemoval: true, focusRestored: true };
   });
 
-  for (const width of [320, 1440]) await run(`layout-${width}`, async page => {
+  for (const width of [320, 390, 1440]) await run(`layout-${width}`, async page => {
     await openMenu(page);
+    await assertRecipePhotos(page, "ru");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     const strips = await page.locator(".menu-family-photos").evaluateAll(nodes => nodes.map(node => Math.round(node.getBoundingClientRect().height)));
     assert.equal(new Set(strips).size, 1, "Recipe image strips align despite different component counts");
+    for (const recipeId of ["milk-cookie", "simit-break", "milk-roll"])
+      await captureCard(page, recipeId, `card-${recipeId}-${width}.png`);
+    await page.locator('[data-family-recipe="milk-cookie"]').evaluate(node => node.scrollIntoView({ block: "center" }));
     await page.screenshot({ path: join(output, `cards-${width}.png`), fullPage: false });
     await page.locator('[data-family-recipe="simit-break"] button').click();
     const bounds = await page.locator(".menu-family-dialog").evaluate(node => {
@@ -160,6 +198,24 @@ try {
     assert.ok(bounds.left >= 0 && bounds.right <= bounds.width && bounds.top >= 0 && bounds.bottom <= bounds.height);
     return { viewport: { width, height: width === 1440 ? 900 : 844 }, bounds, photoStripHeights: strips };
   }, { width, height: width === 1440 ? 900 : 844 });
+
+  await run("missing-composite-photo-fallback", async page => {
+    await page.route("**/src/products/family-v1/milk-cookie.webp", route => route.abort("failed"));
+    await openMenu(page);
+    const card = page.locator('[data-family-recipe="milk-cookie"]');
+    await card.locator(".menu-family-photos.is-fallback").waitFor();
+    const images = card.locator(".menu-family-photos > img");
+    assert.equal(await images.count(), 2, "Both ordinary component images replace the failed combined photo");
+    for (const image of await images.all()) await image.evaluate(node => node.decode());
+    assert.deepEqual(await images.evaluateAll(nodes => nodes.map(node => new URL(node.currentSrc).pathname)),
+      ["/src/products/menu-v1/brew-hot--milk.webp", "/src/products/menu-v1/desserts--cookie.webp"]);
+    assert.equal(await card.locator(".menu-family-ribbon").textContent(), "❤С ребёнком");
+    assert.equal(await card.locator(".menu-family-price").textContent(), "160 ₺");
+    await card.locator("button").click();
+    assert.equal(await page.locator(".menu-family-dialog[open] input:checked").count(), 2);
+    assert.match(await page.locator(".menu-family-total").textContent(), /160 ₺/);
+    return { combinedPhotoBlocked: true, existingComponentPhotosLoaded: 2, localizedRibbonRetained: true, chooseAndPricePreserved: true };
+  });
 
   await run("text-200-percent", async page => {
     await openMenu(page);
@@ -192,8 +248,15 @@ try {
     await openMenu(page);
     await page.locator('[data-family-recipe="milk-cookie"] button').click();
     // A change after preview must be seen at confirmation, even without storage events.
-    await page.evaluate(() => localStorage.setItem("robys-menu-order.v1", JSON.stringify({ version: 1, lines: [{ id: "desserts:cookie", quantity: 99 }] })));
+    await page.evaluate(async () => {
+      const orders = await import("./src/order-draft.js");
+      const ids = new Set(["desserts:cookie"]);
+      await orders.transactStoredOrderDraft(() => ({ applied: true, blocked: false,
+        draft: orders.normalizeOrderDraft({ version: 1, lines: [{ id: "desserts:cookie", quantity: 99 }] }, ids) }), ids,
+      { origin: "menu-app" });
+    });
     await page.locator(".menu-family-add").click();
+    await page.locator('.menu-family-status[data-message="limit"]').waitFor();
     assert.equal(await page.locator(".menu-family-dialog[open]").count(), 1);
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v1")).lines), [{ id: "desserts:cookie", quantity: 99 }]);
     await page.locator('.menu-family-dialog input[value="desserts:cookie"]').uncheck();
@@ -221,6 +284,100 @@ try {
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
     return { lazyUntilIntent: true, escapeCancelsPendingReveal: true, nextClickOpensWithoutAdding: true };
+  });
+
+  for (const latest of ["product", "cart"]) await run(`latest-${latest}-supersedes-family`, async page => {
+    let release, requested;
+    const pending = new Promise(resolve => { requested = resolve; });
+    const gate = new Promise(resolve => { release = resolve; });
+    await page.route("**/menu-family-ui.js*", async route => { requested(); await gate; await route.continue(); });
+    await openMenu(page, "ru", { reveal: false });
+    await page.locator("#menu-family-trigger").click();
+    await pending;
+    if (latest === "product") await page.locator('[data-product-id="food:sesame-simit"] .full-menu-item-media').click();
+    else await page.locator("#menu-cart-trigger").click();
+    const dialog = page.locator(latest === "product" ? "#menu-product-dialog[open]" : "#menu-cart-dialog[open]");
+    await dialog.waitFor();
+    const before = await page.evaluate(() => ({ scroll: scrollY, focus: document.activeElement?.id }));
+    release();
+    await page.locator(".menu-family-card").first().waitFor({ state: "attached" });
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.locator("#menu-family").isHidden(), true, "A superseded family load cannot expand the background");
+    assert.equal(await dialog.count(), 1, "The latest selection stays open");
+    const after = await page.evaluate(() => ({ scroll: scrollY, focus: document.activeElement?.id }));
+    assert.deepEqual(after, before, "A superseded family load cannot steal focus or scroll");
+    return { delayedFamilyLoad: true, latest, backgroundStayedHidden: true, before, after };
+  });
+
+  await run("latest-family-supersedes-product", async page => {
+    let release, requested;
+    const pending = new Promise(resolve => { requested = resolve; });
+    const gate = new Promise(resolve => { release = resolve; });
+    await page.route("**/menu-order-ui.js*", async route => { requested(); await gate; await route.continue(); });
+    await openMenu(page, "ru", { reveal: false });
+    await page.locator('[data-product-id="food:sesame-simit"] .full-menu-item-media').click();
+    await pending;
+    await page.locator("#menu-family-trigger").click();
+    await page.locator(".menu-family-card").first().waitFor();
+    assert.equal(await page.locator("#menu-family-title").evaluate(node => document.activeElement === node), true);
+    release();
+    await page.locator("#menu-product-unit-price").waitFor({ state: "attached" });
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.locator(".menu-dialog[open]").count(), 0);
+    assert.equal(await page.locator("#menu-family-title").evaluate(node => document.activeElement === node), true);
+    return { delayedProductLoad: true, latestFamilyKeptFocus: true, noDelayedProductPopup: true };
+  });
+
+  await run("repeated-family-intent-latest-language", async page => {
+    let release, requested;
+    const pending = new Promise(resolve => { requested = resolve; });
+    const gate = new Promise(resolve => { release = resolve; });
+    let downloads = 0;
+    await page.addInitScript(() => {
+      window.__familyScrollCount = 0;
+      const original = Element.prototype.scrollIntoView;
+      Element.prototype.scrollIntoView = function (...args) {
+        if (this.id === "menu-family") window.__familyScrollCount += 1;
+        return original.apply(this, args);
+      };
+    });
+    await page.route("**/menu-family-ui.js*", async route => { downloads += 1; requested(); await gate; await route.continue(); });
+    await openMenu(page, "ru", { reveal: false });
+    await page.locator("#menu-family-trigger").evaluate(button => { button.click(); button.click(); });
+    await pending;
+    await page.locator('.lang-button[data-lang="en"]').click();
+    release();
+    await page.locator(".menu-family-card").first().waitFor();
+    assert.equal(downloads, 1);
+    assert.equal(await page.locator("#menu-family-title").textContent(), "With kids");
+    assert.equal(await page.evaluate(() => window.__familyScrollCount), 1, "Only the latest repeated intent reveals and scrolls");
+    await page.locator(".menu-family-hide").click();
+    assert.equal(await page.locator("#menu-family").isHidden(), true);
+    await page.locator("#menu-family-trigger").click();
+    await page.locator(".menu-family-card").first().waitFor();
+    assert.equal(await page.locator("#menu-family-trigger").getAttribute("aria-busy"), null);
+    return { repeatedClicks: 2, downloads, latestLanguage: "en", singleInitialReveal: true, hideAndReopen: true };
+  });
+
+  await run("family-preview-supersedes-product", async page => {
+    let release, requested;
+    const pending = new Promise(resolve => { requested = resolve; });
+    const gate = new Promise(resolve => { release = resolve; });
+    await page.route("**/menu-order-ui.js*", async route => { requested(); await gate; await route.continue(); });
+    await openMenu(page);
+    await page.locator('[data-product-id="food:sesame-simit"] .full-menu-item-media').click();
+    await pending;
+    await page.locator('[data-family-recipe="milk-cookie"] button').click();
+    await page.locator(".menu-family-dialog[open]").waitFor();
+    release();
+    await page.locator("#menu-product-unit-price").waitFor({ state: "attached" });
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.locator(".menu-dialog[open]").count(), 0);
+    assert.equal(await page.locator(".menu-family-dialog[open]").count(), 1);
+    assert.equal(await page.locator("#menu-family-preview-title").evaluate(node => document.activeElement === node), true);
+    await page.locator(".menu-family-close").click();
+    assert.equal(await page.locator(".menu-family-dialog[open]").count(), 0);
+    return { familyCardWinsOverPendingProduct: true, noFocusTheft: true, closeWorks: true };
   });
 
   await run("deep-link", async page => {
@@ -269,6 +426,64 @@ try {
     assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v1")).lines),
       [{ id: "brew-hot:milk", quantity: 1 }, { id: "desserts:cookie", quantity: 1 }]);
     return { orderUiLoadDelayed: true, escapeCancelledPopup: true, explicitlyAddedSelectionPreserved: true };
+  });
+
+  await run("pending-family-save-keeps-new-preview-busy", async (page, context) => {
+    await openMenu(page);
+    await page.evaluate(() => {
+      window.__orderTransactionsRequested = 0;
+      const original = IDBDatabase.prototype.transaction;
+      IDBDatabase.prototype.transaction = function (...args) {
+        if (this.name === "robys-order-transactions.v1" && args[1] === "readwrite") window.__orderTransactionsRequested += 1;
+        return original.apply(this, args);
+      };
+    });
+    const gate = await context.newPage();
+    await gate.goto(`${origin}/menu.html`);
+    const hold = async label => gate.evaluate(async label => {
+      const request = indexedDB.open("robys-order-transactions.v1", 1);
+      request.onupgradeneeded = () => request.result.createObjectStore("shared-order");
+      const database = await new Promise((resolve, reject) => { request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+      const transaction = database.transaction("shared-order", "readwrite");
+      const store = transaction.objectStore("shared-order");
+      const keepAlive = () => { const request = store.get("keep-alive"); request.onsuccess = keepAlive; };
+      keepAlive();
+      window.__orderHolds ??= {};
+      window.__orderHolds[label] = { transaction, database };
+    }, label);
+    const release = async label => gate.evaluate(label => {
+      const held = window.__orderHolds[label];
+      held.transaction.abort(); held.database.close();
+    }, label);
+    try {
+      await hold("before-first");
+      await page.locator('[data-family-recipe="milk-cookie"] button').click();
+      const beforeFirst = await page.evaluate(() => window.__orderTransactionsRequested);
+      await page.locator(".menu-family-add").click();
+      await page.waitForFunction(previous => window.__orderTransactionsRequested > previous, beforeFirst);
+      // Queue a second lock behind the first Add, then queue the new preview's
+      // Add behind it. This lets the old operation finish while the new one waits.
+      await hold("before-second");
+      await page.locator(".menu-family-close").click();
+      await page.locator('[data-family-recipe="simit-break"] button').click();
+      const beforeSecond = await page.evaluate(() => window.__orderTransactionsRequested);
+      await page.locator(".menu-family-add").click();
+      await page.waitForFunction(previous => window.__orderTransactionsRequested > previous, beforeSecond);
+      await release("before-first");
+      await page.waitForFunction(() => JSON.parse(localStorage.getItem("robys-menu-order.v1") ?? "null")?.lines.length === 2);
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await page.locator(".menu-family-dialog[open]").count(), 1, "The old completion cannot close the latest preview");
+      const cookie = page.locator('.menu-family-dialog input[value="desserts:cookie"]');
+      await cookie.uncheck();
+      assert.equal(await page.locator(".menu-family-add").isDisabled(), true,
+        "Finishing the old Add cannot clear the new pending Add's busy state");
+      await cookie.check();
+      await release("before-second");
+      await page.locator("#menu-cart-dialog[open]").waitFor();
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("robys-menu-order.v1")).lines),
+        [{ id: "brew-hot:milk", quantity: 2 }, { id: "desserts:cookie", quantity: 2 }, { id: "food:sesame-simit", quantity: 1 }]);
+      return { twoQueuedAdds: true, oldCompletionPreservesNewBusyState: true, eachConfirmedSelectionAddedOnce: true };
+    } finally { await gate.close(); }
   });
 
   await run("no-js-fallback", async page => {

@@ -180,6 +180,7 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["menu-order-ui.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/order-draft.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/menu-pairing.js", "src/menu-order-ui.js"],
+  ["menu-order-ui.js", "src/menu-promo-pair.js", "src/menu-order-ui.js"],
   ["menu-family-ui.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/menu-family.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/order-draft.js", "src/menu-family.js", "src/menu-family.js"],

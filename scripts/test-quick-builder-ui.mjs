@@ -64,7 +64,7 @@ class TestElement extends EventTarget {
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
-const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame"].map(key => [key, globalThis[key]]));
+const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame", "indexedDB"].map(key => [key, globalThis[key]]));
 const numberFormat = Intl.NumberFormat;
 let formatterCount = 0;
 const storage = () => {
@@ -76,14 +76,52 @@ try {
   document.querySelector = selector => document.body.querySelector(selector);
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
+  // This fixture checks DOM transitions, not IndexedDB concurrency. Keep the
+  // real transaction updater asynchronous; real cross-tab locks are exercised
+  // by test-order-transactions-stress-browser.mjs in actual browser engines.
+  const records = new Map();
+  let transactionTail = Promise.resolve();
+  const database = { createObjectStore() {}, close() {}, transaction() {
+    const previousTransaction = transactionTail;
+    let release;
+    transactionTail = new Promise(resolve => { release = resolve; });
+    let aborted = false;
+    const changes = new Map();
+    const transaction = { abort() { aborted = true; },
+      objectStore: () => ({ get() {
+        const request = {};
+        previousTransaction.then(() => queueMicrotask(() => {
+          request.result = structuredClone(records.get("robys-menu-order.v1"));
+          request.onsuccess?.();
+          queueMicrotask(() => {
+            if (aborted) transaction.onabort?.();
+            else { changes.forEach((value, key) => records.set(key, value)); transaction.oncomplete?.(); }
+            release();
+          });
+        }));
+        return request;
+      }, put(value, key) { changes.set(key, structuredClone(value)); } }) };
+    return transaction;
+  } };
+  globalThis.indexedDB = { open() {
+    const request = { result: database };
+    queueMicrotask(() => { request.onupgradeneeded?.(); request.onsuccess?.(); });
+    return request;
+  } };
+  const settleWrites = () => new Promise(resolve => setImmediate(resolve));
   const animationFrames = [];
   globalThis.requestAnimationFrame = callback => animationFrames.push(callback);
   const flushAnimationFrames = () => animationFrames.splice(0).forEach(callback => callback());
   Intl.NumberFormat = function (...args) { formatterCount++; return new numberFormat(...args); };
-  const output = await build({ entryPoints: ["src/smart-choice/quick-builder.ts"], bundle: true,
+  const output = await build({ stdin: { contents: 'export * from "./src/smart-choice/quick-builder.ts"; export { transactStoredOrderDraft } from "./src/order-draft.js"; export { orderProductIds as testIds } from "./src/smart-choice/shared-order.ts";', resolveDir: process.cwd() }, bundle: true,
     platform: "node", format: "esm", target: "node20", write: false });
-  const { createQuickBuilder } = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+  const { createQuickBuilder, transactStoredOrderDraft, testIds } = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+  const replaceCanonical = async draft => {
+    await transactStoredOrderDraft(() => ({ draft, applied: true, blocked: false }), testIds, { origin: "fixture-other" });
+    await settleWrites();
+  };
   const root = createQuickBuilder("en", () => {}); document.body.append(root);
+  await settleWrites();
   const cards = root.querySelectorAll(".qb-product");
   assert.equal(cards.length, 63);
   const photos = cards.map(card => card.querySelector("img"));
@@ -118,6 +156,7 @@ try {
   let before = cart.replacements;
   const firstAdd = composer.querySelector(".qb-add");
   firstAdd.click();
+  await settleWrites();
   assert.equal(customizer.open, true, "Adding keeps a persistent next-step confirmation in view");
   assert.equal(composer.querySelector("h2").textContent, "Added to your order");
   assert.equal(document.activeElement, composer.querySelector("h2"), "Success moves focus to the confirmation");
@@ -136,13 +175,16 @@ try {
   assert.equal(cart.replacements - before, 1, "Own add must render the cart once, not twice through its event echo");
   before = cart.replacements;
   cart.querySelector('[data-step="up"]').click();
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "Own quantity step must render the cart once");
   assert.equal(cart.querySelector("output").textContent, "2");
   before = cart.replacements;
   window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "External order-change events must still refresh the cart");
   before = cart.replacements;
   window.dispatchEvent(Object.assign(new Event("storage"), { key: "robys-menu-order.v1" }));
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "Cross-tab storage updates must still refresh the cart");
   const savedDraft = () => JSON.parse(localStorage.getItem("robys-menu-order.v1"));
   const beforeEdit = savedDraft();
@@ -156,6 +198,7 @@ try {
   cart.querySelector(".qb-edit").click();
   composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const pairedDraft = savedDraft();
   assert.equal(pairedDraft.groups.length, 1, "Saving an edit replaces the original instead of adding another copy");
   assert.equal(pairedDraft.groups[0].quantity, 2);
@@ -165,9 +208,9 @@ try {
   cart.querySelector(".qb-edit").click();
   composer.querySelector(".qb-no-sweet").click();
   const changedElsewhere = savedDraft(); changedElsewhere.groups[0].quantity = 3;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(changedElsewhere));
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await replaceCanonical(changedElsewhere);
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   assert.equal(customizer.open, true, "A stale edit must stay open with an actionable explanation");
   assert.equal(savedDraft().groups[0].quantity, 3, "A stale edit must preserve the latest quantity");
   assert.equal(savedDraft().groups[0].items.length, 2, "A stale edit must preserve the original pair atomically");
@@ -198,6 +241,7 @@ try {
   const money = value => new numberFormat("en-US", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(value);
   assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460), "Family price comes from the selected canonical drink plus dessert, times quantity");
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const cappuccinoPair = savedDraft().groups.find(group => group.items[0].id === "hot-coffee:caramel-cappuccino");
   assert.equal(cappuccinoPair.quantity, 2);
   assert.equal(cappuccinoPair.items[1].id, "desserts:macaron");
@@ -207,6 +251,7 @@ try {
   pairRow.querySelector(".qb-edit").click();
   composer.querySelector('[data-choice-id="hot-coffee:cappuccino/plain"]').click();
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   assert(!savedDraft().groups.some(group => group.items[0].id === "hot-coffee:caramel-cappuccino"), "Editing a drink option replaces the original canonical product");
   assert.equal(savedDraft().groups.find(group => group.items[0].id === "hot-coffee:cappuccino").quantity, 2);
   composer.querySelector(".qb-customizer-close").click();
@@ -218,6 +263,7 @@ try {
   assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460));
   assert.equal(composer.querySelector("output").textContent, "2");
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const icedPair = savedDraft().groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte");
   assert.equal(icedPair.items[0].variant, "vanilla", "A flavour option stores its canonical product and variant");
   assert.equal(icedPair.items[1].id, "desserts:macaron");
@@ -274,6 +320,7 @@ try {
   const toAdd = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 4 });
   document.body.replaceChildren(toAdd); flushAnimationFrames();
   toAdd.querySelector(".qb-add").click();
+  await settleWrites();
   const afterPrefill = savedDraft();
   assert.deepEqual(afterPrefill.groups.filter(group => group.items[0].id !== "brew-hot:black-tea"), beforePrefill.groups,
     "Adding a recommended selection must preserve every pre-existing basket group");
@@ -285,8 +332,7 @@ try {
     "Success shows the whole order, including earlier selections");
   const oldTotal = confirmation.querySelector(".qb-grand-total").textContent;
   newGroup.quantity = 5;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(afterPrefill));
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await replaceCanonical(afterPrefill);
   assert.notEqual(confirmation.querySelector(".qb-grand-total").textContent, oldTotal,
     "A confirmation updates its full total after another order surface changes the basket");
   assert.equal(confirmation.querySelector("h2").textContent, "Order updated");
@@ -295,15 +341,17 @@ try {
   assert.equal(document.activeElement, toAdd.querySelector("#qb-cart").querySelector("h2"), "Edit order lands on the actual basket");
   const withMissingFlavour = savedDraft();
   delete withMissingFlavour.groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte").items[0].variant;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(withMissingFlavour));
+  await replaceCanonical(withMissingFlavour);
   const flavourHelp = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
   document.body.replaceChildren(flavourHelp); flushAnimationFrames();
   flavourHelp.querySelector(".qb-add").click();
+  await settleWrites();
   const flavourDialog = flavourHelp.querySelector(".qb-customizer");
   flavourDialog.deferCloseEvent = true;
   const next = flavourHelp.querySelector(".qb-confirmation-checkout");
   assert.equal(next.textContent, "Choose drink flavours");
   next.click();
+  await settleWrites();
   const requiredChoice = flavourHelp.querySelector('select[aria-invalid="true"]');
   assert(requiredChoice, "The unresolved drink exposes a flavour control");
   assert.equal(document.activeElement, requiredChoice);
@@ -347,6 +395,7 @@ try {
   assert.equal(document.activeElement, replacement, "Removing the builder cancels pending focus restoration");
   console.log("Quick builder UI PASS: desktop/mobile modal, focus return, visible sweets/flavours, edit/save/cancel and stale edits, persistent photo nodes, one cart render, external updates, cached locale formatters; recommendation prefills for 1–6 guests, validation, mounted opening and basket preservation.");
 } finally {
+  await new Promise(resolve => setImmediate(resolve));
   Intl.NumberFormat = numberFormat;
   for (const [key, value] of previous) {
     if (value === undefined) delete globalThis[key]; else globalThis[key] = value;

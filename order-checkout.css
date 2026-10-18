@@ -23,6 +23,11 @@ body.order-checkout-open{overflow:hidden}
 .order-ticket-button-primary{color:#fff;background:#b6202d;border-color:#b6202d}
 .order-ticket-button:focus-visible,.order-checkout-close:focus-visible,.cashier-language button:focus-visible{outline:3px solid #b6202d;outline-offset:3px}
 .order-ticket-error{padding:16px;background:#fff0e6;border:1px solid #c87951;border-radius:14px;line-height:1.6}
+.order-ticket-update{position:sticky;top:8px;z-index:1;display:grid;gap:12px;margin:40px 0 20px;padding:16px;color:#5c321f;background:#fff0e6;border:1px solid #c87951;border-radius:14px;box-shadow:0 4px 16px #30232014}
+.order-ticket-update[hidden],.order-ticket-update-error[hidden]{display:none}
+.order-ticket-update-status p,.order-ticket-update-error{margin:6px 0 0;font-size:.9rem;line-height:1.5;overflow-wrap:anywhere}
+.order-ticket-update .order-ticket-button{width:100%;border-radius:14px}
+.order-ticket-button:disabled{opacity:.6;cursor:default}
 .order-checkout-fallback[open]{position:fixed;inset:0;z-index:2000;display:block;width:100vw;height:100vh;height:100dvh;max-height:none;margin:0;padding:12px;background:#180d0bc7;border:0;border-radius:0}
 .order-checkout-fallback .order-checkout-shell{box-sizing:border-box;width:min(100%,620px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);margin:auto;overflow:auto;background:#fffaf3;border-radius:24px}
 .cashier-page{margin:0;padding:24px 16px;color:#302320;background:#f6f0e8;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}

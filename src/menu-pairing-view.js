@@ -1,4 +1,5 @@
-import { getSweetProducts, isHotDrink } from "./menu-pairing.js";
+import { getSweetProducts } from "./menu-pairing.js";
+import { isEditablePairDrink } from "./menu-promo-pair.js";
 
 const COPY = {
   tr: {
@@ -42,7 +43,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     && Number.isFinite(product.item?.price) && product.item.price > 0;
   const activeProduct = () => {
     const product = productIndex.get(activeId);
-    return validProduct(product) && isHotDrink(product) ? product : null;
+    return validProduct(product) && isEditablePairDrink(product) ? product : null;
   };
   const sweets = () => getSweetProducts(productIndex).filter(validProduct);
   const name = (product) => localized(product.item.name, language);
@@ -158,7 +159,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
 
   function render(product, nextLanguage, reset = false, preferredId = "") {
     const current = productIndex.get(product?.id);
-    if (!validProduct(current) || !isHotDrink(current)) {
+    if (!validProduct(current) || !isEditablePairDrink(current)) {
       clear();
       return;
     }

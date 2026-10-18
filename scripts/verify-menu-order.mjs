@@ -90,7 +90,7 @@ assert.equal(visualItemCount, 63, "Every current menu item and pairing must rema
 for (const contract of [
   'const CART_STORAGE_KEY = "robys-menu-order.v1"',
   "readStoredOrderDraft(orderProductIds)",
-  "writeStoredOrderDraft(draft, orderProductIds)",
+  "transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN })",
   "media.addEventListener(\"click\", event => openProduct(id, event.currentTarget))",
   "total += product.item.price * lineQuantity",
   "quoteMenuSelection(quoteCart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
@@ -99,12 +99,12 @@ for (const contract of [
   "new Intl.NumberFormat(localeTag[language]",
   "new Intl.PluralRules(localeTag[language])",
   "formatItemCount(summary.quantity)",
-  "addOrderGroup(orderDraft, items, selectedProductQuantity, orderProductIds)",
-  "replaceOrderGroup(orderDraft, editingGroup, items, selectedProductQuantity, orderProductIds)",
+  "addOrderGroup(current, items, quantity, orderProductIds)",
+  "replaceOrderGroup(current, original, items, quantity, orderProductIds)",
   "if (!selection.applied)",
   "orderDraft = selection.draft",
   "orderDraft.groups.forEach",
-  "updateOrderGroupQuantity(orderDraft, id, quantity, orderProductIds)",
+  "updateOrderGroupQuantity(current, id, quantity, orderProductIds)",
   'groupName(lastAddedSelection)',
   'openDialog(cartDialog, cartTitle, returnFocus)',
   'returnFocus: checkoutButton',
@@ -155,7 +155,7 @@ for (const editing of [false, true]) {
 
 // Exercise the real Add handler: a successful mutation confirms the selection,
 // while a rejected or disabled Add must never advance to cart or checkout.
-const addHandler = runtime.match(/function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
+const addHandler = runtime.match(/async function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(addHandler, "The menu Add handler must be available for behavior verification");
 for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-stale", "edit-cap"]) {
   const editing = mode.startsWith("edit-");
@@ -163,7 +163,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
   const events = [];
   const drink = { id: "test-drink", item: { name: { en: "Test drink" } } };
   const dessert = { id: "test-dessert", item: { name: { en: "Test dessert" } } };
-  const productDialog = {};
+  const productDialog = { hasAttribute: () => true };
   const cartDialog = {};
   const cartTitle = {};
   const origin = { name: "product photo" };
@@ -175,16 +175,21 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
     selectedProductQuantity: 2, selectedProductVariant: "vanilla", language: "en",
     menuCopy: { en: { maxQuantity: "Maximum" } }, addToCartButton: { disabled: mode === "disabled" },
     cart: new Map(), readCart: () => { context.orderDraft = latestDraft; return new Map(); }, orderDraft: { groups: [] }, orderProductIds: new Set(),
-    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: success, draft: { groups: [] } }),
+    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: success, draft: success ? { groups: [] } : latestDraft }),
     replaceOrderGroup: (draft, original, items, quantity) => {
       assert.equal(draft, latestDraft, "Save must replace against freshly read storage");
       assert.equal(original, originalGroup, "Save keeps the original snapshot for the stale guard");
       assert.equal(quantity, 2);
       assert.deepEqual(JSON.parse(JSON.stringify(items)), [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }]);
-      return { applied: success, stale: mode === "edit-stale", draft: { groups: [] } };
+      return { applied: success, stale: mode === "edit-stale", draft: success ? { groups: [] } : latestDraft };
     },
     announceCart: () => events.push("rejected"), updateProductQuantity: () => {}, localized: value => value.en,
-    rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
+    rememberSelection: () => {}, saveCart: async updater => {
+      const result = updater(latestDraft);
+      context.orderDraft = result.draft;
+      if (result.applied) events.push("saved");
+      return result;
+    }, renderCart: () => events.push("rendered"), productSession: 1, productSaving: false,
     lastAddedSelection: null, lastSelectionWasEdit: false, editingGroup: editing ? originalGroup : null,
     editingCartReturnFocus: editing ? cartOrigin : null,
     productEditError: { hidden: true, textContent: "", focus: () => events.push("edit error"),
@@ -201,7 +206,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
       events.push("opened confirmation");
     }
   };
-  runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
+  await runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
   assert.deepEqual(events, success ? ["saved", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
   if (editing && !success) {
     assert.equal(context.productEditError.hidden, false);

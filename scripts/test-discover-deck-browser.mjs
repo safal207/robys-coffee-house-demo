@@ -159,8 +159,9 @@ try {
   assert.equal(await reveal.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
 
   await page.locator("#menu-add-to-cart").click();
-  assert.equal(Number(await page.locator("#menu-cart-count").innerText()), 1, "Journey must end in one existing pairing cart line");
   await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
+  assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 1, "Journey must end in one existing pairing cart line");
+  assert.equal(Number(await page.locator("#menu-cart-dialog .menu-cart-line-controls span").textContent()), 1);
   await page.waitForFunction(() => document.activeElement === document.querySelector("#menu-cart-title"));
   assert.equal(await page.locator("#menu-cart-added-summary").isVisible(), true, "Adding the pairing must show persistent confirmation");
   assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);

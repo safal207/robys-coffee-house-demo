@@ -14,5 +14,8 @@ export function replaceOrderGroup(raw: unknown, original: Pick<OrderGroup, "id" 
 export function updateOrderGroupVariant(raw: unknown, id: string, itemIndex: number, variant: string, validIds: ReadonlySet<string>): OrderGroupResult;
 export function readStoredOrderDraft(validIds: ReadonlySet<string>): OrderDraft;
 export function writeStoredOrderDraft(raw: unknown, validIds: ReadonlySet<string>): OrderDraft;
+export class OrderStorageError extends Error {}
+export function transactStoredOrderDraft<T extends { draft: unknown; applied: boolean }>(updater: (draft: OrderDraft) => T, validIds: ReadonlySet<string>, options?: { origin?: unknown }): Promise<Omit<T, "draft"> & { draft: OrderDraft; revision: number }>;
+export function readLatestStoredOrderDraft(validIds: ReadonlySet<string>): Promise<OrderDraft>;
 export function updateOrderLines(raw: unknown, lines: OrderLine[], validIds: ReadonlySet<string>): OrderDraft;
 export function applyOrderRecommendation(raw: unknown, selection: OrderSelection, validIds: ReadonlySet<string>): { draft: OrderDraft; applied: boolean; blocked: boolean };

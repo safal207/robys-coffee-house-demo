@@ -16,7 +16,12 @@ const orderSource = readVerifiedMenuOrderSource();
 const orderEmitted = readFileSync('menu-order-ui.js', 'utf8');
 assert.match(orderEmitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
 assert.match(orderEmitted, /import\("\.\/order-checkout\.js\?/, 'QR checkout must remain lazy and external');
-assert.ok(orderSource.includes('readDraft()') && orderSource.includes('writeDraft(orderDraft)'), 'dialogs must share the eager storage owner');
+assert.ok(orderSource.includes('readDraft()') && orderSource.includes('await mutateDraft(updater)'),
+  'dialogs must read and await the eager transaction owner');
+assert.ok(source.includes('await transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN })') && source.includes('mutateDraft: mutateMenuDraft'),
+  'the catalog must inject the shared latest-draft transaction boundary into lazy dialogs');
+assert.doesNotMatch(orderSource, /writeDraft\(|writeStoredOrderDraft\(|localStorage\.setItem\([^\n]*robys-menu-order/,
+  'ordering dialogs must not bypass cross-tab serialization with a snapshot writer');
 assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));

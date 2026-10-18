@@ -414,6 +414,7 @@ writeFileSync("cashier.html", cashierHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+  "src/products/family-v1/milk-cookie.webp", "src/products/family-v1/simit-break.webp", "src/products/family-v1/milk-roll.webp",
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -437,7 +438,9 @@ serviceWorker = serviceWorker.replace(
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
 const familyCacheRevision = createHash("sha256")
-  .update(`${menuFamilyRevision}:${menuFamilyCssRevision}`).digest("hex").slice(0, 12);
+  .update([menuFamilyRevision, menuFamilyCssRevision, revisionFor("src/menu-family.js"),
+    revisionFor("src/products/family-v1/milk-cookie.webp"), revisionFor("src/products/family-v1/simit-break.webp"),
+    revisionFor("src/products/family-v1/milk-roll.webp")].join(":")).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")

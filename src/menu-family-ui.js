@@ -31,7 +31,7 @@ const copy = {
 };
 
 export function createMenuFamilyUi({ root, productIndex, orderProductIds, initialLanguage,
-  localized, formatPrice, readDraft, writeDraft, onCartChange, openCart }) {
+  localized, formatPrice, readDraft, mutateDraft, onCartChange, openCart, onIntent }) {
   let language = initialLanguage;
   let activeRecipe;
   let selectedIds = [];
@@ -98,7 +98,8 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     status.hidden = !key;
     status.textContent = key ? text(key) : "";
   }
-  function closePreview(restore = true) {
+  function closePreview(restore = true, preserveIntent = false) {
+    if (!preserveIntent) onIntent?.();
     session += 1;
     if (dialog.open && typeof dialog.close === "function") dialog.close();
     dialog.removeAttribute("open");
@@ -142,6 +143,7 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     updateQuote();
   }
   function showPreview(recipe, trigger) {
+    onIntent?.();
     session += 1;
     activeRecipe = recipe;
     selectedIds = [...recipe.productIds];
@@ -171,7 +173,17 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
       const card = element("article", "menu-family-card");
       card.dataset.familyRecipe = recipe.id;
       const photos = element("div", "menu-family-photos");
-      quote.products.forEach(product => photos.append(photo(product)));
+      const image = photo({ image: recipe.image });
+      image.width = image.height = 1024;
+      const ribbon = element("span", "menu-family-ribbon");
+      const heart = element("span", "", "❤");
+      heart.setAttribute("aria-hidden", "true");
+      ribbon.append(heart, document.createTextNode(text("title")));
+      image.addEventListener("error", () => {
+        photos.classList.add("is-fallback");
+        photos.replaceChildren(...quote.products.map(photo), ribbon);
+      }, { once: true });
+      photos.append(image, ribbon);
       const name = element("h3", "", localized(recipe.name));
       const composition = element("p", "menu-family-composition", quote.products.map(product => localized(product.item.name)).join(" + "));
       const price = element("strong", "menu-family-price", formatPrice(quote.total));
@@ -207,6 +219,7 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     }
   });
   hide.addEventListener("click", () => {
+    onIntent?.();
     root.hidden = true;
     document.querySelector("#menu-family").hidden = true;
     const trigger = document.querySelector("#menu-family-trigger");
@@ -215,16 +228,27 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   });
   add.addEventListener("click", async () => {
     if (confirming || add.disabled) return;
-    const result = stageFamilySelection(readDraft(), activeRecipe.id, selectedIds, productIndex, orderProductIds);
-    if (!result.applied) { setStatus("limit"); return; }
+    const recipeId = activeRecipe.id;
+    const ids = [...selectedIds];
+    const isLatestIntent = onIntent?.() ?? (() => true);
+    const previewSession = session;
     confirming = true;
     updateQuote();
-    try { writeDraft(result.draft); onCartChange(); }
-    catch { confirming = false; setStatus("error"); updateQuote(); return; }
+    let result;
+    try {
+      result = await mutateDraft(current => stageFamilySelection(current, recipeId, ids, productIndex, orderProductIds));
+      onCartChange();
+    } catch {
+      if (previewSession === session) { confirming = false; setStatus("error"); updateQuote(); }
+      return;
+    }
+    if (previewSession !== session) return;
+    if (!isLatestIntent()) { confirming = false; updateQuote(); return; }
+    if (!result.applied) { confirming = false; setStatus("limit"); updateQuote(); return; }
     const trigger = returnFocus;
-    closePreview(false);
+    closePreview(false, true);
     const currentSession = session;
-    try { await openCart(trigger, () => currentSession === session); }
+    try { await openCart(trigger, () => currentSession === session && isLatestIntent()); }
     catch {
       // The selection is already saved; retrying must not add it twice.
       if (currentSession !== session) return;
@@ -233,7 +257,7 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
       notice.textContent = text("cartError");
       notice.classList.add("is-visible");
     }
-    finally { confirming = false; }
+    finally { if (currentSession === session) confirming = false; }
   });
   function refresh(nextLanguage) {
     language = nextLanguage;

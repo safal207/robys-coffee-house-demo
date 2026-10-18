@@ -58,6 +58,7 @@ try {
     await page.locator("#menu-quantity-increase").click();
     check(`${lang}/quantity-preview`, (await page.locator("#menu-product-quantity").textContent()) === "2" && (await page.locator("#menu-add-to-cart").textContent()).includes(String(unit * 2)), { unit });
     await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
     check(`${lang}/cart-add-two`, (await page.locator("#menu-cart-count").textContent()) === "2", { id });
     check(`${lang}/selected-card`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2", { id });
     await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
@@ -94,8 +95,10 @@ try {
     await page.waitForTimeout(400);
     if (lang === "ru") await page.screenshot({ path: `${output}/cart-390.png` });
     await page.locator(".menu-cart-step").nth(1).click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "3");
     check(`${lang}/increment`, (await page.locator("#menu-cart-count").textContent()) === "3" && (await media.getAttribute("data-cart-quantity")) === "3");
     await page.locator(".menu-cart-remove").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "0");
     check(`${lang}/remove-clears-state`, (await page.locator("#menu-cart-count").textContent()) === "0" && !(await first.evaluate(row => row.classList.contains("is-in-cart"))));
     await page.keyboard.press("Escape");
     const category = page.locator('[data-category="herbal-tea"]');

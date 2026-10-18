@@ -2,9 +2,11 @@ import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { familyRecipes } from "../src/menu-family.js";
 
 const MENU_ROOT = path.join("src", "products", "menu-v1");
 const SETS_ROOT = path.join("src", "products", "sets-v1");
+const FAMILY_ROOT = path.join("src", "products", "family-v1");
 const SET_IDS = [
   "cool-lime-macaron",
   "filter-lotus",
@@ -148,5 +150,15 @@ if (!cacheVersion || cacheVersion[0] < 40 || cacheVersion[1] < 20260903) {
 const digests = new Map();
 for (const fileName of expectedMenuFiles) verifyAsset(path.join(MENU_ROOT, fileName), digests);
 for (const fileName of expectedSetFiles) verifyAsset(path.join(SETS_ROOT, fileName), digests);
+const expectedFamilyFiles = familyRecipes.map(recipe => `${recipe.id}.webp`).sort();
+const actualFamilyFiles = readdirSync(FAMILY_ROOT).filter(name => name.endsWith(".webp")).sort();
+if (JSON.stringify(actualFamilyFiles) !== JSON.stringify(expectedFamilyFiles)) {
+  fail("family-v1 photos must match the current family recipes");
+}
+for (const recipe of familyRecipes) {
+  if (recipe.image !== `src/products/family-v1/${recipe.id}.webp`) fail(`missing family photo for ${recipe.id}`);
+  if (!serviceWorker.includes(`"./${recipe.image}"`)) fail(`family photo is not available offline: ${recipe.id}`);
+  verifyAsset(recipe.image, digests);
+}
 
-console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} individual product photos and ${expectedSetFiles.length} pairing photos are complete, unique 1024px WebP assets.`);
+console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} product, ${expectedSetFiles.length} pairing and ${expectedFamilyFiles.length} family photos are complete, unique 1024px WebP assets.`);

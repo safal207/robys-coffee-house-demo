@@ -20,19 +20,17 @@ assert(!orderSource.includes("readStoredOrderDraft") && !orderSource.includes("w
 // would turn this controlled ordering fixture into an unrelated UI bootstrap.
 const orderStart = source.indexOf("let orderUi;");
 const orderEnd = source.indexOf("const familyTrigger =", orderStart);
-const writerStart = source.indexOf("function writeMenuDraft(");
+const writerStart = source.indexOf("async function mutateMenuDraft(");
 const writerEnd = source.indexOf("function cartSummary(", writerStart);
 const escapeStart = source.indexOf('document.addEventListener("keydown", event =>', orderEnd);
 const escapeEnd = source.indexOf("\n});", escapeStart);
-const familyIntentDeclaration = source.match(/^let familyIntent = 0;$/m)?.[0];
 assert(orderStart >= 0 && orderEnd > orderStart, "The shipped ordering loader boundary must be identifiable");
 assert(writerStart >= 0 && writerEnd > writerStart, "The shared draft writer must be executed from shipped source");
-assert(escapeStart > orderEnd && escapeEnd > escapeStart && familyIntentDeclaration,
-  "The actual shared Escape listener and unloaded family intent state must be identifiable");
+assert(escapeStart > orderEnd && escapeEnd > escapeStart && source.includes("let menuIntent = 0;"),
+  "The actual shared Escape listener and common navigation intent must be identifiable");
 const loader = [
   source.slice(writerStart, writerEnd),
   source.slice(orderStart, orderEnd),
-  familyIntentDeclaration,
   source.slice(escapeStart, escapeEnd + "\n});".length)
 ].join("\n")
   .replace(/import\(("\.\/menu-order-ui\.js\?v=[a-f0-9]+")\)/g, "loadModule($1)")
@@ -43,21 +41,27 @@ assert(!loader.includes("import("), "The real loader's imports must all be contr
 function fixture() {
   const requests = [], opens = [], refreshes = [], events = new Map();
   let factoryCount = 0, options, resolveLoad, rejectLoad, currentDraft = { version: 1, groups: [], lines: [] };
+  let freshGate, resolveFresh;
   const notice = { textContent: "", classList: { add() {}, remove() {} } };
   const trigger = () => ({ isConnected: true, attributes: new Map(),
     setAttribute(name, value) { this.attributes.set(name, value); }, removeAttribute(name) { this.attributes.delete(name); } });
   const context = {
     URL, language: "tr", menuCopy: {}, productIndex: new Map(), orderProductIds: new Set(),
     localized() {}, formatPrice() {}, formatItemCount() {}, imageSlug() {}, renderCart() {},
-    cart: new Map(), orderDraft: currentDraft, cartTrigger: trigger(),
+    cart: new Map(), orderDraft: currentDraft, cartReadGeneration: 0, cartTrigger: trigger(),
+    async refreshLatestCart() { await freshGate; },
     menuRoot: { querySelectorAll: () => [] },
     readCart() { context.orderDraft = currentDraft; return new Map(currentDraft.lines.map(line => [line.id, line.quantity])); },
-    writeStoredOrderDraft(draft) { currentDraft = draft; return draft; },
+    async transactStoredOrderDraft(updater) {
+      const result = updater(currentDraft);
+      if (result.applied) currentDraft = result.draft;
+      return result;
+    },
     document: { activeElement: trigger(), querySelector: () => notice,
       addEventListener: (name, handler) => events.set(name, handler) },
     loadModule(url) { requests.push(url); return new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; }); }
   };
-  const api = runInNewContext(`${loader}\n({ openOrderIntent, intents: () => ({ order: orderIntent, family: familyIntent }) });`, context);
+  const api = runInNewContext(`${loader}\n({ openOrderIntent, intent: () => menuIntent });`, context);
   const module = { createMenuOrderUi(config) {
     factoryCount += 1; options = config;
     return { refresh(value) { refreshes.push(value); }, openProduct(id, target) { opens.push(["product", id, target]); },
@@ -65,6 +69,8 @@ function fixture() {
   } };
   return { context, api, requests, opens, refreshes, events, trigger, notice,
     resolve: () => resolveLoad(module), reject: () => rejectLoad(new Error("offline")),
+    delayFresh() { freshGate = new Promise(resolve => { resolveFresh = resolve; }); },
+    releaseFresh() { resolveFresh(); },
     get factoryCount() { return factoryCount; }, get options() { return options; } };
 }
 
@@ -87,9 +93,19 @@ function fixture() {
   assert.equal(f.requests.length, 1, "Later cart intent must reuse the initialized dialog runtime");
   assert.deepEqual(f.opens[1], ["cart", latest]);
   const saved = { version: 1, groups: [], lines: [{ id: "tea", quantity: 2 }] };
-  f.options.writeDraft(saved);
+  await f.options.mutateDraft(() => ({ applied: true, draft: saved }));
   assert.equal(f.options.readDraft(), saved, "Both boundaries must use the same storage owner");
   assert.equal(f.context.cart.get("tea"), 2);
+}
+{
+  const f = fixture(); f.delayFresh();
+  const pending = f.api.openOrderIntent("cart", undefined, f.trigger());
+  f.resolve();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(f.opens.length, 0, "A loaded dialog cannot open before its authoritative cart read finishes");
+  f.events.get("keydown")({ key: "Escape" });
+  f.releaseFresh(); await pending;
+  assert.equal(f.opens.length, 0, "Escape also cancels an intent waiting for the canonical store");
 }
 {
   const f = fixture(), original = f.trigger(), replacement = f.trigger();
@@ -106,13 +122,11 @@ function fixture() {
 {
   const f = fixture();
   const pending = f.api.openOrderIntent("product", "tea", f.trigger());
-  const before = f.api.intents();
+  const before = f.api.intent();
   f.events.get("keydown")({ key: "Enter" });
-  assert.equal(f.api.intents().order, before.order, "Unrelated keys must not cancel the current ordering intent");
-  assert.equal(f.api.intents().family, before.family, "Unrelated keys must not mutate the unloaded family intent");
+  assert.equal(f.api.intent(), before, "Unrelated keys must not cancel the current navigation intent");
   f.events.get("keydown")({ key: "Escape" });
-  assert.equal(f.api.intents().order, before.order + 1, "The shipped Escape listener invalidates the pending order intent");
-  assert.equal(f.api.intents().family, before.family + 1, "The same shipped listener also invalidates the unloaded family intent");
+  assert.equal(f.api.intent(), before + 1, "The shipped Escape listener invalidates the common product/cart/family intent");
   f.resolve(); await pending;
   assert.equal(f.opens.length, 0, "Escape during download must not cause a delayed dialog to appear");
 }

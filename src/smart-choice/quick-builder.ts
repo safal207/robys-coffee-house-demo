@@ -1,7 +1,7 @@
 import { menuCategories } from "../../menu-catalog.js";
 import {
-  ORDER_DRAFT_KEY, readStoredOrderDraft, writeStoredOrderDraft, addOrderGroup, removeOrderGroup,
-  type OrderDraft
+  ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, transactStoredOrderDraft, addOrderGroup, removeOrderGroup,
+  type OrderDraft, type OrderGroupResult
 } from "../order-draft.js";
 import type { SmartChoiceLanguage } from "./catalog.js";
 import { openQuickCheckout } from "./checkout-link.js";
@@ -64,9 +64,8 @@ function readDraft(): OrderDraft {
   return readStoredOrderDraft(orderProductIds);
 }
 
-function saveDraft(draft: OrderDraft): void {
-  writeStoredOrderDraft(draft, orderProductIds);
-  window.dispatchEvent(new CustomEvent("robys:order-change", { detail: { origin: orderChangeOrigin } }));
+function saveDraft(updater: (draft: OrderDraft) => OrderGroupResult): Promise<OrderGroupResult> {
+  return transactStoredOrderDraft(updater, orderProductIds, { origin: orderChangeOrigin });
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -110,6 +109,9 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     query = "";
   }
   const text = COPY[language];
+  const storageError = { tr: "Sipariş kaydedilemedi. Tarayıcı depolamasını kontrol edip tekrar deneyin.",
+    en: "Your order could not be saved. Check browser storage and try again.",
+    ru: "Не удалось сохранить заказ. Проверь доступ к памяти браузера и попробуй ещё раз." }[language];
   const price = (minor: number): string => {
     const digits = minor % 100 ? 2 : 0;
     const key = `${language}:${digits}`;
@@ -210,6 +212,9 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   root.append(layout, dock, customizer);
 
   function announce(message: string): void { notice.textContent = modalNotice.textContent = message; }
+  function canFocusCart(): boolean {
+    return root.isConnected && !customizer.open && !document.querySelector(".order-checkout-dialog[open]");
+  }
   function openCustomizer(trigger: HTMLElement): void {
     focusGeneration += 1;
     returnFocus = trigger;
@@ -219,18 +224,22 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     customizer.scrollTop = 0;
     composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
   }
-  function requestCheckout(button: HTMLButtonElement): void {
-    const draft = readDraft();
-    if (!draft.groups.length) { renderCart(); showCart(); return; }
-    if (needsOrderVariant(draft.groups)) {
-      renderCart(); announce(text.completeFlavours);
-      showCart(cart.querySelector<HTMLSelectElement>('select[aria-invalid="true"]') ?? undefined);
-      return;
-    }
-    if (customizer.open) showCart();
+  async function requestCheckout(button: HTMLButtonElement): Promise<void> {
+    const generation = focusGeneration;
     button.disabled = true;
-    void openQuickCheckout(draft, language, button).catch(() => announce(text.checkoutError))
-      .finally(() => { button.disabled = readDraft().groups.length === 0; });
+    try {
+      const draft = await readLatestStoredOrderDraft(orderProductIds);
+      if (!root.isConnected || !button.isConnected || generation !== focusGeneration) return;
+      if (!draft.groups.length) { renderCart(); showCart(); return; }
+      if (needsOrderVariant(draft.groups)) {
+        renderCart(); announce(text.completeFlavours);
+        showCart(cart.querySelector<HTMLSelectElement>('select[aria-invalid="true"]') ?? undefined);
+        return;
+      }
+      if (customizer.open) showCart();
+      await openQuickCheckout(draft, language, button);
+    } catch { announce(text.checkoutError); }
+    finally { button.disabled = readDraft().groups.length === 0; }
   }
   function showCart(target?: HTMLElement): void {
     returnFocus = target ?? cart.querySelector<HTMLElement>("h2") ?? review;
@@ -406,16 +415,23 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     const total = (product.unitPriceMinor + (sweet?.unitPriceMinor ?? 0)) * quantity;
     const totalRow = node("p", "qb-add-total"); totalRow.append(node("span", "", editingGroup ? text.editTotal : text.selectedTotal), node("strong", "", price(total)));
     const needsVariant = variants.length > 0 && !variants.some(item => item.id === variantId);
-    const add = action(`${editingGroup ? text.save : sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", () => {
+    const add = action(`${editingGroup ? text.save : sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", async () => {
+      if (add.disabled) return;
       const items: QuickOrderItem[] = [{ id: product.id, quantity: 1, ...(variantId ? { variant: variantId } : {}) },
         ...(sweet ? [{ id: sweet.id, quantity: 1 }] : [])];
-      const result = editingGroup ? replaceQuickGroup(readDraft(), editingGroup, items, quantity) : addOrderGroup(readDraft(), items, quantity, orderProductIds);
-      if (!result.applied) { announce(editingGroup ? text.editBlocked : text.limit); return; }
+      const original = editingGroup;
+      const selectedQuantity = quantity;
       add.disabled = true;
-      saveDraft(result.draft);
-      announce(`${editingGroup ? text.updated : text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${quantity}`);
+      let result;
+      try {
+        result = await saveDraft(current => original ? replaceQuickGroup(current, original, items, selectedQuantity)
+          : addOrderGroup(current, items, selectedQuantity, orderProductIds));
+      } catch { announce(storageError); add.disabled = false; return; }
+      if (!result.applied) { announce(original ? text.editBlocked : text.limit); add.disabled = false; return; }
+      announce(`${original ? text.updated : text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${selectedQuantity}`);
       renderCart();
-      confirmationTitle = editingGroup ? text.updated : text.added;
+      if (!customizer.open || !add.isConnected) return;
+      confirmationTitle = original ? text.updated : text.added;
       renderConfirmation();
       customizer.scrollTop = 0;
       composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
@@ -472,15 +488,21 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         const valid = variantsFor(product).some(variant => variant.id === item.variant);
         select.value = valid ? item.variant! : "";
         select.setAttribute("aria-invalid", String(!valid));
-        select.addEventListener("change", () => {
+        select.addEventListener("change", async () => {
           const variant = select.value;
-          const current = readDraft();
-          const updated = updateQuickGroupVariant(current, group.id, itemIndex, variant);
+          let focusGroup: QuickOrderGroup | undefined;
           // Normalization may change or merge a menu group's ID. Derive that
           // same ID from the edited group so another matching drink cannot steal focus.
-          const focusGroup = updateQuickGroupVariant({ ...current,
-            groups: current.groups.filter(entry => entry.id === group.id) }, group.id, itemIndex, variant).groups[0];
-          saveDraft(updated); renderCart(); announce(text.updated);
+          try {
+            await saveDraft(current => {
+              const latest = current.groups.find(entry => entry.id === group.id);
+              if (!latest?.items[itemIndex] || latest.items[itemIndex].id !== item.id) return { draft: current, applied: false, blocked: true };
+              focusGroup = updateQuickGroupVariant({ ...current, groups: [latest] }, group.id, itemIndex, variant).groups[0];
+              return { draft: updateQuickGroupVariant(current, group.id, itemIndex, variant), applied: true, blocked: false };
+            });
+          } catch { renderCart(); announce(storageError); return; }
+          renderCart(); announce(text.updated);
+          if (!canFocusCart()) return;
           const focusRow = [...cart.querySelectorAll<HTMLElement>("[data-group-id]")]
             .find(entry => entry.dataset.groupId === focusGroup?.id);
           [...(focusRow?.querySelectorAll<HTMLSelectElement>("[data-variant-product]") ?? [])]
@@ -488,20 +510,27 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         });
         field.append(select); info.append(field);
       });
-      const controls = quantityControl(group.quantity, 99, next => {
+      const controls = quantityControl(group.quantity, 99, async next => {
         const delta = next - group.quantity;
-        const result = stepQuickGroupQuantity(readDraft(), group.id, delta);
+        let result;
+        try { result = await saveDraft(current => stepQuickGroupQuantity(current, group.id, delta)); }
+        catch { renderCart(); announce(storageError); return; }
         const stillExists = result.draft.groups.some(entry => entry.id === group.id);
         if (!result.applied) {
           renderCart(group.id, delta > 0 ? "up" : "down");
-          if (!stillExists) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+          if (!stillExists && canFocusCart()) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
           announce(stillExists ? text.limit : text.updated); return;
         }
-        saveDraft(result.draft); renderCart(group.id, delta > 0 ? "up" : "down"); announce(text.updated);
+        renderCart(group.id, delta > 0 ? "up" : "down"); announce(text.updated);
       }, name);
-      const remove = action(text.remove, "qb-remove", () => {
-        saveDraft(removeOrderGroup(readDraft(), group.id, orderProductIds)); renderCart();
-        cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true }); announce(`${text.removed}: ${name}`);
+      const remove = action(text.remove, "qb-remove", async () => {
+        try {
+          await saveDraft(current => ({ draft: removeOrderGroup(current, group.id, orderProductIds),
+            applied: current.groups.some(entry => entry.id === group.id), blocked: false }));
+        } catch { renderCart(); announce(storageError); return; }
+        renderCart();
+        if (canFocusCart()) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+        announce(`${text.removed}: ${name}`);
       });
       remove.setAttribute("aria-label", `${text.remove}: ${name}`);
       info.append(controls);
@@ -530,7 +559,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     const checkout = action(needsFlavour ? text.completeFlavours : text.checkout, "primary-button", () => requestCheckout(checkout));
     checkout.disabled = draft.groups.length === 0;
     footer.append(priceRow, checkout, node("p", "qb-checkout-note", text.draftNote)); cart.append(footer);
-    if (focusGroup) {
+    if (focusGroup && canFocusCart()) {
       const row = [...cart.querySelectorAll<HTMLElement>("[data-group-id]")].find(item => item.dataset.groupId === focusGroup);
       const target = row?.querySelector<HTMLButtonElement>(`[data-step="${focusStep}"]`);
       (target && !target.disabled ? target : row?.querySelector<HTMLButtonElement>("[data-step]:not(:disabled)"))?.focus({ preventScroll: true });
@@ -538,15 +567,21 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   }
 
   renderChips(); renderCatalog(); renderComposer(); renderCart();
-  refreshBuilder = () => {
-    if (!root.isConnected) return;
+  let refreshRevision = 0;
+  const refreshCanonical = async (): Promise<void> => {
+    const revision = ++refreshRevision;
+    try { await readLatestStoredOrderDraft(orderProductIds); }
+    catch { if (root.isConnected && revision === refreshRevision) announce(storageError); return; }
+    if (!root.isConnected || revision !== refreshRevision) return;
     renderCart();
     if (customizer.open && confirmationTitle) {
       confirmationTitle = text.updated;
       renderConfirmation();
-      composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+      if (!document.querySelector(".order-checkout-dialog[open]")) composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
     }
   };
+  refreshBuilder = () => { void refreshCanonical(); };
+  void refreshCanonical();
   if (prefill) requestAnimationFrame(() => {
     if (root.isConnected) openCustomizer(search);
   });
@@ -557,3 +592,5 @@ window.addEventListener("robys:order-change", event => {
   if ((event as CustomEvent<{ origin?: unknown }>).detail?.origin !== orderChangeOrigin) refreshBuilder?.();
 });
 window.addEventListener("storage", event => { if (event.key === ORDER_DRAFT_KEY || event.key === null) refreshBuilder?.(); });
+window.addEventListener("focus", () => refreshBuilder?.());
+window.addEventListener("pageshow", () => refreshBuilder?.());

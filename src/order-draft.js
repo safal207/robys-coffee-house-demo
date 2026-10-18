@@ -249,6 +249,8 @@ export function applyOrderRecommendation(raw, selection, validIds) {
 }
 
 let memoryDraft;
+let canonicalDraft;
+let canonicalRevision = -1;
 let pendingLocalWrite;
 const pendingKey = `${ORDER_DRAFT_KEY}.pending`;
 
@@ -289,6 +291,7 @@ function persistDraft(value, previous) {
 }
 
 export function readStoredOrderDraft(validIds) {
+  if (canonicalDraft) return normalizeOrderDraft(canonicalDraft, validIds);
   const current = readPersistentDraft();
   const pending = readPendingDraft();
   // Keep failed writes across reloads, but only while the canonical value is
@@ -296,12 +299,11 @@ export function readStoredOrderDraft(validIds) {
   if (pending && (!current.available || current.value === pending.previous)) {
     try {
       memoryDraft = normalizeOrderDraft(JSON.parse(pending.value), validIds);
-      persistDraft(JSON.stringify(memoryDraft), pending.previous);
       return memoryDraft;
     } catch {}
   }
   if (pending) clearPendingDraft();
-  if (current.available && (current.value !== null || pending)) {
+  if (current.available) {
     try {
       memoryDraft = normalizeOrderDraft(JSON.parse(current.value ?? "null"), validIds);
       mirrorDraft(JSON.stringify(memoryDraft));
@@ -313,7 +315,6 @@ export function readStoredOrderDraft(validIds) {
   if (!memoryDraft) try { raw = JSON.parse(sessionStorage.getItem(ORDER_DRAFT_KEY) ?? "null"); } catch {}
   const draft = normalizeOrderDraft(raw ?? memoryDraft, validIds);
   memoryDraft = draft;
-  persistDraft(JSON.stringify(draft), current.value);
   return draft;
 }
 
@@ -324,4 +325,174 @@ export function writeStoredOrderDraft(raw, validIds) {
   mirrorDraft(value);
   persistDraft(value, readPersistentDraft().value);
   return draft;
+}
+
+const transactionDatabase = "robys-order-transactions.v1";
+const transactionStore = "shared-order";
+let databasePromise;
+let currentDatabase;
+let databaseEpoch = 0;
+let orderChannel;
+
+export class OrderStorageError extends Error {
+  constructor(message = "The shared order could not be saved", options) {
+    super(message, options);
+    this.name = "OrderStorageError";
+  }
+}
+
+function observeOrderCommits() {
+  if (orderChannel || typeof window === "undefined" || typeof window.BroadcastChannel !== "function") return;
+  try {
+    // Bundled menu/advisor/builder modules share one channel per document.
+    // A commit must not echo through another bundle as a remote mutation.
+    const key = Symbol.for("robys.shared-order.channel");
+    if (window[key]) { orderChannel = window[key]; return; }
+    orderChannel = new window.BroadcastChannel("robys-shared-order.v1");
+    window[key] = orderChannel;
+    orderChannel.onmessage = event => {
+      if (!Number.isSafeInteger(event.data?.revision) || event.data.revision < 0) return;
+      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-change", {
+        detail: { remote: true, revision: event.data.revision }
+      }));
+    };
+  } catch { /* Focus/pageshow and the optional storage projection also refresh. */ }
+}
+
+function orderDatabase() {
+  observeOrderCommits();
+  if (databasePromise) return databasePromise;
+  databasePromise = new Promise((resolve, reject) => {
+    let settled = false;
+    const fail = error => { if (!settled) { settled = true; reject(error); } };
+    if (typeof indexedDB === "undefined") {
+      fail(new OrderStorageError("Shared order storage is unavailable"));
+      return;
+    }
+    let request;
+    try { request = indexedDB.open(transactionDatabase, 1); }
+    catch (cause) { fail(new OrderStorageError(undefined, { cause })); return; }
+    request.onupgradeneeded = () => request.result.createObjectStore(transactionStore);
+    request.onerror = () => fail(new OrderStorageError(undefined, { cause: request.error }));
+    request.onblocked = () => fail(new OrderStorageError("Shared order storage is busy; please retry"));
+    request.onsuccess = () => {
+      const database = request.result;
+      if (settled) { database.close(); return; }
+      settled = true;
+      currentDatabase = database;
+      const invalidate = () => {
+        if (currentDatabase !== database) return;
+        currentDatabase = undefined; databasePromise = undefined; databaseEpoch += 1;
+        canonicalDraft = undefined; canonicalRevision = -1; memoryDraft = undefined;
+      };
+      database.onversionchange = () => {
+        database.close(); invalidate();
+      };
+      database.onclose = invalidate;
+      resolve(database);
+    };
+  }).catch(error => { databasePromise = undefined; throw error; });
+  return databasePromise;
+}
+
+function rememberCanonical(record, validIds) {
+  // A slower read must not roll back a newer completed mutation in this module.
+  if (record.revision >= canonicalRevision) {
+    canonicalRevision = record.revision;
+    canonicalDraft = normalizeOrderDraft(record.draft, validIds);
+    memoryDraft = canonicalDraft;
+    mirrorDraft(JSON.stringify(canonicalDraft));
+  }
+  return normalizeOrderDraft(canonicalDraft, validIds);
+}
+
+function initialCanonicalDraft(validIds) {
+  const current = readPersistentDraft();
+  const pending = readPendingDraft();
+  const value = pending && (!current.available || current.value === pending.previous)
+    ? pending.value : current.value;
+  if (!current.available && !value) return normalizeOrderDraft(memoryDraft, validIds);
+  try { return normalizeOrderDraft(JSON.parse(value ?? "null"), validIds); }
+  catch (cause) { throw new OrderStorageError("The saved order is damaged; it was not overwritten", { cause }); }
+}
+
+function canonicalRecord(raw, validIds) {
+  if (!raw || raw.version !== 1 || !Number.isSafeInteger(raw.revision) || raw.revision < 0
+      || raw.draft?.version !== 1) throw new OrderStorageError("The saved order is damaged; it was not overwritten");
+  return { version: 1, revision: raw.revision, draft: normalizeOrderDraft(raw.draft, validIds) };
+}
+
+function projectCanonical(record) {
+  // localStorage is a compatibility/notification projection, never a second
+  // authority. A projection failure after IDB commit cannot make Add fail and
+  // encourage a duplicate retry. Each notified reader reads IDB afresh.
+  try {
+    const value = JSON.stringify(record.draft);
+    if (localStorage.getItem(ORDER_DRAFT_KEY) !== value) localStorage.setItem(ORDER_DRAFT_KEY, value);
+  } catch {}
+}
+
+// The updater is synchronous and receives the latest authoritative IDB value.
+// Data read, validation, mutation and put share ONE atomic readwrite transaction;
+// localStorage caches in different renderer processes cannot affect this input.
+export async function transactStoredOrderDraft(updater, validIds, options = {}) {
+  const database = await orderDatabase();
+  const epoch = databaseEpoch;
+  return new Promise((resolve, reject) => {
+    let transaction;
+    let result;
+    let record;
+    let failure;
+    let initialized = false;
+    try { transaction = database.transaction(transactionStore, "readwrite"); }
+    catch (cause) { databasePromise = undefined; reject(new OrderStorageError(undefined, { cause })); return; }
+    transaction.onabort = () => reject(failure ?? new OrderStorageError(undefined, { cause: transaction.error }));
+    transaction.onerror = () => { /* onabort supplies the one failure result */ };
+    transaction.oncomplete = () => {
+      if (epoch !== databaseEpoch) { reject(new OrderStorageError("Shared order storage changed; please retry")); return; }
+      rememberCanonical(record, validIds);
+      if (initialized || result.applied) {
+        clearPendingDraft();
+        projectCanonical(record);
+      }
+      if (result.applied) {
+        try { orderChannel?.postMessage({ revision: record.revision }); } catch {}
+        if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-change", {
+          detail: { origin: options.origin, revision: record.revision }
+        }));
+      }
+      resolve({ ...result, revision: record.revision });
+    };
+    const store = transaction.objectStore(transactionStore);
+    const request = store.get(ORDER_DRAFT_KEY);
+    request.onsuccess = () => {
+      try {
+        initialized = request.result === undefined;
+        record = initialized ? { version: 1, revision: 0, draft: initialCanonicalDraft(validIds) }
+          : canonicalRecord(request.result, validIds);
+        const current = record.draft;
+        result = updater(current);
+        if (!result || typeof result.then === "function" || typeof result.applied !== "boolean") {
+          throw new TypeError("Order transaction updater must return a synchronous mutation result");
+        }
+        result = { ...result, draft: result.applied ? normalizeOrderDraft(result.draft, validIds) : current };
+        if (result.applied) {
+          if (record.revision >= Number.MAX_SAFE_INTEGER) throw new OrderStorageError("Order revision limit reached");
+          record = { version: 1, revision: record.revision + 1, draft: result.draft };
+        }
+        if (initialized || result.applied) store.put(record, ORDER_DRAFT_KEY);
+      } catch (cause) {
+        failure = cause instanceof OrderStorageError ? cause : new OrderStorageError(undefined, { cause });
+        transaction.abort();
+      }
+    };
+  });
+}
+
+// Call on bootstrap, storage/broadcast notifications, pageshow and focus before
+// displaying a fresh shared order or creating a QR. The synchronous reader is a
+// projection/cache for rendering only and must never supply mutation input.
+export async function readLatestStoredOrderDraft(validIds) {
+  const result = await transactStoredOrderDraft(draft => ({ draft, applied: false, blocked: false }), validIds);
+  return rememberCanonical({ revision: result.revision, draft: result.draft }, validIds);
 }

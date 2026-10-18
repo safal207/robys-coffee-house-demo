@@ -1,6 +1,8 @@
 import qrcode from "qrcode-generator";
-import { buildCashierUrl, getOrCreateOrderTicket, quoteOrderTicket, ticketOrderNumber } from "./order-ticket.js";
+import { buildCashierUrl, getOrCreateOrderTicket, quoteOrderTicket, ticketOrderNumber, validateTicketDraft } from "./order-ticket.js";
 import { createTicketStorage } from "./order-ticket-storage.js";
+import { ORDER_DRAFT_KEY, readLatestStoredOrderDraft } from "./order-draft.js";
+import { menuCategories } from "../menu-catalog.js";
 
 export const checkoutCopy = {
   tr: { title: "Sipariş numaran", cashierTitle: "Kasada sipariş", awaiting: "Kasada ödeme bekleniyor",
@@ -12,6 +14,9 @@ export const checkoutCopy = {
     empty: "Önce siparişine bir ürün ekle.", variant: "Lütfen tüm içeceklerin aromalarını seç.",
     large: "Bu sipariş tek QR koda sığmıyor. Siparişi kasiyere menüdeki sepetten göster.",
     changed: "Menü güncellendi. Müşteriden yeni bir sipariş QR kodu oluşturmasını iste.",
+    draftChanged: "Sipariş değişti", draftChangedNote: "Bu QR önceki ürünleri içeriyor. Güncel sepetin için yeni bir QR oluştur.",
+    regenerate: "Güncel sepetten yeni QR oluştur", draftEmpty: "Sepetin artık boş. Yeni bir QR oluşturmak için menüden ürün ekle.",
+    draftCheck: "Siparişini kontrol et", draftUnavailable: "Güncel sepet okunamadı. Tekrar dene veya siparişini menüde kontrol et.",
     note: "Bu QR ödeme onayı değildir. Ödeme kasada tamamlanır.", priceNote: "Tutar güncel menü fiyatlarıyla hesaplandı." },
   en: { title: "Your order number", cashierTitle: "Order at the counter", awaiting: "Awaiting payment at the counter",
     instructions: "Show this QR to the cashier. Pay at the counter. The team will start preparing your order after payment.",
@@ -22,6 +27,9 @@ export const checkoutCopy = {
     empty: "Add an item to your order first.", variant: "Choose a flavor for every flavored drink.",
     large: "This order is too large for one QR. Show the cashier your menu cart instead.",
     changed: "The menu has changed. Ask the customer to create a fresh order QR.",
+    draftChanged: "Order changed", draftChangedNote: "This QR still contains the previous items. Create a new QR for your current cart.",
+    regenerate: "Create a new QR from current cart", draftEmpty: "Your cart is now empty. Add an item in the menu to create a new QR.",
+    draftCheck: "Check your order", draftUnavailable: "Your current cart could not be read. Try again or check your order in the menu.",
     note: "This QR is not payment confirmation. Payment is completed at the counter.", priceNote: "Calculated using current menu prices." },
   ru: { title: "Номер твоего заказа", cashierTitle: "Заказ на кассе", awaiting: "Ожидает оплаты на кассе",
     instructions: "Покажи QR кассиру. Оплати на кассе. После оплаты сотрудник начнёт готовить заказ.",
@@ -32,11 +40,19 @@ export const checkoutCopy = {
     empty: "Сначала добавь товар в заказ.", variant: "Выбери вкус для каждого напитка со вкусом.",
     large: "Этот заказ не помещается в один QR. Покажи кассиру состав в корзине меню.",
     changed: "Меню обновилось. Попроси гостя создать новый QR заказа.",
+    draftChanged: "Заказ изменился", draftChangedNote: "В этом QR остался прежний состав. Создай новый QR для актуальной корзины.",
+    regenerate: "Создать новый QR из корзины", draftEmpty: "Корзина теперь пуста. Добавь товар в меню, чтобы создать новый QR.",
+    draftCheck: "Проверь заказ", draftUnavailable: "Не удалось прочитать актуальную корзину. Попробуй ещё раз или проверь заказ в меню.",
     note: "QR не подтверждает оплату. Оплата проходит на кассе.", priceNote: "Сумма рассчитана по актуальным ценам меню." }
 };
 
 const locale = { tr: "tr-TR", en: "en-GB", ru: "ru-RU" };
 const ticketStorage = createTicketStorage();
+const productSlug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const orderProductIds = new Set(menuCategories.flatMap(category =>
+  (category.items ?? category.groups?.flatMap(group => group.items) ?? [])
+    .map(item => `${category.id}:${item.id ?? productSlug(item.name.en)}`)));
 let activeDialog;
 let activeDismiss;
 const element = (tag, className, text) => {
@@ -157,8 +173,9 @@ export async function openOrderCheckout({ draft, language = "tr", returnFocus = 
     content.replaceChildren(heading, message);
   }
   const actions = element("div", "order-checkout-actions");
+  let open;
   if (ticket) {
-    const open = element("a", "order-ticket-button order-ticket-button-primary", copy.open);
+    open = element("a", "order-ticket-button order-ticket-button-primary", copy.open);
     open.href = url;
     open.target = "_blank";
     open.rel = "noopener noreferrer";
@@ -167,16 +184,124 @@ export async function openOrderCheckout({ draft, language = "tr", returnFocus = 
   const edit = element("button", "order-ticket-button", copy.change);
   edit.type = "button";
   actions.append(edit);
-  shell.append(close, content, actions);
+  const update = element("section", "order-ticket-update");
+  update.hidden = true;
+  const updateStatus = element("div", "order-ticket-update-status");
+  updateStatus.setAttribute("role", "status");
+  updateStatus.setAttribute("aria-live", "polite");
+  const updateTitle = element("strong", "", copy.draftChanged);
+  const updateNote = element("p");
+  updateStatus.append(updateTitle, updateNote);
+  const regenerate = element("button", "order-ticket-button order-ticket-button-primary", copy.regenerate);
+  regenerate.type = "button";
+  const updateError = element("p", "order-ticket-update-error");
+  updateError.setAttribute("role", "alert");
+  updateError.hidden = true;
+  update.append(updateStatus, regenerate, updateError);
+  shell.append(close, update, content, actions);
   dialog.append(shell);
   document.body.append(dialog);
   activeDialog = dialog;
   const previouslyLocked = document.body.classList.contains("order-checkout-open");
   document.body.classList.add("order-checkout-open");
   let closed = false;
+  let regenerating = false;
+  let checkGeneration = 0;
+  let refreshGeneration = 0;
+  let draftGeneration = 0;
+  // The ticket remains an immutable snapshot. Only an explicit action replaces
+  // the displayed ticket; cart notifications never rewrite an existing QR.
+  const readCurrentDraft = () => readLatestStoredOrderDraft(orderProductIds);
+  const checkDraft = async () => {
+    if (closed || !ticket) return;
+    const generation = ++checkGeneration;
+    const checkedTicket = ticket;
+    let changed = true;
+    let empty = false;
+    let note = copy.draftChangedNote;
+    let title = copy.draftChanged;
+    try {
+      const current = await readCurrentDraft();
+      const groups = validateTicketDraft(current);
+      changed = JSON.stringify(groups) !== JSON.stringify(ticket.groups);
+    } catch (caught) {
+      empty = caught?.code === "empty-order";
+      note = empty ? copy.draftEmpty : copy.draftUnavailable;
+      if (!empty) title = copy.draftCheck;
+    }
+    // An older read must not hide a newer warning, touch a closed/replaced
+    // dialog, or compare its snapshot with a ticket generated after it began.
+    if (closed || generation !== checkGeneration || checkedTicket !== ticket) return;
+    if (!changed && update.contains(document.activeElement)) close.focus({ preventScroll: true });
+    update.hidden = !changed;
+    updateTitle.textContent = title;
+    updateNote.textContent = note;
+    regenerate.disabled = empty || regenerating;
+  };
+  const onDraftChange = () => { draftGeneration += 1; void checkDraft(); };
+  const onStorage = event => {
+    if (event.key === ORDER_DRAFT_KEY || event.key === null) onDraftChange();
+  };
+  const onVisible = () => { if (document.visibilityState !== "hidden") checkDraft(); };
+  regenerate.addEventListener("click", async () => {
+    if (closed || regenerating || regenerate.disabled) return;
+    regenerating = true;
+    const generation = ++refreshGeneration;
+    let changedAt = draftGeneration;
+    checkGeneration += 1;
+    regenerate.disabled = true;
+    update.setAttribute("aria-busy", "true");
+    updateError.hidden = true;
+    try {
+      let current = await readCurrentDraft();
+      if (closed || generation !== refreshGeneration) return;
+      // A commit notified while this read was waiting gets one fresh read. If
+      // changes keep arriving, retain the old QR and leave an explicit retry.
+      if (changedAt !== draftGeneration) {
+        changedAt = draftGeneration;
+        current = await readCurrentDraft();
+        if (closed || generation !== refreshGeneration) return;
+        if (changedAt !== draftGeneration) return;
+      }
+      const next = getOrCreateOrderTicket(current, { storage: ticketStorage });
+      const nextUrl = buildCashierUrl(next, lang, siteRootUrl());
+      // Build offscreen first so an encoding/rendering error retains every byte
+      // of the old visible ticket and its cashier link.
+      const nextContent = element("div", "order-ticket-content");
+      renderTicketContent(nextContent, next, lang, { cashierUrl: nextUrl });
+      content.replaceChildren(...nextContent.childNodes);
+      content.lang = lang;
+      ticket = next;
+      url = nextUrl;
+      open.href = nextUrl;
+      close.focus({ preventScroll: true });
+    } catch (caught) {
+      if (closed || generation !== refreshGeneration) return;
+      updateError.textContent = typeof caught?.code === "string" ? checkoutErrorMessage(caught, lang) : copy.draftUnavailable;
+      updateError.hidden = false;
+    } finally {
+      if (!closed && generation === refreshGeneration) {
+        regenerating = false;
+        update.removeAttribute("aria-busy");
+        void checkDraft();
+      }
+    }
+  });
+  window.addEventListener("storage", onStorage);
+  window.addEventListener("robys:order-change", onDraftChange);
+  window.addEventListener("focus", checkDraft);
+  window.addEventListener("pageshow", checkDraft);
+  document.addEventListener("visibilitychange", onVisible);
   const dismiss = () => {
     if (closed) return;
     closed = true;
+    checkGeneration += 1;
+    refreshGeneration += 1;
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener("robys:order-change", onDraftChange);
+    window.removeEventListener("focus", checkDraft);
+    window.removeEventListener("pageshow", checkDraft);
+    document.removeEventListener("visibilitychange", onVisible);
     if (typeof dialog.close === "function" && dialog.open) dialog.close();
     else dialog.removeAttribute("open");
     if (!previouslyLocked) document.body.classList.remove("order-checkout-open");
@@ -201,5 +326,6 @@ export async function openOrderCheckout({ draft, language = "tr", returnFocus = 
   if (typeof dialog.showModal === "function") dialog.showModal();
   else { dialog.setAttribute("open", ""); dialog.setAttribute("role", "dialog"); dialog.classList.add("order-checkout-fallback"); }
   close.focus({ preventScroll: true });
-  return { ticket, dialog, ...(error ? { error } : {}) };
+  checkDraft();
+  return { get ticket() { return ticket; }, dialog, ...(error ? { error } : {}) };
 }

@@ -1,11 +1,12 @@
 import { addOrderGroup, replaceOrderGroup, updateOrderGroupQuantity, updateOrderGroupVariant } from "./src/order-draft.js";
 import { getSweetProducts, isHotDrink, quoteMenuSelection } from "./src/menu-pairing.js";
+import { promoPairProducts, isEditablePairDrink } from "./src/menu-promo-pair.js";
 
 // Ordering dialogs are initialized only after a product/cart intent. Storage
 // stays in the eager owner, including its in-memory quota-error fallback.
 export function createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
   initialLanguage, localized, formatPrice, formatItemCount, imageSlug,
-  readDraft, writeDraft, onCartChange }) {
+  readDraft, readLatestDraft, mutateDraft, onCartChange, reopenCart }) {
 let language = initialLanguage;
 const MAX_ITEM_QUANTITY = 99;
 const cartTrigger = document.querySelector("#menu-cart-trigger");
@@ -39,6 +40,8 @@ let editingGroup = null;
 let editingCartReturnFocus = null;
 let checkoutOpening = false;
 let cartSession = 0;
+let productSaving = false;
+let cartWrites = 0;
 
 let selectedProductId = "";
 let selectedProductQuantity = 1;
@@ -88,6 +91,11 @@ const editCopy = {
   en: { edit: "Edit selection", save: "Save changes", saved: "Selection updated", stale: "This selection changed elsewhere. Return to your order and reopen the current selection." },
   ru: { edit: "Изменить состав", save: "Сохранить изменения", saved: "Состав обновлён", stale: "Этот состав уже изменён в другом окне. Вернись в заказ и открой актуальный состав снова." }
 };
+const storageCopy = {
+  tr: "Sipariş kaydedilemedi. Tarayıcı depolamasını kontrol edip tekrar deneyin.",
+  en: "Your order could not be saved. Check browser storage and try again.",
+  ru: "Не удалось сохранить заказ. Проверь доступ к памяти браузера и попробуй ещё раз."
+};
 const productEditError = document.createElement("p");
 productEditError.id = "menu-product-edit-error";
 productEditError.className = "menu-cart-checkout-error";
@@ -110,7 +118,7 @@ checkoutButton.addEventListener("click", async () => {
   const session = cartSession;
   checkoutButton.disabled = true;
   try {
-    const { openOrderCheckout } = await import("./order-checkout.js?v=6aa30239d031");
+    const { openOrderCheckout } = await import("./order-checkout.js?v=a4137d7045f9");
     if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
     cart = readCart();
     if (!orderDraft.groups.length || hasMissingVariant()) return;
@@ -133,9 +141,19 @@ function readCart() {
 
 let cart = readCart();
 
-function saveCart() {
-  orderDraft = writeDraft(orderDraft);
+async function saveCart(updater) {
+  const result = await mutateDraft(updater);
+  orderDraft = result.draft;
   cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+  return result;
+}
+
+function showStorageError(product = false) {
+  const target = product ? productEditError : cartCheckoutError;
+  target.textContent = storageCopy[language];
+  target.hidden = false;
+  target.focus({ preventScroll: true });
+  if (product) target.scrollIntoView({ block: "center", inline: "nearest" });
 }
 
 function cartSummary() {
@@ -158,14 +176,25 @@ function createButton(className, label, listener) {
   return button;
 }
 
-function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = false) {
-  cart = readCart();
-  const group = orderDraft.groups.find(entry => entry.id === id);
+async function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = false) {
+  const currentSession = cartSession;
+  const isCurrent = () => currentSession === cartSession && cartDialog.hasAttribute("open")
+    && !document.querySelector(".order-checkout-dialog[open]");
+  let group;
   // Apply a +/- gesture to the latest shared quantity, even before another
   // tab's storage event has replaced the row captured by this click handler.
-  if (group && focusControl === "increase") quantity = group.quantity + 1;
-  if (group && focusControl === "decrease") quantity = group.quantity - 1;
-  const result = updateOrderGroupQuantity(orderDraft, id, quantity, orderProductIds);
+  cartWrites += 1;
+  renderCart();
+  let result;
+  try {
+    result = await saveCart(current => {
+      group = current.groups.find(entry => entry.id === id);
+      if (group && focusControl === "increase") quantity = group.quantity + 1;
+      if (group && focusControl === "decrease") quantity = group.quantity - 1;
+      return updateOrderGroupQuantity(current, id, quantity, orderProductIds);
+    });
+  } catch { if (isCurrent()) showStorageError(); return; }
+  finally { cartWrites -= 1; renderCart(); }
   if (!result.applied) {
     renderCart();
     return;
@@ -173,9 +202,8 @@ function setCartQuantity(id, quantity, focusControl = null, shouldAnnounce = fal
   orderDraft = result.draft;
   lastAddedSelection = null;
   cartCheckoutError.hidden = true;
-  saveCart();
-  renderCart(focusControl ? { id, control: focusControl } : null);
-  if (shouldAnnounce && group) {
+  renderCart(isCurrent() && focusControl ? { id, control: focusControl } : null);
+  if (isCurrent() && shouldAnnounce && group) {
     const copy = menuCopy[language];
     const name = groupName(group);
     announceCart(quantity === 0
@@ -201,15 +229,29 @@ function itemName(item) {
 function groupName(group) { return group.items.map(itemName).join(" + "); }
 
 function editablePair(group) {
-  if (!group || group.items.length !== 2 || group.items.some(item => item.quantity !== 1)) return null;
-  const drink = group.items.find(item => isHotDrink(productIndex.get(item.id)));
+  if (!group) return null;
+  if (group.items.length === 1 && group.items[0].quantity === 1) {
+    const products = promoPairProducts(productIndex, group.items[0].id);
+    if (products) return { drink: { id: products[0].id, quantity: 1 }, sweet: { id: products[1].id, quantity: 1 } };
+  }
+  if (group.items.length !== 2 || group.items.some(item => item.quantity !== 1)) return null;
+  const drink = group.items.find(item => isEditablePairDrink(productIndex.get(item.id)));
   const sweets = new Set(getSweetProducts(productIndex).map(product => product.id));
   const sweet = group.items.find(item => sweets.has(item.id));
   return drink && sweet ? { drink, sweet } : null;
 }
 
-function editCartGroup(id) {
-  cart = readCart();
+async function editCartGroup(id) {
+  const session = cartSession;
+  try {
+    orderDraft = readLatestDraft ? await readLatestDraft() : readDraft();
+    cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+  } catch {
+    if (session === cartSession && cartDialog.hasAttribute("open")) showStorageError();
+    return;
+  }
+  if (session !== cartSession || !cartDialog.hasAttribute("open") || checkoutOpening
+      || document.querySelector(".order-checkout-dialog[open]")) return;
   const group = orderDraft.groups.find(entry => entry.id === id);
   const pair = editablePair(group);
   if (!pair) { renderCart(); return; }
@@ -226,16 +268,25 @@ function hasMissingVariant() {
   }));
 }
 
-function setCartVariant(groupId, itemIndex, variant) {
-  cart = readCart();
-  const group = orderDraft.groups.find(entry => entry.id === groupId);
-  const item = group?.items[itemIndex];
-  if (!item || !variantsFor(productIndex.get(item.id)).some(entry => entry.id === variant)) return;
-  orderDraft = updateOrderGroupVariant(orderDraft, groupId, itemIndex, variant, orderProductIds).draft;
+async function setCartVariant(groupId, itemIndex, variant) {
+  const currentSession = cartSession;
+  const isCurrent = () => currentSession === cartSession && cartDialog.hasAttribute("open")
+    && !document.querySelector(".order-checkout-dialog[open]");
+  let item;
+  let result;
+  try {
+    result = await saveCart(current => {
+      const group = current.groups.find(entry => entry.id === groupId);
+      item = group?.items[itemIndex];
+      if (!item || !variantsFor(productIndex.get(item.id)).some(entry => entry.id === variant)) return { draft: current, applied: false, blocked: true };
+      return updateOrderGroupVariant(current, groupId, itemIndex, variant, orderProductIds);
+    });
+  } catch { if (isCurrent()) showStorageError(); return; }
+  if (!result.applied) { renderCart(); return; }
   lastAddedSelection = null;
   cartCheckoutError.hidden = true;
-  saveCart();
   renderCart();
+  if (!isCurrent()) return;
   Array.from(cartLinesRoot.querySelectorAll("select[data-product-id]"))
     .find(select => select.dataset.productId === item.id && select.value === variant)?.focus({ preventScroll: true });
 }
@@ -298,7 +349,7 @@ function renderCart(focusTarget = null) {
   cartTrigger.classList.toggle("has-items", summary.quantity > 0);
   const missingVariant = hasMissingVariant();
   checkoutButton.textContent = missingVariant ? orderUiCopy[language].required : orderUiCopy[language].checkout;
-  checkoutButton.disabled = checkoutOpening || summary.quantity === 0 || missingVariant;
+  checkoutButton.disabled = checkoutOpening || cartWrites > 0 || summary.quantity === 0 || missingVariant;
   cartTrigger.setAttribute(
     "aria-label",
     `${copy.cart}: ${summary.quantity} ${formatItemCount(summary.quantity)}, ${copy.total} ${formatPrice(summary.total)}`
@@ -431,6 +482,10 @@ function closeDialog(dialog) {
   const returnFocus = dialogReturnFocus.get(dialog);
   dialogReturnFocus.delete(dialog);
   if (cancelledEdit) {
+    if (reopenCart) {
+      void reopenCart(cartReturnFocus ?? cartTrigger, cancelledEdit.id);
+      return;
+    }
     cart = readCart();
     const focus = renderCart({ id: cancelledEdit.id, control: "edit" });
     openDialog(cartDialog, focus ?? cartTitle, cartReturnFocus ?? cartTrigger);
@@ -474,7 +529,7 @@ document.addEventListener("keydown", (event) => {
 function selectedProducts() {
   const product = productIndex.get(selectedProductId);
   if (!product) return [];
-  const sweet = isHotDrink(product) ? pairingView?.getSelectedProduct() : null;
+  const sweet = isEditablePairDrink(product) ? pairingView?.getSelectedProduct() : null;
   return sweet ? [product, productIndex.get(sweet.id)] : [product];
 }
 
@@ -519,7 +574,7 @@ function updateProductQuantity() {
     pairImage.alt = localized(sweet.item.name);
   } else pairImage.removeAttribute("src");
   const atLimit = availableQuantity === 0 || selectedProductQuantity > availableQuantity;
-  addToCartButton.disabled = atLimit || missingVariant || waitingForPair;
+  addToCartButton.disabled = productSaving || atLimit || missingVariant || waitingForPair;
   addToCartButton.textContent = waitingForPair ? pairingActionCopy[language].loading : missingVariant ? ui.required : atLimit
     ? copy.maxQuantity
     : `${editingGroup ? editCopy[language].save : cart.has(product.id) ? ui.more : products.length === 2 ? pairingActionCopy[language].add : copy.addToCart} · ${formatPrice(total)}`;
@@ -551,7 +606,7 @@ async function loadPairingPicker(product, session, retryLoad = false) {
       retryUrl.searchParams.set("retry", String(++pairingRetryCount));
       pairingViewPromise = import(retryUrl.href);
     }
-    pairingViewPromise ??= import("./menu-pairing.js?v=b58eeb51ad92");
+    pairingViewPromise ??= import("./menu-pairing.js?v=6b033c91bf9a");
     const module = await pairingViewPromise;
     if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
     pairingLoading = false;
@@ -593,6 +648,8 @@ function hydrateProductDialog() {
 
 function openProduct(id, returnFocus, originalGroup = null) {
   if (!productIndex.has(id)) return;
+  const promoProducts = promoPairProducts(productIndex, id);
+  if (promoProducts) id = promoProducts[0].id;
   editingGroup = originalGroup ? { ...originalGroup, items: originalGroup.items.map(item => ({ ...item })) } : null;
   editingCartReturnFocus = null;
   productEditError.hidden = true;
@@ -601,21 +658,21 @@ function openProduct(id, returnFocus, originalGroup = null) {
   const pair = editablePair(editingGroup);
   selectedProductQuantity = editingGroup?.quantity ?? (Number.isInteger(preference?.quantity) && preference.quantity > 0 ? Math.min(MAX_ITEM_QUANTITY, preference.quantity) : 1);
   selectedProductVariant = pair ? pair.drink.variant ?? "" : variantsFor(productIndex.get(id)).some(variant => variant.id === preference?.variant) ? preference.variant : "";
-  preferredDessertId = pair ? pair.sweet.id : typeof preference?.dessertId === "string" ? preference.dessertId : "";
+  preferredDessertId = pair ? pair.sweet.id : promoProducts ? promoProducts[1].id : typeof preference?.dessertId === "string" ? preference.dessertId : "";
   pairingLoading = Boolean(preferredDessertId) && !pairingView;
   cart = readCart();
   productSession += 1;
   pairingView?.clear();
   pairingPicker.hidden = true;
   pairingPreview.hidden = true;
-  productDialog.classList.toggle("has-custom-pairing", isHotDrink(productIndex.get(id)));
+  productDialog.classList.toggle("has-custom-pairing", isEditablePairDrink(productIndex.get(id)));
   hydrateProductDialog();
   openDialog(productDialog, null, returnFocus);
   document.querySelector(".menu-product-main").scrollTop = 0;
-  if (isHotDrink(productIndex.get(id))) void loadPairingPicker(productIndex.get(id), productSession);
+  if (isEditablePairDrink(productIndex.get(id))) void loadPairingPicker(productIndex.get(id), productSession);
 }
 
-function addSelectedProduct() {
+async function addSelectedProduct() {
   const product = productIndex.get(selectedProductId);
   if (!product) return;
   const copy = menuCopy[language];
@@ -624,9 +681,25 @@ function addSelectedProduct() {
   const products = selectedProducts();
   const items = products.map((entry, index) => ({ id: entry.id, quantity: 1,
     ...(index === 0 && selectedProductVariant ? { variant: selectedProductVariant } : {}) }));
-  const selection = editingGroup
-    ? replaceOrderGroup(orderDraft, editingGroup, items, selectedProductQuantity, orderProductIds)
-    : addOrderGroup(orderDraft, items, selectedProductQuantity, orderProductIds);
+  const original = editingGroup;
+  const quantity = selectedProductQuantity;
+  const currentSession = productSession;
+  const editReturnFocus = editingCartReturnFocus;
+  productSaving = true;
+  updateProductQuantity();
+  let selection;
+  try {
+    selection = await saveCart(current => original
+      ? replaceOrderGroup(current, original, items, quantity, orderProductIds)
+      : addOrderGroup(current, items, quantity, orderProductIds));
+  } catch {
+    if (currentSession === productSession && productDialog.hasAttribute("open")) showStorageError(true);
+    return;
+  } finally {
+    productSaving = false;
+    if (productDialog.hasAttribute("open")) updateProductQuantity();
+  }
+  if (currentSession !== productSession || !productDialog.hasAttribute("open")) { renderCart(); return; }
   if (!selection.applied) {
     if (editingGroup) {
       productEditError.textContent = selection.stale ? editCopy[language].stale : copy.maxQuantity;
@@ -637,12 +710,10 @@ function addSelectedProduct() {
     updateProductQuantity();
     return;
   }
-  const wasEdit = Boolean(editingGroup);
-  const editReturnFocus = editingCartReturnFocus;
+  const wasEdit = Boolean(original);
   orderDraft = selection.draft;
   rememberSelection();
-  saveCart();
-  lastAddedSelection = { items, quantity: selectedProductQuantity };
+  lastAddedSelection = { items, quantity };
   lastSelectionWasEdit = wasEdit;
   cartCheckoutError.hidden = true;
   renderCart();
@@ -703,10 +774,11 @@ function refresh({ nextLanguage = language, resetAdded = false } = {}) {
   if (selectedProductId) hydrateProductDialog();
   renderCart();
 }
-function openCart(returnFocus) {
+function openCart(returnFocus, focusGroupId) {
   refresh({ resetAdded: true });
   cartCheckoutError.hidden = true;
-  openDialog(cartDialog, cartTitle, returnFocus);
+  const focus = focusGroupId ? renderCart({ id: focusGroupId, control: "edit" }) : null;
+  openDialog(cartDialog, focus ?? cartTitle, returnFocus);
 }
 refresh();
 return { openProduct, openCart, refresh };
