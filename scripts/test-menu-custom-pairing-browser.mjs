@@ -89,6 +89,11 @@ async function open(page, product, eligible = true) {
   assert.equal(support.openAttribute, true, "dialog exposes its actual open state through the attribute");
   if (support.fallback) assert.equal(support.openPropertyMissing && support.methodsMissing, true, "legacy fallback is exercised without native dialog methods or open property");
   if (eligible) await poll(() => page.locator("#menu-pairing-picker").getAttribute("data-ready"), (value) => value === "true", `${product.id}: picker is ready`);
+  // Fallback focus is scheduled for the next animation frame. On reopening,
+  // picker readiness is synchronous and does not imply focus has moved yet.
+  // Verify the actual focus boundary before sending modal keyboard input.
+  await poll(() => dialog.evaluate((node) => node.contains(document.activeElement)), Boolean,
+    `${product.id}: opening moves focus inside the dialog`);
   return trigger;
 }
 
@@ -492,6 +497,14 @@ export async function verifyMenuCustomPairing(context, base, check) {
   });
 
   await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled", async (page) => {
+    // Reproduce the slow-frame ordering that formerly let the reopened-dialog
+    // test send Escape to its outside opener before fallback focus was ready.
+    await page.addInitScript(() => {
+      const requestFrame = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback) => requestFrame((time) => {
+        window.setTimeout(() => callback(time), 100);
+      });
+    });
     const seed = { version: 1, lines: [{ id: espresso.id, quantity: 99 }] };
     await prepare(page, base, { seed, fallback: true });
     const trigger = await open(page, espresso);
@@ -511,8 +524,10 @@ export async function verifyMenuCustomPairing(context, base, check) {
     await page.keyboard.press("Shift+Tab");
     assert.equal(await checked.evaluate((node) => document.activeElement === node), true, "reverse Tab wraps to the checked radio rather than an unchecked option");
     await close(page, trigger, true);
+    const reopened = await open(page, espresso);
+    await close(page, reopened, true);
     assert.deepEqual(entries(await cart(page)), entries(seed));
-    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio", "dessert disclosure"] };
+    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio", "dessert disclosure"], delayedFocusFrameMs: 100, reopenedEscapeCloses: true };
   });
 
   await run("CUSTOM-PAIRING-GEOMETRY-001", "representative long names fit320/390/768/1440 at100/200% text", async (page) => {

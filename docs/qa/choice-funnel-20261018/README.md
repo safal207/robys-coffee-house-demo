@@ -29,3 +29,15 @@ The iOS and gallery jobs stopped before testing, while trying to install older b
 The local base/head visual comparison produced 43 captures, of which 18 exceeded the unchanged global threshold. All 18 were inspected: four full-page height changes add the planned section, four hero changes alter action hierarchy/copy, and ten lower-section crops contain 1 px rasterization/crop differences with content and controls intact. `visual-summary.json` and the content-bound record in `qa/reviewed-visual-changes.d/choice-to-counter-20261018.json` preserve the exact observed failure set. This local inspection does not assert that CI has passed.
 
 After pinning the runner, `npm run check`, `npm run verify:security`, the installed-toolchain verifier and `npm audit --audit-level=high` passed (zero reported vulnerabilities). The gallery runner discovers all 24 existing tests; listing is not an execution pass.
+
+## CI visual review on 18 October
+
+Run [39078426331](https://github.com/safal207/robys-coffee-house-demo/actions/runs/39078426331), head `317e8384f74e5fcf9d581822f9196e68554031b9`, produced 16 failing comparisons out of 43 in both attempts, with identical failure metrics. The downloaded artifact 12118350548 matches GitHub's SHA-256 `dddbaf5ef498d02c941d24d90aa125bddb89f6259c2fe6cdcc4bad2603f17616`. See `visual-ci-summary.json`.
+
+Two assistant inspections covered the 12 non-full comparison triplets and four current full landings. Four height changes add the intended paths/steps section; four hero changes implement the CTA/copy hierarchy. Eight existing section crops preserve their content and controls, with fractional paint/alignment shifts including three 1 px crop-height differences. No new clipping or content loss was found in that capture set. Existing visit-map header overlap is present in the baseline too.
+
+The active content-bound visual record now uses these actual CI dimensions/ratios and capture hashes. The earlier 18-failure local summary remains historical and is not asserted to match CI. Neither assistant inspection is independent human approval; a subsequent exact-head CI run must validate the new revision.
+
+## Fallback keyboard test synchronization
+
+The ADV CI run on `317e838` had one failing check out of 91: Escape was sent immediately after reopening a fallback dialog, before its next-frame focus transition. The helper now asserts that focus is inside the dialog before sending modal keyboard input. A 100 ms delayed-frame scenario preserves all Tab/Escape/draft assertions and adds reopening coverage. The [negative control](fallback-focus-control.json) fails when only this synchronization is removed and passes with it. No production runtime bytes changed. Full build/check and 353 security contracts passed after these test and evidence changes.
