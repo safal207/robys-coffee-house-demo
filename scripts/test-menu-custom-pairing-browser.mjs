@@ -14,9 +14,9 @@ const copy = {
   ru: { legend: "Сладкое к напитку", drinkOnly: "Только напиток", addPair: "Добавить пару в заказ", quantity: "Количество пар" }
 };
 const confirmationCopy = {
-  tr: { title: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç" },
-  en: { title: "Added to your order", checkout: "All set · continue", more: "Choose something else" },
-  ru: { title: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё" }
+  tr: { title: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç" },
+  en: { title: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else" },
+  ru: { title: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё" }
 };
 
 // Expectations come from the catalog, independently of the pairing domain/view.
@@ -89,6 +89,11 @@ async function open(page, product, eligible = true) {
   assert.equal(support.openAttribute, true, "dialog exposes its actual open state through the attribute");
   if (support.fallback) assert.equal(support.openPropertyMissing && support.methodsMissing, true, "legacy fallback is exercised without native dialog methods or open property");
   if (eligible) await poll(() => page.locator("#menu-pairing-picker").getAttribute("data-ready"), (value) => value === "true", `${product.id}: picker is ready`);
+  // Fallback focus is scheduled for the next animation frame. On reopening,
+  // picker readiness is synchronous and does not imply focus has moved yet.
+  // Verify the actual focus boundary before sending modal keyboard input.
+  await poll(() => dialog.evaluate((node) => node.contains(document.activeElement)), Boolean,
+    `${product.id}: opening moves focus inside the dialog`);
   return trigger;
 }
 
@@ -130,6 +135,7 @@ async function continueMenu(page, trigger) {
 
 async function choose(page, id) {
   const radio = page.locator(`#menu-pairing-picker input[name="menu-dessert"][value="${id}"]`);
+  if (!await radio.locator("..").isVisible()) await page.locator(".menu-pairing-expand").click();
   await radio.locator("..").click();
   assert.equal(await radio.isChecked(), true);
   return radio;
@@ -186,7 +192,7 @@ async function geometry(page, label) {
       photosSeparate: images.length === 2 && images.every((image) => image.loaded && image.width > 0 && image.height > 0) &&
         (images[0].right <= images[1].left + 1 || images[0].bottom <= images[1].top + 1),
       actionHeight: dialog.querySelector("#menu-add-to-cart").getBoundingClientRect().height,
-      optionsTouchable: [...dialog.querySelectorAll(".menu-pairing-option")].every((node) => node.getBoundingClientRect().height >= 43.5),
+      optionsTouchable: [...dialog.querySelectorAll(".menu-pairing-option:not([hidden])")].every((node) => node.getBoundingClientRect().height >= 43.5),
       clippedText
     };
   });
@@ -213,7 +219,7 @@ async function geometry(page, label) {
       return { text: element.textContent, top: bounds.top, bottom: bounds.bottom,
         clipTop: Math.max(shell.top, region.top, 0), clipBottom: Math.min(shell.bottom, region.bottom, innerHeight), overlap };
     });
-    assert.equal(measured.top >= measured.clipTop - 1 && measured.bottom <= measured.clipBottom + 1, true, `${label}: ${measured.text} is reachable in the dialog scroll area`);
+    assert.equal(measured.top >= measured.clipTop - 1 && measured.bottom <= measured.clipBottom + 1, true, `${label}: ${measured.text} is reachable in the dialog scroll area: ${JSON.stringify(measured)}`);
     assert.equal(measured.overlap, false, `${label}: the purchase action does not cover ${measured.text}`);
     reachability.push(measured);
   }
@@ -490,7 +496,15 @@ export async function verifyMenuCustomPairing(context, base, check) {
     return { remainingPairCapacity: 0, drinkOnlyStillAvailable: true, draft };
   });
 
-  await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the actual checked radio and close when all order controls are disabled", async (page) => {
+  await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled", async (page) => {
+    // Reproduce the slow-frame ordering that formerly let the reopened-dialog
+    // test send Escape to its outside opener before fallback focus was ready.
+    await page.addInitScript(() => {
+      const requestFrame = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback) => requestFrame((time) => {
+        window.setTimeout(() => callback(time), 100);
+      });
+    });
     const seed = { version: 1, lines: [{ id: espresso.id, quantity: 99 }] };
     await prepare(page, base, { seed, fallback: true });
     const trigger = await open(page, espresso);
@@ -499,14 +513,21 @@ export async function verifyMenuCustomPairing(context, base, check) {
     }
     const checked = page.locator('input[name="menu-dessert"][value=""]');
     const dismiss = page.locator('#menu-product-dialog [data-menu-dialog-close="product"]');
+    const disclosure = page.locator(".menu-pairing-expand");
     await checked.focus();
     await page.keyboard.press("Tab");
-    assert.equal(await dismiss.evaluate((node) => document.activeElement === node), true, "Tab from the last actual radio tab stop wraps to close");
+    assert.equal(await disclosure.evaluate(node => document.activeElement === node), true, "Tab reaches the dessert disclosure");
+    await page.keyboard.press("Tab");
+    assert.equal(await dismiss.evaluate((node) => document.activeElement === node), true, "Tab from the final control wraps to close");
+    await page.keyboard.press("Shift+Tab");
+    assert.equal(await disclosure.evaluate(node => document.activeElement === node), true, "reverse Tab wraps to disclosure");
     await page.keyboard.press("Shift+Tab");
     assert.equal(await checked.evaluate((node) => document.activeElement === node), true, "reverse Tab wraps to the checked radio rather than an unchecked option");
     await close(page, trigger, true);
+    const reopened = await open(page, espresso);
+    await close(page, reopened, true);
     assert.deepEqual(entries(await cart(page)), entries(seed));
-    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio"] };
+    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio", "dessert disclosure"], delayedFocusFrameMs: 100, reopenedEscapeCloses: true };
   });
 
   await run("CUSTOM-PAIRING-GEOMETRY-001", "representative long names fit320/390/768/1440 at100/200% text", async (page) => {

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-a7df01fbb25a-custom-pair-d09f99a1021f-shared-order-social-offer-77cf212ed128-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-820ed7f59470-coffee-paths-e1a360bbe144-custom-pair-8c251c1fdbf2-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -72,7 +72,7 @@ const CORE_ASSETS = [
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=54ae56c1bd70",
+  "./menu-order-ui.js?v=20de3e20764c",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -85,8 +85,9 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./social-offer.js?v=77cf212ed128",
-  "./menu-premium.css?v=435e50173a1f",
+  "./coffee-paths.css?v=e1a360bbe144",
+  "./social-offer.js?v=cf339e8c8777",
+  "./menu-premium.css?v=dc1fddf1cb59",
   "./pairing-posters.css?v=d1e9096d1ee4",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
@@ -108,8 +109,8 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=e9efa592727d",
-  "./menu-pairing.js?v=413cfaa7a0d5",
+  "./menu-app.js?v=f1e79f3cd527",
+  "./menu-pairing.js?v=b58eeb51ad92",
   "./menu-product-reveal.js?v=497fa714ac94",
   "./menu-product-reveal-runtime.js?v=496a14490e84",
   "./pairing-posters.js?v=024743e64919",
@@ -141,7 +142,7 @@ const CORE_ASSETS = [
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=aed4068915da",
+  "./smart-choice/app-v2.js?v=aefbeb76947f",
   "./smart-choice/cart-v2.js?v=a21523eadf8f",
   "./smart-choice/experiments-v2.js?v=5de1d0eb1bea",
   "./smart-choice/analytics-v2.js?v=c267da7f3a89",
@@ -219,6 +220,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
+    url.pathname.endsWith("/coffee-paths.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-deck.css") ||

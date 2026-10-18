@@ -76,9 +76,9 @@ const pairingActionCopy = {
   ru: { add: "Добавить пару в заказ", quantity: "Количество пар", loading: "Загружаем сладкое…", error: "Не удалось открыть выбор сладкого. Можно добавить только напиток.", retry: "Попробовать ещё раз" }
 };
 const orderUiCopy = {
-  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Tamam, devam et", continue: "Başka bir şey seç", added: "Siparişine eklendi", next: "Seçimin tamam mı? Devam edebilir veya başka bir şey seçebilirsin.", payment: "Sonraki adımda kasa için QR kodunu al. Ödeme kasada yapılır.", checkoutError: "QR açılamadı. Seçimin burada duruyor; tekrar deneyebilirsin." },
-  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "All set · continue", continue: "Choose something else", added: "Added to your order", next: "Happy with your choice? Continue when ready, or choose something else.", payment: "Next, get a QR code for the cashier. Payment is at the counter.", checkoutError: "Could not open the QR. Your selection is still here; please try again." },
-  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Всё, к оформлению", continue: "Выбрать ещё", added: "Добавлено в заказ", next: "Уже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.", payment: "Дальше — QR для кассира. Оплата на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
+  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Kasa için QR oluştur", continue: "Başka bir şey seç", added: "Siparişine eklendi", next: "Seçimin tamam mı? Devam edebilir veya başka bir şey seçebilirsin.", payment: "Sonraki adımda kasa için QR kodunu al. Ödeme kasada yapılır.", checkoutError: "QR açılamadı. Seçimin burada duruyor; tekrar deneyebilirsin." },
+  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "Get QR for the counter", continue: "Choose something else", added: "Added to your order", next: "Happy with your choice? Continue when ready, or choose something else.", payment: "Next, get a QR code for the cashier. Payment is at the counter.", checkoutError: "Could not open the QR. Your selection is still here; please try again." },
+  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Получить QR для кассы", continue: "Выбрать ещё", added: "Добавлено в заказ", next: "Уже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.", payment: "Дальше — QR для кассира. Оплата на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
 };
 const checkoutButton = document.querySelector("#menu-checkout-trigger") ?? document.createElement("button");
 checkoutButton.id = "menu-checkout-trigger";
@@ -494,7 +494,7 @@ async function loadPairingPicker(product, session, retryLoad = false) {
       retryUrl.searchParams.set("retry", String(++pairingRetryCount));
       pairingViewPromise = import(retryUrl.href);
     }
-    pairingViewPromise ??= import("./menu-pairing.js?v=413cfaa7a0d5");
+    pairingViewPromise ??= import("./menu-pairing.js?v=b58eeb51ad92");
     const module = await pairingViewPromise;
     if (session !== productSession || selectedProductId !== product.id || !productDialog.hasAttribute("open")) return;
     pairingLoading = false;

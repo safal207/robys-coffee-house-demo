@@ -295,6 +295,7 @@ writeFileSync("conversion.js", transformSync(conversionSource, {
 const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const coffeePathsRevision = revisionFor("coffee-paths.css");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
@@ -341,6 +342,7 @@ for (const { name, target, revision } of landingCacheStyles) {
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeModuleScript(html, "qa.js", qaRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
+html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
@@ -417,6 +419,8 @@ serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlo
 // Bind both the worker namespace and exact precache URL to the rendered offer.
 serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
+serviceWorker = serviceWorker.replace(/-coffee-paths-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeePathsRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -447,6 +451,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   ["social-offer.js", socialOfferRevision],
+  ["coffee-paths.css", coffeePathsRevision],
   ["menu-catalog.js", menuCatalogRevision],
   ["order-checkout.js", orderCheckoutRevision],
   ["cashier.js", cashierRevision],

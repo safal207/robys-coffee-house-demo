@@ -113,7 +113,7 @@ try {
   await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
   assert.equal(await page.locator("#menu-cart-title").innerText(), "Добавлено в заказ");
   assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
-  assert.equal(await page.getByRole("button", { name: "Всё, к оформлению", exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole("button", { name: "Получить QR для кассы", exact: true }).isVisible(), true);
   assert.equal(await page.getByRole("button", { name: "Выбрать ещё", exact: true }).isVisible(), true);
   assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding must not implicitly create a QR checkout");
   assert.equal(

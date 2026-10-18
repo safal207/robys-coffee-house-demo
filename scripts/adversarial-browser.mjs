@@ -196,7 +196,7 @@ try {
   }));
   check("A11Y-CART-CONFIRM-001", addedEvidence.title === "Siparişine eklendi"
     && addedEvidence.summaryVisible && addedEvidence.summary?.includes("× 1")
-    && addedEvidence.checkout === "Tamam, devam et" && addedEvidence.more === "Başka bir şey seç" && !addedEvidence.automaticQr,
+    && addedEvidence.checkout === "Kasa için QR oluştur" && addedEvidence.more === "Başka bir şey seç" && !addedEvidence.automaticQr,
   "Adding opens a persistent order confirmation with explicit checkout or choose-more actions", addedEvidence);
   await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
   // Observe the live-region text without evaluating a string under the page CSP.

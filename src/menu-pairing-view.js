@@ -6,21 +6,24 @@ const COPY = {
     hint: "Bir tatlı seç veya sadece içeceğinle devam et.",
     drinkOnly: "Sadece içecek",
     pairPriceLabel: "Çift",
-    total: "Bir çiftin fiyatı · bir içecek + bir tatlı"
+    total: "Bir çiftin fiyatı · bir içecek + bir tatlı",
+    more: "Tüm tatlıları göster", less: "Daha az seçenek göster", extra: "Ekle"
   },
   en: {
     legend: "Sweet with your drink",
     hint: "Choose a dessert or keep just the drink.",
     drinkOnly: "Just the drink",
     pairPriceLabel: "Pair",
-    total: "Price per pair · one drink + one dessert"
+    total: "Price per pair · one drink + one dessert",
+    more: "See all desserts", less: "Show fewer choices", extra: "Add"
   },
   ru: {
     legend: "Сладкое к напитку",
     hint: "Выбери десерт или оставь только напиток.",
     drinkOnly: "Только напиток",
     pairPriceLabel: "Пара",
-    total: "Цена за одну пару · один напиток + один десерт"
+    total: "Цена за одну пару · один напиток + один десерт",
+    more: "Все десерты", less: "Свернуть выбор", extra: "Добавка"
   }
 };
 
@@ -30,6 +33,10 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
   let selectedId = "";
   let language = "tr";
   let summary = null;
+  let expanded = false;
+  let expandButton = null;
+  // Editorial starting points at different prices, not popularity claims.
+  const startingIds = ["desserts:san-sebastian-cheesecake", "desserts:brownie", "desserts:cookie"];
 
   const validProduct = (product) => product && typeof product.image === "string"
     && Number.isFinite(product.item?.price) && product.item.price > 0;
@@ -63,6 +70,27 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     return sweets().find((product) => product.id === selectedId) ?? null;
   }
 
+  function updateChoices() {
+    const available = sweets();
+    const starters = startingIds.map(id => available.find(product => product.id === id)).filter(Boolean);
+    for (const product of available) {
+      if (starters.length >= 3) break;
+      if (!starters.includes(product)) starters.push(product);
+    }
+    // A remembered or expanded choice must stay visible when the list collapses.
+    const selected = getSelectedProduct();
+    if (selected && !starters.includes(selected)) starters.splice(2, 1, selected);
+    const shown = new Set(starters.map(product => product.id));
+    root.querySelectorAll('input[name="menu-dessert"]').forEach(input => {
+      input.closest(".menu-pairing-option").hidden = Boolean(input.value) && !expanded && !shown.has(input.value);
+    });
+    if (expandButton) {
+      expandButton.hidden = available.length <= 3;
+      expandButton.textContent = expanded ? COPY[language].less : COPY[language].more;
+      expandButton.setAttribute("aria-expanded", String(expanded));
+    }
+  }
+
   function updateSelection() {
     const drink = activeProduct();
     const dessert = getSelectedProduct();
@@ -70,6 +98,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
       input.checked = input.value === (dessert?.id ?? "");
       input.closest(".menu-pairing-option").classList.toggle("is-selected", input.checked);
     });
+    updateChoices();
     preview.replaceChildren();
     preview.hidden = !dessert;
     if (!drink) return;
@@ -110,6 +139,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
       element("span", "menu-pairing-name", dessert ? name(dessert) : COPY[language].drinkOnly),
       element("span", "menu-pairing-price", dessert
         ? `${COPY[language].pairPriceLabel} · ${price(total)}` : price(total)));
+    if (dessert) label.append(element("span", "menu-pairing-extra", `${COPY[language].extra} +${price(dessert.item.price)}`));
     return label;
   }
 
@@ -117,6 +147,8 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     activeId = "";
     selectedId = "";
     summary = null;
+    expanded = false;
+    expandButton = null;
     root.replaceChildren();
     preview.replaceChildren();
     root.hidden = true;
@@ -130,7 +162,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
       clear();
       return;
     }
-    if (reset || activeId !== current.id) selectedId = preferredId;
+    if (reset || activeId !== current.id) { selectedId = preferredId; expanded = false; }
     activeId = current.id;
     language = ["tr", "en", "ru"].includes(nextLanguage) ? nextLanguage : "tr";
     if (!getSelectedProduct()) selectedId = "";
@@ -138,11 +170,19 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     const legend = element("legend", "", COPY[language].legend);
     const hint = element("p", "menu-pairing-hint", COPY[language].hint);
     const options = element("div", "menu-pairing-options");
+    options.id = "menu-dessert-options";
     options.append(option(current), ...sweets().map((dessert) => option(current, dessert)));
+    expandButton = element("button", "menu-pairing-expand");
+    expandButton.type = "button";
+    expandButton.setAttribute("aria-controls", options.id);
+    expandButton.addEventListener("click", () => {
+      expanded = !expanded;
+      updateChoices();
+    });
     summary = element("output", "menu-pairing-summary");
     summary.setAttribute("aria-live", "polite");
     summary.setAttribute("aria-atomic", "true");
-    fieldset.append(legend, hint, options, summary);
+    fieldset.append(legend, hint, options, expandButton, summary);
     root.replaceChildren(fieldset);
     root.hidden = false;
     root.lang = language;

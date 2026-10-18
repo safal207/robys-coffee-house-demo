@@ -9,9 +9,9 @@ const base = "http://127.0.0.1:4192/";
 const server = spawn("python3", ["-m", "http.server", "4192", "--bind", "127.0.0.1"], { stdio: "ignore" });
 const report = { boundary: "Real Chromium navigation with original CSP, emulated viewport; no physical-device/FPS/payment claim", checks: [], failures: [] };
 const nextStepCopy = {
-  tr: { added: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
-  en: { added: "Added to your order", checkout: "All set · continue", more: "Choose something else", payment: "Payment is at the counter." },
-  ru: { added: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё", payment: "Оплата на кассе." }
+  tr: { added: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
+  en: { added: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else", payment: "Payment is at the counter." },
+  ru: { added: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё", payment: "Оплата на кассе." }
 };
 let browser;
 function check(id, passed, evidence = null) {
