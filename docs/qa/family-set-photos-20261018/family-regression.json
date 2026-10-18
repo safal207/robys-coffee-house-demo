@@ -1,0 +1,199 @@
+{
+  "startedAt": "2026-10-18T15:31:19.241Z",
+  "head": "810f5e660b18d0179abcce8857733fb56d89375c",
+  "mode": "Chromium in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
+  "sourceHashes": {
+    "src/menu-app.js": "5e26493ce4cbf38139fa6decd7fff884ec4924629cacf541c83ce6a96b052f03",
+    "src/menu-family-ui.js": "bb03ede3307533a71bc144dbf919b683ebea69c6a0b53caeb85c7e3d52cceb30",
+    "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+    "src/order-draft.js": "1d6352dc08292f6a0692f09d3965f49427da3031993d0ef46819086c1bcc798b",
+    "src/menu-order-ui.js": "0928115fcb6be371f4940feda28aeee32a51ee68cb9ad05e389483ed278fed02",
+    "menu-family.css": "edd4d14107104b37377d5d53bc3450a7f331ac321cae18961d1b030c83db2446",
+    "menu.html": "cc885d16928861e90bbfa331f26a231a9d3980970823899add7a1728eda8f82e",
+    "menu-catalog.js": "bc69a9e52fa4245f1e88e30cfd65e84c8ceafff853ee4ba1cdfc68e435d57dd3"
+  },
+  "cases": [
+    {
+      "id": "recipes-tr",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:19.429Z",
+      "finishedAt": "2026-10-18T15:31:22.451Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "recipes-en",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:22.500Z",
+      "finishedAt": "2026-10-18T15:31:25.122Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "recipes-ru",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:25.231Z",
+      "finishedAt": "2026-10-18T15:31:27.987Z",
+      "facts": {
+        "recipes": 3,
+        "completedSelections": 3,
+        "cancelPreservedDraft": true,
+        "separateComponentRemoval": true,
+        "focusRestored": true
+      }
+    },
+    {
+      "id": "layout-320",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:28.056Z",
+      "finishedAt": "2026-10-18T15:31:29.411Z",
+      "facts": {
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "bounds": {
+          "left": 19,
+          "right": 301,
+          "top": 47.5625,
+          "bottom": 796.4375,
+          "width": 320,
+          "height": 844
+        },
+        "photoStripHeights": [
+          246,
+          246,
+          246
+        ]
+      }
+    },
+    {
+      "id": "layout-1440",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:29.488Z",
+      "finishedAt": "2026-10-18T15:31:30.777Z",
+      "facts": {
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "bounds": {
+          "left": 410,
+          "right": 1030,
+          "top": 133.140625,
+          "bottom": 766.859375,
+          "width": 1440,
+          "height": 900
+        },
+        "photoStripHeights": [
+          343,
+          343,
+          343
+        ]
+      }
+    },
+    {
+      "id": "text-200-percent",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:30.842Z",
+      "finishedAt": "2026-10-18T15:31:32.805Z",
+      "facts": {
+        "textScale": "200%",
+        "allThreeComponentsAdded": true,
+        "noDialogHorizontalOverflow": true
+      }
+    },
+    {
+      "id": "dialog-fallback-keyboard",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:32.864Z",
+      "finishedAt": "2026-10-18T15:31:34.124Z",
+      "facts": {
+        "showModalUnavailable": true,
+        "keyboardLoop": true,
+        "escapeReturnsFocus": true
+      }
+    },
+    {
+      "id": "late-capacity-atomic-and-double-click",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:34.185Z",
+      "finishedAt": "2026-10-18T15:31:35.608Z",
+      "facts": {
+        "reReadLatestDraft": true,
+        "blockedWholeSelection": true,
+        "doubleActivationAddsMilkOnce": true
+      }
+    },
+    {
+      "id": "lazy-load-escape-and-retry",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:35.673Z",
+      "finishedAt": "2026-10-18T15:31:36.430Z",
+      "facts": {
+        "lazyUntilIntent": true,
+        "escapeCancelsPendingReveal": true,
+        "nextClickOpensWithoutAdding": true
+      }
+    },
+    {
+      "id": "deep-link",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:36.481Z",
+      "finishedAt": "2026-10-18T15:31:37.025Z",
+      "facts": {
+        "directMenuFamilyHash": true,
+        "noAutomaticAddition": true
+      }
+    },
+    {
+      "id": "optional-module-failure-recovery",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:37.075Z",
+      "finishedAt": "2026-10-18T15:31:37.791Z",
+      "facts": {
+        "firstOptionalImportBlocked": true,
+        "secondIntentRecovered": true,
+        "distinctModuleUrls": true
+      }
+    },
+    {
+      "id": "escape-during-cart-load",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:37.843Z",
+      "finishedAt": "2026-10-18T15:31:38.808Z",
+      "facts": {
+        "orderUiLoadDelayed": true,
+        "escapeCancelledPopup": true,
+        "explicitlyAddedSelectionPreserved": true
+      }
+    },
+    {
+      "id": "no-js-fallback",
+      "status": "PASS",
+      "startedAt": "2026-10-18T15:31:38.860Z",
+      "finishedAt": "2026-10-18T15:31:39.185Z",
+      "facts": {
+        "javaScriptDisabled": true,
+        "anchorReached": true,
+        "existingProductPhotoOpened": true
+      }
+    }
+  ],
+  "browserVersion": "140.0.7339.186",
+  "finishedAt": "2026-10-18T15:31:39.228Z",
+  "summary": {
+    "passed": 13,
+    "failed": 0
+  }
+}
