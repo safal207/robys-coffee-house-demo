@@ -79,6 +79,7 @@ for (const [language, quantity, expected] of pluralCases) {
   const category = new Intl.PluralRules({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language]).select(quantity);
   assert((forms?.[category] ?? forms?.other) === expected, `Wrong ${language} cart noun for ${quantity}`);
 }
+await import("./test-menu-formatters.mjs");
 
 const visualItemCount = menuCategories.reduce((total, category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
@@ -96,7 +97,7 @@ for (const contract of [
   "formatPrice(total)",
   'const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }',
   "new Intl.NumberFormat(localeTag[language]",
-  "new Intl.PluralRules(localeTag[language]).select(count)",
+  "new Intl.PluralRules(localeTag[language])",
   "formatItemCount(summary.quantity)",
   "addOrderGroup(orderDraft, items, selectedProductQuantity, orderProductIds)",
   "replaceOrderGroup(orderDraft, editingGroup, items, selectedProductQuantity, orderProductIds)",
@@ -186,7 +187,11 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
     rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
     lastAddedSelection: null, lastSelectionWasEdit: false, editingGroup: editing ? originalGroup : null,
     editingCartReturnFocus: editing ? cartOrigin : null,
-    productEditError: { hidden: true, textContent: "", focus: () => events.push("edit error") },
+    productEditError: { hidden: true, textContent: "", focus: () => events.push("edit error"),
+      scrollIntoView: options => {
+        assert.deepEqual(JSON.parse(JSON.stringify(options)), { block: "center", inline: "nearest" });
+        events.push("reveal edit error");
+      } },
     editCopy: { en: { stale: "Changed elsewhere" } },
     cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
     productDialog, cartDialog, cartTitle, cartTrigger: {}, dialogReturnFocus: new Map([[productDialog, origin]]),
@@ -197,7 +202,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
     }
   };
   runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
-  assert.deepEqual(events, success ? ["saved", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error"] : mode === "rejected" ? ["rejected"] : []);
+  assert.deepEqual(events, success ? ["saved", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
   if (editing && !success) {
     assert.equal(context.productEditError.hidden, false);
     assert.equal(context.productEditError.textContent, mode === "edit-stale" ? "Changed elsewhere" : "Maximum");

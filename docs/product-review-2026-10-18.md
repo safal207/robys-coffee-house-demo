@@ -13,10 +13,14 @@ starting point for a guest ordering with a child.
 - An existing hot drink/dessert pair can be edited in the menu cart. Explicit
   Save replaces the original group atomically; Cancel preserves it. A stale
   editor cannot overwrite a newer quantity, flavor or removal from another tab.
+  Rejected saves reveal the entire localized message after a scrolled dessert
+  picker, keeping its text clear of the fixed close button.
 - Three optional family cards use existing products and current catalog prices.
   Preview opens without adding anything. Unchecking components updates the total;
   explicit Add creates independently removable ordinary cart lines. A capacity
   error cannot leave a partially added recipe.
+- Menu price and quantity formatters are reused lazily for each language;
+  catalog prices, rounding and plural forms keep their native locale output.
 
 | Card | Existing products | Ordinary price |
 | --- | --- | ---: |

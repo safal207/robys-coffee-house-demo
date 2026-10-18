@@ -38,5 +38,103 @@
       "expected": 1,
       "passed": true
     }
+  ],
+  "followupRuns": [
+    {
+      "id": "formatter-cache-and-centered-stale-alert-working-tree-followup-20261018",
+      "executedAt": "2026-10-18T08:33:12.760466+00:00",
+      "workingTreeBaseHead": "5d1ac6eadbe947df6d751ec57d2eadb7734eb88f",
+      "boundary": "Actual unchanged shipped verifier executed on the original locked CI summary with refreshed exact current bindings; one positive and five separately labeled synthetic negative fixtures. Historical sourceHead/checks above remain unchanged.",
+      "verifierSha256": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+      "originalCiSummarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+      "contentBindings": {
+        "menu.html": "adb816f1ee00c1f3640e605c242401c897204ca8",
+        "menu-app.js": "119bfe9b30f2314cf673b832bee15b9ee04ff0bb",
+        "src/menu-app.js": "5d106a0853ec71ee7d95e05f2d99753ae8229457",
+        "menu-premium.css": "cf350a616e19288864a8a1b2ea181cf06ea57a18",
+        "menu-family.css": "d6ad20153a2998211836fe2a3d79a637b70fd459",
+        "menu-family-ui.js": "02b2e4cb0b5890fa148201ecdbf01d04bc53e382",
+        "src/menu-family-ui.js": "1c6334b96564ecdc5499f27a6c90e426ae3b7b1b",
+        "src/menu-family.js": "e69e40f2920b8f8bfa7078b56683b3a38c589a9e",
+        "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+        "src/order-draft.js": "f53da0481825a0d5f1b885aacc9131877e49b267",
+        "src/menu-order-ui.js": "7e1ca785c21006b9f2baa1afacc0192843f70d93",
+        "menu-order-ui.js": "3ecc2a1e8e5e68ed7dbfd87d7a121ff90b91e587",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "styles-v2.css": "f74df9b9b83ae9edf882f945e66a4072f350c1d1",
+        "menu-catalog.js": "1a71231eb768aef60d66f33d387b6bec1f259a15",
+        "pairing-posters.css": "daeb1cceeaf1a6d1f33bf704b8a29cf3d934fb85",
+        "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+        "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+        "menu-product-reveal.js": "b6806a837c487d0326aba198a0a9d94a41a5075d",
+        "menu-product-reveal-runtime.js": "dbb2b98526eb174641c42f60f4dec66f057af64d",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+        "integrity-manifest.json": "ee02e8eb91cc137417e6a8e6c89ebf7a4b11c862"
+      },
+      "actualWorkingTreeVerifier": {
+        "exit": 0,
+        "stdout": "✅ VISUAL-001 reviewed change accepted: family-menu-product-review-20261018\n   Evidence: https://github.com/safal207/robys-coffee-house-demo/pull/435\n   Exact content bindings verified: menu.html, menu-app.js, src/menu-app.js, menu-premium.css, menu-family.css, menu-family-ui.js, src/menu-family-ui.js, src/menu-family.js, src/menu-actions-loader.js, src/order-draft.js, src/menu-order-ui.js, menu-order-ui.js, brand-photo-logo.css, styles-v2.css, menu-catalog.js, pairing-posters.css, pairing-posters.js, menu-product-reveal.css, menu-product-reveal.js, menu-product-reveal-runtime.js, qa/visual-regression.json, scripts/visual-regression.mjs, scripts/capture-document-region.mjs, package-lock.json, integrity-manifest.json\n   Reviewed comparisons: 5\n"
+      },
+      "checks": [
+        {
+          "case": "actual-record",
+          "exit": 0,
+          "expected": 0,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/actual-record",
+          "summarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+          "logSha256": "2fa9b255b5c0b4e51955d06e419d3230161d2d8baf624601d2532849b3fe3cf2"
+        },
+        {
+          "case": "changed-public-manifest",
+          "exit": 1,
+          "expected": 1,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/changed-public-manifest",
+          "summarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+          "logSha256": "0ca2bc4612eaa4165ad1ccad381caefb8b3fe58e2a7104b19d0ab6af795204e5"
+        },
+        {
+          "case": "changed-rendered-bytes",
+          "exit": 1,
+          "expected": 1,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/changed-rendered-bytes",
+          "summarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+          "logSha256": "476c12c32974e8313c57fab3c85dca856a55542d28e0ea87abe3083730b93d2a"
+        },
+        {
+          "case": "missing-failure",
+          "exit": 1,
+          "expected": 1,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/missing-failure",
+          "summarySha256": "d52e7546b92bbb398fe7d799c0437298fce36bdff27ebc096c891088ec4ed001",
+          "logSha256": "9a197e8bc1c96118691ea1abc3927f1f6dba60f1d704ed2cf607cb478cf49485"
+        },
+        {
+          "case": "ratio-over-observed-bound",
+          "exit": 1,
+          "expected": 1,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/ratio-over-observed-bound",
+          "summarySha256": "b2e88350a96ad8351de571a5a157fb42ac96323cbc3559ae328153059419a9f4",
+          "logSha256": "06d392e836bdddd0306feda55397aa8dda07bbe2cd41ff3e1b9ed565ebac72b3"
+        },
+        {
+          "case": "wrong-height",
+          "exit": 1,
+          "expected": 1,
+          "passed": true,
+          "fixture": ".artifacts/pr435-ci-visual/followup-controls-vigwosrb/wrong-height",
+          "summarySha256": "3ebf83ae79298ada4f2a1c0d91d851103fb2ca1a5e632e9e19d1a071f206c8d5",
+          "logSha256": "13e65b42e51ffebd52e7e171a93529beb11eb8050fdea619a6e907e13099fbfb"
+        }
+      ],
+      "expectedFailuresUnchanged": true
+    }
   ]
 }

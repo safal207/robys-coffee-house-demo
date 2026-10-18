@@ -632,6 +632,7 @@ function addSelectedProduct() {
       productEditError.textContent = selection.stale ? editCopy[language].stale : copy.maxQuantity;
       productEditError.hidden = false;
       productEditError.focus({ preventScroll: true });
+      productEditError.scrollIntoView({ block: "center", inline: "nearest" });
     } else announceCart(`${copy.maxQuantity}: ${localized(product.item.name)}`);
     updateProductQuantity();
     return;

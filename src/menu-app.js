@@ -60,13 +60,26 @@ function localized(value) {
   return value?.[language] ?? value?.tr ?? "";
 }
 
+const priceFormatters = new Map();
+const itemCountRules = new Map();
+
 function formatPrice(price) {
-  return `${new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 }).format(price)} ₺`;
+  let formatter = priceFormatters.get(language);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 });
+    priceFormatters.set(language, formatter);
+  }
+  return `${formatter.format(price)} ₺`;
 }
 
 function formatItemCount(count) {
   const copy = menuCopy[language].itemCount;
-  const category = new Intl.PluralRules(localeTag[language]).select(count);
+  let rules = itemCountRules.get(language);
+  if (!rules) {
+    rules = new Intl.PluralRules(localeTag[language]);
+    itemCountRules.set(language, rules);
+  }
+  const category = rules.select(count);
   return copy[category] ?? copy.other;
 }
 
@@ -165,7 +178,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=61cc25a7d5a4");
+    } else loading = import("./menu-order-ui.js?v=c1a2a9f55898");
     orderUiPromise = loading.then(({ createMenuOrderUi }) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,

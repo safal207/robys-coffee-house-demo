@@ -113,6 +113,17 @@ export async function verifyMenuCartEditing(context, base, check) {
       await prepare(page, base, "ru", false, true);
       await openEditor(page);
       await choose(page, san);
+      await page.locator(".menu-pairing-expand").click();
+      await page.locator(".menu-product-main").evaluate(node => { node.scrollTop = node.scrollHeight; });
+      const beforeErrorTop = await page.locator("#menu-product-edit-error").evaluate(node => {
+        const main = node.closest(".menu-product-main");
+        // The hidden error occupies no space, so use the adjacent unit-price
+        // position to prove that Save starts below the error's future location.
+        return { priceBottom: node.previousElementSibling.getBoundingClientRect().bottom,
+          mainTop: main.getBoundingClientRect().top, scrollTop: main.scrollTop };
+      });
+      assert(beforeErrorTop.scrollTop > 0 && beforeErrorTop.priceBottom < beforeErrorTop.mainTop,
+        "the expanded picker starts scrolled beyond the edit-status location");
       const original = await stored(page);
       const group = original.groups.find(entry => entry.items.some(item => item.id === latte));
       const latest = mutation === "quantity" ? updateOrderGroupQuantity(original, group.id, 3, ids).draft
@@ -129,11 +140,29 @@ export async function verifyMenuCartEditing(context, base, check) {
       assert.deepEqual(await stored(page), latest, "failed replacement preserves every latest cart group atomically");
       assert.equal(await page.locator("#menu-product-dialog[open]").isVisible(), true);
       assert.equal(await page.locator("#menu-product-edit-error").evaluate(node => node === document.activeElement), true);
+      const errorGeometry = await page.locator("#menu-product-edit-error").evaluate(node => {
+        const bounds = node.getBoundingClientRect();
+        const region = node.closest(".menu-product-main").getBoundingClientRect();
+        const hit = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const lines = [...range.getClientRects()].filter(line => line.width > 0 && line.height > 0);
+        const textPainted = lines.length > 0 && lines.every(line =>
+          [line.left + 2, line.left + line.width / 2, line.right - 2].every(x => {
+            const point = document.elementFromPoint(x, line.top + line.height / 2);
+            return point === node || node.contains(point);
+          }));
+        return { top: bounds.top, bottom: bounds.bottom, regionTop: region.top, regionBottom: region.bottom,
+          visibleInContent: bounds.top >= Math.max(0, region.top) - 1 && bounds.bottom <= Math.min(innerHeight, region.bottom) + 1,
+          paintedAtCenter: hit === node || node.contains(hit), textPainted };
+      });
+      assert(errorGeometry.visibleInContent && errorGeometry.paintedAtCenter && errorGeometry.textPainted,
+        `the focused save error is visible in the scrollable content: ${JSON.stringify(errorGeometry)}`);
       if (mutation !== "capacity") assert.match(await page.locator("#menu-product-edit-error").textContent(), /другом окне/);
       await page.keyboard.press("Escape");
       await page.locator("#menu-cart-dialog[open]").waitFor();
       assert.deepEqual(await stored(page), latest);
-      return { mutation, staleEditorRejected: mutation !== "capacity", capRejected: mutation === "capacity", preservedLatest: true };
+      return { mutation, staleEditorRejected: mutation !== "capacity", capRejected: mutation === "capacity", preservedLatest: true, beforeErrorTop, errorGeometry };
     });
   }
 }
