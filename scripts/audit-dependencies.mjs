@@ -173,13 +173,19 @@ while (queue.length) {
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
 for (const [runtime, input, importer, importBase = runtime] of [
+  ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]
+    .map(input => ["menu-runtime.css", input]),
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
   ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
+  ["order-storage.js", "src/order-storage.js"],
+  ["order-storage.js", "src/order-draft.js", "src/order-storage.js", "src/order-storage.js"],
+  ["order-storage.js", "src/order-storage-notice.js", "src/order-storage.js", "src/order-storage.js"],
   ["menu-app.js", "src/menu-actions-loader.js", "src/menu-app.js"],
   ["menu-order-ui.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/order-draft.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/menu-pairing.js", "src/menu-order-ui.js"],
+  ["menu-order-ui.js", "src/menu-promo-pair.js", "src/menu-order-ui.js"],
   ["menu-family-ui.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/menu-family.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/order-draft.js", "src/menu-family.js", "src/menu-family.js"],

@@ -18,7 +18,7 @@ import {
   type CartState
 } from "./cart-domain.js";
 import { CART_COPY } from "./cart-copy.js";
-import { ORDER_DRAFT_KEY, readStoredOrderDraft, writeStoredOrderDraft } from "../order-draft.js";
+import { ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, getOrderStorageState, transactStoredOrderDraft, createOrderStorageNotice } from "../order-storage.js";
 import { syncRecommendation, orderProducts, orderProductIds, buildSharedOrderPayload } from "./shared-order.js";
 import { orderGroupName, orderGroupTotal, orderGroupItems, needsOrderVariant } from "./quick-builder-domain.js";
 import { openQuickCheckout } from "./checkout-link.js";
@@ -39,6 +39,7 @@ const ORDER_STORAGE_KEY = "robys-smart-choice-order.v1";
 const DECLINED_STORAGE_KEY = "robys-smart-choice-declined-bumps.v1";
 const APPLIED_STORAGE_KEY = "robys-smart-choice-applied-selections.v1";
 const rules = deriveCartRules();
+const orderChangeOrigin = {};
 let refreshCart: (() => void) | undefined;
 const comboIndex = new Map(SMART_CHOICE_CATALOG.combos.map((combo) => [combo.id, combo]));
 const budgets: Readonly<Record<string, { minMinor?: number; maxMinor: number }>> = {
@@ -145,24 +146,37 @@ function mountCart(): void {
   const storedTokens = readJson<unknown>(APPLIED_STORAGE_KEY);
   const appliedTokens = new Set(Array.isArray(storedTokens) ? storedTokens.filter((value): value is string => typeof value === "string") : []);
 
-  const render = (applySelection = true): void => {
+  let renderRevision = 0;
+  const render = async (applySelection = true): Promise<void> => {
+    const revision = ++renderRevision;
     const language = flow.locale;
     const text = CART_COPY[language];
     cart = reconcileCart(cart, partySize).state;
     const calculation = calculateCart(cart, partySize);
-    const shared = applySelection
-      ? syncRecommendation(readStoredOrderDraft(orderProductIds), cart, calculation, token)
-      : { draft: readStoredOrderDraft(orderProductIds), applied: false, blocked: false };
+    const selectedCart = cart;
+    let storageFailed = false;
+    let shared;
+    try {
+      shared = applySelection
+        ? await transactStoredOrderDraft(current => syncRecommendation(current, selectedCart, calculation, token), orderProductIds, { origin: orderChangeOrigin })
+        : { draft: await readLatestStoredOrderDraft(orderProductIds), applied: false, blocked: false };
+    } catch {
+      shared = { draft: readStoredOrderDraft(orderProductIds), applied: false, blocked: true };
+      storageFailed = true;
+    }
+    if (applySelection && !shared.blocked) {
+      appliedTokens.add(token);
+      writeJson(APPLIED_STORAGE_KEY, [...appliedTokens].slice(-100));
+    }
+    if (revision !== renderRevision) {
+      if (shared.applied) void render(false);
+      return;
+    }
     sharedDraft = shared.draft;
     const payload = buildSharedOrderPayload(sharedDraft);
     const canHandoff = !shared.blocked && payload.lines.length > 0;
     const needsFlavour = needsOrderVariant(sharedDraft.groups);
     writeJson(CART_STORAGE_KEY, cart);
-    if (shared.applied) writeStoredOrderDraft(sharedDraft, orderProductIds);
-    if (applySelection && !shared.blocked) {
-      appliedTokens.add(token);
-      writeJson(APPLIED_STORAGE_KEY, [...appliedTokens].slice(-100));
-    }
     writeJson(ORDER_STORAGE_KEY, payload);
 
     const selectedGroups = sharedDraft.groups.filter(group => group.source === "recommendation");
@@ -176,6 +190,17 @@ function mountCart(): void {
     const heading = create("h2", "cart-title", text.title);
     heading.id = "cart-builder-title";
     root.append(heading, create("p", "cart-lead", text.lead));
+    if (storageFailed) {
+      const message = { tr: "Sipariş kaydedilemedi. Tarayıcı depolamasını kontrol edip tekrar deneyin.",
+        en: "Your order could not be saved. Check browser storage and try again.",
+        ru: "Не удалось сохранить заказ. Проверь доступ к памяти браузера и попробуй ещё раз." }[language];
+      const notice = create("p", "cart-notice cart-notice--error", message);
+      notice.setAttribute("role", "alert");
+      const retry = create("button", "secondary-button", { tr: "Tekrar dene", en: "Try again", ru: "Попробовать ещё раз" }[language]);
+      retry.type = "button";
+      retry.addEventListener("click", () => { void render(true); });
+      root.append(notice, retry);
+    }
 
     const nextStep = create("div", "cart-next-step");
     const footer = create("div", "cart-total-row");
@@ -191,8 +216,19 @@ function mountCart(): void {
     handoff.disabled = !canHandoff;
     handoff.setAttribute("aria-disabled", String(!canHandoff));
     handoff.setAttribute("aria-describedby", "cart-payment-note");
-    handoff.addEventListener("click", () => {
-      const current = readStoredOrderDraft(orderProductIds);
+    handoff.addEventListener("click", async () => {
+      handoff.disabled = true;
+      handoff.setAttribute("aria-disabled", "true");
+      let current;
+      try { current = await readLatestStoredOrderDraft(orderProductIds); }
+      catch {
+        nextStep.append(create("p", "cart-notice cart-notice--error", text.checkoutError));
+        handoff.disabled = !canHandoff;
+        handoff.setAttribute("aria-disabled", String(!canHandoff));
+        return;
+      }
+      if (!handoff.isConnected) return;
+      if (getOrderStorageState().legacyConflict) { handoff.disabled = !canHandoff; handoff.setAttribute("aria-disabled", String(!canHandoff)); return; }
       if (needsOrderVariant(current.groups)) {
         window.dispatchEvent(new CustomEvent("robys:quick-order"));
         window.requestAnimationFrame(() => {
@@ -337,8 +373,11 @@ function mountCart(): void {
     }
   };
 
-  refreshCart = () => { if (root.isConnected) render(false); };
-  render(!appliedTokens.has(token));
+  refreshCart = () => { if (root.isConnected) void render(false); };
+  createOrderStorageNotice({ owner: root, getLanguage: () => flow.locale,
+    getProduct: (id: string) => orderProducts.get(id)?.item, validIds: orderProductIds,
+    onResolved: () => { if (root.isConnected) return render(false); } });
+  void render(!appliedTokens.has(token));
 }
 
 function start(): void {
@@ -353,4 +392,8 @@ document.readyState === "loading"
   : start();
 
 window.addEventListener("pageshow", event => { if (event.persisted) refreshCart?.(); });
+window.addEventListener("focus", () => refreshCart?.());
 window.addEventListener("storage", event => { if (event.key === ORDER_DRAFT_KEY || event.key === null) refreshCart?.(); });
+window.addEventListener("robys:order-change", event => {
+  if ((event as CustomEvent<{ origin?: unknown }>).detail?.origin !== orderChangeOrigin) refreshCart?.();
+});

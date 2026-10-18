@@ -1,4 +1,20 @@
 import assert from "node:assert/strict";
+import { menuCategories } from "../menu-catalog.js";
+
+const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const products = new Map(menuCategories.flatMap(category =>
+  (category.items ?? category.groups.flatMap(group => group.items))
+    .map(item => [`${category.id}:${item.id ?? slug(item.name.en)}`, item])));
+
+// Read the authority independently of the catalog's deliberately thin badge
+// projection. Choosing and closing a pairing must preserve this entire draft.
+async function readCanonicalDraft(page) {
+  return page.evaluate(async validIds => {
+    const { readLatestStoredOrderDraft } = await import("./src/order-draft.js");
+    return readLatestStoredOrderDraft(new Set(validIds));
+  }, [...products.keys()]);
+}
 
 // Independent copy fixtures: a Turkish fallback in EN/RU must fail this test.
 const expectedCopy = {
@@ -13,10 +29,12 @@ const expectedCopy = {
     mark: "Я познакомился со вкусом", close: "Закрыть" }
 };
 const pairings = [
-  { id: "cool-lime-macaron", names: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
+  { id: "cool-lime-macaron", drinkId: "refreshers:cool-lime", dessertId: "desserts:macaron", total: 220,
+    names: { tr: "Cool Lime + Makaron", en: "Cool Lime + Macaron", ru: "Cool Lime + макарон" },
     reasons: { tr: "Canlı lime ferahlığı önce gelir;", en: "Bright lime freshness arrives first;", ru: "Сначала приходит яркая свежесть лайма," },
     notes: { tr: ["Ferah", "Narenciye", "Fıstık"], en: ["Refreshing", "Citrus", "Pistachio"], ru: ["Свежий", "Цитрус", "Фисташка"] } },
-  { id: "iced-san-sebastian", names: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
+  { id: "iced-san-sebastian", drinkId: "cold-coffee:iced-caffe-latte", dessertId: "desserts:san-sebastian-cheesecake", total: 370,
+    names: { tr: "Buzlu Latte + San Sebastian", en: "Iced Latte + San Sebastian Cheesecake", ru: "Айс-латте + чизкейк Сан-Себастьян" },
     reasons: { tr: "Serin latte damağı tazeler;", en: "The chilled latte refreshes the palate", ru: "Холодный латте освежает," },
     notes: { tr: ["Serin kahve", "Kremamsı", "Karamelize"], en: ["Chilled coffee", "Creamy", "Caramelized"], ru: ["Холодный кофе", "Сливочный", "Карамельный"] } }
 ];
@@ -132,6 +150,11 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
             });
           }
           const initialCount = await page.locator("#menu-cart-count").textContent();
+          const beforeDraft = await readCanonicalDraft(page);
+          const expectedTitle = [pairing.drinkId, pairing.dessertId]
+            .map(id => products.get(id).name[language]).join(" + ");
+          assert.equal(products.get(pairing.drinkId).price + products.get(pairing.dessertId).price,
+            pairing.total, `${label}: independent component prices match the pairing total`);
           await opener.focus();
           await page.keyboard.press("Enter");
           const panel = page.locator(".pairing-discovery-panel");
@@ -178,8 +201,17 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
           await panel.locator(".pairing-discovery-choose").click();
           const dialog = page.locator("#menu-product-dialog[open]");
           await dialog.waitFor({ state: "visible" });
+          await page.locator('#menu-pairing-picker[data-ready="true"]').waitFor({ state: "visible" });
+          await page.waitForFunction(({ dessertId, title, total }) => {
+            const selected = document.querySelector('#menu-pairing-picker input[name="menu-dessert"]:checked');
+            return selected?.value === dessertId &&
+              document.querySelector("#menu-product-title")?.textContent === title &&
+              document.querySelector("#menu-product-price")?.textContent.replace(/[^\d]/g, "") === String(total);
+          }, { dessertId: pairing.dessertId, title: expectedTitle, total: pairing.total });
           const product = {
             name: await page.locator("#menu-product-title").textContent(),
+            expectedTitle,
+            dessertId: await page.locator('#menu-pairing-picker input[name="menu-dessert"]:checked').inputValue(),
             price: (await page.locator("#menu-product-price").textContent())?.trim(),
             fallback: await dialog.evaluate((node) => node.classList.contains("menu-dialog--fallback")),
             draftNote: await page.locator("#menu-product-draft-note").textContent()
@@ -194,6 +226,9 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
             focusReturned: await opener.evaluate((node) => document.activeElement === node),
             count: await page.locator("#menu-cart-count").textContent()
           };
+          const afterDraft = await readCanonicalDraft(page);
+          const canonicalQuantity = afterDraft.groups.reduce((total, group) => total + group.quantity, 0);
+          const draftUnchanged = JSON.stringify(afterDraft) === JSON.stringify(beforeDraft);
           check(
             "PAIRING-DISCOVERY-BROWSER-001",
             inline.language === language && inline.pairingId === pairing.id && inline.expanded === "true" &&
@@ -202,12 +237,13 @@ export async function verifyPairingDiscovery(context, baseUrl, check) {
               (!inline.placement.wide || inline.placement.bothCardsBefore) &&
               Boolean(inline.price) && inline.price === inline.cardPrice && inline.price === inline.posterPrice &&
               product.price === inline.price &&
-              name === pairing.names[language] && product.name === pairing.names[language] &&
+              name === pairing.names[language] && product.name === expectedTitle &&
+              product.dessertId === pairing.dessertId &&
               product.fallback === fallback && Boolean(product.draftNote?.trim()) &&
               closed.expanded === "false" && closed.controls === null && closed.focusReturned &&
-              closed.count === initialCount && errors.length === 0,
+              draftUnchanged && Number(closed.count) === canonicalQuantity && errors.length === 0,
             `${label}: keyboard opens inline discovery, choose opens the matching draft, close restores focus without ordering`,
-            { inline, geometry, product, closed, errors }
+            { inline, geometry, product, closed, initialCount, beforeDraft, afterDraft, canonicalQuantity, draftUnchanged, errors }
           );
         } catch (error) {
           check("PAIRING-DISCOVERY-BROWSER-001", false, `${label}: pairing discovery failed`, {

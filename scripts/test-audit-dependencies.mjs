@@ -61,6 +61,21 @@ check("detached order UI cannot retain its source or helpers", {
   "index.html": '<main>Menu</main>', "menu-order-ui.js": 'export {};',
   "src/menu-order-ui.js": 'import "./src/order-draft.js";', "src/order-draft.js": 'export {};'
 }, ["menu-order-ui.js", "src/menu-order-ui.js", "src/order-draft.js"]);
+{
+  const files = {
+    "order-storage.js": "export {};",
+    "src/order-storage.js": 'export * from "./order-draft.js"; export { createOrderStorageNotice } from "./order-storage-notice.js";',
+    "src/order-draft.js": "export {};", "src/order-storage-notice.js": "export {};"
+  };
+  check("lazy order storage reaches its domain and recovery controls", {
+    "index.html": '<script type="module" src="menu-app.js"></script>',
+    "menu-app.js": 'import("./order-storage.js?v=fixture");', "src/menu-app.js": 'import("./order-storage.js?v=fixture");', ...files
+  }, [], [["menu-app.js", "src/menu-app.js"], ["order-storage.js", "src/order-storage.js"],
+    ["order-storage.js", "src/order-draft.js"], ["order-storage.js", "src/order-storage-notice.js"]]);
+  check("detached order storage cannot retain domain or recovery controls", {
+    "index.html": "<main>Menu</main>", ...files
+  }, Object.keys(files));
+}
 check("unreferenced pairing domain remains an orphan", {
   "index.html": '<script type="module" src="menu-app.js"></script>',
   "menu-app.js": "export {};", "src/menu-app.js": "export {};", "src/menu-pairing.js": "export {};"

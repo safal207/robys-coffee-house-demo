@@ -2,9 +2,11 @@ import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { familyRecipes } from "../src/menu-family.js";
 
 const MENU_ROOT = path.join("src", "products", "menu-v1");
 const SETS_ROOT = path.join("src", "products", "sets-v1");
+const FAMILY_ROOT = path.join("src", "products", "family-sets-v1");
 const SET_IDS = [
   "cool-lime-macaron",
   "filter-lotus",
@@ -61,10 +63,10 @@ function webPDimensions(buffer, filePath) {
   fail(`${filePath} uses unsupported WebP chunk ${JSON.stringify(chunk)}`);
 }
 
-function verifyAsset(filePath, digests) {
+function verifyAsset(filePath, digests, size = 1024) {
   const buffer = readFileSync(filePath);
   const { width, height } = webPDimensions(buffer, filePath);
-  if (width !== 1024 || height !== 1024) fail(`${filePath} must be 1024x1024, found ${width}x${height}`);
+  if (width !== size || height !== size) fail(`${filePath} must be ${size}x${size}, found ${width}x${height}`);
   if (buffer.length < 20_000) fail(`${filePath} is unexpectedly small (${buffer.length} bytes)`);
   const digest = createHash("sha256").update(buffer).digest("hex");
   if (digests.has(digest)) fail(`${filePath} duplicates ${digests.get(digest)}`);
@@ -148,5 +150,18 @@ if (!cacheVersion || cacheVersion[0] < 40 || cacheVersion[1] < 20260903) {
 const digests = new Map();
 for (const fileName of expectedMenuFiles) verifyAsset(path.join(MENU_ROOT, fileName), digests);
 for (const fileName of expectedSetFiles) verifyAsset(path.join(SETS_ROOT, fileName), digests);
+const expectedFamilyFiles = [...familyRecipes.map(recipe => `${recipe.id}.webp`), "kids-box.webp"].sort();
+const actualFamilyFiles = readdirSync(FAMILY_ROOT).filter(name => name.endsWith(".webp")).sort();
+if (JSON.stringify(actualFamilyFiles) !== JSON.stringify(expectedFamilyFiles)) {
+  fail("family-sets-v1 photos must match the current family recipes and Kids Box concept");
+}
+for (const recipe of familyRecipes) {
+  if (recipe.image !== `src/products/family-sets-v1/${recipe.id}.webp`) fail(`missing family photo for ${recipe.id}`);
+  if (!serviceWorker.includes(`"./${recipe.image}"`)) fail(`family photo is not available offline: ${recipe.id}`);
+  verifyAsset(recipe.image, digests, 900);
+}
+const kidsBox = "src/products/family-sets-v1/kids-box.webp";
+if (!serviceWorker.includes(`"./${kidsBox}"`)) fail("Kids Box concept photo is not available offline");
+verifyAsset(kidsBox, digests, 900);
 
-console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} individual product photos and ${expectedSetFiles.length} pairing photos are complete, unique 1024px WebP assets.`);
+console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} product and ${expectedSetFiles.length} pairing photos at 1024px; ${expectedFamilyFiles.length} family photos at 900px. All are complete, unique WebP assets.`);

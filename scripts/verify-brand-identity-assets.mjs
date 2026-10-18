@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { MENU_STYLE_INPUTS, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 
 const RED = "#E21B23";
 const INK = "#111111";
@@ -110,7 +111,14 @@ const preloads = new Map([
 ]);
 for (const [path, preload] of preloads) {
   const html = read(path);
-  assert(html.includes(`brand-photo-logo.css?v=${REVISION}`), `${path} must link v4 stylesheet`);
+  if (path === "menu.html") {
+    assert(JSON.stringify(MENU_STYLE_INPUTS.slice(6).map(({ source }) => source)) ===
+      JSON.stringify(["menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]),
+    "menu must preserve the approved brand layer after security and before checkout");
+    verifyMenuStylesBundle(readMenuStylesBundleInputs());
+  } else {
+    assert(html.includes(`brand-photo-logo.css?v=${REVISION}`), `${path} must link v4 stylesheet`);
+  }
   assert(html.includes(preload), `${path} must preload v4 lockup`);
   assert(!html.includes(OLD_REVISION), `${path} must not retain old identity revision`);
 }

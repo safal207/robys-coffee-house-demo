@@ -385,6 +385,43 @@ body.menu-dialog-open{overflow:hidden}
 }
 @media(prefers-reduced-motion:reduce){.menu-order-status{transition:none;transform:none}.menu-page :is(.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link):active,.menu-dialog-close:active:not(:disabled){transform:none}}
 
+/* Keep the approved wordmark while bringing the menu choices into view sooner. */
+.menu-page .menu-page-hero{padding:24px 0 28px}
+.menu-page .menu-page-hero-inner{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:32px}
+.menu-page .menu-page-brand{margin:0;align-self:center}
+.menu-page .menu-page-brand .brand-copy{width:270px!important;height:64px!important}
+.menu-page .menu-page-hero h1{font-size:clamp(2.5rem,5vw,4.8rem)}
+.menu-page .menu-page-hero-copy .eyebrow{margin:0 0 8px;font-size:.68rem}
+.menu-page .menu-page-hero-copy>p:not(.eyebrow){margin-top:10px;font-size:.92rem;line-height:1.5}
+.menu-page .menu-page-back{white-space:nowrap;overflow:visible;text-overflow:clip}
+@media(max-width:900px){
+  .menu-page .menu-page-hero-inner{gap:22px}
+  .menu-page .menu-page-brand .brand-copy{width:200px!important;height:48px!important}
+}
+@media(max-width:680px){
+  .menu-page .header-inner{display:flex;flex-wrap:wrap;justify-content:space-between}
+  .menu-page .language-switcher{margin-left:auto}
+  .menu-page .menu-page-hero{padding:18px 0 22px}
+  .menu-page .menu-page-hero-inner{grid-template-columns:minmax(0,1fr);gap:14px}
+  .menu-page .menu-page-brand{justify-self:start}
+  .menu-page .menu-page-brand .brand-copy{width:180px!important;height:44px!important}
+  .menu-page .menu-page-hero h1{font-size:clamp(2rem,9vw,3rem)}
+  .menu-page .menu-page-hero-copy .eyebrow{display:none}
+  .menu-page .menu-page-hero-copy>p:not(.eyebrow){font-size:.85rem}
+  .menu-page .menu-page-back{max-width:none;min-height:44px;padding:8px 10px;font-size:.7rem}
+}
+
+/* The same live cart control stays reachable after adding an item. */
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+  .menu-page{padding-bottom:88px;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  .menu-tools-row{min-height:44px}
+  .menu-cart-trigger.has-items{position:fixed;z-index:120;right:16px;bottom:12px;left:16px;min-height:52px;max-width:540px;margin:0 auto;border-radius:18px;padding:12px 18px;gap:12px}
+  .menu-cart-trigger.has-items strong{display:block;margin-left:auto;font-size:.88rem}
+  .menu-cart-trigger.has-items{right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px))}
+  .menu-page.menu-dialog-open .menu-cart-trigger.has-items,.menu-page.menu-text-input-active .menu-cart-trigger.has-items{visibility:hidden;pointer-events:none}
+  .menu-page .menu-order-status{bottom:80px;bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+}
+
 /* SCROLL-CLEARANCE-001: no hard-coded guess for sticky header + order tools. */
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}

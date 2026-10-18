@@ -64,7 +64,7 @@ export const menuCopy = {
   ru: {
     pageTitle: "Полное меню",
     pageLead: "Кофе, холодные напитки, чай, десерты и лёгкие закуски.",
-    back: "Вернуться на сайт",
+    back: "На главную",
     searchLabel: "Поиск по меню",
     searchPlaceholder: "Найти кофе, десерт или напиток",
     all: "Все",

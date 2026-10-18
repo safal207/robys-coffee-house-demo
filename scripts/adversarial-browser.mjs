@@ -145,25 +145,21 @@ try {
   await landing.locator("#hero-title").waitFor({ state: "visible" });
   const storageResult = await landing.evaluate(() => {
     let orderDraft = null;
-    try { orderDraft = JSON.parse(localStorage.getItem("robys-menu-order.v1") ?? "null"); }
+    try { orderDraft = JSON.parse(localStorage.getItem("robys-menu-order.v2") ?? "null"); }
     catch { orderDraft = { invalid: true }; }
     return {
       lang: document.documentElement.lang,
       injected: Boolean(document.querySelector("[data-storage-probe]")),
-      keys: Object.keys(localStorage), orderDraft
+      keys: Object.keys(localStorage), orderDraft,
+      legacyDraft: localStorage.getItem("robys-menu-order.v1")
     };
   });
   check("ADV-001", storageResult.lang === "tr" && !storageResult.injected, "Untrusted stored language value falls back safely", storageResult);
-  // Opening the menu initializes its shared draft even before any Add intent.
-  // No unrelated persistence or preselected items are allowed at this point.
-  const approvedStorageKeys = new Set(["robys-language", "robys-menu-order.v1"]);
-  const initialDraft = storageResult.orderDraft;
-  const emptyCanonicalDraft = initialDraft?.version === 1
-    && Object.keys(initialDraft).every(key => ["version", "groups", "lines"].includes(key))
-    && Array.isArray(initialDraft.groups) && initialDraft.groups.length === 0
-    && Array.isArray(initialDraft.lines) && initialDraft.lines.length === 0;
-  check("PRIVACY-001", storageResult.keys.every(key => approvedStorageKeys.has(key)) && emptyCanonicalDraft,
-    "Only language and the canonical empty menu draft are persisted before any selection", storageResult);
+  // The catalog loads ordering storage only after an explicit order intent.
+  // Initial navigation must not create either a projection or a legacy draft.
+  const approvedStorageKeys = new Set(["robys-language"]);
+  check("PRIVACY-001", storageResult.keys.every(key => approvedStorageKeys.has(key)) && storageResult.orderDraft === null && storageResult.legacyDraft === null,
+    "Only language is persisted before an order intent; neither the v2 projection nor the legacy v1 draft is created", storageResult);
 
   const searchPayload = "<svg data-search-probe=\"true\"></svg>";
   await menu.locator("#menu-search").fill(searchPayload);

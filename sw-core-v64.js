@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-11f6ea5738e5-coffee-paths-e1a360bbe144-family-menu-ec6d68120661-custom-pair-0f55bdd51faa-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-d0043b80b57c-coffee-paths-54035247389e-family-menu-696c2d6971a7-custom-pair-c18162fd3aa3-menu-css-f97ffb7fd14f-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-0e2b05dc97ec-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -66,19 +66,21 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./cashier.html",
-  "./cashier.js?v=ee5541cb1c07",
-  "./order-checkout.js?v=6aa30239d031",
-  "./order-checkout.css?v=52d404809a87",
+  "./cashier.js?v=da2e9cde6859",
+  "./order-checkout.js?v=5f9a05cab988",
+  "./order-checkout.css?v=9ead86a924fa",
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=c1a2a9f55898",
-  "./menu-family-ui.js?v=05b5f0031b3e",
-  "./menu-family.css?v=edd4d1410710",
+  "./menu-order-ui.js?v=0c4db7b85f2d",
+  "./menu-family-ui.js?v=f6778abdbe89",
+  "./menu-family.css?v=e7dc86c94a4b",
+  "./order-storage.js?v=6908555cd79b",
   "./src/products/family-sets-v1/milk-cookie.webp",
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
+  "./menu-runtime.css?v=f97ffb7fd14f",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -91,15 +93,15 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./coffee-paths.css?v=e1a360bbe144",
+  "./coffee-paths.css?v=54035247389e",
   "./social-offer.js?v=cf339e8c8777",
-  "./menu-premium.css?v=f8b06ad3a6fe",
-  "./pairing-posters.css?v=d1e9096d1ee4",
+  "./menu-premium.css?v=335c05ace22a",
+  "./pairing-posters.css?v=882faab929d1",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
   "./discover.css",
-  "./discover-deck.css?v=45ca8486a146",
+  "./discover-deck.css?v=14bb488e526a",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260917-approved-v4-restore",
@@ -115,13 +117,13 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=20b7cf549024",
-  "./menu-pairing.js?v=b58eeb51ad92",
-  "./menu-product-reveal.js?v=497fa714ac94",
-  "./menu-product-reveal-runtime.js?v=496a14490e84",
+  "./menu-app.js?v=a6eb54d1d3a2",
+  "./menu-pairing.js?v=6b033c91bf9a",
+  "./menu-product-reveal.js?v=6ae2dd3ba2e7",
+  "./menu-product-reveal-runtime.js?v=fd2730c787d9",
   "./pairing-posters.js?v=024743e64919",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
-  "./menu-catalog.js?v=bc69a9e52fa4",
+  "./menu-catalog.js?v=05e7dac3c17b",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260923-web-only-v4",
   "./smart-choice/index.html",
@@ -142,20 +144,20 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=27e35fbd4218",
+  "./smart-choice/style.css?v=f13f6d7611af",
   "./smart-choice/cart.css?v=42034af591c0",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=ddfd07b2dfd3",
-  "./smart-choice/cart-v2.js?v=bd8b5562e0a7",
-  "./smart-choice/experiments-v2.js?v=5de1d0eb1bea",
-  "./smart-choice/analytics-v2.js?v=c267da7f3a89",
-  "./smart-choice/decision-trace-v2.js?v=66ee1d986996",
+  "./smart-choice/app-v2.js?v=1d8ffadfdb5d",
+  "./smart-choice/cart-v2.js?v=847fee89f1da",
+  "./smart-choice/experiments-v2.js?v=7392addbe349",
+  "./smart-choice/analytics-v2.js?v=535cf3f27418",
+  "./smart-choice/decision-trace-v2.js?v=1b7d1934cf2e",
   "./discover.js",
-  "./discover-v2.js?v=c871d3f4f240",
-  "./discover-deck.js?v=7228be958854",
+  "./discover-v2.js?v=0e2b05dc97ec",
+  "./discover-deck.js?v=16c7c7dc8590",
   "./discover-copy.js",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
@@ -199,6 +201,7 @@ async function cachedResponse(request) {
     (url.pathname.endsWith(".js") || url.pathname.endsWith(".css"));
   const requiresExactRevision =
     isVersionedSmartChoiceAsset ||
+    url.pathname.endsWith("/menu-runtime.css") ||
     url.pathname.endsWith("/menu-family-ui.js") ||
     url.pathname.endsWith("/menu-family.css") ||
     url.pathname.endsWith("/pwa-pairing-fix.js") ||
@@ -217,6 +220,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
+    url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
     url.pathname.endsWith("/order-checkout.css") ||
     url.pathname.endsWith("/cashier.js") ||

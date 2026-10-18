@@ -33,6 +33,40 @@ async function waitForFocus(locator) {
   }
   return false;
 }
+async function warmCatalogImages(page) {
+  await page.locator('#menu-root[data-ready="true"]').waitFor();
+  await page.locator(".full-menu-item-media img").evaluateAll(async images => {
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const hasSource = image => image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
+      || image.closest("picture")?.querySelector("source[srcset]");
+    const timeoutMs = 5000;
+    for (const image of images) {
+      const rendered = image.getClientRects().length > 0;
+      if (!hasSource(image) && !rendered) continue;
+      image.loading = "eager";
+      if (rendered) {
+        image.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        await frame();
+        await frame();
+      }
+      const label = image.currentSrc || image.getAttribute("src") || image.dataset.menuLazySrc || image.alt || "unknown-image";
+      const deadline = performance.now() + timeoutMs;
+      while (!hasSource(image) && performance.now() < deadline) await frame();
+      if (!hasSource(image)) throw new Error(`Rendered catalog image has no source after viewport entry: ${label}`);
+      let timeout;
+      try {
+        await Promise.race([
+          image.decode(),
+          new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error(`Timed out decoding catalog image: ${label}`)), timeoutMs); })
+        ]);
+      } finally { clearTimeout(timeout); }
+      if (!image.complete || image.naturalWidth === 0) throw new Error(`Catalog image failed to load: ${label}`);
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await frame();
+    await frame();
+  });
+}
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
@@ -58,6 +92,7 @@ try {
     await page.locator("#menu-quantity-increase").click();
     check(`${lang}/quantity-preview`, (await page.locator("#menu-product-quantity").textContent()) === "2" && (await page.locator("#menu-add-to-cart").textContent()).includes(String(unit * 2)), { unit });
     await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
     check(`${lang}/cart-add-two`, (await page.locator("#menu-cart-count").textContent()) === "2", { id });
     check(`${lang}/selected-card`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2", { id });
     await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
@@ -94,8 +129,10 @@ try {
     await page.waitForTimeout(400);
     if (lang === "ru") await page.screenshot({ path: `${output}/cart-390.png` });
     await page.locator(".menu-cart-step").nth(1).click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "3");
     check(`${lang}/increment`, (await page.locator("#menu-cart-count").textContent()) === "3" && (await media.getAttribute("data-cart-quantity")) === "3");
     await page.locator(".menu-cart-remove").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "0");
     check(`${lang}/remove-clears-state`, (await page.locator("#menu-cart-count").textContent()) === "0" && !(await first.evaluate(row => row.classList.contains("is-in-cart"))));
     await page.keyboard.press("Escape");
     const category = page.locator('[data-category="herbal-tea"]');
@@ -119,7 +156,7 @@ try {
     const animation = await page.locator(".menu-product-shell").evaluate(el => getComputedStyle(el).animationName);
     check(`${lang}/reduced-motion`, animation === "none", { animation });
     await page.keyboard.press("Escape");
-    await page.locator(".full-menu-item-media img").evaluateAll(images => Promise.all(images.map(async img => { img.loading = "eager"; await img.decode(); })));
+    await warmCatalogImages(page);
     if (lang === "ru") await page.screenshot({ path: `${output}/herbal-390.png`, fullPage: true });
     check(`${lang}/no-runtime-errors`, !errors.length, errors);
     await context.close();

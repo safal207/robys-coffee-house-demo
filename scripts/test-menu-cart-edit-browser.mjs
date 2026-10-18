@@ -24,7 +24,34 @@ function initialDraft() {
   return addOrderGroup(draft, [{ id: readyOffer }], 1, ids).draft;
 }
 
-const stored = page => page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key);
+const stored = page => page.evaluate(async validIds => {
+  const orders = await import("./src/order-draft.js");
+  return orders.readLatestStoredOrderDraft(new Set(validIds));
+}, Array.from(ids));
+
+const writeCanonical = (page, draft) => page.evaluate(async ({ draft, validIds }) => {
+  const orders = await import("./src/order-draft.js");
+  await orders.transactStoredOrderDraft(() => ({ draft, applied: true, blocked: false }), new Set(validIds));
+}, { draft, validIds: Array.from(ids) });
+
+const manualEditor = page => page.locator('.menu-cart-line[aria-label^="Caffè Latte"], .menu-cart-line[aria-label^="Кафе латте"]')
+  .locator(".menu-cart-edit");
+
+async function assertVisibleCart(page, draft) {
+  const expectedQuantity = draft.groups.reduce((sum, group) => sum + group.quantity, 0);
+  const prices = await page.locator(".full-menu-item[data-product-id]").evaluateAll(rows => Object.fromEntries(rows.map(row =>
+    [row.dataset.productId, Number(row.querySelector(".full-menu-price")?.textContent.replace(/\D/g, ""))])));
+  const expectedTotal = draft.lines.reduce((sum, line) => sum + prices[line.id] * line.quantity, 0);
+  assert.ok(Number.isFinite(expectedTotal), "The visible fixture catalog supplies every expected price");
+  await page.waitForFunction(({ groups, quantity, total }) => {
+    const dialog = document.querySelector("#menu-cart-dialog");
+    return dialog.hasAttribute("open") && dialog.querySelectorAll(".menu-cart-line").length === groups
+      && Number(document.querySelector("#menu-cart-count").textContent) === quantity
+      && Number(document.querySelector("#menu-cart-dialog-total").textContent.replace(/\D/g, "")) === total;
+  }, { groups: draft.groups.length, quantity: expectedQuantity, total: expectedTotal });
+  assert.deepEqual(await page.locator("#menu-cart-dialog .menu-cart-line-controls span").allTextContents(),
+    draft.groups.map(group => String(group.quantity)), "Visible quantities match every authoritative group");
+}
 
 async function prepare(page, base, language, fallback = false, delayStorage = false) {
   await page.addInitScript(({ storageKey, language, draft, fallback, delayStorage }) => {
@@ -36,16 +63,20 @@ async function prepare(page, base, language, fallback = false, delayStorage = fa
     }
     // Model a click before another tab's queued storage notification redraws
     // this tab. Save must read the canonical draft even with the old UI intact.
-    if (delayStorage) window.addEventListener("storage", event => event.stopImmediatePropagation(), true);
+    if (delayStorage) {
+      for (const name of ["storage", "robys:order-change"]) window.addEventListener(name, event => event.stopImmediatePropagation(), true);
+      window.addEventListener("focus", event => { if (event.target === window) event.stopImmediatePropagation(); }, true);
+    }
   }, { storageKey: key, language, draft: initialDraft(), fallback, delayStorage });
   await page.goto(new URL("menu.html?entry=off", base).href, { waitUntil: "domcontentloaded" });
   await page.locator('#menu-root[data-ready="true"]').waitFor();
+  await writeCanonical(page, initialDraft());
   await page.locator("#menu-cart-trigger").click();
   await page.locator("#menu-cart-dialog[open]").waitFor();
 }
 
 async function openEditor(page) {
-  await page.locator(".menu-cart-edit").click();
+  await manualEditor(page).click();
   await page.locator("#menu-product-dialog[open]").waitFor();
   await page.locator('#menu-pairing-picker[data-ready="true"]').waitFor();
   assert.equal(await page.locator("#menu-cart-dialog[open]").count(), 0, "editing uses one modal at a time");
@@ -70,8 +101,8 @@ export async function verifyMenuCartEditing(context, base, check) {
   for (const language of ["tr", "en", "ru"]) for (const fallback of [false, true]) {
     await run(`MENU-CART-EDIT/${language}/${fallback ? "fallback" : "native"}`, async page => {
       await prepare(page, base, language, fallback);
-      assert.equal(await page.locator(".menu-cart-edit").count(), 1, "a ready-offer SKU has no component editor");
-      assert.equal(await page.locator(".menu-cart-edit").textContent(), copy[language].edit);
+      assert.equal(await page.locator(".menu-cart-edit").count(), 2, "the manual pair and verified ready offer both have component editors");
+      assert.equal(await manualEditor(page).textContent(), copy[language].edit);
       await openEditor(page);
       assert.equal(await page.locator(`input[name="menu-dessert"][value="${lotus}"]`).isChecked(), true);
       assert.equal(await page.locator("#menu-product-quantity").textContent(), "2");
@@ -83,6 +114,7 @@ export async function verifyMenuCartEditing(context, base, check) {
       await page.locator("#menu-add-to-cart").click();
       await page.locator("#menu-cart-dialog[open]").waitFor();
       const saved = await stored(page);
+      await assertVisibleCart(page, saved);
       assert.equal(saved.groups.length, 3);
       assert.equal(saved.lines.find(line => line.id === latte).quantity, 3, "saving replaces the pair without another drink");
       assert.equal(saved.lines.find(line => line.id === san).quantity, 3);
@@ -96,7 +128,8 @@ export async function verifyMenuCartEditing(context, base, check) {
       await page.keyboard.press("Escape");
       await page.locator("#menu-cart-dialog[open]").waitFor();
       assert.deepEqual(await stored(page), saved, "Escape cancels all uncommitted composition and quantity changes");
-      assert.equal(await page.locator(".menu-cart-edit").evaluate(node => node === document.activeElement), true);
+      await assertVisibleCart(page, saved);
+      assert.equal(await manualEditor(page).evaluate(node => node === document.activeElement), true);
       await openEditor(page);
       await choose(page, "");
       await page.locator("#menu-add-to-cart").click();
@@ -132,7 +165,7 @@ export async function verifyMenuCartEditing(context, base, check) {
       const other = await context.newPage();
       try {
         await other.goto(new URL("404.html", base).href, { waitUntil: "domcontentloaded" });
-        await other.evaluate(({ storageKey, draft }) => localStorage.setItem(storageKey, JSON.stringify(draft)), { storageKey: key, draft: latest });
+        await writeCanonical(other, latest);
       } finally { await other.close(); }
       assert.equal(await page.locator("#menu-add-to-cart").isEnabled(), true, "the simulated delayed notification leaves the original editor visible");
       await page.locator("#menu-add-to-cart").click();
@@ -162,6 +195,7 @@ export async function verifyMenuCartEditing(context, base, check) {
       await page.keyboard.press("Escape");
       await page.locator("#menu-cart-dialog[open]").waitFor();
       assert.deepEqual(await stored(page), latest);
+      await assertVisibleCart(page, latest);
       return { mutation, staleEditorRejected: mutation !== "capacity", capRejected: mutation === "capacity", preservedLatest: true, beforeErrorTop, errorGeometry };
     });
   }

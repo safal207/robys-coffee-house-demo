@@ -1,4 +1,5 @@
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import "./verify-pairing-cta-static.mjs";
 import "./verify-pairing-catalog-parity.mjs";
 import "./verify-menu-truth-live.mjs";
@@ -102,7 +103,7 @@ assert.match(menuRuntime, /document\.querySelector\("\.full-menu-wrap"\)\?\.scro
 const pairingRuntimeRevision = revisionFor(pairingRuntime);
 const pairingCssRevision = revisionFor(pairingCss);
 assert.match(menuHtml, new RegExp(`pairing-posters\\.js\\?v=${pairingRuntimeRevision}`), "menu HTML must revision the pairing runtime");
-assert.match(menuHtml, new RegExp(`pairing-posters\\.css\\?v=${pairingCssRevision}`), "menu HTML must revision the pairing stylesheet");
+verifyMenuStylesBundle(readMenuStylesBundleInputs());
 assert.match(buildScript, /const pairingPostersRevision = revisionFor\("pairing-posters\.js"\)/);
 assert.match(buildScript, /const pairingPostersCssRevision = revisionFor\("pairing-posters\.css"\)/);
 assert.match(serviceWorker, new RegExp(`\\./pairing-posters\\.js\\?v=${pairingRuntimeRevision}`), "offline cache must pin pairing runtime revision");

@@ -1,6 +1,5 @@
-import { menuCategories, menuCopy } from "./menu-catalog.js?v=bc69a9e52fa4";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
-import { readStoredOrderDraft, writeStoredOrderDraft } from "./src/order-draft.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -14,6 +13,7 @@ const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
 const CART_STORAGE_KEY = "robys-menu-order.v1";
+const CART_PROJECTION_KEY = "robys-menu-order.v2";
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
 let language = readStoredLanguage();
@@ -120,18 +120,96 @@ function buildProductIndex() {
 const productIndex = buildProductIndex();
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
+let cartReadGeneration = 0;
+let storageNotice;
+let orderStorage;
+let orderStoragePromise;
+let orderStorageRetry = 0;
+
+// The initial catalog only reads a disposable badge projection. It never
+// writes storage or starts the authoritative ordering system before intent.
+function readCartProjection() {
+  let raw;
+  try { raw = JSON.parse(sessionStorage.getItem("robys-menu-order.tab.v1") ?? "null")?.draft; } catch {}
+  if (!raw) try { raw = JSON.parse(localStorage.getItem(CART_PROJECTION_KEY) ?? localStorage.getItem(CART_STORAGE_KEY) ?? "null"); } catch {}
+  const counts = new Map();
+  const groups = [];
+  const valid = value => Number.isInteger(value) && value > 0 && value <= 99;
+  if (raw?.version !== 1) return { version: 1, groups, lines: [] };
+  if (Array.isArray(raw.groups)) {
+    for (const group of raw.groups) {
+      if (!valid(group?.quantity) || !Array.isArray(group.items) || !group.items.length) continue;
+      const next = new Map(counts);
+      let accepted = true;
+      for (const item of group.items) {
+        const quantity = item?.quantity ?? 1;
+        const total = (next.get(item?.id) ?? 0) + quantity * group.quantity;
+        if (!orderProductIds.has(item?.id) || !valid(quantity) || !valid(total)) { accepted = false; break; }
+        next.set(item.id, total);
+      }
+      if (!accepted) continue;
+      next.forEach((quantity, id) => counts.set(id, quantity));
+      groups.push({ quantity: group.quantity });
+    }
+  } else if (Array.isArray(raw.lines)) {
+    for (const line of raw.lines) if (orderProductIds.has(line?.id) && valid(line.quantity)) counts.set(line.id, line.quantity);
+    counts.forEach(quantity => groups.push({ quantity }));
+  }
+  return { version: 1, groups, lines: Array.from(counts, ([id, quantity]) => ({ id, quantity })) };
+}
+
+function loadOrderStorage() {
+  if (!orderStoragePromise) {
+    let loading;
+    if (orderStorageRetry) {
+      const retryUrl = new URL("./order-storage.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(orderStorageRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./order-storage.js?v=6908555cd79b");
+    orderStoragePromise = loading.then(storage => {
+      storageNotice = storage.createOrderStorageNotice({
+        getLanguage: () => language,
+        getProduct: id => productIndex.get(id)?.item,
+        validIds: orderProductIds,
+        onResolved: async () => {
+          await refreshLatestCart({ resetAdded: true });
+          orderUi?.refresh({ nextLanguage: language, clearStorageError: true });
+        }
+      });
+      orderStorage = storage;
+      return storage;
+    }).catch(error => { orderStoragePromise = null; orderStorageRetry += 1; throw error; });
+  }
+  return orderStoragePromise;
+}
 
 function readCart() {
-  orderDraft = readStoredOrderDraft(orderProductIds);
+  orderDraft = orderStorage ? orderStorage.readStoredOrderDraft(orderProductIds) : readCartProjection();
   return new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
 }
 
 let cart = readCart();
 
-function writeMenuDraft(draft) {
-  orderDraft = writeStoredOrderDraft(draft, orderProductIds);
-  cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
-  return orderDraft;
+async function refreshLatestCart({ refreshUi = true, resetAdded = false } = {}) {
+  const generation = ++cartReadGeneration;
+  const storage = await loadOrderStorage();
+  const draft = await storage.readLatestStoredOrderDraft(orderProductIds);
+  if (generation !== cartReadGeneration) return;
+  orderDraft = draft;
+  cart = new Map(draft.lines.map(line => [line.id, line.quantity]));
+  renderCart();
+  if (refreshUi) orderUi?.refresh({ nextLanguage: language, resetAdded });
+}
+
+async function mutateMenuDraft(updater) {
+  const generation = ++cartReadGeneration;
+  const storage = await loadOrderStorage();
+  const result = await storage.transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN });
+  if (generation === cartReadGeneration) {
+    orderDraft = result.draft;
+    cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+  }
+  return result;
 }
 
 function cartSummary() {
@@ -168,9 +246,25 @@ function renderCart() {
 }
 
 let orderUi;
+const MENU_ORDER_ORIGIN = "menu-app";
 let orderUiPromise;
 let orderUiRetry = 0;
-let orderIntent = 0;
+// Product, cart and family downloads belong to one navigation stream. A late
+// import may initialize its module, but only the latest user intent can reveal,
+// scroll or focus a view. Clear the previous trigger's busy state immediately.
+let menuIntent = 0;
+let busyTrigger;
+function beginMenuIntent(trigger) {
+  busyTrigger?.removeAttribute("aria-busy");
+  busyTrigger = trigger;
+  trigger?.setAttribute("aria-busy", "true");
+  return ++menuIntent;
+}
+function finishMenuIntent(intent) {
+  if (intent !== menuIntent) return;
+  busyTrigger?.removeAttribute("aria-busy");
+  busyTrigger = null;
+}
 function loadOrderUi() {
   if (!orderUiPromise) {
     let loading;
@@ -178,12 +272,17 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=c1a2a9f55898");
-    orderUiPromise = loading.then(({ createMenuOrderUi }) => {
+    } else loading = import("./menu-order-ui.js?v=0c4db7b85f2d");
+    orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
         readDraft: () => { cart = readCart(); return orderDraft; },
-        writeDraft: writeMenuDraft,
+        readLatestDraft: async () => {
+          await refreshLatestCart({ refreshUi: false });
+          return orderStorage.readStoredOrderDraft(orderProductIds);
+        },
+        mutateDraft: mutateMenuDraft,
+        reopenCart: (trigger, groupId) => openOrderIntent("cart", groupId, trigger),
         onCartChange: renderCart
       });
       return orderUi;
@@ -192,20 +291,19 @@ function loadOrderUi() {
   return orderUiPromise;
 }
 async function openOrderIntent(kind, id, trigger = document.activeElement) {
-  const intent = ++orderIntent;
-  trigger?.setAttribute("aria-busy", "true");
+  const intent = beginMenuIntent(trigger);
   try {
-    const ui = await loadOrderUi();
-    if (intent !== orderIntent) return;
+    const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+    if (intent !== menuIntent) return;
     document.querySelector("#menu-cart-status").classList.remove("is-visible");
     ui.refresh({ nextLanguage: language });
     const returnFocus = trigger?.isConnected ? trigger : (kind === "product"
       ? Array.from(menuRoot.querySelectorAll("[data-product-id]")).find(row => row.dataset.productId === id)?.querySelector(".full-menu-item-media")
       : null) ?? cartTrigger;
     if (kind === "product") ui.openProduct(id, returnFocus);
-    else ui.openCart(returnFocus);
+    else ui.openCart(returnFocus, id);
   } catch {
-    if (intent !== orderIntent) return;
+    if (intent !== menuIntent) return;
     const message = {
       tr: "Seçim açılamadı. Lütfen tekrar deneyin.",
       en: "Your selection could not open. Please try again.",
@@ -214,14 +312,13 @@ async function openOrderIntent(kind, id, trigger = document.activeElement) {
     const notice = document.querySelector("#menu-cart-status");
     notice.textContent = message;
     notice.classList.add("is-visible");
-  } finally { trigger?.removeAttribute("aria-busy"); }
+  } finally { finishMenuIntent(intent); }
 }
 function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
 const familyTrigger = document.querySelector("#menu-family-trigger");
 let familyUi;
 let familyUiPromise;
 let familyRetry = 0;
-let familyIntent = 0;
 const familyCopy = {
   tr: { link: "Çocuklarla · 3 fikir", error: "Öneriler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
   en: { link: "With kids · 3 ideas", error: "Suggestions could not load. Choose from the menu or try again." },
@@ -234,18 +331,30 @@ function loadFamilyUi() {
       const url = new URL("./menu-family-ui.js", import.meta.url);
       url.searchParams.set("retry", String(familyRetry));
       loading = import(url.href);
-    } else loading = import("./menu-family-ui.js?v=05b5f0031b3e");
+    } else loading = import("./menu-family-ui.js?v=f6778abdbe89");
     familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
       familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
-        readDraft: () => { cart = readCart(); return orderDraft; }, writeDraft: writeMenuDraft,
+        readDraft: () => { cart = readCart(); return orderDraft; }, mutateDraft: mutateMenuDraft,
         onCartChange: renderCart,
+        onIntent: () => {
+          const intent = beginMenuIntent();
+          return () => intent === menuIntent;
+        },
         openCart: async (trigger, isCurrent) => {
-          const intent = ++orderIntent;
-          const ui = await loadOrderUi();
-          if (intent !== orderIntent || !isCurrent()) return;
-          ui.refresh({ nextLanguage: language });
-          ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+          // This is feedback for the original Add action, not a fresh intent.
+          // A later product/cart click or dismissal wins even during storage.
+          if (!isCurrent()) return;
+          const intent = menuIntent;
+          try {
+            const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+            if (intent !== menuIntent || !isCurrent()) return;
+            ui.refresh({ nextLanguage: language });
+            ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+          } catch (error) {
+            if (intent !== menuIntent || !isCurrent()) return;
+            throw error;
+          }
         }
       });
       return familyUi;
@@ -256,12 +365,10 @@ function loadFamilyUi() {
 async function openFamilySuggestions(event) {
   event?.preventDefault();
   if (!familyTrigger) return;
-  orderIntent += 1;
-  const intent = ++familyIntent;
-  familyTrigger.setAttribute("aria-busy", "true");
+  const intent = beginMenuIntent(familyTrigger);
   try {
     const ui = await loadFamilyUi();
-    if (intent !== familyIntent) return;
+    if (intent !== menuIntent) return;
     document.querySelector("#menu-cart-status").classList.remove("is-visible");
     ui.refresh(language);
     document.querySelector("#menu-family").hidden = false;
@@ -269,17 +376,42 @@ async function openFamilySuggestions(event) {
     familyTrigger.setAttribute("aria-expanded", "true");
     document.querySelector("#menu-family").scrollIntoView({ block: "start" });
   } catch {
-    if (intent !== familyIntent) return;
+    if (intent !== menuIntent) return;
     const notice = document.querySelector("#menu-cart-status");
     notice.textContent = familyCopy[language].error;
     notice.classList.add("is-visible");
-  } finally { familyTrigger.removeAttribute("aria-busy"); }
+  } finally { finishMenuIntent(intent); }
 }
 familyTrigger?.addEventListener("click", openFamilySuggestions);
 // Escape also cancels an intent whose optional code is still downloading.
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") { orderIntent += 1; familyIntent += 1; }
+  if (event.key === "Escape") beginMenuIntent();
 });
+document.addEventListener("click", event => {
+  if (event.target.closest?.("[data-menu-dialog-close]")) beginMenuIntent();
+}, true);
+
+// Native lazy loading can fetch several screens of large catalog photos on a
+// slow connection. Keep those requests close to the viewport so they do not
+// compete with the first visible photograph. Older browsers retain native loading.
+function createProductImageObserver() {
+  if (typeof IntersectionObserver !== "function") return null;
+  try {
+    return new IntersectionObserver((entries, observer) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const image = entry.target;
+        observer.unobserve(image);
+        const sourceUrl = image.dataset.menuLazySrc;
+        if (!image.isConnected || !sourceUrl) continue;
+        delete image.dataset.menuLazySrc;
+        image.src = sourceUrl;
+      }
+    }, { rootMargin: "150px 0px", threshold: 0 });
+  } catch { return null; }
+}
+
+const productImageObserver = createProductImageObserver();
 
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = categoryId === "pairing-offers";
@@ -320,13 +452,17 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.addEventListener("click", event => openProduct(id, event.currentTarget));
 
     const image = document.createElement("img");
-    image.src = productImage(categoryId, item);
+    const sourceUrl = productImage(categoryId, item);
     image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
     image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
     if (priority) image.fetchPriority = "high";
     image.width = 1024;
     image.height = 1024;
+    if (!priority && productImageObserver) {
+      image.dataset.menuLazySrc = sourceUrl;
+      productImageObserver.observe(image);
+    } else image.src = sourceUrl;
     media.append(image);
 
     const details = document.createElement("div");
@@ -511,6 +647,8 @@ function renderCategoryNav(focusId = null) {
 }
 
 function renderMenu() {
+  productImageObserver?.takeRecords();
+  productImageObserver?.disconnect();
   menuRoot.replaceChildren();
   const categories = menuCategories.filter((category) => {
     const matchesCategory = activeCategory === "all" || activeCategory === category.id;
@@ -572,6 +710,7 @@ function translateStaticPage() {
   orderUi?.refresh({ nextLanguage: language });
   if (familyTrigger) familyTrigger.textContent = familyCopy[language].link;
   familyUi?.refresh(language);
+  storageNotice?.refresh();
 }
 
 function setLanguage(next) {
@@ -599,6 +738,8 @@ searchInput.addEventListener("input", () => {
   }
   renderMenu();
 });
+searchInput.addEventListener("focus", () => document.body.classList.add("menu-text-input-active"));
+searchInput.addEventListener("blur", () => document.body.classList.remove("menu-text-input-active"));
 
 cartTrigger.addEventListener("click", () => { void openOrderIntent("cart", undefined, cartTrigger); });
 
@@ -640,27 +781,30 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
+function refreshObservedCart(resetAdded = false) {
+  if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
+  cart = readCart();
+  renderCart();
+}
 
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
-  cart = readCart();
-  orderIntent += 1;
-  orderUi?.refresh({ nextLanguage: language, resetAdded: true });
+  beginMenuIntent();
   language = readStoredLanguage();
   translateStaticPage();
   renderCategoryNav();
   renderMenu();
-  renderCart();
+  refreshObservedCart(true);
 });
 
 window.addEventListener("storage", event => {
-  if (event.key === CART_STORAGE_KEY || event.key === null) {
-    cart = readCart();
-    orderUi?.refresh({ nextLanguage: language, resetAdded: true });
-    renderCart();
-  }
+  if (event.key === CART_STORAGE_KEY || event.key === CART_PROJECTION_KEY || event.key === null) refreshObservedCart(true);
   if (event.key === "robys-language" || event.key === null) setLanguage(readStoredLanguage());
 });
+window.addEventListener("robys:order-change", event => {
+  if (event.detail?.origin !== MENU_ORDER_ORIGIN) refreshObservedCart(true);
+});
+window.addEventListener("focus", () => refreshObservedCart());
 
 window.addEventListener("hashchange", () => {
   if (window.location.hash === "#menu-family") {
