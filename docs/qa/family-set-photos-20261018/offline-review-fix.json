@@ -1,0 +1,30 @@
+{
+  "collected_at": "2026-10-18T15:50:05.844910+00:00",
+  "parent_sha": "b82bdcb59798e2f3bf56e96383159f28db575596",
+  "status": "tested-working-tree",
+  "review_thread": "https://github.com/safal207/robys-coffee-house-demo/pull/437#discussion_r4307639972",
+  "change": "Precache all four new family photos and include their content revisions in the family worker namespace.",
+  "source_sha256": {
+    "scripts/build.mjs": "7f7de050800a4886fe827c217fd139f97ef15491616578379dcb187ba97a323f",
+    "scripts/test-menu-catalog-revision.mjs": "e26eb81b2b65f9ee0e51b44f0bbe5cf524f33fda9873c21d911643e1f8d8d96e",
+    "scripts/verify-offline-browser.mjs": "bddc8a238d194a2fa816f620f1a7c2f1d6ed06f8b50933584742fb8c7b5cefb0",
+    "sw-core-v64.js": "c56e83d75c93675b6fe0601eff5dfc0cfa3e1a1c752182923e5071585d0062ae",
+    "integrity-manifest.json": "5a5d1170ef1bcd50cf1ae187021bfc214de1847b7067d6bd0786e1b9fb69a61e"
+  },
+  "checks": {
+    "npm run check": "PASS",
+    "npm run verify:security": "PASS: 353 security checks and catalog revision contract",
+    "npm run verify:performance": "PASS",
+    "BASE_URL=http://127.0.0.1:4184 node scripts/verify-offline-browser.mjs": "PASS"
+  },
+  "negative_control": {
+    "worker_sha": "b82bdcb59798e2f3bf56e96383159f28db575596",
+    "result": "Expected FAIL: all four family photos absent from CacheStorage before the first panel reveal."
+  },
+  "positive_control": "Fresh Chromium context installs the worker without opening the family panel. All four URLs are present in CacheStorage before offline mode. First reveal renders three recipes and the non-orderable Kids Box, and all four 900x900 images decode.",
+  "limitations": [
+    "Playwright context offline mode does not block service-worker network fetches in this environment. The explicit pre-reveal CacheStorage assertion supplies the precache regression proof.",
+    "This release introduces new image paths; it does not test future replacement of image bytes under an HTTP cache entry.",
+    "Existing visual evidence in evidence.json is historical for the parent tree; the UI, CSS, HTML and image bytes are unchanged by this follow-up."
+  ]
+}

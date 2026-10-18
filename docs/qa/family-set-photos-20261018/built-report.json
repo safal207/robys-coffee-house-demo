@@ -1,0 +1,210 @@
+{
+  "startedAt": "2026-10-18T15:31:13.024Z",
+  "head": "810f5e660b18d0179abcce8857733fb56d89375c",
+  "branch": "feat/family-set-photos-kids-box-20261018",
+  "mode": "Built shipped runtime files served over local HTTPS; Chromium Linux headless. 320/390/1440 CSS pixel viewports. Not physical phones or vendor browser coverage.",
+  "sourceHashes": {
+    "menu-app.js": "20b7cf549024853c7df0662bfaf41040b93facc1b3298fdc6b0b2fa494242d2f",
+    "menu-family-ui.js": "05b5f0031b3e96bab338391068e0ae28880b82e8dff74c9824ecea9834c0ce45",
+    "menu-family.css": "edd4d14107104b37377d5d53bc3450a7f331ac321cae18961d1b030c83db2446",
+    "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+    "menu.html": "cc885d16928861e90bbfa331f26a231a9d3980970823899add7a1728eda8f82e",
+    "menu-catalog.js": "bc69a9e52fa4245f1e88e30cfd65e84c8ceafff853ee4ba1cdfc68e435d57dd3"
+  },
+  "cases": [
+    {
+      "id": "built-layout-320",
+      "status": "PASS",
+      "facts": {
+        "viewport": 320,
+        "cards": [
+          {
+            "id": "milk-cookie",
+            "src": "src/products/family-sets-v1/milk-cookie.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 246,
+            "renderedHeight": 246,
+            "objectFit": "cover"
+          },
+          {
+            "id": "simit-break",
+            "src": "src/products/family-sets-v1/simit-break.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 246,
+            "renderedHeight": 246,
+            "objectFit": "cover"
+          },
+          {
+            "id": "milk-roll",
+            "src": "src/products/family-sets-v1/milk-roll.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 246,
+            "renderedHeight": 246,
+            "objectFit": "cover"
+          }
+        ],
+        "promo": {
+          "src": "src/products/family-sets-v1/kids-box.webp",
+          "loading": "lazy",
+          "decoding": "async",
+          "naturalWidth": 900,
+          "naturalHeight": 900,
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "noPurchaseAction": true
+        },
+        "noOverflow": true,
+        "scrollingAndPromoClickPreservedDraft": true
+      },
+      "uncaughtErrors": []
+    },
+    {
+      "id": "built-layout-390",
+      "status": "PASS",
+      "facts": {
+        "viewport": 390,
+        "cards": [
+          {
+            "id": "milk-cookie",
+            "src": "src/products/family-sets-v1/milk-cookie.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 316,
+            "renderedHeight": 316,
+            "objectFit": "cover"
+          },
+          {
+            "id": "simit-break",
+            "src": "src/products/family-sets-v1/simit-break.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 316,
+            "renderedHeight": 316,
+            "objectFit": "cover"
+          },
+          {
+            "id": "milk-roll",
+            "src": "src/products/family-sets-v1/milk-roll.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 316,
+            "renderedHeight": 316,
+            "objectFit": "cover"
+          }
+        ],
+        "promo": {
+          "src": "src/products/family-sets-v1/kids-box.webp",
+          "loading": "lazy",
+          "decoding": "async",
+          "naturalWidth": 900,
+          "naturalHeight": 900,
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "noPurchaseAction": true
+        },
+        "noOverflow": true,
+        "scrollingAndPromoClickPreservedDraft": true
+      },
+      "uncaughtErrors": []
+    },
+    {
+      "id": "built-layout-1440",
+      "status": "PASS",
+      "facts": {
+        "viewport": 1440,
+        "cards": [
+          {
+            "id": "milk-cookie",
+            "src": "src/products/family-sets-v1/milk-cookie.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 343.328125,
+            "renderedHeight": 343.328125,
+            "objectFit": "cover"
+          },
+          {
+            "id": "simit-break",
+            "src": "src/products/family-sets-v1/simit-break.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 343.328125,
+            "renderedHeight": 343.328125,
+            "objectFit": "cover"
+          },
+          {
+            "id": "milk-roll",
+            "src": "src/products/family-sets-v1/milk-roll.webp",
+            "loading": "lazy",
+            "decoding": "async",
+            "naturalWidth": 900,
+            "naturalHeight": 900,
+            "renderedWidth": 343.34375,
+            "renderedHeight": 343.34375,
+            "objectFit": "cover"
+          }
+        ],
+        "promo": {
+          "src": "src/products/family-sets-v1/kids-box.webp",
+          "loading": "lazy",
+          "decoding": "async",
+          "naturalWidth": 900,
+          "naturalHeight": 900,
+          "status": "Скоро в продаже. Спрашивайте у кассира.",
+          "noPurchaseAction": true
+        },
+        "noOverflow": true,
+        "scrollingAndPromoClickPreservedDraft": true
+      },
+      "uncaughtErrors": []
+    },
+    {
+      "id": "built-locales-and-draft",
+      "status": "PASS",
+      "facts": {
+        "locales": [
+          {
+            "language": "en",
+            "status": "Coming soon. Ask at the counter.",
+            "draftUnchanged": true
+          },
+          {
+            "language": "tr",
+            "status": "Yakında satışta. Kasada sorun.",
+            "draftUnchanged": true
+          },
+          {
+            "language": "ru",
+            "status": "Скоро в продаже. Спрашивайте у кассира.",
+            "draftUnchanged": true
+          }
+        ],
+        "recipeOpeningAndCancelPreservedDraft": true
+      },
+      "uncaughtErrors": []
+    }
+  ],
+  "browserVersion": "140.0.7339.186",
+  "catalogUnchangedFromHead": true,
+  "finishedAt": "2026-10-18T15:31:21.713Z",
+  "summary": {
+    "passed": 4,
+    "failed": 0
+  }
+}
