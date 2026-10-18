@@ -176,6 +176,9 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-combos.css", "combo-entry.css", "choice-help.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]
     .map(input => ["menu-runtime.css", input]),
   ["conversion.js", "src/conversion.js"],
+  ["bootstrap-v2.js", "src/bootstrap-v2.js"],
+  ["bootstrap-v2.js", "src/seasonal-theme.ts"],
+  ["seasonal-theme.js", "src/seasonal-theme.ts"],
   ["menu-app.js", "src/menu-app.js"],
   ["menu-app.js", "menu-search-clear.js", "src/menu-app.js"],
   ["menu-app.js", "src/choice-help-entry.js", "src/menu-app.js"],

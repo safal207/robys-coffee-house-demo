@@ -1,0 +1,17 @@
+/* A quiet October accent. Every visual change is scoped to the dated theme. */
+.robys-seasonal-mark{display:none}
+html[data-robys-season="halloween"] .robys-seasonal-mark{display:flex;align-items:center;gap:9px;width:fit-content;max-width:100%;margin:0 0 14px;padding:7px 12px;border:1px solid #d9b181;border-radius:999px;color:#81451f;background:#fff1dc;font:600 .65rem/1.4 var(--sans,system-ui,sans-serif);letter-spacing:.1em;overflow-wrap:anywhere;animation:none;transition:none;transform:none}
+.robys-seasonal-mark .robys-seasonal-icon{position:relative;flex:none;width:18px;height:15px;border:1px solid currentColor;border-radius:45% 45% 42% 42%;background:#d68d4333}
+.robys-seasonal-icon::before{content:"";position:absolute;top:-5px;left:7px;width:4px;height:5px;border-left:2px solid currentColor;transform:rotate(18deg)}
+.robys-seasonal-icon::after{content:"";position:absolute;inset:-1px 4px;border-inline:1px solid currentColor;border-radius:50%}
+.robys-seasonal-mark>span[lang]{display:none}
+html[lang="tr"] .robys-seasonal-mark>span[lang="tr"],html[lang="en"] .robys-seasonal-mark>span[lang="en"],html[lang="ru"] .robys-seasonal-mark>span[lang="ru"]{display:inline}
+html[data-robys-season="halloween"] .hero .robys-seasonal-mark,html[data-robys-season="halloween"] .story-scene .robys-seasonal-mark{color:#ffe0bc;background:#33251fef;border-color:#a66c41}
+html[data-robys-season="halloween"] .coffee-path,html[data-robys-season="halloween"] .full-menu-panel{border-color:#d8b592}
+html[data-robys-season="halloween"] .menu-page-hero{background:radial-gradient(ellipse at 100% 0%,#f7e2c7 0%,transparent 65%),var(--paper,#f7f1e8)}
+html[data-robys-season="halloween"] .combo-entry-link,html[data-robys-season="halloween"] .menu-family-link{border-color:#d8b592;background:#fff3e2}
+html[data-robys-season="halloween"] .menu-category-chip.active{border-color:#b46d36;box-shadow:0 0 0 2px #d89c5424}
+html[data-robys-season="halloween"] .smart-shell>.robys-seasonal-mark{margin:0 auto 16px}
+html[data-robys-season="halloween"] .menu-page .menu-page-hero-copy>.robys-seasonal-mark{margin:0 0 10px;font-size:.65rem;line-height:1.4}
+@media(max-width:680px){html[data-robys-season="halloween"] .menu-page .menu-page-hero{padding:8px 0}html[data-robys-season="halloween"] .menu-page .menu-page-hero-inner{gap:6px}html[data-robys-season="halloween"] .menu-page .menu-page-hero-copy>.robys-seasonal-mark{margin:0 0 6px;padding:4px 10px;font-size:.62rem;line-height:1.35}}
+@media(forced-colors:active){html[data-robys-season="halloween"] .robys-seasonal-mark,html[data-robys-season="halloween"] .hero .robys-seasonal-mark,html[data-robys-season="halloween"] .story-scene .robys-seasonal-mark{color:CanvasText;background:Canvas;border-color:CanvasText}html[data-robys-season="halloween"] .menu-category-chip.active{box-shadow:none}}

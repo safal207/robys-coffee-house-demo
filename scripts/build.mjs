@@ -180,6 +180,7 @@ function transpileClassicScript(sourcePath, outputPath) {
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
+transpileClassicScript("src/seasonal-theme.ts", "seasonal-theme.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v2.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js");
@@ -284,9 +285,15 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 const qaRevision = revisionFor("qa.js");
-let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
+let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
-writeFileSync("bootstrap-v2.js", bootstrapSource);
+writeFileSync("src/bootstrap-v2.js", bootstrapSource);
+// Reuse the existing blocking request and gzip stream on the three entry pages.
+// Preserve the entry handoff source verbatim, including its guarded recovery.
+const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
+  minify: true, target: "es2020", legalComments: "none"
+}).code;
+writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${bootstrapSource}`);
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
 let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
@@ -301,6 +308,8 @@ for (const file of ["discover-v2.js", "discover-rotation.js"]) {
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
+const seasonalThemeRevision = revisionFor("seasonal-theme.js");
+const seasonalCssRevision = revisionFor("seasonal.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 // Publish reviewed visual CSS under fresh pathnames so returning clients whose
 // old service worker ignores query strings cannot receive stale bytes.
@@ -452,7 +461,19 @@ const choiceSurfaces = ["index.html", "menu.html", "discover.html", "experience/
 for (const file of choiceSurfaces) {
   const prefix = file.includes("/") ? "../" : "";
   let page = readFileSync(file, "utf8");
+  if (["index.html", "menu.html", "discover.html"].includes(file)) {
+    if (page.includes(`src="${prefix}seasonal-theme.js`)) {
+      throw new Error(`${file}: the shared bootstrap already initializes the season; remove the redundant authored script tag`);
+    }
+  } else {
+    if (!page.includes(`src="${prefix}seasonal-theme.js`)) {
+      page = page.replace("</head>", `  <script src="${prefix}seasonal-theme.js"></script>\n</head>`);
+    }
+    page = synchronizeBlockingScript(page, `${prefix}seasonal-theme.js`, seasonalThemeRevision);
+  }
   if (file !== "menu.html") {
+    if (!page.includes(`href="${prefix}seasonal.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}seasonal.css" />\n</head>`);
+    page = synchronizeStylesheet(page, `${prefix}seasonal.css`, seasonalCssRevision);
     if (!page.includes(`${prefix}choice-help.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}choice-help.css" />\n</head>`);
     page = synchronizeStylesheet(page, `${prefix}choice-help.css`, choiceHelpCssRevision);
     page = synchronizeStylesheet(page, `${prefix}combo-entry.css`, comboEntryCssRevision);
@@ -475,7 +496,7 @@ const familyPhotoAssets = [
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
-for (const asset of [MENU_STYLESHEET_FILE, "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of [MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
@@ -489,6 +510,9 @@ serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
 serviceWorker = serviceWorker.replace(/-coffee-paths-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeePathsRevision}-shared-order-`);
+const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-halloween-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-halloween-${seasonalCacheRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -543,6 +567,8 @@ for (const [filePath, revision] of [
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
+  ["seasonal-theme.js", seasonalThemeRevision],
+  ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],

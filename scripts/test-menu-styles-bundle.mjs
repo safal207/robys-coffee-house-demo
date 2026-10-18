@@ -11,6 +11,7 @@ const expectedInputs = [
   ["menu-family.css", "menu-family.css"], ["menu-product-reveal.css", "menu-product-reveal.css"],
   ["pairing-posters.css", "pairing-posters.css"], ["menu-stability.css", "menu-stability-v2.css"],
   ["menu-combos.css", "menu-combos.css"], ["combo-entry.css", "combo-entry.css"], ["choice-help.css", "choice-help.css"],
+  ["seasonal.css", "seasonal.css"],
   ["menu-security-v2.css", "menu-security-v2.css"], ["brand-photo-logo.css", "brand-photo-logo.css"],
   ["order-checkout.css", "order-checkout.css"]
 ];
