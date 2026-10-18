@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { MENU_STYLE_INPUTS, compileMenuStylesBundle, menuStylesRevision, menuStylesSourceMap, readMenuStylesBundleInputs,
-  verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
+  verifyMenuStylesBundle, verifyMenuStylesheetLink } from "./menu-styles-bundle.mjs";
 
 // Independent oracle: changing the compiler manifest must not redefine the
 // expected cascade or silently move approved branding across other layers.
@@ -69,6 +69,75 @@ test("a missing, stale, commented, script-mentioned, disabled or duplicate style
     inputs.menuHtml.replace("rel=", "disabled rel="), inputs.menuHtml.replace("rel=", 'media="print" rel='),
     inputs.menuHtml + inputs.menuHtml, inputs.menuHtml + '<link rel="stylesheet" href="menu-premium.css" />'];
   for (const menuHtml of invalid) assert.throws(() => verifyMenuStylesBundle({ ...inputs, menuHtml }), /Menu (?:must load|CSS bundle)/);
+});
+
+test("quoted tag boundaries preserve real links without promoting attribute text", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const menuHtml of [link.replace("rel=", 'data-note="one > two" rel='),
+    link.replace("rel=", "data-note='one > two' rel="),
+    link.replace('rel="stylesheet"', 'REL=" \tSTYLESHEET\n" media=" All "'),
+    `<div data-copy='${link}'>text</div>${link}`]) {
+    verifyMenuStylesheetLink(menuHtml, bundleBytes);
+  }
+  assert.throws(() => verifyMenuStylesheetLink(`<div data-copy='${link}'>text</div>`, bundleBytes), /exactly one/);
+  assert.throws(() => verifyMenuStylesheetLink(link + link.replace("rel=", 'data-note=">" rel='), bundleBytes), /exactly one/);
+});
+
+test("nested templates retain their inert scope across inner closes and raw-text decoys", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const template of [`<template><template></template>${link}</template>`,
+    `<template>${link}<template>${link}</template>${link}</template>`,
+    `<template><script>const close = "</template>";</script>${link}</template>`,
+    `<template data-note=">"><template /></template>${link}</template>`]) {
+    assert.throws(() => verifyMenuStylesheetLink(template, bundleBytes), /exactly one/);
+    verifyMenuStylesheetLink(template + link, bundleBytes);
+  }
+});
+
+test("raw text and RCDATA never supply a stylesheet, including escaped script strings", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const element of ["script", "style", "noscript", "title", "textarea", "xmp", "iframe", "noembed", "noframes"]) {
+    const decoy = `<${element} data-note=">">${link}</${element}>`;
+    assert.throws(() => verifyMenuStylesheetLink(decoy, bundleBytes), /exactly one/);
+    verifyMenuStylesheetLink(decoy + link, bundleBytes);
+  }
+  const escaped = String.raw`<script>const close = "<\/script>";${link}</script>`;
+  assert.throws(() => verifyMenuStylesheetLink(escaped, bundleBytes), /exactly one/);
+  verifyMenuStylesheetLink(escaped + link, bundleBytes);
+  verifyMenuStylesheetLink(`<script>const close = "</script>";${link}`, bundleBytes);
+  verifyMenuStylesheetLink(`<style>.x::before { content: "</style>"; }${link}`, bundleBytes);
+  verifyMenuStylesheetLink(link + `<plaintext>${link}`, bundleBytes);
+  assert.throws(() => verifyMenuStylesheetLink(`<plaintext>${link}`, bundleBytes), /exactly one/);
+});
+
+test("comments use source boundaries rather than rewritten markup", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const comment of [`<!--${link}-->`, `<!--${link}--!>`, `<!-- nested <!-- ${link} -->`]) {
+    assert.throws(() => verifyMenuStylesheetLink(comment, bundleBytes), /exactly one/);
+    verifyMenuStylesheetLink(comment + link, bundleBytes);
+  }
+  for (const empty of ["<!-->", "<!--->"]) verifyMenuStylesheetLink(empty + link, bundleBytes);
+});
+
+test("truncated or unsupported HTML fails closed even after a real stylesheet", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const suffix of ["<!-- unfinished", "<script>unfinished", "<style>unfinished", "<noscript>unfinished",
+    "<template>", '<div title="unfinished>', "<link rel=", "<script><!-- escaped --> </script>",
+    '<link rel="style&#115;heet" href="other.css">', '<?processing instruction?>']) {
+    assert.throws(() => verifyMenuStylesheetLink(link + suffix, bundleBytes), /Menu HTML|Menu stylesheet/);
+  }
+  for (const attribute of ['rel="stylesheet" REL="stylesheet"', 'href="one.css" href="two.css"'])
+    assert.throws(() => verifyMenuStylesheetLink(`<link ${attribute}>`, bundleBytes), /must not repeat/);
+});
+
+test("foreign integration points and ambiguous stylesheet contexts cannot hide a second sheet", () => {
+  const { menuHtml: link, bundleBytes } = fixture();
+  for (const foreign of [`<svg><foreignObject>${link}</foreignObject></svg>`,
+    `<svg><title>${link}</title></svg>`, `<svg><p>${link}</p></svg>`,
+    `<math><annotation-xml encoding="text/html">${link}</annotation-xml></math>`,
+    `<math><mtext>${link}</mtext></math>`, `<select>${link}</select>`, `<frameset>${link}</frameset>`]) {
+    assert.throws(() => verifyMenuStylesheetLink(link + foreign, bundleBytes), /foreign containers|stylesheet context/);
+  }
 });
 
 test("missing/stale precache and namespace, string decoys and non-exact branches fail", () => {

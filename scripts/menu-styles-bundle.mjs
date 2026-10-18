@@ -63,26 +63,140 @@ export function readMenuStylesBundleInputs(root = process.cwd()) {
   };
 }
 
-function attributes(tag) {
-  const result = {};
-  for (const match of tag.matchAll(/([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g)) {
-    const name = match[1].toLowerCase();
-    assert.ok(!Object.hasOwn(result, name), `Menu stylesheet attributes must not repeat ${name}`);
-    result[name] = match[2] ?? match[3] ?? match[4] ?? "";
+const htmlSpace = character => character !== undefined && /[\t\n\f\r ]/.test(character);
+
+// Bounded traversal of authored HTML, not sanitization or HTML generation.
+// Keep source offsets intact; quoted '>' and text inside other tags must never
+// manufacture a stylesheet. Reject malformed/unsupported syntax fail closed.
+function readHtmlTag(html, start) {
+  let position = start + 1;
+  const closing = html[position] === "/";
+  if (closing) position += 1;
+  if (!/[a-z]/i.test(html[position] ?? "")) return null;
+  const nameStart = position;
+  while (position < html.length && !htmlSpace(html[position]) && html[position] !== "/" && html[position] !== ">") position += 1;
+  const name = html.slice(nameStart, position).toLowerCase();
+  const attributes = Object.create(null);
+  while (position < html.length) {
+    while (htmlSpace(html[position])) position += 1;
+    if (html[position] === ">") return { name, closing, attributes, end: position + 1 };
+    if (html[position] === "/") {
+      position += 1;
+      while (htmlSpace(html[position])) position += 1;
+      assert.equal(html[position], ">", "Menu HTML self-closing marker must end its tag");
+      return { name, closing, attributes, end: position + 1 };
+    }
+    const attributeStart = position;
+    while (position < html.length && !htmlSpace(html[position]) && !/[=/>]/.test(html[position])) position += 1;
+    const attribute = html.slice(attributeStart, position).toLowerCase();
+    assert.ok(attribute && !/["'`<\0]/.test(attribute), "Menu HTML attributes must have well-formed names");
+    assert.ok(!Object.hasOwn(attributes, attribute), `Menu stylesheet attributes must not repeat ${attribute}`);
+    while (htmlSpace(html[position])) position += 1;
+    let value = "";
+    if (html[position] === "=") {
+      position += 1;
+      while (htmlSpace(html[position])) position += 1;
+      const quote = html[position] === '"' || html[position] === "'" ? html[position++] : null;
+      const valueStart = position;
+      if (quote) {
+        while (position < html.length && html[position] !== quote) position += 1;
+        assert.ok(position < html.length, "Menu HTML quoted attribute must terminate");
+        value = html.slice(valueStart, position++);
+      } else {
+        while (position < html.length && !htmlSpace(html[position]) && html[position] !== ">") position += 1;
+        value = html.slice(valueStart, position);
+        assert.ok(value && !/["'`<=\0]/.test(value), "Menu HTML unquoted attribute must be well formed");
+      }
+    }
+    attributes[attribute] = value;
   }
-  return result;
+  assert.fail("Menu HTML tag must terminate");
+}
+
+function commentEnd(html, start) {
+  // HTML permits these two abrupt empty-comment endings as well as --!>.
+  if (html[start + 4] === ">") return start + 5;
+  if (html.startsWith("->", start + 4)) return start + 6;
+  const ordinary = html.indexOf("-->", start + 4);
+  const bang = html.indexOf("--!>", start + 4);
+  const end = ordinary < 0 ? bang : bang < 0 ? ordinary : Math.min(ordinary, bang);
+  assert.ok(end >= 0, "Menu HTML comment must terminate");
+  return end + (end === bang ? 4 : 3);
+}
+
+function textElementEnd(html, tag) {
+  if (tag.name === "plaintext") return html.length;
+  let position = tag.end;
+  while ((position = html.indexOf("</", position)) >= 0) {
+    const boundary = position + tag.name.length + 2;
+    if (html.slice(position + 2, boundary).toLowerCase() === tag.name
+        && (htmlSpace(html[boundary]) || html[boundary] === ">" || html[boundary] === "/")) {
+      // Script escaped/double-escaped tokenization is deliberately outside
+      // this authored-page contract; never treat a possibly inert link as real.
+      assert.ok(tag.name !== "script" || !html.slice(tag.end, position).includes("<!--"),
+        "Menu HTML escaped script syntax is unsupported");
+      return readHtmlTag(html, position).end;
+    }
+    position += 2;
+  }
+  assert.fail(`Menu HTML ${tag.name} text element must terminate`);
+}
+
+function stylesheetLinks(html) {
+  const textElements = new Set(["script", "style", "noscript", "title", "textarea", "xmp", "iframe", "noembed", "noframes", "plaintext"]);
+  const inertElements = new Set(["template", "select", "frameset"]);
+  const inert = [];
+  const links = [];
+  let position = 0;
+  while ((position = html.indexOf("<", position)) >= 0) {
+    if (html.startsWith("<!--", position)) { position = commentEnd(html, position); continue; }
+    if (html.startsWith("<!", position) || html.startsWith("<?", position)) {
+      // Only the normal HTML doctype is needed by this page. Other declarations
+      // and processing instructions are rejected rather than approximated.
+      const end = html.indexOf(">", position + 2);
+      assert.ok(end >= 0 && /^<!doctype\s+html\s*>$/i.test(html.slice(position, end + 1)),
+        "Menu HTML declaration is unsupported or unterminated");
+      position = end + 1;
+      continue;
+    }
+    const tag = readHtmlTag(html, position);
+    if (!tag) { position += 1; continue; }
+    position = tag.end;
+    if (tag.closing) {
+      if (inertElements.has(tag.name) && inert.length) {
+        assert.equal(inert[inert.length - 1], tag.name, "Menu HTML inert containers must be properly nested");
+        inert.pop();
+      }
+      continue;
+    }
+    // Foreign integration points and HTML breakouts need the complete HTML
+    // namespace algorithm. This authored page uses external SVG assets only.
+    assert.ok(tag.name !== "svg" && tag.name !== "math", "Menu HTML foreign containers are unsupported");
+    if (textElements.has(tag.name)) { position = textElementEnd(html, tag); continue; }
+    // In HTML a trailing slash does not close a template or raw-text element.
+    if (inertElements.has(tag.name)) { inert.push(tag.name); continue; }
+    if (tag.name !== "link") continue;
+    assert.ok(!tag.attributes.rel?.includes("&"), "Menu stylesheet rel character references are unsupported");
+    const relations = (tag.attributes.rel ?? "").toLowerCase().split(/[\t\n\f\r ]+/).filter(Boolean);
+    if (!relations.includes("stylesheet")) continue;
+    if (inert.length) {
+      assert.ok(inert.every(name => name === "template"), "Menu HTML stylesheet context is unsupported");
+      continue;
+    }
+    links.push({ ...tag.attributes, relations });
+  }
+  assert.equal(inert.length, 0, "Menu HTML inert container must terminate");
+  return links;
 }
 
 export function verifyMenuStylesheetLink(menuHtml, bundleBytes) {
   const expectedUrl = `${MENU_STYLESHEET_FILE}?v=${menuStylesRevision(bundleBytes)}`;
-  const markup = menuHtml.replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<(script|style|template|noscript)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
-  const links = [...markup.matchAll(/<link\b([^>]*?)\/?\s*>/gi)]
-    .map(match => attributes(match[1])).filter(attrs => attrs.rel?.toLowerCase().split(/\s+/).includes("stylesheet"));
+  const links = stylesheetLinks(menuHtml);
   assert.equal(links.length, 1, "Menu must load exactly one real blocking stylesheet");
   assert.equal(links[0].href, expectedUrl, "Menu must load the exact content revision of its CSS bundle");
-  assert.equal(links[0].rel.toLowerCase(), "stylesheet", "Menu CSS bundle must not be an alternate stylesheet");
-  assert.ok(!Object.hasOwn(links[0], "disabled") && (!links[0].media || links[0].media.toLowerCase() === "all"),
+  assert.ok(!links[0].relations.includes("alternate"), "Menu CSS bundle must not be an alternate stylesheet");
+  const media = (links[0].media ?? "").toLowerCase().split(/[\t\n\f\r ]+/).filter(Boolean);
+  assert.ok(!Object.hasOwn(links[0], "disabled") && (media.length === 0 || (media.length === 1 && media[0] === "all")),
     "Menu CSS bundle must apply before the first screen is shown");
   return { expectedUrl };
 }
