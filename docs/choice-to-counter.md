@@ -64,25 +64,41 @@ Guard against a longer time to checkout, accidental additions or increased exits
 
 ```bash
 npm ci --no-audit --no-fund
-npx playwright install chromium
+npx --no-install playwright install chromium firefox
 npm run check
 npm run verify:security
 npm run verify:performance
 npm run test:choice-funnel
+npm run test:choice-funnel:firefox
 ```
 
-The last command starts an isolated local server and tests the actual emitted
+Each browser command starts an isolated local server and tests the actual emitted
 pages. It covers TR/EN/RU, 320/360/390/768/1440 px (including a 360×640 short
 screen), no-JavaScript homepage links, category routing, keyboard disclosure,
 selected-choice retention, catalog-based totals, QR opening, focus restoration,
-and the existing twenty pairing regression scenarios. The inherited matrix also
+and the existing twenty pairing regression scenarios. The complete order now runs
+at both 390×900 and 1440×900: Tab/Shift+Tab/Enter opens the drink, disclosure and actions;
+native arrow keys choose the dessert; product and cart quantity controls update
+catalog-based totals; QR focus wraps and Escape restores its opener. Reload must
+preserve the exact committed pair and quantity, and the restored order must reach
+the same QR total. The inherited matrix also
 exercises 200% text, native/fallback dialogs, capacity limits, stored drafts,
 flavor requirements and failed optional-module recovery.
 
-Reports and captures are written to `.artifacts/choice-funnel/` and
-`.artifacts/custom-pairing/`. The report records the integrity manifest hash;
-checked-in representative evidence lives in `docs/qa/choice-funnel-20261018/`.
-This is assistant inspection and local Chromium verification, not an independent
+Reports and captures are written to `.artifacts/choice-funnel/chromium/` and
+`.artifacts/choice-funnel/firefox/`, including each engine's `custom-pairing/`
+captures. Each report records the browser and Playwright versions, source commit,
+test-definition hashes, runtime options and integrity manifest hash. Failed
+order scenarios retain a screenshot and trace; inherited pairing failures retain
+a separate trace and detailed JSON report. The existing adversarial CI workflow
+installs locked Firefox and always uploads that job's evidence without repeating
+the existing Chromium adversarial suite. Firefox uses responsive viewports; this
+is not Android Firefox device certification.
+
+The original Chromium evidence from PR #433 lives in
+`docs/qa/choice-funnel-20261018/`;
+the Firefox follow-up is documented in `docs/qa/firefox-choice-funnel-20261018/`.
+This is assistant inspection and local browser verification, not an independent
 human review, field-performance study or Safari certification. CI remains the
 release authority for its required checks, including visual comparison.
 

@@ -20,7 +20,10 @@ The customer-facing experience supports **Turkish, English and Russian**, respon
 The [choice-to-counter journey](docs/choice-to-counter.md) connects three homepage
 entry points, a short optional dessert selection, a complete price review and
 the cashier QR. Run `npm run test:choice-funnel` for its browser regression checks
-and reproducible screenshots.
+and reproducible screenshots. `npm run test:choice-funnel:firefox` reuses that
+suite in Firefox; the existing adversarial workflow runs it as a separate job.
+Both engines check keyboard ordering and restored pair totals through the QR at
+390 px and 1440 px in Turkish, English and Russian.
 
 ## Technology
 

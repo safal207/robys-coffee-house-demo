@@ -226,7 +226,7 @@ async function geometry(page, label) {
   return { label, ...result, reachability };
 }
 
-export async function verifyMenuCustomPairing(context, base, check) {
+export async function verifyMenuCustomPairing(context, base, check, { directory = ".artifacts/custom-pairing" } = {}) {
   const run = async (id, label, scenario) => {
     const page = await context.newPage();
     page.setDefaultTimeout(10_000);
@@ -535,9 +535,9 @@ export async function verifyMenuCustomPairing(context, base, check) {
     const drink = hot.reduce((longest, product) => product.item.name.ru.length > longest.item.name.ru.length ? product : longest);
     await page.setViewportSize({ width: 320, height: 844 });
     await open(page, drink);
-    mkdirSync(".artifacts/custom-pairing", { recursive: true });
+    mkdirSync(directory, { recursive: true });
     await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
-    const defaultScreenshot = ".artifacts/custom-pairing/ru-320-100-drink-only.png";
+    const defaultScreenshot = `${directory}/ru-320-100-drink-only.png`;
     await page.screenshot({ path: defaultScreenshot });
     const screenshots = [{ path: defaultScreenshot, width: 320, textScale: 100, selection: "drink-only" }];
     await choose(page, dessert.id);
@@ -549,7 +549,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
       states.push(await geometry(page, label));
       if ((width === 390 && fontSize === 16) || width === 320 || (width === 1440 && fontSize === 16)) {
         await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
-        const path = `.artifacts/custom-pairing/ru-${width}-${fontSize === 32 ? "200" : "100"}.png`;
+        const path = `${directory}/ru-${width}-${fontSize === 32 ? "200" : "100"}.png`;
         await page.screenshot({ path });
         screenshots.push({ path, width, textScale: fontSize === 32 ? 200 : 100, selection: dessert.id });
       }
