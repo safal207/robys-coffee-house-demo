@@ -93,6 +93,14 @@ for (const name of ["menu-stability", "final-qa", "community-reel"]) {
     "index.html": "<main>Menu</main>", [`${name}.css`]: "body{color:red}"
   }, [`${name}.css`]);
 }
+check("reached bootstrap retains its readable input", {
+  "index.html": '<script src="bootstrap-v2.js"></script>',
+  "bootstrap-v2.js": 'document.documentElement.classList.add("js");',
+  "src/bootstrap-v2.js": 'document.documentElement.classList.add("js");'
+}, [], [["bootstrap-v2.js", "src/bootstrap-v2.js"]]);
+check("detached bootstrap cannot retain its readable input", {
+  "index.html": '<main>Menu</main>', "bootstrap-v2.js": 'void 0;', "src/bootstrap-v2.js": 'void 0;'
+}, ["bootstrap-v2.js", "src/bootstrap-v2.js"]);
 check("unrelated source and output remain orphans", {
   "index.html": '<script type="module" src="conversion.js"></script>',
   "conversion.js": "export {};", "src/conversion.js": "export {};",

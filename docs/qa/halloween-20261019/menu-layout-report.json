@@ -1,24 +1,18 @@
 {
-  "startedAt": "2026-10-18T22:28:18.830Z",
-  "head": "f3f855accc376af38ab2e3c57565404f870c2769",
+  "startedAt": "2026-10-18T22:44:57.745Z",
+  "head": "ee9f4c93b8dabaf679a15101475ca673224eac94",
   "dirtyFilesAtStart": [
-    "M discover.html",
-    " M experience/index.html",
+    "M bootstrap-v2.js",
+    " M discover.html",
     " M index.html",
     " M integrity-manifest.json",
-    " M menu-runtime.css",
     " M menu.html",
-    " M ru/coffee-gazipasa.html",
+    " M scripts/audit-dependencies.mjs",
     " M scripts/build.mjs",
-    " M scripts/menu-styles-bundle.mjs",
-    " M scripts/test-menu-styles-bundle.mjs",
-    " M smart-choice/index.html",
+    " M scripts/test-audit-dependencies.mjs",
+    " M scripts/test-seasonal-theme-browser.mjs",
     " M sw-core-v64.js",
-    "?? docs/qa/halloween-20261019/",
-    "?? scripts/test-seasonal-theme-browser.mjs",
-    "?? seasonal-theme.js",
-    "?? seasonal.css",
-    "?? src/seasonal-theme.ts"
+    "?? src/bootstrap-v2.js"
   ],
   "mode": "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
   "environment": {
@@ -30,15 +24,15 @@
   "assetHashesStart": {
     "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
     "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
-    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "menu.html": "fe2828be5eb0d43d63d3205a5e8c708040a961d23ae92b3195186ec47830cb48",
     "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
     "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
     "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
-    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
-    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "index.html": "86d0d1aecb81a01aa51dbe3079f63137b5387fb2a631ffb624fed20c7f1f6b4c",
+    "discover.html": "d6a33ec68a7d1a65c2ed61eb40591015c2db1c75449783da9c1870d543977672",
     "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
     "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
     "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
@@ -47,7 +41,7 @@
     "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
     "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "sw-core-v64.js": "344d28935ed35cc9f0fa7a1947366288ae6db5cb273051860b770f6d20f70187",
     "scripts/test-menu-combos-browser.mjs": "96e0009f135508b9e750a0bf023e75c58b615338590b00eca49f16c8086dfb0b",
     "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
@@ -78,7 +72,7 @@
     {
       "id": "chromium-layout-320x700-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:18.920Z",
+      "startedAt": "2026-10-18T22:44:57.857Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -121,7 +115,7 @@
     {
       "id": "chromium-layout-320x700-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:19.377Z",
+      "startedAt": "2026-10-18T22:44:58.552Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -164,7 +158,7 @@
     {
       "id": "chromium-layout-320x700-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:19.800Z",
+      "startedAt": "2026-10-18T22:44:59.263Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -207,7 +201,7 @@
     {
       "id": "chromium-layout-390x844-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:20.546Z",
+      "startedAt": "2026-10-18T22:45:00.232Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -250,7 +244,7 @@
     {
       "id": "chromium-layout-390x844-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:20.924Z",
+      "startedAt": "2026-10-18T22:45:00.790Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -293,7 +287,7 @@
     {
       "id": "chromium-layout-390x844-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:21.372Z",
+      "startedAt": "2026-10-18T22:45:01.426Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -336,7 +330,7 @@
     {
       "id": "chromium-layout-768x1024-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:22.073Z",
+      "startedAt": "2026-10-18T22:45:02.323Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -359,7 +353,7 @@
     {
       "id": "chromium-layout-768x1024-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:22.516Z",
+      "startedAt": "2026-10-18T22:45:02.913Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -382,7 +376,7 @@
     {
       "id": "chromium-layout-768x1024-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:22.980Z",
+      "startedAt": "2026-10-18T22:45:03.581Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -405,7 +399,7 @@
     {
       "id": "chromium-layout-1440x1000-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:23.388Z",
+      "startedAt": "2026-10-18T22:45:04.347Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -428,7 +422,7 @@
     {
       "id": "chromium-layout-1440x1000-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:23.833Z",
+      "startedAt": "2026-10-18T22:45:04.991Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -451,7 +445,7 @@
     {
       "id": "chromium-layout-1440x1000-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:24.296Z",
+      "startedAt": "2026-10-18T22:45:05.596Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -474,7 +468,7 @@
     {
       "id": "chromium-layout-844x390-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:25.003Z",
+      "startedAt": "2026-10-18T22:45:06.545Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -497,7 +491,7 @@
     {
       "id": "chromium-layout-844x390-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:25.426Z",
+      "startedAt": "2026-10-18T22:45:07.101Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -520,7 +514,7 @@
     {
       "id": "chromium-layout-844x390-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:25.872Z",
+      "startedAt": "2026-10-18T22:45:07.723Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -543,7 +537,7 @@
     {
       "id": "webkit-layout-320x700-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:26.690Z",
+      "startedAt": "2026-10-18T22:45:08.807Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -586,7 +580,7 @@
     {
       "id": "webkit-layout-320x700-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:27.690Z",
+      "startedAt": "2026-10-18T22:45:09.953Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -629,7 +623,7 @@
     {
       "id": "webkit-layout-320x700-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:28.907Z",
+      "startedAt": "2026-10-18T22:45:11.396Z",
       "facts": {
         "width": 320,
         "height": 700,
@@ -672,7 +666,7 @@
     {
       "id": "webkit-layout-390x844-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:30.278Z",
+      "startedAt": "2026-10-18T22:45:13.028Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -715,7 +709,7 @@
     {
       "id": "webkit-layout-390x844-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:31.446Z",
+      "startedAt": "2026-10-18T22:45:14.313Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -758,7 +752,7 @@
     {
       "id": "webkit-layout-390x844-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:32.666Z",
+      "startedAt": "2026-10-18T22:45:15.761Z",
       "facts": {
         "width": 390,
         "height": 844,
@@ -801,7 +795,7 @@
     {
       "id": "webkit-layout-768x1024-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:34.215Z",
+      "startedAt": "2026-10-18T22:45:17.669Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -824,7 +818,7 @@
     {
       "id": "webkit-layout-768x1024-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:35.414Z",
+      "startedAt": "2026-10-18T22:45:18.984Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -847,7 +841,7 @@
     {
       "id": "webkit-layout-768x1024-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:36.774Z",
+      "startedAt": "2026-10-18T22:45:20.464Z",
       "facts": {
         "width": 768,
         "height": 1024,
@@ -870,7 +864,7 @@
     {
       "id": "webkit-layout-1440x1000-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:38.218Z",
+      "startedAt": "2026-10-18T22:45:21.881Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -893,7 +887,7 @@
     {
       "id": "webkit-layout-1440x1000-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:39.466Z",
+      "startedAt": "2026-10-18T22:45:23.427Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -916,7 +910,7 @@
     {
       "id": "webkit-layout-1440x1000-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:40.954Z",
+      "startedAt": "2026-10-18T22:45:25.012Z",
       "facts": {
         "width": 1440,
         "height": 1000,
@@ -939,7 +933,7 @@
     {
       "id": "webkit-layout-844x390-tr",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:42.664Z",
+      "startedAt": "2026-10-18T22:45:27.050Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -962,7 +956,7 @@
     {
       "id": "webkit-layout-844x390-en",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:43.807Z",
+      "startedAt": "2026-10-18T22:45:28.620Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -985,7 +979,7 @@
     {
       "id": "webkit-layout-844x390-ru",
       "status": "PASS",
-      "startedAt": "2026-10-18T22:28:45.038Z",
+      "startedAt": "2026-10-18T22:45:29.770Z",
       "facts": {
         "width": 844,
         "height": 390,
@@ -1006,19 +1000,19 @@
       }
     }
   ],
-  "finishedAt": "2026-10-18T22:28:46.499Z",
+  "finishedAt": "2026-10-18T22:45:31.371Z",
   "assetHashesEnd": {
     "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
     "src/app.ts": "9ef9ef739f2af5e0797899d177f786b3ac741da6962c493d7abf4631f8096135",
-    "menu.html": "c10fe83000005049832db3d4caf29ff296c8e2cb0985b223511f66bcd8b89332",
+    "menu.html": "fe2828be5eb0d43d63d3205a5e8c708040a961d23ae92b3195186ec47830cb48",
     "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
     "menu-runtime.css": "ba5a1dc1471303fb4743e6a462c716848628df1ebd1f1e38426010081f6b9645",
     "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
     "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
     "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
     "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
-    "index.html": "40684a10cd5efe388d9f782f80c9a9442b837ed18f6d56686ff5e5535c7fb83c",
-    "discover.html": "041646838bde66d1891ea87a9bf52e827cadb57cdf9fcc0010f47be87ccf495e",
+    "index.html": "86d0d1aecb81a01aa51dbe3079f63137b5387fb2a631ffb624fed20c7f1f6b4c",
+    "discover.html": "d6a33ec68a7d1a65c2ed61eb40591015c2db1c75449783da9c1870d543977672",
     "experience/index.html": "8f963d3b5012fb09f08b53be116d33a711efb2780def61b2c7fdbaa3691f23fa",
     "smart-choice/index.html": "30098b4fc136131972eda7b918509148a8c04a01b5ab97876c3a7b1b5c63ac5a",
     "ru/coffee-gazipasa.html": "fbdc0a44360bd8dd37194e28bf56255a421693282f8117c0fc39e7ffaf09709d",
@@ -1027,7 +1021,7 @@
     "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
     "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
     "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
-    "sw-core-v64.js": "c9d8f3ce6c4a9518028fa3c704c38a42fb8a2593cd217fc6a28d34eb6ef905c0",
+    "sw-core-v64.js": "344d28935ed35cc9f0fa7a1947366288ae6db5cb273051860b770f6d20f70187",
     "scripts/test-menu-combos-browser.mjs": "96e0009f135508b9e750a0bf023e75c58b615338590b00eca49f16c8086dfb0b",
     "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
     "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
@@ -1062,7 +1056,6 @@
     "/menu-runtime.css": 30,
     "/menu.html": 30,
     "/pairing-posters.js": 30,
-    "/seasonal-theme.js": 30,
     "/src/brand/robys-compact-master-v1.svg": 30,
     "/src/brand/robys-primary-master-v1.svg": 30,
     "/src/products/menu-v1/food--three-cheese-croissant.webp": 30,

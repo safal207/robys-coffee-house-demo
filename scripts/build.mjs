@@ -285,9 +285,15 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 const qaRevision = revisionFor("qa.js");
-let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
+let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
-writeFileSync("bootstrap-v2.js", bootstrapSource);
+writeFileSync("src/bootstrap-v2.js", bootstrapSource);
+// Reuse the existing blocking request and gzip stream on the three entry pages.
+// Preserve the entry handoff source verbatim, including its guarded recovery.
+const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
+  minify: true, target: "es2020", legalComments: "none"
+}).code;
+writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${bootstrapSource}`);
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
 let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
@@ -455,10 +461,14 @@ const choiceSurfaces = ["index.html", "menu.html", "discover.html", "experience/
 for (const file of choiceSurfaces) {
   const prefix = file.includes("/") ? "../" : "";
   let page = readFileSync(file, "utf8");
-  if (!page.includes(`src="${prefix}seasonal-theme.js`)) {
-    page = page.replace("</head>", `  <script src="${prefix}seasonal-theme.js"></script>\n</head>`);
+  if (["index.html", "menu.html", "discover.html"].includes(file)) {
+    page = page.replace(/\s*<script\b[^>]*\bsrc="seasonal-theme\.js(?:\?[^\"]*)?"[^>]*><\/script>/, "");
+  } else {
+    if (!page.includes(`src="${prefix}seasonal-theme.js`)) {
+      page = page.replace("</head>", `  <script src="${prefix}seasonal-theme.js"></script>\n</head>`);
+    }
+    page = synchronizeBlockingScript(page, `${prefix}seasonal-theme.js`, seasonalThemeRevision);
   }
-  page = synchronizeBlockingScript(page, `${prefix}seasonal-theme.js`, seasonalThemeRevision);
   if (file !== "menu.html") {
     if (!page.includes(`href="${prefix}seasonal.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}seasonal.css" />\n</head>`);
     page = synchronizeStylesheet(page, `${prefix}seasonal.css`, seasonalCssRevision);
@@ -498,7 +508,7 @@ serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
 serviceWorker = serviceWorker.replace(/-coffee-paths-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeePathsRevision}-shared-order-`);
-const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}`).digest("hex").slice(0, 12);
+const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-halloween-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-halloween-${seasonalCacheRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.

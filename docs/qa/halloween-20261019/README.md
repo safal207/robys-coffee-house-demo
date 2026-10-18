@@ -19,4 +19,6 @@ Assistant visual inspection covers the four captures below. It is not an indepen
 
 Reproduce with `npm ci --no-audit --no-fund`, `npm run build`, `npm run integrity:generate`, then `ROBYS_SEASONAL_QA_DIR=.artifacts/seasonal-theme node scripts/test-seasonal-theme-browser.mjs`. Required repository validation remains `npm run check` and `npm run verify:security`.
 
-Final required validation passed: `npm run check` and `npm run verify:security` (45 revision tests, 356 security checks and secret scan). The final browser captures were rerun after restoring the required security → brand → checkout cascade ending.
+Final required validation passed: `npm run check` and `npm run verify:security` (45 revision tests, 354 security checks and secret scan). The final browser captures were rerun after restoring the required security → brand → checkout cascade ending.
+
+The existing `bootstrap-v2.js` request now contains the compact seasonal initializer followed by the readable `src/bootstrap-v2.js` handoff verbatim. Home, menu and Discover need no separate seasonal script request. The other three views retain the standalone runtime. Dependency tests preserve conditional runtime → source reachability, including a detached-bootstrap negative case. The Lighthouse baseline and 5% JavaScript-growth limit remain unchanged.

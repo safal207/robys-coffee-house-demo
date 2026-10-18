@@ -31,7 +31,7 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
 const subjects = ["index.html", "menu.html", "discover.html", "smart-choice/index.html", "experience/index.html", "ru/coffee-gazipasa.html",
-  "src/seasonal-theme.ts", "seasonal-theme.js", "seasonal.css", "menu-runtime.css", "sw-core-v64.js", "integrity-manifest.json", "scripts/test-seasonal-theme-browser.mjs"];
+  "src/seasonal-theme.ts", "src/bootstrap-v2.js", "bootstrap-v2.js", "seasonal-theme.js", "seasonal.css", "menu-runtime.css", "sw-core-v64.js", "integrity-manifest.json", "scripts/test-seasonal-theme-browser.mjs"];
 const hashes = () => Object.fromEntries(subjects.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { generatedAt: new Date().toISOString(), baseCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   environment: "Unchanged built files; original CSP; local HTTPS; fresh contexts; external requests blocked; desktop browser engines with touch viewport emulation, not physical devices",
