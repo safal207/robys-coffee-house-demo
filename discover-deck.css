@@ -116,6 +116,25 @@
     top: 76px;
   }
 
+  /* Keep the next journey and its price visible with wider fallback fonts. */
+  .discover-deck-shell > .pairing-card .pairing-story {
+    padding-top: 16px;
+  }
+
+  .discover-deck-shell > .pairing-card .pairing-kicker {
+    margin-bottom: 10px;
+  }
+
+  .discover-deck-shell > .pairing-card .pairing-story > div > p:last-of-type {
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .discover-deck-shell > .pairing-card .pairing-actions {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
   .discover-deck-preview {
     top: 94px;
     grid-template-columns: 86px minmax(0, 1fr) auto;

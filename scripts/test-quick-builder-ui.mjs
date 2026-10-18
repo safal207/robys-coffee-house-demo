@@ -64,7 +64,7 @@ class TestElement extends EventTarget {
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
-const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame", "indexedDB"].map(key => [key, globalThis[key]]));
+const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame", "indexedDB", "MutationObserver"].map(key => [key, globalThis[key]]));
 const numberFormat = Intl.NumberFormat;
 let formatterCount = 0;
 const storage = () => {
@@ -72,7 +72,8 @@ const storage = () => {
   return { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
 };
 try {
-  globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body") };
+  globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body"), documentElement: new TestElement("html") };
+  globalThis.MutationObserver = class { observe() {} disconnect() {} };
   document.querySelector = selector => document.body.querySelector(selector);
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
@@ -161,9 +162,9 @@ try {
   assert.equal(composer.querySelector("h2").textContent, "Added to your order");
   assert.equal(document.activeElement, composer.querySelector("h2"), "Success moves focus to the confirmation");
   assert.equal(composer.querySelector(".qb-add"), null, "Confirmation cannot accidentally add the same selection again");
-  const addedDraft = localStorage.getItem("robys-menu-order.v1");
+  const addedDraft = localStorage.getItem("robys-menu-order.v2");
   firstAdd.click();
-  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "A second activation of the former Add button cannot duplicate the order");
+  assert.equal(localStorage.getItem("robys-menu-order.v2"), addedDraft, "A second activation of the former Add button cannot duplicate the order");
   assert(composer.querySelector(".qb-confirmation-checkout"));
   composer.querySelector(".qb-confirmation-more").click();
   assert.equal(customizer.open, false, "Choosing more explicitly returns to the catalog");
@@ -171,7 +172,7 @@ try {
   coffee.focus(); // Simulate native restoration finishing after our close callback.
   flushAnimationFrames();
   assert.equal(document.activeElement, root.querySelector("#qb-search"), "A late native focus restore cannot override Choose more");
-  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "Continuing to browse preserves the basket");
+  assert.equal(localStorage.getItem("robys-menu-order.v2"), addedDraft, "Continuing to browse preserves the basket");
   assert.equal(cart.replacements - before, 1, "Own add must render the cart once, not twice through its event echo");
   before = cart.replacements;
   cart.querySelector('[data-step="up"]').click();
@@ -186,7 +187,7 @@ try {
   window.dispatchEvent(Object.assign(new Event("storage"), { key: "robys-menu-order.v1" }));
   await settleWrites();
   assert.equal(cart.replacements - before, 1, "Cross-tab storage updates must still refresh the cart");
-  const savedDraft = () => JSON.parse(localStorage.getItem("robys-menu-order.v1"));
+  const savedDraft = () => structuredClone(records.get("robys-menu-order.v1").draft);
   const beforeEdit = savedDraft();
   cart.querySelector(".qb-edit").click();
   assert.equal(customizer.open, true);

@@ -2,11 +2,14 @@ import { addOrderGroup } from "./order-draft.js";
 
 // Editorial starting points using ordinary menu products, never new sale SKUs.
 export const familyRecipes = [
-  { id: "milk-cookie", image: "src/products/family-v1/milk-cookie.webp", name: { tr: "Süt ve cookie", en: "Milk & cookie", ru: "Молоко и печенье" },
+  { id: "milk-cookie", name: { tr: "Süt ve cookie", en: "Milk & cookie", ru: "Молоко и печенье" },
+    image: "src/products/family-sets-v1/milk-cookie.webp",
     productIds: ["brew-hot:milk", "desserts:cookie"] },
-  { id: "simit-break", image: "src/products/family-v1/simit-break.webp", name: { tr: "Simit molası", en: "Simit break", ru: "Перекус с симитом" },
+  { id: "simit-break", name: { tr: "Simit molası", en: "Simit break", ru: "Перекус с симитом" },
+    image: "src/products/family-sets-v1/simit-break.webp",
     productIds: ["brew-hot:milk", "food:sesame-simit", "desserts:cookie"] },
-  { id: "milk-roll", image: "src/products/family-v1/milk-roll.webp", name: { tr: "Süt ve rulo pasta", en: "Milk & cake roll", ru: "Молоко и рулет" },
+  { id: "milk-roll", name: { tr: "Süt ve rulo pasta", en: "Milk & cake roll", ru: "Молоко и рулет" },
+    image: "src/products/family-sets-v1/milk-roll.webp",
     productIds: ["brew-hot:milk", "desserts:cake-roll"] }
 ];
 

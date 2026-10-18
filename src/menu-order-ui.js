@@ -118,7 +118,7 @@ checkoutButton.addEventListener("click", async () => {
   const session = cartSession;
   checkoutButton.disabled = true;
   try {
-    const { openOrderCheckout } = await import("./order-checkout.js?v=a4137d7045f9");
+    const { openOrderCheckout } = await import("./order-checkout.js?v=8737e01cdca9");
     if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
     cart = readCart();
     if (!orderDraft.groups.length || hasMissingVariant()) return;
@@ -533,6 +533,15 @@ function selectedProducts() {
   return sweet ? [product, productIndex.get(sweet.id)] : [product];
 }
 
+function setAddButtonLabel(label) {
+  if (addToCartButton.textContent === label) return;
+  const text = addToCartButton.firstChild;
+  // Replacing a button's text subtree during an active press can suppress
+  // WebKit's trusted click. Keep the same text node for changed labels too.
+  if (text?.nodeType === 3 && addToCartButton.childNodes.length === 1) text.nodeValue = label;
+  else addToCartButton.textContent = label;
+}
+
 function rememberSelection() {
   if (!selectedProductId || pairingLoading || editingGroup) return;
   productPreferences[selectedProductId] = {
@@ -575,9 +584,9 @@ function updateProductQuantity() {
   } else pairImage.removeAttribute("src");
   const atLimit = availableQuantity === 0 || selectedProductQuantity > availableQuantity;
   addToCartButton.disabled = productSaving || atLimit || missingVariant || waitingForPair;
-  addToCartButton.textContent = waitingForPair ? pairingActionCopy[language].loading : missingVariant ? ui.required : atLimit
+  setAddButtonLabel(waitingForPair ? pairingActionCopy[language].loading : missingVariant ? ui.required : atLimit
     ? copy.maxQuantity
-    : `${editingGroup ? editCopy[language].save : cart.has(product.id) ? ui.more : products.length === 2 ? pairingActionCopy[language].add : copy.addToCart} · ${formatPrice(total)}`;
+    : `${editingGroup ? editCopy[language].save : cart.has(product.id) ? ui.more : products.length === 2 ? pairingActionCopy[language].add : copy.addToCart} · ${formatPrice(total)}`);
   document.querySelector("#menu-quantity-label").textContent = products.length === 2
     ? pairingActionCopy[language].quantity : copy.quantity;
 }
@@ -763,8 +772,9 @@ document.querySelectorAll("[data-menu-dialog-close]").forEach((button) => {
 });
 
 
-function refresh({ nextLanguage = language, resetAdded = false } = {}) {
+function refresh({ nextLanguage = language, resetAdded = false, clearStorageError = false } = {}) {
   language = nextLanguage;
+  if (clearStorageError) { productEditError.hidden = true; cartCheckoutError.hidden = true; }
   cart = readCart();
   if (resetAdded) lastAddedSelection = null;
   const copy = menuCopy[language];

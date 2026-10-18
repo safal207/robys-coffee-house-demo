@@ -41,3 +41,20 @@ body.order-checkout-open{overflow:hidden}
 .cashier-actions [hidden]{display:none}
 @media(max-width:390px){.order-checkout-shell,.cashier-wrap{padding:22px 16px}.order-ticket-line{gap:10px}.order-ticket-title{font-size:1.1rem}.cashier-page{padding:12px 8px}}
 @media print{.cashier-page{padding:0;background:#fff}.cashier-wrap{width:100%;padding:0;border:0;box-shadow:none}.cashier-language,.cashier-actions{display:none}.order-ticket-line{break-inside:avoid}.order-ticket-note{color:#333}}
+.order-storage-notice{box-sizing:border-box;width:min(100% - 24px,1000px);margin:12px auto;padding:16px;border:2px solid #986324;border-radius:16px;background:#fff7e9;color:#29211c;font:400 1rem/1.5 var(--sans,system-ui,sans-serif);overflow-wrap:anywhere}
+.order-storage-notice[hidden]{display:none!important}
+body>.order-storage-notice{position:sticky;top:calc(var(--menu-header-height,76px) + 8px);z-index:75}
+.order-storage-notice h2{margin:0 0 8px;font-size:1.1rem;line-height:1.35}
+.order-storage-notice h3{margin:0 0 8px;font-size:1rem;line-height:1.35}
+.order-storage-notice p{margin:8px 0}
+.order-storage-previews{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+.order-storage-preview{min-width:0;padding:12px;border:1px solid #d6c1a5;border-radius:12px;background:#fffdfa}
+.order-storage-lines{margin:0;padding-inline-start:20px}
+.order-storage-total{font-weight:700}
+.order-storage-actions{display:flex;flex-wrap:wrap;gap:8px}
+.order-storage-choice{flex:1 1 220px;min-height:44px;padding:10px 14px;border:1px solid #603c13;border-radius:12px;background:#fffdfa;color:#4c2b08;font:700 1rem/1.35 var(--sans,system-ui,sans-serif);cursor:pointer;white-space:normal;overflow-wrap:anywhere}
+.order-storage-choice:focus-visible{outline:3px solid #29211c;outline-offset:3px}
+.order-storage-choice:disabled{opacity:.7;cursor:wait}
+.order-storage-error{color:#8e1717;font-weight:700}
+.order-checkout-shell>.order-storage-notice{margin-top:48px}
+@media(max-width:600px){.order-storage-previews{grid-template-columns:minmax(0,1fr)}.order-storage-notice{width:calc(100% - 16px);padding:12px}.order-storage-actions{flex-direction:column}.order-storage-choice{flex:0 0 auto;width:100%}}

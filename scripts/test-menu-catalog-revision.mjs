@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { buildSync } from "esbuild";
-import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 import { menuCatalogRevision, readMenuCatalogRevisionInputs, verifyMenuCatalogRevision,
   SMART_CHOICE_CATALOG_CONSUMERS, readSmartChoiceCatalogRevisionInputs, verifySmartChoiceCatalogRevision } from "./menu-catalog-revision.mjs";
 
@@ -206,6 +206,38 @@ test("returning service-worker cache does not reuse old catalog or lazy pairing 
   await verifyReturningModuleCache(worker, "menu-catalog.js", menuCatalogRevision(readFileSync("menu-catalog.js")));
   await verifyReturningModuleCache(worker, "menu-pairing.js", menuCatalogRevision(readFileSync("menu-pairing.js")));
   await verifyReturningModuleCache(worker, "menu-order-ui.js", menuCatalogRevision(readFileSync("menu-order-ui.js")));
+  await verifyReturningModuleCache(worker, "order-storage.js", menuCatalogRevision(readFileSync("order-storage.js")));
+});
+
+test("ordering storage is loaded on intent with verified source and exact offline revision", () => {
+  const runtime = readFileSync("order-storage.js", "utf8");
+  assert.equal(runtime, compileOrderStorageRuntime(), "Storage runtime must match its source, domain and recovery controls");
+  const revision = menuCatalogRevision(runtime);
+  const expectedUrl = `./order-storage.js?v=${revision}`;
+  const source = readFileSync("src/menu-app.js", "utf8");
+  const emitted = readFileSync("menu-app.js", "utf8");
+  for (const [file, content] of [["source", source], ["runtime", emitted]]) {
+    assert.ok(content.includes(`import("${expectedUrl}")`), `${file} must request the current storage runtime lazily`);
+    assert.doesNotMatch(content, /from\s*["'][^"']*(?:order-storage|order-draft|order-storage-notice)\.js/, `${file} must not import ordering storage eagerly`);
+  }
+  const worker = readFileSync("sw-core-v64.js", "utf8");
+  assert.ok(worker.includes(`"${expectedUrl}"`), "Storage must be precached at its exact revision");
+  for (const file of ["smart-choice/app-v2.js", "smart-choice/cart-v2.js"]) {
+    const content = readFileSync(file, "utf8");
+    const imports = Array.from(content.matchAll(/\bfrom\s*["']([^"']*order-storage\.js(?:\?[^"']*)?)["']/g), match => match[1]);
+    assert.deepEqual([...new Set(imports)], [`../order-storage.js?v=${revision}`], `${file} must reuse the current shared storage module`);
+    assert.ok(!content.includes("robys-order-transactions.v1"), `${file} must not ship a duplicate storage implementation`);
+  }
+});
+
+test("actual-worker negative control rejects stale ordering storage at a new revision", async () => {
+  const worker = readFileSync("sw-core-v64.js", "utf8");
+  const rule = /url\.pathname\.endsWith\("\/order-storage\.js"\)\s*\|\|/;
+  assert.match(worker, rule);
+  await assert.rejects(
+    verifyReturningModuleCache(worker.replace(rule, ""), "order-storage.js", menuCatalogRevision(readFileSync("order-storage.js"))),
+    /a stale query must not satisfy the current content URL/
+  );
 });
 
 test("actual-worker negative control rejects removal of the pairing exact-query cache rule", async () => {
@@ -236,12 +268,15 @@ test("family selection source, loader and offline cache use the same fresh bytes
   assert.ok(worker.includes(`"./menu-family.css?v=${cssRevision}"`), "Offline family CSS must precache current bytes");
   assert.ok(readFileSync("menu.html", "utf8").includes(`href="menu-family.css?v=${cssRevision}"`),
     "Family page stylesheet must match offline content");
-  const familyAssets = ["src/menu-family.js", "src/products/family-v1/milk-cookie.webp",
-    "src/products/family-v1/simit-break.webp", "src/products/family-v1/milk-roll.webp"];
-  const namespace = menuCatalogRevision([revision, cssRevision,
-    ...familyAssets.map(file => menuCatalogRevision(readFileSync(file)))].join(":"));
+  const familyPhotos = ["milk-cookie", "simit-break", "milk-roll", "kids-box"]
+    .map(name => `src/products/family-sets-v1/${name}.webp`);
+  const precache = worker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1];
+  for (const path of familyPhotos) {
+    assert.ok(precache?.includes(`"./${path}"`), `${path}: first offline reveal requires precaching`);
+  }
+  const photoRevisions = familyPhotos.map(path => menuCatalogRevision(readFileSync(path)));
+  const namespace = menuCatalogRevision([revision, cssRevision, menuCatalogRevision(readFileSync("src/menu-family.js")), ...photoRevisions].join(":"));
   assert.ok(worker.includes(`-family-menu-${namespace}-`), "Family cache namespace must bind UI, CSS, recipes and photo bytes");
-  for (const file of familyAssets.slice(1)) assert.ok(worker.includes(`"./${file}"`), `${file}: family photograph must be precached`);
   for (const file of ["menu-family-ui.js", "menu-family.css"]) {
     const digest = menuCatalogRevision(readFileSync(file));
     await verifyReturningModuleCache(worker, file, digest);

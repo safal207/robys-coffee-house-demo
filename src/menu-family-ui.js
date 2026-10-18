@@ -8,7 +8,9 @@ const copy = {
     add: "Seçilenleri ekle", total: "Seçilenlerin toplamı", empty: "En az bir ürün seçin.",
     limit: "Bu seçim için bir ürünün adedi dolu. Siparişini kontrol et veya o ürünün işaretini kaldır.",
     error: "Seçim eklenemedi. Tekrar deneyin.", cartError: "Ürünler eklendi. Siparişini üstteki düğmeden açabilirsin.",
-    close: "Kapat", fewer: "Önerileri gizle", loading: "Açılıyor…", regular: "Menüden kendim seçeyim"
+    close: "Kapat", fewer: "Önerileri gizle", loading: "Açılıyor…", regular: "Menüden kendim seçeyim",
+    boxSoon: "Yakında satışta. Kasada sorun.", boxConcept: "Set konsepti",
+    boxAlt: "Roby’s Kids Box ambalaj konsepti"
   },
   en: {
     title: "With kids", lead: "Three starting ideas from the menu. Parents decide what is suitable.",
@@ -17,7 +19,9 @@ const copy = {
     add: "Add selected items", total: "Selected total", empty: "Choose at least one item.",
     limit: "An item in this selection is at its quantity limit. Check your order or uncheck that item.",
     error: "Could not add this selection. Please try again.", cartError: "Items added. You can open your order using the button above.",
-    close: "Close", fewer: "Hide suggestions", loading: "Opening…", regular: "Choose from the full menu"
+    close: "Close", fewer: "Hide suggestions", loading: "Opening…", regular: "Choose from the full menu",
+    boxSoon: "Coming soon. Ask at the counter.", boxConcept: "Set concept",
+    boxAlt: "Roby’s Kids Box packaging concept"
   },
   ru: {
     title: "С ребёнком", lead: "Три идеи из обычного меню. Что подойдёт ребёнку, решает родитель.",
@@ -26,7 +30,9 @@ const copy = {
     add: "Добавить выбранное", total: "Сумма выбранного", empty: "Выбери хотя бы одну позицию.",
     limit: "Для одной из позиций достигнут лимит количества. Проверь заказ или убери её из выбора.",
     error: "Не удалось добавить выбор. Попробуй ещё раз.", cartError: "Продукты добавлены. Открыть заказ можно кнопкой сверху.",
-    close: "Закрыть", fewer: "Скрыть подборку", loading: "Открываем…", regular: "Выбрать из полного меню"
+    close: "Закрыть", fewer: "Скрыть подборку", loading: "Открываем…", regular: "Выбрать из полного меню",
+    boxSoon: "Скоро в продаже. Спрашивайте у кассира.", boxConcept: "Концепт набора",
+    boxAlt: "Концепт фирменной коробки Roby’s Kids Box"
   }
 };
 
@@ -67,7 +73,22 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   const cards = element("div", "menu-family-cards");
   const regular = element("a", "menu-family-regular", text("regular"));
   regular.href = "#brew-hot";
-  root.replaceChildren(heading, lead, cards, note, regular);
+  const comingSoon = element("article", "menu-family-coming-soon");
+  const boxFigure = element("figure", "menu-family-box-figure");
+  const boxImage = element("img", "menu-family-box-image");
+  boxImage.src = "src/products/family-sets-v1/kids-box.webp";
+  boxImage.alt = text("boxAlt");
+  boxImage.width = boxImage.height = 900;
+  boxImage.loading = "lazy";
+  boxImage.decoding = "async";
+  const boxCaption = element("figcaption", "menu-family-box-caption", text("boxConcept"));
+  boxFigure.append(boxImage, boxCaption);
+  const boxCopy = element("div", "menu-family-box-copy");
+  const boxTitle = element("h3", "", "Roby’s Kids Box");
+  const boxStatus = element("p", "menu-family-box-status", text("boxSoon"));
+  boxCopy.append(boxTitle, boxStatus);
+  comingSoon.append(boxFigure, boxCopy);
+  root.replaceChildren(heading, lead, cards, note, regular, comingSoon);
 
   const dialog = element("dialog", "menu-family-dialog");
   dialog.setAttribute("role", "dialog");
@@ -174,13 +195,16 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
       card.dataset.familyRecipe = recipe.id;
       const photos = element("div", "menu-family-photos");
       const image = photo({ image: recipe.image });
-      image.width = image.height = 1024;
+      image.alt = quote.products.map(product => localized(product.item.name)).join(" + ");
+      image.width = image.height = 900;
       const ribbon = element("span", "menu-family-ribbon");
+      ribbon.hidden = true;
       const heart = element("span", "", "❤");
       heart.setAttribute("aria-hidden", "true");
       ribbon.append(heart, document.createTextNode(text("title")));
       image.addEventListener("error", () => {
         photos.classList.add("is-fallback");
+        ribbon.hidden = false;
         photos.replaceChildren(...quote.products.map(photo), ribbon);
       }, { once: true });
       photos.append(image, ribbon);
@@ -266,6 +290,9 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     note.textContent = text("note");
     hide.textContent = text("fewer");
     regular.textContent = text("regular");
+    boxImage.alt = text("boxAlt");
+    boxCaption.textContent = text("boxConcept");
+    boxStatus.textContent = text("boxSoon");
     renderCards();
     if (dialog.hasAttribute("open")) renderPreview();
   }

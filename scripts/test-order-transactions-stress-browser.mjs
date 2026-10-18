@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { buildSync } from "esbuild";
 import { chromium, firefox, webkit } from "playwright";
-import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 import { menuCategories } from "../menu-catalog.js";
 import { addOrderGroup, normalizeOrderDraft } from "../src/order-draft.js";
 
@@ -17,7 +17,7 @@ const certificate = mkdtempSync(join(tmpdir(), "robys-transactions-https-"));
 execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1", "-keyout", join(certificate, "key.pem"),
   "-out", join(certificate, "cert.pem"), "-subj", "/CN=localhost"], { stdio: "ignore" });
 const compiled = new Map([
-  ["/menu-app.js", compileMenuRuntime()], ["/menu-order-ui.js", compileMenuOrderRuntime()],
+  ["/menu-app.js", compileMenuRuntime()], ["/menu-order-ui.js", compileMenuOrderRuntime()], ["/order-storage.js", compileOrderStorageRuntime()],
   ["/menu-pairing.js", buildSync({ entryPoints: ["src/menu-pairing-view.js"], bundle: true, write: false, format: "esm", target: "es2020", minify: true, logLevel: "silent" }).outputFiles[0].text]
 ]);
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp", ".woff2": "font/woff2" };
@@ -30,7 +30,9 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
   response.writeHead(200, { "content-type": mime[extname(file)] ?? "application/octet-stream" }); createReadStream(file).pipe(response);
 });
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve)); const origin = `https://127.0.0.1:${server.address().port}`;
-const key = "robys-menu-order.v1";
+// This variable is used only for localStorage projection probes. The production
+// IndexedDB record key and fenced legacy localStorage key remain v1.
+const key = "robys-menu-order.v2";
 const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const ids = new Set(menuCategories.flatMap(category => (category.items ?? category.groups?.flatMap(group => group.items) ?? []).map(item => `${category.id}:${item.id ?? slug(item.name.en)}`)));
 const latte = "hot-coffee:caffe-latte", cookie = "desserts:cookie", macaron = "desserts:macaron", espresso = "hot-coffee:espresso", flavoured = "cold-coffee:flavoured-iced-caffe-latte";
@@ -39,7 +41,7 @@ const browserType = { chromium, firefox, webkit }[browserName];
 if (!browserType) throw new Error(`Unknown browser ${browserName}`);
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   mode: "Local source fixture with two real browser pages sharing one origin; engine test, not physical OEM certification", browser: browserName,
-  sourceHashes: Object.fromEntries(["src/order-draft.js", "src/menu-order-ui.js", "src/menu-app.js", "src/menu-promo-pair.js"]
+  sourceHashes: Object.fromEntries(["src/order-draft.js", "src/order-storage.js", "src/order-storage-notice.js", "src/menu-order-ui.js", "src/menu-app.js", "src/menu-promo-pair.js"]
     .map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")])), cases: [] };
 let browser, context, left, right;
 const uiPages = [];
@@ -50,7 +52,8 @@ async function run(id, callback) {
   catch (error) { const ui = await Promise.all(uiPages.map(page => page.evaluate(() => ({
       dialogs: [...document.querySelectorAll("dialog[open]")].map(dialog => dialog.id), title: document.querySelector("#menu-product-title")?.textContent,
       add: document.querySelector("#menu-add-to-cart")?.textContent, disabled: document.querySelector("#menu-add-to-cart")?.disabled,
-      error: document.querySelector("#menu-product-edit-error")?.textContent, draft: localStorage.getItem("robys-menu-order.v1")
+      error: document.querySelector("#menu-product-edit-error")?.textContent,
+      draftProjection: localStorage.getItem("robys-menu-order.v2"), legacyDraft: localStorage.getItem("robys-menu-order.v1")
     })).catch(error => ({ error: error.message }))));
     report.cases.push({ id, status: "FAIL", error: error.stack, ui }); console.error(`FAIL ${id}: ${error.stack}`); }
   persist();
@@ -113,6 +116,10 @@ async function seedUi(page, draft) {
   const expected = String(draft.groups.reduce((sum, group) => sum + group.quantity, 0));
   await Promise.all(uiPages.map(page => page.waitForFunction(expected => document.querySelector("#menu-cart-count")?.textContent === expected, expected)));
 }
+const latestUi = page => page.evaluate(async ids => {
+  const orders = await import("/src/order-draft.js");
+  return orders.readLatestStoredOrderDraft(new Set(ids));
+}, [...ids]);
 try {
   browser = await browserType.launch({ headless: true }); report.version = browser.version();
   context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", serviceWorkers: "block", ignoreHTTPSErrors: true });
@@ -261,6 +268,73 @@ try {
     finally { await fresh.close(); }
     return { staleProjectionIgnored: true, freshPageRecoveredAuthority: true };
   });
+  await run("delayed-older-completion-projects-newest-canonical-order", async () => {
+    await seed();
+    await left.evaluate(() => {
+      const descriptor = Object.getOwnPropertyDescriptor(IDBTransaction.prototype, "oncomplete");
+      const put = IDBObjectStore.prototype.put;
+      window.restoreCompletionProbe = () => {
+        Object.defineProperty(IDBTransaction.prototype, "oncomplete", descriptor);
+        IDBObjectStore.prototype.put = put;
+      };
+      Object.defineProperty(IDBTransaction.prototype, "oncomplete", { ...descriptor,
+        set(callback) {
+          descriptor.set.call(this, typeof callback !== "function" ? callback : function(event) {
+            if (this.qaHoldCompletion) {
+              window.olderCompletionHeld = true;
+              window.releaseOlderCompletion = () => {
+                window.releaseOlderCompletion = undefined;
+                this.qaHoldCompletion = false;
+                return callback.call(this, event);
+              };
+              return;
+            }
+            return callback.call(this, event);
+          });
+        }
+      });
+      IDBObjectStore.prototype.put = function(...args) {
+        if (this.name === "shared-order") this.transaction.qaHoldCompletion = true;
+        return put.apply(this, args);
+      };
+      window.olderMutation = window.orders.transactStoredOrderDraft(draft => window.orders.addOrderGroup(draft,
+        [{ id: "desserts:cookie" }], 1, window.productIds), window.productIds);
+    });
+    try {
+      await left.waitForFunction(() => window.olderCompletionHeld === true, undefined, { timeout: 5000 });
+      // The first transaction has committed, but its completion callback has
+      // not run. A second document can commit and project the newer revision.
+      const newer = await mutation(right, { kind: "add", items: [{ id: latte }], quantity: 1 });
+      const expected = [{ id: cookie, quantity: 1 }, { id: latte, quantity: 1 }];
+      assert.deepEqual(newer.input.lines, [{ id: cookie, quantity: 1 }], "the newer writer reads the held transaction's actual commit");
+      assert.deepEqual(newer.draft.lines, expected);
+      const older = await left.evaluate(async () => {
+        await window.releaseOlderCompletion();
+        return window.olderMutation;
+      });
+      assert.equal(older.applied, true);
+      assert.ok(older.committedRevision < newer.committedRevision, "completion callbacks really arrived in reverse revision order");
+      assert.deepEqual(older.draft.lines, expected, "late success returns the newest authoritative snapshot");
+      assert.deepEqual((await stored()).lines, expected);
+      const cold = await context.newPage();
+      try {
+        await cold.goto(`${origin}/transaction-fixture.html`);
+        const pages = [left, right, cold];
+        let projections;
+        for (let attempt = 0; attempt < 25; attempt++) {
+          projections = await Promise.all(pages.map(page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key)));
+          if (projections.every(draft => JSON.stringify(draft?.lines) === JSON.stringify(expected))) break;
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        assert.ok(projections.every(draft => JSON.stringify(draft?.lines) === JSON.stringify(expected)),
+          `both live documents and a cold document retain the newest projection: ${JSON.stringify(projections)}`);
+      } finally { await cold.close(); }
+      return { reversedCompletions: true, olderCommittedRevision: older.committedRevision,
+        newerCommittedRevision: newer.committedRevision, canonicalAndThreeProjectionsAgree: true };
+    } finally {
+      await left.evaluate(() => { window.releaseOlderCompletion?.(); window.restoreCompletionProbe?.(); });
+    }
+  });
   await run("database-clear-reopens-without-resurrection", async () => {
     await seed(addOrderGroup(null, [{ id: latte }], 3, ids).draft);
     await mutation(left, { kind: "add", items: [{ id: cookie }], quantity: 2 });
@@ -303,12 +377,14 @@ try {
     }));
     await Promise.all([first, second].map(page => page.locator("#menu-add-to-cart").click()));
     await Promise.all([first, second].map(page => page.locator("#menu-cart-dialog[open]").waitFor()));
-    const draft = await first.evaluate(key => JSON.parse(localStorage.getItem(key)), key); assert.deepEqual(draft.lines, [{ id: espresso, quantity: 2 }]);
+    const projectionAtCommit = await first.evaluate(key => JSON.parse(localStorage.getItem(key)), key);
+    const draft = await latestUi(first); assert.deepEqual(draft.lines, [{ id: espresso, quantity: 2 }]);
     await Promise.all([first, second].map(page => page.waitForFunction(() =>
       document.querySelector("#menu-cart-count")?.textContent === "2"
       && document.querySelector(".menu-cart-line-controls > span")?.textContent === "2"
       && document.querySelector("#menu-cart-dialog-total")?.textContent.includes("220"), null, { timeout: 1200 })));
-    return { actualNativeAddHandlers: 2, finalQuantity: 2, bothDomCartsConverged: true };
+    return { actualNativeAddHandlers: 2, finalQuantity: 2, bothDomCartsConverged: true,
+      projectionQuantityAtCommit: projectionAtCommit?.lines?.find(line => line.id === espresso)?.quantity ?? 0 };
   });
   await run("native-pending-add-new-product", async () => {
     for (const page of [first, second]) if (await page.locator("#menu-cart-dialog[open]").count()) await page.keyboard.press("Escape");
@@ -328,12 +404,12 @@ try {
       await first.locator('[data-product-id="desserts:cake-roll"] .full-menu-item-media').click();
     } finally { await second.evaluate(() => { window.heldOrderTransaction.abort(); window.heldOrderDatabase.close(); }); }
     await first.locator("#menu-product-dialog[open]").waitFor();
-    await first.waitForFunction(key => JSON.parse(localStorage.getItem(key))?.lines?.some(line => line.id === "desserts:cookie"), key);
+    assert.ok((await latestUi(first)).lines.some(line => line.id === "desserts:cookie"));
     assert.equal(await first.locator("#menu-cart-dialog[open]").count(), 0, "the old Add cannot take over the newer product intent");
     await first.waitForFunction(() => !document.querySelector("#menu-add-to-cart").disabled);
     assert.match(await first.locator("#menu-product-title").textContent(), /рулет/i);
     await first.locator("#menu-add-to-cart").click(); await first.locator("#menu-cart-dialog[open]").waitFor();
-    const draft = await first.evaluate(key => JSON.parse(localStorage.getItem(key)), key);
+    const draft = await latestUi(first);
     assert.deepEqual(draft.lines, [{ id: "desserts:cake-roll", quantity: 1 }, { id: cookie, quantity: 1 }]);
     return { oldAddCommitted: true, newerIntentPreserved: true, newAddReenabled: true };
   });
@@ -348,11 +424,11 @@ try {
     try {
       await first.locator("#menu-add-to-cart").click(); await first.locator("#menu-product-edit-error:not([hidden])").waitFor();
       assert.equal(await first.locator("#menu-cart-dialog[open]").count(), 0);
-      assert.deepEqual(await first.evaluate(key => JSON.parse(localStorage.getItem(key)).lines, key), []);
+      assert.deepEqual((await latestUi(first)).lines, []);
       assert.equal(await first.locator("#menu-add-to-cart").isEnabled(), true);
     } finally { await first.evaluate(() => { IDBObjectStore.prototype.put = window.originalIdbPut; }); }
     await first.locator("#menu-add-to-cart").click(); await first.locator("#menu-cart-dialog[open]").waitFor();
-    assert.deepEqual(await first.evaluate(key => JSON.parse(localStorage.getItem(key)).lines, key), [{ id: cookie, quantity: 1 }]);
+    assert.deepEqual((await latestUi(first)).lines, [{ id: cookie, quantity: 1 }]);
     return { failureVisible: true, failedAddPreservedCart: true, retryAddedExactlyOnce: true };
   });
   await run("native-pending-step-preserves-new-cart-focus", async () => {
@@ -370,7 +446,7 @@ try {
       await first.keyboard.press("Escape"); await first.locator("#menu-cart-trigger").click();
     } finally { await second.evaluate(() => { window.heldOrderTransaction.abort(); window.heldOrderDatabase.close(); }); }
     await first.locator("#menu-cart-dialog[open]").waitFor();
-    await first.waitForFunction(key => JSON.parse(localStorage.getItem(key))?.lines?.find(line => line.id === "desserts:cookie")?.quantity === 2, key);
+    assert.equal((await latestUi(first)).lines.find(line => line.id === "desserts:cookie")?.quantity, 2);
     await first.waitForFunction(() => document.querySelector(".menu-cart-line-controls > span")?.textContent === "2"
       && document.activeElement?.id === "menu-cart-title", null, { timeout: 1200 });
     return { oldStepCommitted: true, currentCartTitleKeepsFocus: true, finalQuantity: 2 };

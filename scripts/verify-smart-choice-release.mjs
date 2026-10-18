@@ -143,7 +143,7 @@ const cssFiles = [
 ];
 // Count the shared dependency once: removing duplicate copies must reduce the
 // real delivered payload, not merely move bytes outside the budget inventory.
-const sharedJsFiles = ["menu-catalog.js"];
+const sharedJsFiles = ["menu-catalog.js", "order-storage.js"];
 verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
 const totalJs = [...jsFiles, ...sharedJsFiles].reduce((sum, file) => sum + size(file), 0);
 const totalCss = cssFiles.reduce((sum, file) => sum + size(file), 0);

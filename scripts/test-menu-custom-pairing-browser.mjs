@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { menuCategories, menuCopy } from "../menu-catalog.js";
 
-const cartKey = "robys-menu-order.v1";
 const sweetIds = [
   "desserts:san-sebastian-cheesecake", "desserts:lotus-cheesecake", "desserts:raspberry-cheesecake",
   "desserts:chocolate-cake", "desserts:almond-tart", "desserts:cake-roll", "desserts:mosaic-cake",
@@ -52,7 +51,10 @@ async function poll(read, accepts, message, timeout = 10_000) {
 }
 
 async function cart(page) {
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{"version":1,"groups":[],"lines":[]}'), cartKey);
+  return page.evaluate(async validIds => {
+    const orders = await import("./src/order-draft.js");
+    return orders.readLatestStoredOrderDraft(new Set(validIds));
+  }, [...products.keys()]);
 }
 
 async function prepare(page, base, { language = "tr", fallback = false, seed } = {}) {
@@ -63,15 +65,20 @@ async function prepare(page, base, { language = "tr", fallback = false, seed } =
       Object.defineProperty(HTMLDialogElement.prototype, "open", { configurable: true, get: () => undefined });
     });
   }
-  await page.addInitScript(({ key, draft }) => {
+  await page.addInitScript(() => {
     if (sessionStorage.getItem("qa-custom-pairing-seeded")) return;
     sessionStorage.setItem("qa-custom-pairing-seeded", "true");
-    sessionStorage.removeItem(key);
     localStorage.removeItem("robys-menu-preferences.v1");
-    localStorage.setItem(key, JSON.stringify(draft ?? { version: 1, lines: [] }));
-  }, { key: cartKey, draft: seed });
+  });
   await page.goto(new URL("menu.html?entry=off", base).href, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible" });
+  // These scenarios reuse one origin and IndexedDB across pages. Set each
+  // scenario's starting basket through its production transaction boundary;
+  // the read-only legacy v1 value is not a test reset API.
+  await page.evaluate(async ({ draft, validIds }) => {
+    const orders = await import("./src/order-draft.js");
+    await orders.transactStoredOrderDraft(() => ({ draft, applied: true, blocked: false }), new Set(validIds));
+  }, { draft: seed ?? { version: 1, groups: [], lines: [] }, validIds: [...products.keys()] });
   await page.locator(`.lang-button[data-lang="${language}"]`).click();
 }
 
@@ -290,20 +297,20 @@ export async function verifyMenuCustomPairing(context, base, check) {
     finally { await page.close().catch(() => {}); }
   };
 
-  await run("CUSTOM-PAIRING-CATALOG-001", "all27 hot drinks are eligible; cold and dessert products remain ordinary", async (page, requests) => {
+  await run("CUSTOM-PAIRING-CATALOG-001", "all27 hot drinks and the two verified cold-pair drinks are eligible; other cold products and desserts remain ordinary", async (page, requests) => {
     assert.equal(hot.length, 27);
     assert.equal(sweetIds.length, 12);
     await prepare(page, base);
     assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "pairing view is absent from initial menu requests");
-    for (const product of [products.get("cold-coffee:iced-caffe-latte"), dessert]) {
+    for (const product of [products.get("cold-coffee:iced-americano"), dessert]) {
       const trigger = await open(page, product, false);
       assert.equal(await page.locator("#menu-pairing-picker").isHidden(), true);
       assert.equal(await page.locator("#menu-pairing-preview").isHidden(), true);
       await close(page, trigger);
     }
-    assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "cold and dessert dialogs do not request pairing code");
+    assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "ordinary cold and dessert dialogs do not request pairing code");
     const eligible = [];
-    for (const drink of hot) {
+    for (const drink of [...hot, products.get("cold-coffee:iced-caffe-latte"), products.get("refreshers:cool-lime")]) {
       const trigger = await open(page, drink);
       const values = await page.locator('#menu-pairing-picker input[name="menu-dessert"]').evaluateAll((nodes) => nodes.map((node) => node.value));
       assert.deepEqual(values, ["", ...sweetIds], `${drink.id}: all12 sweets plus the optional drink-only choice`);
@@ -444,12 +451,20 @@ export async function verifyMenuCustomPairing(context, base, check) {
     assert.equal(await page.locator(".menu-cart-line").count(), 2);
     const teaRow = page.locator(".menu-cart-line").filter({ hasText: tea.item.name.ru });
     await teaRow.locator(".menu-cart-step").last().click();
-    assert.deepEqual(entries(await cart(page)), sortedEntries([[tea.id, 2], [espresso.id, 1], [dessert.id, 3]]));
-    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), (tea.item.price + dessert.item.price) * 2 + espresso.item.price + dessert.item.price);
+    const incremented = sortedEntries([[tea.id, 2], [espresso.id, 1], [dessert.id, 3]]);
+    await poll(() => cart(page).then(entries), value => JSON.stringify(value) === JSON.stringify(incremented),
+      "incrementing the tea pair commits its matching dessert quantity");
+    const incrementedTotal = (tea.item.price + dessert.item.price) * 2 + espresso.item.price + dessert.item.price;
+    await poll(() => page.locator("#menu-cart-dialog-total").textContent().then(money), value => value === incrementedTotal,
+      "the visible cart converges to the committed incremented total");
     await teaRow.locator(".menu-cart-remove").click();
-    assert.equal(await page.locator(".menu-cart-line").count(), 1);
-    assert.deepEqual(entries(await cart(page)), sortedEntries([[espresso.id, 1], [dessert.id, 1]]), "removing the tea pair removes only its matching dessert quantities");
-    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), espresso.item.price + dessert.item.price);
+    const remaining = sortedEntries([[espresso.id, 1], [dessert.id, 1]]);
+    await poll(() => cart(page).then(entries), value => JSON.stringify(value) === JSON.stringify(remaining),
+      "removing the tea pair removes only its matching dessert quantities");
+    await poll(() => page.locator(".menu-cart-line").count(), value => value === 1,
+      "the visible cart removes only the committed tea pair");
+    await poll(() => page.locator("#menu-cart-dialog-total").textContent().then(money), value => value === espresso.item.price + dessert.item.price,
+      "the visible remaining pair total matches the committed cart");
     return { groups: (await cart(page)).groups };
   });
 

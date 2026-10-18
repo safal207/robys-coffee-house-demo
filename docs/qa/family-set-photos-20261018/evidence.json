@@ -1,0 +1,60 @@
+{
+  "base_sha": "810f5e660b18d0179abcce8857733fb56d89375c",
+  "status": "tested-working-tree",
+  "source_files": {
+    "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+    "src/menu-family-ui.js": "bb03ede3307533a71bc144dbf919b683ebea69c6a0b53caeb85c7e3d52cceb30",
+    "menu-family-ui.js": "05b5f0031b3e96bab338391068e0ae28880b82e8dff74c9824ecea9834c0ce45",
+    "src/menu-app.js": "5e26493ce4cbf38139fa6decd7fff884ec4924629cacf541c83ce6a96b052f03",
+    "menu-app.js": "20b7cf549024853c7df0662bfaf41040b93facc1b3298fdc6b0b2fa494242d2f",
+    "menu-family.css": "edd4d14107104b37377d5d53bc3450a7f331ac321cae18961d1b030c83db2446",
+    "menu.html": "cc885d16928861e90bbfa331f26a231a9d3980970823899add7a1728eda8f82e",
+    "sw-core-v64.js": "9e8f49de8dd2449bd2c91e0102cc7b0b8d20355cfb0ae232adf5b647d282bf04",
+    "integrity-manifest.json": "0a3598ec79a1f82c04c8999464ae8c9d1a54c1c57f4b925bd99554878f34eb45",
+    "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e",
+    "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+    "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+    "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763"
+  },
+  "built_cases": {
+    "passed": 4,
+    "failed": 0
+  },
+  "family_source_fixture_cases": {
+    "passed": 13,
+    "failed": 0
+  },
+  "local_checks": {
+    "npm run check": "PASS",
+    "npm run verify:security": "PASS",
+    "npm run verify:performance": "PASS"
+  },
+  "scope": "Local Chromium140. 320/390/1440 CSSpx and TR/EN/RU; not real devices, deployed identity or field performance.",
+  "artifacts": [
+    {
+      "file": "1440-kids-box.png",
+      "bytes": 346698,
+      "sha256": "c76cf67f179bb59493db2f9cca412caa4e8fdfc54137270f8d55e6f344cf9231"
+    },
+    {
+      "file": "390-kids-box.png",
+      "bytes": 194799,
+      "sha256": "a09bf9ccdd6d550458959b097d5b62b5c04cf07eae31062292636860dab379ea"
+    },
+    {
+      "file": "390-milk-cookie.png",
+      "bytes": 187776,
+      "sha256": "7e1532316d0ed98c279221c5c079da9ec279242a3d0d94825830913a50e0678f"
+    },
+    {
+      "file": "built-report.json",
+      "bytes": 6837,
+      "sha256": "64c92a641f4f79e071894e1271de53033457fb8f7baaa074903bb7deb08eb160"
+    },
+    {
+      "file": "family-regression.json",
+      "bytes": 5713,
+      "sha256": "7bda4e1ea3265e790e6b8f1902f83e54c77b4158de5e9660bac881e73c10df6b"
+    }
+  ]
+}

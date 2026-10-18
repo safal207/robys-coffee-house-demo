@@ -135,7 +135,9 @@ assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an
 // An edit reuses the capacity occupied by its original selection; an ordinary
 // Add still quotes the entire latest basket. Execute the real allowance path.
 const quantityHandler = runtime.match(/function updateProductQuantity\(\) \{[\s\S]*?\n\}/)?.[0];
+const buttonLabelHandler = runtime.match(/function setAddButtonLabel\(label\) \{[\s\S]*?\n\}/)?.[0];
 assert(quantityHandler);
+assert(buttonLabelHandler, "The shipped Add label must preserve its text node during an active press");
 for (const editing of [false, true]) {
   const fullCart = new Map([["drink", 99], ["sweet", 99], ["other", 7]]);
   let quoted;
@@ -147,10 +149,23 @@ for (const editing of [false, true]) {
     editingGroup: editing ? { quantity: 2, items: [{ id: "drink", quantity: 1 }, { id: "sweet", quantity: 1 }] } : null,
     quoteMenuSelection: cart => { quoted = JSON.parse(JSON.stringify(Array.from(cart))); throw boundary; }
   };
-  assert.throws(() => runInNewContext(`${quantityHandler}\nupdateProductQuantity();`, context), error => error === boundary);
+  assert.throws(() => runInNewContext(`${buttonLabelHandler}\n${quantityHandler}\nupdateProductQuantity();`, context), error => error === boundary);
   assert.deepEqual(quoted, [["drink", editing ? 97 : 99], ["sweet", editing ? 97 : 99], ["other", 7]],
     "Only an editor's original components release capacity in its quote");
   assert.deepEqual(Array.from(fullCart), [["drink", 99], ["sweet", 99], ["other", 7]], "Quoting never mutates the real basket");
+}
+{
+  const text = { nodeType: 3, nodeValue: "Add" };
+  let replacements = 0;
+  const button = { firstChild: text, childNodes: [text],
+    get textContent() { return this.firstChild.nodeValue; },
+    set textContent(value) { replacements += 1; this.firstChild = { nodeType: 3, nodeValue: value }; this.childNodes = [this.firstChild]; }
+  };
+  const context = { addToCartButton: button };
+  runInNewContext(`${buttonLabelHandler}\nsetAddButtonLabel("Add"); setAddButtonLabel("Add more"); setAddButtonLabel("Add more");`, context);
+  assert.equal(button.firstChild, text, "Both unchanged and changed labels keep the active pointer target's text node");
+  assert.equal(button.textContent, "Add more");
+  assert.equal(replacements, 0, "Label refresh cannot replace the button subtree during a press");
 }
 
 // Exercise the real Add handler: a successful mutation confirms the selection,
@@ -294,6 +309,7 @@ for (const language of ["tr", "en", "ru"]) {
       : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore] : []
   };
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
+    storageNotice: undefined,
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
     productDecrease: element(), productIncrease: element(), languageButtons: [],
     orderUi: undefined, renderCart: () => {}, familyTrigger, familyCopy,

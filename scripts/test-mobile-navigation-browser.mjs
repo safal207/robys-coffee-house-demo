@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium } from "playwright";
-import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 process.chdir(repo);
@@ -18,7 +18,7 @@ execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days
 // Source mode supports focused development before a coordinated build. The
 // release run serves actual emitted files and never compiles a replacement.
 const useBuiltRuntime = process.env.ROBYS_NAVIGATION_USE_BUILT === "1";
-const compiled = useBuiltRuntime ? new Map() : new Map([["/menu-app.js", compileMenuRuntime()], ["/menu-order-ui.js", compileMenuOrderRuntime()], ["/menu-family-ui.js", compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8"))]]);
+const compiled = useBuiltRuntime ? new Map() : new Map([["/order-storage.js", compileOrderStorageRuntime()], ["/menu-app.js", compileMenuRuntime()], ["/menu-order-ui.js", compileMenuOrderRuntime()], ["/menu-family-ui.js", compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8"))]]);
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2" };
 let origin;
 const server = createServer({ key: readFileSync(join(fixture, "key.pem")), cert: readFileSync(join(fixture, "cert.pem")) }, (request, response) => {
@@ -104,7 +104,7 @@ try {
         const endCart = await page.locator('#menu-cart-trigger').boundingBox();
         assert(footer.y + footer.height <= endCart.y, "final footer content can be scrolled above the persistent cart");
       }
-      const before = await page.evaluate(() => localStorage.getItem("robys-menu-order.v1"));
+      const before = await page.evaluate(() => localStorage.getItem("robys-menu-order.v2"));
       await page.goto(`${origin}/smart-choice/`);
       await page.locator(`[data-static-copy="fullMenu"]`).waitFor();
       const link = page.locator('[data-static-copy="fullMenu"]');
@@ -118,7 +118,7 @@ try {
       await link.click();
       await page.locator('#menu-root[data-ready="true"]').waitFor();
       assert.equal(await page.locator('html').getAttribute('lang'), language, "one-tap menu link preserves language");
-      assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-order.v1")), before, "navigation preserves cart contents");
+      assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-order.v2")), before, "navigation preserves cart contents");
       await page.goto(`${origin}/index.html`);
       const homeFamily = page.locator('.hero-family-link');
       await homeFamily.waitFor();

@@ -1,6 +1,5 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
-import { readStoredOrderDraft, readLatestStoredOrderDraft, transactStoredOrderDraft } from "./src/order-draft.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
@@ -14,6 +13,7 @@ const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
 const CART_STORAGE_KEY = "robys-menu-order.v1";
+const CART_PROJECTION_KEY = "robys-menu-order.v2";
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
 let language = readStoredLanguage();
@@ -121,9 +121,70 @@ const productIndex = buildProductIndex();
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
 let cartReadGeneration = 0;
+let storageNotice;
+let orderStorage;
+let orderStoragePromise;
+let orderStorageRetry = 0;
+
+// The initial catalog only reads a disposable badge projection. It never
+// writes storage or starts the authoritative ordering system before intent.
+function readCartProjection() {
+  let raw;
+  try { raw = JSON.parse(sessionStorage.getItem("robys-menu-order.tab.v1") ?? "null")?.draft; } catch {}
+  if (!raw) try { raw = JSON.parse(localStorage.getItem(CART_PROJECTION_KEY) ?? localStorage.getItem(CART_STORAGE_KEY) ?? "null"); } catch {}
+  const counts = new Map();
+  const groups = [];
+  const valid = value => Number.isInteger(value) && value > 0 && value <= 99;
+  if (raw?.version !== 1) return { version: 1, groups, lines: [] };
+  if (Array.isArray(raw.groups)) {
+    for (const group of raw.groups) {
+      if (!valid(group?.quantity) || !Array.isArray(group.items) || !group.items.length) continue;
+      const next = new Map(counts);
+      let accepted = true;
+      for (const item of group.items) {
+        const quantity = item?.quantity ?? 1;
+        const total = (next.get(item?.id) ?? 0) + quantity * group.quantity;
+        if (!orderProductIds.has(item?.id) || !valid(quantity) || !valid(total)) { accepted = false; break; }
+        next.set(item.id, total);
+      }
+      if (!accepted) continue;
+      next.forEach((quantity, id) => counts.set(id, quantity));
+      groups.push({ quantity: group.quantity });
+    }
+  } else if (Array.isArray(raw.lines)) {
+    for (const line of raw.lines) if (orderProductIds.has(line?.id) && valid(line.quantity)) counts.set(line.id, line.quantity);
+    counts.forEach(quantity => groups.push({ quantity }));
+  }
+  return { version: 1, groups, lines: Array.from(counts, ([id, quantity]) => ({ id, quantity })) };
+}
+
+function loadOrderStorage() {
+  if (!orderStoragePromise) {
+    let loading;
+    if (orderStorageRetry) {
+      const retryUrl = new URL("./order-storage.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(orderStorageRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./order-storage.js?v=c2f56e3a95b4");
+    orderStoragePromise = loading.then(storage => {
+      storageNotice = storage.createOrderStorageNotice({
+        getLanguage: () => language,
+        getProduct: id => productIndex.get(id)?.item,
+        validIds: orderProductIds,
+        onResolved: async () => {
+          await refreshLatestCart({ resetAdded: true });
+          orderUi?.refresh({ nextLanguage: language, clearStorageError: true });
+        }
+      });
+      orderStorage = storage;
+      return storage;
+    }).catch(error => { orderStoragePromise = null; orderStorageRetry += 1; throw error; });
+  }
+  return orderStoragePromise;
+}
 
 function readCart() {
-  orderDraft = readStoredOrderDraft(orderProductIds);
+  orderDraft = orderStorage ? orderStorage.readStoredOrderDraft(orderProductIds) : readCartProjection();
   return new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
 }
 
@@ -131,7 +192,8 @@ let cart = readCart();
 
 async function refreshLatestCart({ refreshUi = true, resetAdded = false } = {}) {
   const generation = ++cartReadGeneration;
-  const draft = await readLatestStoredOrderDraft(orderProductIds);
+  const storage = await loadOrderStorage();
+  const draft = await storage.readLatestStoredOrderDraft(orderProductIds);
   if (generation !== cartReadGeneration) return;
   orderDraft = draft;
   cart = new Map(draft.lines.map(line => [line.id, line.quantity]));
@@ -141,7 +203,8 @@ async function refreshLatestCart({ refreshUi = true, resetAdded = false } = {}) 
 
 async function mutateMenuDraft(updater) {
   const generation = ++cartReadGeneration;
-  const result = await transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN });
+  const storage = await loadOrderStorage();
+  const result = await storage.transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN });
   if (generation === cartReadGeneration) {
     orderDraft = result.draft;
     cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
@@ -209,14 +272,14 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=b8cbc88997f0");
-    orderUiPromise = loading.then(({ createMenuOrderUi }) => {
+    } else loading = import("./menu-order-ui.js?v=8d6b2d145715");
+    orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
         readDraft: () => { cart = readCart(); return orderDraft; },
         readLatestDraft: async () => {
           await refreshLatestCart({ refreshUi: false });
-          return readStoredOrderDraft(orderProductIds);
+          return orderStorage.readStoredOrderDraft(orderProductIds);
         },
         mutateDraft: mutateMenuDraft,
         reopenCart: (trigger, groupId) => openOrderIntent("cart", groupId, trigger),
@@ -268,7 +331,7 @@ function loadFamilyUi() {
       const url = new URL("./menu-family-ui.js", import.meta.url);
       url.searchParams.set("retry", String(familyRetry));
       loading = import(url.href);
-    } else loading = import("./menu-family-ui.js?v=05454854f698");
+    } else loading = import("./menu-family-ui.js?v=f6778abdbe89");
     familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
       familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
@@ -619,6 +682,7 @@ function translateStaticPage() {
   orderUi?.refresh({ nextLanguage: language });
   if (familyTrigger) familyTrigger.textContent = familyCopy[language].link;
   familyUi?.refresh(language);
+  storageNotice?.refresh();
 }
 
 function setLanguage(next) {
@@ -689,9 +753,11 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
-// Reading the catalog stays immediate; badges converge to the shared canonical
-// basket once its asynchronous store is ready. Every opening awaits this read.
-void refreshLatestCart().catch(() => {});
+function refreshObservedCart(resetAdded = false) {
+  if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
+  cart = readCart();
+  renderCart();
+}
 
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
@@ -700,19 +766,17 @@ window.addEventListener("pageshow", (event) => {
   translateStaticPage();
   renderCategoryNav();
   renderMenu();
-  void refreshLatestCart({ resetAdded: true }).catch(() => {});
+  refreshObservedCart(true);
 });
 
 window.addEventListener("storage", event => {
-  if (event.key === CART_STORAGE_KEY || event.key === null) {
-    void refreshLatestCart({ resetAdded: true }).catch(() => {});
-  }
+  if (event.key === CART_STORAGE_KEY || event.key === CART_PROJECTION_KEY || event.key === null) refreshObservedCart(true);
   if (event.key === "robys-language" || event.key === null) setLanguage(readStoredLanguage());
 });
 window.addEventListener("robys:order-change", event => {
-  if (event.detail?.origin !== MENU_ORDER_ORIGIN) void refreshLatestCart({ resetAdded: true }).catch(() => {});
+  if (event.detail?.origin !== MENU_ORDER_ORIGIN) refreshObservedCart(true);
 });
-window.addEventListener("focus", () => { void refreshLatestCart().catch(() => {}); });
+window.addEventListener("focus", () => refreshObservedCart());
 
 window.addEventListener("hashchange", () => {
   if (window.location.hash === "#menu-family") {

@@ -1,7 +1,9 @@
 import { menuCategories } from "../../menu-catalog.js";
 import {
-  ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, transactStoredOrderDraft, addOrderGroup, removeOrderGroup,
-  type OrderDraft, type OrderGroupResult
+  ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, getOrderStorageState, transactStoredOrderDraft,
+  createOrderStorageNotice
+} from "../order-storage.js";
+import { addOrderGroup, removeOrderGroup, type OrderDraft, type OrderGroupResult
 } from "../order-draft.js";
 import type { SmartChoiceLanguage } from "./catalog.js";
 import { openQuickCheckout } from "./checkout-link.js";
@@ -230,6 +232,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     try {
       const draft = await readLatestStoredOrderDraft(orderProductIds);
       if (!root.isConnected || !button.isConnected || generation !== focusGeneration) return;
+      if (getOrderStorageState().legacyConflict) return;
       if (!draft.groups.length) { renderCart(); showCart(); return; }
       if (needsOrderVariant(draft.groups)) {
         renderCart(); announce(text.completeFlavours);
@@ -581,6 +584,9 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     }
   };
   refreshBuilder = () => { void refreshCanonical(); };
+  createOrderStorageNotice({ owner: root, getLanguage: () => language,
+    getProduct: (id: string) => orderProducts.get(id)?.item, validIds: orderProductIds,
+    onResolved: async () => { announce(""); await refreshCanonical(); } });
   void refreshCanonical();
   if (prefill) requestAnimationFrame(() => {
     if (root.isConnected) openCustomizer(search);

@@ -19,9 +19,11 @@ const certificate = mkdtempSync(join(tmpdir(), "robys-built-release-"));
 execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1", "-keyout", join(certificate, "key.pem"),
   "-out", join(certificate, "cert.pem"), "-subj", "/CN=localhost"], { stdio: "ignore" });
 const assets = ["menu.html", "menu-app.js", "menu-order-ui.js", "menu-family-ui.js", "menu-pairing.js", "menu-catalog.js",
-  "menu-premium.css", "menu-family.css", "order-checkout.js", "order-checkout.css", "cashier.html", "cashier.js",
+  "menu-premium.css", "menu-family.css", "order-checkout.js", "order-checkout.css", "order-storage.js", "cashier.html", "cashier.js",
   "src/order-draft.js", "src/menu-order-ui.js", "src/menu-app.js", "src/menu-promo-pair.js", "src/order-checkout.js",
-  "src/products/family-v1/milk-cookie.webp", "src/products/family-v1/simit-break.webp", "src/products/family-v1/milk-roll.webp",
+  "src/order-storage.js", "src/order-storage-notice.js",
+  "src/products/family-sets-v1/milk-cookie.webp", "src/products/family-sets-v1/simit-break.webp", "src/products/family-sets-v1/milk-roll.webp",
+  "src/products/family-sets-v1/kids-box.webp",
   "integrity-manifest.json", "package-lock.json", "scripts/test-order-release-built-browser.mjs"];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json",
@@ -39,7 +41,8 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 });
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
-const storageKey = "robys-menu-order.v1";
+const storageKey = "robys-menu-order.v2";
+const canonicalKey = "robys-menu-order.v1";
 const report = {
   startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   dirtyFilesAtStart: execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim().split("\n").filter(Boolean),
@@ -120,7 +123,7 @@ async function readCanonical(page) {
         transaction.onerror = () => { database.close(); reject(transaction.error); };
       } catch (error) { database.close(); reject(error); }
     };
-  }), storageKey);
+  }), canonicalKey);
 }
 
 async function verifyCanonical(page, expected) {
@@ -282,6 +285,42 @@ try {
           });
         } finally { await context.close(); }
       }
+      {
+        const context = await contextFor(browser, 390);
+        try {
+          await runCase(`${engine}-held-add-during-peer-refresh`, context, async () => {
+            const left = await context.newPage(), right = await context.newPage();
+            await Promise.all([openMenu(left, "ru"), openMenu(right, "ru")]);
+            await Promise.all([left, right].map(async page => {
+              await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media').click();
+              await page.locator('#menu-pairing-picker[data-ready="true"]').waitFor();
+              await page.locator('input[name="menu-dessert"][value=""]').locator("..").click();
+            }));
+            const rectangle = await right.locator("#menu-add-to-cart").boundingBox();
+            assert.ok(rectangle);
+            await right.mouse.move(rectangle.x + rectangle.width / 2, rectangle.y + rectangle.height / 2);
+            await right.mouse.down();
+            // Model a pending background-tab commit without a second physical
+            // mouse interfering with the press that is being tested.
+            await left.locator("#menu-add-to-cart").evaluate(button => button.click());
+            await left.locator("#menu-cart-dialog[open]").waitFor();
+            await right.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1"
+              && document.querySelector("#menu-add-to-cart").textContent.includes("Добавить ещё"));
+            assert.equal(await right.locator("#menu-add-to-cart").isDisabled(), false);
+            await right.mouse.up();
+            await right.locator("#menu-cart-dialog[open]").waitFor();
+            const trustedClicks = await right.evaluate(() => window.__builtPointerEvents
+              .filter(event => event.type === "click" && event.buttonId === "menu-add-to-cart" && event.trusted).length);
+            assert.equal(trustedClicks, 1, "A peer refresh preserves the trusted Add activation already in progress");
+            const expected = [{ id: "hot-coffee:espresso", quantity: 2 }];
+            await waitLines(right, expected);
+            const canonicalRevision = await verifyCanonical(right, expected);
+            await clearCart(right);
+            return { trustedHeldClick: true, peerActivation: "Existing DOM Add button.click handler (programmatic background-tab control)",
+              bothPreserved: true, expectedLines: expected, canonicalRevision };
+          });
+        } finally { await context.close(); }
+      }
       if (collisionCount > 0) {
         const context = await contextFor(browser, 390);
         try {
@@ -304,23 +343,32 @@ try {
               .filter(event => event.type === "click" && event.buttonId === "menu-add-to-cart" && event.trusted).length)));
             assert.deepEqual(acceptedClicks, [1, 1], "Each browser page received exactly one trusted native Add click");
             const expected = same ? [{ id: ids[0], quantity: 2 }] : ids.map(id => ({ id, quantity: 1 }));
-            await Promise.all([waitLines(left, expected), waitLines(right, expected)]);
             const canonicalRevision = await verifyCanonical(left, expected);
             await Promise.all([left, right].map(page => page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2")));
             // A third page must recover the persisted order through the actual
             // lazy cart loader, rather than sharing either writer's memory.
             const reopened = await context.newPage();
-            try {
-              await openMenu(reopened, "ru");
-              await reopened.locator("#menu-cart-trigger").click();
-              await reopened.locator("#menu-cart-dialog[open]").waitFor();
-              await reopened.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
-              await waitLines(reopened, expected);
-              assert.equal(await reopened.locator(".menu-cart-line").count(), same ? 1 : 2);
-            } finally { await reopened.close(); }
+            const coldStorageRequests = [];
+            reopened.on("request", request => {
+              if (new URL(request.url()).pathname === "/order-storage.js") coldStorageRequests.push(request.url());
+            });
+            await openMenu(reopened, "ru");
+            const coldInitialCount = await reopened.locator("#menu-cart-count").textContent();
+            const coldInitialTotal = (await reopened.locator("#menu-cart-total").textContent()).trim();
+            assert.equal(coldInitialCount, "2", "An untouched new tab shows both accepted additions before opening its cart");
+            assert.equal(coldInitialTotal, `${same ? 220 : 270} ₺`, "An untouched new tab shows the exact110+110 or110+160 total");
+            assert.deepEqual(coldStorageRequests, [], "The initial correct badge does not require downloading the lazy order storage module");
+            await reopened.locator("#menu-cart-trigger").click();
+            await reopened.locator("#menu-cart-dialog[open]").waitFor();
+            await reopened.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
+            await waitLines(reopened, expected);
+            assert.equal(await reopened.locator(".menu-cart-line").count(), same ? 1 : 2);
+            await reopened.close();
+            await Promise.all([waitLines(left, expected), waitLines(right, expected)]);
             await clearCart(left); await waitLines(right, []);
             return { actualNativeAddHandlers: 2, sameProduct: same, bothPreserved: true, canonicalRevision,
-              acceptedTrustedClicks: acceptedClicks, coldPageReopenedPersistedCart: true, expectedLines: expected };
+              acceptedTrustedClicks: acceptedClicks, coldInitialCount, coldInitialTotal, coldInitialOrderStorageRequests: 0,
+              coldPageReopenedPersistedCart: true, expectedLines: expected };
             });
             if (!passed) break;
           }

@@ -1,5 +1,7 @@
 // Groups preserve selections; lines remain a compatibility projection. Never persist prices.
 export const ORDER_DRAFT_KEY = "robys-menu-order.v1";
+export const ORDER_DRAFT_PROJECTION_KEY = "robys-menu-order.v2";
+export const TAB_ORDER_DRAFT_KEY = "robys-menu-order.tab.v1";
 export const MAX_ORDER_QUANTITY = 99;
 
 const positive = value => Number.isInteger(value) && value > 0 && value <= MAX_ORDER_QUANTITY;
@@ -291,6 +293,8 @@ function persistDraft(value, previous) {
 }
 
 export function readStoredOrderDraft(validIds) {
+  const state = storageRuntime();
+  if (state.mode === "tab") return normalizeOrderDraft(state.tabDraft, validIds);
   if (canonicalDraft) return normalizeOrderDraft(canonicalDraft, validIds);
   const current = readPersistentDraft();
   const pending = readPendingDraft();
@@ -318,6 +322,8 @@ export function readStoredOrderDraft(validIds) {
   return draft;
 }
 
+// Legacy-client compatibility for migration fixtures. Production ordering uses
+// transactStoredOrderDraft; this v1 writer deliberately models an older tab.
 export function writeStoredOrderDraft(raw, validIds) {
   const draft = normalizeOrderDraft(raw, validIds);
   memoryDraft = draft;
@@ -332,7 +338,7 @@ const transactionStore = "shared-order";
 let databasePromise;
 let currentDatabase;
 let databaseEpoch = 0;
-let orderChannel;
+let moduleRuntime;
 
 export class OrderStorageError extends Error {
   constructor(message = "The shared order could not be saved", options) {
@@ -340,23 +346,74 @@ export class OrderStorageError extends Error {
     this.name = "OrderStorageError";
   }
 }
+export class OrderLegacyConflictError extends OrderStorageError {
+  constructor() {
+    super("An older tab changed its order. Review both orders before continuing.");
+    this.name = "OrderLegacyConflictError";
+  }
+}
+
+function storageRuntime() {
+  const key = Symbol.for("robys.shared-order.runtime.v2");
+  if (typeof window !== "undefined" && window[key]) return window[key];
+  if (typeof window === "undefined" && moduleRuntime) return moduleRuntime;
+  let saved;
+  try { saved = JSON.parse(sessionStorage.getItem(TAB_ORDER_DRAFT_KEY) ?? "null"); } catch {}
+  const restored = saved?.version === 1 && saved.draft?.version === 1;
+  const state = { mode: restored ? "tab" : "shared", hasSessionPersistence: Boolean(restored),
+    tabDraft: restored ? saved.draft : undefined, tabRevision: 0, queue: Promise.resolve(), sequence: 0,
+    conflict: undefined, stateSignature: "", channel: undefined, observing: false, sharedActive: false, staleSessionPossible: false };
+  if (typeof window !== "undefined") window[key] = state;
+  else moduleRuntime = state;
+  return state;
+}
+
+export function getOrderStorageState() {
+  const state = storageRuntime();
+  return { mode: state.mode, hasSessionPersistence: state.hasSessionPersistence,
+    ...(state.mode === "tab" ? { staleSessionPossible: state.staleSessionPossible } : {}),
+    ...(state.conflict ? { legacyConflict: {
+      token: state.conflict.token, currentDraft: JSON.parse(JSON.stringify(state.conflict.currentDraft)),
+      ...(state.conflict.legacyDraft ? { legacyDraft: JSON.parse(JSON.stringify(state.conflict.legacyDraft)) } : {}),
+      invalid: state.conflict.invalid
+    } } : {}) };
+}
+
+function publishStorageState() {
+  const state = storageRuntime();
+  const snapshot = getOrderStorageState();
+  const signature = JSON.stringify(snapshot);
+  if (signature === state.stateSignature) return;
+  state.stateSignature = signature;
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-storage-state", { detail: snapshot }));
+}
+
+function notifyOrderChange(options, revision, remote = false) {
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-change", {
+    detail: { origin: options?.origin, revision, ...(remote ? { remote: true } : {}) }
+  }));
+}
 
 function observeOrderCommits() {
-  if (orderChannel || typeof window === "undefined" || typeof window.BroadcastChannel !== "function") return;
+  const state = storageRuntime();
+  if (state.observing || typeof window === "undefined") return;
+  state.observing = true;
+  window.addEventListener("storage", event => {
+    if (event.key === ORDER_DRAFT_KEY || event.key === ORDER_DRAFT_PROJECTION_KEY || event.key === null) notifyOrderChange({}, undefined, true);
+  });
+  if (typeof window.BroadcastChannel !== "function") return;
   try {
-    // Bundled menu/advisor/builder modules share one channel per document.
-    // A commit must not echo through another bundle as a remote mutation.
-    const key = Symbol.for("robys.shared-order.channel");
-    if (window[key]) { orderChannel = window[key]; return; }
-    orderChannel = new window.BroadcastChannel("robys-shared-order.v1");
-    window[key] = orderChannel;
-    orderChannel.onmessage = event => {
-      if (!Number.isSafeInteger(event.data?.revision) || event.data.revision < 0) return;
-      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-change", {
-        detail: { remote: true, revision: event.data.revision }
-      }));
+    state.channel = new window.BroadcastChannel("robys-shared-order.v1");
+    state.channel.onmessage = event => {
+      if (Number.isSafeInteger(event.data?.revision) && event.data.revision >= 0) notifyOrderChange({}, event.data.revision, true);
     };
-  } catch { /* Focus/pageshow and the optional storage projection also refresh. */ }
+  } catch { /* Focus/pageshow and the optional projection also refresh. */ }
+}
+
+function unavailable(cause) {
+  const error = new OrderStorageError("Shared browser storage is unavailable", { cause });
+  error.unavailable = true;
+  return error;
 }
 
 function orderDatabase() {
@@ -365,29 +422,26 @@ function orderDatabase() {
   databasePromise = new Promise((resolve, reject) => {
     let settled = false;
     const fail = error => { if (!settled) { settled = true; reject(error); } };
-    if (typeof indexedDB === "undefined") {
-      fail(new OrderStorageError("Shared order storage is unavailable"));
-      return;
-    }
+    if (typeof indexedDB === "undefined") { fail(unavailable()); return; }
     let request;
     try { request = indexedDB.open(transactionDatabase, 1); }
-    catch (cause) { fail(new OrderStorageError(undefined, { cause })); return; }
-    request.onupgradeneeded = () => request.result.createObjectStore(transactionStore);
-    request.onerror = () => fail(new OrderStorageError(undefined, { cause: request.error }));
+    catch (cause) { fail(unavailable(cause)); return; }
+    request.onupgradeneeded = () => {
+      try { request.result.createObjectStore(transactionStore); }
+      catch { request.transaction?.abort(); }
+    };
+    request.onerror = () => fail(unavailable(request.error));
     request.onblocked = () => fail(new OrderStorageError("Shared order storage is busy; please retry"));
     request.onsuccess = () => {
       const database = request.result;
       if (settled) { database.close(); return; }
-      settled = true;
-      currentDatabase = database;
+      settled = true; currentDatabase = database;
       const invalidate = () => {
         if (currentDatabase !== database) return;
         currentDatabase = undefined; databasePromise = undefined; databaseEpoch += 1;
         canonicalDraft = undefined; canonicalRevision = -1; memoryDraft = undefined;
       };
-      database.onversionchange = () => {
-        database.close(); invalidate();
-      };
+      database.onversionchange = () => { database.close(); invalidate(); };
       database.onclose = invalidate;
       resolve(database);
     };
@@ -396,7 +450,7 @@ function orderDatabase() {
 }
 
 function rememberCanonical(record, validIds) {
-  // A slower read must not roll back a newer completed mutation in this module.
+  storageRuntime().sharedActive = true;
   if (record.revision >= canonicalRevision) {
     canonicalRevision = record.revision;
     canonicalDraft = normalizeOrderDraft(record.draft, validIds);
@@ -406,79 +460,196 @@ function rememberCanonical(record, validIds) {
   return normalizeOrderDraft(canonicalDraft, validIds);
 }
 
-function initialCanonicalDraft(validIds) {
-  const current = readPersistentDraft();
+function legacyCandidate(value, validIds) {
+  let raw;
+  try { raw = JSON.parse(value ?? "null"); } catch { return { invalid: true }; }
+  if (raw === null) return { invalid: false, draft: normalizeOrderDraft(null, validIds) };
+  if (raw?.version !== 1 || !(Array.isArray(raw.groups) || Array.isArray(raw.lines))) return { invalid: true };
+  if (Array.isArray(raw.groups)) {
+    if (raw.groups.some(group => !positive(group?.quantity) || !Array.isArray(group.items) || !group.items.length
+        || validItems(group.items, validIds).length !== group.items.length)
+        || !withinLimit(raw.groups.map(group => ({ ...group, items: validItems(group.items, validIds) })))) return { invalid: true };
+  } else if (raw.lines.some(line => !validIds.has(line?.id) || !positive(line.quantity))
+      || new Set(raw.lines.map(line => line.id)).size !== raw.lines.length) return { invalid: true };
+  return { invalid: false, draft: normalizeOrderDraft(raw, validIds) };
+}
+
+function initialCanonicalDraft(validIds, current) {
   const pending = readPendingDraft();
-  const value = pending && (!current.available || current.value === pending.previous)
-    ? pending.value : current.value;
+  const value = pending && (!current.available || current.value === pending.previous) ? pending.value : current.value;
   if (!current.available && !value) return normalizeOrderDraft(memoryDraft, validIds);
   try { return normalizeOrderDraft(JSON.parse(value ?? "null"), validIds); }
   catch (cause) { throw new OrderStorageError("The saved order is damaged; it was not overwritten", { cause }); }
 }
 
 function canonicalRecord(raw, validIds) {
-  if (!raw || raw.version !== 1 || !Number.isSafeInteger(raw.revision) || raw.revision < 0
-      || raw.draft?.version !== 1) throw new OrderStorageError("The saved order is damaged; it was not overwritten");
-  return { version: 1, revision: raw.revision, draft: normalizeOrderDraft(raw.draft, validIds) };
+  if (!raw || raw.version !== 1 || !Number.isSafeInteger(raw.revision) || raw.revision < 0 || raw.draft?.version !== 1
+      || (Object.prototype.hasOwnProperty.call(raw, "legacyBase") && raw.legacyBase !== null && typeof raw.legacyBase !== "string")) {
+    throw new OrderStorageError("The saved order is damaged; it was not overwritten");
+  }
+  return { version: 1, revision: raw.revision, draft: normalizeOrderDraft(raw.draft, validIds),
+    ...(Object.prototype.hasOwnProperty.call(raw, "legacyBase") ? { legacyBase: raw.legacyBase } : {}) };
 }
 
-function projectCanonical(record) {
-  // localStorage is a compatibility/notification projection, never a second
-  // authority. A projection failure after IDB commit cannot make Add fail and
-  // encourage a duplicate retry. Each notified reader reads IDB afresh.
+function inspectLegacy(record, validIds, legacy = readPersistentDraft()) {
+  const state = storageRuntime();
+  if (!legacy.available) return state.conflict; // Never discard an already observed fork.
+  const fork = !Object.prototype.hasOwnProperty.call(record, "legacyBase") || legacy.value !== record.legacyBase;
+  if (!fork) {
+    if (state.conflict) { state.conflict = undefined; publishStorageState(); }
+    return undefined;
+  }
+  const candidate = legacyCandidate(legacy.value, validIds);
+  const previous = state.conflict;
+  const token = previous && previous.raw === legacy.value && previous.revision === record.revision
+    ? previous.token : String(++state.sequence);
+  state.conflict = { token, raw: legacy.value, revision: record.revision, currentDraft: record.draft,
+    ...(candidate.draft ? { legacyDraft: candidate.draft } : {}), invalid: candidate.invalid };
+  publishStorageState();
+  return state.conflict;
+}
+
+function projectCanonical(database, validIds) {
+  // Canonical data has already committed. Serialize this optional projection
+  // separately and read the latest record inside its scope: a delayed older
+  // completion must never overwrite a newer badge with its captured draft.
+  return new Promise(resolve => {
+    let transaction;
+    let latest;
+    try { transaction = database.transaction(transactionStore, "readwrite"); }
+    catch { resolve(undefined); return; }
+    transaction.onabort = () => resolve(undefined);
+    transaction.onerror = () => {};
+    transaction.oncomplete = () => resolve(latest);
+    let request;
+    try { request = transaction.objectStore(transactionStore).get(ORDER_DRAFT_KEY); }
+    catch { transaction.abort(); resolve(undefined); return; }
+    request.onsuccess = () => {
+      try {
+        latest = canonicalRecord(request.result, validIds);
+        // v1 belongs to older tabs. Only the v2 projection is written here;
+        // this request owns the same exclusive scope as canonical writers.
+        localStorage.setItem(ORDER_DRAFT_PROJECTION_KEY, JSON.stringify(latest.draft));
+      } catch { /* Projection/quota failures cannot undo an accepted order. */ }
+    };
+  });
+}
+
+function enterTabMode(validIds) {
+  const state = storageRuntime();
+  if (state.mode !== "tab") {
+    let seed = canonicalDraft;
+    if (!seed) {
+      try { seed = JSON.parse(localStorage.getItem(ORDER_DRAFT_PROJECTION_KEY) ?? "null"); } catch {}
+      seed ??= memoryDraft;
+      if (!seed) try { seed = JSON.parse(localStorage.getItem(ORDER_DRAFT_KEY) ?? "null"); } catch {}
+      if (!seed) try { seed = JSON.parse(sessionStorage.getItem(ORDER_DRAFT_KEY) ?? "null"); } catch {}
+    }
+    state.mode = "tab"; state.tabDraft = normalizeOrderDraft(seed, validIds); state.conflict = undefined;
+  }
+  saveTabDraft(state);
+  publishStorageState();
+}
+
+function saveTabDraft(state) {
   try {
-    const value = JSON.stringify(record.draft);
-    if (localStorage.getItem(ORDER_DRAFT_KEY) !== value) localStorage.setItem(ORDER_DRAFT_KEY, value);
-  } catch {}
+    sessionStorage.setItem(TAB_ORDER_DRAFT_KEY, JSON.stringify({ version: 1, draft: state.tabDraft }));
+    state.hasSessionPersistence = true; state.staleSessionPossible = false;
+  } catch {
+    state.hasSessionPersistence = false;
+    // A quota failure must not restore an earlier, incomplete basket on reload.
+    try { sessionStorage.removeItem(TAB_ORDER_DRAFT_KEY); state.staleSessionPossible = false; }
+    catch { state.staleSessionPossible = true; }
+  }
 }
 
-// The updater is synchronous and receives the latest authoritative IDB value.
-// Data read, validation, mutation and put share ONE atomic readwrite transaction;
-// localStorage caches in different renderer processes cannot affect this input.
-export async function transactStoredOrderDraft(updater, validIds, options = {}) {
-  const database = await orderDatabase();
+function tabTransaction(updater, validIds, options = {}) {
+  const state = storageRuntime();
+  const operation = state.queue.catch(() => {}).then(() => {
+    const current = normalizeOrderDraft(state.tabDraft, validIds);
+    let result = updater(current);
+    if (!result || typeof result.then === "function" || typeof result.applied !== "boolean") throw new TypeError("Order transaction updater must return a synchronous mutation result");
+    result = { ...result, draft: result.applied ? normalizeOrderDraft(result.draft, validIds) : current };
+    if (result.applied) {
+      state.tabDraft = result.draft; state.tabRevision += 1; saveTabDraft(state); publishStorageState();
+      notifyOrderChange(options, state.tabRevision);
+    }
+    return { ...result, revision: state.tabRevision };
+  });
+  state.queue = operation;
+  return operation;
+}
+
+async function sharedTransaction(updater, validIds, options = {}, readOnly = false, resolution) {
+  const state = storageRuntime();
+  if (state.mode === "tab") return tabTransaction(updater, validIds, options);
+  let database;
+  try { database = await orderDatabase(); }
+  catch (error) {
+    if (!error?.unavailable || resolution || state.sharedActive) throw error;
+    enterTabMode(validIds); return tabTransaction(updater, validIds, options);
+  }
+  if (state.mode === "tab") return tabTransaction(updater, validIds, options);
   const epoch = databaseEpoch;
   return new Promise((resolve, reject) => {
-    let transaction;
-    let result;
-    let record;
-    let failure;
-    let initialized = false;
+    let transaction, result, record, failure, initialized = false;
     try { transaction = database.transaction(transactionStore, "readwrite"); }
-    catch (cause) { databasePromise = undefined; reject(new OrderStorageError(undefined, { cause })); return; }
+    catch (cause) {
+      if (resolution || state.sharedActive) { databasePromise = undefined; reject(new OrderStorageError(undefined, { cause })); return; }
+      databasePromise = undefined; enterTabMode(validIds); resolve(tabTransaction(updater, validIds, options)); return;
+    }
     transaction.onabort = () => reject(failure ?? new OrderStorageError(undefined, { cause: transaction.error }));
-    transaction.onerror = () => { /* onabort supplies the one failure result */ };
-    transaction.oncomplete = () => {
+    transaction.onerror = () => {};
+    transaction.oncomplete = async () => {
       if (epoch !== databaseEpoch) { reject(new OrderStorageError("Shared order storage changed; please retry")); return; }
       rememberCanonical(record, validIds);
+      inspectLegacy(record, validIds);
+      const committedRevision = record.revision;
       if (initialized || result.applied) {
         clearPendingDraft();
-        projectCanonical(record);
+        const projected = await projectCanonical(database, validIds);
+        if (projected && epoch === databaseEpoch) rememberCanonical(projected, validIds);
       }
       if (result.applied) {
-        try { orderChannel?.postMessage({ revision: record.revision }); } catch {}
-        if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("robys:order-change", {
-          detail: { origin: options.origin, revision: record.revision }
-        }));
+        try { state.channel?.postMessage({ revision: committedRevision }); } catch {}
+        notifyOrderChange(options, committedRevision);
       }
-      resolve({ ...result, revision: record.revision });
+      const draft = epoch === databaseEpoch && canonicalDraft
+        ? normalizeOrderDraft(canonicalDraft, validIds) : result.draft;
+      resolve({ ...result, draft, revision: epoch === databaseEpoch ? canonicalRevision : committedRevision, committedRevision });
     };
-    const store = transaction.objectStore(transactionStore);
-    const request = store.get(ORDER_DRAFT_KEY);
+    let store, request;
+    try { store = transaction.objectStore(transactionStore); request = store.get(ORDER_DRAFT_KEY); }
+    catch (cause) {
+      if (resolution || state.sharedActive) { transaction.abort(); databasePromise = undefined; reject(new OrderStorageError(undefined, { cause })); return; }
+      transaction.abort(); databasePromise = undefined;
+      enterTabMode(validIds); resolve(tabTransaction(updater, validIds, options)); return;
+    }
     request.onsuccess = () => {
       try {
         initialized = request.result === undefined;
-        record = initialized ? { version: 1, revision: 0, draft: initialCanonicalDraft(validIds) }
-          : canonicalRecord(request.result, validIds);
-        const current = record.draft;
-        result = updater(current);
-        if (!result || typeof result.then === "function" || typeof result.applied !== "boolean") {
+        const legacy = readPersistentDraft();
+        record = initialized ? { version: 1, revision: 0, draft: initialCanonicalDraft(validIds, legacy),
+          ...(legacy.available ? { legacyBase: legacy.value } : {}) } : canonicalRecord(request.result, validIds);
+        if (!initialized) state.sharedActive = true;
+        if (resolution && !legacy.available) throw new OrderStorageError("The older order is temporarily unavailable; please retry");
+        const conflict = inspectLegacy(record, validIds, legacy);
+        if (resolution) {
+          if (!conflict || conflict.token !== resolution.token || conflict.raw !== resolution.raw
+              || (resolution.choice === "use-legacy" && conflict.invalid)) throw new OrderLegacyConflictError();
+          result = { draft: resolution.choice === "use-legacy" ? conflict.legacyDraft : record.draft, applied: true, blocked: false };
+          record = { ...record, legacyBase: conflict.raw };
+        } else {
+          if (conflict && !readOnly) throw new OrderLegacyConflictError();
+          result = updater(record.draft);
+        }
+        if (!result || typeof result.then === "function" || typeof result.applied !== "boolean" || (readOnly && result.applied)) {
           throw new TypeError("Order transaction updater must return a synchronous mutation result");
         }
-        result = { ...result, draft: result.applied ? normalizeOrderDraft(result.draft, validIds) : current };
+        result = { ...result, draft: result.applied ? normalizeOrderDraft(result.draft, validIds) : record.draft };
         if (result.applied) {
           if (record.revision >= Number.MAX_SAFE_INTEGER) throw new OrderStorageError("Order revision limit reached");
-          record = { version: 1, revision: record.revision + 1, draft: result.draft };
+          record = { ...record, revision: record.revision + 1, draft: result.draft };
         }
         if (initialized || result.applied) store.put(record, ORDER_DRAFT_KEY);
       } catch (cause) {
@@ -489,10 +660,22 @@ export async function transactStoredOrderDraft(updater, validIds, options = {}) 
   });
 }
 
-// Call on bootstrap, storage/broadcast notifications, pageshow and focus before
-// displaying a fresh shared order or creating a QR. The synchronous reader is a
-// projection/cache for rendering only and must never supply mutation input.
+export function transactStoredOrderDraft(updater, validIds, options = {}) {
+  return sharedTransaction(updater, validIds, options);
+}
+
 export async function readLatestStoredOrderDraft(validIds) {
-  const result = await transactStoredOrderDraft(draft => ({ draft, applied: false, blocked: false }), validIds);
-  return rememberCanonical({ revision: result.revision, draft: result.draft }, validIds);
+  const result = await sharedTransaction(draft => ({ draft, applied: false, blocked: false }), validIds, {}, true);
+  return storageRuntime().mode === "tab" ? normalizeOrderDraft(result.draft, validIds)
+    : rememberCanonical({ revision: result.revision, draft: result.draft }, validIds);
+}
+
+export async function resolveLegacyOrderDraft(choice, validIds, expectedToken) {
+  const state = storageRuntime();
+  const conflict = state.conflict;
+  if (state.mode !== "shared" || !conflict || conflict.token !== expectedToken
+      || !["keep-current", "use-legacy"].includes(choice)) throw new OrderLegacyConflictError();
+  const result = await sharedTransaction(draft => ({ draft, applied: false, blocked: false }), validIds, {}, false,
+    { choice, token: expectedToken, raw: conflict.raw });
+  return result.draft;
 }

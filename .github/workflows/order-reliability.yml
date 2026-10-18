@@ -26,6 +26,7 @@ jobs:
       ROBYS_TRANSACTION_QA_DIR: .artifacts/order-reliability/transactions
       CHECKOUT_BROWSERS: ${{ matrix.browser }}
       ROBYS_RELEASE_BUILT_BROWSERS: ${{ matrix.browser }}
+      ROBYS_STORAGE_BROWSER: ${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,6 +47,8 @@ jobs:
         run: node scripts/test-order-transactions-stress-browser.mjs
       - name: Immutable QR and explicit refresh
         run: node scripts/test-order-checkout-staleness-browser.mjs
+      - name: Unavailable storage and legacy tab recovery
+        run: node scripts/test-order-storage-compat-browser.mjs
       - name: Built release QR, cashier and concurrent native Add
         run: node scripts/test-order-release-built-browser.mjs
       - name: Mobile order navigation

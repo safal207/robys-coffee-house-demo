@@ -15,6 +15,7 @@ const entries = [
 ];
 const digest = (value) => createHash("sha256").update(value).digest("hex");
 const menuCatalogRevision = digest(readFileSync("menu-catalog.js")).slice(0, 12);
+const orderStorageRevision = digest(readFileSync("order-storage.js")).slice(0, 12);
 function literals(code) {
   const ast = ts.createSourceFile("module.js", code, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   assert.equal(ast.parseDiagnostics.length, 0, "generated JavaScript must parse");
@@ -35,7 +36,7 @@ for (const [source, output] of entries) {
   const outfile = `smart-choice/${output}.js`;
   const options = {
     entryPoints: [`src/smart-choice/${source}.ts`],
-    plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+    plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
     ...(source === "page" ? { external: ["../order-checkout.js*"] } : {}),
     outfile, write: false, bundle: true, minify: true,
     format: "esm", platform: "browser", target: "es2020",

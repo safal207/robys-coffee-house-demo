@@ -2,6 +2,24 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
 
+const editablePairTitle = "Айс латте + Чизкейк Сан-Себастьян";
+async function assertSavedEditablePair(page) {
+  const draft = await page.evaluate(async () => {
+    const [{ readLatestStoredOrderDraft }, { menuCategories }] = await Promise.all([
+      import("./src/order-draft.js"), import("./menu-catalog.js")
+    ]);
+    const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const ids = new Set(menuCategories.flatMap(category =>
+      (category.items ?? category.groups.flatMap(group => group.items)).map(item => `${category.id}:${item.id ?? slug(item.name.en)}`)));
+    return readLatestStoredOrderDraft(ids);
+  });
+  const items = [{ id: "cold-coffee:iced-caffe-latte", quantity: 1 }, { id: "desserts:san-sebastian-cheesecake", quantity: 1 }];
+  assert.deepEqual(draft.groups.map(({ source, quantity, items }) => ({ source, quantity, items })),
+    [{ source: "menu", quantity: 1, items }], "The bridge saves exactly one editable ordinary-product pair");
+  assert.deepEqual(draft.lines, items, "San Sebastian is included once and no legacy offer SKU is added");
+}
+
 const port = 4197;
 const base = `http://127.0.0.1:${port}/`;
 const server = spawn("python3", ["-m", "http.server", String(port), "--bind", "127.0.0.1"], {
@@ -101,9 +119,10 @@ try {
   await page.locator(".menu-product-pairing-action").click();
 
   await page.locator("#menu-product-dialog[open] #menu-product-title")
-    .filter({ hasText: "Айс-латте + чизкейк Сан-Себастьян" }).waitFor({ state: "visible" });
+    .filter({ hasText: editablePairTitle }).waitFor({ state: "visible" });
 
-  assert.match(await page.locator("#menu-product-title").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.equal(await page.locator("#menu-product-title").innerText(), editablePairTitle);
+  assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:san-sebastian-cheesecake"]').isChecked(), true);
   assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
   assert.equal(await control.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
   assert.equal(await bridge.isHidden(), true, "Pairing product must not recursively show the pairing bridge");
@@ -113,14 +132,15 @@ try {
   assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 1, "Pairing must add as one existing catalog line");
   assert.equal(Number(await page.locator("#menu-cart-dialog .menu-cart-line-controls span").textContent()), 1);
   assert.equal(await page.locator("#menu-cart-title").innerText(), "Добавлено в заказ");
-  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
+  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс латте \+ Чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
+  await assertSavedEditablePair(page);
   assert.equal(await page.getByRole("button", { name: "Получить QR для кассы", exact: true }).isVisible(), true);
   assert.equal(await page.getByRole("button", { name: "Выбрать ещё", exact: true }).isVisible(), true);
   assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding must not implicitly create a QR checkout");
   assert.equal(
     Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
     370,
-    "Pairing bridge must reuse the existing 370 ₺ cart item without double-adding San Sebastian"
+    "The editable pair must keep the verified 370 ₺ total without double-adding San Sebastian"
   );
   await page.getByRole("button", { name: "Выбрать ещё", exact: true }).click();
   await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });

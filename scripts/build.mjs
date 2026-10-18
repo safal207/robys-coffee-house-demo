@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
-import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 import { sharedMenuCatalogPlugin } from "./smart-choice-catalog-external.mjs";
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
@@ -30,6 +30,8 @@ await build({
   format: "esm", target: "es2020", outfile: "menu-pairing.js", legalComments: "none"
 });
 const menuPairingRevision = revisionFor("menu-pairing.js");
+writeFileSync("order-storage.js", compileOrderStorageRuntime());
+const orderStorageRevision = revisionFor("order-storage.js");
 let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "order-checkout.js", orderCheckoutRevision);
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "menu-pairing.js", menuPairingRevision);
@@ -42,6 +44,7 @@ const menuFamilyCssRevision = revisionFor("menu-family.css");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
+menuSource = synchronizeModuleImport(menuSource, "order-storage.js", orderStorageRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
@@ -57,7 +60,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   external: ["../order-checkout.js*"],
   charset: "utf8",
   bundle: true,
@@ -71,7 +74,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -84,7 +87,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -97,7 +100,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -110,7 +113,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -123,7 +126,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -413,9 +416,14 @@ cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision
 writeFileSync("cashier.html", cashierHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
-for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
-  "src/products/family-v1/milk-cookie.webp", "src/products/family-v1/simit-break.webp", "src/products/family-v1/milk-roll.webp",
-  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
+const familyPhotoAssets = [
+  "src/products/family-sets-v1/milk-cookie.webp",
+  "src/products/family-sets-v1/simit-break.webp",
+  "src/products/family-sets-v1/milk-roll.webp",
+  "src/products/family-sets-v1/kids-box.webp"
+];
+for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
@@ -438,9 +446,8 @@ serviceWorker = serviceWorker.replace(
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
 const familyCacheRevision = createHash("sha256")
-  .update([menuFamilyRevision, menuFamilyCssRevision, revisionFor("src/menu-family.js"),
-    revisionFor("src/products/family-v1/milk-cookie.webp"), revisionFor("src/products/family-v1/simit-break.webp"),
-    revisionFor("src/products/family-v1/milk-roll.webp")].join(":")).digest("hex").slice(0, 12);
+  .update([menuFamilyRevision, menuFamilyCssRevision, revisionFor("src/menu-family.js"), ...familyPhotoAssets.map(revisionFor)].join(":"))
+  .digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")
@@ -466,6 +473,7 @@ for (const [filePath, revision] of [
   ["coffee-paths.css", coffeePathsRevision],
   ["menu-catalog.js", menuCatalogRevision],
   ["order-checkout.js", orderCheckoutRevision],
+  ["order-storage.js", orderStorageRevision],
   ["cashier.js", cashierRevision],
   ["order-checkout.css", orderCheckoutCssRevision],
   ["bootstrap-v2.js", bootstrapRevision],

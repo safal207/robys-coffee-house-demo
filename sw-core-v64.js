@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-df01c57c1ef0-coffee-paths-54035247389e-family-menu-d3363d9213ef-custom-pair-d87f85813ce4-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-0e2b05dc97ec-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-33393a9cc975-coffee-paths-54035247389e-family-menu-696c2d6971a7-custom-pair-bd533c28175b-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-0e2b05dc97ec-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -66,18 +66,20 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./cashier.html",
-  "./cashier.js?v=a95b0628c671",
-  "./order-checkout.js?v=a4137d7045f9",
-  "./order-checkout.css?v=5e59fe6f8f6a",
+  "./cashier.js?v=795549f3ebc9",
+  "./order-checkout.js?v=8737e01cdca9",
+  "./order-checkout.css?v=9ead86a924fa",
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=b8cbc88997f0",
-  "./menu-family-ui.js?v=05454854f698",
-  "./menu-family.css?v=a20334bb6929",
-  "./src/products/family-v1/milk-cookie.webp",
-  "./src/products/family-v1/simit-break.webp",
-  "./src/products/family-v1/milk-roll.webp",
+  "./menu-order-ui.js?v=8d6b2d145715",
+  "./menu-family-ui.js?v=f6778abdbe89",
+  "./menu-family.css?v=e7dc86c94a4b",
+  "./order-storage.js?v=c2f56e3a95b4",
+  "./src/products/family-sets-v1/milk-cookie.webp",
+  "./src/products/family-sets-v1/simit-break.webp",
+  "./src/products/family-sets-v1/milk-roll.webp",
+  "./src/products/family-sets-v1/kids-box.webp",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -98,7 +100,7 @@ const CORE_ASSETS = [
   "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
   "./discover.css",
-  "./discover-deck.css?v=45ca8486a146",
+  "./discover-deck.css?v=14bb488e526a",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260917-approved-v4-restore",
@@ -114,7 +116,7 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=2f909b44ad7e",
+  "./menu-app.js?v=9c4e23d2251e",
   "./menu-pairing.js?v=6b033c91bf9a",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
@@ -147,8 +149,8 @@ const CORE_ASSETS = [
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=c1249293c420",
-  "./smart-choice/cart-v2.js?v=d6fa92bb9b95",
+  "./smart-choice/app-v2.js?v=3eecb4949c3a",
+  "./smart-choice/cart-v2.js?v=a7ce808bda39",
   "./smart-choice/experiments-v2.js?v=7392addbe349",
   "./smart-choice/analytics-v2.js?v=535cf3f27418",
   "./smart-choice/decision-trace-v2.js?v=1b7d1934cf2e",
@@ -216,6 +218,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
+    url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
     url.pathname.endsWith("/order-checkout.css") ||
     url.pathname.endsWith("/cashier.js") ||

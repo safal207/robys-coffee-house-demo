@@ -18,7 +18,7 @@ import {
   type CartState
 } from "./cart-domain.js";
 import { CART_COPY } from "./cart-copy.js";
-import { ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, transactStoredOrderDraft } from "../order-draft.js";
+import { ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, getOrderStorageState, transactStoredOrderDraft, createOrderStorageNotice } from "../order-storage.js";
 import { syncRecommendation, orderProducts, orderProductIds, buildSharedOrderPayload } from "./shared-order.js";
 import { orderGroupName, orderGroupTotal, orderGroupItems, needsOrderVariant } from "./quick-builder-domain.js";
 import { openQuickCheckout } from "./checkout-link.js";
@@ -228,6 +228,7 @@ function mountCart(): void {
         return;
       }
       if (!handoff.isConnected) return;
+      if (getOrderStorageState().legacyConflict) { handoff.disabled = !canHandoff; handoff.setAttribute("aria-disabled", String(!canHandoff)); return; }
       if (needsOrderVariant(current.groups)) {
         window.dispatchEvent(new CustomEvent("robys:quick-order"));
         window.requestAnimationFrame(() => {
@@ -373,6 +374,9 @@ function mountCart(): void {
   };
 
   refreshCart = () => { if (root.isConnected) void render(false); };
+  createOrderStorageNotice({ owner: root, getLanguage: () => flow.locale,
+    getProduct: (id: string) => orderProducts.get(id)?.item, validIds: orderProductIds,
+    onResolved: () => { if (root.isConnected) return render(false); } });
   void render(!appliedTokens.has(token));
 }
 

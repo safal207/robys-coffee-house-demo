@@ -4,6 +4,24 @@ import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 
+const editablePairTitle = "Айс латте + Чизкейк Сан-Себастьян";
+async function assertSavedEditablePair(page) {
+  const draft = await page.evaluate(async () => {
+    const [{ readLatestStoredOrderDraft }, { menuCategories }] = await Promise.all([
+      import("./src/order-draft.js"), import("./menu-catalog.js")
+    ]);
+    const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const ids = new Set(menuCategories.flatMap(category =>
+      (category.items ?? category.groups.flatMap(group => group.items)).map(item => `${category.id}:${item.id ?? slug(item.name.en)}`)));
+    return readLatestStoredOrderDraft(ids);
+  });
+  const items = [{ id: "cold-coffee:iced-caffe-latte", quantity: 1 }, { id: "desserts:san-sebastian-cheesecake", quantity: 1 }];
+  assert.deepEqual(draft.groups.map(({ source, quantity, items }) => ({ source, quantity, items })),
+    [{ source: "menu", quantity: 1, items }], "The journey saves exactly one editable ordinary-product pair");
+  assert.deepEqual(draft.lines, items, "San Sebastian is included once and no legacy offer SKU is added");
+}
+
 const out = resolve(process.env.DECK_RESULTS_DIR ?? ".artifacts/discover-deck");
 mkdirSync(out, { recursive: true });
 
@@ -87,18 +105,21 @@ try {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Deck must not create horizontal overflow: ${overflow}px`);
 
-  const [menuLinkBox, previewBox, priceBox, viewportHeight] = await Promise.all([
+  const [menuLinkBox, secondaryActionBox, previewBox, priceBox, viewportHeight] = await Promise.all([
     menuLink.boundingBox(),
+    page.locator("#mark-discovered").boundingBox(),
     preview.boundingBox(),
     previewPrice.boundingBox(),
     page.evaluate(() => window.innerHeight)
   ]);
-  assert.ok(menuLinkBox && previewBox && priceBox, "Primary CTA, next-card preview and price must be measurable");
+  assert.ok(menuLinkBox && secondaryActionBox && previewBox && priceBox, "Both actions, next-card preview and price must be measurable");
   const menuLinkBottom = menuLinkBox.y + menuLinkBox.height;
   assert.ok(
     menuLinkBottom + 8 <= previewBox.y,
     `Next-card preview must stay clear of primary CTA: CTA bottom ${menuLinkBottom.toFixed(1)}px, preview top ${previewBox.y.toFixed(1)}px`
   );
+  assert.ok(secondaryActionBox.y + secondaryActionBox.height + 8 <= previewBox.y,
+    "Next-card preview must also stay clear of the secondary discovery action");
   const visiblePreviewHeight = Math.max(
     0,
     Math.min(viewportHeight, previewBox.y + previewBox.height) - Math.max(0, previewBox.y)
@@ -150,27 +171,29 @@ try {
   assert.match(await bridge.innerText(), /370\s*₺/);
   await page.locator(".menu-product-pairing-action").click();
 
-  await page.waitForFunction(() => {
+  await page.waitForFunction(expectedTitle => {
     const dialog = document.querySelector("#menu-product-dialog");
     const title = document.querySelector("#menu-product-title")?.textContent ?? "";
-    return dialog?.hasAttribute("open") && title.includes("Айс-латте + чизкейк Сан-Себастьян");
-  });
+    return dialog?.hasAttribute("open") && title === expectedTitle;
+  }, editablePairTitle);
+  assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:san-sebastian-cheesecake"]').isChecked(), true);
   assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
   assert.equal(await reveal.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
 
   await page.locator("#menu-add-to-cart").click();
   await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
-  assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 1, "Journey must end in one existing pairing cart line");
+  assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 1, "Journey must end in one editable pairing cart line");
   assert.equal(Number(await page.locator("#menu-cart-dialog .menu-cart-line-controls span").textContent()), 1);
   await page.waitForFunction(() => document.activeElement === document.querySelector("#menu-cart-title"));
   assert.equal(await page.locator("#menu-cart-added-summary").isVisible(), true, "Adding the pairing must show persistent confirmation");
-  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс латте \+ Чизкейк Сан-Себастьян/i);
+  await assertSavedEditablePair(page);
   assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), true, "The next checkout action must be available");
   assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding a pairing must not automatically create its QR");
   assert.equal(
     Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
     370,
-    "Discover → product → pairing must reuse the existing 370 ₺ cart product"
+    "Discover → product → editable pair must retain the verified 370 ₺ total"
   );
 
   await page.screenshot({ path: `${out}/discover-to-cart-390.png` });

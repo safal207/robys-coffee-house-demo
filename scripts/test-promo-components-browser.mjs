@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { buildSync } from "esbuild";
 import { chromium, firefox, webkit } from "playwright";
-import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 import { addOrderGroup, updateOrderGroupQuantity } from "../src/order-draft.js";
 import { menuCategories } from "../menu-catalog.js";
 
@@ -19,6 +19,7 @@ const certificate = mkdtempSync(join(tmpdir(), "robys-promo-https-"));
 execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1", "-keyout", join(certificate, "key.pem"),
   "-out", join(certificate, "cert.pem"), "-subj", "/CN=localhost"], { stdio: "ignore" });
 const compiled = new Map([
+  ["/order-storage.js", compileOrderStorageRuntime()],
   ["/menu-app.js", compileMenuRuntime()],
   ["/menu-order-ui.js", compileMenuOrderRuntime()],
   ["/menu-pairing.js", buildSync({ entryPoints: ["src/menu-pairing-view.js"], bundle: true, write: false,
@@ -48,7 +49,7 @@ const type = { chromium, firefox, webkit }[browserName];
 if (!type) throw new Error(`Unknown browser ${browserName}`);
 const report = { head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   startedAt: new Date().toISOString(), mode: "Local source fixture; browser engine with phone-sized viewport, not a physical handset",
-  browser: browserName, sourceHashes: Object.fromEntries(["src/menu-app.js", "src/menu-order-ui.js", "src/menu-pairing.js", "src/menu-pairing-view.js", "src/menu-promo-pair.js", "src/order-draft.js", "menu-catalog.js"]
+  browser: browserName, sourceHashes: Object.fromEntries(["src/menu-app.js", "src/order-storage.js", "src/order-storage-notice.js", "src/menu-order-ui.js", "src/menu-pairing.js", "src/menu-pairing-view.js", "src/menu-promo-pair.js", "src/order-draft.js", "menu-catalog.js"]
     .map(path => [path, createHash("sha256").update(readFileSync(path)).digest("hex")])), cases: [] };
 const stored = page => page.evaluate(async productIds => {
   const orders = await import("/src/order-draft.js");
