@@ -115,6 +115,58 @@ check("missing menu output cannot retain its bundled helper", {
   "src/order-draft.js": "export {};"
 }, ["src/menu-app.js", "src/order-draft.js"]);
 
+{
+  const runtime = "menu-app.js", input = "src/menu-app.js", helper = "src/menu-actions-loader.js";
+  const files = { [runtime]: "export {};", [input]: 'import { createMenuActionsLoader } from "./src/menu-actions-loader.js";',
+    [helper]: "export function createMenuActionsLoader() {}" };
+  check("share loader: reached menu retains its actual emitted-root bundled import", {
+    "index.html": '<script type="module" src="menu-app.js"></script>', ...files
+  }, [], [[runtime, input], [runtime, helper]]);
+  check("share loader: detached menu cannot retain its bundled helper", {
+    "index.html": "<main>Menu</main>", ...files
+  }, Object.keys(files));
+  check("share loader: missing menu output cannot retain its source or helper", {
+    "index.html": '<script type="module" src="menu-app.js"></script>', [input]: files[input], [helper]: files[helper]
+  }, [input, helper]);
+  check("share loader: literal mention without import cannot hide a helper orphan", {
+    "index.html": '<script type="module" src="menu-app.js"></script>', ...files,
+    [input]: 'const unused = "./src/menu-actions-loader.js";'
+  }, [helper], [[runtime, input]]);
+}
+
+{
+  const runtime = "menu-family-ui.js", input = "src/menu-family-ui.js", family = "src/menu-family.js", draft = "src/order-draft.js";
+  const files = { [runtime]: "export {};", [input]: 'import { familyRecipes } from "./src/menu-family.js";',
+    [family]: 'import { addOrderGroup } from "./order-draft.js";', [draft]: "export function addOrderGroup() {}" };
+  const expected = [[runtime, input], [runtime, family], [runtime, draft]];
+  check("family UI: reached bundle retains emitted-root helper and its source-relative draft import", {
+    "index.html": '<script type="module" src="menu-family-ui.js"></script>', ...files
+  }, [], expected);
+  check("family UI: lazy reached output retains its complete actual helper chain", {
+    "index.html": '<script type="module" src="menu-app.js"></script>',
+    "menu-app.js": 'import("./menu-family-ui.js?v=fixture");', "src/menu-app.js": 'import("./menu-family-ui.js?v=fixture");', ...files
+  }, [], [["menu-app.js", "src/menu-app.js"], ...expected]);
+  check("family UI: detached output and helper chain all remain orphans", {
+    "index.html": "<main>Menu</main>", ...files
+  }, Object.keys(files));
+  check("family UI: missing output cannot retain its source or helper chain", {
+    "index.html": '<script type="module" src="menu-family-ui.js"></script>',
+    ...Object.fromEntries(Object.entries(files).filter(([path]) => path !== runtime))
+  }, [input, family, draft]);
+  check("family UI: unimported helper cannot retain itself or its imported draft", {
+    "index.html": '<script type="module" src="menu-family-ui.js"></script>', ...files,
+    [input]: 'const unused = "./src/menu-family.js";'
+  }, [family, draft], [[runtime, input]]);
+  check("family UI: mentioning draft without importing it leaves draft orphaned", {
+    "index.html": '<script type="module" src="menu-family-ui.js"></script>', ...files,
+    [family]: 'const unused = "./order-draft.js";'
+  }, [draft], [[runtime, input], [runtime, family]]);
+  check("family UI: build script mentions do not root the detached chain", {
+    "index.html": "<main>Menu</main>", ...files,
+    "scripts/build.mjs": 'readFileSync("src/menu-family-ui.js"); writeFileSync("menu-family-ui.js", "");'
+  }, Object.keys(files));
+}
+
 for (const [name, helpers] of [
   ["order-checkout", ["order-ticket", "order-ticket-storage"]],
   ["cashier", ["order-ticket"]]

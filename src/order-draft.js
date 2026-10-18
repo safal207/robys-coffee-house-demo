@@ -147,6 +147,37 @@ export function removeOrderGroup(raw, id, validIds) {
   return updateOrderGroupQuantity(raw, id, 0, validIds).draft;
 }
 
+// Replace one selection against a freshly read basket in one write. Keep the
+// original basket on invalid/capped edits, and never overwrite a stale editor.
+export function replaceOrderGroup(raw, original, items, quantity, validIds) {
+  const draft = normalizeOrderDraft(raw, validIds);
+  const current = draft.groups.find(group => group.id === original?.id);
+  if (!current || current.quantity !== original.quantity || JSON.stringify(current.items) !== JSON.stringify(original.items)) {
+    return { draft, applied: false, blocked: true, stale: true };
+  }
+  const selected = validItems(items, validIds);
+  const result = addOrderGroup(removeOrderGroup(draft, original.id, validIds), selected, quantity, validIds);
+  if (!result.applied) return { draft, applied: false, blocked: true };
+  if (current.source !== "recommendation" || !draft.recommendation) return result;
+  // An advisor-owned edit records explicit removals so changing an advisor
+  // option later cannot silently restore a dessert removed in this editor.
+  const remaining = new Map();
+  for (const item of selected) remaining.set(item.id, (remaining.get(item.id) ?? 0) + item.quantity * quantity);
+  const removed = new Map((draft.recommendation.removedLines ?? []).map(line => [line.id, line.quantity]));
+  for (const line of draft.recommendation.selectedLines ?? draft.recommendation.lines) {
+    const before = current.items.filter(item => item.id === line.id).reduce((sum, item) => sum + item.quantity * current.quantity, 0);
+    if (before === (remaining.get(line.id) ?? 0)) continue;
+    const difference = line.quantity - (remaining.get(line.id) ?? 0);
+    if (difference > 0) removed.set(line.id, difference);
+    else removed.delete(line.id);
+  }
+  return { draft: normalizeOrderDraft({ ...draft,
+    groups: draft.groups.map(group => group.id === original.id ? { ...group, items: selected, quantity } : group),
+    recommendation: { ...draft.recommendation,
+      removedLines: [...removed].map(([id, quantity]) => ({ id, quantity })).sort((a, b) => a.id.localeCompare(b.id, "en")) }
+  }, validIds), applied: true, blocked: false };
+}
+
 export function updateOrderGroupVariant(raw, id, itemIndex, variant, validIds) {
   const draft = normalizeOrderDraft(raw, validIds);
   const group = draft.groups.find(entry => entry.id === id);

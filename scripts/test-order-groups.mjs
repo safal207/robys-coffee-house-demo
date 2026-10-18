@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { addOrderGroup, updateOrderGroupQuantity, removeOrderGroup, normalizeOrderDraft,
-  updateOrderGroupVariant,
+  updateOrderGroupVariant, replaceOrderGroup,
   applyOrderRecommendation, updateOrderLines, readStoredOrderDraft, writeStoredOrderDraft,
   ORDER_DRAFT_KEY } from "../src/order-draft.js";
 
@@ -39,6 +39,64 @@ test("the global product cap spans groups and flavors and rejects entire pairs",
   assert.deepEqual(blocked.draft, draft);
   const flavored = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }], 99, ids).draft;
   assert.equal(addOrderGroup(flavored, [{ id: "flavored", variant: "caramel" }], 1, ids).blocked, true);
+});
+
+test("replacing a pair changes its composition once and preserves unrelated latest selections", () => {
+  const original = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const latest = addOrderGroup(original, [line("coffee")], 3, ids).draft;
+  const replacement = replaceOrderGroup(latest, original.groups[0], [line("tea"), line("hot")], 2, ids);
+  assert.equal(replacement.applied, true);
+  assert.deepEqual(replacement.draft.lines, [line("coffee", 3), line("hot", 2), line("tea", 2)]);
+  assert.equal(replacement.draft.groups.length, 2, "the old pair is replaced, not appended");
+  assert.deepEqual(latest.lines, [line("cake", 2), line("coffee", 3), line("tea", 2)], "input basket is immutable");
+});
+
+test("pair editing can keep just its drink and merge an identical selection without duplication", () => {
+  let draft = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }, line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  draft = addOrderGroup(draft, [{ id: "flavored", variant: "vanilla" }], 3, ids).draft;
+  const replacement = replaceOrderGroup(draft, original, [{ id: "flavored", variant: "vanilla" }], 2, ids);
+  assert.equal(replacement.applied, true);
+  assert.equal(replacement.draft.groups.length, 1);
+  assert.equal(replacement.draft.groups[0].quantity, 5);
+  assert.deepEqual(replacement.draft.groups[0].items, [{ id: "flavored", variant: "vanilla", quantity: 1 }]);
+  assert.deepEqual(replacement.draft.lines, [line("flavored", 5)]);
+});
+
+test("pair replacements reject product-cap overflow atomically without dropping the original", () => {
+  let draft = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  draft = addOrderGroup(draft, [line("hot")], 98, ids).draft;
+  const replacement = replaceOrderGroup(draft, original, [line("tea"), line("hot")], 2, ids);
+  assert.equal(replacement.applied, false);
+  assert.equal(replacement.blocked, true);
+  assert.deepEqual(replacement.draft, draft);
+  const invalid = replaceOrderGroup(draft, original, [line("unknown")], 2, ids);
+  assert.equal(invalid.applied, false);
+  assert.deepEqual(invalid.draft, draft);
+});
+
+test("a stale composition editor cannot overwrite a changed quantity, flavor, or removal", () => {
+  const draft = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }, line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  const updates = [
+    updateOrderGroupQuantity(draft, original.id, 3, ids).draft,
+    updateOrderGroupVariant(draft, original.id, 0, "caramel", ids).draft,
+    removeOrderGroup(draft, original.id, ids)
+  ];
+  for (const latest of updates) {
+    const replacement = replaceOrderGroup(latest, original, [{ id: "flavored", variant: "vanilla" }], 2, ids);
+    assert.equal(replacement.applied, false);
+    assert.equal(replacement.stale, true);
+    assert.deepEqual(replacement.draft, latest);
+  }
+});
+
+test("an unchanged edit at the product cap remains saveable without adding another pair", () => {
+  const draft = addOrderGroup(null, [line("tea"), line("cake")], 99, ids).draft;
+  const replacement = replaceOrderGroup(draft, draft.groups[0], [line("tea"), line("cake")], 99, ids);
+  assert.equal(replacement.applied, true);
+  assert.deepEqual(replacement.draft, draft);
 });
 
 test("changing a flavor preserves components when their identities collide inside or between groups", () => {

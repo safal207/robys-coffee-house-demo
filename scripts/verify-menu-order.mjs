@@ -79,6 +79,7 @@ for (const [language, quantity, expected] of pluralCases) {
   const category = new Intl.PluralRules({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language]).select(quantity);
   assert((forms?.[category] ?? forms?.other) === expected, `Wrong ${language} cart noun for ${quantity}`);
 }
+await import("./test-menu-formatters.mjs");
 
 const visualItemCount = menuCategories.reduce((total, category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
@@ -92,13 +93,14 @@ for (const contract of [
   "writeStoredOrderDraft(draft, orderProductIds)",
   "media.addEventListener(\"click\", event => openProduct(id, event.currentTarget))",
   "total += product.item.price * lineQuantity",
-  "quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
+  "quoteMenuSelection(quoteCart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
   "formatPrice(total)",
   'const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }',
   "new Intl.NumberFormat(localeTag[language]",
-  "new Intl.PluralRules(localeTag[language]).select(count)",
+  "new Intl.PluralRules(localeTag[language])",
   "formatItemCount(summary.quantity)",
-  "addOrderGroup(orderDraft, products.map",
+  "addOrderGroup(orderDraft, items, selectedProductQuantity, orderProductIds)",
+  "replaceOrderGroup(orderDraft, editingGroup, items, selectedProductQuantity, orderProductIds)",
   "if (!selection.applied)",
   "orderDraft = selection.draft",
   "orderDraft.groups.forEach",
@@ -130,11 +132,34 @@ assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must fol
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
 assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an extra render-blocking request");
 
+// An edit reuses the capacity occupied by its original selection; an ordinary
+// Add still quotes the entire latest basket. Execute the real allowance path.
+const quantityHandler = runtime.match(/function updateProductQuantity\(\) \{[\s\S]*?\n\}/)?.[0];
+assert(quantityHandler);
+for (const editing of [false, true]) {
+  const fullCart = new Map([["drink", 99], ["sweet", 99], ["other", 7]]);
+  let quoted;
+  const boundary = new Error("quote captured");
+  const context = {
+    selectedProducts: () => [{ id: "drink" }, { id: "sweet" }],
+    cart: fullCart, selectedProductQuantity: 2, MAX_ITEM_QUANTITY: 99,
+    menuCopy: { en: {} }, language: "en",
+    editingGroup: editing ? { quantity: 2, items: [{ id: "drink", quantity: 1 }, { id: "sweet", quantity: 1 }] } : null,
+    quoteMenuSelection: cart => { quoted = JSON.parse(JSON.stringify(Array.from(cart))); throw boundary; }
+  };
+  assert.throws(() => runInNewContext(`${quantityHandler}\nupdateProductQuantity();`, context), error => error === boundary);
+  assert.deepEqual(quoted, [["drink", editing ? 97 : 99], ["sweet", editing ? 97 : 99], ["other", 7]],
+    "Only an editor's original components release capacity in its quote");
+  assert.deepEqual(Array.from(fullCart), [["drink", 99], ["sweet", 99], ["other", 7]], "Quoting never mutates the real basket");
+}
+
 // Exercise the real Add handler: a successful mutation confirms the selection,
 // while a rejected or disabled Add must never advance to cart or checkout.
 const addHandler = runtime.match(/function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(addHandler, "The menu Add handler must be available for behavior verification");
-for (const mode of ["success", "rejected", "disabled"]) {
+for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-stale", "edit-cap"]) {
+  const editing = mode.startsWith("edit-");
+  const success = mode === "success" || mode === "edit-success";
   const events = [];
   const drink = { id: "test-drink", item: { name: { en: "Test drink" } } };
   const dessert = { id: "test-dessert", item: { name: { en: "Test dessert" } } };
@@ -142,29 +167,53 @@ for (const mode of ["success", "rejected", "disabled"]) {
   const cartDialog = {};
   const cartTitle = {};
   const origin = { name: "product photo" };
+  const cartOrigin = { name: "cart trigger" };
+  const originalGroup = { id: "original-pair", quantity: 2, items: [{ id: drink.id, quantity: 1 }, { id: dessert.id, quantity: 1 }] };
+  const latestDraft = { groups: [originalGroup, { id: "unrelated" }] };
   const context = {
     productIndex: new Map([[drink.id, drink]]), selectedProductId: drink.id,
     selectedProductQuantity: 2, selectedProductVariant: "vanilla", language: "en",
     menuCopy: { en: { maxQuantity: "Maximum" } }, addToCartButton: { disabled: mode === "disabled" },
-    cart: new Map(), readCart: () => new Map(), orderDraft: { groups: [] }, orderProductIds: new Set(),
-    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: mode === "success", draft: { groups: [] } }),
+    cart: new Map(), readCart: () => { context.orderDraft = latestDraft; return new Map(); }, orderDraft: { groups: [] }, orderProductIds: new Set(),
+    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: success, draft: { groups: [] } }),
+    replaceOrderGroup: (draft, original, items, quantity) => {
+      assert.equal(draft, latestDraft, "Save must replace against freshly read storage");
+      assert.equal(original, originalGroup, "Save keeps the original snapshot for the stale guard");
+      assert.equal(quantity, 2);
+      assert.deepEqual(JSON.parse(JSON.stringify(items)), [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }]);
+      return { applied: success, stale: mode === "edit-stale", draft: { groups: [] } };
+    },
     announceCart: () => events.push("rejected"), updateProductQuantity: () => {}, localized: value => value.en,
     rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
-    lastAddedSelection: null, cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
+    lastAddedSelection: null, lastSelectionWasEdit: false, editingGroup: editing ? originalGroup : null,
+    editingCartReturnFocus: editing ? cartOrigin : null,
+    productEditError: { hidden: true, textContent: "", focus: () => events.push("edit error"),
+      scrollIntoView: options => {
+        assert.deepEqual(JSON.parse(JSON.stringify(options)), { block: "center", inline: "nearest" });
+        events.push("reveal edit error");
+      } },
+    editCopy: { en: { stale: "Changed elsewhere" } },
+    cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
     productDialog, cartDialog, cartTitle, cartTrigger: {}, dialogReturnFocus: new Map([[productDialog, origin]]),
-    closeDialog: dialog => { assert.equal(dialog, productDialog); events.push("closed product"); },
+    closeDialog: dialog => { assert.equal(dialog, productDialog); assert.equal(context.editingGroup, null, "Committed edits must not run the Cancel path"); events.push("closed product"); },
     openDialog: (dialog, focus, returnFocus) => {
-      assert.equal(dialog, cartDialog); assert.equal(focus, cartTitle); assert.equal(returnFocus, origin);
+      assert.equal(dialog, cartDialog); assert.equal(focus, cartTitle); assert.equal(returnFocus, editing ? cartOrigin : origin);
       events.push("opened confirmation");
     }
   };
   runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
-  assert.deepEqual(events, mode === "success" ? ["saved", "rendered", "closed product", "opened confirmation"] : mode === "rejected" ? ["rejected"] : []);
-  if (mode === "success") {
+  assert.deepEqual(events, success ? ["saved", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
+  if (editing && !success) {
+    assert.equal(context.productEditError.hidden, false);
+    assert.equal(context.productEditError.textContent, mode === "edit-stale" ? "Changed elsewhere" : "Maximum");
+    assert.equal(context.orderDraft, latestDraft, "A rejected Save leaves the latest basket untouched");
+  }
+  if (success) {
     assert.deepEqual(JSON.parse(JSON.stringify(context.lastAddedSelection)), {
       items: [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }], quantity: 2
     }, "Confirmation must preserve the actual variant, pair and quantity");
     assert.equal(context.cartLinesRoot.scrollTop, 0);
+    assert.equal(context.lastSelectionWasEdit, editing, "Confirmation distinguishes a replacement from an addition");
   }
 }
 
@@ -225,10 +274,15 @@ assert.equal(titleFocuses, 1, "The confirmation heading receives focus when it i
 
 const translateHandler = runtime.match(/function translateStaticPage\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(translateHandler);
+const familyCopySource = runtime.match(/const familyCopy = \{[\s\S]*?\n\};/)?.[0];
+assert(familyCopySource, "The family route needs localized entry copy");
+const familyCopy = runInNewContext(`${familyCopySource}\nfamilyCopy`);
 for (const language of ["tr", "en", "ru"]) {
   const element = () => ({ attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } });
   const iconClose = element();
   const chooseMore = element();
+  const familyTrigger = element();
+  let familyLanguage;
   const document = {
     documentElement: {},
     querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
@@ -237,11 +291,14 @@ for (const language of ["tr", "en", "ru"]) {
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
     productDecrease: element(), productIncrease: element(), languageButtons: [],
-    orderUi: undefined, renderCart: () => {}
+    orderUi: undefined, renderCart: () => {}, familyTrigger, familyCopy,
+    familyUi: { refresh: nextLanguage => { familyLanguage = nextLanguage; } }
   });
   assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
   assert.equal(chooseMore.attributes["aria-label"], undefined,
     "The Choose more text button must retain its visible action as its accessible name");
+  assert.equal(familyTrigger.textContent, familyCopy[language].link, "Family entry follows the current language");
+  assert.equal(familyLanguage, language, "An already loaded family picker receives language changes");
 }
 
 for (const contract of [

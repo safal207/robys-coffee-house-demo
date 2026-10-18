@@ -176,9 +176,13 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
   ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
+  ["menu-app.js", "src/menu-actions-loader.js", "src/menu-app.js"],
   ["menu-order-ui.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/order-draft.js", "src/menu-order-ui.js"],
   ["menu-order-ui.js", "src/menu-pairing.js", "src/menu-order-ui.js"],
+  ["menu-family-ui.js", "src/menu-family-ui.js"],
+  ["menu-family-ui.js", "src/menu-family.js", "src/menu-family-ui.js"],
+  ["menu-family-ui.js", "src/order-draft.js", "src/menu-family.js", "src/menu-family.js"],
   ["menu-pairing.js", "src/menu-pairing-view.js"],
   ["order-checkout.js", "src/order-checkout.js"],
   ["order-checkout.js", "src/order-ticket.js", "src/order-checkout.js", "src/order-checkout.js"],
@@ -189,10 +193,11 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["final-qa-v2.css", "final-qa.css"],
   ["community-reel-v2.css", "community-reel.css"]
 ]) {
-  // Bundled helpers must still be imported by their readable entry point.
+  // A bundled helper must be imported by an already-reached readable input;
+  // a detached intermediate helper cannot retain its own dependencies.
   // Menu stdin deliberately uses emitted-root paths; esbuild entryPoints for
   // checkout/cashier resolve local bundled dependencies beside their source.
-  const referenced = !importer || (fileSet.has(importer) &&
+  const referenced = !importer || (reachable.has(importer) && fileSet.has(importer) &&
     Array.from(readFileSync(join(ROOT, importer), "utf8").matchAll(/\b(?:import|export)\s+(?:[^'";]+?\s+from\s+)?["']([^"']+)["']/g), match => match[1])
       .some((reference) => candidatePaths(importBase, reference).includes(input)));
   if (reachable.has(runtime) && fileSet.has(input) && referenced) {
