@@ -1,0 +1,996 @@
+{
+  "schema_version": "1.0",
+  "verification": {
+    "audit_id": "pr435-ci-visual-artifact-12130201287",
+    "audit_version": "final-attempt-2",
+    "target_version": "83fcc7baf0867a91042e0598c7e88a651c4290cf",
+    "baseline_version": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+    "verified_at": "2026-10-18T08:12:38.796266+00:00",
+    "scope": "Read-only visual inspection of exactly the five failing CI comparisons; no approval code, source change, baseline update, threshold change or release decision.",
+    "limitations": [
+      "Assistant inspection, not human approval; separate reviewer task received the expected-change explanation before viewing, so it is not blinded.",
+      "Captured screenshots establish visible states only; interactions, focus, semantics, native devices, accessibility conformance and conversion are outside this review.",
+      "Full-menu body inspection uses three600px visual tiles per viewport plus separate500px registration bands, not OCR verification of every product.",
+      "The existing oversized menu introduction remains a separate product hypothesis; adding65/66px is a documented tradeoff, not proof of better conversion.",
+      "Raw CI failures remain genuine comparison failures; not-confirmed verdicts refer only to candidate unexpected visible harm."
+    ]
+  },
+  "summary": {
+    "confirmed": 0,
+    "confirmed-with-revision": 0,
+    "not-confirmed": 5,
+    "unsupported": 0,
+    "stale": 0,
+    "duplicate": 0,
+    "preference-only": 0,
+    "needs-evidence": 0
+  },
+  "items": [
+    {
+      "finding_id": "menu-full/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible content loss or new occlusion; the existence of the CI difference is separately confirmed.",
+      "reason_codes": [
+        "captured-evidence-sufficient",
+        "not-reproduced-matched"
+      ],
+      "original_claim": "CI comparison flagged a candidate visual regression: dimension mismatch 320x11654 vs 320x11719.",
+      "verification_question": "Does the exact failing comparison show unexpected missing content, clipping or overlapping controls?",
+      "expected_basis": "matched-reference",
+      "original_severity": "unrated",
+      "verified_severity": "unrated",
+      "scope_assessed": [
+        "menu-full phone-320 CIviewport[320, 900], Turkish default state, exact archived baseline/current PNGs"
+      ],
+      "reproduction": {
+        "environment": "Read-only inspection of the locked Playwright Chromium CI artifact, reduced motion, service workers blocked; no new browser capture or interaction execution.",
+        "steps": [
+          "Confirm artifact ZIP/summary/raw PNG hashes and dimensions",
+          "View paired baseline/current top and bottom for full menu, plus aligned body tiles; view entire share triplet",
+          "Compare visible content and measured body registration/paint bounds within these exact captures"
+        ],
+        "result": "not-reproduced",
+        "result_scope": "Unexpected visible loss/occlusion was not observed under matched captured conditions; the CI difference itself was reproduced from dimensions/metrics."
+      },
+      "verified_observation": "Observed the new outlined 'Çocuklarla · 3 fikir' link below the menu introduction; page height grows by 65px. Existing logo/title/header remain intact. Search/order controls and catalog move down; inspected body photos, product labels/prices, final share/contact/footer content remain present without new overlap in the reviewed tiles. Body bands register best at +65px; the390px full-page height rounds to +66px.",
+      "evidence": [
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/baseline/menu-full__phone-320.png",
+          "proves": "Raw baseline CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/current/menu-full__phone-320.png",
+          "proves": "Raw current CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/phone-320-top-bottom.png",
+          "proves": "Paired top/bottom views show the added link, shifted catalog entrance and retained footer."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/phone-320-body-aligned.png",
+          "proves": "Three600px body tiles, baseline left/current right, offset by the full-page height delta. Crop boundaries are not page clipping."
+        },
+        {
+          "kind": "measurement",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/asset-manifest-and-body-diagnostics.json",
+          "proves": "Raw PNG hashes/dimensions and500px diagnostic band registration; this diagnostic does not replace the CI threshold."
+        }
+      ],
+      "changes": [
+        "The CI dimension mismatch is genuine; its diffPixelRatio=1 is the dimension-mismatch sentinel, not evidence that every body pixel changed.",
+        "Unexpected content loss or new occlusion was not observed in the matched reviewed regions. The added65/66px before catalog is an explicit information-density tradeoff for the family entry, not claimed conversion improvement."
+      ],
+      "implementation_direction": "No production fix is indicated by the reviewed captures; retain the intended family entry and use only the separately authorized content-bound review mechanism for these five exact comparisons.",
+      "confidence": "high",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable",
+      "standard_refs": [],
+      "acceptance_criteria": [],
+      "next_evidence": [],
+      "ciMetrics": {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "file": "menu-full__phone-320.png",
+        "passed": false,
+        "reason": "dimension mismatch 320x11654 vs 320x11719",
+        "diffPixels": 3729280,
+        "diffPixelRatio": 1
+      },
+      "rawPngSha256": {
+        "baseline": "6ca56383fd3fcb24516ff6400f8f42911e6ab75efc713828a9769e487cdb0b3e",
+        "current": "f8a310cad7efd0774428e043d4e5f711493efd6516c1cfb732a22d25df9b4b46"
+      },
+      "rawPngDimensions": {
+        "baseline": [
+          320,
+          11654
+        ],
+        "current": [
+          320,
+          11719
+        ]
+      },
+      "boundedInterpretation": {
+        "classification": "expected-content-addition-with-vertical-shift",
+        "heightDeltaPx": 65,
+        "visuallyInspectedRegions": [
+          "top introduction, controls and first combo cards",
+          "three600px aligned body tiles",
+          "bottom share/contact/footer"
+        ],
+        "bodyTileBaselineY": [
+          2211,
+          4974,
+          7738
+        ],
+        "bodyTileCurrentOffset": 65,
+        "diagnosticBands": [
+          {
+            "baselineY": 1600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0002895833333333333,
+            "pixelsAnyChannelDifferent": 27,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 3200,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0004375,
+            "pixelsAnyChannelDifferent": 47,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 4800,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.15244375,
+            "pixelsAnyChannelDifferent": 574,
+            "pixelsAnyChannelDiffOver31": 299
+          },
+          {
+            "baselineY": 6400,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0004375,
+            "pixelsAnyChannelDifferent": 47,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 8000,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 6.25e-05,
+            "pixelsAnyChannelDifferent": 17,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 9600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.26247708333333336,
+            "pixelsAnyChannelDifferent": 928,
+            "pixelsAnyChannelDiffOver31": 610
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "menu-share/phone-360-short",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible content loss or new occlusion; the existence of the CI difference is separately confirmed.",
+      "reason_codes": [
+        "captured-evidence-sufficient",
+        "not-reproduced-matched"
+      ],
+      "original_claim": "CI comparison flagged a candidate visual regression: 2079 changed pixels at ratio 0.013098538306451612.",
+      "verification_question": "Does the exact failing comparison show unexpected missing content, clipping or overlapping controls?",
+      "expected_basis": "matched-reference",
+      "original_severity": "unrated",
+      "verified_severity": "unrated",
+      "scope_assessed": [
+        "menu-share phone-360-short CIviewport[360, 640], Turkish default state, exact archived baseline/current PNGs"
+      ],
+      "reproduction": {
+        "environment": "Read-only inspection of the locked Playwright Chromium CI artifact, reduced motion, service workers blocked; no new browser capture or interaction execution.",
+        "steps": [
+          "Confirm artifact ZIP/summary/raw PNG hashes and dimensions",
+          "View paired baseline/current top and bottom for full menu, plus aligned body tiles; view entire share triplet",
+          "Compare visible content and measured body registration/paint bounds within these exact captures"
+        ],
+        "result": "not-reproduced",
+        "result_scope": "Unexpected visible loss/occlusion was not observed under matched captured conditions; the CI difference itself was reproduced from dimensions/metrics."
+      },
+      "verified_observation": "Both raw share crops are320×496px. Eyebrow, three-line heading, descriptive paragraph, red 'Menüyü paylaş' button, Instagram button and GoogleMaps link remain present. Heading dark paint and red button move up1px in the diagnostic masks, with stable horizontal bounds. The diff marks text/button paint edges; no new clipping or overlapping controls is visible in the crop.",
+      "evidence": [
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/baseline/menu-share__phone-360-short.png",
+          "proves": "Raw baseline CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/current/menu-share__phone-360-short.png",
+          "proves": "Raw current CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/diff/menu-share__phone-360-short.png",
+          "proves": "CI diff is concentrated around the existing text/button rendering."
+        },
+        {
+          "kind": "measurement",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/share-crop-diagnostics.json",
+          "proves": "Diagnostic dark-heading and red-button bounds shift up1px; this is not a threshold waiver."
+        }
+      ],
+      "changes": [
+        "The2079changed-pixel count (1.3098538306451612%) remains a real CI threshold failure.",
+        "A1px paint/geometry shift is visible; it is not treated as a large layout/content failure or generalized to other states. Interaction and focus were not tested from these images."
+      ],
+      "implementation_direction": "No production fix is indicated by the reviewed captures; retain the intended family entry and use only the separately authorized content-bound review mechanism for these five exact comparisons.",
+      "confidence": "high",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable",
+      "standard_refs": [],
+      "acceptance_criteria": [],
+      "next_evidence": [],
+      "ciMetrics": {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "file": "menu-share__phone-360-short.png",
+        "passed": false,
+        "diffPixels": 2079,
+        "totalPixels": 158720,
+        "diffPixelRatio": 0.013098538306451612,
+        "maxDiffPixelRatio": 0.003
+      },
+      "rawPngSha256": {
+        "baseline": "7e3ac2bcb90434154e53e318813a42c7b3c3c5738065b74292a67ee18fc06c42",
+        "current": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+        "diff": "29f6f06fc6ec2e78c718f9fb786d5752895480d8647fa140fe03b428a1663708"
+      },
+      "rawPngDimensions": {
+        "baseline": [
+          320,
+          496
+        ],
+        "current": [
+          320,
+          496
+        ],
+        "diff": [
+          320,
+          496
+        ]
+      },
+      "boundedInterpretation": {
+        "classification": "minor-one-pixel-paint-geometry-shift",
+        "cropDimensions": [
+          320,
+          496
+        ],
+        "diagnostic": {
+          "method": "Diagnostic RGB masks/bounding boxes and integer alignment only, not CI pixelmatch and not a threshold waiver",
+          "redShareButton": {
+            "baseline": {
+              "left": 21,
+              "right": 298,
+              "top": 254,
+              "bottom": 308
+            },
+            "current": {
+              "left": 21,
+              "right": 298,
+              "top": 253,
+              "bottom": 307
+            }
+          },
+          "headingDarkPaintROI": {
+            "baseline": {
+              "left": 23,
+              "right": 234,
+              "top": 63,
+              "bottom": 161
+            },
+            "current": {
+              "left": 23,
+              "right": 234,
+              "top": 62,
+              "bottom": 160
+            }
+          },
+          "bodyROI": [
+            10,
+            50,
+            310,
+            430
+          ],
+          "shiftDiagnostics": [
+            {
+              "currentShift": -2,
+              "meanAbsChannelDiff": 6.230368421052631
+            },
+            {
+              "currentShift": -1,
+              "meanAbsChannelDiff": 0.6536666666666666
+            },
+            {
+              "currentShift": 0,
+              "meanAbsChannelDiff": 5.236175438596491
+            },
+            {
+              "currentShift": 1,
+              "meanAbsChannelDiff": 10.059356725146198
+            },
+            {
+              "currentShift": 2,
+              "meanAbsChannelDiff": 13.562239766081872
+            }
+          ]
+        },
+        "visuallyInspectedRegions": [
+          "entire baseline/current/diff share crop"
+        ],
+        "nearestPassingCiControls": [
+          {
+            "id": "menu-share",
+            "viewport": "phone-320",
+            "file": "menu-share__phone-320.png",
+            "passed": true,
+            "diffPixels": 0,
+            "totalPixels": 143080,
+            "diffPixelRatio": 0,
+            "maxDiffPixelRatio": 0.003
+          },
+          {
+            "id": "menu-share",
+            "viewport": "phone-390",
+            "file": "menu-share__phone-390.png",
+            "passed": true,
+            "diffPixels": 0,
+            "totalPixels": 176750,
+            "diffPixelRatio": 0,
+            "maxDiffPixelRatio": 0.003
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "menu-full/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible content loss or new occlusion; the existence of the CI difference is separately confirmed.",
+      "reason_codes": [
+        "captured-evidence-sufficient",
+        "not-reproduced-matched"
+      ],
+      "original_claim": "CI comparison flagged a candidate visual regression: dimension mismatch 390x11408 vs 390x11474.",
+      "verification_question": "Does the exact failing comparison show unexpected missing content, clipping or overlapping controls?",
+      "expected_basis": "matched-reference",
+      "original_severity": "unrated",
+      "verified_severity": "unrated",
+      "scope_assessed": [
+        "menu-full phone-390 CIviewport[390, 1000], Turkish default state, exact archived baseline/current PNGs"
+      ],
+      "reproduction": {
+        "environment": "Read-only inspection of the locked Playwright Chromium CI artifact, reduced motion, service workers blocked; no new browser capture or interaction execution.",
+        "steps": [
+          "Confirm artifact ZIP/summary/raw PNG hashes and dimensions",
+          "View paired baseline/current top and bottom for full menu, plus aligned body tiles; view entire share triplet",
+          "Compare visible content and measured body registration/paint bounds within these exact captures"
+        ],
+        "result": "not-reproduced",
+        "result_scope": "Unexpected visible loss/occlusion was not observed under matched captured conditions; the CI difference itself was reproduced from dimensions/metrics."
+      },
+      "verified_observation": "Observed the new outlined 'Çocuklarla · 3 fikir' link below the menu introduction; page height grows by 66px. Existing logo/title/header remain intact. Search/order controls and catalog move down; inspected body photos, product labels/prices, final share/contact/footer content remain present without new overlap in the reviewed tiles. Body bands register best at +65px; the390px full-page height rounds to +66px.",
+      "evidence": [
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/baseline/menu-full__phone-390.png",
+          "proves": "Raw baseline CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/current/menu-full__phone-390.png",
+          "proves": "Raw current CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/phone-390-top-bottom.png",
+          "proves": "Paired top/bottom views show the added link, shifted catalog entrance and retained footer."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/phone-390-body-aligned.png",
+          "proves": "Three600px body tiles, baseline left/current right, offset by the full-page height delta. Crop boundaries are not page clipping."
+        },
+        {
+          "kind": "measurement",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/asset-manifest-and-body-diagnostics.json",
+          "proves": "Raw PNG hashes/dimensions and500px diagnostic band registration; this diagnostic does not replace the CI threshold."
+        }
+      ],
+      "changes": [
+        "The CI dimension mismatch is genuine; its diffPixelRatio=1 is the dimension-mismatch sentinel, not evidence that every body pixel changed.",
+        "Unexpected content loss or new occlusion was not observed in the matched reviewed regions. The added65/66px before catalog is an explicit information-density tradeoff for the family entry, not claimed conversion improvement."
+      ],
+      "implementation_direction": "No production fix is indicated by the reviewed captures; retain the intended family entry and use only the separately authorized content-bound review mechanism for these five exact comparisons.",
+      "confidence": "high",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable",
+      "standard_refs": [],
+      "acceptance_criteria": [],
+      "next_evidence": [],
+      "ciMetrics": {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "file": "menu-full__phone-390.png",
+        "passed": false,
+        "reason": "dimension mismatch 390x11408 vs 390x11474",
+        "diffPixels": 4449120,
+        "diffPixelRatio": 1
+      },
+      "rawPngSha256": {
+        "baseline": "d23b1d40b1e8f5b2bb576709c19da9fee5b71dab1ca75d45265ad7fad12f5c57",
+        "current": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311"
+      },
+      "rawPngDimensions": {
+        "baseline": [
+          390,
+          11408
+        ],
+        "current": [
+          390,
+          11474
+        ]
+      },
+      "boundedInterpretation": {
+        "classification": "expected-content-addition-with-vertical-shift",
+        "heightDeltaPx": 66,
+        "visuallyInspectedRegions": [
+          "top introduction, controls and first combo cards",
+          "three600px aligned body tiles",
+          "bottom share/contact/footer"
+        ],
+        "bodyTileBaselineY": [
+          2162,
+          4864,
+          7566
+        ],
+        "bodyTileCurrentOffset": 66,
+        "diagnosticBands": [
+          {
+            "baselineY": 1600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0010273504273504274,
+            "pixelsAnyChannelDifferent": 49,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 3200,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.11992136752136752,
+            "pixelsAnyChannelDifferent": 365,
+            "pixelsAnyChannelDiffOver31": 271
+          },
+          {
+            "baselineY": 4800,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.002311111111111111,
+            "pixelsAnyChannelDifferent": 56,
+            "pixelsAnyChannelDiffOver31": 7
+          },
+          {
+            "baselineY": 6400,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.31877606837606837,
+            "pixelsAnyChannelDifferent": 1281,
+            "pixelsAnyChannelDiffOver31": 885
+          },
+          {
+            "baselineY": 8000,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.3042376068376068,
+            "pixelsAnyChannelDifferent": 1433,
+            "pixelsAnyChannelDiffOver31": 862
+          },
+          {
+            "baselineY": 9600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.001041025641025641,
+            "pixelsAnyChannelDifferent": 48,
+            "pixelsAnyChannelDiffOver31": 2
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "menu-full/tablet-768",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible content loss or new occlusion; the existence of the CI difference is separately confirmed.",
+      "reason_codes": [
+        "captured-evidence-sufficient",
+        "not-reproduced-matched"
+      ],
+      "original_claim": "CI comparison flagged a candidate visual regression: dimension mismatch 768x13199 vs 768x13264.",
+      "verification_question": "Does the exact failing comparison show unexpected missing content, clipping or overlapping controls?",
+      "expected_basis": "matched-reference",
+      "original_severity": "unrated",
+      "verified_severity": "unrated",
+      "scope_assessed": [
+        "menu-full tablet-768 CIviewport[768, 1024], Turkish default state, exact archived baseline/current PNGs"
+      ],
+      "reproduction": {
+        "environment": "Read-only inspection of the locked Playwright Chromium CI artifact, reduced motion, service workers blocked; no new browser capture or interaction execution.",
+        "steps": [
+          "Confirm artifact ZIP/summary/raw PNG hashes and dimensions",
+          "View paired baseline/current top and bottom for full menu, plus aligned body tiles; view entire share triplet",
+          "Compare visible content and measured body registration/paint bounds within these exact captures"
+        ],
+        "result": "not-reproduced",
+        "result_scope": "Unexpected visible loss/occlusion was not observed under matched captured conditions; the CI difference itself was reproduced from dimensions/metrics."
+      },
+      "verified_observation": "Observed the new outlined 'Çocuklarla · 3 fikir' link below the menu introduction; page height grows by 65px. Existing logo/title/header remain intact. Search/order controls and catalog move down; inspected body photos, product labels/prices, final share/contact/footer content remain present without new overlap in the reviewed tiles. Body bands register best at +65px; the390px full-page height rounds to +66px.",
+      "evidence": [
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/baseline/menu-full__tablet-768.png",
+          "proves": "Raw baseline CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/current/menu-full__tablet-768.png",
+          "proves": "Raw current CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/tablet-768-top-bottom.png",
+          "proves": "Paired top/bottom views show the added link, shifted catalog entrance and retained footer."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/tablet-768-body-aligned.png",
+          "proves": "Three600px body tiles, baseline left/current right, offset by the full-page height delta. Crop boundaries are not page clipping."
+        },
+        {
+          "kind": "measurement",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/asset-manifest-and-body-diagnostics.json",
+          "proves": "Raw PNG hashes/dimensions and500px diagnostic band registration; this diagnostic does not replace the CI threshold."
+        }
+      ],
+      "changes": [
+        "The CI dimension mismatch is genuine; its diffPixelRatio=1 is the dimension-mismatch sentinel, not evidence that every body pixel changed.",
+        "Unexpected content loss or new occlusion was not observed in the matched reviewed regions. The added65/66px before catalog is an explicit information-density tradeoff for the family entry, not claimed conversion improvement."
+      ],
+      "implementation_direction": "No production fix is indicated by the reviewed captures; retain the intended family entry and use only the separately authorized content-bound review mechanism for these five exact comparisons.",
+      "confidence": "high",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable",
+      "standard_refs": [],
+      "acceptance_criteria": [],
+      "next_evidence": [],
+      "ciMetrics": {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "file": "menu-full__tablet-768.png",
+        "passed": false,
+        "reason": "dimension mismatch 768x13199 vs 768x13264",
+        "diffPixels": 10136832,
+        "diffPixelRatio": 1
+      },
+      "rawPngSha256": {
+        "baseline": "ec6ad0242fc6191ce63d560b09590dfb13863ea92dec3f98fb2e2ff352b2a554",
+        "current": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5"
+      },
+      "rawPngDimensions": {
+        "baseline": [
+          768,
+          13199
+        ],
+        "current": [
+          768,
+          13264
+        ]
+      },
+      "boundedInterpretation": {
+        "classification": "expected-content-addition-with-vertical-shift",
+        "heightDeltaPx": 65,
+        "visuallyInspectedRegions": [
+          "top introduction, controls and first combo cards",
+          "three600px aligned body tiles",
+          "bottom share/contact/footer"
+        ],
+        "bodyTileBaselineY": [
+          2520,
+          5670,
+          8819
+        ],
+        "bodyTileCurrentOffset": 65,
+        "diagnosticBands": [
+          {
+            "baselineY": 1600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.1192751736111111,
+            "pixelsAnyChannelDifferent": 756,
+            "pixelsAnyChannelDiffOver31": 491
+          },
+          {
+            "baselineY": 3200,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0,
+            "pixelsAnyChannelDifferent": 0,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 4800,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 3.90625e-05,
+            "pixelsAnyChannelDifferent": 16,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 6400,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0006831597222222223,
+            "pixelsAnyChannelDifferent": 279,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 8000,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 2.951388888888889e-05,
+            "pixelsAnyChannelDifferent": 11,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 9600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.0008715277777777778,
+            "pixelsAnyChannelDifferent": 315,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 11200,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 5.208333333333333e-06,
+            "pixelsAnyChannelDifferent": 2,
+            "pixelsAnyChannelDiffOver31": 0
+          }
+        ]
+      }
+    },
+    {
+      "finding_id": "menu-full/desktop-1440",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible content loss or new occlusion; the existence of the CI difference is separately confirmed.",
+      "reason_codes": [
+        "captured-evidence-sufficient",
+        "not-reproduced-matched"
+      ],
+      "original_claim": "CI comparison flagged a candidate visual regression: dimension mismatch 1440x7563 vs 1440x7628.",
+      "verification_question": "Does the exact failing comparison show unexpected missing content, clipping or overlapping controls?",
+      "expected_basis": "matched-reference",
+      "original_severity": "unrated",
+      "verified_severity": "unrated",
+      "scope_assessed": [
+        "menu-full desktop-1440 CIviewport[1440, 1100], Turkish default state, exact archived baseline/current PNGs"
+      ],
+      "reproduction": {
+        "environment": "Read-only inspection of the locked Playwright Chromium CI artifact, reduced motion, service workers blocked; no new browser capture or interaction execution.",
+        "steps": [
+          "Confirm artifact ZIP/summary/raw PNG hashes and dimensions",
+          "View paired baseline/current top and bottom for full menu, plus aligned body tiles; view entire share triplet",
+          "Compare visible content and measured body registration/paint bounds within these exact captures"
+        ],
+        "result": "not-reproduced",
+        "result_scope": "Unexpected visible loss/occlusion was not observed under matched captured conditions; the CI difference itself was reproduced from dimensions/metrics."
+      },
+      "verified_observation": "Observed the new outlined 'Çocuklarla · 3 fikir' link below the menu introduction; page height grows by 65px. Existing logo/title/header remain intact. Search/order controls and catalog move down; inspected body photos, product labels/prices, final share/contact/footer content remain present without new overlap in the reviewed tiles. Body bands register best at +65px; the390px full-page height rounds to +66px.",
+      "evidence": [
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/baseline/menu-full__desktop-1440.png",
+          "proves": "Raw baseline CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/current/menu-full__desktop-1440.png",
+          "proves": "Raw current CI capture for this exact comparison; SHA256 is recorded separately."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/desktop-1440-top-bottom.png",
+          "proves": "Paired top/bottom views show the added link, shifted catalog entrance and retained footer."
+        },
+        {
+          "kind": "screenshot",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/desktop-1440-body-aligned.png",
+          "proves": "Three600px body tiles, baseline left/current right, offset by the full-page height delta. Crop boundaries are not page clipping."
+        },
+        {
+          "kind": "measurement",
+          "locator": ".artifacts/pr435-ci-visual/final/inspection/asset-manifest-and-body-diagnostics.json",
+          "proves": "Raw PNG hashes/dimensions and500px diagnostic band registration; this diagnostic does not replace the CI threshold."
+        }
+      ],
+      "changes": [
+        "The CI dimension mismatch is genuine; its diffPixelRatio=1 is the dimension-mismatch sentinel, not evidence that every body pixel changed.",
+        "Unexpected content loss or new occlusion was not observed in the matched reviewed regions. The added65/66px before catalog is an explicit information-density tradeoff for the family entry, not claimed conversion improvement."
+      ],
+      "implementation_direction": "No production fix is indicated by the reviewed captures; retain the intended family entry and use only the separately authorized content-bound review mechanism for these five exact comparisons.",
+      "confidence": "high",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable",
+      "standard_refs": [],
+      "acceptance_criteria": [],
+      "next_evidence": [],
+      "ciMetrics": {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "file": "menu-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7563 vs 1440x7628",
+        "diffPixels": 10890720,
+        "diffPixelRatio": 1
+      },
+      "rawPngSha256": {
+        "baseline": "889c5dcc34953f3587bf4436fac20cb9e012205a48d7567eeb60b467903098a6",
+        "current": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb"
+      },
+      "rawPngDimensions": {
+        "baseline": [
+          1440,
+          7563
+        ],
+        "current": [
+          1440,
+          7628
+        ]
+      },
+      "boundedInterpretation": {
+        "classification": "expected-content-addition-with-vertical-shift",
+        "heightDeltaPx": 65,
+        "visuallyInspectedRegions": [
+          "top introduction, controls and first combo cards",
+          "three600px aligned body tiles",
+          "bottom share/contact/footer"
+        ],
+        "bodyTileBaselineY": [
+          1393,
+          3133,
+          4874
+        ],
+        "bodyTileCurrentOffset": 65,
+        "diagnosticBands": [
+          {
+            "baselineY": 1600,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 2.638888888888889e-05,
+            "pixelsAnyChannelDifferent": 21,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 3200,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 6.944444444444445e-06,
+            "pixelsAnyChannelDifferent": 6,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 4800,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 2.4537037037037038e-05,
+            "pixelsAnyChannelDifferent": 16,
+            "pixelsAnyChannelDiffOver31": 0
+          },
+          {
+            "baselineY": 6400,
+            "height": 500,
+            "shift": 65,
+            "meanAbsChannelDiff": 0.00039768518518518516,
+            "pixelsAnyChannelDifferent": 42,
+            "pixelsAnyChannelDiffOver31": 3
+          }
+        ]
+      }
+    }
+  ],
+  "reviewer": {
+    "type": "assistant",
+    "task": "/root/browser_dependencies",
+    "verification_source": "INDEPENDENT_EXECUTOR",
+    "description": "A separate assistant task inspected addressable CI evidence and produced bounded measurements; no claim of independent human or external-provider approval.",
+    "blinded": false
+  },
+  "artifact": {
+    "id": 12130201287,
+    "workflowRunId": 39109699880,
+    "url": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39109699880/artifacts/12130201287",
+    "bytes": 204248600,
+    "sha256": "38ee6fced9fe08ef2b2db69043c2056b293f570013562c59845255b8853f19bf",
+    "headBindingProvenance": "Parent verified GitHub workflow jobs head and baseline checkout; this task independently verified the downloaded ZIP, summary and raw PNG digests."
+  },
+  "ciSummary": {
+    "generatedAt": "2026-10-18T08:02:32.057Z",
+    "comparisons": 43,
+    "failed": 5,
+    "passed": 38,
+    "pixelThreshold": 0.12,
+    "metricsIdenticalAcrossAttempts": [
+      {
+        "id": "menu-full",
+        "viewport": "phone-320",
+        "reason": "dimension mismatch 320x11654 vs 320x11719",
+        "diffPixels": 3729280,
+        "diffPixelRatio": 1,
+        "totalPixels": null,
+        "maxDiffPixelRatio": null
+      },
+      {
+        "id": "menu-share",
+        "viewport": "phone-360-short",
+        "reason": null,
+        "diffPixels": 2079,
+        "diffPixelRatio": 0.013098538306451612,
+        "totalPixels": 158720,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "menu-full",
+        "viewport": "phone-390",
+        "reason": "dimension mismatch 390x11408 vs 390x11474",
+        "diffPixels": 4449120,
+        "diffPixelRatio": 1,
+        "totalPixels": null,
+        "maxDiffPixelRatio": null
+      },
+      {
+        "id": "menu-full",
+        "viewport": "tablet-768",
+        "reason": "dimension mismatch 768x13199 vs 768x13264",
+        "diffPixels": 10136832,
+        "diffPixelRatio": 1,
+        "totalPixels": null,
+        "maxDiffPixelRatio": null
+      },
+      {
+        "id": "menu-full",
+        "viewport": "desktop-1440",
+        "reason": "dimension mismatch 1440x7563 vs 1440x7628",
+        "diffPixels": 10890720,
+        "diffPixelRatio": 1,
+        "totalPixels": null,
+        "maxDiffPixelRatio": null
+      }
+    ],
+    "summariesSha256": {
+      "screenshot-attempt-2-summary.json": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+      "screenshot-attempt-1-summary.json": "f267e8f591291a3437bfdb250714b4bf078e1bfd79b28107873d84148c28d130",
+      "final-summary.json": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7"
+    }
+  },
+  "rawImages": [
+    {
+      "path": ".artifacts/pr435-ci-visual/final/baseline/menu-full__desktop-1440.png",
+      "sha256": "889c5dcc34953f3587bf4436fac20cb9e012205a48d7567eeb60b467903098a6",
+      "bytes": 2704434,
+      "dimensions": [
+        1440,
+        7563
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/baseline/menu-full__phone-320.png",
+      "sha256": "6ca56383fd3fcb24516ff6400f8f42911e6ab75efc713828a9769e487cdb0b3e",
+      "bytes": 1797379,
+      "dimensions": [
+        320,
+        11654
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/baseline/menu-full__phone-390.png",
+      "sha256": "d23b1d40b1e8f5b2bb576709c19da9fee5b71dab1ca75d45265ad7fad12f5c57",
+      "bytes": 1935828,
+      "dimensions": [
+        390,
+        11408
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/baseline/menu-full__tablet-768.png",
+      "sha256": "ec6ad0242fc6191ce63d560b09590dfb13863ea92dec3f98fb2e2ff352b2a554",
+      "bytes": 3202969,
+      "dimensions": [
+        768,
+        13199
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/baseline/menu-share__phone-360-short.png",
+      "sha256": "7e3ac2bcb90434154e53e318813a42c7b3c3c5738065b74292a67ee18fc06c42",
+      "bytes": 32772,
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/current/menu-full__desktop-1440.png",
+      "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+      "bytes": 2709079,
+      "dimensions": [
+        1440,
+        7628
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/current/menu-full__phone-320.png",
+      "sha256": "f8a310cad7efd0774428e043d4e5f711493efd6516c1cfb732a22d25df9b4b46",
+      "bytes": 1803594,
+      "dimensions": [
+        320,
+        11719
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/current/menu-full__phone-390.png",
+      "sha256": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311",
+      "bytes": 1939987,
+      "dimensions": [
+        390,
+        11474
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/current/menu-full__tablet-768.png",
+      "sha256": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5",
+      "bytes": 3208200,
+      "dimensions": [
+        768,
+        13264
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/current/menu-share__phone-360-short.png",
+      "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+      "bytes": 32806,
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": ".artifacts/pr435-ci-visual/final/diff/menu-share__phone-360-short.png",
+      "sha256": "29f6f06fc6ec2e78c718f9fb786d5752895480d8647fa140fe03b428a1663708",
+      "bytes": 38511,
+      "dimensions": [
+        320,
+        496
+      ]
+    }
+  ],
+  "inspectionAuthority": "Evidence for the root assistant to assess only these five content-bound comparisons. It is not an approval code, human signoff, CI override, global waiver or merge authorization.",
+  "productionCodeChangedByThisInspection": false
+}

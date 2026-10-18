@@ -1,0 +1,42 @@
+{
+  "sourceHead": "83fcc7baf0867a91042e0598c7e88a651c4290cf",
+  "boundary": "Actual shipped visual verifier; original CI summary positive and separately labeled synthetic negative controls. Complete public manifest is content-bound; thresholds and workflow unchanged.",
+  "checks": [
+    {
+      "case": "actual-record",
+      "exit": 0,
+      "expected": 0,
+      "passed": true
+    },
+    {
+      "case": "changed-public-manifest",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "case": "changed-rendered-bytes",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "case": "missing-failure",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "case": "ratio-over-observed-bound",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "case": "wrong-height",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    }
+  ]
+}
