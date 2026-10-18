@@ -54,6 +54,7 @@ function fixture() {
   const trigger = () => ({ isConnected: true, attributes: new Map(),
     setAttribute(name, value) { this.attributes.set(name, value); }, removeAttribute(name) { this.attributes.delete(name); } });
   const context = {
+    combosUi: undefined,
     URL, language: "tr", menuCopy: {}, productIndex: new Map(), orderProductIds: new Set(),
     localized() {}, formatPrice() {}, formatItemCount() {}, imageSlug() {}, renderCart() {},
     cart: new Map(), orderDraft: currentDraft, cartReadGeneration: 0, cartTrigger: trigger(),

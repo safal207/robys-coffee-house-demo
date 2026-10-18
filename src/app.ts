@@ -1,4 +1,6 @@
 import { dictionaries, type CopyKey, type Lang } from "./i18n";
+import "./choice-help-entry.js";
+import "../analytics.js";
 
 const q = <T extends Element>(selector: string, root: ParentNode = document) => root.querySelector<T>(selector);
 const qa = <T extends Element>(selector: string, root: ParentNode = document) => Array.from(root.querySelectorAll<T>(selector));

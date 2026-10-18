@@ -173,10 +173,12 @@ while (queue.length) {
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
 for (const [runtime, input, importer, importBase = runtime] of [
-  ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]
+  ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-combos.css", "combo-entry.css", "choice-help.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]
     .map(input => ["menu-runtime.css", input]),
   ["conversion.js", "src/conversion.js"],
   ["menu-app.js", "src/menu-app.js"],
+  ["menu-app.js", "menu-search-clear.js", "src/menu-app.js"],
+  ["menu-app.js", "src/choice-help-entry.js", "src/menu-app.js"],
   ["menu-app.js", "src/order-draft.js", "src/menu-app.js"],
   ["order-storage.js", "src/order-storage.js"],
   ["order-storage.js", "src/order-draft.js", "src/order-storage.js", "src/order-storage.js"],
@@ -189,6 +191,12 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["menu-family-ui.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/menu-family.js", "src/menu-family-ui.js"],
   ["menu-family-ui.js", "src/order-draft.js", "src/menu-family.js", "src/menu-family.js"],
+  ["menu-combos-ui.js", "src/menu-combos-ui.js"],
+  ["menu-combos-ui.js", "src/menu-combos.js", "src/menu-combos-ui.js"],
+  ["menu-combos-ui.js", "src/order-draft.js", "src/menu-combos.js", "src/menu-combos.js"],
+  ["choice-help.js", "src/choice-help.js"],
+  ["choice-help-entry.js", "src/choice-help-entry.js"],
+  ["app.js", "analytics.js", "src/app.ts", "src/app.ts"],
   ["menu-pairing.js", "src/menu-pairing-view.js"],
   ["order-checkout.js", "src/order-checkout.js"],
   ["order-checkout.js", "src/order-ticket.js", "src/order-checkout.js", "src/order-checkout.js"],

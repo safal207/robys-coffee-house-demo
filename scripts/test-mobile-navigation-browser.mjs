@@ -71,7 +71,7 @@ try {
       assert.equal(initial.overflow, false, "menu has no horizontal page overflow");
       assert(initial.backScrollWidth <= initial.backWidth + 1, "home link is not clipped");
       if (language === "ru") assert.equal(initial.backText, "На главную");
-      if (viewport.width < 700) { assert(initial.firstCategoryTop < 600, "first menu category appears within the initial mobile viewport"); assert(initial.logoWidth >= 170 && initial.logoHeight >= 40, "approved wordmark remains legible"); }
+      if (viewport.width < 700) { assert(initial.firstCategoryTop < 600, `first menu category appears within the initial mobile viewport (${initial.firstCategoryTop}px)`); assert(initial.logoWidth >= 170 && initial.logoHeight >= 40, "approved wordmark remains legible"); }
       await page.screenshot({ path: join(output, `${id}-menu.png`) });
       await page.locator('[data-product-id="brew-hot:milk"] .full-menu-item-media').click();
       await page.locator('#menu-product-dialog[open]').waitFor();

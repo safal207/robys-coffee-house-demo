@@ -42,15 +42,33 @@ const menuOrderRevision = revisionFor("menu-order-ui.js");
 writeFileSync("menu-family-ui.js", compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8")));
 const menuFamilyRevision = revisionFor("menu-family-ui.js");
 const menuFamilyCssRevision = revisionFor("menu-family.css");
+writeFileSync("menu-combos-ui.js", compileMenuRuntime(readFileSync("src/menu-combos-ui.js", "utf8")));
+const menuCombosRevision = revisionFor("menu-combos-ui.js");
+const menuCombosCssRevision = revisionFor("menu-combos.css");
+const comboEntryCssRevision = revisionFor("combo-entry.css");
+const choiceHelpCssRevision = revisionFor("choice-help.css");
+let choiceHelpSource = readFileSync("src/choice-help.js", "utf8");
+choiceHelpSource = synchronizeModuleImport(choiceHelpSource, "order-storage.js", orderStorageRevision);
+choiceHelpSource = synchronizeModuleImport(choiceHelpSource, "menu-catalog.js", menuCatalogRevision);
+writeFileSync("src/choice-help.js", choiceHelpSource);
+writeFileSync("choice-help.js", compileMenuRuntime(choiceHelpSource));
+const choiceHelpRevision = revisionFor("choice-help.js");
+let choiceHelpEntrySource = readFileSync("src/choice-help-entry.js", "utf8");
+choiceHelpEntrySource = synchronizeModuleImport(choiceHelpEntrySource, "choice-help.js", choiceHelpRevision);
+writeFileSync("src/choice-help-entry.js", choiceHelpEntrySource);
+writeFileSync("choice-help-entry.js", compileMenuRuntime(choiceHelpEntrySource));
+const choiceHelpEntryRevision = revisionFor("choice-help-entry.js");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
+menuSource = synchronizeModuleImport(menuSource, "menu-combos-ui.js", menuCombosRevision);
 menuSource = synchronizeModuleImport(menuSource, "order-storage.js", orderStorageRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
+  external: ["./choice-help.js*"],
   bundle: true,
   minify: true,
   format: "iife",
@@ -275,6 +293,11 @@ let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
 menuProductRevealSource = synchronizeModuleImport(menuProductRevealSource, "menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision);
 writeFileSync("menu-product-reveal.js", menuProductRevealSource);
 
+const discoverCopyRevision = revisionFor("discover-copy.js");
+for (const file of ["discover-v2.js", "discover-rotation.js"]) {
+  const source = readFileSync(file, "utf8").replace(/(from\s*["']\.\/discover-copy\.js)(?:\?[^"']*)?(["'])/g, `$1?v=${discoverCopyRevision}$2`);
+  writeFileSync(file, source);
+}
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
@@ -423,6 +446,26 @@ cashierHtml = synchronizeStylesheet(cashierHtml, "order-checkout.css", orderChec
 cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision);
 writeFileSync("cashier.html", cashierHtml);
 
+// Keep all customer selection surfaces on the same helper and entry styles.
+// The menu retains one blocking stylesheet, including these authored layers.
+const choiceSurfaces = ["index.html", "menu.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html"];
+for (const file of choiceSurfaces) {
+  const prefix = file.includes("/") ? "../" : "";
+  let page = readFileSync(file, "utf8");
+  if (file !== "menu.html") {
+    if (!page.includes(`${prefix}choice-help.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}choice-help.css" />\n</head>`);
+    page = synchronizeStylesheet(page, `${prefix}choice-help.css`, choiceHelpCssRevision);
+    page = synchronizeStylesheet(page, `${prefix}combo-entry.css`, comboEntryCssRevision);
+  }
+  if (["index.html", "menu.html"].includes(file)) {
+    page = page.replace(/\s*<script type="module" src="choice-help-entry\.js(?:\?[^\"]*)?"><\/script>/, "");
+  } else {
+    if (!page.includes(`src="${prefix}choice-help-entry.js`)) page = page.replace("</body>", `  <script type="module" src="${prefix}choice-help-entry.js"></script>\n</body>`);
+    page = synchronizeModuleScript(page, `${prefix}choice-help-entry.js`, choiceHelpEntryRevision);
+  }
+  writeFileSync(file, page);
+}
+
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const familyPhotoAssets = [
   "src/products/family-sets-v1/milk-cookie.webp",
@@ -430,7 +473,10 @@ const familyPhotoAssets = [
   "src/products/family-sets-v1/milk-roll.webp",
   "src/products/family-sets-v1/kids-box.webp"
 ];
+const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
+  .map(id => `src/products/occasion-sets-v1/${id}.webp`);
 for (const asset of [MENU_STYLESHEET_FILE, "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+  "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -458,6 +504,12 @@ const familyCacheRevision = createHash("sha256")
   .digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
+const combosCacheRevision = createHash("sha256")
+  .update([menuCombosRevision, menuCombosCssRevision, comboEntryCssRevision, choiceHelpEntryRevision, choiceHelpRevision, choiceHelpCssRevision, discoverCopyRevision,
+    ...choiceSurfaces.map(revisionFor), ...comboPhotoAssets.map(revisionFor)].join(":"))
+  .digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-occasion-combos-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-occasion-combos-${combosCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")
   .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
@@ -500,6 +552,13 @@ for (const [filePath, revision] of [
   ["menu-order-ui.js", menuOrderRevision],
   ["menu-family-ui.js", menuFamilyRevision],
   ["menu-family.css", menuFamilyCssRevision],
+  ["menu-combos-ui.js", menuCombosRevision],
+  ["menu-combos.css", menuCombosCssRevision],
+  ["combo-entry.css", comboEntryCssRevision],
+  ["choice-help.js", choiceHelpRevision],
+  ["choice-help-entry.js", choiceHelpEntryRevision],
+  ["choice-help.css", choiceHelpCssRevision],
+  ["discover-copy.js", discoverCopyRevision],
   ["menu-pairing.js", menuPairingRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],

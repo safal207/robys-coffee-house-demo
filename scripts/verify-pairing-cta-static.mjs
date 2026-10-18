@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { buildSync } from "esbuild";
 
 const index = readFileSync("index.html", "utf8");
 const heroActions = index.match(/<div class="hero-actions">([\s\S]*?)<\/div>/)?.[1] ?? "";
@@ -23,6 +25,17 @@ assert.match(primaryCta, /data-ru="Напиток \+ десерт →"/);
 assert.equal(primaryCta.includes("target="), false);
 assert.equal(primaryCta.includes("rel="), false);
 assert.equal(primaryCta.includes("data-i18n="), false);
-assert.match(index, /src="analytics\.js\?v=pairing-cta-20260704-2"/);
+// The unchanged analytics input now shares the existing deferred app request.
+// Bind the actual delivery bytes and esbuild input graph, not a second script
+// tag that would initialize the same handlers twice.
+const compiled = buildSync({ entryPoints: ["src/app.ts"], external: ["./choice-help.js*"],
+  bundle: true, minify: true, format: "iife", target: "es2020", legalComments: "none",
+  outfile: "app.js", write: false, metafile: true });
+assert.ok(Object.hasOwn(compiled.metafile.inputs, "analytics.js"), "The shipped app must include the analytics source");
+const app = readFileSync("app.js");
+assert.deepEqual(app, Buffer.from(compiled.outputFiles[0].contents), "The deferred app must match all current bundled inputs");
+const revision = createHash("sha256").update(app).digest("hex").slice(0, 12);
+assert.ok(index.includes(`src="app.js?v=${revision}"`));
+assert.doesNotMatch(index, /src="analytics\.js(?:\?|\")/, "Analytics must have exactly one delivery path");
 
 console.log("PASS: static pairing CTA and cache revision are bound");

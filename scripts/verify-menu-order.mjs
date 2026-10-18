@@ -298,14 +298,21 @@ assert(translateHandler);
 const familyCopySource = runtime.match(/const familyCopy = \{[\s\S]*?\n\};/)?.[0];
 assert(familyCopySource, "The family route needs localized entry copy");
 const familyCopy = runInNewContext(`${familyCopySource}\nfamilyCopy`);
+const combosCopySource = runtime.match(/const combosCopy = \{[\s\S]*?\n\};/)?.[0];
+assert(combosCopySource, "The combo route needs localized entry copy");
+const combosCopy = runInNewContext(`${combosCopySource}\ncombosCopy`);
 for (const language of ["tr", "en", "ru"]) {
   const element = () => ({ attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } });
   const iconClose = element();
   const chooseMore = element();
   const familyTrigger = element();
+  const combosTrigger = element();
+  const takeawayTrigger = element();
   let familyLanguage;
+  let combosLanguage;
   const document = {
     documentElement: {},
+    querySelector: selector => selector === "#menu-combos-takeaway-trigger" ? takeawayTrigger : null,
     querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
       : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore] : []
   };
@@ -314,13 +321,17 @@ for (const language of ["tr", "en", "ru"]) {
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
     productDecrease: element(), productIncrease: element(), languageButtons: [],
     orderUi: undefined, renderCart: () => {}, familyTrigger, familyCopy,
-    familyUi: { refresh: nextLanguage => { familyLanguage = nextLanguage; } }
+    familyUi: { refresh: nextLanguage => { familyLanguage = nextLanguage; } },
+    combosTrigger, combosCopy, combosUi: { refresh: nextLanguage => { combosLanguage = nextLanguage; } }
   });
   assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
   assert.equal(chooseMore.attributes["aria-label"], undefined,
     "The Choose more text button must retain its visible action as its accessible name");
   assert.equal(familyTrigger.textContent, familyCopy[language].link, "Family entry follows the current language");
   assert.equal(familyLanguage, language, "An already loaded family picker receives language changes");
+  assert.equal(combosTrigger.textContent, combosCopy[language].link);
+  assert.equal(takeawayTrigger.textContent, combosCopy[language].takeaway);
+  assert.equal(combosLanguage, language, "An already loaded combo picker receives language changes");
 }
 
 for (const contract of [

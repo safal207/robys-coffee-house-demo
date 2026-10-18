@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-10-18T20:22:40.106Z",
+  "head": "a9fe1c31d5582e84c9dc4302d210160b59d0e851",
+  "mode": "Desktop browser engines in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
+  "sourceHashes": {
+    "scripts/test-menu-family-browser.mjs": "c62746f5b20d200f6c1dde0870287ef5e3658affc59bba7b0dd555154a58c0d0",
+    "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+    "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+    "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+    "src/menu-family-ui.js": "21397921d53c9f8912bbea6edd058d2ee7b9e0a6c1d6e4cd7fb2d31ae94587ea",
+    "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+    "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+    "src/menu-order-ui.js": "761458ffbe1210935dd7f455c3ae94bd0faaa33ef7e4f4fc4169b475a6ce9040",
+    "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+    "menu.html": "2edccbe2127b53b96b4a5c97a460cedfd7c07cb26f5404dbd11d738fb192a22c",
+    "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+    "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+    "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+    "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+    "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+  },
+  "cases": [
+    {
+      "id": "latest-product-supersedes-family",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:40.404Z",
+      "finishedAt": "2026-10-18T20:22:41.778Z",
+      "facts": {
+        "delayedFamilyLoad": true,
+        "latest": "product",
+        "backgroundStayedHidden": true,
+        "before": {
+          "scroll": 9689,
+          "focus": ""
+        },
+        "after": {
+          "scroll": 9689,
+          "focus": ""
+        }
+      }
+    },
+    {
+      "id": "latest-cart-supersedes-family",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:41.972Z",
+      "finishedAt": "2026-10-18T20:22:43.169Z",
+      "facts": {
+        "delayedFamilyLoad": true,
+        "latest": "cart",
+        "backgroundStayedHidden": true,
+        "before": {
+          "scroll": 0,
+          "focus": "menu-cart-title"
+        },
+        "after": {
+          "scroll": 0,
+          "focus": "menu-cart-title"
+        }
+      }
+    },
+    {
+      "id": "latest-family-supersedes-product",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:43.335Z",
+      "finishedAt": "2026-10-18T20:22:44.472Z",
+      "facts": {
+        "delayedProductLoad": true,
+        "latestFamilyKeptFocus": true,
+        "noDelayedProductPopup": true
+      }
+    },
+    {
+      "id": "repeated-family-intent-latest-language",
+      "status": "PASS",
+      "startedAt": "2026-10-18T20:22:44.624Z",
+      "finishedAt": "2026-10-18T20:22:46.121Z",
+      "facts": {
+        "repeatedClicks": 2,
+        "downloads": 1,
+        "latestLanguage": "en",
+        "singleInitialReveal": true,
+        "hideAndReopen": true
+      }
+    }
+  ],
+  "browserName": "webkit",
+  "browserVersion": "26.0",
+  "finishedAt": "2026-10-18T20:22:46.185Z",
+  "summary": {
+    "passed": 4,
+    "failed": 0
+  }
+}
