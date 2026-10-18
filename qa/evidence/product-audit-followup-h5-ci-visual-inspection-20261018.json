@@ -1,0 +1,4760 @@
+{
+  "schema_version": "1.0",
+  "verification": {
+    "audit_id": "pr438-h5-ci-visual-artifact-12146890335",
+    "audit_version": "actual-attempts1-and2-final2",
+    "target_version": "27806dd15cf2a149a6fde786584f403595045305",
+    "baseline_version": "28a394998674a02afc720fd8c082e35320b02b90",
+    "verified_at": "2026-10-18T18:44:45.158147+00:00",
+    "scope": "All 23 failing actual CI comparisons plus 20 sampled full-page body/footer sheets and all 14 differing repeat-PNG rows plus detailed baseline-menu390 regions; no production source, capture budget or verifier edit.",
+    "limitations": [
+      "Assistant visual inspection, not human approval; the separate assistant received expected-change context before inspection and was not blinded.",
+      "Screenshots establish captured visible states only. Interaction behavior, keyboard/focus, semantics, accessibility conformance, native/OEM phones and conversion outcomes are outside this review.",
+      "The 43-capture suite uses default Turkish Chromium states at its committed viewports; other-engine/locale/text-enlargement tests are separate evidence and are not inferred from this packet.",
+      "Full-page bodies are sampled using three 550px registered bands plus final 1000px footers. Crop edges are not page clipping, and diagnostic registration offsets do not change CI thresholds or prove every product is present.",
+      "All actual CI failures remain genuine comparison failures. The not-confirmed verdict concerns only candidate unexpected visible harm.",
+      "Fourteen of 98 corresponding PNG pairs differ between the two attempts; this evidence does not claim identical raw captures or all identical metrics.",
+      "An initial derived PNG view was not displayed reliably. All declared final inspection views were regenerated as JPEG display copies from the raw CI files; the raw 329 archive entries remained byte-identical. No cause is assigned to the display issue.",
+      "The H5 job failed at missing current-content reviewed-change verification and skipped downstream UI/UX checks. This record is not a claim that the whole H5 visual job passed."
+    ]
+  },
+  "summary": {
+    "confirmed": 0,
+    "confirmed-with-revision": 0,
+    "not-confirmed": 23,
+    "unsupported": 0,
+    "stale": 0,
+    "duplicate": 0,
+    "preference-only": 0,
+    "needs-evidence": 0
+  },
+  "provenance": {
+    "run": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39154298990",
+    "runId": 39154298990,
+    "runAttempt": 1,
+    "jobId": 117754207633,
+    "runConclusion": "failure",
+    "artifactId": 12146890335,
+    "artifactZipBytes": 230262755,
+    "artifactZipSha256": "9d4b867b757db5b21fd5b24804eb1be49d171f541779a9b831b6d066b4cfff9e",
+    "filesVerifiedAgainstZip": 329,
+    "captureSummarySha256": {
+      "screenshot-attempt-1": "adcc1510131fb0786b67202896ec07bd364cfeaaef7245fc93442fad506caba7",
+      "screenshot-attempt-2": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35",
+      "final": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35"
+    },
+    "sourceTree": "619b881c4b9f9d7d436f1596fa5b871a3392dde4",
+    "publicFilesBound": 279,
+    "totalFilesBound": 332,
+    "captureBindingRule": "Every public integrity-manifest path plus all src TS/JS/CSS and the concrete build/compiler/bundle/capture/verifier/config/lock dependencies; unrelated interaction fixtures excluded.",
+    "unrelatedInteractionFixturesExcluded": [
+      "scripts/test-menu-custom-pairing-browser.mjs",
+      "scripts/test-menu-family-browser.mjs",
+      "scripts/test-menu-lazy-images-browser.mjs",
+      "scripts/test-pairing-price-browser.mjs",
+      ".github/workflows/order-reliability.yml"
+    ],
+    "artifactEvidence": "qa/evidence/product-audit-followup-h5-ci-visual-artifact-20261018.json",
+    "record": "qa/reviewed-visual-changes.d/product-audit-followup-h5-20261018.json",
+    "jobCheckoutAndFailureLogExcerpts": {
+      "kind": "actual-H5-job-checkout-and-missing-current-record-failure-log-excerpts",
+      "runId": 39154298990,
+      "jobId": 117754207633,
+      "sourceHead": "27806dd15cf2a149a6fde786584f403595045305",
+      "baselineHead": "28a394998674a02afc720fd8c082e35320b02b90",
+      "checkoutLines": [
+        "2026-10-18T18:28:25.5733883Z   ref: 27806dd15cf2a149a6fde786584f403595045305",
+        "2026-10-18T18:28:25.8255133Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 27806dd15cf2a149a6fde786584f403595045305",
+        "2026-10-18T18:28:26.6428145Z  * branch            27806dd15cf2a149a6fde786584f403595045305 -> FETCH_HEAD",
+        "2026-10-18T18:28:26.6538600Z [command]/usr/bin/git checkout --progress --force 27806dd15cf2a149a6fde786584f403595045305",
+        "2026-10-18T18:28:26.7302570Z Note: switching to '27806dd15cf2a149a6fde786584f403595045305'.",
+        "2026-10-18T18:28:26.7395387Z 27806dd15cf2a149a6fde786584f403595045305",
+        "2026-10-18T18:28:26.8493127Z   ref: 28a394998674a02afc720fd8c082e35320b02b90",
+        "2026-10-18T18:28:27.0604771Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 28a394998674a02afc720fd8c082e35320b02b90",
+        "2026-10-18T18:28:27.8238338Z  * branch            28a394998674a02afc720fd8c082e35320b02b90 -> FETCH_HEAD",
+        "2026-10-18T18:28:27.8355023Z [command]/usr/bin/git checkout --progress --force 28a394998674a02afc720fd8c082e35320b02b90",
+        "2026-10-18T18:28:27.9079927Z Note: switching to '28a394998674a02afc720fd8c082e35320b02b90'.",
+        "2026-10-18T18:28:27.9169619Z 28a394998674a02afc720fd8c082e35320b02b90",
+        "2026-10-18T18:28:32.1800537Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\",",
+        "2026-10-18T18:29:42.0070971Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\",",
+        "2026-10-18T18:32:40.0463710Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\","
+      ],
+      "failureLines": [
+        "2026-10-18T18:31:15.4737504Z Error: VISUAL-001 failed for 23 of 43 screenshot comparisons. Inspect the visual-regression artifact.",
+        "2026-10-18T18:32:39.9129646Z Error: VISUAL-001 failed for 23 of 43 screenshot comparisons. Inspect the visual-regression artifact.",
+        "2026-10-18T18:32:40.5205151Z Error: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 23 failure(s), found 0. Actual failures: landing-full/phone-320(diff=0.012750171724740852), menu-full/phone-320(diff=1), discover-full/phone-320(diff=1), menu-share/phone-320(diff=0.007198769918926475), discover-pairing/phone-320(diff=1), hero/phone-360-short(diff=1), social-offer/phone-360-short(diff=0.013075880758807588), menu-share/phone-360-short(diff=0.013098538306451612), discover-pairing/phone-360-short(diff=1), landing-full/phone-390(diff=0.011683573343652396), menu-full/phone-390(diff=1), discover-full/phone-390(diff=1), hero/phone-390(diff=0.09682820512820513), menu-share/phone-390(diff=0.007977369165487977), discover-pairing/phone-390(diff=1), landing-full/tablet-768(diff=0.00788659191777622), menu-full/tablet-768(diff=1), menu-share/tablet-768(diff=0.007380440072747765), hero/laptop-1366(diff=1), menu-preview/laptop-1366(diff=0.008352282486892366), landing-full/desktop-1440(diff=0.00762535747176579), menu-full/desktop-1440(diff=1), hero/desktop-1440(diff=0.047672348484848484). Bound approvals: manual-qa-polish-20260915-v1: hero/phone-360-short(pixels=230400), landing-full/desktop-1440(pixels=10075680), menu-full/tablet-768(reason=dimension mismatch 768x13217 vs 768x13215), menu-full/desktop-1440(reason=dimension mismatch 1440x9109 vs 1440x6970)."
+      ],
+      "scope": "Raw comparison failures and missing current-content record; no conclusion that skipped downstream checks passed."
+    }
+  },
+  "assistantInspections": [
+    {
+      "reviewer": "fix_mobile_navigation",
+      "scope": "Viewed all 23 failed top/component comparison sets, six representative body/footer sheets, all 14 repeat-difference rows and detailed baseline-menu390 regions, plus enlarged exact hero390 bottom crop.",
+      "result": "No new actionable clipping/overlap or visible content loss observed in the bounded reviewed regions; hero390 instruction presence confirmed in an enlarged exact crop.",
+      "independentHuman": false
+    },
+    {
+      "reviewer": "fix_family_intent",
+      "scope": "Separate assistant read-only inspection of all 23 failed top/component comparisons and all 20 body/footer sheets, with enlarged exact hero390 bottom confirmation.",
+      "result": "No supported new missing photo/content or actionable clipping/overlap in 23+20 views. Earlier apparent hero390 instruction omission was withdrawn after enlarged exact raw crop showed the full sentence.",
+      "independentHuman": false,
+      "blinded": false
+    },
+    {
+      "reviewer": "root",
+      "scope": "Supplemental independent assistant view of menu-full390 and discover-full320 top crops and the enlarged hero390 bottom only.",
+      "result": "Compact menu controls and full 220 price visible; Discover top intact. Enlarged hero390 bottom clearly retains the full cashier instruction.",
+      "independentHuman": false
+    }
+  ],
+  "items": [
+    {
+      "finding_id": "landing-full/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.012750171724740852 above existing budget0.004",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The added children entry is visible below the existing hero actions, which move upward while retaining their text and separation. Sampled middle-page photos, menu categories, visit information, social section and footer retain their visible content. No new collision was observed in the reviewed regions.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-320",
+          "width": 320,
+          "height": 900
+        },
+        "captureDefinition": {
+          "id": "landing-full",
+          "path": "index.html",
+          "fullPage": true,
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-320.jpg",
+            "sha256": "ca07d6d029d3ab6f34ac76255746e256617f82f13dbc4a616928c3e673c9f231",
+            "dimensions": [
+              960,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-320-footer.jpg",
+            "sha256": "c1a853ffadf8bed066ddda77e43ffdda06d981372f26b2751c95e18dea27bbef",
+            "dimensions": [
+              640,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-320-body-aligned.jpg",
+            "sha256": "79fc12263581310929bd5e2697f6041415ddc3ab2b4e7c6d71fb5dc62948c5f6",
+            "dimensions": [
+              640,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 2161,
+                "currentY": 2161,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 4003,
+                "currentY": 4003,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 5845,
+                "currentY": 5845,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "landing-full",
+          "viewport": "phone-320",
+          "file": "landing-full__phone-320.png",
+          "passed": false,
+          "diffPixels": 32669,
+          "totalPixels": 2562240,
+          "diffPixelRatio": 0.012750171724740852,
+          "maxDiffPixelRatio": 0.004
+        },
+        "screenshot-attempt-2": {
+          "id": "landing-full",
+          "viewport": "phone-320",
+          "file": "landing-full__phone-320.png",
+          "passed": false,
+          "diffPixels": 32669,
+          "totalPixels": 2562240,
+          "diffPixelRatio": 0.012750171724740852,
+          "maxDiffPixelRatio": 0.004
+        }
+      },
+      "recordedBound": {
+        "capture": "landing-full",
+        "viewport": "phone-320",
+        "totalPixels": 2562240,
+        "maxDiffPixelRatio": 0.012750171724740852
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-full/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 320x11719 vs 320x11598",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The menu introduction is compact: the approved wordmark remains recognizable and the title, family shortcut, search, order and category controls appear earlier. In three registered550px body bands, product photos, labels and prices remain visible; the final 1000px retains share/contact/footer links. At320/390 the new approximately88px cream tail is visible after the dark footer. Source inspection separately establishes the mobile cart clearance reserve; pixels alone do not establish its cause or interaction behavior.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-320",
+          "width": 320,
+          "height": 900
+        },
+        "captureDefinition": {
+          "id": "menu-full",
+          "path": "menu.html",
+          "fullPage": true,
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-320.jpg",
+            "sha256": "56665ba21940ad52f464d48401a66a610fe302ef29461a5983e1cfe2c1398243",
+            "dimensions": [
+              640,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-320-footer.jpg",
+            "sha256": "bb5c0418e97a4df8fef75603dfccaca4475035272d27d0003cdd18a9bfd654af",
+            "dimensions": [
+              640,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-320-body-aligned.jpg",
+            "sha256": "3689ff1e55972256d7e0409eb9ff5636fc49e3bede2b81e3b71f1017825db9af",
+            "dimensions": [
+              640,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 3164,
+                "currentY": 2955,
+                "offset": -209,
+                "meanAbsChannelDiffAt96pxWidth": 1.8131439393939395,
+                "height": 550
+              },
+              {
+                "baselineY": 5859,
+                "currentY": 5651,
+                "offset": -208,
+                "meanAbsChannelDiffAt96pxWidth": 0.2976957070707071,
+                "height": 550
+              },
+              {
+                "baselineY": 8554,
+                "currentY": 8345,
+                "offset": -209,
+                "meanAbsChannelDiffAt96pxWidth": 0.07685606060606061,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-full",
+          "viewport": "phone-320",
+          "file": "menu-full__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x11719 vs 320x11598",
+          "diffPixels": 3750080,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-full",
+          "viewport": "phone-320",
+          "file": "menu-full__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x11719 vs 320x11598",
+          "diffPixels": 3750080,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-full",
+        "viewport": "phone-320",
+        "reason": "dimension mismatch 320x11719 vs 320x11598"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "discover-full/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 320x2961 vs 320x2886",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The mobile card uses denser spacing while retaining the pairing photo, title/story, primary and secondary actions, next-pair preview and full 370₺ price. The three body samples and final 1000px retain the explanatory content and footer. The page is shorter; the sampled content does not show a new loss.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-320",
+          "width": 320,
+          "height": 900
+        },
+        "captureDefinition": {
+          "id": "discover-full",
+          "path": "discover.html",
+          "fullPage": true,
+          "waitFor": "#pairing-card",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-320.jpg",
+            "sha256": "956397ed3c75af51b185693180e92b9321c825fd6f6a06843cf8f91fbc287552",
+            "dimensions": [
+              640,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-320-footer.jpg",
+            "sha256": "a75cbf0d946716998b0bf3cff4e237bc947520647ba62fa1144bdd76c8fabf72",
+            "dimensions": [
+              640,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-320-body-aligned.jpg",
+            "sha256": "667e42de877de6f97521075c6d5ee05f2144ebf8cfb33c3154c8ad33d5023102",
+            "dimensions": [
+              640,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 1100,
+                "currentY": 1100,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 19.635435606060607,
+                "height": 550
+              },
+              {
+                "baselineY": 1480,
+                "currentY": 1405,
+                "offset": -75,
+                "meanAbsChannelDiffAt96pxWidth": 7.3223863636363635,
+                "height": 550
+              },
+              {
+                "baselineY": 2161,
+                "currentY": 2086,
+                "offset": -75,
+                "meanAbsChannelDiffAt96pxWidth": 1.816868686868687,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "discover-full",
+          "viewport": "phone-320",
+          "file": "discover-full__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x2961 vs 320x2886",
+          "diffPixels": 947520,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "discover-full",
+          "viewport": "phone-320",
+          "file": "discover-full__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x2961 vs 320x2886",
+          "diffPixels": 947520,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "discover-full",
+        "viewport": "phone-320",
+        "reason": "dimension mismatch 320x2961 vs 320x2886"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-share/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.007198769918926475 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The share heading/copy, share action, Instagram button and Google Maps link remain visible and separate with the same overall structure. Changed paint is concentrated around existing glyph/control edges. No causal explanation for the edge differences is established by these screenshots.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-320",
+          "width": 320,
+          "height": 900
+        },
+        "captureDefinition": {
+          "id": "menu-share",
+          "path": "menu.html",
+          "selector": ".menu-share-card",
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-share__phone-320.jpg",
+            "sha256": "3e95f56232fb6f62d7d1a9939d4c8f3cb58c7418499e5b9a2b2917482485b6fe",
+            "dimensions": [
+              840,
+              541
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-share",
+          "viewport": "phone-320",
+          "file": "menu-share__phone-320.png",
+          "passed": false,
+          "diffPixels": 1030,
+          "totalPixels": 143080,
+          "diffPixelRatio": 0.007198769918926475,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-share",
+          "viewport": "phone-320",
+          "file": "menu-share__phone-320.png",
+          "passed": false,
+          "diffPixels": 1030,
+          "totalPixels": 143080,
+          "diffPixelRatio": 0.007198769918926475,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-share",
+        "viewport": "phone-320",
+        "totalPixels": 143080,
+        "maxDiffPixelRatio": 0.007198769918926475
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "discover-pairing/phone-320",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 280x830 vs 280x754",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The denser mobile story/action spacing retains readable title/story, both separate actions, next-pair photo/name and complete370₺ price. At320/360 the scrolled component crop includes sticky-header paint over upper artwork in both baseline and current; at390 the decorative01 sits behind the title in both. These shared observations are not attributed to the new change.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-320",
+          "width": 320,
+          "height": 900
+        },
+        "captureDefinition": {
+          "id": "discover-pairing",
+          "path": "discover.html",
+          "selector": "#pairing-card",
+          "waitFor": "#pairing-card",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-pairing__phone-320.jpg",
+            "sha256": "0dda5afb86bd7f71aa34327d598e144908e29dfc79f92e2323f6592855cbadaf",
+            "dimensions": [
+              560,
+              860
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "discover-pairing",
+          "viewport": "phone-320",
+          "file": "discover-pairing__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 280x830 vs 280x754",
+          "diffPixels": 232400,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "discover-pairing",
+          "viewport": "phone-320",
+          "file": "discover-pairing__phone-320.png",
+          "passed": false,
+          "reason": "dimension mismatch 280x830 vs 280x754",
+          "diffPixels": 232400,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "discover-pairing",
+        "viewport": "phone-320",
+        "reason": "dimension mismatch 280x830 vs 280x754"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "hero/phone-360-short",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 360x640 vs 360x679",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The hero retains the wordmark, navigation, heading, description, order/menu actions and café information where present. The new children entry reflows the action area. The360px short hero grows39px and the1366px hero grows2px; no new clipping or actionable overlap was observed in these captured states.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-360-short",
+          "width": 360,
+          "height": 640
+        },
+        "captureDefinition": {
+          "id": "hero",
+          "path": "index.html",
+          "selector": ".hero",
+          "viewports": [
+            "phone-360-short",
+            "phone-390",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/hero__phone-360-short.jpg",
+            "sha256": "a0e3a3471332892f5bea811bbd2fd5e1d94c7b935dd869c83c68ef7fac2ac461",
+            "dimensions": [
+              720,
+              709
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "hero",
+          "viewport": "phone-360-short",
+          "file": "hero__phone-360-short.png",
+          "passed": false,
+          "reason": "dimension mismatch 360x640 vs 360x679",
+          "diffPixels": 230400,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "hero",
+          "viewport": "phone-360-short",
+          "file": "hero__phone-360-short.png",
+          "passed": false,
+          "reason": "dimension mismatch 360x640 vs 360x679",
+          "diffPixels": 230400,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "hero",
+        "viewport": "phone-360-short",
+        "reason": "dimension mismatch 360x640 vs 360x679"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "social-offer/phone-360-short",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.013075880758807588 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The product photo, offer title/components/full 370₺ price, Instagram text and CTA remain visible with the same overall structure. Differences concentrate around existing text/control edges; no new clipping or overlap was observed and no rasterization cause is assigned.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-360-short",
+          "width": 360,
+          "height": 640
+        },
+        "captureDefinition": {
+          "id": "social-offer",
+          "path": "index.html",
+          "selector": "#daily-offer",
+          "waitFor": "#daily-offer:not([hidden])",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/social-offer__phone-360-short.jpg",
+            "sha256": "c6e94f7b1ee1bf5a78c7ec2ed327c1fcfc72e65d657c581467445af7e13708bf",
+            "dimensions": [
+              1080,
+              276
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "social-offer",
+          "viewport": "phone-360-short",
+          "file": "social-offer__phone-360-short.png",
+          "passed": false,
+          "diffPixels": 1158,
+          "totalPixels": 88560,
+          "diffPixelRatio": 0.013075880758807588,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "social-offer",
+          "viewport": "phone-360-short",
+          "file": "social-offer__phone-360-short.png",
+          "passed": false,
+          "diffPixels": 1158,
+          "totalPixels": 88560,
+          "diffPixelRatio": 0.013075880758807588,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "social-offer",
+        "viewport": "phone-360-short",
+        "totalPixels": 88560,
+        "maxDiffPixelRatio": 0.013075880758807588
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-share/phone-360-short",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.013098538306451612 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The share heading/copy, share action, Instagram button and Google Maps link remain visible and separate with the same overall structure. Changed paint is concentrated around existing glyph/control edges. No causal explanation for the edge differences is established by these screenshots.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-360-short",
+          "width": 360,
+          "height": 640
+        },
+        "captureDefinition": {
+          "id": "menu-share",
+          "path": "menu.html",
+          "selector": ".menu-share-card",
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-share__phone-360-short.jpg",
+            "sha256": "ddf87054a52a1dde9099c49fe35d8e6193045d58b98cda21de3441fb6ab4b311",
+            "dimensions": [
+              960,
+              526
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-share",
+          "viewport": "phone-360-short",
+          "file": "menu-share__phone-360-short.png",
+          "passed": false,
+          "diffPixels": 2079,
+          "totalPixels": 158720,
+          "diffPixelRatio": 0.013098538306451612,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-share",
+          "viewport": "phone-360-short",
+          "file": "menu-share__phone-360-short.png",
+          "passed": false,
+          "diffPixels": 2079,
+          "totalPixels": 158720,
+          "diffPixelRatio": 0.013098538306451612,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-share",
+        "viewport": "phone-360-short",
+        "totalPixels": 158720,
+        "maxDiffPixelRatio": 0.013098538306451612
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "discover-pairing/phone-360-short",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 320x805 vs 320x742",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The denser mobile story/action spacing retains readable title/story, both separate actions, next-pair photo/name and complete370₺ price. At320/360 the scrolled component crop includes sticky-header paint over upper artwork in both baseline and current; at390 the decorative01 sits behind the title in both. These shared observations are not attributed to the new change.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-360-short",
+          "width": 360,
+          "height": 640
+        },
+        "captureDefinition": {
+          "id": "discover-pairing",
+          "path": "discover.html",
+          "selector": "#pairing-card",
+          "waitFor": "#pairing-card",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-pairing__phone-360-short.jpg",
+            "sha256": "07f454168b68bec53e9746adfbf05bd0ee1ab898daff8ef7822b945db8d1911a",
+            "dimensions": [
+              640,
+              835
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "discover-pairing",
+          "viewport": "phone-360-short",
+          "file": "discover-pairing__phone-360-short.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x805 vs 320x742",
+          "diffPixels": 257600,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "discover-pairing",
+          "viewport": "phone-360-short",
+          "file": "discover-pairing__phone-360-short.png",
+          "passed": false,
+          "reason": "dimension mismatch 320x805 vs 320x742",
+          "diffPixels": 257600,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "discover-pairing",
+        "viewport": "phone-360-short",
+        "reason": "dimension mismatch 320x805 vs 320x742"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "landing-full/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.011683573343652396 above existing budget0.004",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The added children entry is visible below the existing hero actions, which move upward while retaining their text and separation. Sampled middle-page photos, menu categories, visit information, social section and footer retain their visible content. No new collision was observed in the reviewed regions. Attempts1 and2 differ in current language-label pixels atx213..316/y40..47; both keep TR/EN/RU readable. The record cap is exactly the observed larger attempt2 ratio, with no added margin.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "landing-full",
+          "path": "index.html",
+          "fullPage": true,
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-390.jpg",
+            "sha256": "406247e4082ca9eb3e92685064c21c3f4122831450ed178ac026ee8de8dab304",
+            "dimensions": [
+              1170,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-390-footer.jpg",
+            "sha256": "cb6b3cc39480f355f4e399edb4edff73faeff6b15c7c211e07ddab2765f9782d",
+            "dimensions": [
+              780,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__phone-390-body-aligned.jpg",
+            "sha256": "b57e691766a433caf62a56f44524b64a0e777e8b496815dc1ec40efa3fe709ff",
+            "dimensions": [
+              780,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 2254,
+                "currentY": 2254,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 4174,
+                "currentY": 4174,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 6094,
+                "currentY": 6094,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "landing-full",
+          "viewport": "phone-390",
+          "file": "landing-full__phone-390.png",
+          "passed": false,
+          "diffPixels": 37945,
+          "totalPixels": 3256110,
+          "diffPixelRatio": 0.011653476080353551,
+          "maxDiffPixelRatio": 0.004
+        },
+        "screenshot-attempt-2": {
+          "id": "landing-full",
+          "viewport": "phone-390",
+          "file": "landing-full__phone-390.png",
+          "passed": false,
+          "diffPixels": 38043,
+          "totalPixels": 3256110,
+          "diffPixelRatio": 0.011683573343652396,
+          "maxDiffPixelRatio": 0.004
+        }
+      },
+      "recordedBound": {
+        "capture": "landing-full",
+        "viewport": "phone-390",
+        "totalPixels": 3256110,
+        "maxDiffPixelRatio": 0.011683573343652396
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-full/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 390x11474 vs 390x11325",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The menu introduction is compact: the approved wordmark remains recognizable and the title, family shortcut, search, order and category controls appear earlier. In three registered550px body bands, product photos, labels and prices remain visible; the final 1000px retains share/contact/footer links. At320/390 the new approximately88px cream tail is visible after the dark footer. Source inspection separately establishes the mobile cart clearance reserve; pixels alone do not establish its cause or interaction behavior. The repeated baseline PNG varies by 54008 pixels, mainly 52734 pixels in the second promo photograph region; a separate enlarged comparison retains its photo, labels, full 370 price and action. Other small changes lie around header/photo-arrow glyphs. This is documented captured variability; no cause is assigned.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "menu-full",
+          "path": "menu.html",
+          "fullPage": true,
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-390.jpg",
+            "sha256": "f95ea3b66b2afc61e70a1406758bb4cde696b88925534ea24da04622388e7c52",
+            "dimensions": [
+              780,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-390-footer.jpg",
+            "sha256": "cf38b78ca57b796e7d5c97fc1b9b747ed559999362194b506834ab441e7d0229",
+            "dimensions": [
+              780,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__phone-390-body-aligned.jpg",
+            "sha256": "a19ea1f967b89d1f3aa38f718b56cea48d6169cb82aff0a3b1d13c87e2e9caf9",
+            "dimensions": [
+              780,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 3097,
+                "currentY": 2861,
+                "offset": -236,
+                "meanAbsChannelDiffAt96pxWidth": 0.2694949494949495,
+                "height": 550
+              },
+              {
+                "baselineY": 5737,
+                "currentY": 5500,
+                "offset": -237,
+                "meanAbsChannelDiffAt96pxWidth": 0.407260101010101,
+                "height": 550
+              },
+              {
+                "baselineY": 8376,
+                "currentY": 8139,
+                "offset": -237,
+                "meanAbsChannelDiffAt96pxWidth": 0.06873737373737374,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-full",
+          "viewport": "phone-390",
+          "file": "menu-full__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 390x11474 vs 390x11325",
+          "diffPixels": 4474860,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-full",
+          "viewport": "phone-390",
+          "file": "menu-full__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 390x11474 vs 390x11325",
+          "diffPixels": 4474860,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-full",
+        "viewport": "phone-390",
+        "reason": "dimension mismatch 390x11474 vs 390x11325"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "discover-full/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 390x2940 vs 390x2918",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The mobile card uses denser spacing while retaining the pairing photo, title/story, primary and secondary actions, next-pair preview and full 370₺ price. The three body samples and final 1000px retain the explanatory content and footer. The page is shorter; the sampled content does not show a new loss.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "discover-full",
+          "path": "discover.html",
+          "fullPage": true,
+          "waitFor": "#pairing-card",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-390.jpg",
+            "sha256": "417731f286d9ddbb1228d0b168c7b6ac3646cf5874a40439c9a0d01fea1de094",
+            "dimensions": [
+              780,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-390-footer.jpg",
+            "sha256": "30d80fd45eed181d9e399075d728e55c9d0954f3e0dc06dd8e19447a7768f043",
+            "dimensions": [
+              780,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-full__phone-390-body-aligned.jpg",
+            "sha256": "9720132aff3b2c1ec46b9a268a406b8415c6df4720abb93b72cc7dfe2c239cf5",
+            "dimensions": [
+              780,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 1100,
+                "currentY": 1100,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 8.37929292929293,
+                "height": 550
+              },
+              {
+                "baselineY": 1470,
+                "currentY": 1429,
+                "offset": -41,
+                "meanAbsChannelDiffAt96pxWidth": 10.860738636363637,
+                "height": 550
+              },
+              {
+                "baselineY": 2146,
+                "currentY": 2124,
+                "offset": -22,
+                "meanAbsChannelDiffAt96pxWidth": 0.40720959595959594,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "discover-full",
+          "viewport": "phone-390",
+          "file": "discover-full__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 390x2940 vs 390x2918",
+          "diffPixels": 1146600,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "discover-full",
+          "viewport": "phone-390",
+          "file": "discover-full__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 390x2940 vs 390x2918",
+          "diffPixels": 1146600,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "discover-full",
+        "viewport": "phone-390",
+        "reason": "dimension mismatch 390x2940 vs 390x2918"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "hero/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.09682820512820513 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "Wordmark, navigation, heading, description, order/menu actions and new children link are visible in the390x1000 standalone hero capture. The complete cashier instruction is also present at raw y967..975: this was confirmed in an exact3x bottom view and in the full landing390x8349 capture. An earlier apparent absence in a small crop was mistaken and withdrawn. The two capture procedures differ, but no display/capture cause is assigned and no interaction or conformance conclusion is inferred.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "hero",
+          "path": "index.html",
+          "selector": ".hero",
+          "viewports": [
+            "phone-360-short",
+            "phone-390",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/hero__phone-390.jpg",
+            "sha256": "bffd315e65a7c0df8a0a50304284e83e62351317691425497b452109b394a524",
+            "dimensions": [
+              1170,
+              1030
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "hero",
+          "viewport": "phone-390",
+          "file": "hero__phone-390.png",
+          "passed": false,
+          "diffPixels": 37763,
+          "totalPixels": 390000,
+          "diffPixelRatio": 0.09682820512820513,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "hero",
+          "viewport": "phone-390",
+          "file": "hero__phone-390.png",
+          "passed": false,
+          "diffPixels": 37763,
+          "totalPixels": 390000,
+          "diffPixelRatio": 0.09682820512820513,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "hero",
+        "viewport": "phone-390",
+        "totalPixels": 390000,
+        "maxDiffPixelRatio": 0.09682820512820513
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-share/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.007977369165487977 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The share heading/copy, share action, Instagram button and Google Maps link remain visible and separate with the same overall structure. Changed paint is concentrated around existing glyph/control edges. No causal explanation for the edge differences is established by these screenshots.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "menu-share",
+          "path": "menu.html",
+          "selector": ".menu-share-card",
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-share__phone-390.jpg",
+            "sha256": "21689681a57959cc634390e576c62f3d2f4d5e44566dffde9c568abc3ae5c63e",
+            "dimensions": [
+              1050,
+              535
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-share",
+          "viewport": "phone-390",
+          "file": "menu-share__phone-390.png",
+          "passed": false,
+          "diffPixels": 1410,
+          "totalPixels": 176750,
+          "diffPixelRatio": 0.007977369165487977,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-share",
+          "viewport": "phone-390",
+          "file": "menu-share__phone-390.png",
+          "passed": false,
+          "diffPixels": 1410,
+          "totalPixels": 176750,
+          "diffPixelRatio": 0.007977369165487977,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-share",
+        "viewport": "phone-390",
+        "totalPixels": 176750,
+        "maxDiffPixelRatio": 0.007977369165487977
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "discover-pairing/phone-390",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 350x774 vs 350x751",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The denser mobile story/action spacing retains readable title/story, both separate actions, next-pair photo/name and complete370₺ price. At320/360 the scrolled component crop includes sticky-header paint over upper artwork in both baseline and current; at390 the decorative01 sits behind the title in both. These shared observations are not attributed to the new change.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "phone-390",
+          "width": 390,
+          "height": 1000
+        },
+        "captureDefinition": {
+          "id": "discover-pairing",
+          "path": "discover.html",
+          "selector": "#pairing-card",
+          "waitFor": "#pairing-card",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/discover-pairing__phone-390.jpg",
+            "sha256": "10893b517e84e0b33157f915a740d416431d3a3b9a8b77e6d86e7fe2d9e85b04",
+            "dimensions": [
+              700,
+              804
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "discover-pairing",
+          "viewport": "phone-390",
+          "file": "discover-pairing__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 350x774 vs 350x751",
+          "diffPixels": 270900,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "discover-pairing",
+          "viewport": "phone-390",
+          "file": "discover-pairing__phone-390.png",
+          "passed": false,
+          "reason": "dimension mismatch 350x774 vs 350x751",
+          "diffPixels": 270900,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "discover-pairing",
+        "viewport": "phone-390",
+        "reason": "dimension mismatch 350x774 vs 350x751"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "landing-full/tablet-768",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.00788659191777622 above existing budget0.004",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The added children entry is visible below the existing hero actions, which move upward while retaining their text and separation. Sampled middle-page photos, menu categories, visit information, social section and footer retain their visible content. No new collision was observed in the reviewed regions.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "tablet-768",
+          "width": 768,
+          "height": 1024
+        },
+        "captureDefinition": {
+          "id": "landing-full",
+          "path": "index.html",
+          "fullPage": true,
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__tablet-768.jpg",
+            "sha256": "e76b3d5cb344f8e326f8ea5914b42d13bd13b0f2bdba9f634c73700ece17ea92",
+            "dimensions": [
+              2304,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__tablet-768-footer.jpg",
+            "sha256": "4845ef6192e353c2e0e75bf023a68bfef90e1d117c21845baf7780fa2c0bf9da",
+            "dimensions": [
+              1536,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__tablet-768-body-aligned.jpg",
+            "sha256": "d6bf61e7d8429f0a0c6d1d4c6a7c28c1d7affe9dca275d164c2f6f74c2be01f2",
+            "dimensions": [
+              1536,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 1926,
+                "currentY": 1926,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 3567,
+                "currentY": 3567,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 5208,
+                "currentY": 5208,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "landing-full",
+          "viewport": "tablet-768",
+          "file": "landing-full__tablet-768.png",
+          "passed": false,
+          "diffPixels": 43216,
+          "totalPixels": 5479680,
+          "diffPixelRatio": 0.00788659191777622,
+          "maxDiffPixelRatio": 0.004
+        },
+        "screenshot-attempt-2": {
+          "id": "landing-full",
+          "viewport": "tablet-768",
+          "file": "landing-full__tablet-768.png",
+          "passed": false,
+          "diffPixels": 43216,
+          "totalPixels": 5479680,
+          "diffPixelRatio": 0.00788659191777622,
+          "maxDiffPixelRatio": 0.004
+        }
+      },
+      "recordedBound": {
+        "capture": "landing-full",
+        "viewport": "tablet-768",
+        "totalPixels": 5479680,
+        "maxDiffPixelRatio": 0.00788659191777622
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-full/tablet-768",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 768x13264 vs 768x13002",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The menu introduction is compact: the approved wordmark remains recognizable and the title, family shortcut, search, order and category controls appear earlier. In three registered550px body bands, product photos, labels and prices remain visible; the final 1000px retains share/contact/footer links. At320/390 the new approximately88px cream tail is visible after the dark footer. Source inspection separately establishes the mobile cart clearance reserve; pixels alone do not establish its cause or interaction behavior.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "tablet-768",
+          "width": 768,
+          "height": 1024
+        },
+        "captureDefinition": {
+          "id": "menu-full",
+          "path": "menu.html",
+          "fullPage": true,
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__tablet-768.jpg",
+            "sha256": "3b706e390f2d5fc5e1a3a6d15ba42dc23360abd51f851fb319ba02a0e5ddbdf5",
+            "dimensions": [
+              1536,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__tablet-768-footer.jpg",
+            "sha256": "8f470c624583f8dc3a41e5a5c7998acce9f602bfa7a926575afad4b06034edb6",
+            "dimensions": [
+              1536,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__tablet-768-body-aligned.jpg",
+            "sha256": "23dd6f4947f6191269109bba6b887afa7dab04b87f8461529b896d6c78eda30e",
+            "dimensions": [
+              1536,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 3581,
+                "currentY": 3319,
+                "offset": -262,
+                "meanAbsChannelDiffAt96pxWidth": 0.026136363636363635,
+                "height": 550
+              },
+              {
+                "baselineY": 6632,
+                "currentY": 6370,
+                "offset": -262,
+                "meanAbsChannelDiffAt96pxWidth": 0.27550505050505053,
+                "height": 550
+              },
+              {
+                "baselineY": 9682,
+                "currentY": 9420,
+                "offset": -262,
+                "meanAbsChannelDiffAt96pxWidth": 0.02494949494949495,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-full",
+          "viewport": "tablet-768",
+          "file": "menu-full__tablet-768.png",
+          "passed": false,
+          "reason": "dimension mismatch 768x13264 vs 768x13002",
+          "diffPixels": 10186752,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-full",
+          "viewport": "tablet-768",
+          "file": "menu-full__tablet-768.png",
+          "passed": false,
+          "reason": "dimension mismatch 768x13264 vs 768x13002",
+          "diffPixels": 10186752,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-full",
+        "viewport": "tablet-768",
+        "reason": "dimension mismatch 768x13264 vs 768x13002"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-share/tablet-768",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.007380440072747765 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The share heading/copy, share action, Instagram button and Google Maps link remain visible and separate with the same overall structure. Changed paint is concentrated around existing glyph/control edges. No causal explanation for the edge differences is established by these screenshots.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "tablet-768",
+          "width": 768,
+          "height": 1024
+        },
+        "captureDefinition": {
+          "id": "menu-share",
+          "path": "menu.html",
+          "selector": ".menu-share-card",
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-360-short",
+            "phone-390",
+            "tablet-768",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-share__tablet-768.jpg",
+            "sha256": "86ab69a776977617e63d18c612599082bedd7926420c841897d59173a529337e",
+            "dimensions": [
+              2184,
+              459
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-share",
+          "viewport": "tablet-768",
+          "file": "menu-share__tablet-768.png",
+          "passed": false,
+          "diffPixels": 2305,
+          "totalPixels": 312312,
+          "diffPixelRatio": 0.007380440072747765,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-share",
+          "viewport": "tablet-768",
+          "file": "menu-share__tablet-768.png",
+          "passed": false,
+          "diffPixels": 2305,
+          "totalPixels": 312312,
+          "diffPixelRatio": 0.007380440072747765,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-share",
+        "viewport": "tablet-768",
+        "totalPixels": 312312,
+        "maxDiffPixelRatio": 0.007380440072747765
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "hero/laptop-1366",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 1366x768 vs 1366x770",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The hero retains the wordmark, navigation, heading, description, order/menu actions and café information where present. The new children entry reflows the action area. The360px short hero grows39px and the1366px hero grows2px; no new clipping or actionable overlap was observed in these captured states.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "laptop-1366",
+          "width": 1366,
+          "height": 768
+        },
+        "captureDefinition": {
+          "id": "hero",
+          "path": "index.html",
+          "selector": ".hero",
+          "viewports": [
+            "phone-360-short",
+            "phone-390",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/hero__laptop-1366.jpg",
+            "sha256": "09e72a8de982f8c05553903c128e14cb88f9dda68101260d36933522c9bbe77e",
+            "dimensions": [
+              2732,
+              800
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "hero",
+          "viewport": "laptop-1366",
+          "file": "hero__laptop-1366.png",
+          "passed": false,
+          "reason": "dimension mismatch 1366x768 vs 1366x770",
+          "diffPixels": 1049088,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "hero",
+          "viewport": "laptop-1366",
+          "file": "hero__laptop-1366.png",
+          "passed": false,
+          "reason": "dimension mismatch 1366x768 vs 1366x770",
+          "diffPixels": 1049088,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "hero",
+        "viewport": "laptop-1366",
+        "reason": "dimension mismatch 1366x768 vs 1366x770"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-preview/laptop-1366",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.008352282486892366 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The section heading, description, both links and six category cards retain their visible text/icons and arrangement. Differences concentrate around existing glyph edges; no new missing card, clipped control or causal rasterization claim is supported by this view.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "laptop-1366",
+          "width": 1366,
+          "height": 768
+        },
+        "captureDefinition": {
+          "id": "menu-preview",
+          "path": "index.html",
+          "selector": ".menu-section",
+          "viewports": [
+            "phone-390",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-preview__laptop-1366.jpg",
+            "sha256": "9c6c92a33fdc9bdaf237fa174fe34cf42180bf90ea428e393663111b63004e87",
+            "dimensions": [
+              4098,
+              746
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-preview",
+          "viewport": "laptop-1366",
+          "file": "menu-preview__laptop-1366.png",
+          "passed": false,
+          "diffPixels": 8169,
+          "totalPixels": 978056,
+          "diffPixelRatio": 0.008352282486892366,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-preview",
+          "viewport": "laptop-1366",
+          "file": "menu-preview__laptop-1366.png",
+          "passed": false,
+          "diffPixels": 8169,
+          "totalPixels": 978056,
+          "diffPixelRatio": 0.008352282486892366,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-preview",
+        "viewport": "laptop-1366",
+        "totalPixels": 978056,
+        "maxDiffPixelRatio": 0.008352282486892366
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "landing-full/desktop-1440",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.00762535747176579 above existing budget0.004",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The added children entry is visible below the existing hero actions, which move upward while retaining their text and separation. Sampled middle-page photos, menu categories, visit information, social section and footer retain their visible content. No new collision was observed in the reviewed regions.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "desktop-1440",
+          "width": 1440,
+          "height": 1100
+        },
+        "captureDefinition": {
+          "id": "landing-full",
+          "path": "index.html",
+          "fullPage": true,
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__desktop-1440.jpg",
+            "sha256": "2f5056a45b0aa704c0301c0d74f14cbd5a03ba1bb486c46978f32dd97cd4a60d",
+            "dimensions": [
+              4320,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__desktop-1440-footer.jpg",
+            "sha256": "3f4cbd412e5e78234fbcee7242f4ff445b0ef96607c59cd859fe03e1e8aa32d8",
+            "dimensions": [
+              2880,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/landing-full__desktop-1440-body-aligned.jpg",
+            "sha256": "a817ffc49fbc0c61c338d95072a9be81478719872ba89d98f166814b2989c694",
+            "dimensions": [
+              2880,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 1856,
+                "currentY": 1856,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 3438,
+                "currentY": 3438,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              },
+              {
+                "baselineY": 5020,
+                "currentY": 5020,
+                "offset": 0,
+                "meanAbsChannelDiffAt96pxWidth": 0.0,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "landing-full",
+          "viewport": "desktop-1440",
+          "file": "landing-full__desktop-1440.png",
+          "passed": false,
+          "diffPixels": 75513,
+          "totalPixels": 9902880,
+          "diffPixelRatio": 0.00762535747176579,
+          "maxDiffPixelRatio": 0.004
+        },
+        "screenshot-attempt-2": {
+          "id": "landing-full",
+          "viewport": "desktop-1440",
+          "file": "landing-full__desktop-1440.png",
+          "passed": false,
+          "diffPixels": 75513,
+          "totalPixels": 9902880,
+          "diffPixelRatio": 0.00762535747176579,
+          "maxDiffPixelRatio": 0.004
+        }
+      },
+      "recordedBound": {
+        "capture": "landing-full",
+        "viewport": "desktop-1440",
+        "totalPixels": 9902880,
+        "maxDiffPixelRatio": 0.00762535747176579
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "menu-full/desktop-1440",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged dimension mismatch 1440x7628 vs 1440x7346",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The menu introduction is compact: the approved wordmark remains recognizable and the title, family shortcut, search, order and category controls appear earlier. In three registered550px body bands, product photos, labels and prices remain visible; the final 1000px retains share/contact/footer links. At320/390 the new approximately88px cream tail is visible after the dark footer. Source inspection separately establishes the mobile cart clearance reserve; pixels alone do not establish its cause or interaction behavior.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "desktop-1440",
+          "width": 1440,
+          "height": 1100
+        },
+        "captureDefinition": {
+          "id": "menu-full",
+          "path": "menu.html",
+          "fullPage": true,
+          "waitFor": ".full-menu-item",
+          "viewports": [
+            "phone-320",
+            "phone-390",
+            "tablet-768",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.004
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__desktop-1440.jpg",
+            "sha256": "0aaebda908c34b31f2311c0482ad34bcf25f23c89bca8e62bf5f017e2f9750da",
+            "dimensions": [
+              2880,
+              1130
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__desktop-1440-footer.jpg",
+            "sha256": "452f43e5da60a3d899fe53c8180d447af7afb44cb1c29ce17fce505268b9d9dd",
+            "dimensions": [
+              2880,
+              1030
+            ],
+            "displayOnly": true
+          },
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/menu-full__desktop-1440-body-aligned.jpg",
+            "sha256": "364ca2396b58bb9383b691ca494342a04dc1a58fbe4615e1c4f5161ed78e35c9",
+            "dimensions": [
+              2880,
+              1740
+            ],
+            "sampledBands": [
+              {
+                "baselineY": 2059,
+                "currentY": 1776,
+                "offset": -283,
+                "meanAbsChannelDiffAt96pxWidth": 3.1565656565656566e-05,
+                "height": 550
+              },
+              {
+                "baselineY": 3814,
+                "currentY": 3531,
+                "offset": -283,
+                "meanAbsChannelDiffAt96pxWidth": 0.00010101010101010101,
+                "height": 550
+              },
+              {
+                "baselineY": 5568,
+                "currentY": 5285,
+                "offset": -283,
+                "meanAbsChannelDiffAt96pxWidth": 0.18398989898989898,
+                "height": 550
+              }
+            ]
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "menu-full",
+          "viewport": "desktop-1440",
+          "file": "menu-full__desktop-1440.png",
+          "passed": false,
+          "reason": "dimension mismatch 1440x7628 vs 1440x7346",
+          "diffPixels": 10984320,
+          "diffPixelRatio": 1
+        },
+        "screenshot-attempt-2": {
+          "id": "menu-full",
+          "viewport": "desktop-1440",
+          "file": "menu-full__desktop-1440.png",
+          "passed": false,
+          "reason": "dimension mismatch 1440x7628 vs 1440x7346",
+          "diffPixels": 10984320,
+          "diffPixelRatio": 1
+        }
+      },
+      "recordedBound": {
+        "capture": "menu-full",
+        "viewport": "desktop-1440",
+        "reason": "dimension mismatch 1440x7628 vs 1440x7346"
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    },
+    {
+      "finding_id": "hero/desktop-1440",
+      "verdict": "not-confirmed",
+      "verdict_scope": "Candidate unexpected visible harm only; the actual CI comparison failure is confirmed separately.",
+      "original_claim": "Actual CI flagged diffPixelRatio=0.047672348484848484 above existing budget0.003",
+      "verification_question": "Do the exact archived captures show new missing content, clipping or overlapping actionable controls?",
+      "verified_observation": "The hero retains the wordmark, navigation, heading, description, order/menu actions and café information where present. The new children entry reflows the action area. The360px short hero grows39px and the1366px hero grows2px; no new clipping or actionable overlap was observed in these captured states.",
+      "reproduction": {
+        "environment": "Read-only locked Playwright Chromium CI captures; no new browser interaction executed for this review.",
+        "result": "Unexpected visible harm not observed in the inspected states/regions.",
+        "viewport": {
+          "id": "desktop-1440",
+          "width": 1440,
+          "height": 1100
+        },
+        "captureDefinition": {
+          "id": "hero",
+          "path": "index.html",
+          "selector": ".hero",
+          "viewports": [
+            "phone-360-short",
+            "phone-390",
+            "laptop-1366",
+            "desktop-1440"
+          ],
+          "maxDiffPixelRatio": 0.003
+        },
+        "reviewedViews": [
+          {
+            "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/hero__desktop-1440.jpg",
+            "sha256": "03d680cf03a8b2848dcc007f1082980944e1e6a22a28878e9d8452abb37a9d8c",
+            "dimensions": [
+              4320,
+              1130
+            ],
+            "displayOnly": true
+          }
+        ]
+      },
+      "ciMetricsByAttempt": {
+        "screenshot-attempt-1": {
+          "id": "hero",
+          "viewport": "desktop-1440",
+          "file": "hero__desktop-1440.png",
+          "passed": false,
+          "diffPixels": 75513,
+          "totalPixels": 1584000,
+          "diffPixelRatio": 0.047672348484848484,
+          "maxDiffPixelRatio": 0.003
+        },
+        "screenshot-attempt-2": {
+          "id": "hero",
+          "viewport": "desktop-1440",
+          "file": "hero__desktop-1440.png",
+          "passed": false,
+          "diffPixels": 75513,
+          "totalPixels": 1584000,
+          "diffPixelRatio": 0.047672348484848484,
+          "maxDiffPixelRatio": 0.003
+        }
+      },
+      "recordedBound": {
+        "capture": "hero",
+        "viewport": "desktop-1440",
+        "totalPixels": 1584000,
+        "maxDiffPixelRatio": 0.047672348484848484
+      },
+      "confidence": "high for the bounded visible observation; no conclusion about uninspected states",
+      "standard_claim_status": "not-applicable",
+      "business_claim_status": "not-applicable"
+    }
+  ],
+  "repeatPngDiagnostics": {
+    "kind": "actual-CI-repeat-PNG-byte-and-pixel-diagnostics-not-approval",
+    "filesCompared": 98,
+    "byteIdentical": 84,
+    "files": [
+      {
+        "mode": "baseline",
+        "file": "discover-full__desktop-1440.png",
+        "attempt1Sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+        "attempt2Sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-full__phone-320.png",
+        "attempt1Sha256": "39a7a391efcca5eb5d64d41598ed40260244366cc12f9bb19c06acd37b8a25c4",
+        "attempt2Sha256": "a4aba9931ce8561e47a85813a2e6d25b95fdf653e9e5679a350c5a841c508a89",
+        "byteIdentical": false,
+        "changedPixels": 14,
+        "maxChannelDelta": 24,
+        "changedBounds": [
+          112,
+          14,
+          119,
+          45
+        ],
+        "reviewCrop": [
+          100,
+          2,
+          131,
+          57
+        ],
+        "dimensions": [
+          320,
+          2961
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-full__phone-390.png",
+        "attempt1Sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+        "attempt2Sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-full__tablet-768.png",
+        "attempt1Sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+        "attempt2Sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__desktop-1440.png",
+        "attempt1Sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+        "attempt2Sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__laptop-1366.png",
+        "attempt1Sha256": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+        "attempt2Sha256": "3ea1897fd97b937110ad51410a07d95d3f875501b4017a7fb417126485bdb623",
+        "byteIdentical": false,
+        "changedPixels": 43,
+        "maxChannelDelta": 15,
+        "changedBounds": [
+          1049,
+          8,
+          1165,
+          14
+        ],
+        "reviewCrop": [
+          1037,
+          0,
+          1177,
+          26
+        ],
+        "dimensions": [
+          1180,
+          681
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__phone-320.png",
+        "attempt1Sha256": "ee37a1e7fcf67c117fc54f76da9e94f7bad9774112df80dd0d6a660d5d51a6df",
+        "attempt2Sha256": "413efd5dd4efd691bac17ed31febe7432f1712045ca4babf9608f3a1c0e8e65b",
+        "byteIdentical": false,
+        "changedPixels": 58,
+        "maxChannelDelta": 2,
+        "changedBounds": [
+          200,
+          21,
+          264,
+          65
+        ],
+        "reviewCrop": [
+          188,
+          9,
+          276,
+          77
+        ],
+        "dimensions": [
+          280,
+          830
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__phone-360-short.png",
+        "attempt1Sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+        "attempt2Sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__phone-390.png",
+        "attempt1Sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+        "attempt2Sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "discover-pairing__tablet-768.png",
+        "attempt1Sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+        "attempt2Sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "hero__desktop-1440.png",
+        "attempt1Sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+        "attempt2Sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "hero__laptop-1366.png",
+        "attempt1Sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+        "attempt2Sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "hero__phone-360-short.png",
+        "attempt1Sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+        "attempt2Sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "hero__phone-390.png",
+        "attempt1Sha256": "252d157961e89599ba94fb2034fdc1741ab31daaf65ffd6ab9998342217b57c4",
+        "attempt2Sha256": "5daa2e8df07e9f4d89472fe745914cba4977eba4df1e07328f308ed22c4f7259",
+        "byteIdentical": false,
+        "changedPixels": 49,
+        "maxChannelDelta": 6,
+        "changedBounds": [
+          199,
+          23,
+          210,
+          67
+        ],
+        "reviewCrop": [
+          187,
+          11,
+          222,
+          79
+        ],
+        "dimensions": [
+          390,
+          1000
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "landing-full__desktop-1440.png",
+        "attempt1Sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+        "attempt2Sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "landing-full__phone-320.png",
+        "attempt1Sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+        "attempt2Sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "landing-full__phone-390.png",
+        "attempt1Sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+        "attempt2Sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "landing-full__tablet-768.png",
+        "attempt1Sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+        "attempt2Sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-full__desktop-1440.png",
+        "attempt1Sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+        "attempt2Sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-full__phone-320.png",
+        "attempt1Sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+        "attempt2Sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-full__phone-390.png",
+        "attempt1Sha256": "cfef83b5c11637712835113590b073018725b961941563284fe0681a351f55fc",
+        "attempt2Sha256": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311",
+        "byteIdentical": false,
+        "changedPixels": 54008,
+        "maxChannelDelta": 206,
+        "changedBounds": [
+          38,
+          15,
+          352,
+          10209
+        ],
+        "reviewCrop": [
+          26,
+          3,
+          364,
+          10221
+        ],
+        "dimensions": [
+          390,
+          11474
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-full__tablet-768.png",
+        "attempt1Sha256": "848cf2b074e69442dee9602fc766adbc97e3c805d3054f39b4da4920f5465fe6",
+        "attempt2Sha256": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5",
+        "byteIdentical": false,
+        "changedPixels": 82,
+        "maxChannelDelta": 2,
+        "changedBounds": [
+          20,
+          20,
+          137,
+          64
+        ],
+        "reviewCrop": [
+          8,
+          8,
+          149,
+          76
+        ],
+        "dimensions": [
+          768,
+          13264
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-preview__desktop-1440.png",
+        "attempt1Sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+        "attempt2Sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-preview__laptop-1366.png",
+        "attempt1Sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+        "attempt2Sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-preview__phone-390.png",
+        "attempt1Sha256": "aa8bb8b31264c9a189e546e2447e7bc39bb5953c1dcdc15bea3425aa41a4f3c4",
+        "attempt2Sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+        "byteIdentical": false,
+        "changedPixels": 50,
+        "maxChannelDelta": 64,
+        "changedBounds": [
+          10,
+          843,
+          374,
+          893
+        ],
+        "reviewCrop": [
+          0,
+          831,
+          386,
+          905
+        ],
+        "dimensions": [
+          390,
+          924
+        ]
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__desktop-1440.png",
+        "attempt1Sha256": "e65b4e92643901788c82c553514a60ee06e737e83137d58e297c8dc2830377b0",
+        "attempt2Sha256": "e65b4e92643901788c82c553514a60ee06e737e83137d58e297c8dc2830377b0",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__laptop-1366.png",
+        "attempt1Sha256": "7979fbb836c285087f84469a850d45500700a93dd3331b64fff9b6fe0cb167d2",
+        "attempt2Sha256": "7979fbb836c285087f84469a850d45500700a93dd3331b64fff9b6fe0cb167d2",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__phone-320.png",
+        "attempt1Sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+        "attempt2Sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__phone-360-short.png",
+        "attempt1Sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+        "attempt2Sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__phone-390.png",
+        "attempt1Sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+        "attempt2Sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "menu-share__tablet-768.png",
+        "attempt1Sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+        "attempt2Sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "mobile-cta__phone-320.png",
+        "attempt1Sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+        "attempt2Sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "mobile-cta__phone-360-short.png",
+        "attempt1Sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+        "attempt2Sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "mobile-cta__phone-390.png",
+        "attempt1Sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+        "attempt2Sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__desktop-1440.png",
+        "attempt1Sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+        "attempt2Sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__laptop-1366.png",
+        "attempt1Sha256": "4de4105086072df7049f96a942fa10dad7423ff77bcc328f91c5c660f79d6713",
+        "attempt2Sha256": "4de4105086072df7049f96a942fa10dad7423ff77bcc328f91c5c660f79d6713",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__phone-320.png",
+        "attempt1Sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+        "attempt2Sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__phone-360-short.png",
+        "attempt1Sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+        "attempt2Sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__phone-390.png",
+        "attempt1Sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+        "attempt2Sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "social-offer__tablet-768.png",
+        "attempt1Sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+        "attempt2Sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "visit-map__desktop-1440.png",
+        "attempt1Sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+        "attempt2Sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "visit-map__laptop-1366.png",
+        "attempt1Sha256": "42230f58560d706178c8a0bffb80e1eef584a7c71e754aa3793c87829938bb56",
+        "attempt2Sha256": "42230f58560d706178c8a0bffb80e1eef584a7c71e754aa3793c87829938bb56",
+        "byteIdentical": true
+      },
+      {
+        "mode": "baseline",
+        "file": "visit-map__phone-390.png",
+        "attempt1Sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+        "attempt2Sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-full__desktop-1440.png",
+        "attempt1Sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+        "attempt2Sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-full__phone-320.png",
+        "attempt1Sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+        "attempt2Sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-full__phone-390.png",
+        "attempt1Sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+        "attempt2Sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-full__tablet-768.png",
+        "attempt1Sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+        "attempt2Sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__desktop-1440.png",
+        "attempt1Sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+        "attempt2Sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__laptop-1366.png",
+        "attempt1Sha256": "3ea1897fd97b937110ad51410a07d95d3f875501b4017a7fb417126485bdb623",
+        "attempt2Sha256": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+        "byteIdentical": false,
+        "changedPixels": 43,
+        "maxChannelDelta": 15,
+        "changedBounds": [
+          1049,
+          8,
+          1165,
+          14
+        ],
+        "reviewCrop": [
+          1037,
+          0,
+          1177,
+          26
+        ],
+        "dimensions": [
+          1180,
+          681
+        ]
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__phone-320.png",
+        "attempt1Sha256": "64f5c04bed35e636251733e657237d4f5c734deeab56316bac4d4ac2d71fe66e",
+        "attempt2Sha256": "efb4007864811792ee07eaee2b0eecef6ec0554437bf264d7ce05d54866e6091",
+        "byteIdentical": false,
+        "changedPixels": 36,
+        "maxChannelDelta": 2,
+        "changedBounds": [
+          200,
+          25,
+          264,
+          28
+        ],
+        "reviewCrop": [
+          188,
+          13,
+          276,
+          40
+        ],
+        "dimensions": [
+          280,
+          754
+        ]
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__phone-360-short.png",
+        "attempt1Sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+        "attempt2Sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__phone-390.png",
+        "attempt1Sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+        "attempt2Sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "discover-pairing__tablet-768.png",
+        "attempt1Sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+        "attempt2Sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "hero__desktop-1440.png",
+        "attempt1Sha256": "2a53328efe3f3a1ff12f174b89bc21f17d8799861d99626914c20708518f8879",
+        "attempt2Sha256": "9e63d9fd3d2e61cf8a2a92a2543c5a97b954764f65bc5a515f041223d773d953",
+        "byteIdentical": false,
+        "changedPixels": 29,
+        "maxChannelDelta": 17,
+        "changedBounds": [
+          1185,
+          32,
+          1191,
+          68
+        ],
+        "reviewCrop": [
+          1173,
+          20,
+          1203,
+          80
+        ],
+        "dimensions": [
+          1440,
+          1100
+        ]
+      },
+      {
+        "mode": "current",
+        "file": "hero__laptop-1366.png",
+        "attempt1Sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+        "attempt2Sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "hero__phone-360-short.png",
+        "attempt1Sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+        "attempt2Sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "hero__phone-390.png",
+        "attempt1Sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+        "attempt2Sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "landing-full__desktop-1440.png",
+        "attempt1Sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+        "attempt2Sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "landing-full__phone-320.png",
+        "attempt1Sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+        "attempt2Sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "landing-full__phone-390.png",
+        "attempt1Sha256": "54b993539c31ac690fb1be00bcf261dfee232d5390d403c08bfc67d20f7b0cdf",
+        "attempt2Sha256": "c84b8247f6d3d2d49b54feae57082774bd6cef09ba83df48ecf9e72620d7cf14",
+        "byteIdentical": false,
+        "changedPixels": 244,
+        "maxChannelDelta": 103,
+        "changedBounds": [
+          213,
+          40,
+          317,
+          48
+        ],
+        "reviewCrop": [
+          201,
+          28,
+          329,
+          60
+        ],
+        "dimensions": [
+          390,
+          8349
+        ]
+      },
+      {
+        "mode": "current",
+        "file": "landing-full__tablet-768.png",
+        "attempt1Sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+        "attempt2Sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-full__desktop-1440.png",
+        "attempt1Sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+        "attempt2Sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-full__phone-320.png",
+        "attempt1Sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+        "attempt2Sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-full__phone-390.png",
+        "attempt1Sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+        "attempt2Sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-full__tablet-768.png",
+        "attempt1Sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+        "attempt2Sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-preview__desktop-1440.png",
+        "attempt1Sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+        "attempt2Sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-preview__laptop-1366.png",
+        "attempt1Sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+        "attempt2Sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-preview__phone-390.png",
+        "attempt1Sha256": "aa8bb8b31264c9a189e546e2447e7bc39bb5953c1dcdc15bea3425aa41a4f3c4",
+        "attempt2Sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+        "byteIdentical": false,
+        "changedPixels": 50,
+        "maxChannelDelta": 64,
+        "changedBounds": [
+          10,
+          843,
+          374,
+          893
+        ],
+        "reviewCrop": [
+          0,
+          831,
+          386,
+          905
+        ],
+        "dimensions": [
+          390,
+          924
+        ]
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__desktop-1440.png",
+        "attempt1Sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+        "attempt2Sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__laptop-1366.png",
+        "attempt1Sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+        "attempt2Sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__phone-320.png",
+        "attempt1Sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+        "attempt2Sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__phone-360-short.png",
+        "attempt1Sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+        "attempt2Sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__phone-390.png",
+        "attempt1Sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+        "attempt2Sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "menu-share__tablet-768.png",
+        "attempt1Sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+        "attempt2Sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "mobile-cta__phone-320.png",
+        "attempt1Sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+        "attempt2Sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "mobile-cta__phone-360-short.png",
+        "attempt1Sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+        "attempt2Sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "mobile-cta__phone-390.png",
+        "attempt1Sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+        "attempt2Sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__desktop-1440.png",
+        "attempt1Sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+        "attempt2Sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__laptop-1366.png",
+        "attempt1Sha256": "4a53f52a7c5f624b2aa415227914bb4b3f86f5411f53b13969c19e6dc4a2eb7a",
+        "attempt2Sha256": "4a53f52a7c5f624b2aa415227914bb4b3f86f5411f53b13969c19e6dc4a2eb7a",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__phone-320.png",
+        "attempt1Sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+        "attempt2Sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__phone-360-short.png",
+        "attempt1Sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+        "attempt2Sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__phone-390.png",
+        "attempt1Sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+        "attempt2Sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "social-offer__tablet-768.png",
+        "attempt1Sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+        "attempt2Sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "visit-map__desktop-1440.png",
+        "attempt1Sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+        "attempt2Sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "visit-map__laptop-1366.png",
+        "attempt1Sha256": "a3e9760b28a38bb06d897cb981bdeb5fe75c7a4bae0823d1a808673d7588f589",
+        "attempt2Sha256": "a3e9760b28a38bb06d897cb981bdeb5fe75c7a4bae0823d1a808673d7588f589",
+        "byteIdentical": true
+      },
+      {
+        "mode": "current",
+        "file": "visit-map__phone-390.png",
+        "attempt1Sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+        "attempt2Sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "hero__desktop-1440.png",
+        "attempt1Sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+        "attempt2Sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "hero__phone-390.png",
+        "attempt1Sha256": "28c5636eb2c4f6c29de58ba8ba0fcde7ca7af111d45d839765a4fcec8df5dc0c",
+        "attempt2Sha256": "ee209b772efd1000d591fc8158df4cac908e6fb7bd06bdaa28c6d7724fc99509",
+        "byteIdentical": false,
+        "changedPixels": 39,
+        "maxChannelDelta": 4,
+        "changedBounds": [
+          199,
+          23,
+          209,
+          67
+        ],
+        "reviewCrop": [
+          187,
+          11,
+          221,
+          79
+        ],
+        "dimensions": [
+          390,
+          1000
+        ]
+      },
+      {
+        "mode": "diff",
+        "file": "landing-full__desktop-1440.png",
+        "attempt1Sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+        "attempt2Sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "landing-full__phone-320.png",
+        "attempt1Sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+        "attempt2Sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "landing-full__phone-390.png",
+        "attempt1Sha256": "612c72c1ec58b0d8776950136d1b1fa94a34a3c0ed303a213dfe5e82211fde04",
+        "attempt2Sha256": "50470cf1a9a484efb3124a63cbd220c887baa28fb31480199ceb2b42d786a101",
+        "byteIdentical": false,
+        "changedPixels": 164,
+        "maxChannelDelta": 255,
+        "changedBounds": [
+          213,
+          40,
+          317,
+          48
+        ],
+        "reviewCrop": [
+          201,
+          28,
+          329,
+          60
+        ],
+        "dimensions": [
+          390,
+          8349
+        ]
+      },
+      {
+        "mode": "diff",
+        "file": "landing-full__tablet-768.png",
+        "attempt1Sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+        "attempt2Sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "menu-preview__laptop-1366.png",
+        "attempt1Sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+        "attempt2Sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "menu-share__phone-320.png",
+        "attempt1Sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+        "attempt2Sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "menu-share__phone-360-short.png",
+        "attempt1Sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+        "attempt2Sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "menu-share__phone-390.png",
+        "attempt1Sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+        "attempt2Sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "menu-share__tablet-768.png",
+        "attempt1Sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+        "attempt2Sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+        "byteIdentical": true
+      },
+      {
+        "mode": "diff",
+        "file": "social-offer__phone-360-short.png",
+        "attempt1Sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+        "attempt2Sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+        "byteIdentical": true
+      }
+    ],
+    "reviewSheet": {
+      "path": ".artifacts/pr438-head5-ci-visual/inspection/repeat-attempt-differences.jpg",
+      "sha256": "ee9b111a7e848e2157684838310d71100dc46711f4596531064250e18626156b",
+      "dimensions": [
+        1200,
+        3020
+      ],
+      "displayNote": "Crops enlarged up to3x; delta amplified20x only in third display column. Raw pixel counts and raw CI images are unchanged."
+    }
+  },
+  "reviewedRawCaptureEvidence": [
+    {
+      "capture": "landing-full",
+      "viewport": "phone-320",
+      "file": "landing-full__phone-320.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/landing-full__phone-320.png",
+            "sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+            "dimensions": [
+              320,
+              8007
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/landing-full__phone-320.png",
+            "sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+            "dimensions": [
+              320,
+              8007
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/landing-full__phone-320.png",
+            "sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+            "dimensions": [
+              320,
+              8007
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/landing-full__phone-320.png",
+            "sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+            "dimensions": [
+              320,
+              8007
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/landing-full__phone-320.png",
+            "sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+            "dimensions": [
+              320,
+              8007
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/landing-full__phone-320.png",
+            "sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+            "dimensions": [
+              320,
+              8007
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-full__phone-320.png",
+            "sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+            "dimensions": [
+              320,
+              11719
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-full__phone-320.png",
+            "sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+            "dimensions": [
+              320,
+              11598
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-full__phone-320.png",
+            "sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+            "dimensions": [
+              320,
+              11719
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-full__phone-320.png",
+            "sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+            "dimensions": [
+              320,
+              11598
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "discover-full",
+      "viewport": "phone-320",
+      "file": "discover-full__phone-320.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/discover-full__phone-320.png",
+            "sha256": "39a7a391efcca5eb5d64d41598ed40260244366cc12f9bb19c06acd37b8a25c4",
+            "dimensions": [
+              320,
+              2961
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/discover-full__phone-320.png",
+            "sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+            "dimensions": [
+              320,
+              2886
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/discover-full__phone-320.png",
+            "sha256": "a4aba9931ce8561e47a85813a2e6d25b95fdf653e9e5679a350c5a841c508a89",
+            "dimensions": [
+              320,
+              2961
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/discover-full__phone-320.png",
+            "sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+            "dimensions": [
+              320,
+              2886
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-share__phone-320.png",
+            "sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+            "dimensions": [
+              280,
+              511
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-share__phone-320.png",
+            "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+            "dimensions": [
+              280,
+              511
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/menu-share__phone-320.png",
+            "sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+            "dimensions": [
+              280,
+              511
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-share__phone-320.png",
+            "sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+            "dimensions": [
+              280,
+              511
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-share__phone-320.png",
+            "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+            "dimensions": [
+              280,
+              511
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/menu-share__phone-320.png",
+            "sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+            "dimensions": [
+              280,
+              511
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "discover-pairing",
+      "viewport": "phone-320",
+      "file": "discover-pairing__phone-320.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/discover-pairing__phone-320.png",
+            "sha256": "ee37a1e7fcf67c117fc54f76da9e94f7bad9774112df80dd0d6a660d5d51a6df",
+            "dimensions": [
+              280,
+              830
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/discover-pairing__phone-320.png",
+            "sha256": "64f5c04bed35e636251733e657237d4f5c734deeab56316bac4d4ac2d71fe66e",
+            "dimensions": [
+              280,
+              754
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/discover-pairing__phone-320.png",
+            "sha256": "413efd5dd4efd691bac17ed31febe7432f1712045ca4babf9608f3a1c0e8e65b",
+            "dimensions": [
+              280,
+              830
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/discover-pairing__phone-320.png",
+            "sha256": "efb4007864811792ee07eaee2b0eecef6ec0554437bf264d7ce05d54866e6091",
+            "dimensions": [
+              280,
+              754
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "hero",
+      "viewport": "phone-360-short",
+      "file": "hero__phone-360-short.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/hero__phone-360-short.png",
+            "sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+            "dimensions": [
+              360,
+              640
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/hero__phone-360-short.png",
+            "sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+            "dimensions": [
+              360,
+              679
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/hero__phone-360-short.png",
+            "sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+            "dimensions": [
+              360,
+              640
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/hero__phone-360-short.png",
+            "sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+            "dimensions": [
+              360,
+              679
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "social-offer",
+      "viewport": "phone-360-short",
+      "file": "social-offer__phone-360-short.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/social-offer__phone-360-short.png",
+            "sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+            "dimensions": [
+              360,
+              246
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/social-offer__phone-360-short.png",
+            "sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+            "dimensions": [
+              360,
+              246
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/social-offer__phone-360-short.png",
+            "sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+            "dimensions": [
+              360,
+              246
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/social-offer__phone-360-short.png",
+            "sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+            "dimensions": [
+              360,
+              246
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/social-offer__phone-360-short.png",
+            "sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+            "dimensions": [
+              360,
+              246
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/social-offer__phone-360-short.png",
+            "sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+            "dimensions": [
+              360,
+              246
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-share__phone-360-short.png",
+            "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+            "dimensions": [
+              320,
+              496
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-share__phone-360-short.png",
+            "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+            "dimensions": [
+              320,
+              496
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/menu-share__phone-360-short.png",
+            "sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+            "dimensions": [
+              320,
+              496
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-share__phone-360-short.png",
+            "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+            "dimensions": [
+              320,
+              496
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-share__phone-360-short.png",
+            "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+            "dimensions": [
+              320,
+              496
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/menu-share__phone-360-short.png",
+            "sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+            "dimensions": [
+              320,
+              496
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "discover-pairing",
+      "viewport": "phone-360-short",
+      "file": "discover-pairing__phone-360-short.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/discover-pairing__phone-360-short.png",
+            "sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+            "dimensions": [
+              320,
+              805
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/discover-pairing__phone-360-short.png",
+            "sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+            "dimensions": [
+              320,
+              742
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/discover-pairing__phone-360-short.png",
+            "sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+            "dimensions": [
+              320,
+              805
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/discover-pairing__phone-360-short.png",
+            "sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+            "dimensions": [
+              320,
+              742
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "landing-full",
+      "viewport": "phone-390",
+      "file": "landing-full__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/landing-full__phone-390.png",
+            "sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+            "dimensions": [
+              390,
+              8349
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/landing-full__phone-390.png",
+            "sha256": "54b993539c31ac690fb1be00bcf261dfee232d5390d403c08bfc67d20f7b0cdf",
+            "dimensions": [
+              390,
+              8349
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/landing-full__phone-390.png",
+            "sha256": "612c72c1ec58b0d8776950136d1b1fa94a34a3c0ed303a213dfe5e82211fde04",
+            "dimensions": [
+              390,
+              8349
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/landing-full__phone-390.png",
+            "sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+            "dimensions": [
+              390,
+              8349
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/landing-full__phone-390.png",
+            "sha256": "c84b8247f6d3d2d49b54feae57082774bd6cef09ba83df48ecf9e72620d7cf14",
+            "dimensions": [
+              390,
+              8349
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/landing-full__phone-390.png",
+            "sha256": "50470cf1a9a484efb3124a63cbd220c887baa28fb31480199ceb2b42d786a101",
+            "dimensions": [
+              390,
+              8349
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-full__phone-390.png",
+            "sha256": "cfef83b5c11637712835113590b073018725b961941563284fe0681a351f55fc",
+            "dimensions": [
+              390,
+              11474
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-full__phone-390.png",
+            "sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+            "dimensions": [
+              390,
+              11325
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-full__phone-390.png",
+            "sha256": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311",
+            "dimensions": [
+              390,
+              11474
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-full__phone-390.png",
+            "sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+            "dimensions": [
+              390,
+              11325
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "discover-full",
+      "viewport": "phone-390",
+      "file": "discover-full__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/discover-full__phone-390.png",
+            "sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+            "dimensions": [
+              390,
+              2940
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/discover-full__phone-390.png",
+            "sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+            "dimensions": [
+              390,
+              2918
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/discover-full__phone-390.png",
+            "sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+            "dimensions": [
+              390,
+              2940
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/discover-full__phone-390.png",
+            "sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+            "dimensions": [
+              390,
+              2918
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "hero",
+      "viewport": "phone-390",
+      "file": "hero__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/hero__phone-390.png",
+            "sha256": "252d157961e89599ba94fb2034fdc1741ab31daaf65ffd6ab9998342217b57c4",
+            "dimensions": [
+              390,
+              1000
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/hero__phone-390.png",
+            "sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+            "dimensions": [
+              390,
+              1000
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/hero__phone-390.png",
+            "sha256": "28c5636eb2c4f6c29de58ba8ba0fcde7ca7af111d45d839765a4fcec8df5dc0c",
+            "dimensions": [
+              390,
+              1000
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/hero__phone-390.png",
+            "sha256": "5daa2e8df07e9f4d89472fe745914cba4977eba4df1e07328f308ed22c4f7259",
+            "dimensions": [
+              390,
+              1000
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/hero__phone-390.png",
+            "sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+            "dimensions": [
+              390,
+              1000
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/hero__phone-390.png",
+            "sha256": "ee209b772efd1000d591fc8158df4cac908e6fb7bd06bdaa28c6d7724fc99509",
+            "dimensions": [
+              390,
+              1000
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-share__phone-390.png",
+            "sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+            "dimensions": [
+              350,
+              505
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-share__phone-390.png",
+            "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+            "dimensions": [
+              350,
+              505
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/menu-share__phone-390.png",
+            "sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+            "dimensions": [
+              350,
+              505
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-share__phone-390.png",
+            "sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+            "dimensions": [
+              350,
+              505
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-share__phone-390.png",
+            "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+            "dimensions": [
+              350,
+              505
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/menu-share__phone-390.png",
+            "sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+            "dimensions": [
+              350,
+              505
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "discover-pairing",
+      "viewport": "phone-390",
+      "file": "discover-pairing__phone-390.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/discover-pairing__phone-390.png",
+            "sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+            "dimensions": [
+              350,
+              774
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/discover-pairing__phone-390.png",
+            "sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+            "dimensions": [
+              350,
+              751
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/discover-pairing__phone-390.png",
+            "sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+            "dimensions": [
+              350,
+              774
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/discover-pairing__phone-390.png",
+            "sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+            "dimensions": [
+              350,
+              751
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "landing-full",
+      "viewport": "tablet-768",
+      "file": "landing-full__tablet-768.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/landing-full__tablet-768.png",
+            "sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+            "dimensions": [
+              768,
+              7135
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/landing-full__tablet-768.png",
+            "sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+            "dimensions": [
+              768,
+              7135
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/landing-full__tablet-768.png",
+            "sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+            "dimensions": [
+              768,
+              7135
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/landing-full__tablet-768.png",
+            "sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+            "dimensions": [
+              768,
+              7135
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/landing-full__tablet-768.png",
+            "sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+            "dimensions": [
+              768,
+              7135
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/landing-full__tablet-768.png",
+            "sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+            "dimensions": [
+              768,
+              7135
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-full__tablet-768.png",
+            "sha256": "848cf2b074e69442dee9602fc766adbc97e3c805d3054f39b4da4920f5465fe6",
+            "dimensions": [
+              768,
+              13264
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-full__tablet-768.png",
+            "sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+            "dimensions": [
+              768,
+              13002
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-full__tablet-768.png",
+            "sha256": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5",
+            "dimensions": [
+              768,
+              13264
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-full__tablet-768.png",
+            "sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+            "dimensions": [
+              768,
+              13002
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-share",
+      "viewport": "tablet-768",
+      "file": "menu-share__tablet-768.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-share__tablet-768.png",
+            "sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+            "dimensions": [
+              728,
+              429
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-share__tablet-768.png",
+            "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+            "dimensions": [
+              728,
+              429
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/menu-share__tablet-768.png",
+            "sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+            "dimensions": [
+              728,
+              429
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-share__tablet-768.png",
+            "sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+            "dimensions": [
+              728,
+              429
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-share__tablet-768.png",
+            "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+            "dimensions": [
+              728,
+              429
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/menu-share__tablet-768.png",
+            "sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+            "dimensions": [
+              728,
+              429
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "hero",
+      "viewport": "laptop-1366",
+      "file": "hero__laptop-1366.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/hero__laptop-1366.png",
+            "sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+            "dimensions": [
+              1366,
+              768
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/hero__laptop-1366.png",
+            "sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+            "dimensions": [
+              1366,
+              770
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/hero__laptop-1366.png",
+            "sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+            "dimensions": [
+              1366,
+              768
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/hero__laptop-1366.png",
+            "sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+            "dimensions": [
+              1366,
+              770
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-preview",
+      "viewport": "laptop-1366",
+      "file": "menu-preview__laptop-1366.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-preview__laptop-1366.png",
+            "sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+            "dimensions": [
+              1366,
+              716
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-preview__laptop-1366.png",
+            "sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+            "dimensions": [
+              1366,
+              716
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/menu-preview__laptop-1366.png",
+            "sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+            "dimensions": [
+              1366,
+              716
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-preview__laptop-1366.png",
+            "sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+            "dimensions": [
+              1366,
+              716
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-preview__laptop-1366.png",
+            "sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+            "dimensions": [
+              1366,
+              716
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/menu-preview__laptop-1366.png",
+            "sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+            "dimensions": [
+              1366,
+              716
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "landing-full",
+      "viewport": "desktop-1440",
+      "file": "landing-full__desktop-1440.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/landing-full__desktop-1440.png",
+            "sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/landing-full__desktop-1440.png",
+            "sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/landing-full__desktop-1440.png",
+            "sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/landing-full__desktop-1440.png",
+            "sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/landing-full__desktop-1440.png",
+            "sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/landing-full__desktop-1440.png",
+            "sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+            "dimensions": [
+              1440,
+              6877
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/menu-full__desktop-1440.png",
+            "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+            "dimensions": [
+              1440,
+              7628
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/menu-full__desktop-1440.png",
+            "sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+            "dimensions": [
+              1440,
+              7346
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/menu-full__desktop-1440.png",
+            "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+            "dimensions": [
+              1440,
+              7628
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/menu-full__desktop-1440.png",
+            "sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+            "dimensions": [
+              1440,
+              7346
+            ]
+          }
+        }
+      }
+    },
+    {
+      "capture": "hero",
+      "viewport": "desktop-1440",
+      "file": "hero__desktop-1440.png",
+      "rawAttempts": {
+        "screenshot-attempt-1": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-1/baseline/hero__desktop-1440.png",
+            "sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-1/current/hero__desktop-1440.png",
+            "sha256": "2a53328efe3f3a1ff12f174b89bc21f17d8799861d99626914c20708518f8879",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-1/diff/hero__desktop-1440.png",
+            "sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          }
+        },
+        "screenshot-attempt-2": {
+          "baseline": {
+            "artifactPath": "screenshot-attempt-2/baseline/hero__desktop-1440.png",
+            "sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          },
+          "current": {
+            "artifactPath": "screenshot-attempt-2/current/hero__desktop-1440.png",
+            "sha256": "9e63d9fd3d2e61cf8a2a92a2543c5a97b954764f65bc5a515f041223d773d953",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          },
+          "diff": {
+            "artifactPath": "screenshot-attempt-2/diff/hero__desktop-1440.png",
+            "sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+            "dimensions": [
+              1440,
+              1100
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "unchangedToolchain": {
+    "comparison": {
+      "mode": "--comparison",
+      "passed": true,
+      "node": "v22.23.3",
+      "platform": "linux",
+      "arch": "x64",
+      "sourceSha": "27806dd15cf2a149a6fde786584f403595045305",
+      "lockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+      "baselineLockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+      "toolchainSha256": "a028571e12b168070d6e3a31b647e807ca240c81434697dd27ab7bff557f8fa1",
+      "baselineToolchainSha256": "a028571e12b168070d6e3a31b647e807ca240c81434697dd27ab7bff557f8fa1",
+      "toolchainChanged": false,
+      "packageMetadataSha256": {
+        "playwright": "5cb33bf4a5f7971e28d395f625af147eb42cc14423d204c61e02d14ba9014de8",
+        "pixelmatch": "24444e8a9140aebce52854e24889639719110808c23daee74767ffea16556c92",
+        "pngjs": "85b17f2f852aece03e71edb4ed4d9fddf6a0a8f0b69ac75d7f00b6592d62d37c",
+        "playwright-core": "5ad804ce5343706c6ef7d29d8a97821c8e4fa780c9bfdf8488dc5d36aea2e8a7"
+      },
+      "versions": {
+        "playwright": "1.55.1",
+        "pixelmatch": "6.0.0",
+        "pngjs": "7.0.0"
+      },
+      "migration": {
+        "status": "not-required",
+        "reason": "Visual dependency closure unchanged; ordinary reviewed-change gate applies"
+      }
+    },
+    "browser": {
+      "mode": "--browser",
+      "passed": true,
+      "node": "v22.23.3",
+      "platform": "linux",
+      "arch": "x64",
+      "sourceSha": "27806dd15cf2a149a6fde786584f403595045305",
+      "lockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+      "baselineLockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+      "toolchainSha256": "a028571e12b168070d6e3a31b647e807ca240c81434697dd27ab7bff557f8fa1",
+      "baselineToolchainSha256": "a028571e12b168070d6e3a31b647e807ca240c81434697dd27ab7bff557f8fa1",
+      "toolchainChanged": false,
+      "packageMetadataSha256": {
+        "playwright": "5cb33bf4a5f7971e28d395f625af147eb42cc14423d204c61e02d14ba9014de8",
+        "pixelmatch": "24444e8a9140aebce52854e24889639719110808c23daee74767ffea16556c92",
+        "pngjs": "85b17f2f852aece03e71edb4ed4d9fddf6a0a8f0b69ac75d7f00b6592d62d37c",
+        "playwright-core": "5ad804ce5343706c6ef7d29d8a97821c8e4fa780c9bfdf8488dc5d36aea2e8a7"
+      },
+      "versions": {
+        "playwright": "1.55.1",
+        "pixelmatch": "6.0.0",
+        "pngjs": "7.0.0"
+      },
+      "browser": {
+        "name": "chromium-headless-shell",
+        "revision": "1193",
+        "browserVersion": "140.0.7339.186"
+      },
+      "browserManifestSha256": "97bc335b937cdfcea3a24935dbc9fba7247971f6c254632101a34f9aa149fa4b"
+    }
+  },
+  "sourceBackedNotes": [
+    {
+      "observation": "~88px cream reserve after mobile menu footer",
+      "source": "menu-premium.css",
+      "basis": "Mobile menu-page padding-bottom reserves88px plus safe-area inset for persistent nonempty-cart clearance. This intent comes from source, separately from screenshot observation."
+    }
+  ],
+  "negativeControlEvidence": "qa/evidence/product-audit-followup-h5-visual-negative-controls-20261018.json",
+  "nextState": "Parent may publish an evidence-only followup with unchanged bound app/capture bytes, then require its own current-head CI. No merge or release conclusion is made here.",
+  "reviewCorrection": {
+    "initialObservation": "The cashier instruction appeared absent in a small120px-tall current hero390 bottom view.",
+    "disposition": "withdrawn-as-viewing-mistake",
+    "correctedObservation": "Exact rawcurrent y880..1000 enlarged3x clearly contains the full instruction, with light glyph pixels aty967..975. Primary reviewer, colleague and root confirmed this enlarged view. Raw source hash did not change.",
+    "rawHero390Sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+    "largerView": {
+      "path": ".artifacts/pr438-head5-ci-visual/inspection-jpg/hero390-current-bottom-large.jpg",
+      "sha256": "2328e1b8c2299bebf5e6bd889e5b928a7ed9f69228bc5df8cfcf5b73f3646662"
+    },
+    "cause": "not-established"
+  },
+  "repeatBaselineMenu390Regions": {
+    "kind": "raw-CI-baseline-attempt1-versus2-pixel-region-diagnostics",
+    "groups": [
+      {
+        "y": [
+          15,
+          26
+        ],
+        "x": [
+          234,
+          245
+        ],
+        "changedPixels": 27,
+        "maxDelta": 10
+      },
+      {
+        "y": [
+          48,
+          59
+        ],
+        "x": [
+          234,
+          244
+        ],
+        "changedPixels": 26,
+        "maxDelta": 10
+      },
+      {
+        "y": [
+          927,
+          928
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 1,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          943,
+          944
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 1,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          973,
+          977
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 2,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          994,
+          995
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 1,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          1014,
+          1021
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 4,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          1048,
+          1062
+        ],
+        "x": [
+          38,
+          352
+        ],
+        "changedPixels": 184,
+        "maxDelta": 31
+      },
+      {
+        "y": [
+          1072,
+          1088
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 4,
+        "maxDelta": 1
+      },
+      {
+        "y": [
+          1101,
+          1113
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 7,
+        "maxDelta": 3
+      },
+      {
+        "y": [
+          1125,
+          1235
+        ],
+        "x": [
+          194,
+          195
+        ],
+        "changedPixels": 65,
+        "maxDelta": 13
+      },
+      {
+        "y": [
+          1255,
+          1606
+        ],
+        "x": [
+          38,
+          352
+        ],
+        "changedPixels": 52734,
+        "maxDelta": 36
+      },
+      {
+        "y": [
+          5102,
+          5113
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 198
+      },
+      {
+        "y": [
+          5903,
+          5914
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 52,
+        "maxDelta": 197
+      },
+      {
+        "y": [
+          6023,
+          6034
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 199
+      },
+      {
+        "y": [
+          6143,
+          6154
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 201
+      },
+      {
+        "y": [
+          6263,
+          6274
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 52,
+        "maxDelta": 198
+      },
+      {
+        "y": [
+          6383,
+          6394
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 200
+      },
+      {
+        "y": [
+          6503,
+          6514
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 199
+      },
+      {
+        "y": [
+          6702,
+          6713
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 200
+      },
+      {
+        "y": [
+          6822,
+          6833
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 200
+      },
+      {
+        "y": [
+          6942,
+          6953
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 199
+      },
+      {
+        "y": [
+          7195,
+          7206
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 194
+      },
+      {
+        "y": [
+          7332,
+          7343
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 194
+      },
+      {
+        "y": [
+          7743,
+          7754
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 194
+      },
+      {
+        "y": [
+          9639,
+          9650
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 205
+      },
+      {
+        "y": [
+          9759,
+          9770
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 205
+      },
+      {
+        "y": [
+          9958,
+          9969
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 201
+      },
+      {
+        "y": [
+          10078,
+          10089
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 206
+      },
+      {
+        "y": [
+          10198,
+          10209
+        ],
+        "x": [
+          101,
+          111
+        ],
+        "changedPixels": 53,
+        "maxDelta": 204
+      }
+    ],
+    "representativeGroups": [
+      0,
+      7,
+      10,
+      11,
+      12,
+      14,
+      15
+    ],
+    "sheet": ".artifacts/pr438-head5-ci-visual/inspection/baseline-menu390-repeat-detail.jpg"
+  },
+  "finalIdentity": {
+    "kind": "final-H5-head-and-app-byte-stability-after-isolated-controls-not-release",
+    "checkedAt": "2026-10-18T18:47:07.637174+00:00",
+    "head": "27806dd15cf2a149a6fde786584f403595045305",
+    "tree": "619b881c4b9f9d7d436f1596fa5b871a3392dde4",
+    "boundFiles": 332,
+    "boundFileProof": "Both unchanged-verifier actual-summary positives verified all332 Git blob bindings; isolated controls also preserve the full342-file union hash map.",
+    "repositoryBoundBytesUnchanged": true,
+    "allowedNewPacketFiles": [
+      "qa/reviewed-visual-changes.d/product-audit-followup-h5-20261018.json",
+      "qa/evidence/product-audit-followup-h5-ci-visual-artifact-20261018.json",
+      "qa/evidence/product-audit-followup-h5-ci-visual-inspection-20261018.json",
+      "qa/evidence/product-audit-followup-h5-visual-negative-controls-20261018.json"
+    ]
+  },
+  "negativeControls": {
+    "passed": true,
+    "cases": 14,
+    "actualPositive": 1,
+    "syntheticNegatives": 13,
+    "bothActualSummaryDirectPositives": 2,
+    "repositoryBoundBytesUnchanged": true,
+    "runner": "scripts/test-product-audit-followup-visual-controls.mjs",
+    "runnerSha256": "2c1c6a766ebfff9600d64a30ef37d228882479d1eb1a8079dc12abb1c1f01246",
+    "evidence": "qa/evidence/product-audit-followup-h5-visual-negative-controls-20261018.json"
+  }
+}
