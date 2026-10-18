@@ -462,7 +462,9 @@ for (const file of choiceSurfaces) {
   const prefix = file.includes("/") ? "../" : "";
   let page = readFileSync(file, "utf8");
   if (["index.html", "menu.html", "discover.html"].includes(file)) {
-    page = page.replace(/\s*<script\b[^>]*\bsrc="seasonal-theme\.js(?:\?[^\"]*)?"[^>]*><\/script>/, "");
+    if (page.includes(`src="${prefix}seasonal-theme.js`)) {
+      throw new Error(`${file}: the shared bootstrap already initializes the season; remove the redundant authored script tag`);
+    }
   } else {
     if (!page.includes(`src="${prefix}seasonal-theme.js`)) {
       page = page.replace("</head>", `  <script src="${prefix}seasonal-theme.js"></script>\n</head>`);
