@@ -57,7 +57,7 @@
           "capture": "menu-preview",
           "viewport": "phone-390",
           "totalPixels": 360360,
-          "maxDiffPixelRatio": 0.020064
+          "maxDiffPixelRatio": 0.020067
         },
         {
           "capture": "visit-map",
@@ -272,7 +272,20 @@
       ],
       "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39078426331",
       "evidenceArtifactId": "12118350548",
-      "evidenceArtifactSha256": "dddbaf5ef498d02c941d24d90aa125bddb89f6259c2fe6cdcc4bad2603f17616"
+      "evidenceArtifactSha256": "dddbaf5ef498d02c941d24d90aa125bddb89f6259c2fe6cdcc4bad2603f17616",
+      "repeatEvidence": {
+        "sourceHead": "242662fc8b98552055d7c415883042f4a4c1e815",
+        "run": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39096463545",
+        "artifactId": "12123859924",
+        "artifactSha256": "ee808a046640273e931ff7ee50e376cfb735d3eb061bbbd069359c1b2c858e5c",
+        "captureSummarySha256": "4cd36b2ee6cfc578d502c5074e0f6de36d127f31d89bdf82b04f3132b08e5480",
+        "observedVariation": "Same16 comparisons/dimensions; phone390 menu-preview changed from7230 to7231 diff pixels out of360360. Comparing the two current captures yields50 raw RGBA pixel differences, all within x10..373/y843..892 around the existing fixed CTA paint. Current capture and diff inspected; no content/layout/control change. Its bound ceiling increases from0.020064 to0.020067, rounded from the newly observed ratio. Global thresholds unchanged.",
+        "captureSha256": {
+          "baseline": "f14e314f8984b2f9260d84a1f613e97aca9d142048dc99fe0ec407ed95252d38",
+          "current": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+          "diff": "914df39f7cc96f0bd30e3aecda27807c5f665ba4a5b79a68e8226ac8083efdb1"
+        }
+      }
     }
   ]
 }

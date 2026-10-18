@@ -1,0 +1,433 @@
+{
+  "generatedAt": "2026-10-18T04:19:23.207Z",
+  "baselineDirectory": "/home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/baseline",
+  "currentDirectory": "/home/runner/work/robys-coffee-house-demo/robys-coffee-house-demo/current",
+  "pixelThreshold": 0.12,
+  "comparisons": 43,
+  "failures": 16,
+  "results": [
+    {
+      "id": "landing-full",
+      "viewport": "phone-320",
+      "file": "landing-full__phone-320.png",
+      "passed": false,
+      "reason": "dimension mismatch 320x6968 vs 320x8007",
+      "diffPixels": 2229760,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-320",
+      "file": "menu-full__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 3729280,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-320",
+      "file": "discover-full__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 947520,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-320",
+      "file": "social-offer__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 86400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-320",
+      "file": "menu-share__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 143080,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-320",
+      "file": "discover-pairing__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 232400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-320",
+      "file": "mobile-cta__phone-320.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 17400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-360-short",
+      "file": "hero__phone-360-short.png",
+      "passed": false,
+      "diffPixels": 30485,
+      "totalPixels": 230400,
+      "diffPixelRatio": 0.13231336805555555,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-360-short",
+      "file": "social-offer__phone-360-short.png",
+      "passed": false,
+      "diffPixels": 3060,
+      "totalPixels": 88560,
+      "diffPixelRatio": 0.034552845528455285,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-360-short",
+      "file": "menu-share__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 158720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-360-short",
+      "file": "discover-pairing__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 257600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-360-short",
+      "file": "mobile-cta__phone-360-short.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 19720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "phone-390",
+      "file": "landing-full__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x7337 vs 390x8349",
+      "diffPixels": 2861430,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "phone-390",
+      "file": "menu-full__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 4449120,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "phone-390",
+      "file": "discover-full__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 1146600,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "hero",
+      "viewport": "phone-390",
+      "file": "hero__phone-390.png",
+      "passed": false,
+      "diffPixels": 32806,
+      "totalPixels": 390000,
+      "diffPixelRatio": 0.08411794871794871,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "phone-390",
+      "file": "menu-preview__phone-390.png",
+      "passed": false,
+      "diffPixels": 7231,
+      "totalPixels": 360360,
+      "diffPixelRatio": 0.020066045066045066,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "phone-390",
+      "file": "visit-map__phone-390.png",
+      "passed": false,
+      "reason": "dimension mismatch 390x1315 vs 390x1316",
+      "diffPixels": 512850,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "social-offer",
+      "viewport": "phone-390",
+      "file": "social-offer__phone-390.png",
+      "passed": false,
+      "diffPixels": 4443,
+      "totalPixels": 95940,
+      "diffPixelRatio": 0.04631019387116948,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "phone-390",
+      "file": "menu-share__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 176750,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "phone-390",
+      "file": "discover-pairing__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 270900,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "mobile-cta",
+      "viewport": "phone-390",
+      "file": "mobile-cta__phone-390.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 21460,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.002
+    },
+    {
+      "id": "landing-full",
+      "viewport": "tablet-768",
+      "file": "landing-full__tablet-768.png",
+      "passed": false,
+      "reason": "dimension mismatch 768x6404 vs 768x7135",
+      "diffPixels": 4918272,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "tablet-768",
+      "file": "menu-full__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 10136832,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "tablet-768",
+      "file": "discover-full__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 2270976,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "social-offer",
+      "viewport": "tablet-768",
+      "file": "social-offer__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 167424,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "tablet-768",
+      "file": "menu-share__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 312312,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "tablet-768",
+      "file": "discover-pairing__tablet-768.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 843752,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "hero",
+      "viewport": "laptop-1366",
+      "file": "hero__laptop-1366.png",
+      "passed": false,
+      "diffPixels": 66677,
+      "totalPixels": 1049088,
+      "diffPixelRatio": 0.06355710865056124,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "laptop-1366",
+      "file": "menu-preview__laptop-1366.png",
+      "passed": false,
+      "diffPixels": 8296,
+      "totalPixels": 978056,
+      "diffPixelRatio": 0.008482131902467752,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "laptop-1366",
+      "file": "visit-map__laptop-1366.png",
+      "passed": false,
+      "reason": "dimension mismatch 1366x908 vs 1366x907",
+      "diffPixels": 1240328,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "social-offer",
+      "viewport": "laptop-1366",
+      "file": "social-offer__laptop-1366.png",
+      "passed": false,
+      "diffPixels": 1828,
+      "totalPixels": 292324,
+      "diffPixelRatio": 0.006253335340238913,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-share",
+      "viewport": "laptop-1366",
+      "file": "menu-share__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 368160,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "laptop-1366",
+      "file": "discover-pairing__laptop-1366.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 803580,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "landing-full",
+      "viewport": "desktop-1440",
+      "file": "landing-full__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x6054 vs 1440x6877",
+      "diffPixels": 8717760,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-full",
+      "viewport": "desktop-1440",
+      "file": "menu-full__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 10890720,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "discover-full",
+      "viewport": "desktop-1440",
+      "file": "discover-full__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 3947040,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.004
+    },
+    {
+      "id": "hero",
+      "viewport": "desktop-1440",
+      "file": "hero__desktop-1440.png",
+      "passed": false,
+      "diffPixels": 69434,
+      "totalPixels": 1584000,
+      "diffPixelRatio": 0.04383459595959596,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "menu-preview",
+      "viewport": "desktop-1440",
+      "file": "menu-preview__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 315,
+      "totalPixels": 1031040,
+      "diffPixelRatio": 0.0003055167597765363,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "visit-map",
+      "viewport": "desktop-1440",
+      "file": "visit-map__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 1815,
+      "totalPixels": 1428480,
+      "diffPixelRatio": 0.001270581317204301,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "social-offer",
+      "viewport": "desktop-1440",
+      "file": "social-offer__desktop-1440.png",
+      "passed": false,
+      "reason": "dimension mismatch 1440x214 vs 1440x215",
+      "diffPixels": 308160,
+      "diffPixelRatio": 1
+    },
+    {
+      "id": "menu-share",
+      "viewport": "desktop-1440",
+      "file": "menu-share__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 375240,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    },
+    {
+      "id": "discover-pairing",
+      "viewport": "desktop-1440",
+      "file": "discover-pairing__desktop-1440.png",
+      "passed": true,
+      "diffPixels": 0,
+      "totalPixels": 802400,
+      "diffPixelRatio": 0,
+      "maxDiffPixelRatio": 0.003
+    }
+  ]
+}

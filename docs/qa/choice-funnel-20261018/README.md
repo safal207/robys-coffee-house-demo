@@ -41,3 +41,9 @@ The active content-bound visual record now uses these actual CI dimensions/ratio
 ## Fallback keyboard test synchronization
 
 The ADV CI run on `317e838` had one failing check out of 91: Escape was sent immediately after reopening a fallback dialog, before its next-frame focus transition. The helper now asserts that focus is inside the dialog before sending modal keyboard input. A 100 ms delayed-frame scenario preserves all Tab/Escape/draft assertions and adds reopening coverage. The [negative control](fallback-focus-control.json) fails when only this synchronization is removed and passes with it. No production runtime bytes changed. Full build/check and 353 security contracts passed after these test and evidence changes.
+
+## CI repeat rasterization boundary
+
+On `242662f`, CI run 39096463545 repeated the same 16 visual comparisons and dimensions. One phone 390 menu-preview difference changed from 7230 to 7231 pixels out of 360360. Comparing its two current images gives 50 raw RGBA changes confined to the fixed-CTA paint region (x10–373, y843–892). Current capture/diff inspection found no control or content change. Artifact 12123859924 matches SHA-256 `ee808a046640273e931ff7ee50e376cfb735d3eb061bbbd069359c1b2c858e5c`.
+
+The exact content-bound ceiling for that capture is rounded from this newly observed ratio (`0.020067`); no global screenshot threshold changed. Evidence and image hashes are appended to the reviewed record and `visual-ci-repeat-summary.json`. Other comparisons retain their previously inspected limits.
