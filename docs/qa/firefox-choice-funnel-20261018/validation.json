@@ -1,0 +1,72 @@
+{
+  "sourceHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "recordedAt": "2026-10-18T08:02:15.416523+00:00",
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "status": "PASS",
+      "originalLogBytes": 43977,
+      "originalLogSha256": "3dfe52505166a89a87b5f4f3592cf34a4ae8f06bb73fa9788db3d3bc1250d12c",
+      "lastLines": [
+        "Fractal causal refactoring valid: 3 patterns, 0 owner-critical fields pending encoded confirmation, publication mode=production.",
+        "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.",
+        "",
+        "> robys-coffee-house@2.0.0 test:causal-refactoring",
+        "> node scripts/test-causal-refactoring.mjs",
+        "",
+        "Fractal causal refactoring tests passed.",
+        "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.",
+        "",
+        "> robys-coffee-house@2.0.0 test:takeaway-entry",
+        "> node --test scripts/test-takeaway-entry.mjs",
+        ""
+      ]
+    },
+    {
+      "command": "npm run verify:security",
+      "exitCode": 0,
+      "status": "PASS",
+      "originalLogBytes": 2337,
+      "originalLogSha256": "0c6dfb09327831932794f87f1ce71b4914c7b21e4410fa57f3baf9abe0670518",
+      "lastLines": [
+        "✔ actual worker installation precaches the new offer and activation retires the previous home cache (1.140559ms)",
+        "ℹ tests 17",
+        "ℹ suites 0",
+        "ℹ pass 17",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 839.03622",
+        "✅ CSP-001 AST contract passed: Trusted Types offline registration, no install pointer dependency and unregister prohibition verified.",
+        "✅ Security contracts passed: 353 checks.",
+        "✅ SECRET-001 passed: no secrets found in the current tree."
+      ]
+    },
+    {
+      "command": "npm run verify:performance",
+      "exitCode": 0,
+      "status": "PASS",
+      "originalLogBytes": 520,
+      "originalLogSha256": "8ad24619d8c16bd1f4cc90c01144a6da9864ba39d2ac30831ba68dbed43fd519",
+      "lastLines": [
+        "    \"size\": 30846",
+        "  },",
+        "  \"totalCssBytes\": 135458,",
+        "  \"totalHtmlBytes\": 43639,",
+        "  \"heroBytes\": 79501,",
+        "  \"posterBytes\": 33321,",
+        "  \"auditedPages\": [",
+        "    \"index.html\",",
+        "    \"menu.html\"",
+        "  ]",
+        "}",
+        "✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected."
+      ]
+    }
+  ],
+  "generatedAndProtectedRuntimeChanges": [],
+  "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+  "ciExecution": "Separate workflow evidence, not claimed by these local reports."
+}

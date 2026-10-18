@@ -1,0 +1,435 @@
+{
+  "browser": "chromium",
+  "sourceHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "startedAt": "2026-10-18T07:58:47.435Z",
+  "playwrightVersion": "1.55.1",
+  "nodeVersion": "v24.19.0",
+  "platform": "linux/x64",
+  "status": "PASS",
+  "runtimeOptions": {
+    "firefoxContentSandboxDisabled": false
+  },
+  "contextOptions": {
+    "reducedMotion": "reduce",
+    "serviceWorkers": "block",
+    "responsiveViewportsOnly": true
+  },
+  "integritySha256": "89fe0529ba51014bb9067b27439d3956b268c44b890acda54c2696a38910d6cb",
+  "testDefinitions": {
+    "scripts/test-choice-funnel-browser.mjs": "980454ba474bce864a0a06f686760cb49c5b7f8a93694552809aa223aed989fe",
+    "scripts/test-menu-custom-pairing-browser.mjs": "e6bd5958eec1ec8321dc9abdb2e4fe5a2dd1ea9679ce3367ec2534280dbec1e7",
+    "scripts/verify-pairing-cta-static.mjs": "742436f2f07c8c3d9e836b45cc2433c13f24ceb28ea76ecff42c7d6c5ed25ad5",
+    "package.json": "19c9064cb52582011fe559115268009d7f69464e456edf437144f8c43c3a315d",
+    "package-lock.json": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+    ".github/workflows/adversarial-browser.yml": "bcae19cb67db164cf31d155fee9fbfb009d7050db9c543ba09b3f08066b6880c"
+  },
+  "checks": [
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "height": 900,
+      "language": "tr",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "height": 900,
+      "language": "en",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "height": 900,
+      "language": "ru",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 1440,
+      "height": 900,
+      "language": "tr",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 1440,
+      "height": 900,
+      "language": "en",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 1440,
+      "height": 900,
+      "language": "ru",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true,
+      "keyboardOnlyOrder": true,
+      "cartIncreaseDecrease": true,
+      "reloadPreserves": true,
+      "restoredOrderReachesQR": true,
+      "lines": [
+        {
+          "id": "desserts:lotus-cheesecake",
+          "quantity": 2
+        },
+        {
+          "id": "hot-coffee:caffe-latte",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "type": "no-JS",
+      "links": 3,
+      "menuFallback": true
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CATALOG-001",
+      "passed": true,
+      "message": "all27 hot drinks are eligible; cold and dessert products remain ordinary"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-PHOTOS-001",
+      "passed": true,
+      "message": "all12 sweet choices use actual catalog photos, names and summed prices"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "tr/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "tr/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "en/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "en/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "ru/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "ru/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-RESET-001",
+      "passed": true,
+      "message": "Escape, reopening, deselection, drink-only addition, Back and reload preserve only committed lines"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-GROUP-EDIT-001",
+      "passed": true,
+      "message": "two drinks sharing one dessert stay separate pairs when edited or removed"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-VARIANT-IDENTITY-001",
+      "passed": true,
+      "message": "flavor is required and distinct flavors remain distinct cart selections"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-LEGACY-FLAVOR-001",
+      "passed": true,
+      "message": "a restored order can choose its missing flavor directly in the cart"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-CATEGORY-SEARCH-001",
+      "passed": true,
+      "message": "category-name searches and Turkish I work across languages"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CAPACITY-001",
+      "passed": true,
+      "message": "hot-coffee:espresso: tighter remaining capacity limits both lines atomically"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CAPACITY-001",
+      "passed": true,
+      "message": "desserts:san-sebastian-cheesecake: tighter remaining capacity limits both lines atomically"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ZERO-CAPACITY-001",
+      "passed": true,
+      "message": "a full dessert line blocks the complete pair without partially adding the drink"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-FALLBACK-FOCUS-001",
+      "passed": true,
+      "message": "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-GEOMETRY-001",
+      "passed": true,
+      "message": "representative long names fit320/390/768/1440 at100/200% text"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-LAZY-FAILURE-001",
+      "passed": true,
+      "message": "blocked optional view reports failure and retains drink-only ordering"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-RETRY-001",
+      "passed": true,
+      "message": "a previously blocked optional module recovers after explicit retry without silently ordering"
+    }
+  ],
+  "browserVersion": "140.0.7339.186",
+  "finalHead": "e391a5070c858ba65bca885ea3937b06e1c72bd4",
+  "completedAt": "2026-10-18T08:00:00.051Z"
+}
