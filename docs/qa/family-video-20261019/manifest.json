@@ -1,0 +1,295 @@
+{
+  "kind": "Actual playback visual evidence",
+  "featureHead": "f8f1c1e9fb0f17386f06ade15e45105cc9f09210",
+  "headEnd": "f8f1c1e9fb0f17386f06ade15e45105cc9f09210",
+  "captureEngine": {
+    "name": "Chromium",
+    "version": "140.0.7339.186"
+  },
+  "viewportScope": "Desktop browser at the named viewport; not physical-device evidence",
+  "page": "Production menu.html?entry=off#menu-combo-family served unchanged over local HTTPS with its original CSP; service worker blocked",
+  "captureState": "Trusted Watch video button click; native video decoded and advanced, video focused and pointer hovered over controls; dialog scrollTop reset to0 before capture",
+  "outcome": {
+    "passed": 3,
+    "failed": 0,
+    "assetsUnchanged": true,
+    "headAndTrackedStateUnchanged": true,
+    "trackedStateStart": "",
+    "trackedStateEnd": ""
+  },
+  "screenshots": [
+    {
+      "id": "chromium-actual-video-320x780-ru",
+      "filename": "chromium-family-video-320x780-ru.png",
+      "sha256": "02a6f45d8212b8718001a5db8fbe025d196f744e2b17488b53e51671a414ac61",
+      "bytes": 132502,
+      "width": 320,
+      "height": 780,
+      "language": "ru",
+      "source": {
+        "currentTime": 0.610597,
+        "paused": false,
+        "ended": false,
+        "readyState": 4,
+        "width": 688,
+        "height": 464,
+        "path": "/src/products/occasion-sets-v1/family-motion-v1.webm"
+      },
+      "playbackAfterCapture": {
+        "currentTime": 0.972732,
+        "paused": false,
+        "ended": false
+      },
+      "geometry": {
+        "pageOverflow": false,
+        "contained": true,
+        "dialogFits": true,
+        "clippedControls": []
+      },
+      "visual": {
+        "viewport": {
+          "width": 320,
+          "height": 780,
+          "devicePixelRatio": 1
+        },
+        "dialogScrollTop": 0,
+        "dialog": {
+          "x": 19,
+          "y": 39,
+          "width": 282,
+          "height": 702,
+          "fullyInViewport": true
+        },
+        "header": {
+          "x": 36,
+          "y": 56,
+          "width": 248,
+          "height": 44,
+          "fullyInViewport": true
+        },
+        "title": {
+          "text": "С детьми 2 + 2",
+          "x": 36,
+          "y": 118,
+          "width": 248,
+          "height": 33.109375,
+          "fullyInViewport": true
+        },
+        "video": {
+          "x": 36,
+          "y": 222.703125,
+          "width": 248,
+          "height": 240,
+          "fullyInViewport": true,
+          "objectFit": "contain",
+          "controls": true
+        },
+        "returnToPhoto": {
+          "text": "Вернуться к фото",
+          "x": 36,
+          "y": 470.703125,
+          "width": 169.5625,
+          "height": 44,
+          "fullyInViewport": true
+        }
+      }
+    },
+    {
+      "id": "chromium-actual-video-390x844-ru",
+      "filename": "chromium-family-video-390x844-ru.png",
+      "sha256": "6ad52f355630f0feac04a0b77b9d7f4d0771aa14ed095aca1d3162aabead4b2c",
+      "bytes": 166069,
+      "width": 390,
+      "height": 844,
+      "language": "ru",
+      "source": {
+        "currentTime": 0.876176,
+        "paused": false,
+        "ended": false,
+        "readyState": 4,
+        "width": 688,
+        "height": 464,
+        "path": "/src/products/occasion-sets-v1/family-motion-v1.webm"
+      },
+      "playbackAfterCapture": {
+        "currentTime": 1.39618,
+        "paused": false,
+        "ended": false
+      },
+      "geometry": {
+        "pageOverflow": false,
+        "contained": true,
+        "dialogFits": true,
+        "clippedControls": []
+      },
+      "visual": {
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "devicePixelRatio": 1
+        },
+        "dialogScrollTop": 0,
+        "dialog": {
+          "x": 19,
+          "y": 42.203125,
+          "width": 352,
+          "height": 759.59375,
+          "fullyInViewport": true
+        },
+        "header": {
+          "x": 40,
+          "y": 63.203125,
+          "width": 310,
+          "height": 44,
+          "fullyInViewport": true
+        },
+        "title": {
+          "text": "С детьми 2 + 2",
+          "x": 40,
+          "y": 125.203125,
+          "width": 310,
+          "height": 33.109375,
+          "fullyInViewport": true
+        },
+        "video": {
+          "x": 40,
+          "y": 207.109375,
+          "width": 310,
+          "height": 292.5,
+          "fullyInViewport": true,
+          "objectFit": "contain",
+          "controls": true
+        },
+        "returnToPhoto": {
+          "text": "Вернуться к фото",
+          "x": 40,
+          "y": 507.609375,
+          "width": 169.5625,
+          "height": 44,
+          "fullyInViewport": true
+        }
+      }
+    },
+    {
+      "id": "chromium-actual-video-1440x1000-ru",
+      "filename": "chromium-family-video-1440x1000-ru.png",
+      "sha256": "7ee9be698946a157e4532983c058cf4e186a1917b5a38cb42e6f10f051447468",
+      "bytes": 639072,
+      "width": 1440,
+      "height": 1000,
+      "language": "ru",
+      "source": {
+        "currentTime": 1.134191,
+        "paused": false,
+        "ended": false,
+        "readyState": 4,
+        "width": 688,
+        "height": 464,
+        "path": "/src/products/occasion-sets-v1/family-motion-v1.webm"
+      },
+      "playbackAfterCapture": {
+        "currentTime": 2.873886,
+        "paused": false,
+        "ended": false
+      },
+      "geometry": {
+        "pageOverflow": false,
+        "contained": true,
+        "dialogFits": true,
+        "clippedControls": []
+      },
+      "visual": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000,
+          "devicePixelRatio": 1
+        },
+        "dialogScrollTop": 0,
+        "dialog": {
+          "x": 390,
+          "y": 50,
+          "width": 660,
+          "height": 900,
+          "fullyInViewport": true
+        },
+        "header": {
+          "x": 419,
+          "y": 79,
+          "width": 602,
+          "height": 44,
+          "fullyInViewport": true
+        },
+        "title": {
+          "text": "С детьми 2 + 2",
+          "x": 419,
+          "y": 141,
+          "width": 602,
+          "height": 46,
+          "fullyInViewport": true
+        },
+        "video": {
+          "x": 419,
+          "y": 235.796875,
+          "width": 602,
+          "height": 380,
+          "fullyInViewport": true,
+          "objectFit": "contain",
+          "controls": true
+        },
+        "returnToPhoto": {
+          "text": "Вернуться к фото",
+          "x": 419,
+          "y": 623.796875,
+          "width": 169.5625,
+          "height": 44,
+          "fullyInViewport": true
+        }
+      }
+    }
+  ],
+  "sourceAndEmittedHashes": {
+    "scripts/test-combo-offer-cards-browser.mjs": "1c76395658b09d41fb23b5e6ea3d07f83b17a3e2aab052b3c5d67047a974e8b0",
+    "sw.js": "93357ce99820b9b50799c78bd7bd4acf42bd61a6c9b80074d47fa9f9102fb671",
+    "menu.html": "bc57a1967dd9a52ad72c7f8a341671bebae01592db913dcbf04b51df8f9ad7b1",
+    "menu-runtime.css": "148eccb2da7bb45c38251d6bbcc03e3d2893a51a0dbfb52db7d5ac3d036c2303",
+    "menu-combos.css": "fba6d6cd65c7c459a852c44455f99baa97be4ab43f344f79e7aa15f001c36d80",
+    "choice-help.css": "6b3dac7b0da1889e7aa669087b8b8041be0056cd552f23c785ab8ae7d33319cd",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/products/occasion-sets-v1/family-motion-v1.mp4": "3619be9b3735d169930c42b373b3d0d92693541db3d0ba626c4799db415253f7",
+    "src/products/occasion-sets-v1/family-motion-v1.webm": "4edaeccbbade3be45362b7590035de468bd950a4e21a8f88825f93bbb94854db",
+    "menu-app.js": "accafdb03f3c4bf403012782a92fc264abc70de6808b6238ba8c193daad99c13",
+    "src/menu-app.js": "ec50c27221a630a9eab971cbefb3b9d87073a220ec61852f0ea2bd3074fe4fac",
+    "menu-combos-ui.js": "1fcd69d7111281c806de9ce0b677ab111775bd6c24358f99464d875a72a12931",
+    "src/menu-combos-ui.js": "7a59b580f29c8500b7471563527c28d5fe7cc4b282c52a3043d0a5f432804c74",
+    "choice-help-entry.js": "9e23e42414476712221223f8da611670c45c3991fdcd8ed32d01f66db8ee69db",
+    "src/choice-help-entry.js": "66b49259f8513ed6eba9887856d052058db1fa84de42563afefaea774f494b6f",
+    "choice-help.js": "5dd77e1aceadd874106d90b0dbe42e0ebe5a1cb400637e8d4f30b5aa240f19f5",
+    "src/choice-help.js": "bf238eeabea789de64e20aa1438f614e403a2da15ef888798d14cc5d2115584e"
+  },
+  "hashesEnd": {
+    "scripts/test-combo-offer-cards-browser.mjs": "1c76395658b09d41fb23b5e6ea3d07f83b17a3e2aab052b3c5d67047a974e8b0",
+    "sw.js": "93357ce99820b9b50799c78bd7bd4acf42bd61a6c9b80074d47fa9f9102fb671",
+    "menu.html": "bc57a1967dd9a52ad72c7f8a341671bebae01592db913dcbf04b51df8f9ad7b1",
+    "menu-runtime.css": "148eccb2da7bb45c38251d6bbcc03e3d2893a51a0dbfb52db7d5ac3d036c2303",
+    "menu-combos.css": "fba6d6cd65c7c459a852c44455f99baa97be4ab43f344f79e7aa15f001c36d80",
+    "choice-help.css": "6b3dac7b0da1889e7aa669087b8b8041be0056cd552f23c785ab8ae7d33319cd",
+    "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+    "src/products/occasion-sets-v1/family-motion-v1.mp4": "3619be9b3735d169930c42b373b3d0d92693541db3d0ba626c4799db415253f7",
+    "src/products/occasion-sets-v1/family-motion-v1.webm": "4edaeccbbade3be45362b7590035de468bd950a4e21a8f88825f93bbb94854db",
+    "menu-app.js": "accafdb03f3c4bf403012782a92fc264abc70de6808b6238ba8c193daad99c13",
+    "src/menu-app.js": "ec50c27221a630a9eab971cbefb3b9d87073a220ec61852f0ea2bd3074fe4fac",
+    "menu-combos-ui.js": "1fcd69d7111281c806de9ce0b677ab111775bd6c24358f99464d875a72a12931",
+    "src/menu-combos-ui.js": "7a59b580f29c8500b7471563527c28d5fe7cc4b282c52a3043d0a5f432804c74",
+    "choice-help-entry.js": "9e23e42414476712221223f8da611670c45c3991fdcd8ed32d01f66db8ee69db",
+    "src/choice-help-entry.js": "66b49259f8513ed6eba9887856d052058db1fa84de42563afefaea774f494b6f",
+    "choice-help.js": "5dd77e1aceadd874106d90b0dbe42e0ebe5a1cb400637e8d4f30b5aa240f19f5",
+    "src/choice-help.js": "bf238eeabea789de64e20aa1438f614e403a2da15ef888798d14cc5d2115584e"
+  },
+  "reproduction": {
+    "script": "../family-video-visual-capture.mjs",
+    "scriptSha256": "1cb4d3e6965aa7b8e97c43d2cc3bc7b09c852225c66f6530e61e32bdeb2e3e43",
+    "command": "ROBYS_QA_TIMEOUT_MS=30000 node .artifacts/family-video-visual-capture.mjs"
+  },
+  "review": "review.md",
+  "fullReport": "report.json"
+}
