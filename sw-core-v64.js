@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-dc9c6051421a-custom-pair-85903940e27f-menu-css-148eccb2da7b-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-90fb35aa1e68-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-0f5bfadf7396-custom-pair-123ef0fff187-menu-css-148eccb2da7b-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -104,6 +104,9 @@ const CORE_ASSETS = [
   "./seasonal.css?v=f2437d09532e",
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
+  "./menu-feed.html",
+  "./menu-feed.js?v=80f4103257fd",
+  "./menu-feed.css?v=96635e26903f",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -141,7 +144,7 @@ const CORE_ASSETS = [
   "./app.js?v=1cd220e6b7d9",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=7ac9fdabcc39",
+  "./menu-app.js?v=664ba2602b53",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",

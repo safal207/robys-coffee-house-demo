@@ -92,6 +92,8 @@ jobs:
         run: node scripts/test-menu-family-browser.mjs
       - name: Editable combos, all views and gentle choice help
         run: node scripts/test-menu-combos-browser.mjs
+      - name: Menu feed selection, shared cart and counter QR
+        run: node scripts/test-menu-feed-browser.mjs
       - name: Contextual offer cards and exact recipe navigation
         run: node scripts/test-combo-offer-cards-browser.mjs
       - name: Quick builder touch position, cancellation and saved selection

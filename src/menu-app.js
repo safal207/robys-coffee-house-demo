@@ -788,6 +788,7 @@ function translateStaticPage() {
   document.title = `${copy.pageTitle} | Roby's Coffee House`;
   const skipLink = document.querySelector(".skip-link[data-localized]");
   if (skipLink) skipLink.textContent = skipLink.dataset[language] ?? skipLink.dataset.tr;
+  document.querySelectorAll("[data-menu-feed]").forEach(link => { link.textContent = link.dataset[language] ?? link.dataset.tr; });
 
   document.querySelectorAll("[data-menu-copy]").forEach((element) => {
     const key = element.dataset.menuCopy;
