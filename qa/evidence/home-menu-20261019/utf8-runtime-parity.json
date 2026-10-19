@@ -1,0 +1,15 @@
+{
+  "kind": "actual-emitted-runtime-and-isolated-ascii-equivalence",
+  "capturedAt": "2026-10-19T10:36:22.478Z",
+  "sourceSha256": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+  "emittedSha256": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+  "isolatedAsciiSha256": "8cf17f91a8b8f336dcb1b82fb6aea0b58001f5704e9fa2b6cf1680311308738e",
+  "decodedAstNodes": 3515,
+  "decodedAstEqual": true,
+  "actualEmittedBytesMatch": true,
+  "utf8Bytes": 24767,
+  "asciiBytes": 35597,
+  "utf8GzipBytes": 9841,
+  "asciiGzipBytes": 10180,
+  "scope": "Same current source and production esbuild options; encoding equivalence, not a browser or transfer-budget result."
+}

@@ -1,0 +1,1223 @@
+{
+  "kind": "standalone-russian-navigation-focus-regression",
+  "observedRepositoryHead": "161215e3f4a4f818700c770090eb8590c72ecd1d",
+  "boundary": "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
+  "securityBoundary": "Standalone RU page contains no CSP meta in either state. Actual document served unchanged over HTTPS; bypassCSP=false, no page/runtime replacement, serviceworkers blocked and externalrequests aborted.",
+  "before": {
+    "reportSha256": "5d8b59d3329f14f5c53b0e86009d5621f063566df8f0a1026f2f91eb2d4e57d6",
+    "assetHashes": {
+      "ru/coffee-gazipasa.html": "be6f28685f30cb33b66746bdd2d34bbdd8c28314d173d5950f65641cf9a56ef2",
+      "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c"
+    },
+    "cases": [
+      {
+        "engine": "chromium",
+        "version": "140.0.7339.186",
+        "width": 390,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 27,
+            "bottom": 63,
+            "left": 345,
+            "right": 381
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": 0,
+                "bottom": 4067.484375,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1431,
+                "bottom": 2636.484375,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0.3125,
+                "width": 390,
+                "height": 1269.6875,
+                "top": 0.3125,
+                "right": 390,
+                "bottom": 1270,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2701,
+                "bottom": 1366.484375,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 1238.484375,
+                "top": 0,
+                "right": 390,
+                "bottom": 1238.484375,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      },
+      {
+        "engine": "chromium",
+        "version": "140.0.7339.186",
+        "width": 900,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 28,
+            "bottom": 72,
+            "left": 786,
+            "right": 830
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": 0,
+                "bottom": 3644.859375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1417,
+                "bottom": 2227.859375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": -0.453125,
+                "width": 900,
+                "height": 1207.03125,
+                "top": -0.453125,
+                "right": 900,
+                "bottom": 1206.578125,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2624,
+                "bottom": 1020.859375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": -0.421875,
+                "width": 900,
+                "height": 889.28125,
+                "top": -0.421875,
+                "right": 900,
+                "bottom": 888.859375,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      },
+      {
+        "engine": "firefox",
+        "version": "141.0",
+        "width": 390,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 27,
+            "bottom": 63,
+            "left": 345,
+            "right": 381
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": 0,
+                "bottom": 4079.833251953125,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1431.36669921875,
+                "bottom": 2648.466552734375,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 1272.8333740234375,
+                "top": 0,
+                "right": 390,
+                "bottom": 1272.8333740234375,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2704.199951171875,
+                "bottom": 1375.63330078125,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 1247.63330078125,
+                "top": 0,
+                "right": 390,
+                "bottom": 1247.63330078125,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      },
+      {
+        "engine": "firefox",
+        "version": "141.0",
+        "width": 900,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 28,
+            "bottom": 72,
+            "left": 786,
+            "right": 830
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": 0,
+                "bottom": 3647.9833984375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1416.550048828125,
+                "bottom": 2231.433349609375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 900,
+                "height": 1210.11669921875,
+                "top": 0,
+                "right": 900,
+                "bottom": 1210.11669921875,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2626,
+                "bottom": 1021.9833984375,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0.6666717529296875,
+                "width": 900,
+                "height": 889.316650390625,
+                "top": 0.6666717529296875,
+                "right": 900,
+                "bottom": 889.9833221435547,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      },
+      {
+        "engine": "webkit",
+        "version": "26.0",
+        "width": 390,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 27,
+            "bottom": 63,
+            "left": 345,
+            "right": 381
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "A",
+              "id": "",
+              "text": "Адрес",
+              "insideClosedNavigation": true,
+              "visible": false,
+              "rect": {
+                "top": 440.5,
+                "bottom": 503.5,
+                "left": 30,
+                "right": 130.71875
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1428,
+                "bottom": 2444,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 1165,
+                "top": 0,
+                "right": 390,
+                "bottom": 1165,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2593,
+                "bottom": 1279,
+                "left": 0,
+                "right": 390
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 390,
+                "height": 1151,
+                "top": 0,
+                "right": 390,
+                "bottom": 1151,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      },
+      {
+        "engine": "webkit",
+        "version": "26.0",
+        "width": 900,
+        "originalCspMetaCount": 0,
+        "openFocus": {
+          "tag": "BUTTON",
+          "id": "",
+          "text": "",
+          "insideClosedNavigation": false,
+          "visible": true,
+          "rect": {
+            "top": 28,
+            "bottom": 72,
+            "left": 786,
+            "right": 830
+          },
+          "hash": "",
+          "expanded": "true"
+        },
+        "actions": [
+          {
+            "action": "Escape from address link",
+            "focus": {
+              "tag": "A",
+              "id": "",
+              "text": "Адрес",
+              "insideClosedNavigation": true,
+              "visible": false,
+              "rect": {
+                "top": 448.5,
+                "bottom": 511.5,
+                "left": 30,
+                "right": 130.71875
+              },
+              "hash": "",
+              "expanded": "false"
+            }
+          },
+          {
+            "action": "Native fragment #location",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -1416,
+                "bottom": 2144,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#location",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 900,
+                "height": 1125,
+                "top": 0,
+                "right": 900,
+                "bottom": 1125,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          },
+          {
+            "action": "Native fragment #faq",
+            "focus": {
+              "tag": "BODY",
+              "id": "",
+              "text": "Перейти к содержанию\n\n  \n    \n      \n        ROBY'SCOFFEE HOUSE\n      \n\n      \n        Меню\n        ",
+              "insideClosedNavigation": false,
+              "visible": true,
+              "rect": {
+                "top": -2541,
+                "bottom": 1019,
+                "left": 0,
+                "right": 900
+              },
+              "hash": "#faq",
+              "expanded": "false"
+            },
+            "target": {
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 900,
+                "height": 887,
+                "top": 0,
+                "right": 900,
+                "bottom": 887,
+                "left": 0
+              },
+              "tabindex": null
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "reportSha256": "a7e13ee9c167e44d3a104bf4cfe072cf1b0da6f29c46454c56299362fcad5d88",
+    "startedAt": "2026-10-19T11:23:11.169Z",
+    "finishedAt": "2026-10-19T11:24:42.833Z",
+    "assetHashesStart": {
+      "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+      "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "ru/coffee-gazipasa.html": "ea53321dc8a24f6ad11e87b9dc872385d3c59e0b64c5589ab0d651e14ded845a",
+      "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+    },
+    "assetHashesEnd": {
+      "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+      "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "ru/coffee-gazipasa.html": "ea53321dc8a24f6ad11e87b9dc872385d3c59e0b64c5589ab0d651e14ded845a",
+      "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+    },
+    "assetsUnchanged": true,
+    "browsers": {
+      "chromium": "140.0.7339.186",
+      "firefox": "141.0",
+      "webkit": "26.0"
+    },
+    "cases": [
+      {
+        "id": "chromium-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0.3125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      },
+      {
+        "id": "chromium-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.453125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.421875,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      },
+      {
+        "id": "firefox-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      },
+      {
+        "id": "firefox-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.3333282470703125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      },
+      {
+        "id": "webkit-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      },
+      {
+        "id": "webkit-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true
+        }
+      }
+    ]
+  },
+  "result": {
+    "beforeObservation": "In Chromium/Firefox, Escape moved activeElement to BODY; in WebKit it retained an invisible navigation anchor. Native fragments produced BODY in all six engine/width cases. These are observed focus facts, not universal device claims.",
+    "afterPassed": 6,
+    "total": 6,
+    "physicalOemDevices": "Not tested"
+  }
+}

@@ -29,11 +29,11 @@ assert.equal(primaryCta.includes("data-i18n="), false);
 // Bind the actual delivery bytes and esbuild input graph, not a second script
 // tag that would initialize the same handlers twice.
 const compiled = buildSync({ entryPoints: ["src/app.ts"], external: ["./choice-help.js*"],
-  bundle: true, minify: true, format: "iife", target: "es2020", legalComments: "none",
+  bundle: true, charset: "utf8", minify: true, format: "iife", target: "es2020", legalComments: "none",
   outfile: "app.js", write: false, metafile: true });
 assert.ok(Object.hasOwn(compiled.metafile.inputs, "analytics.js"), "The shipped app must include the analytics source");
 const app = readFileSync("app.js");
-assert.deepEqual(app, Buffer.from(compiled.outputFiles[0].contents), "The deferred app must match all current bundled inputs");
+assert.ok(app.equals(Buffer.from(compiled.outputFiles[0].contents)), "The deferred app must match all current bundled inputs");
 const revision = createHash("sha256").update(app).digest("hex").slice(0, 12);
 assert.ok(index.includes(`src="app.js?v=${revision}"`));
 assert.doesNotMatch(index, /src="analytics\.js(?:\?|\")/, "Analytics must have exactly one delivery path");

@@ -1,0 +1,465 @@
+{
+  "version": 1,
+  "kind": "actual-H5-content-equivalence",
+  "capturedAt": "2026-10-19T12:18:43.653Z",
+  "integrationHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "integrationTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+  "parents": [
+    "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "585135e07d08bb2680d4893b5bfc5ee89ca286f6"
+  ],
+  "originalRunHeadMarker": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+  "boundary": "Runs began in an uncommitted integration checkout at the older HEAD marker. Every listed captured SHA256 was independently compared with actual immutable H5 git-show bytes and current workingtree; matching the old marker alone is not used as proof.",
+  "allCapturedGroupsMatchH5AndWorkingTree": true,
+  "groupCounts": {
+    "navigation": 10,
+    "kidsSource": 17,
+    "kidsEmittedRuntime": 4,
+    "counter": 33
+  },
+  "uniqueBoundFiles": 62,
+  "contentBindings": {
+    "index.html": {
+      "sha256": "14161b5d591afe803fb91f4946e4c6b3bed9bd62d043acf5183acfd43dda6702",
+      "gitBlob": "c2641d98fbd301e1ff877be98b22bc38a349af50",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "app.js": {
+      "sha256": "696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9",
+      "gitBlob": "2770613edef677fe93284586803d94fe3e311a67",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "styles-v2.css": {
+      "sha256": "26e28dbd28466e5ff81e92b445840bd0923dcb2fb67ccb6dcc01c70031485edd",
+      "gitBlob": "9bd377ed839b982bd65f379366a653bb4d100e76",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "mobile.css": {
+      "sha256": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "gitBlob": "7aed337581ea5cde7585349b950a88d5813a27ca",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "brand-photo-logo.css": {
+      "sha256": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "gitBlob": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "conversion.css": {
+      "sha256": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "gitBlob": "3eace373b7435b2bdf42d13f270126c1dedbf907",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "src/app.ts": {
+      "sha256": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "gitBlob": "8a6280888f09bf06b7af7ba89eb110aadaea891e",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "src/i18n.ts": {
+      "sha256": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "gitBlob": "6ccb1c729de38370872024f0ab2440e0392d379d",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "ru/coffee-gazipasa.html": {
+      "sha256": "7d5ad33f69a5ccbba70cda7f74986eb17fd15d72c58c5a8ef72fafa33d05a3e6",
+      "gitBlob": "a771e36891b67c369624699d064df69a87ec72c3",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "scripts/test-home-navigation-browser.mjs": {
+      "sha256": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a",
+      "gitBlob": "3f7ba60e207707f40e3097973e887a847a6d8cf6",
+      "groups": [
+        "navigation"
+      ]
+    },
+    "scripts/test-menu-family-browser.mjs": {
+      "sha256": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+      "gitBlob": "5d022d6955ca15e2643c17a4696a1a8ba5b26e07",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/menu-app.js": {
+      "sha256": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+      "gitBlob": "2a9ed198f89b775962d3b1d23497db18341212af",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/order-storage.js": {
+      "sha256": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+      "gitBlob": "bcd6d414764bf057d6471ef9191d1e24f171b315",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/order-storage-notice.js": {
+      "sha256": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+      "gitBlob": "100fc3c021b099514bf03c9c3be10303f85fe9a0",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/menu-family-ui.js": {
+      "sha256": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+      "gitBlob": "1d0e733fa4cd2694753c79edd8b3ad5c936e65ec",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/menu-family.js": {
+      "sha256": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+      "gitBlob": "7fdcbf57d375cfefbd2c3cddf6c941d033fd359c",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/kids-menu.js": {
+      "sha256": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+      "gitBlob": "699c900fbf38987a587146638a7845459746289c",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/order-draft.js": {
+      "sha256": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+      "gitBlob": "35c4afebe0f9fffdd01a4c57f41af0e29dc51f66",
+      "groups": [
+        "kidsSource",
+        "counter"
+      ]
+    },
+    "src/menu-order-ui.js": {
+      "sha256": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+      "gitBlob": "996264c17d81062ace4ea4aab5af89198ac67c73",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "menu-family.css": {
+      "sha256": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+      "gitBlob": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "kids-menu.css": {
+      "sha256": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+      "gitBlob": "9e153a159d58ed95a84e94c0c05d5c3007815935",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "menu.html": {
+      "sha256": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+      "gitBlob": "c252822e9bb27cfa3a62ad85d4d67c7094a6c9e8",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "menu-catalog.js": {
+      "sha256": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+      "gitBlob": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
+      "groups": [
+        "kidsSource",
+        "counter"
+      ]
+    },
+    "src/products/family-sets-v1/milk-cookie.webp": {
+      "sha256": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+      "gitBlob": "b4aeb7bfef256089338ec18444b412d9b7704f2a",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/products/family-sets-v1/simit-break.webp": {
+      "sha256": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+      "gitBlob": "45488b7418f9ceb0213e9dc5824666d3a87c241b",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/products/family-sets-v1/milk-roll.webp": {
+      "sha256": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+      "gitBlob": "1a4f184c500e73212050af3c20ab7c251f6db6b4",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "src/products/family-sets-v1/kids-box.webp": {
+      "sha256": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e",
+      "gitBlob": "8e6993ee1ec48f53221109761155759fc78192de",
+      "groups": [
+        "kidsSource"
+      ]
+    },
+    "menu-app.js": {
+      "sha256": "74941e12c4d8c0ba5b2e5878ad5b38bb302b567e98527c6e985b12756008753f",
+      "gitBlob": "4746be47d3db533be90a931c5fda2e5c1b7a62b8",
+      "groups": [
+        "kidsEmittedRuntime"
+      ]
+    },
+    "menu-family-ui.js": {
+      "sha256": "c6e39d14b3d5267ccd62775a925abe44bcad7cf880741ffea8377ec3438c5068",
+      "gitBlob": "4c4cbd2650d0575e885592c375eecf977f53906a",
+      "groups": [
+        "kidsEmittedRuntime"
+      ]
+    },
+    "menu-order-ui.js": {
+      "sha256": "206dca9f16f063a8c25c155dae901eb44e3bd6f4b573d0ea1d72e4abb15906ad",
+      "gitBlob": "417aa5765699fe39b6502ea1432be91641ceea7c",
+      "groups": [
+        "kidsEmittedRuntime"
+      ]
+    },
+    "order-storage.js": {
+      "sha256": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+      "gitBlob": "5adb7bb57a1b841ec1cf576f8fd8945ede4e2cc5",
+      "groups": [
+        "kidsEmittedRuntime"
+      ]
+    },
+    "counter-config.json": {
+      "sha256": "148444b0af539af8b43591255eb04deda910b85f344569beed08d59d068104d5",
+      "gitBlob": "3d5ad7c14a3ec58392adeafcd3117711d8ff35ad",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/CONTRACT.md": {
+      "sha256": "e8a3aedffe04c0f461c68d8c4beabd9810ad321a63fb515d7471198a041d239c",
+      "gitBlob": "bd843c651568482d2b135b7e9a6dcd459971b8e3",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/README.md": {
+      "sha256": "20782303c194fbd6134fb457d4084fac1293747d5cde7b0eabcfd2a3d014a071",
+      "gitBlob": "420273857268c41736bd13789212743f46638768",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/auth.mjs": {
+      "sha256": "fadfeca22fd10de4eb85dd019ff968445416294e395426a44e83f773007790f5",
+      "gitBlob": "256ad422cbf8b0066e6de601044cb6b36d4d24eb",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/provision.mjs": {
+      "sha256": "0358142d8b554177ce3c577b9aae63d6ead86bc40d657fb965cc508c8108f307",
+      "gitBlob": "4bfc99154552d955f9092452fc55504b27851131",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/guest.css": {
+      "sha256": "4a629b7ff6c2859432fea5631599a728944e57cc52f460fd01f7d33f7a8eda2d",
+      "gitBlob": "a7f34167da2b5f913a67bce5a1b7e854344e2c6a",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/guest.html": {
+      "sha256": "fe403c65bf5db73dbe1df773e4d69bee68bb2fab4398d0e7d5d84c9733c6a426",
+      "gitBlob": "16d0c6fc716499e9e9419534fbb596ad489c7a27",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/guest.js": {
+      "sha256": "cc3f127edde00727285d85a260cd84deb6cb8c6bb7821c97b3bc28e3d560e0b9",
+      "gitBlob": "d4cc0038616ab939d397051fd28ec27d37baa7dc",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/staff.css": {
+      "sha256": "0483ea68e5e235a1cf74f14acff19ad1119cc8da07c99f8ca1be2b3338c267dc",
+      "gitBlob": "66c8a538516c1817ba59305911999d2bd32e818b",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/staff.html": {
+      "sha256": "137008def6c90b1547e33613c245657ab42d9b46d8305601a4ce510c286f5f2f",
+      "gitBlob": "13b063f5caa21b814cf9d40f9b7b7e6dce7bdb52",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/public/staff.js": {
+      "sha256": "4c2ddcdb1c66c45147274734e89ab762e4d7b93eaece138db6e3457d543d3327",
+      "gitBlob": "c6b3f2373d9f1e82fe1e674b4b629e5fbe4fb350",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/server.mjs": {
+      "sha256": "3ff25eedcfe380a2c54c615205a3bf74276f0c8877dc6a10baf8a8bc5727ab24",
+      "gitBlob": "281f305efa30757d7096ac69fa6e70ef30efd474",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/src/guest.js": {
+      "sha256": "735df155a2ae08c49be656ac9e14df1370e19851d595e544a5b80ac71029b390",
+      "gitBlob": "f52de9ffa51417b6f410a6c4e4ce0cd85a4ae771",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/src/staff-model.mjs": {
+      "sha256": "27d16947ff189bf61be53104f9f053e7189dee5fa1dd4a91054b6c92881a4c4e",
+      "gitBlob": "631c3b50ca97c55a38d3e324ec48d010bcd598eb",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/src/staff.js": {
+      "sha256": "68ac8bd2b56a08891a3c2deafefe34d7e807ffac6663284ace58bc5578da42cc",
+      "gitBlob": "966d1671b9c733b61f96450597145226b9848a21",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/store.mjs": {
+      "sha256": "56fbf383b98a3cec127ed2fbd76b0bbcfbdd0b0808b3316d952e2e59a22358ab",
+      "gitBlob": "a6915b0583fac02ce1bea1bbf54f9c59d11d38b1",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/checkout-handoff.test.mjs": {
+      "sha256": "ce6121ba5fbdfa6793d0631e60436b479a207e47955ddf5b532cb8491ec19337",
+      "gitBlob": "c75d225985473fe710d7aa1a8d51d0ca4ce4df87",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/guest.test.mjs": {
+      "sha256": "6d17c5b881e6adf0f3146b050c6e12a02999f2cd3712d5d7820ad34e815906e5",
+      "gitBlob": "d9ac784c22a64c50c09e6fdf8960f58bc0390da6",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/server.test.mjs": {
+      "sha256": "1832ce02a390f7926e7d668406ca060003ffc5c04ec3c1cbf959d3b0b9fa93a7",
+      "gitBlob": "604ffeee0bf0c1e3a27c74ff855b4b871c88652a",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/staff-model.test.mjs": {
+      "sha256": "208ac106e593758b2e88465174a9db0b9b8220c2607170705b5deb93ea394076",
+      "gitBlob": "e5cafb764658d7840049055776b9a94d3dfae527",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/staff-runtime.test.mjs": {
+      "sha256": "a1dea134c3b98e4c30dd49dd35a48cdc24a741742ee6e360505a3c1407628989",
+      "gitBlob": "98a70fc47b98c7159ce6afa56074a0d5b76cf2a8",
+      "groups": [
+        "counter"
+      ]
+    },
+    "counter/test/static-cache.test.mjs": {
+      "sha256": "cc95591504d62cc731a5b5e32b5a48a316fc72a7813fe290e55e1359d2986c13",
+      "gitBlob": "b1ec8c5a8a5cba1dbd2395b93f884ed90e0dc205",
+      "groups": [
+        "counter"
+      ]
+    },
+    "integrity-manifest.json": {
+      "sha256": "f0c9c0c1c256d2a8e96fd31fc6152f81128c6b5cd224d048cf6da143d4dd2910",
+      "gitBlob": "94134dc57d743cc60c27bb8677a8edb9cee8be08",
+      "groups": [
+        "counter"
+      ]
+    },
+    "package-lock.json": {
+      "sha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+      "gitBlob": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+      "groups": [
+        "counter"
+      ]
+    },
+    "package.json": {
+      "sha256": "93d0910f28a179b4659df1aa261c9dcb2077b52e6f4a53f48550c89d8ae250f9",
+      "gitBlob": "8f8b5115273f8d1b9444edede645333b9cea3ec6",
+      "groups": [
+        "counter"
+      ]
+    },
+    "scripts/build-counter.mjs": {
+      "sha256": "3c8b936ad975b92e1cdf174835e825efa9ed7be9c473293e424a00a711599fde",
+      "gitBlob": "ac6594a4cfdbd865db7125749a02476f222f73f3",
+      "groups": [
+        "counter"
+      ]
+    },
+    "src/counter-checkout.js": {
+      "sha256": "d6a9c2c12ef2f2057a3073c3c2c57aa5c7d20144d61c82f2e3bf04188543b347",
+      "gitBlob": "848d82d53ccb2d5ce66176a490bd661b9e9f2d79",
+      "groups": [
+        "counter"
+      ]
+    },
+    "src/order-checkout.js": {
+      "sha256": "4fb1a7bcca862bf2682e1b346def504a0d16f4e8b1f193bb48652825cca7bbec",
+      "gitBlob": "53635c51b55b7d3e9eb0be49d92b0b2904b7e69c",
+      "groups": [
+        "counter"
+      ]
+    },
+    "src/order-ticket-storage.js": {
+      "sha256": "d250c14a6719be3296742043d5c48539f4a9ac9ed2ac6f260be698b2b7991b62",
+      "gitBlob": "0f3c9c56106693dda49dc2e92125aedb1c1e1bac",
+      "groups": [
+        "counter"
+      ]
+    },
+    "src/order-ticket.js": {
+      "sha256": "87f4ddcd69ee9fd97451c3cff19e0587379378de9eabab2610ceec92596fb2d3",
+      "gitBlob": "4e9c6613bd355ef83245be5cdeddbf81c488ceec",
+      "groups": [
+        "counter"
+      ]
+    },
+    "sw-core-v64.js": {
+      "sha256": "354fe3cd7867e8e1eb8610fb9ccda6e612ffdc4b6c9a4eb92a63a66007f4251e",
+      "gitBlob": "9f0ef5b3ea9a68ced06a273c36a1bfc5b51fd290",
+      "groups": [
+        "counter"
+      ]
+    }
+  },
+  "explicitRuntimeIdentity": {
+    "home": "app.js SHA256 was measured unchanged at both ends of the42case run and the exactcase retry, and equals actual H5 bytes.",
+    "kids": "The four separately compiled source-fixture modules were byte-equal to emitted runtime according to source-runtime-parity.json; each captured emitted SHA256 equals actual H5 bytes.",
+    "counter": "All33 guarded counter/source/config files were equal before/after npm run test:counter and match actual H5 bytes."
+  },
+  "limits": "This binds only captured listed files. It does not turn local checks into committed-head CI or verify unmeasured product/browser states."
+}

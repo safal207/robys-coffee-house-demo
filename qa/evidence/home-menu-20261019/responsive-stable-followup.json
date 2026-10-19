@@ -1,0 +1,179 @@
+{
+  "startedAt": "2026-10-19T11:09:16.359Z",
+  "head": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+  "mode": "Unchanged emitted files over local HTTPS; desktop engines and CSS-pixel viewports; not physical phones or native browser zoom",
+  "baseline": false,
+  "environment": {
+    "bypassCSP": false,
+    "externalRequests": "blocked",
+    "serviceWorkers": "blocked",
+    "reducedMotion": "reduce"
+  },
+  "matrix": {
+    "engines": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "languages": [
+      "ru"
+    ],
+    "widths": [
+      1121
+    ],
+    "textWidths": [
+      981
+    ],
+    "textScale": "200% root font size (32px); CSS text enlargement, not browser zoom"
+  },
+  "screenshotPolicy": "Every failed case plus successful RU cases at 320, 1121 and 1440 CSS pixels, including 200% text",
+  "sourceHashesStart": {
+    "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+    "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "4ef1398382fa84b08229c48eb8f269e19bb3ecc71d5452457df59c397ff09a03",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "browserVersions": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0",
+    "webkit": "26.0"
+  },
+  "sourceHashesEnd": {
+    "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+    "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "4ef1398382fa84b08229c48eb8f269e19bb3ecc71d5452457df59c397ff09a03",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "sourceChangedDuringRun": [],
+  "completedAt": "2026-10-19T11:10:11.454Z",
+  "summary": {
+    "passed": 6,
+    "failed": 0
+  },
+  "captureKind": "Local working-tree follow-up; HEAD is base revision, source hashes identify tested bytes",
+  "rawReportSha256": "90f96206e057efdc4ad197f9bad6b671950fcb39e60ef99a6756101bd3d321c3",
+  "cases": [
+    {
+      "id": "chromium-1121-ru",
+      "engine": "chromium",
+      "width": 1121,
+      "height": 900,
+      "language": "ru",
+      "textScale": 1,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 1121,
+        "viewportWidth": 1121,
+        "rootFontSize": "16px",
+        "violations": [],
+        "cards": 6
+      }
+    },
+    {
+      "id": "chromium-981-ru-text200",
+      "engine": "chromium",
+      "width": 981,
+      "height": 900,
+      "language": "ru",
+      "textScale": 2,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 981,
+        "viewportWidth": 981,
+        "rootFontSize": "32px",
+        "violations": [],
+        "cards": 6
+      }
+    },
+    {
+      "id": "firefox-1121-ru",
+      "engine": "firefox",
+      "width": 1121,
+      "height": 900,
+      "language": "ru",
+      "textScale": 1,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 1121,
+        "viewportWidth": 1121,
+        "rootFontSize": "16px",
+        "violations": [],
+        "cards": 6
+      }
+    },
+    {
+      "id": "firefox-981-ru-text200",
+      "engine": "firefox",
+      "width": 981,
+      "height": 900,
+      "language": "ru",
+      "textScale": 2,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 981,
+        "viewportWidth": 981,
+        "rootFontSize": "32px",
+        "violations": [],
+        "cards": 6
+      }
+    },
+    {
+      "id": "webkit-1121-ru",
+      "engine": "webkit",
+      "width": 1121,
+      "height": 900,
+      "language": "ru",
+      "textScale": 1,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 1121,
+        "viewportWidth": 1121,
+        "rootFontSize": "16px",
+        "violations": [],
+        "cards": 6
+      }
+    },
+    {
+      "id": "webkit-981-ru-text200",
+      "engine": "webkit",
+      "width": 981,
+      "height": 900,
+      "language": "ru",
+      "textScale": 2,
+      "status": "PASS",
+      "errors": [],
+      "geometrySummary": {
+        "documentWidth": 981,
+        "viewportWidth": 981,
+        "rootFontSize": "32px",
+        "violations": [],
+        "cards": 6
+      }
+    }
+  ]
+}

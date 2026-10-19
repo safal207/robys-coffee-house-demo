@@ -46,7 +46,7 @@ origin = `https://127.0.0.1:${server.address().port}`;
 const report = {
   startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   mode: "Desktop browser engines in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
-  sourceHashes: Object.fromEntries(["scripts/test-menu-family-browser.mjs", "src/menu-app.js", "src/order-storage.js", "src/order-storage-notice.js", "src/menu-family-ui.js", "src/menu-family.js", "src/order-draft.js", "src/menu-order-ui.js", "menu-family.css", "menu.html", "menu-catalog.js",
+  sourceHashes: Object.fromEntries(["scripts/test-menu-family-browser.mjs", "src/menu-app.js", "src/order-storage.js", "src/order-storage-notice.js", "src/menu-family-ui.js", "src/menu-family.js", "src/kids-menu.js", "src/order-draft.js", "src/menu-order-ui.js", "menu-family.css", "kids-menu.css", "menu.html", "menu-catalog.js",
     "src/products/family-sets-v1/milk-cookie.webp", "src/products/family-sets-v1/simit-break.webp", "src/products/family-sets-v1/milk-roll.webp",
     "src/products/family-sets-v1/kids-box.webp"]
     .map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")])), cases: []
@@ -81,15 +81,15 @@ async function run(id, callback, { width = 390, height = 844, javaScriptEnabled 
   } finally { await context.close(); persist(); }
 }
 
-async function openMenu(page, language = "ru", { fallback = false, deepLink = false, reveal = true } = {}) {
+async function openMenu(page, language = "ru", { fallback = false, deepLink = false, kidsDeepLink = false, reveal = true } = {}) {
   await page.addInitScript(({ language, fallback }) => {
     localStorage.setItem("robys-language", language);
     if (fallback) HTMLDialogElement.prototype.showModal = undefined;
   }, { language, fallback });
-  await page.goto(`${origin}/menu.html${deepLink ? "#menu-family" : ""}`);
+  await page.goto(`${origin}/menu.html${kidsDeepLink ? "#kids-menu" : deepLink ? "#menu-family" : ""}`);
   await page.locator('#menu-root[data-ready="true"]').waitFor();
   if (reveal) {
-    if (!deepLink) await page.locator("#menu-family-trigger").click();
+    if (!deepLink && !kidsDeepLink) await page.locator("#menu-family-trigger").click();
     await page.locator(".menu-family-card").first().waitFor();
   }
 }
@@ -295,6 +295,117 @@ try {
     assert.match(await page.locator("#menu-cart-dialog-total").textContent(), /230 ₺/);
     await clearCart(page, third);
     return { recipes: 3, completedSelections: 3, cancelPreservedDraft: true, separateComponentRemoval: true, focusRestored: true };
+  });
+
+  for (const language of ["tr", "en", "ru"]) for (const combo of [
+    { id: "kids-mini", total: 160, items: ["brew-hot:milk", "desserts:cookie"],
+      names: { tr: "Mini Kombo", en: "Mini Combo", ru: "Мини-комбо" } },
+    { id: "kids-big", total: 330, items: ["brew-hot:milk", "food:three-cheese-croissant", "desserts:cookie"],
+      names: { tr: "Büyük Kombo", en: "Big Combo", ru: "Большое комбо" } }
+  ]) await run(`ready-${combo.id}-${language}`, async page => {
+    let release;
+    const gate = new Promise(resolve => { release = resolve; });
+    await page.route("**/menu-order-ui.js*", async route => { await gate; await route.continue(); });
+    const number = value => Number(value.replace(/[^\d]/g, ""));
+    const quantities = draft => Object.fromEntries(draft.lines.map(item => [item.id, item.quantity]));
+    const expectedPrices = { "brew-hot:milk": 60, "desserts:cookie": 100, "food:three-cheese-croissant": 170 };
+    try {
+      await openMenu(page, language, { kidsDeepLink: true });
+      assert.equal(new URL(page.url()).hash, "#kids-menu");
+      assert.equal(await page.locator("#menu-family").isVisible(), true, "The native kids deep link reveals its containing section");
+      assert.equal(await page.locator(".menu-family-card").count(), 3, "Ready sets retain all three separately editable ideas");
+      const section = page.locator("#kids-menu");
+      assert.equal(await section.locator(".kids-menu-title").textContent(),
+        { tr: "Çocuk Menüsü", en: "Kids' Menu", ru: "Детское меню" }[language]);
+      assert.equal(await section.locator("[data-kids-combo]").count(), 2);
+      const card = section.locator(`[data-kids-combo="${combo.id}"]`);
+      assert.equal(await card.locator("h3").textContent(), combo.names[language]);
+      const add = card.locator(".kids-combo-add");
+      assert.equal(await add.textContent(), `${{ tr: "Ekle", en: "Add", ru: "Добавить" }[language]} ${combo.names[language]} · ${await card.locator(".kids-combo-total").textContent()}`);
+      assert.equal(number(await card.locator(".kids-combo-total").textContent()), combo.total);
+      const names = [];
+      for (const id of combo.items) {
+        const catalog = page.locator(`#menu-root [data-product-id="${id}"]`);
+        assert.equal(number(await catalog.locator(".full-menu-price").textContent()), expectedPrices[id], "Set components use ordinary catalog prices");
+        names.push(await catalog.locator(".full-menu-item-copy > strong").textContent());
+      }
+      assert.deepEqual(await card.locator("figcaption > span").allTextContents(), names,
+        "Every localized component name matches its ordinary catalog entry");
+      assert.deepEqual((await card.locator("figcaption > strong").allTextContents()).map(number), combo.items.map(id => expectedPrices[id]));
+      assert.equal(await card.evaluate(node => node.scrollWidth <= node.clientWidth + 1), true);
+      const before = await canonicalDraft(page, { seedMilk: true });
+      assert.deepEqual(before.lines, [{ id: "brew-hot:milk", quantity: 2 }]);
+      await Promise.all([
+        page.waitForRequest(request => new URL(request.url()).pathname === "/menu-order-ui.js"),
+        add.click()
+      ]);
+      assert.equal(await add.isDisabled(), true, "The real add button exposes its pending lazy load");
+      assert.equal(await add.getAttribute("aria-busy"), "true");
+      assert.equal(await page.locator("#menu-cart-dialog[open]").count(), 0);
+      // Native activation of a disabled button cannot start a second save. The
+      // actual production module is only delayed, never replaced or patched.
+      await add.evaluate(button => button.click());
+      assert.deepEqual(await canonicalDraft(page), before, "No partial set is persisted while its ordering UI is loading");
+      release();
+      const cart = page.locator("#menu-cart-dialog[open]");
+      await cart.waitFor();
+      await page.waitForFunction(id => {
+        const button = document.querySelector(`[data-kids-combo="${id}"] .kids-combo-add`);
+        return button && !button.disabled && !button.hasAttribute("aria-busy");
+      }, combo.id);
+      const added = await canonicalDraft(page);
+      assert.equal(added.groups.length, 2, "A single Add creates one ready-set group beside the existing order");
+      const group = added.groups.find(entry => entry.items.length === combo.items.length);
+      assert.ok(group);
+      assert.equal(group.quantity, 1, "Repeated activation during loading cannot double-add the set");
+      assert.deepEqual(group.items, combo.items.map(id => ({ id, quantity: 1 })));
+      assert.deepEqual(quantities(added), Object.fromEntries(combo.items.map(id => [id, id === "brew-hot:milk" ? 3 : 1])));
+      assert.equal(await page.locator("#menu-cart-count").textContent(), "3", "Badge counts two existing servings and one set");
+      assert.equal(number(await cart.locator("#menu-cart-dialog-total").textContent()), combo.total + 120);
+      const setLine = () => cart.locator(".menu-cart-line").filter({ hasText: combo.names[language] });
+      assert.equal(await setLine().count(), 1);
+      assert.equal(number(await setLine().locator(".menu-cart-line-total").textContent()), combo.total);
+      for (const name of names) assert.ok((await setLine().getAttribute("aria-label")).includes(name));
+      await setLine().locator(".menu-cart-step").nth(1).click();
+      await page.waitForFunction(({ groupId }) => JSON.parse(localStorage.getItem("robys-menu-order.v2")).groups.find(group => group.id === groupId)?.quantity === 2, { groupId: group.id });
+      await page.waitForFunction(expected => Number(document.querySelector("#menu-cart-dialog-total").textContent.replace(/[^\d]/g, "")) === expected, combo.total * 2 + 120);
+      assert.equal(number(await cart.locator("#menu-cart-dialog-total").textContent()), combo.total * 2 + 120);
+      await setLine().locator(".menu-cart-step").first().click();
+      await page.waitForFunction(({ groupId }) => JSON.parse(localStorage.getItem("robys-menu-order.v2")).groups.find(group => group.id === groupId)?.quantity === 1, { groupId: group.id });
+      await page.waitForFunction(expected => Number(document.querySelector("#menu-cart-dialog-total").textContent.replace(/[^\d]/g, "")) === expected, combo.total + 120);
+      assert.deepEqual(await canonicalDraft(page), added, "Quantity +/- restores the precise group and preserves the existing order");
+      await setLine().locator(".menu-cart-replace").click();
+      const cookieIndex = combo.items.indexOf("desserts:cookie");
+      await cart.locator("#menu-replacement-component").selectOption(String(cookieIndex));
+      await cart.locator("#menu-replacement-product").selectOption("food:sesame-simit");
+      assert.deepEqual(await canonicalDraft(page), added, "Editing a component is a preview until explicitly saved");
+      await cart.locator(".menu-cart-replacement-actions > button").first().click();
+      await cart.locator(".menu-cart-replacement").waitFor({ state: "detached" });
+      const edited = await canonicalDraft(page);
+      const expectedItems = combo.items.map(id => ({ id: id === "desserts:cookie" ? "food:sesame-simit" : id, quantity: 1 }));
+      const editedGroup = edited.groups.find(entry => entry.items.some(item => item.id === "food:sesame-simit"));
+      assert.ok(editedGroup, "Saved replacement contains the chosen ordinary catalog product");
+      assert.equal(edited.groups.length, 2, "Replacing contents does not add another group");
+      assert.deepEqual(editedGroup.items, expectedItems);
+      assert.equal(editedGroup.quantity, 1);
+      assert.equal(number(await cart.locator("#menu-cart-dialog-total").textContent()), combo.total - 100 + 35 + 120);
+      const simitName = await page.locator('#menu-root [data-product-id="food:sesame-simit"] .full-menu-item-copy > strong').textContent();
+      assert.equal(number(await page.locator('#menu-root [data-product-id="food:sesame-simit"] .full-menu-price').textContent()), 35);
+      const editedLine = cart.locator(".menu-cart-line").filter({ hasText: simitName });
+      assert.equal(await editedLine.count(), 1);
+      assert.ok(!(await editedLine.getAttribute("aria-label")).includes(combo.names[language]), "Modified contents no longer retain the exact ready-set name");
+      await editedLine.locator(".menu-cart-remove").click();
+      await page.waitForFunction(() => document.querySelectorAll("#menu-cart-dialog .menu-cart-line").length === 1);
+      assert.deepEqual(await canonicalDraft(page), before, "Removing the edited set preserves the unrelated existing order exactly");
+      assert.equal(number(await cart.locator("#menu-cart-dialog-total").textContent()), 120);
+      await page.keyboard.press("Escape");
+      assert.equal(await add.evaluate(button => document.activeElement === button), true, "Cart dismissal restores the original ready-set button");
+      assert.equal(await section.locator(".kids-menu-status").textContent(), "");
+      return { language, combo: combo.id, deepLink: "#kids-menu", canonicalItems: combo.items, catalogTotal: combo.total,
+        busyStateVisible: true, oneNativeAdd: true, duplicatePendingActivationIgnored: true,
+        quantityIncreaseAndDecrease: true, componentReplacementSaved: true, editedSetRemoved: true,
+        existingMilkQuantity: 2, existingOrderPreserved: true, focusRestored: true };
+    } finally { release(); }
   });
 
   for (const width of [320, 390, 1440]) await run(`layout-${width}`, async page => {

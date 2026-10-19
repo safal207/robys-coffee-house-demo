@@ -1,0 +1,97 @@
+{
+  "kind": "observed-skip-link-baseline",
+  "provenance": "Transcribed from the actual local Chromium probe captured before the skip-link transform repair. This is recorded historical observation, not a rerun against current repaired CSS.",
+  "captureTime": "Exact wall-clock time was not recorded; captured in this task before the skip-link transform repair.",
+  "browser": "Chromium 140.0.7339.186",
+  "environment": {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "language": "ru",
+    "rootFontPixels": 32,
+    "boundary": "Local HTTPS, emitted page, original CSP, 200% root-font enlargement; not native browser zoom or a physical device"
+  },
+  "source": {
+    "headBeforeFollowup": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+    "stylesheet": "styles-v2.css",
+    "stylesheetSha256": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "relevantAuthoredDeclarations": ".skip-link{position:fixed;top:-100px;left:16px;...} .skip-link:focus{top:16px}"
+  },
+  "unfocused": {
+    "focused": false,
+    "rect": {
+      "x": 16,
+      "y": -100,
+      "width": 304,
+      "height": 122.375,
+      "top": -100,
+      "right": 320,
+      "bottom": 22.375,
+      "left": 16
+    },
+    "computedTop": "-100px",
+    "transform": "none",
+    "textRects": [
+      {
+        "x": 30,
+        "y": -84,
+        "width": 173.484375,
+        "height": 38,
+        "top": -84,
+        "right": 203.484375,
+        "bottom": -46,
+        "left": 30
+      },
+      {
+        "x": 30,
+        "y": -32.8125,
+        "width": 216.390625,
+        "height": 38,
+        "top": -32.8125,
+        "right": 246.390625,
+        "bottom": 5.1875,
+        "left": 30
+      }
+    ]
+  },
+  "afterNaturalFirstTab": {
+    "focused": true,
+    "rect": {
+      "x": 16,
+      "y": 16,
+      "width": 304,
+      "height": 122.375,
+      "top": 16,
+      "right": 320,
+      "bottom": 138.375,
+      "left": 16
+    },
+    "computedTop": "16px",
+    "transform": "none",
+    "textRects": [
+      {
+        "x": 30,
+        "y": 32,
+        "width": 173.484375,
+        "height": 38,
+        "top": 32,
+        "right": 203.484375,
+        "bottom": 70,
+        "left": 30
+      },
+      {
+        "x": 30,
+        "y": 83.1875,
+        "width": 216.390625,
+        "height": 38,
+        "top": 83.1875,
+        "right": 246.390625,
+        "bottom": 121.1875,
+        "left": 30
+      }
+    ]
+  },
+  "finding": "An unfocused skip link painted a 22.375px strip into the viewport because its enlarged wrapped height exceeded the fixed 100px hiding offset.",
+  "limits": "Single browser, language and enlarged viewport observation; no independent human approval or broader accessibility conformance claim."
+}

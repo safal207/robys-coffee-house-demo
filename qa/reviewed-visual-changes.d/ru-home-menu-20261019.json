@@ -1,0 +1,1423 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "ru-home-menu-20261019-resize-followup",
+      "reviewKind": "assistant-historical-pair-inspection-with-provisional-focus-repair-input-binding-not-human-attestation",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/446",
+      "baselineHead": "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+      "evidenceKind": "github-actions-locked-toolchain-fresh-new-baseline-captures",
+      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39247387929",
+      "evidenceArtifactId": "12183882541",
+      "evidenceArtifactSha256": "733bc1740e1f3defebc66a5574fb0bd28851a22b39d59bd0dee69616660eeb22",
+      "captureSummarySha256": "9a161fb9437c50de9ec2e9366ae61c097497b278d7d347011f04f3bb604b127d",
+      "summary": "The six visual difference pairs described below were inspected on H5 and corroborated by H6 CI. Their historical source heads/run/digests stay explicit. After the resize-focus repair, this entry provisionally binds the exact locally tested candidate blobs. The incomplete local differential does NOT establish source equivalence:34pairs,31byte-identical,3differing capture states, then a30000ms screenshot timeout. Those three differences are NOT accepted by this record. Fresh current-head CI must produce a complete43-cell comparison within the unchanged exact six-cell map, and the actual current PNG pairs must be inspected before merge. Any new/excess cell remains blocking. Inspected all six failing comparisons from the actual fresh H5/new-main-base artifact, including all portions of both full landings and exact category, social and visit pairs. Category icons shrink from 78px to 54px and the text track gains space; all six labels, descriptions, arrows and destinations remain. The desktop menu section and full landing become exactly 53px shorter; following sections retain complete content and controls. At tablet width the category icons shrink while the one-column card sizes and page height remain unchanged. The desktop social and laptop visit captures retain their copy, line breaks, links and buttons, with small paint/alignment differences; no content collision or clipping was observed in these pairs. Both fresh attempts and final have identical failure rows and metrics. Only the six exact dimensions/pixel totals and observed ratios below are covered, bound to all 457 public files and 338 additional tracked build/source/counter/workflow inputs. Global thresholds, capture scenarios, security policy and privileges are unchanged. This is assistant inspection, not an independent human attestation. Original H5 visual failure is retained; this record requires a fresh current-head CI run.",
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7217 vs 1440x7164"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "totalPixels": 5844480,
+          "maxDiffPixelRatio": 0.005140748193166886
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x716 vs 1440x663"
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1366x716 vs 1366x663"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "desktop-1440",
+          "totalPixels": 308160,
+          "maxDiffPixelRatio": 0.005143431983385255
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "totalPixels": 1237596,
+          "maxDiffPixelRatio": 0.010182644417079565
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "file": "landing-full__desktop-1440.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/landing-full__desktop-1440.png",
+                "sha256": "cd1bc0ef0a2d83c45b90be3fa0b921dd5d05c914f889b433b289d1edab2b75a7",
+                "bytes": 5288156,
+                "dimensions": [
+                  1440,
+                  7217
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/landing-full__desktop-1440.png",
+                "sha256": "cb21dfc77678b8249d9a2490be923c26766ea1e3b3656f624c5a5275c2db314b",
+                "bytes": 5220734,
+                "dimensions": [
+                  1440,
+                  7164
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/landing-full__desktop-1440.png",
+                "sha256": "cd1bc0ef0a2d83c45b90be3fa0b921dd5d05c914f889b433b289d1edab2b75a7",
+                "bytes": 5288156,
+                "dimensions": [
+                  1440,
+                  7217
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/landing-full__desktop-1440.png",
+                "sha256": "cb21dfc77678b8249d9a2490be923c26766ea1e3b3656f624c5a5275c2db314b",
+                "bytes": 5220734,
+                "dimensions": [
+                  1440,
+                  7164
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/landing-full__desktop-1440.png",
+                "sha256": "cd1bc0ef0a2d83c45b90be3fa0b921dd5d05c914f889b433b289d1edab2b75a7",
+                "bytes": 5288156,
+                "dimensions": [
+                  1440,
+                  7217
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/landing-full__desktop-1440.png",
+                "sha256": "cb21dfc77678b8249d9a2490be923c26766ea1e3b3656f624c5a5275c2db314b",
+                "bytes": 5220734,
+                "dimensions": [
+                  1440,
+                  7164
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "file": "landing-full__tablet-768.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/landing-full__tablet-768.png",
+                "sha256": "985fba7c3719ccc0af5e63c3d47d6210ce760e84aba175f34b92b5aa7b241ecc",
+                "bytes": 3224671,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/landing-full__tablet-768.png",
+                "sha256": "f70f6d23f0a19eefab4ffeb22d7e74f85255a4a8a00b005f07be605afc627f96",
+                "bytes": 3199596,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-1/diff/landing-full__tablet-768.png",
+                "sha256": "14195b0d946a9e6fc1b2054fcdc35901e4e279798af093bd396036ba3ce53367",
+                "bytes": 3208977,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/landing-full__tablet-768.png",
+                "sha256": "985fba7c3719ccc0af5e63c3d47d6210ce760e84aba175f34b92b5aa7b241ecc",
+                "bytes": 3224671,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/landing-full__tablet-768.png",
+                "sha256": "f70f6d23f0a19eefab4ffeb22d7e74f85255a4a8a00b005f07be605afc627f96",
+                "bytes": 3199596,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-2/diff/landing-full__tablet-768.png",
+                "sha256": "14195b0d946a9e6fc1b2054fcdc35901e4e279798af093bd396036ba3ce53367",
+                "bytes": 3208977,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/landing-full__tablet-768.png",
+                "sha256": "985fba7c3719ccc0af5e63c3d47d6210ce760e84aba175f34b92b5aa7b241ecc",
+                "bytes": 3224671,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/landing-full__tablet-768.png",
+                "sha256": "f70f6d23f0a19eefab4ffeb22d7e74f85255a4a8a00b005f07be605afc627f96",
+                "bytes": 3199596,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              },
+              "diff": {
+                "artifactPath": "final/diff/landing-full__tablet-768.png",
+                "sha256": "14195b0d946a9e6fc1b2054fcdc35901e4e279798af093bd396036ba3ce53367",
+                "bytes": 3208977,
+                "dimensions": [
+                  768,
+                  7610
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "desktop-1440",
+          "file": "menu-preview__desktop-1440.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/menu-preview__desktop-1440.png",
+                "sha256": "cda16f0aa2e152a39bfc7c647c77b1d3cf313fc6c9f3846a4d63075c722d4a45",
+                "bytes": 424378,
+                "dimensions": [
+                  1440,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/menu-preview__desktop-1440.png",
+                "sha256": "e81b56bf2cfa64a6e45e3d5c7c5a35975c7316209077b9c663f4821ece36e55f",
+                "bytes": 382344,
+                "dimensions": [
+                  1440,
+                  663
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/menu-preview__desktop-1440.png",
+                "sha256": "cda16f0aa2e152a39bfc7c647c77b1d3cf313fc6c9f3846a4d63075c722d4a45",
+                "bytes": 424378,
+                "dimensions": [
+                  1440,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/menu-preview__desktop-1440.png",
+                "sha256": "e81b56bf2cfa64a6e45e3d5c7c5a35975c7316209077b9c663f4821ece36e55f",
+                "bytes": 382344,
+                "dimensions": [
+                  1440,
+                  663
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/menu-preview__desktop-1440.png",
+                "sha256": "cda16f0aa2e152a39bfc7c647c77b1d3cf313fc6c9f3846a4d63075c722d4a45",
+                "bytes": 424378,
+                "dimensions": [
+                  1440,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/menu-preview__desktop-1440.png",
+                "sha256": "e81b56bf2cfa64a6e45e3d5c7c5a35975c7316209077b9c663f4821ece36e55f",
+                "bytes": 382344,
+                "dimensions": [
+                  1440,
+                  663
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "menu-preview",
+          "viewport": "laptop-1366",
+          "file": "menu-preview__laptop-1366.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/menu-preview__laptop-1366.png",
+                "sha256": "2db3baf3276aaa7a31de7cc7b1fab9aa984e10449844f878b39f2d704d9a5f1b",
+                "bytes": 399092,
+                "dimensions": [
+                  1366,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/menu-preview__laptop-1366.png",
+                "sha256": "a5923d32a30fac47294d10fc179fb271a4163a654989859951bbeea01a5da526",
+                "bytes": 371040,
+                "dimensions": [
+                  1366,
+                  663
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/menu-preview__laptop-1366.png",
+                "sha256": "2db3baf3276aaa7a31de7cc7b1fab9aa984e10449844f878b39f2d704d9a5f1b",
+                "bytes": 399092,
+                "dimensions": [
+                  1366,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/menu-preview__laptop-1366.png",
+                "sha256": "a5923d32a30fac47294d10fc179fb271a4163a654989859951bbeea01a5da526",
+                "bytes": 371040,
+                "dimensions": [
+                  1366,
+                  663
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/menu-preview__laptop-1366.png",
+                "sha256": "2db3baf3276aaa7a31de7cc7b1fab9aa984e10449844f878b39f2d704d9a5f1b",
+                "bytes": 399092,
+                "dimensions": [
+                  1366,
+                  716
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/menu-preview__laptop-1366.png",
+                "sha256": "a5923d32a30fac47294d10fc179fb271a4163a654989859951bbeea01a5da526",
+                "bytes": 371040,
+                "dimensions": [
+                  1366,
+                  663
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "desktop-1440",
+          "file": "social-offer__desktop-1440.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/social-offer__desktop-1440.png",
+                "sha256": "c1fee6f7a0e1070dc06ec5d58554991fe17cdf085da60f472f3a9dc4ae7c1353",
+                "bytes": 141655,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/social-offer__desktop-1440.png",
+                "sha256": "5bcbb81bc332cc939c60ce2de32fa6cb6899ec9a188b4b077afeca04e4683229",
+                "bytes": 138134,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-1/diff/social-offer__desktop-1440.png",
+                "sha256": "d060bf0392d3ab43eafeb8846e86b988e0e08fe1b3f5d5b232ce084a75aefba8",
+                "bytes": 150375,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/social-offer__desktop-1440.png",
+                "sha256": "c1fee6f7a0e1070dc06ec5d58554991fe17cdf085da60f472f3a9dc4ae7c1353",
+                "bytes": 141655,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/social-offer__desktop-1440.png",
+                "sha256": "5bcbb81bc332cc939c60ce2de32fa6cb6899ec9a188b4b077afeca04e4683229",
+                "bytes": 138134,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-2/diff/social-offer__desktop-1440.png",
+                "sha256": "d060bf0392d3ab43eafeb8846e86b988e0e08fe1b3f5d5b232ce084a75aefba8",
+                "bytes": 150375,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/social-offer__desktop-1440.png",
+                "sha256": "c1fee6f7a0e1070dc06ec5d58554991fe17cdf085da60f472f3a9dc4ae7c1353",
+                "bytes": 141655,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/social-offer__desktop-1440.png",
+                "sha256": "5bcbb81bc332cc939c60ce2de32fa6cb6899ec9a188b4b077afeca04e4683229",
+                "bytes": 138134,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              },
+              "diff": {
+                "artifactPath": "final/diff/social-offer__desktop-1440.png",
+                "sha256": "d060bf0392d3ab43eafeb8846e86b988e0e08fe1b3f5d5b232ce084a75aefba8",
+                "bytes": 150375,
+                "dimensions": [
+                  1440,
+                  214
+                ]
+              }
+            }
+          }
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "file": "visit-map__laptop-1366.png",
+          "rawAttempts": {
+            "screenshot-attempt-1": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-1/baseline/visit-map__laptop-1366.png",
+                "sha256": "4f0aa08fdadd5a9a9f84da2b6d0c1748b65c4f25c304970e20fd7352a95c2fbe",
+                "bytes": 458034,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-1/current/visit-map__laptop-1366.png",
+                "sha256": "a3739f96ccd6a8ea0ed64e608f84e5d46b1b277aba18ac197f65d2999c2b382b",
+                "bytes": 463172,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-1/diff/visit-map__laptop-1366.png",
+                "sha256": "8b84908d249d8e143622da4e2e08962bbb095ac67fd2ded8fe1b90a3ac0f42f7",
+                "bytes": 508698,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              }
+            },
+            "screenshot-attempt-2": {
+              "baseline": {
+                "artifactPath": "screenshot-attempt-2/baseline/visit-map__laptop-1366.png",
+                "sha256": "4f0aa08fdadd5a9a9f84da2b6d0c1748b65c4f25c304970e20fd7352a95c2fbe",
+                "bytes": 458034,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "current": {
+                "artifactPath": "screenshot-attempt-2/current/visit-map__laptop-1366.png",
+                "sha256": "a3739f96ccd6a8ea0ed64e608f84e5d46b1b277aba18ac197f65d2999c2b382b",
+                "bytes": 463172,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "diff": {
+                "artifactPath": "screenshot-attempt-2/diff/visit-map__laptop-1366.png",
+                "sha256": "8b84908d249d8e143622da4e2e08962bbb095ac67fd2ded8fe1b90a3ac0f42f7",
+                "bytes": 508698,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              }
+            },
+            "final": {
+              "baseline": {
+                "artifactPath": "final/baseline/visit-map__laptop-1366.png",
+                "sha256": "4f0aa08fdadd5a9a9f84da2b6d0c1748b65c4f25c304970e20fd7352a95c2fbe",
+                "bytes": 458034,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "current": {
+                "artifactPath": "final/current/visit-map__laptop-1366.png",
+                "sha256": "a3739f96ccd6a8ea0ed64e608f84e5d46b1b277aba18ac197f65d2999c2b382b",
+                "bytes": 463172,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              },
+              "diff": {
+                "artifactPath": "final/diff/visit-map__laptop-1366.png",
+                "sha256": "8b84908d249d8e143622da4e2e08962bbb095ac67fd2ded8fe1b90a3ac0f42f7",
+                "bytes": 508698,
+                "dimensions": [
+                  1366,
+                  906
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "contentBindings": {
+        ".gitattributes": "01ab4d3d221989959cf258190bafc87b08277843",
+        ".github/workflows/adversarial-browser.yml": "0b95be57e90f51a6c8ba726247d92e3b1d9e0d35",
+        ".github/workflows/asset-compatibility.yml": "540dbd220ed24a57d32fce22489a3c00f8e98199",
+        ".github/workflows/brand-candidate.yml": "b192f2f2d5a6fd9039de8aa5638e7d70868d9d04",
+        ".github/workflows/browser-image-canary.yml": "90853cb220c7d869a5a8c1d8aa9959c73bf4fdf8",
+        ".github/workflows/build-product-images.yml": "83d839b3cc0d080552bd2907e9122514c6de2cb6",
+        ".github/workflows/codeql.yml": "cd33a12a882cd4a2d4f75f1f1f77062ddf4cd68b",
+        ".github/workflows/contextual-entry-certification.yml": "3869209b1306471f32218eddab6d96dd76c99d3e",
+        ".github/workflows/counter-service.yml": "1a388a6d1675962ebc8289fbeef44614017bc7dd",
+        ".github/workflows/deepseek-review-contract.yml": "b398f008a7f9dba45650b08e2f41fb5e59effd60",
+        ".github/workflows/deepseek-review.yml": "952139e22ff9b23ef20f619fce58ce57c34c1023",
+        ".github/workflows/dependency-build-edges.yml": "01b6281d732a17d9a9df69e773612d5a66893df7",
+        ".github/workflows/discover-deck-consolidated.yml": "343af41e3e0325b8d7fb47a6921f8bbf73add8fa",
+        ".github/workflows/docker-browser-lab-smoke.yml": "b29b6d1508d4fb9086399036ea48a8ce5d002b92",
+        ".github/workflows/export-community-video.yml": "9e03a9e9dfe84b5eba3f15a07131975e2496fe3d",
+        ".github/workflows/gallery-mobile.yml": "b2f5bc90c64c8bdb966157d7b4e5bfc2bdf8932a",
+        ".github/workflows/human-approval-contract.yml": "de3c1772ce548d9deb9c3c8a914cb691ccf45ae6",
+        ".github/workflows/ios-route-webkit.yml": "1eb8e7b2ce23735e4e602f3b129b44b9618bfee3",
+        ".github/workflows/lighthouse-audit.yml": "ee4c827d497e313998d2b237dd90c0f7aa2ee0dd",
+        ".github/workflows/lighthouse-build-smoke.yml": "1b15611b189b8324beb919150f49849454494f66",
+        ".github/workflows/lighthouse-ci.yml": "611dc99c1b37e2afda9ec69b53e589366c82c8a2",
+        ".github/workflows/lighthouse-live.yml": "3c5bd9baa529e9b48a759342fb4bb5b0ca0ec4bd",
+        ".github/workflows/lighthouse-profile.yml": "dc47649027158fc25619344c8ac22bdf4f301e02",
+        ".github/workflows/liminalqa-decision.yml": "ae3722563806a4c02aff0a9b96fc834f0cca1c4b",
+        ".github/workflows/live-integrity.yml": "93821b408dcc8ae85d403636395da98d09b57616",
+        ".github/workflows/live-smoke-contract.yml": "898b566bb6af68db9ff124401dddd9bb38ebe448",
+        ".github/workflows/live-smoke.yml": "f73016cfb404a1ac6a9185b0fb45e6dfce8a87f1",
+        ".github/workflows/menu-product-reveal.yml": "af6a0bdfd51e21cfacf0230e16000a89a7ec3da3",
+        ".github/workflows/menu-scroll-clearance.yml": "cbeb7cb8784aaabef2792f86ca8e4bc4c00b4b42",
+        ".github/workflows/menu-to-visit-causal-profile.yml": "b9729f6cf7b7b963007f7f08c3273405d484b1d2",
+        ".github/workflows/motion-release-certification.yml": "c6d1d522d49a4dafb6d2dd1bd589bed9d01d8968",
+        ".github/workflows/order-reliability.yml": "e6b3b66b96da7a20e287d01af0249636cbae7252",
+        ".github/workflows/premium-depth-certification.yml": "f6468380fa745b62e97e76deb213e367648a5565",
+        ".github/workflows/premium-feedback-contract.yml": "338b1b4e355ea26e3a01b32d16b5907b74d41612",
+        ".github/workflows/premium-ui-regression.yml": "5e38dd505660644a89c00263a8ad63e7529f75ab",
+        ".github/workflows/provider-neutral-review-contract.yml": "d6ce93401a7347aa9cdbfda2bc67611376fd499f",
+        ".github/workflows/refresh-integrity.yml": "e2a008a7ed4e8aac4eadb4b0e32f618d00d8a2b8",
+        ".github/workflows/review-ledger.yml": "13e561a79a7b154b7480e5f2a7a93b957c14b404",
+        ".github/workflows/review-route-preflight.yml": "eec50a4d372e834c4b4ef26fa47ca1f6805ad490",
+        ".github/workflows/reviewdog.yml": "feb279aeb38410aa6b39ca0ffebf5ac55d3a41db",
+        ".github/workflows/robys-logo-fidelity.yml": "e8ae66964a503abed2c04584a39e02ebe7233c6c",
+        ".github/workflows/security.yml": "7dd1ed51308f75dfd852bfd5d94b93f9a26b843d",
+        ".github/workflows/seo-case.yml": "e671e23c0948db76961582ca9b087e73bf1afa6d",
+        ".github/workflows/takeaway-cadence.yml": "7b77fae4d96b23eae3f97aa54a7779352bd3fa6a",
+        ".github/workflows/taste-journey-posters.yml": "4e2209644c29d23cc0064ae153c854d20916590d",
+        ".github/workflows/traceability.yml": "a4f5386aaf6e22c75caa8609925fd4625da97ad1",
+        ".github/workflows/typescript-build.yml": "9b1043699f584abb0c3f3ec332896ae8403de3ca",
+        ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
+        ".github/workflows/zap-baseline.yml": "2038acdd3378d92326897faf0cd72a4cf6b1f064",
+        "404.html": "5be4ea1b3624924525ab1d2064fe437c437f49de",
+        "AGENTS.md": "c48aea446a584ca878c02bf015b994520223e938",
+        "analytics.js": "9ad1eff5f0fb31d2a53e9f259e2ca8f5acee8842",
+        "app.js": "af6b15b2ebadf96bac81aa2f19a2adf52184958f",
+        "bootstrap-v2.js": "2d1469db6b610a77a6c2039f23fd2b3d7eb78c03",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "cashier.html": "9f21a128831a26bb0c4bf2c9bdc5605af29dc643",
+        "cashier.js": "c13ce80b20bdcdce8a5c7c4af47fd01dd306256c",
+        "choice-help-entry.js": "fcb11cb5c5e01b5afb366e760d290094da1a02e2",
+        "choice-help.css": "bfc2465e647aa669bfc4647de38246787819c015",
+        "choice-help.js": "5308f528f92256f1897d458d3c45a251ba0cc51e",
+        "coffee-paths.css": "b0f8c63642e425ef2dfb59dbd3e1eff1f7b301c9",
+        "combo-entry.css": "2a8c20ef27557d456aac0c19832a2b0cc40ebb0a",
+        "community-reel-v2.css": "e67437b719c14082712c1863b2c5deb106462326",
+        "community-reel.css": "e67437b719c14082712c1863b2c5deb106462326",
+        "conversion.css": "3eace373b7435b2bdf42d13f270126c1dedbf907",
+        "conversion.js": "203a94ff2b042ec85e1ad93399f42fb722ff5fc5",
+        "counter-config.json": "3d5ad7c14a3ec58392adeafcd3117711d8ff35ad",
+        "counter/CONTRACT.md": "bd843c651568482d2b135b7e9a6dcd459971b8e3",
+        "counter/README.md": "420273857268c41736bd13789212743f46638768",
+        "counter/auth.mjs": "256ad422cbf8b0066e6de601044cb6b36d4d24eb",
+        "counter/provision.mjs": "4bfc99154552d955f9092452fc55504b27851131",
+        "counter/public/guest.css": "a7f34167da2b5f913a67bce5a1b7e854344e2c6a",
+        "counter/public/guest.html": "16d0c6fc716499e9e9419534fbb596ad489c7a27",
+        "counter/public/guest.js": "d4cc0038616ab939d397051fd28ec27d37baa7dc",
+        "counter/public/staff.css": "66c8a538516c1817ba59305911999d2bd32e818b",
+        "counter/public/staff.html": "13b063f5caa21b814cf9d40f9b7b7e6dce7bdb52",
+        "counter/public/staff.js": "c6b3f2373d9f1e82fe1e674b4b629e5fbe4fb350",
+        "counter/server.mjs": "281f305efa30757d7096ac69fa6e70ef30efd474",
+        "counter/src/guest.js": "f52de9ffa51417b6f410a6c4e4ce0cd85a4ae771",
+        "counter/src/staff-model.mjs": "631c3b50ca97c55a38d3e324ec48d010bcd598eb",
+        "counter/src/staff.js": "966d1671b9c733b61f96450597145226b9848a21",
+        "counter/store.mjs": "a6915b0583fac02ce1bea1bbf54f9c59d11d38b1",
+        "counter/test/checkout-handoff.test.mjs": "c75d225985473fe710d7aa1a8d51d0ca4ce4df87",
+        "counter/test/guest.test.mjs": "d9ac784c22a64c50c09e6fdf8960f58bc0390da6",
+        "counter/test/server.test.mjs": "604ffeee0bf0c1e3a27c74ff855b4b871c88652a",
+        "counter/test/staff-model.test.mjs": "e5cafb764658d7840049055776b9a94d3dfae527",
+        "counter/test/staff-runtime.test.mjs": "98a70fc47b98c7159ce6afa56074a0d5b76cf2a8",
+        "counter/test/static-cache.test.mjs": "b1ec8c5a8a5cba1dbd2395b93f884ed90e0dc205",
+        "data/featured-products.json": "c660938ae08cafe456123b8dcc91e705f9738aed",
+        "day-night-entry.js": "ebfb9f3ec789bd4b122d94546dd035d1da3632c7",
+        "discover-copy.js": "c9b0db56c867a1f2e51eb3b8cefbec7bef6ab27e",
+        "discover-deck.css": "4758606da09b1070ddd8bfc822509eb2b4cb0818",
+        "discover-deck.js": "9915a50413dc9d650bb72abbd4791b29e4da0510",
+        "discover-journeys-v2.js": "1fd7e32ba8e75b23f64d8bfc5d7cb21d3e75c3cf",
+        "discover-journeys.js": "976c598e61b89b2794cdc2be8f23d8a8319264cc",
+        "discover-rotation-v2.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-rotation-v3.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-rotation.css": "df96f55c7d03fa339dfb2f3e749abe621f16f361",
+        "discover-rotation.js": "b19f5d0e50d7393c9a9b6b0e81678c38692526ba",
+        "discover-v2.js": "3a7238264ed34656b2b0d41a97e0a63290872c39",
+        "discover-weather-guard.js": "8a0986af569743ee356ea936cc327e0d2fbc677d",
+        "discover.css": "ac03708c1d95e1dfd4df4f2b3aff4df21934390d",
+        "discover.html": "71849609f008c9caf81d23befe1894bb1611fa2d",
+        "discover.js": "8b977c7da2cd977ba0cff41a27a21bc2156c069d",
+        "experience/brand-fidelity.css": "28874a97e7a9aff0ac4c30d400c00c57d69d0e9b",
+        "experience/cinematic-environments.css": "16f60963b327ce365d2b73d48ed3b39332c5169a",
+        "experience/environments/energy.svg": "1639a2b5c824b5b00b5f01c55cdd759d0ad06258",
+        "experience/environments/finale.svg": "9edb305b7421b0f4cb4351f12940e36c7292cc98",
+        "experience/environments/moment.svg": "ebf34a1d1434355d472eaeffc86a1c825357cf44",
+        "experience/environments/move.svg": "934dc134f7c185ae027aafe1c05f0f807b882d0c",
+        "experience/environments/origin.svg": "34958dc06263e691fc748a4d0f9730d5b9bc949c",
+        "experience/environments/pair.svg": "e18bc16c4633507a4230877f62a787a9dff8fc7b",
+        "experience/experience-pwa.js": "d736388cb4d78435e278229ae5321eced61a79de",
+        "experience/experience-state.css": "487566c21248541667ca8ab73fa99f66e681538e",
+        "experience/experience.css": "1a89ef21f47c0d936a0d34ecd52885c36cbd93ce",
+        "experience/experience.js": "9b23b47f89a3de66a4a67f192750b66c27b2e82d",
+        "experience/index.html": "cf5810609076bed1464307bdfadbd3f0b47d8c54",
+        "featured-gallery.css": "2f73520206ca458cfbdfde529e1e923724706f46",
+        "featured-gallery.js": "8a609758a8e90d40f31ba1ba5be04fb36372ccc0",
+        "featured-strip.css": "833f9bfec5642070712345caa089fd2439dd2a81",
+        "final-qa-v2.css": "68be65202d440734d92e6299c7fb17906384a327",
+        "final-qa.css": "68be65202d440734d92e6299c7fb17906384a327",
+        "gallery-clean.css": "7dcc1a17d57fb1d106656f9eacf81e7c63035fe8",
+        "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
+        "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
+        "index.html": "8299a4320c615aaef283711f3a416eb639c19df6",
+        "integrity-manifest.json": "ccd0ada9ccc8eb620332b4b03037f140a1f3c3ae",
+        "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
+        "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
+        "menu-app.js": "4746be47d3db533be90a931c5fda2e5c1b7a62b8",
+        "menu-catalog.js": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
+        "menu-combos-ui.js": "24704040e8858c6dd26ed47d38213a3e66ab0b13",
+        "menu-combos.css": "9a343e792ea9584e4188e7f0ae171e75d4975fd4",
+        "menu-family-ui.js": "4c4cbd2650d0575e885592c375eecf977f53906a",
+        "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
+        "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
+        "menu-order-ui.js": "417aa5765699fe39b6502ea1432be91641ceea7c",
+        "menu-pairing.js": "0b5466374699a34e235dfcb6b4cc216de987d2c6",
+        "menu-premium.css": "b61f66a351647f8e452c156161001abdc791f432",
+        "menu-preview.css": "a3be30ea907fcf61c7bce59e5ec28450232b5436",
+        "menu-product-reveal-runtime.js": "870a8d3263b4f462b7c8e3827d758a3d026cdd6c",
+        "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+        "menu-product-reveal.js": "4c7ab586cdfcfd66a832aa5e3120873c0e41189e",
+        "menu-pwa.js": "1415bd00f34c3c2fe2d52007da28b2a74b036627",
+        "menu-ready.js": "07d7bdef30e9742a2eb3038ff4cea425fe67295d",
+        "menu-runtime.css": "5f6ea24d21fee18581fb871cc70e3f7295670b5c",
+        "menu-search-clear.js": "b6ada733cd40c68ee74d2eb37b53efbda1afac9a",
+        "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
+        "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
+        "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
+        "menu.html": "c252822e9bb27cfa3a62ad85d4d67c7094a6c9e8",
+        "mobile.css": "7aed337581ea5cde7585349b950a88d5813a27ca",
+        "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
+        "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
+        "order-checkout.css": "e785fde8b4760b74c6d4c0fc1203e4bbbf160d03",
+        "order-checkout.js": "06e5fcdfb55a661edf7079f5a2b265d5021dae29",
+        "order-storage.js": "5adb7bb57a1b841ec1cf576f8fd8945ede4e2cc5",
+        "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+        "package.json": "8f8b5115273f8d1b9444edede645333b9cea3ec6",
+        "pairing-posters.css": "4b27164c15f2f28b6773cda0b15db720ff60e467",
+        "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+        "pairing-preview.css": "be0768a2cbc2e34f21627f359b8522bb59a36c9d",
+        "pwa-pairing-fix.js": "a138644bfb34cd531f1f3706115a08516726df60",
+        "pwa.js": "a138644bfb34cd531f1f3706115a08516726df60",
+        "qa.js": "49f618033371682c8f80d31f8a9a70fc3517e105",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "refresh.html": "54b746a5436e17831faa10b773d890752afe5854",
+        "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
+        "ru/coffee-gazipasa.html": "41b01c3efa355b83918aadcb97c7f69c7dbf6732",
+        "scripts/.community-video/part.021": "963a1976a616d94ada61410e37ea6bc9e2d0fb6f",
+        "scripts/.community-video/part.03": "9e468a108f4e6892ae84085e368f92ff9f3309cb",
+        "scripts/.community-video/part.04": "41d175fd054cc8654545271b2bbc1585e078dab5",
+        "scripts/.community-video/part.050": "dd5f425e7d84c62c80b47561c8a40864560d98ab",
+        "scripts/.community-video/part.051": "d3f99dd985a556b10482c7759eed6ac1e8a10bdf",
+        "scripts/.community-video/part.060": "53cb3f3b3be2df04b64554a759d17b499c9ede2d",
+        "scripts/.community-video/part.060a": "8b3cb11c43f81db39a2588728c4fd1b8d1031dd3",
+        "scripts/.community-video/part.060b": "668d1d748332b0c2a450a32fb2ac31e47ce5d684",
+        "scripts/.community-video/part.070": "32c1d10b0746b0ccfed1fd470b568aaa0b5dd369",
+        "scripts/.community-video/part.071": "b6b85c73f8294b47709e83cbd3bbe7e99e76be3e",
+        "scripts/adversarial-browser.mjs": "c5397e149259846703776e62c1d0c25d4ab10dd0",
+        "scripts/audit-dependencies.mjs": "b0c940f16df6a9d46d15807acb7186b98675c9d9",
+        "scripts/build-counter.mjs": "ac6594a4cfdbd865db7125749a02476f222f73f3",
+        "scripts/build-liminalqa-signals.mjs": "bb00f04cca98e0598a5ca68f684e37358eb1032a",
+        "scripts/build-manual-regression-report.mjs": "f95d47b820c7b63c04ee50138fde05221023aa4a",
+        "scripts/build-menu-thumbnails.mjs": "534bbc6afc1d077a547dbcf14a15132164b96ecd",
+        "scripts/build-responsive-gallery.sh": "ff63c6f0db16c389a8abdb18fc8972b4659a2dd1",
+        "scripts/build-smart-choice-revenue-simulator.mjs": "12926fd9552591a09ec3468b42fb5ebbe4e9f2fd",
+        "scripts/build.mjs": "c9cc2feb3193ea49ed5738695ecd081af379d79e",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "scripts/causal-refactoring-lib.mjs": "231f52a308c34fec4d51edd8fe03fb814df2b9e1",
+        "scripts/codex-setup.sh": "3d80290c4e10b7eadd0e536bbdc80f30f82f4b9d",
+        "scripts/compare-lighthouse.mjs": "33df27e1189ebdb9c491091bc815087432a92747",
+        "scripts/contextual-entry-smoke.mjs": "25db7aca1a5ecc3b0ecb85ce77b752b19478ed47",
+        "scripts/contextual-routing-smoke.mjs": "48c80b5b1cb833a1d172c91c27d5bceec88aa8f3",
+        "scripts/contextual-sw-offline-smoke.mjs": "7e3c6639dfcdbde01a96d7586c59387db803263f",
+        "scripts/deepseek-infer-strict.py": "50e65581c0944446a0f020b3692a4bd19a96bf94",
+        "scripts/deepseek-review.py": "60db563654cec03c1ea1da82f1c73b95b7a17043",
+        "scripts/evaluate-review-depth.mjs": "398ede1579fa1ae43aefc14c2de9e3c0714d1afd",
+        "scripts/fetch-review-threads.py": "e19ac5d4a2c7f07ae5098115cc0035c7ed5c79e3",
+        "scripts/generate-integrity-manifest.mjs": "7839946f4493e3f9992ad17a40b18737224f48e3",
+        "scripts/lighthouse-comment.mjs": "5ea5df9708dc31b5fc0aa86a86d7d6803ae4745b",
+        "scripts/live-smoke-deadlines.mjs": "ed8ae780022c15c2ec338f1bed74672ddfa3d31b",
+        "scripts/live-smoke.mjs": "c6efb03557234ae24bcc2906b578788224a86883",
+        "scripts/menu-catalog-revision.mjs": "a9e39b7fe1a6c7bfab7d95a03a504c0f5d5b26d4",
+        "scripts/menu-runtime-source.mjs": "d2098014faab819d37f024980c623b616ee96d09",
+        "scripts/menu-scroll-clearance.mjs": "33aae3dc831ecb50945f95eebfff40f05e4911d4",
+        "scripts/menu-scroll-regression.mjs": "64caf5e3ea38a65344f1f41c7f8e9a918cf862e6",
+        "scripts/menu-stability-cache-proof.mjs": "8938affe76bdf67742fa7d82af0f8153357f4fb6",
+        "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
+        "scripts/menu-to-visit-fcr/causal-refactoring-core.mjs": "7cede70e527252f225ab5a3f3c10b12d6f6c3bc5",
+        "scripts/menu-to-visit-fcr/causal-refactoring-evidence.mjs": "aab7e703b3a43a87b464ec2171fecc1526d6082c",
+        "scripts/menu-to-visit-fcr/causal-refactoring-structure.mjs": "c4aab0b45b3bb30037080f29b93b2e19a8c370a2",
+        "scripts/menu-to-visit-fcr/json-schema-contract.mjs": "98a8551eebff3632afa5dfe18ded77e7fb49832c",
+        "scripts/menu-to-visit-fcr/test-causal-refactoring.mjs": "835befa801b79116e7f9d4d44a42177601973a1a",
+        "scripts/menu-to-visit-fcr/verify-causal-refactoring.mjs": "a43b50d17c2be8a33c67ae2f068457da06b5ed6f",
+        "scripts/morning-entry-smoke.mjs": "c016d87c509c9417cdee022fce7c7966e39c036e",
+        "scripts/motion-release-certification.mjs": "80bda0b404a2163de62bbef6ed45e1707e43dbf8",
+        "scripts/premium-depth-smoke.mjs": "8824caf91714cac22b65a6b1eed9572459fc794d",
+        "scripts/premium-feedback-regression.mjs": "44bc352a19497dacaa87feee1694cfe2a74408ab",
+        "scripts/premium-ui-regression.mjs": "13bcfd7401f6b80a2146cb5fda1248448d39a0fc",
+        "scripts/probe-reviewer-roster.mjs": "0fd9c163b691db59236792fa4f7962c667aa5286",
+        "scripts/render-ci-proof-summary.mjs": "1cf7037271638e9bf109a68a718e5b395d088566",
+        "scripts/render-review-route-preflight-summary.mjs": "ce4662aae0d8cd120554b2081b1e71f984210f78",
+        "scripts/repository-path-lib.mjs": "9d6dea903acbc4eeb668b7193fe1b5324f905d8a",
+        "scripts/run-lighthouse-profile.mjs": "a37633bbe3a37b4fd212ee1e93c7b365ed4ce734",
+        "scripts/run-lighthouse-repeatability.mjs": "7834652fd190b0dcba6b33064c84efebcb1c06ce",
+        "scripts/scan-secrets.mjs": "1d8933a8df4adaec08f178fa623c1a8488ca3fb6",
+        "scripts/seal-liminalqa-evidence.mjs": "25441565b9e43d470143c4e96ff5d25bfa6b9747",
+        "scripts/select-review-route.mjs": "752c49ec949f4d9682515efa056e50c01662ef98",
+        "scripts/session-state-lib.mjs": "2618b689fac69dd10f13abea646aa9495b776c88",
+        "scripts/smart-choice-catalog-external.mjs": "43e53a82099ddd358275cafa6d8b923b309f1fd3",
+        "scripts/smart-choice-photos-external.mjs": "814758a72ca6453d7535fe7bbd08b725a8165f2d",
+        "scripts/summarize-lighthouse.mjs": "d1d2bd0bd268b07ad7aea07c62e7ba0a698ebe3d",
+        "scripts/takeaway-browser-contract.mjs": "8b0d99a2f5054683fd8e5007cb7292a46a5f7872",
+        "scripts/takeaway-cadence-time-aware.mjs": "838b6d53b73af7c492b9f2dc4fa67ed4bb179c7a",
+        "scripts/test-audit-dependencies.mjs": "a9939decbbf0cd2c72b7a99135650f37c98a6ffb",
+        "scripts/test-brand-wordmark.mjs": "42ddb68af949c414f34aee617ca7d6adbe32591f",
+        "scripts/test-causal-refactoring.mjs": "e029a5e14734a8b79c9c6cf239e8384dcdb8a075",
+        "scripts/test-checkout-loader.mjs": "6f45b300800c12aff056874799c0e8a82ba3e314",
+        "scripts/test-choice-funnel-browser.mjs": "29ce7f3922fd163b0efa9e472f2c0765177f6a70",
+        "scripts/test-choice-help.mjs": "92596812ebaae450ff760bbc31dfeac3c9c9268a",
+        "scripts/test-ci-proof-summary.mjs": "265ebca716557b4c3be0e44ee4c5b36b89decbcb",
+        "scripts/test-combo-offline.mjs": "827af14e723904f3897fea2902c03246efb1c124",
+        "scripts/test-deepseek-guards.py": "bca78b4c0daa63519c529c46ba0c8c0264ae7cfa",
+        "scripts/test-deepseek-review.py": "4758b0149cf02fbc7854cd53026adb1a26f2228d",
+        "scripts/test-discover-deck-browser.mjs": "d8423c2e653edede848f4db83ec6d790517c4377",
+        "scripts/test-discover-deck.mjs": "30f11b879b8c1401b1a03e4b0aee5a1853a719b8",
+        "scripts/test-discover-pairing-rotation.mjs": "57efafe0c5eef18950207710cbbb248086967237",
+        "scripts/test-feature-traceability.mjs": "21ce27006c97b53127744c211724d6a7b3bb77a4",
+        "scripts/test-hero-playback.mjs": "0beea14257d76d5520d8d1556df9751e0d0a2426",
+        "scripts/test-home-menu-responsive-browser.mjs": "0b42e93d258ba93002d96ba61ee061735e7727a7",
+        "scripts/test-home-navigation-browser.mjs": "9ef18bb3d34cbd8a06da1244865dacd16aa1c2d9",
+        "scripts/test-home-navigation-cache.mjs": "0b645fc4d8d4b455dc3a444f554a0f470e2da0c5",
+        "scripts/test-html-evidence.mjs": "4721ea8ad167ea6626e48432dd13ce04a828f006",
+        "scripts/test-kids-menu.mjs": "a96df46ab05059a2a79ae42d66004f776c89a2b1",
+        "scripts/test-live-smoke-deadlines.mjs": "0fd986b49c5961ad488bc39e970002f0faad4df8",
+        "scripts/test-menu-cart-edit-browser.mjs": "3b50ee2f62bfb9559c1d0c9ef0ba6447e5a10011",
+        "scripts/test-menu-catalog-revision.mjs": "08b2344098b1a91376ab5171418d7b35ba7174d7",
+        "scripts/test-menu-combos-browser.mjs": "f12ff217989002e24094eb70eb754309e69c6392",
+        "scripts/test-menu-combos.mjs": "1382da2fb38611f4d86943e36b69580845629ee4",
+        "scripts/test-menu-custom-pairing-browser.mjs": "496328df2a2488d5d052d99c2261567cdfd3dd86",
+        "scripts/test-menu-family-browser.mjs": "5d022d6955ca15e2643c17a4696a1a8ba5b26e07",
+        "scripts/test-menu-family.mjs": "b1102e588b8071f91ec32c4f6236e3e300b695b8",
+        "scripts/test-menu-formatters.mjs": "fbc76a2254c4675d89a7a996648cbacdb13041b5",
+        "scripts/test-menu-lazy-images-browser.mjs": "bbf071d4e9da5e318f5efa172d09fbc921cb2c7a",
+        "scripts/test-menu-order-loader.mjs": "cae91166d2e70c676097a3a86e3cc6af84b00832",
+        "scripts/test-menu-pairing.mjs": "83cf32547574fcf5deb671a08bf759ae8830d0aa",
+        "scripts/test-menu-product-reveal-browser.mjs": "b8cb2af10f4efb9690619b71a626f9403bd1f996",
+        "scripts/test-menu-product-reveal.mjs": "1331792483891e9f8910c75ad2cb4b457d2891c3",
+        "scripts/test-menu-promo-pair.mjs": "d07ed2e2ca66e1491b5e4f6f2d02693e304a417e",
+        "scripts/test-menu-runtime-contract.mjs": "ce27d185825e6fe6f8e1287a0251f1674bc3fce8",
+        "scripts/test-menu-share-capture.mjs": "c7ab8ea2692a984c0cea846217298501e3e35f40",
+        "scripts/test-menu-share-loader-browser.mjs": "1a5a4946f08a90a747baebf77ea4149f3089704b",
+        "scripts/test-menu-share-loader.mjs": "2355bc5470357451408954bc1f95f3634e045d65",
+        "scripts/test-menu-styles-bundle.mjs": "f449c8127bf0c03641b2544231924e3cb07da110",
+        "scripts/test-mobile-navigation-browser.mjs": "7966d225558a2bac9370ae598908bf0108da0a8e",
+        "scripts/test-order-checkout-staleness-browser.mjs": "0c25e3a55611f1034c94d0aac24caec6df0807e8",
+        "scripts/test-order-groups.mjs": "8822e0223efcc3d06258cc38d577ec882b6bd867",
+        "scripts/test-order-release-built-browser.mjs": "ef2c211daec8bc28865c3aa4d5d989f33c1db1b1",
+        "scripts/test-order-storage-compat-browser.mjs": "421aa61a6466e28dbed7a6b947c5f32df538f2fa",
+        "scripts/test-order-ticket.mjs": "a954f9c2563478c789523094d8a9ba41ebdcb6f8",
+        "scripts/test-order-transactions-stress-browser.mjs": "55fed20116e711a9da15354f91af25650bc1c562",
+        "scripts/test-pairing-css-fallback-browser.mjs": "521fe717ac965131ff86e29b3422222abd067231",
+        "scripts/test-pairing-discovery-browser.mjs": "17a3bec2d1a1447df9cfb4fef42cd8bf1ab9297a",
+        "scripts/test-pairing-media-query-browser.mjs": "80f982db9b0730e5a48774e7e1a1943e6e94b73f",
+        "scripts/test-pairing-price-browser.mjs": "b2942457d6066640f23d240e31131f85dbd0ac9d",
+        "scripts/test-photo-logo.mjs": "f26d286d6035c238ca2f8867a063b8cde85b895e",
+        "scripts/test-product-audit-followup-visual-controls.mjs": "09fbc134bca2bf9a4a17938b0e8506149af22e6a",
+        "scripts/test-promo-components-browser.mjs": "a7d10f8dcdfd6945841d1d0bc60f85305c94f794",
+        "scripts/test-proof-depth-graph.mjs": "7f1bf559542f1297a345990ddbac233d78110bb3",
+        "scripts/test-provider-neutral-removal.mjs": "b2d62a62d297e4b4f228105b78009676fe7df226",
+        "scripts/test-quick-builder-ui.mjs": "84447f28dc0acbb57d8f4f50cb45483395675282",
+        "scripts/test-quick-builder.mjs": "6a740a1da7e126fe3473e652550e69114563c5f3",
+        "scripts/test-review-depth.mjs": "9fd322c94111e295c99fccf961b58cb294c6c8fe",
+        "scripts/test-review-route-preflight-workflow.mjs": "9637ddfc22e6ba6f1aaac705f6f3cd7ae506b4f3",
+        "scripts/test-review-route.mjs": "cf17a9083aeff39082afb8c60662507b47ed2e19",
+        "scripts/test-reviewer-roster-module.mjs": "aef7c4a9776df696ea38f84c05ba44454be26a79",
+        "scripts/test-reviewer-roster.mjs": "741fd30ac28613eb32c5ae1dabb9e3fe5703bb7d",
+        "scripts/test-seasonal-theme-browser.mjs": "ce8cac47735aff3600766c0c01bc4ea958409a8b",
+        "scripts/test-session-state.mjs": "574cb7c3bcb07606c87f51fff15ccd0a1ded85a7",
+        "scripts/test-shared-order.mjs": "d3b31dddbdea97374c819887982fa86b5958d09f",
+        "scripts/test-smart-choice-analytics.mjs": "e0996e5b58300e33b37ca874b88c91948ac5b862",
+        "scripts/test-smart-choice-cart.mjs": "25893ede006973a75edf2e0e1aa7f85ac192f197",
+        "scripts/test-smart-choice-decision-trace.mjs": "7eb8e16194db11d9e085bdd0aaa7536acb1e119a",
+        "scripts/test-smart-choice-encoding.mjs": "53f4403bc9f9855e9c2b5e56f5f02792a56072a7",
+        "scripts/test-smart-choice-engine.mjs": "895c96aa3bd10c53e050238aa86c1641e4a01b66",
+        "scripts/test-smart-choice-experiments.mjs": "418e1ae730442630b01d1c7626750bcceb8bd68a",
+        "scripts/test-smart-choice-helpful-options.mjs": "dee7999042c4b0e8ad0323f502fbce9973e52e65",
+        "scripts/test-smart-choice-page.mjs": "50697d366a681231a8fabc1c796f623badad7b89",
+        "scripts/test-smart-choice-release.mjs": "07774b18fb6c2a4f29db0035a1084f916d24a469",
+        "scripts/test-smart-choice-revenue-simulator.mjs": "a1703d1ef912bd3be13a2fccb3d030c293739e4f",
+        "scripts/test-source-evidence.mjs": "f4e08436551a15e175f18d3fc8cae21685993a64",
+        "scripts/test-takeaway-cadence-time-aware.mjs": "0f1fa672e7feb0df55c659b22ad3be8344e71242",
+        "scripts/test-takeaway-entry.mjs": "26cad9e66df66829105db6fec447e64c7d5e0135",
+        "scripts/test-visual-toolchain.mjs": "95982b9806d10ebf4ccadf730cb69f372ee0a500",
+        "scripts/ui-ux-matrix.mjs": "9534cc4d2b7c388195f94119862797424baaa0ba",
+        "scripts/update-session-state.mjs": "36ad5df4730cc6c128019063e16aabcd6fce6fc3",
+        "scripts/verify-adversarial-contracts.mjs": "266add85d8326f9e5bfa4141e249af1304323061",
+        "scripts/verify-ai-style-review-matrix.mjs": "2733bc3c116c2f7474cd63dd30d07aa4b8e1c471",
+        "scripts/verify-analytics-destination-boundaries.mjs": "a6f27bb367384699363b1e3d54e84f02dede4432",
+        "scripts/verify-brand-identity-assets.mjs": "abe92b1ef04b6e2746a5e015bd48c95e099c34c1",
+        "scripts/verify-bundle.mjs": "d0ea2f218f411f3b3b9a4891db97c53a9529b28e",
+        "scripts/verify-causal-refactoring.mjs": "31aa9e7e9e5048e5c606c474e06b85b8181c07a3",
+        "scripts/verify-critical-user-journeys.mjs": "e1afde172e53581aea2d6d85f24919f9cb11d906",
+        "scripts/verify-entry-handoff.mjs": "974326f61a666d1a48fbccb65091bf1ee01707cf",
+        "scripts/verify-evidence-publication-boundary.mjs": "1702d3a3f828ccc31d6a57ef6e50e1f126f36c54",
+        "scripts/verify-feature-traceability.mjs": "90c854b80ea42614503a70ab4f7a0888e6b2bf67",
+        "scripts/verify-gallery-assets.sh": "00980037b66a524bf2979e8eaf3b3c96fe838788",
+        "scripts/verify-html-evidence.mjs": "a00f11ba84fceea66fc87af0932129dd3ac39cd9",
+        "scripts/verify-instagram-tools.mjs": "33c5ac727de0e3923a169784dda97509b97e24cb",
+        "scripts/verify-integrity-manifest.mjs": "5ea165f388860ebcd578d3662c73d60d5ba06a9b",
+        "scripts/verify-ios-route-webkit.mjs": "8179423c4cc0a62b153dd1139f428e3c4b535bcd",
+        "scripts/verify-liminalqa-evidence.mjs": "2a103d60573f5734b211e25ef7b31cc2307cc3e2",
+        "scripts/verify-live-contract.mjs": "9896150fa48313bf7e00f402cdb2de541d34e72d",
+        "scripts/verify-live-deploy.mjs": "53981c44c02db3883a163732e9773afbc3f1f947",
+        "scripts/verify-live-integrity.mjs": "9259b9462b2ed7295a6474171146c0140cedba46",
+        "scripts/verify-media.mjs": "ccd49624b05a56fd67858a30cad254183326a674",
+        "scripts/verify-menu-content.mjs": "7d67098653f01fc4a0ae2ae07a33f60a3602a562",
+        "scripts/verify-menu-image-assets.mjs": "cf51a66dc5c6dd0dcc3273042bb30e5f28508be9",
+        "scripts/verify-menu-order.mjs": "2ef1bfc4658568fbcc789f27062e12a990cb5923",
+        "scripts/verify-menu-share.mjs": "638ea5c05a1993b553819033b3b1e5da0b48d606",
+        "scripts/verify-menu-thumbnails.mjs": "d7d0a4bce96abdbcce6eb40b5d54cc73fada98c1",
+        "scripts/verify-menu-truth-live.mjs": "f8328a065cd37f0d5795cff2ffc9304d77a242ed",
+        "scripts/verify-offline-browser.mjs": "06bce3f2af7bb75cc5d89e0f5be66e70bec0215e",
+        "scripts/verify-p1-interface-contracts.mjs": "bb37e3c18e09702b471ad2b8c396371692b06411",
+        "scripts/verify-pairing-catalog-parity.mjs": "ac7049983b47aef60ea6f9505c1b7db64f63ec57",
+        "scripts/verify-pairing-cta-static.mjs": "c51998e7453f5ec2169697f1c548b22c5c18c85b",
+        "scripts/verify-pairing-cta.mjs": "b7cb4a4b876778ab80c8e99407ada17a046b974e",
+        "scripts/verify-pairing-preview-media.mjs": "bb1d046408d0650bf42fd7fd1020290f5b9d3f7a",
+        "scripts/verify-performance-contract.mjs": "ff7021bc9de7a443abb0fb7ba2b4985caf8cf4a1",
+        "scripts/verify-pr140-release-blockers.mjs": "e32931ae2db68c6f4122a2f607fa4bae86d7c3d5",
+        "scripts/verify-proof-depth-graph.mjs": "d27f3c9e8e83701a01271a83e22b1c7f1ef82f66",
+        "scripts/verify-pwa-security-ast.mjs": "7bc1a75705d5be485184cb9f7b291a5835f351ca",
+        "scripts/verify-regression-contracts.mjs": "e8fa2bb22d6715ec197d2a610816741f1145f88d",
+        "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
+        "scripts/verify-robys-approved-identity-v4.mjs": "7c40cfbb27ee908bddc0bdbad5495ad116129782",
+        "scripts/verify-robys-logo-fidelity-mask.mjs": "914541b6883dd3046d43350d9da10ba070372f7a",
+        "scripts/verify-robys-logo-fidelity.mjs": "bcf3a92922d4d4fcef8fe15a0aeb95e9fc52e720",
+        "scripts/verify-robys-mark-cache-revision.mjs": "961205c60c137a61d71b1e1a44eae5d257a2453f",
+        "scripts/verify-security-contracts.mjs": "5ee4802656ff73e009eca5d195a4c23e44caedf0",
+        "scripts/verify-seo-content-deploy.mjs": "66fe3de0fbd300de72d9be598dadfb091c065275",
+        "scripts/verify-seo.mjs": "4dfc8d4af2e6c05341633d7babf934c75e49bf05",
+        "scripts/verify-session-state.mjs": "efa1663fadc4d2362f86f62e34032982f018a08e",
+        "scripts/verify-smart-choice-catalog.mjs": "38dd180bdbf57b74a631e790d0711827f665b018",
+        "scripts/verify-smart-choice-release.mjs": "d4393f6fb0333db06d1c6f7227dfe6883a48073b",
+        "scripts/verify-smart-choice-revenue-simulator.mjs": "d5dfcf3b1df771df4d8b47b8639e7925bef349c2",
+        "scripts/verify-social-network-live.mjs": "e57445d5dbfa2becf3185f01a3f52f5bd08daeda",
+        "scripts/verify-social-offer.mjs": "a2cd319d1af546ae9ad8e4ad4b2c0a1d48a96d98",
+        "scripts/verify-source-evidence.mjs": "d4807fc5a40428a3e90e18d0c89f6501674d149d",
+        "scripts/verify-taste-journey-posters.mjs": "718b495ffbc229575b8569b9dfc03d680fd15775",
+        "scripts/verify-visual-contract.mjs": "4556142db32a08ab9b7ffbf08886dc02cf0df446",
+        "scripts/verify-visual-toolchain.mjs": "b64d143d3c810d60f5c432545c3ee483ccd1fbaf",
+        "scripts/visual-regression.mjs": "06a356bb734f5f6032d91c08fa47f6406423e9e3",
+        "seasonal-theme.js": "c2029d8569ab4bc760a317b4e8a6e95b9cded72e",
+        "seasonal.css": "8800fb20e9563d869df6dee705949c25409937bc",
+        "sitemap.xml": "a91e7eebf88575c587ad2ae3a60f615b19203459",
+        "smart-choice/analytics-v2.js": "000bc9cc00977780fb35ac1ddc0982d917ea02ca",
+        "smart-choice/app-v2.js": "5fcd98a46524f6366d006bc68c5ec94561ee535e",
+        "smart-choice/brand-v4.css": "ab4d2cb3a97b88f59338dc17e4ddb98986066eb6",
+        "smart-choice/cart-v2.js": "0a4881704e4f4dc523e017b69b2a6c33f8d5c936",
+        "smart-choice/cart.css": "4e4b2972a2d42102b66d4d41ae8f3b2195f6b7f9",
+        "smart-choice/catalog.js": "c0433f97c367117503d370101414158f901aae39",
+        "smart-choice/decision-trace-v2.js": "f087dd0f24b7fd146d9aa58d139ad8fa9e0ad498",
+        "smart-choice/decision-trace.css": "dc8006afd0c3f1cc674b0ad8b4be6c6298e38a79",
+        "smart-choice/experiments-v2.js": "941ac08e89bff8b20d296809fb412eb073cbc98a",
+        "smart-choice/index.html": "7d1ee48002ec03467e542ad7ce694cf4dfc002c2",
+        "smart-choice/photo-previews.js": "fadaa962a065061c08264dc58a4e47591aa1d189",
+        "smart-choice/pwa.js": "f6fbd5e2b4c3fb880b53221ce945d20897956c19",
+        "smart-choice/release-qa.css": "e0423315709f0769bda56e59a7c222f02650a45e",
+        "smart-choice/release-qa.js": "ad8bd768f79fcf973cae488d33d38c8b24a5a019",
+        "smart-choice/simulator-v2.js": "51d40c407b95d72bb3bb61ef40a753a1548b9df7",
+        "smart-choice/simulator.css": "316352a84bd2af8bbb393a24977bee206cf02d23",
+        "smart-choice/simulator.html": "9042cb47c83d13f3f83bd885b88918bbfcace2db",
+        "smart-choice/style.css": "8e30a152e1f6a2e9c5cf4d7911096752036aa3ac",
+        "social-offer.css": "36a262c7c596c1c6aeb7260ca3ef336bd94fc3f8",
+        "social-offer.js": "85eb159cb377e9519242450281b7373f265f8e7d",
+        "src/.parts/main.00.b64": "96c18888527d9db36a2a0de67a605e93b37cef03",
+        "src/.parts/main.01.b64": "38086e941ed8357ca2cebad0fe2fe299dccb9dff",
+        "src/.parts/main.03.b64": "82c599793bbae084fcdfbcee9dda61b9e6bd253d",
+        "src/.parts/main.04.txt": "f799f7dcbfd189b0f6f76765e4cc80d56ba829fe",
+        "src/amenities.ts": "20f6756ae071955d9ae14dd5fddf54c987af3bc6",
+        "src/app.ts": "6fc957879a2d0b8a2121afdee407a633d555a709",
+        "src/bootstrap-v2.js": "f9a75f4a7638d69f3cab462f3b91f3e10b6b933b",
+        "src/brand/robys-compact-master-v1.svg": "808c11a8d3109b03fe5ef6b173d93cd79392128a",
+        "src/brand/robys-header-master-v1.svg": "ccf15f06963a7b49d5e1a7e6acc9a1f5010726fa",
+        "src/brand/robys-mark-master-v1.svg": "e9fa0ded61a0a671750ba0908b6ba8d6dd6f9ca7",
+        "src/brand/robys-organic-ring.svg": "94257521dc816f87cf3ea9003e303eba5d97831f",
+        "src/brand/robys-primary-master-v1.svg": "eb9199d1e34572b2e31b1fdf6b185f72e0536016",
+        "src/brand/robys-takeaway-cup-v1.webp": "105ebbcbd9dd2b20502dcf1251334259393be035",
+        "src/cashier.js": "00ee636d096c9f796d05f71a2326f6ef1aa64f91",
+        "src/choice-help-entry.js": "a0732dfd46cb97c8212f78ace04d9cc7c2aa585b",
+        "src/choice-help.js": "8a45f46d517f4b28f3f9193234291e71fa88a3e7",
+        "src/conversion.js": "f366a5b49123fbd9020bf1b53871bd863c66530e",
+        "src/counter-checkout.js": "848d82d53ccb2d5ce66176a490bd661b9e9f2d79",
+        "src/discover-rotation.ts": "ec96ecf32907a4cce0e2a65b2000230f4bdd9339",
+        "src/featured-gallery.ts": "516e4513719349b4d972bd006f800812b4dc51d0",
+        "src/i18n.ts": "6ccb1c729de38370872024f0ab2440e0392d379d",
+        "src/kids-menu.d.ts": "5401829de6029e6ed576f38f59741680089e60b0",
+        "src/kids-menu.js": "699c900fbf38987a587146638a7845459746289c",
+        "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+        "src/menu-app.js": "2a9ed198f89b775962d3b1d23497db18341212af",
+        "src/menu-combos-ui.js": "4c3abc79c2c67a702e6e1b2472d6ad4da0b2a97e",
+        "src/menu-combos.js": "b8740172a380b6c897d8153bf39549ed11a25de9",
+        "src/menu-family-ui.js": "1d0e733fa4cd2694753c79edd8b3ad5c936e65ec",
+        "src/menu-family.js": "7fdcbf57d375cfefbd2c3cddf6c941d033fd359c",
+        "src/menu-icons/cold.svg": "5d1e35e02796b57d3f60a6dd6c3d7c402ae5f3df",
+        "src/menu-icons/dessert.svg": "6f51819e2613bf98668ed99937048bcc3b64b93e",
+        "src/menu-icons/food.svg": "44d1a9d16940870c0445781fcf597d4e14516c26",
+        "src/menu-icons/hot.svg": "1b1ee23c3236d812f3c67d2e21b8f0f26b79731b",
+        "src/menu-icons/refreshers.svg": "49aa82bd84aee142f4bb654e9f1b723e560ec9cb",
+        "src/menu-icons/tea.svg": "412c807141e28669ad403c024ae4d8d5a82c420d",
+        "src/menu-order-ui.js": "996264c17d81062ace4ea4aab5af89198ac67c73",
+        "src/menu-pairing-view.js": "4b3942440f67525520101ec78552dcfecccd044c",
+        "src/menu-pairing.js": "65a6f79dd24138ba5b51d9c513f47ddcf05c9693",
+        "src/menu-promo-pair.js": "c9212ce95370739cfbac7d28aa39a954879874cf",
+        "src/order-checkout.d.ts": "9ee296a9c3acdbfc731cfd5a707eccd5568b2c74",
+        "src/order-checkout.js": "53635c51b55b7d3e9eb0be49d92b0b2904b7e69c",
+        "src/order-draft.d.ts": "f3be614ca2319a6ededc0a1233c6768c851f85f1",
+        "src/order-draft.js": "35c4afebe0f9fffdd01a4c57f41af0e29dc51f66",
+        "src/order-storage-notice.d.ts": "022dbc36cfbf5cf52411250eac1cbde2eef723a4",
+        "src/order-storage-notice.js": "100fc3c021b099514bf03c9c3be10303f85fe9a0",
+        "src/order-storage.d.ts": "e4fa6cf614b62d699651428479a9a2556c1b2c27",
+        "src/order-storage.js": "bcd6d414764bf057d6471ef9191d1e24f171b315",
+        "src/order-ticket-storage.js": "0f3c9c56106693dda49dc2e92125aedb1c1e1bac",
+        "src/order-ticket.js": "4e9c6613bd355ef83245be5cdeddbf81c488ceec",
+        "src/pairings-data/approved/iced-san-sebastian-hq.png": "c245947657e69f719fa2fcc74ddc48e6acd5b922",
+        "src/pairings-data/approved/iced-san-sebastian-hq.webp": "1ddfcb88d413a90b1b53cf01b830e02fc1ec0526",
+        "src/pairings-data/final/cool-lime-macaron-hq.webp": "6fb62e29d3466d5c9c2085a2ed4c84e005821f7a",
+        "src/pairings-data/final/cool-lime-macaron-price-free.webp": "4f12c50a8d431e9e5943ff8d1e417752a505d42c",
+        "src/pairings-data/final/cool-lime-macaron.webp.b64.txt": "fe02d9dcb0519a147822e1ec8894f2b3f902deb0",
+        "src/pairings-data/final/filter-lotus.webp.b64.txt": "de942d76ec9148f2d9e81c63ac9d792d6cb893d2",
+        "src/pairings-data/final/iced-san-sebastian.webp.b64.txt": "723965f3f43ac5d7311c277283158d93a47fd3e2",
+        "src/pairings-data/final/latte-nutella.webp.b64.txt": "a63677d2cf20824615e8b1f6a6bf4d5a8dea1761",
+        "src/pairings-data/final/relax-lotus.webp.b64.txt": "cde1f1956c984fa038637595e8efc338ce431566",
+        "src/premium-croissant.b64": "1e81b2639caf5a5638eb62b970f1c981e95cce59",
+        "src/premium-latte.b64": "00a884bb7174d55d5e4ae5d9c10a14a77614dbc0",
+        "src/premium-san-sebastian.b64": "87f8d63629fc26671bbebfbc11a3842039b63562",
+        "src/products/.batch-complete": "ceb7cbbb1774b16fb00d5a92cb8f1909bd548efc",
+        "src/products/.done": "348ebd9491ed019f54af8f313ce8a4d782e0e609",
+        "src/products/.keep": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "src/products/.menu-version": "3dbe057a56ef61e7b3942d8c8a60a2e31ae8f54d",
+        "src/products/.ready": "ad50b53407197828b2a130a6ba58b9a4a4a62617",
+        "src/products/README.txt": "e2888b098d0157e2637a8b9c7bffb07e956f79ca",
+        "src/products/cards/iced-latte-card.v1.webp": "e1508babd0ceae93d72bf312823c216b198f5f31",
+        "src/products/cards/latte-card.v3.svg": "bb6c4f46257fed65135ddc4222d997b46353dd04",
+        "src/products/cards/latte-poster.v1.avif": "caf6a6aeb9bb10c26ebc69fb6ee9548e54876810",
+        "src/products/cards/lotus-card.v3.svg": "3223b568934cec3aa6486ee6cf1c0f9629907ca4",
+        "src/products/cards/lotus-poster.v1.avif": "f80aba73a114fb1688e9b17a8db2d1ab6f57e39d",
+        "src/products/cards/nutella-card.v3.svg": "728de66ac28ef5a245244b67a0ff8ae2573ba99b",
+        "src/products/cards/nutella-poster.v1.avif": "0ce08d36d06e23862e7b8662c7e2ffb203bc5536",
+        "src/products/cards/pairing-cool-lime-macaron.webp": "1e3f27a7a28c8c962b31e9a90df75e91480d1a77",
+        "src/products/cards/pairing-iced-san-sebastian.webp": "b7498e8aa246ef74230fca8580d70a3f9d5b3873",
+        "src/products/cards/san-sebastian-card.v3.svg": "05b9457467dd14c5231913e69d3d477766fae52d",
+        "src/products/cards/san-sebastian-poster.v1.avif": "e2348189a75786d769599b45c51bc50cb17b178b",
+        "src/products/carrot-cake.svg": "cc8207284439c2adb000c02ef8d06eade0b36c11",
+        "src/products/cold-drinks.svg": "1da406dd4c3fab711db13b1e438cccdb0a3da112",
+        "src/products/croissant.webp": "2bb887796a71bfc4c1fa75669f5d4f79e4bbeded",
+        "src/products/family-sets-v1/README.md": "e21e8882eec64a60ff1e7b9633bc2096344ac5a9",
+        "src/products/family-sets-v1/kids-box.webp": "8e6993ee1ec48f53221109761155759fc78192de",
+        "src/products/family-sets-v1/milk-cookie.webp": "b4aeb7bfef256089338ec18444b412d9b7704f2a",
+        "src/products/family-sets-v1/milk-roll.webp": "1a4f184c500e73212050af3c20ab7c251f6db6b4",
+        "src/products/family-sets-v1/simit-break.webp": "45488b7418f9ceb0213e9dc5824666d3a87c241b",
+        "src/products/file_00000000d248720a8ca18bad97b2053a.png": "87c46b876846474ae916f422045ccc7f81fb9ca3",
+        "src/products/gallery-v2/iced-latte.avif": "649e4736dadc2ba7c80ea7b3d2dc38361c5cd9d5",
+        "src/products/gallery-v2/latte.avif": "caf6a6aeb9bb10c26ebc69fb6ee9548e54876810",
+        "src/products/gallery-v2/lotus-cheesecake.avif": "f80aba73a114fb1688e9b17a8db2d1ab6f57e39d",
+        "src/products/gallery-v2/nutella-croissant.avif": "0ce08d36d06e23862e7b8662c7e2ffb203bc5536",
+        "src/products/gallery-v2/san-sebastian.avif": "e2348189a75786d769599b45c51bc50cb17b178b",
+        "src/products/gallery-v4/iced-latte.webp": "0ef2bd91694042303e9eb46063f7c08017887418",
+        "src/products/gallery-v4/latte.webp": "c297075617c32180b8469ece3bdb931006122a9c",
+        "src/products/gallery-v4/lotus-cheesecake.webp": "0fc36cb5b94d55f63ecd9b83c316a6df0a28c785",
+        "src/products/gallery-v4/nutella-croissant.webp": "cba431652191d40122a153548399590d3d2f2d46",
+        "src/products/gallery-v4/san-sebastian.webp": "54c83960dd6a6993a24b1aaae10f3ce595117c6f",
+        "src/products/gallery-v5/README.md": "429f32b09330474808209b19ed587181ed8ad017",
+        "src/products/gallery-v5/croissant-828.webp": "885f7aa49ccab06233f55fbcaf109810cd1eff32",
+        "src/products/gallery-v5/croissant.webp": "0fb72716df96cfea8bb7349fba120bea9fc34d12",
+        "src/products/gallery-v5/iced-latte-828.webp": "017f92e8aa03df22f48c6bf5479e85a18b300af8",
+        "src/products/gallery-v5/iced-latte.webp": "d74cd591483dc5692e9226789c659537c48b7e3e",
+        "src/products/gallery-v5/latte-828.webp": "1b985cef3ded6ac109999f5a8a4f1e7c2775c565",
+        "src/products/gallery-v5/latte.webp": "244fefb8e3107c73037d96bdf5af58c05c60e7cc",
+        "src/products/gallery-v5/lotus-cheesecake-828.webp": "518493196df16d24275a6b894cd7f1ecb3d664df",
+        "src/products/gallery-v5/lotus-cheesecake.webp": "836ce0bb0ed76a79f83859233854321ee2785582",
+        "src/products/gallery-v5/nutella-croissant-828.webp": "c038dc84cc4741d41e24331c779c83dc9cdfa067",
+        "src/products/gallery-v5/nutella-croissant.webp": "49c3e4fb1efeb79dc8b99e87ee08547ee9c9d3a3",
+        "src/products/gallery-v5/responsive.sha256": "b4274735de2090447b08a4208c47206d3d261884",
+        "src/products/gallery-v5/san-sebastian-828.webp": "0a2cc2fb6d77d5d63716eba1a3055084a78452b9",
+        "src/products/gallery-v5/san-sebastian.webp": "3e072eb8ddc10c754827d93c715e70f811d6a0ad",
+        "src/products/latte-premium.svg": "5560733fa2830e97703ec8ee5207068f77ea0dcc",
+        "src/products/latte.webp": "41d948ad1ca3f273c4340c678b8e60ad2708de7c",
+        "src/products/lemon-cheesecake.svg": "500e066454c8d66c377ff0a54c40ffdf8678aa99",
+        "src/products/lotus-cheesecake-menu.svg": "b6a77f30fa46017b67511dde2ae2d56a513b63cf",
+        "src/products/lotus-cheesecake-v2.svg": "bbba62cbd7f850e4ee1cc8582d668242c49a3652",
+        "src/products/lotus-cheesecake.b64": "31efc6cac0835b39b776c551353f1a3319e710b8",
+        "src/products/lotus-cheesecake.webp": "4a4a74259c33df76bdb07e483fae6c9594062717",
+        "src/products/manifest.json": "c64f4ae219741424400cf1f409620c0a3b17fdb8",
+        "src/products/menu-note.txt": "708673f2806271cb04c6ca0c75b4afa96f90f933",
+        "src/products/menu-v1/_anchors/cold-cup-branded.webp": "ee0d73d8f11e9a335e94321afe7e2c76e206bab9",
+        "src/products/menu-v1/_anchors/demitasse-branded.webp": "22df80238f34ad9a9b7f932bf9d5b51ee50f64f3",
+        "src/products/menu-v1/_anchors/dessert-plate.webp": "746e250a93c97d064c13655f7260791661b5c235",
+        "src/products/menu-v1/_anchors/hot-cup-branded.webp": "6b8e0ba29d5db340170f33051f873c690985010b",
+        "src/products/menu-v1/brew-hot--black-tea.webp": "d670e391badd6d822dbcac32e7e12a0e49ffdd43",
+        "src/products/menu-v1/brew-hot--chai-tea-latte.webp": "9f83f8e9dc127b3327e69e66c1916e63724c3f83",
+        "src/products/menu-v1/brew-hot--filter-coffee.webp": "2a1713ab0be689516f5b5ec74244bbb691825a9d",
+        "src/products/menu-v1/brew-hot--hot-chocolate.webp": "64d740c4175d600ed2fec960bca2e53c353135da",
+        "src/products/menu-v1/brew-hot--milk.webp": "0f5f0cdee1f71ed8e72b564792c3c9e6fe44f170",
+        "src/products/menu-v1/brew-hot--salep.webp": "e4918578c5c0d961f8c17d8c44b705741c6c7fcb",
+        "src/products/menu-v1/brew-hot--turkish-coffee.webp": "cd09128bca95f1fe1ae66dfdd7a9d7023de8ff19",
+        "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp": "783724d456e646095a6d8cd9971f3a4da56be806",
+        "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp": "3a21e214c4eb0245522c7de925d296969bd8790b",
+        "src/products/menu-v1/cold-coffee--iced-americano.webp": "5e862838b1272633edc6f288555d2fcce5861d1d",
+        "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp": "b68f148133697d190551d3ca36c02d3ac70b6662",
+        "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp": "97ed4219f03ba9741b68e70f8233035efe4fe2ad",
+        "src/products/menu-v1/cold-coffee--iced-mocha.webp": "8cf53b16f7b5c4e91b284ea530bc6dbaa702748e",
+        "src/products/menu-v1/cold-coffee--milkshake.webp": "4cef8963bed6869026bfd85dff18d718fbc755c2",
+        "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp": "ebf4ac67a4c2de73d0c9508a8b3934b28f90a3c2",
+        "src/products/menu-v1/desserts--almond-tart.webp": "42569edb231e5a0aa68a25601cf2fb0c552af326",
+        "src/products/menu-v1/desserts--brownie.webp": "a152f245b19724d4db8eff389268f25d6875b2ee",
+        "src/products/menu-v1/desserts--cake-roll.webp": "4e55458cf7566b2a210f2af9a09513c824fc39fb",
+        "src/products/menu-v1/desserts--chocolate-cake.webp": "9d8309446574d0397f654ac238e6155b9b760615",
+        "src/products/menu-v1/desserts--cookie.webp": "6de63cc5b29ec67bebbeaf1ec4b51ecf6453d09d",
+        "src/products/menu-v1/desserts--lotus-cheesecake.webp": "8bf7ffc18ae523f682ceb1f605d51d1c31591e10",
+        "src/products/menu-v1/desserts--macaron.webp": "fc7f833f3eb91910926a80c2515cca00ff32f3e2",
+        "src/products/menu-v1/desserts--mosaic-cake.webp": "ad9ac222169e3d60c4dec513be14c490f8a6166a",
+        "src/products/menu-v1/desserts--raspberry-cheesecake.webp": "524d4a7bf40ec87269b7c0aabf2abf9ba707b9f7",
+        "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp": "cd13536a793388fa3e3fe9b39a097a0da456cadd",
+        "src/products/menu-v1/desserts--savoury-cookie.webp": "a2d664e9db8f5337f545eb97814d3c2bd5f885d6",
+        "src/products/menu-v1/desserts--tiramisu.webp": "0cf8725669332239c80d4d340f5e0b993aa470c8",
+        "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp": "0e6958af46149ea068bc1f3a47ce2ebd025ed13a",
+        "src/products/menu-v1/food--nutella-croissant.webp": "19b026ec4fdac8afc1625fb607e3ae8a0e71d6ff",
+        "src/products/menu-v1/food--sesame-simit.webp": "8217a24ad37ba9401f8226cfa80d2c9eaeb15308",
+        "src/products/menu-v1/food--three-cheese-croissant.webp": "b11e6a92ea44cc842079427594c85e1aab67d080",
+        "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp": "2355e7e17c75e4cea54947d8d0d4aab16f33ce05",
+        "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp": "a262aa89b36b3709566e43a180cc639f563d146d",
+        "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp": "af8995270b6b777189793897b34d615de5849494",
+        "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp": "ddfb1ecc149201f348221cfc2655f08e24721326",
+        "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp": "8c0636b0aa88eb236389e98f7370cff3078ad756",
+        "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp": "ab2120cfaa3f97000bf5075c50c27a43c69f6f64",
+        "src/products/menu-v1/hot-coffee--americano.webp": "d301b03cc9d2cf2cb06baefba8f028f4278bbf04",
+        "src/products/menu-v1/hot-coffee--caffe-latte.webp": "6702e3b3527bd8344edecb2a254d9184c64cef92",
+        "src/products/menu-v1/hot-coffee--caffe-mocha.webp": "88fef6fc9da5cdd462199340de983a4f4fa6c45b",
+        "src/products/menu-v1/hot-coffee--cappuccino.webp": "60dc20655eeb07fe0607f8d50b13a98cf52cd286",
+        "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp": "6d09c966e48b2e581a2eea9ee630b5e0bccfa668",
+        "src/products/menu-v1/hot-coffee--caramel-latte.webp": "dd0afb6d5b2ba2c4348f4c547fd0d2a2bf835330",
+        "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp": "3b0a52b0f997289a8e057e6cb118c655fecbf653",
+        "src/products/menu-v1/hot-coffee--cinnamon-latte.webp": "09d11cb972e9fc383e70e8f94e3c553686963085",
+        "src/products/menu-v1/hot-coffee--cortado.webp": "285dac10b17d4a7fed459a18d12ac59c776bedb7",
+        "src/products/menu-v1/hot-coffee--espresso-macchiato.webp": "48776a57c92644c830e902f8c3fd6f9f207ee3ef",
+        "src/products/menu-v1/hot-coffee--espresso.webp": "a0dd681d1fc560b794d3e6d5d23bbfc25f0d4d18",
+        "src/products/menu-v1/hot-coffee--flat-white.webp": "9be0e89d67f40e8beed730be395b7c2ffa8fb740",
+        "src/products/menu-v1/hot-coffee--hazelnut-latte.webp": "d4e59a4de7ab99efd86a718b3c663218120dc4fa",
+        "src/products/menu-v1/hot-coffee--vanilla-latte.webp": "ee387a80ba93212ca6a41fcd05e94c496d6e09c3",
+        "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp": "bd83e49882a9cc70d9ce3c31924cb88bddd19832",
+        "src/products/menu-v1/refreshers--berry-hibiscus.webp": "75b04752bf74e35307632f006258c5d66f2da3b0",
+        "src/products/menu-v1/refreshers--berry-lemonade.webp": "22d5405759d6d3b66e9cfacd7eeb64dc35199df7",
+        "src/products/menu-v1/refreshers--cool-lime.webp": "0795da16dd7c4f68062cbb4dbaeb44d650b38ae1",
+        "src/products/menu-v1/refreshers--mango-passionfruit.webp": "6324ee071cfed13d1d86d0f6f91cb45ea9e1127f",
+        "src/products/menu-v1/refreshers--pineapple-berry.webp": "b249eade545182451af0457d787e5a3f807e1ff2",
+        "src/products/menu-v1/refreshers--strawberry-lime.webp": "a025a3d86f19ec1135a9841ce1ccdbbf62ae11e7",
+        "src/products/menu-v1/refreshers--summer-pine.webp": "cf30ebadb6211e42612ac44f2d768933c5901ec0",
+        "src/products/menu-v1/refreshers--tropical-mango.webp": "c92608ab411c2df31ded50fcecb3b7a007b90c6a",
+        "src/products/menu-v1/refreshers--yuzu-popcorn.webp": "3553883a50116faee4358809a1e45190fd7be4f5",
+        "src/products/nutella-croissant.b64": "6e2c5c216be977b8c955f077f128453302b30aa7",
+        "src/products/nutella-croissant.svg": "d09d5b534bfe5aa0893d1f884d1b8bd08127f85e",
+        "src/products/nutella-croissant.webp": "ceac59e7d00d2722b9d8f9dcefa88cb226e885fa",
+        "src/products/occasion-sets-v1/cycle.webp": "d6430795c88a3daf04f029dede751871c89cdd1e",
+        "src/products/occasion-sets-v1/family.webp": "a07d21f0751f2dba987472c3efb2827804f44b11",
+        "src/products/occasion-sets-v1/go.webp": "6e791cfab8b3cc522c7fa919f0acfd51aeef0020",
+        "src/products/occasion-sets-v1/hearty.webp": "f015cee8e98202600f6d1fa800df0f129fe936e0",
+        "src/products/occasion-sets-v1/local.webp": "136988f894f1ef09b371356fdc499f52878afe5e",
+        "src/products/occasion-sets-v1/morning.webp": "b064a1a652678ebb890dd4f23c534abfa5090351",
+        "src/products/occasion-sets-v1/provenance.json": "00e7b442395a59e73e7f2a6ceb4079cce8f0c772",
+        "src/products/occasion-sets-v1/rain.webp": "94178e25f3cfea18e578944571682c4cd847322f",
+        "src/products/occasion-sets-v1/refresh.webp": "5ce0905605bf5da1820245fca4c0266faec8e59c",
+        "src/products/occasion-sets-v1/student.webp": "fdabe464c09ba61f5cfddf7cc5fcb87d4cb8d60b",
+        "src/products/occasion-sets-v1/sweet.webp": "bf531cb0293f9a5e1d3e3dbbd223521410afe1e4",
+        "src/products/occasion-sets-v1/tea.webp": "2ad4a5ec76199f586be0362cc0dbfacd287ffe2e",
+        "src/products/occasion-sets-v1/together.webp": "57b8a9e8385d96d36b4d408e71856e1dd0973eb3",
+        "src/products/quick-choice-v1/coffee.webp": "bc7c1ee6fed29c2e3ca1fc8e57b515ba115b1955",
+        "src/products/quick-choice-v1/cold.webp": "9365ad8fe02309237a21375908f4f3aefe5f3d66",
+        "src/products/quick-choice-v1/tea.webp": "9dafec82ec3eab9a010715b035ab06f1e94eec96",
+        "src/products/quick-v1/menu-v1/brew-hot--black-tea-256.webp": "3e8abf449ff7f9cf8a2ef7dd0cb5552fc8806a28",
+        "src/products/quick-v1/menu-v1/brew-hot--black-tea-512.webp": "ea5524248c6b2af1c0a9af170320542baa82e08a",
+        "src/products/quick-v1/menu-v1/brew-hot--chai-tea-latte-256.webp": "dcc14a9987557f465f1869b66cb7812479b01d84",
+        "src/products/quick-v1/menu-v1/brew-hot--chai-tea-latte-512.webp": "47e28adb32e637bde5e59662671def9b3e811108",
+        "src/products/quick-v1/menu-v1/brew-hot--filter-coffee-256.webp": "45eb1d073c6c7d35c15bd7b22f30113567fe185d",
+        "src/products/quick-v1/menu-v1/brew-hot--filter-coffee-512.webp": "81fd66abd35848722e788199c78ee3a51e36b265",
+        "src/products/quick-v1/menu-v1/brew-hot--hot-chocolate-256.webp": "939d8f1ad497a33f211d7a156593a0647b19fa9d",
+        "src/products/quick-v1/menu-v1/brew-hot--hot-chocolate-512.webp": "5b35f3fa0d20f4b22ab55b61b1ef96d82dab9eb9",
+        "src/products/quick-v1/menu-v1/brew-hot--milk-256.webp": "38eed9d641dbbae2228bf37693255aace6956685",
+        "src/products/quick-v1/menu-v1/brew-hot--milk-512.webp": "5dca002deec6e0590a917d54f66dbe7596309b53",
+        "src/products/quick-v1/menu-v1/brew-hot--salep-256.webp": "f229fef0fe843bf52d93f196c4f1ac23e371c96d",
+        "src/products/quick-v1/menu-v1/brew-hot--salep-512.webp": "57b045b032290e1647165c7ca7d9125a3ead1496",
+        "src/products/quick-v1/menu-v1/brew-hot--turkish-coffee-256.webp": "a4f7bb4a488a77756f4af76b82064983002791e1",
+        "src/products/quick-v1/menu-v1/brew-hot--turkish-coffee-512.webp": "f77fbd89f22661df2d5e89e95dbbc1629f4e8359",
+        "src/products/quick-v1/menu-v1/cold-coffee--caffe-latte-frappe-256.webp": "ae9f633e8e4d752fa717f164551a69a96a595742",
+        "src/products/quick-v1/menu-v1/cold-coffee--caffe-latte-frappe-512.webp": "6cd675a2bdfbf25dd380279d64d8b9971ef2a38e",
+        "src/products/quick-v1/menu-v1/cold-coffee--flavoured-iced-caffe-latte-256.webp": "758b9616dfd884feb5935e543134feb556cf5650",
+        "src/products/quick-v1/menu-v1/cold-coffee--flavoured-iced-caffe-latte-512.webp": "ea91683c99aac5261cb25cb949da7801f56faa4c",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-americano-256.webp": "e95ac5071af8ed5309d033280b3d80e73156832e",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-americano-512.webp": "6b8aa5a1bd2a91b85ab0b10f55328ba977f81d6a",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-caffe-latte-256.webp": "cc73531abc6809aa95b5da9e795ca74973b1d52a",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-caffe-latte-512.webp": "483497e5cb877a9c2b057fb4761d546e28469d3b",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-filter-coffee-256.webp": "974b13eab1c2a3e44d9b9d03cd872f3f56b7b51a",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-filter-coffee-512.webp": "14d695ccaa7221b12d83e04d9c22de536c567a46",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-mocha-256.webp": "33728346c76b93429d36da87f5a8ad8817b4d12d",
+        "src/products/quick-v1/menu-v1/cold-coffee--iced-mocha-512.webp": "50c0c27179d4422a80fc438f955d0700f3f73017",
+        "src/products/quick-v1/menu-v1/cold-coffee--milkshake-256.webp": "91671444db6af4b3ee02035db0302dbf7c0976f2",
+        "src/products/quick-v1/menu-v1/cold-coffee--milkshake-512.webp": "955fc32bb84571d8555ae604151f2dce40a33c91",
+        "src/products/quick-v1/menu-v1/cold-coffee--white-chocolate-mocha-256.webp": "b47175ef44178f443d089b67cac5d423754b44b7",
+        "src/products/quick-v1/menu-v1/cold-coffee--white-chocolate-mocha-512.webp": "ad9ee73ea99bd544777420df0eb38dd6dfeff508",
+        "src/products/quick-v1/menu-v1/desserts--almond-tart-256.webp": "5d68ca190d5b2a251e6f9530bbded00397db8622",
+        "src/products/quick-v1/menu-v1/desserts--almond-tart-512.webp": "e0b1252af8f802e51d3dbd3dc298fcc2aa9ff3eb",
+        "src/products/quick-v1/menu-v1/desserts--brownie-256.webp": "dcdd85958e60195b2f8e10e9cd8d6a30481dd4b6",
+        "src/products/quick-v1/menu-v1/desserts--brownie-512.webp": "149e6396174000e106d72aca9575a96f80839228",
+        "src/products/quick-v1/menu-v1/desserts--cake-roll-256.webp": "edc39a16e45e1e685fb2f6da4e799e7fbb5f5794",
+        "src/products/quick-v1/menu-v1/desserts--cake-roll-512.webp": "ec7f5b874c5754a69ba613eef85910b290a9eae3",
+        "src/products/quick-v1/menu-v1/desserts--chocolate-cake-256.webp": "197ceb05b643c9b7b7c62dede0f8086b95c97933",
+        "src/products/quick-v1/menu-v1/desserts--chocolate-cake-512.webp": "278e4984f0149596955b28acc2e3e4f86f8e1096",
+        "src/products/quick-v1/menu-v1/desserts--cookie-256.webp": "ab5111f75a7f0acaa9c50b4029d800a3dbf9a1dc",
+        "src/products/quick-v1/menu-v1/desserts--cookie-512.webp": "c43b0072f9843e24c6f8b434b98de3959966256a",
+        "src/products/quick-v1/menu-v1/desserts--lotus-cheesecake-256.webp": "9a42b754d76b80b3ddd35b2b9e06b0a331ee30f4",
+        "src/products/quick-v1/menu-v1/desserts--lotus-cheesecake-512.webp": "2544aa9f87f2474966deac5d82f369ea90770077",
+        "src/products/quick-v1/menu-v1/desserts--macaron-256.webp": "1bbf500ae8d18e9e63f7d99c4a2a7f43b4fa8733",
+        "src/products/quick-v1/menu-v1/desserts--macaron-512.webp": "8d5988a03f25b4814488610d87eed083de4bfab4",
+        "src/products/quick-v1/menu-v1/desserts--mosaic-cake-256.webp": "c057a2b4dc60c390b69c27f6471bd17b649e2f52",
+        "src/products/quick-v1/menu-v1/desserts--mosaic-cake-512.webp": "4de6d83c0d67240086fff6cb1070d0cb575ab7a2",
+        "src/products/quick-v1/menu-v1/desserts--raspberry-cheesecake-256.webp": "fee404e31dd9288c8f7e2bd6d5fcd0a9af42bdf0",
+        "src/products/quick-v1/menu-v1/desserts--raspberry-cheesecake-512.webp": "d5290a3e258661d50c484c19861679f64f9e2181",
+        "src/products/quick-v1/menu-v1/desserts--san-sebastian-cheesecake-256.webp": "f301d67c586d50dd06444a11f9d2331ef1d52b93",
+        "src/products/quick-v1/menu-v1/desserts--san-sebastian-cheesecake-512.webp": "897f64fb772a3ab9e7d3f79e3387d40b4fe1a8bf",
+        "src/products/quick-v1/menu-v1/desserts--savoury-cookie-256.webp": "81db62dbc7b3cc76a8607f421a1c4ac54287da35",
+        "src/products/quick-v1/menu-v1/desserts--savoury-cookie-512.webp": "a1d5a5c140da852414248b3f0cc477112355d4f4",
+        "src/products/quick-v1/menu-v1/desserts--tiramisu-256.webp": "616e6ec2c9283c82255ebafafcba051377c9804b",
+        "src/products/quick-v1/menu-v1/desserts--tiramisu-512.webp": "0ddd8131d7dc90fe81759c1e224067f83f723a1a",
+        "src/products/quick-v1/menu-v1/food--beef-sirloin-baguette-sandwich-256.webp": "54b634ecf07e77f200302d77f3c293446a571a6b",
+        "src/products/quick-v1/menu-v1/food--beef-sirloin-baguette-sandwich-512.webp": "7a1b23f07f3840aad50bff771d9c5829d88e71f4",
+        "src/products/quick-v1/menu-v1/food--nutella-croissant-256.webp": "cd60d55031a468da18beeb1f2a0ce154b86a441f",
+        "src/products/quick-v1/menu-v1/food--nutella-croissant-512.webp": "ceb80b8aceeabe9c0e0e1f5d31c462c7015013c6",
+        "src/products/quick-v1/menu-v1/food--sesame-simit-256.webp": "54d2f0f021404a914a0f15645bd02eb881fb0a30",
+        "src/products/quick-v1/menu-v1/food--sesame-simit-512.webp": "04aaf62a855f3bbce9f033903b2f36d7b7704c5d",
+        "src/products/quick-v1/menu-v1/food--three-cheese-croissant-256.webp": "7c48bfeb0c435c12561176c64c069725269074a5",
+        "src/products/quick-v1/menu-v1/food--three-cheese-croissant-512.webp": "40991efd1d8db5a3a50d29129b87d699d56fc665",
+        "src/products/quick-v1/menu-v1/food--white-cheese-baguette-sandwich-256.webp": "88f73a77a4cfd3aa4137811252c4ecf3edd29bdc",
+        "src/products/quick-v1/menu-v1/food--white-cheese-baguette-sandwich-512.webp": "e34617aa5c9a3524ab2e716b414f32bc6b33b6fd",
+        "src/products/quick-v1/menu-v1/herbal-tea--balance-tea-detox-green-tea-256.webp": "242945418b80d82d1e130c7e0c5e7f92d71d272e",
+        "src/products/quick-v1/menu-v1/herbal-tea--balance-tea-detox-green-tea-512.webp": "b12a839991c62d8f82237fca6ebcc6fd7ec88a5b",
+        "src/products/quick-v1/menu-v1/herbal-tea--beauty-tea-floral-white-tea-256.webp": "78937d6b33ec343cacc5f75e4151d1f930132aa1",
+        "src/products/quick-v1/menu-v1/herbal-tea--beauty-tea-floral-white-tea-512.webp": "b4e5e4e2a1250820aa596660a048423a0361c998",
+        "src/products/quick-v1/menu-v1/herbal-tea--maroc-tea-mint-green-tea-256.webp": "63858e7b2494d5522fb94f7a7d9ae0249b8e96b1",
+        "src/products/quick-v1/menu-v1/herbal-tea--maroc-tea-mint-green-tea-512.webp": "a720977d3602db1358edab00edf66da4943f49ec",
+        "src/products/quick-v1/menu-v1/herbal-tea--relax-tea-lavender-rooibos-256.webp": "acd6a86949b23aa9b4837d82dc4b1b3ab34807c7",
+        "src/products/quick-v1/menu-v1/herbal-tea--relax-tea-lavender-rooibos-512.webp": "d3c50ac8bc1eefe6407f18f12e57f12ad20fbb2b",
+        "src/products/quick-v1/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass-256.webp": "8bcc7f321fe913d91e58ba0c741f540452d5d527",
+        "src/products/quick-v1/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass-512.webp": "ee4cb2a8046b2c574a00e436cd4f3dfea06d820c",
+        "src/products/quick-v1/menu-v1/hot-coffee--americano-256.webp": "e50d06f772f23cc5e1c8445f4de263cac0baf1df",
+        "src/products/quick-v1/menu-v1/hot-coffee--americano-512.webp": "bd8d79d553bd0871d0ab8a0e125e3e2d1b881b3d",
+        "src/products/quick-v1/menu-v1/hot-coffee--caffe-latte-256.webp": "1b3d39c9c5d7bc856920b60901f871f7d8f2fea3",
+        "src/products/quick-v1/menu-v1/hot-coffee--caffe-latte-512.webp": "d731b54de228ea72affe39e182035f709b4ca4a6",
+        "src/products/quick-v1/menu-v1/hot-coffee--caffe-mocha-256.webp": "57993ffa2b7f8e7be3f8502d4527a21d9c259177",
+        "src/products/quick-v1/menu-v1/hot-coffee--caffe-mocha-512.webp": "4f22deb58f97ce344b2aa9289e0fa3021fcdd854",
+        "src/products/quick-v1/menu-v1/hot-coffee--cappuccino-256.webp": "6d552ceb99b7465bedab209d3718621e048dc76c",
+        "src/products/quick-v1/menu-v1/hot-coffee--cappuccino-512.webp": "84f8120b26323c994fd105efca6c4522da4b8e8a",
+        "src/products/quick-v1/menu-v1/hot-coffee--caramel-cappuccino-256.webp": "fabe7625195d48d6fb8f8ab6607b636a6db75018",
+        "src/products/quick-v1/menu-v1/hot-coffee--caramel-cappuccino-512.webp": "00099961a59e0e277bdffd83ac2e6ddae00889a6",
+        "src/products/quick-v1/menu-v1/hot-coffee--caramel-latte-256.webp": "a3ef2c018d21ec281cecb89a072cab03fff8c401",
+        "src/products/quick-v1/menu-v1/hot-coffee--caramel-latte-512.webp": "30a33c83ad20f387193fc6ea7f7bf98f23293968",
+        "src/products/quick-v1/menu-v1/hot-coffee--chocolate-cookie-latte-256.webp": "6443c9008137eb3f3adce6e13fea5d7221accce2",
+        "src/products/quick-v1/menu-v1/hot-coffee--chocolate-cookie-latte-512.webp": "dd47b2a263a05a216e2288419a76a6a3ee7abca0",
+        "src/products/quick-v1/menu-v1/hot-coffee--cinnamon-latte-256.webp": "38695ea24335eb76ff0d46d9d601c2cd4bf81a40",
+        "src/products/quick-v1/menu-v1/hot-coffee--cinnamon-latte-512.webp": "eba4713a4470372dd83b5eb78d249d179ddcd208",
+        "src/products/quick-v1/menu-v1/hot-coffee--cortado-256.webp": "4a51b48c48157c84a43053a86902923eb01c32dc",
+        "src/products/quick-v1/menu-v1/hot-coffee--cortado-512.webp": "d3d71e8f801da75b146a3abc227014d2a749b62a",
+        "src/products/quick-v1/menu-v1/hot-coffee--espresso-256.webp": "f0593503d2a6329b3c8379c4015e6616d9e16f17",
+        "src/products/quick-v1/menu-v1/hot-coffee--espresso-512.webp": "c3d8bb72e3a297603d542b6eab5f93f2454f6cbc",
+        "src/products/quick-v1/menu-v1/hot-coffee--espresso-macchiato-256.webp": "6398e5e8b4befb2b723141b23587d71db8816f46",
+        "src/products/quick-v1/menu-v1/hot-coffee--espresso-macchiato-512.webp": "146fc8f878c70aa970c41cad66996cc5646f1300",
+        "src/products/quick-v1/menu-v1/hot-coffee--flat-white-256.webp": "9770cddfe79ec71100ad973760fb09ae457c0852",
+        "src/products/quick-v1/menu-v1/hot-coffee--flat-white-512.webp": "88d8b15bdde504bb0cc7d90f6086f6151bbc5228",
+        "src/products/quick-v1/menu-v1/hot-coffee--hazelnut-latte-256.webp": "7cf58714be77e9bfbc2296763328d4a07c55bf79",
+        "src/products/quick-v1/menu-v1/hot-coffee--hazelnut-latte-512.webp": "7c0c859dde54a5307639ce7df5b7430dac8750c0",
+        "src/products/quick-v1/menu-v1/hot-coffee--vanilla-latte-256.webp": "ebdf422eb71932f26bb9f0707eb7e9fd451827dd",
+        "src/products/quick-v1/menu-v1/hot-coffee--vanilla-latte-512.webp": "674a3e31ea31de4df90ab05a01c5db9a6cb258a5",
+        "src/products/quick-v1/menu-v1/hot-coffee--white-chocolate-mocha-256.webp": "d0cc826c88b8ca8495866113c20e610985672dfb",
+        "src/products/quick-v1/menu-v1/hot-coffee--white-chocolate-mocha-512.webp": "b772378a8af2e7cd76e0f9af027015c0c0cb1dae",
+        "src/products/quick-v1/menu-v1/refreshers--berry-hibiscus-256.webp": "997f4543142118823cf696eccc5891685d4605bd",
+        "src/products/quick-v1/menu-v1/refreshers--berry-hibiscus-512.webp": "7010c6635467bb566379859226de50515a32a782",
+        "src/products/quick-v1/menu-v1/refreshers--berry-lemonade-256.webp": "2a54790e602fe9b47ca7481566c769e327d2edde",
+        "src/products/quick-v1/menu-v1/refreshers--berry-lemonade-512.webp": "6055dedb9042105171dedb273a6bd284309213ad",
+        "src/products/quick-v1/menu-v1/refreshers--cool-lime-256.webp": "68a2491aa7531d14308bc7458564c1f4d24ffb68",
+        "src/products/quick-v1/menu-v1/refreshers--cool-lime-512.webp": "8c9491af79abe4b94a13abc58aa2cc523dcc4551",
+        "src/products/quick-v1/menu-v1/refreshers--mango-passionfruit-256.webp": "f9cd3501d4c225bb79595f15ed1ed35ead03ec3c",
+        "src/products/quick-v1/menu-v1/refreshers--mango-passionfruit-512.webp": "2c197438b3bb3d3f3c283dd1257f206a2d8f8ee0",
+        "src/products/quick-v1/menu-v1/refreshers--pineapple-berry-256.webp": "aa67ac697e56eec8875bc62e324c47e0c6743898",
+        "src/products/quick-v1/menu-v1/refreshers--pineapple-berry-512.webp": "bc839756796880f4fbde87760ab7beeeedea15d0",
+        "src/products/quick-v1/menu-v1/refreshers--strawberry-lime-256.webp": "b10a986aca6cca4a958f1aa197941297de64c9dd",
+        "src/products/quick-v1/menu-v1/refreshers--strawberry-lime-512.webp": "d15c05378d9f1df303649d7b582b0546f3facc31",
+        "src/products/quick-v1/menu-v1/refreshers--summer-pine-256.webp": "9f13b481bd49c3a02f712d077cdf99e6a3030db7",
+        "src/products/quick-v1/menu-v1/refreshers--summer-pine-512.webp": "d2f5478c89d191f9355e9eb323ad3462a6b32c49",
+        "src/products/quick-v1/menu-v1/refreshers--tropical-mango-256.webp": "b204a8ea14fbf9b0e6e170492b5e608062d61a57",
+        "src/products/quick-v1/menu-v1/refreshers--tropical-mango-512.webp": "db96aec9dad1b2e60a7c8a77268c05d92e061cc9",
+        "src/products/quick-v1/menu-v1/refreshers--yuzu-popcorn-256.webp": "894a07b7e1819485ab9f2cae10f668e563f0e06d",
+        "src/products/quick-v1/menu-v1/refreshers--yuzu-popcorn-512.webp": "0734e974bb65bc55b9ea50180cb83bc0de56efbc",
+        "src/products/quick-v1/quick-choice-v1/coffee-256.webp": "0c90fda0bc247ba6c9721d1ec2ac8aee95c7fa22",
+        "src/products/quick-v1/quick-choice-v1/coffee-512.webp": "08120d632d688c093336b9969638ad917ba2936a",
+        "src/products/quick-v1/quick-choice-v1/cold-256.webp": "8ad725e46d153295213d30aa53da3ec6e4acf4ae",
+        "src/products/quick-v1/quick-choice-v1/cold-512.webp": "67710a8efe322e18d9c6681e741dbdb70408a8bb",
+        "src/products/quick-v1/quick-choice-v1/tea-256.webp": "b286f2493ad3ce8717578dea5b7f1dd20acda208",
+        "src/products/quick-v1/quick-choice-v1/tea-512.webp": "310b43d75276a19bc5dd9dd27acfd442234cf781",
+        "src/products/quick-v1/sets-v1/cool-lime-macaron-256.webp": "46338a200cda73d443c282e56d12a7b5124a190e",
+        "src/products/quick-v1/sets-v1/cool-lime-macaron-512.webp": "15af39fad8c6819dc1ec7953f98574c321794614",
+        "src/products/quick-v1/sets-v1/filter-lotus-256.webp": "a3187c596f7fade2638b7cb6e4b68e28e1e3a6c2",
+        "src/products/quick-v1/sets-v1/filter-lotus-512.webp": "a8dbd56008ff66e8f9c15ba589a26edb22b7a8a4",
+        "src/products/quick-v1/sets-v1/iced-san-sebastian-256.webp": "bb1d96b40681bd05b3c05319ffd1dff7148184e0",
+        "src/products/quick-v1/sets-v1/iced-san-sebastian-512.webp": "2a623947e67892c6361449febbf12be9b0b54e38",
+        "src/products/quick-v1/sets-v1/latte-nutella-256.webp": "a2b12a496e7c399ddd61edbd67c274ee3a594562",
+        "src/products/quick-v1/sets-v1/latte-nutella-512.webp": "df926764e02a9f7da270db4fbdbfb1c10083b869",
+        "src/products/quick-v1/sets-v1/relax-lotus-256.webp": "a049f8d97148baa4aa4ba4b5198dbfe38f657ab3",
+        "src/products/quick-v1/sets-v1/relax-lotus-512.webp": "5ba743c053f573e54beda60e7f831b27b2c0eef4",
+        "src/products/raspberry-cheesecake.svg": "0a58bb037a186407acc46bba1d09adf87a796787",
+        "src/products/san-sebastian-1.b64": "a6209c4804fcfb8abd3aa2cc8fb4176bf28e6595",
+        "src/products/san-sebastian-2.b64": "79b7149a05a268e3dfd430e302d521cae06a89df",
+        "src/products/san-sebastian-3.b64": "6534a54d627339d1697c9819c8583e03f16e9cd8",
+        "src/products/san-sebastian-premium.svg": "a5711e91ed000edb0f3a1ceb25192e6988f4f6cf",
+        "src/products/san-sebastian.part01.b64": "348be3a8fe925dea0ceb5ee920a2f8785e454065",
+        "src/products/san-sebastian.part02.b64": "5edfd67a5918b42f72829785a33c2f6e24565619",
+        "src/products/san-sebastian.webp": "cd13536a793388fa3e3fe9b39a097a0da456cadd",
+        "src/products/san-sebastian.webp.base64.txt": "3710094643ef0e6772523080ad74c844d652d054",
+        "src/products/sets-v1/cool-lime-macaron.webp": "dd7147898ce753bed4e477d3d25177594d8f3d82",
+        "src/products/sets-v1/filter-lotus.webp": "3eb32f0ecafa2d0f7c1869574b4d1ba6020f0d2f",
+        "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4": "826eff744ed2193dbd47d18efb7a327cdd4acb1b",
+        "src/products/sets-v1/iced-san-sebastian.webp": "5b97fce642c626311b77af03f1482e4dc9517bd5",
+        "src/products/sets-v1/latte-nutella.webp": "1949d0a0b927237e208f3ac5a971d23b8fb57e2e",
+        "src/products/sets-v1/relax-lotus.webp": "18a6bc096e572b54ac2dc803c329a413ea29b059",
+        "src/products/triple-cookie.svg": "455180a36f27fa45278c30d1f0ede00987df165e",
+        "src/robys-ambience-clean.mp4": "2a26e3e7b57c21fadbbe3e307c9c0b3bb1da076e",
+        "src/robys-gallery-croissant.svg": "c57da207d2757cb3a03c0577d2fdf3bfc7231157",
+        "src/robys-gallery-croissant.webp": "fe85bd1752abef9c3d0dfe5cf1f9681d07ac8d45",
+        "src/robys-gallery-latte-art.svg": "43332b7d29ddc882dd3b92243a21f102cbe20e23",
+        "src/robys-gallery-latte-art.webp": "d520880812a1a12a1a222794482c3aff7d7acbde",
+        "src/robys-gallery-signature.svg": "0ff8ddb6a2a57c5b4a01fa558a810bcca48a80f4",
+        "src/robys-gallery-signature.webp": "751307499047040a183fbe294c8f0a32f1bcbbbe",
+        "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
+        "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
+        "src/seasonal-theme.ts": "a9f80dec3e8c5ba17bcebb3b624ed3a20bb34c32",
+        "src/smart-choice/analytics-dedupe.ts": "89fb91cd480e460ab80fa16fce2fec9f8ff98e96",
+        "src/smart-choice/analytics-domain.ts": "ec363559b85037ae273544456d9600128cfe6622",
+        "src/smart-choice/analytics.ts": "3d745937fdd660dcb2b9b97c38107981b53a289f",
+        "src/smart-choice/cart-copy.ts": "76bbbe47151213b21d922a3e61f7255d09fe8add",
+        "src/smart-choice/cart-domain.ts": "e6b97adf4d0a702a2bbb5a6ea19ce9d6ea827f4a",
+        "src/smart-choice/cart.ts": "716e3d9ac83acfcab66f53a16c6847db050cbb73",
+        "src/smart-choice/catalog.ts": "af3ffe6c2fed98803c5e6b5b6f6ef2433dc55059",
+        "src/smart-choice/checkout-link.ts": "b4c3ff8f033a0fb5bb4127613d18cc371b4667b3",
+        "src/smart-choice/decision-trace-domain.ts": "74bd8a96a581ded34fdcc514a3336e7588e4003f",
+        "src/smart-choice/decision-trace.ts": "be2b08745978851eed05399416e5641aa423ced4",
+        "src/smart-choice/engine.ts": "9ce837b417013289f7b47687fd85c1e21e6f32a6",
+        "src/smart-choice/experiment-domain.ts": "322164dd31c905921c2c1bc64c1558b23bdc21cc",
+        "src/smart-choice/experiments.ts": "828067229d017e17b03603336e124ee400cd359f",
+        "src/smart-choice/helpful-options.ts": "94313fa898cabb8c32553e0e234e1e5c4e16b09c",
+        "src/smart-choice/page.ts": "cb7b7cb9def6a343607f72bf1d490750a554502f",
+        "src/smart-choice/photo-previews.ts": "1b3aaf3bc612a0fc7f92b79be65202b97dcc6202",
+        "src/smart-choice/product-photo.ts": "2779ef85a996f4e8d650e88a99afa4aa323c8656",
+        "src/smart-choice/quick-builder-domain.ts": "7d87dc8c22a425a308e50dbde3ef9bd969f88063",
+        "src/smart-choice/quick-builder.ts": "6cb306020dc4be7066462deb87f7231e076774b1",
+        "src/smart-choice/release-qa-domain.ts": "3028075ceac789007b88d673b0e38cb6020930a1",
+        "src/smart-choice/release-qa.ts": "cb5ad7f4d3625e3e6b8f16980e24cbafc2486ee8",
+        "src/smart-choice/revenue-simulator-domain.ts": "760df0bdf5c011290ab6cd721e203210b3cc1a6c",
+        "src/smart-choice/revenue-simulator.ts": "188aa4a55777c003a8499e9d8e35276ea6484ea9",
+        "src/smart-choice/shared-order.ts": "183c5d70073b64b09f9527f3f43e314d8fb255c2",
+        "src/social-offer.ts": "953c527684d66acd69229acfbcc3273ddbd325d6",
+        "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
+        "sw-core-v64.js": "aaa7e0b0c84ffda0fafc0a700da32ed586afd11e",
+        "sw.js": "eb44e5325f793744d8a77bdefd797a0c2504030c",
+        "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
+        "tsconfig.json": "c9658e19f3fcf59c267f0a537dc6c9f11ccec2c6",
+        "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
+      },
+      "inspection": {
+        "inspectedAt": "2026-10-19T12:22:00Z",
+        "inspectedBy": "Codex root assistant",
+        "scope": "Six failed CI cells out of43; full desktop/tablet pages inspected as four sequential uncropped-content segments each, plus exact menu/social/visit pairs. Functional and RU/enlarged geometry evidence is separate from the stabilized TR Chromium visual capture.",
+        "observations": [
+          {
+            "captures": [
+              "menu-preview/desktop-1440",
+              "menu-preview/laptop-1366"
+            ],
+            "observation": "Six category cards retain complete copy and arrows; smaller icons and reduced spacing increase usable text width. Section height716→663px. Root inspected exact pairs."
+          },
+          {
+            "captures": [
+              "landing-full/desktop-1440"
+            ],
+            "observation": "Hero, three paths, occasion links, favorites, About, six categories, Visit, community, daily offer and footer remain. Full height7217→7164px equals53px menu reduction. No new collision or lost section observed."
+          },
+          {
+            "captures": [
+              "landing-full/tablet-768"
+            ],
+            "observation": "Same7610px page height, complete header/hero/path/favorites/About/menu/Visit/offer/footer. Category images are smaller and text retains its lines and card boundaries."
+          },
+          {
+            "captures": [
+              "social-offer/desktop-1440",
+              "visit-map/laptop-1366"
+            ],
+            "observation": "Existing wording, product/price, native links, address, hours, social button and map direction controls remain; minor raster/alignment changes without observed content loss."
+          }
+        ],
+        "limits": [
+          "Physical Safari/iOS and Xiaomi/Huawei/OPPO/vivo built-in browsers are untested.",
+          "Visual screenshots use deterministic Turkish Chromium captures; cross-engine/language behavior is covered separately.",
+          "This record does not approve any extra failure, changed crop, larger ratio or changed bound runtime byte."
+        ]
+      },
+      "captureSourceHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+      "captureSourceTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+      "inputBindingReferenceHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+      "inputBindingStateAtCreation": "Locally tested focus-repair working tree based on H6, exact blobs below; fresh current-head CI and actual pair inspection are required before release.",
+      "inputBindingEnvelopeSha256": "0963ada9d7e1f1c88175df641ac9dad3a3911b622c7deb2bbc31af3d4c03bd06",
+      "previousRecordSha256": "049af670e57ec0237065ce8616cc31aad9c76aed486f67f7edc1c2b1969da376",
+      "inputBindingChanges": {
+        "app.js": {
+          "old": "2770613edef677fe93284586803d94fe3e311a67",
+          "new": "af6b15b2ebadf96bac81aa2f19a2adf52184958f"
+        },
+        "index.html": {
+          "old": "c2641d98fbd301e1ff877be98b22bc38a349af50",
+          "new": "8299a4320c615aaef283711f3a416eb639c19df6"
+        },
+        "integrity-manifest.json": {
+          "old": "94134dc57d743cc60c27bb8677a8edb9cee8be08",
+          "new": "ccd0ada9ccc8eb620332b4b03037f140a1f3c3ae"
+        },
+        "ru/coffee-gazipasa.html": {
+          "old": "a771e36891b67c369624699d064df69a87ec72c3",
+          "new": "41b01c3efa355b83918aadcb97c7f69c7dbf6732"
+        },
+        "scripts/test-home-navigation-browser.mjs": {
+          "old": "3f7ba60e207707f40e3097973e887a847a6d8cf6",
+          "new": "9ef18bb3d34cbd8a06da1244865dacd16aa1c2d9"
+        },
+        "src/app.ts": {
+          "old": "8a6280888f09bf06b7af7ba89eb110aadaea891e",
+          "new": "6fc957879a2d0b8a2121afdee407a633d555a709"
+        },
+        "sw-core-v64.js": {
+          "old": "9f0ef5b3ea9a68ced06a273c36a1bfc5b51fd290",
+          "new": "aaa7e0b0c84ffda0fafc0a700da32ed586afd11e"
+        }
+      },
+      "visualVerificationAtRecordCreation": "PENDING_FRESH_CURRENT_HEAD_CI_AND_PAIR_INSPECTION",
+      "bindingUpdateReason": "Only focus recovery on closing an open menu above980px and its regression assertions changed, plus emitted app/URL/cache/manifest bytes. No CSS, capture policy, viewport, threshold or expected failure entry changed. Historical H5/H6 images are not presented as new-candidate captures.",
+      "historicalCorroboration": {
+        "sourceHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "runId": 39251917976,
+        "artifactId": 12185224541,
+        "archiveSha256": "cda59bd396e19bfb0805237995e5a4e450451de39b86273fb18902c7fc34094a",
+        "result": "Visual and downstream continuation success; six failure metrics and12reviewed PNGs match H5; this is historical for the focus follow-up."
+      },
+      "releaseConditions": [
+        "All fresh current-head technical checks succeed.",
+        "Complete actual current43-cell comparison matches only these six bounded differences.",
+        "Root inspects actual current failing pairs; a matching scalar summary alone is insufficient.",
+        "Resolve the reproduced resize-focus review finding using actual focus results; do not manufacture an approval."
+      ]
+    }
+  ]
+}

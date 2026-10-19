@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-independent-visual-inspection",
+  "inspectedAt": "2026-10-19T12:22:31.277092+00:00",
+  "subject": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pr": 446,
+    "head": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+    "tree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+    "base": "585135e07d08bb2680d4893b5bfc5ee89ca286f6"
+  },
+  "provenance": {
+    "packet": "visual-446-head5/extracted/final",
+    "headAttribution": "H5 packet identified by root; this agent independently inspected and hashed the four raw PNG files, but did not perform the artifact download or workflow checkout verification.",
+    "summarySha256": "9a161fb9437c50de9ec2e9366ae61c097497b278d7d347011f04f3bb604b127d",
+    "summaryGeneratedAt": "2026-10-19T11:52:40.942Z",
+    "actualSummaryResults": [
+      {
+        "id": "landing-full",
+        "viewport": "tablet-768",
+        "file": "landing-full__tablet-768.png",
+        "passed": false,
+        "diffPixels": 30045,
+        "totalPixels": 5844480,
+        "diffPixelRatio": 0.005140748193166886,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "landing-full",
+        "viewport": "desktop-1440",
+        "file": "landing-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7217 vs 1440x7164",
+        "diffPixels": 10392480,
+        "diffPixelRatio": 1
+      }
+    ]
+  },
+  "method": {
+    "views": "Baseline and current raw PNGs split into consecutive vertical crops and paired side by side as JPEGs. Desktop crops resized to 50%, tablet crops to 75%; no product image editing.",
+    "cropStartRows": [
+      0,
+      1900,
+      3800,
+      5700
+    ],
+    "normalCropHeight": 1900,
+    "derivedLocation": "visual-446-head5/independent-inspection",
+    "rawPngsUnchanged": true,
+    "inspectionAgent": "root/header_independent"
+  },
+  "observations": {
+    "desktop1440": {
+      "rawDimensions": {
+        "baseline": [
+          1440,
+          7217
+        ],
+        "current": [
+          1440,
+          7164
+        ]
+      },
+      "heightDifferencePx": -53,
+      "contentPresence": "Hero/header and entry actions; three initial choice cards and occasion/kids choices; six favorite products; About heading, three feature cards and amenity chips; six menu category cards; Visit address/hours/Instagram actions and map; community section; social offer and footer remain visible in the compared captures.",
+      "changes": "Menu category icons and cards are more compact. Category text fits within the visible card area. Subsequent sections appear higher in the document, consistent with the 53px reduction of total image height.",
+      "collisionFinding": "No new visible text/card/button collision or clipped content found in the inspected capture.",
+      "causalLimit": "The entire downstream image is not asserted pixel-identical after translation. Diagnostic comparison below retains remaining differences near the social/footer area; this agent visually found the corresponding content present."
+    },
+    "tablet768": {
+      "rawDimensions": {
+        "baseline": [
+          768,
+          7610
+        ],
+        "current": [
+          768,
+          7610
+        ]
+      },
+      "heightDifferencePx": 0,
+      "contentPresence": "The compared tablet captures retain the same visible section order, product cards, all six category cards, Visit/map, social offer and footer.",
+      "changes": "Smaller icons and category text shifted left within the same category-card area. Category arrows, card boundaries and section positions remain clear and separated.",
+      "collisionFinding": "No new visible text/card/button collision or clipped content found in the inspected capture.",
+      "localizationLimit": "These captures show the Turkish locale; this visual comparison does not separately attest Russian or English translations."
+    }
+  },
+  "rawPngs": {
+    "landing-full__desktop-1440": {
+      "sha256": {
+        "baseline": "cd1bc0ef0a2d83c45b90be3fa0b921dd5d05c914f889b433b289d1edab2b75a7",
+        "current": "cb21dfc77678b8249d9a2490be923c26766ea1e3b3656f624c5a5275c2db314b"
+      },
+      "dimensions": {
+        "baseline": [
+          1440,
+          7217
+        ],
+        "current": [
+          1440,
+          7164
+        ]
+      }
+    },
+    "landing-full__tablet-768": {
+      "sha256": {
+        "baseline": "985fba7c3719ccc0af5e63c3d47d6210ce760e84aba175f34b92b5aa7b241ecc",
+        "current": "f70f6d23f0a19eefab4ffeb22d7e74f85255a4a8a00b005f07be605afc627f96"
+      },
+      "dimensions": {
+        "baseline": [
+          768,
+          7610
+        ],
+        "current": [
+          768,
+          7610
+        ]
+      }
+    }
+  },
+  "diagnostics": {
+    "scope": "Optional local raster diagnostics; these use a different explicitly stated RGB rule from the official pixelmatch gate and do not replace the retained CI failure result.",
+    "tablet": {
+      "threshold": 25,
+      "rule": "maximum absolute RGB channel difference >25, original pixel coordinates; diagnostic only, not CI threshold",
+      "bbox": [
+        36,
+        5114,
+        405,
+        5924
+      ],
+      "changedPixels": 42702,
+      "rowSpans": [
+        [
+          5114,
+          5193
+        ],
+        [
+          5260,
+          5339
+        ],
+        [
+          5406,
+          5485
+        ],
+        [
+          5552,
+          5631
+        ],
+        [
+          5698,
+          5777
+        ],
+        [
+          5844,
+          5923
+        ]
+      ]
+    },
+    "desktopRaw": {
+      "threshold": 25,
+      "rule": "maximum absolute RGB channel difference >25, original pixel coordinates; diagnostic only, not CI threshold",
+      "bbox": [
+        0,
+        4329,
+        1440,
+        7164
+      ],
+      "changedPixels": 765460,
+      "rowSpans": [
+        [
+          4329,
+          4450
+        ],
+        [
+          4453,
+          4621
+        ],
+        [
+          4624,
+          4803
+        ],
+        [
+          4855,
+          4907
+        ],
+        [
+          4959,
+          5506
+        ],
+        [
+          5521,
+          5521
+        ],
+        [
+          5529,
+          5529
+        ],
+        [
+          5545,
+          5567
+        ],
+        [
+          5582,
+          5582
+        ],
+        [
+          5589,
+          5589
+        ],
+        [
+          5606,
+          5620
+        ],
+        [
+          5624,
+          5794
+        ],
+        [
+          5846,
+          5898
+        ],
+        [
+          5946,
+          6770
+        ],
+        [
+          6852,
+          7050
+        ],
+        [
+          7060,
+          7163
+        ]
+      ]
+    },
+    "desktopTranslated": {
+      "currentYStart": 4910,
+      "baselineYStart": 4963,
+      "verticalShift": 53,
+      "comparedSize": [
+        1440,
+        2254
+      ],
+      "exactDifferenceBbox": [
+        0,
+        49,
+        1440,
+        2217
+      ],
+      "threshold25DifferenceBbox": [
+        132,
+        1942,
+        1306,
+        2217
+      ],
+      "threshold25ChangedPixels": 4536
+    }
+  },
+  "limits": [
+    "Only the two named full-page screenshot states were inspected by this agent; root separately inspected the other four failing pairs.",
+    "Static captured pixels do not prove interactive behavior, keyboard focus, native zoom, every locale or physical/OEM-device compatibility.",
+    "No color-contrast measurement or formal accessibility-conformance assessment was performed.",
+    "Assistant-produced second inspection supports review and is not a human/provider approval, screenshot-baseline waiver, release or deployment authorization."
+  ],
+  "disposition": "No new missing-content or collision defect found in these two captured comparisons. Official raw comparison failures remain recorded; no approval claimed."
+}

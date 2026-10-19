@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "kind": "h6-review-security-receipt",
+  "capturedAt": "2026-10-19T12:31:13.745Z",
+  "subject": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pr": 446,
+    "head": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "base": "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+    "tree": "974a9a1ce25a283acb859a3c2c6c5af7b589029a",
+    "initialObservedHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "initialSnapshotAt": "2026-10-19T12:26:30.085Z",
+    "finalObservedHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "headIdentityMatches": true
+  },
+  "provenance": {
+    "sastCheckout": "0fe789d75cba9ef1cee857878c952465020410fc",
+    "derivedMergeTree": "974a9a1ce25a283acb859a3c2c6c5af7b589029a",
+    "derivedMergeParents": [
+      "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+      "b94c3317cfa66fbf26056847fd8ccc142a10d12b"
+    ],
+    "sourceAndDerivedTreesEqual": true,
+    "source": "Read-only GitHub PR, commit check-runs, actual SAST job logs, immutable Git objects, issue/review comments and review-thread API reads."
+  },
+  "security": {
+    "checks": [
+      {
+        "id": 118058510817,
+        "name": "CodeQL",
+        "head": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T12:27:31Z",
+        "completedAt": "2026-10-19T12:27:33Z",
+        "output": {
+          "title": "No new alerts in code changed by this pull request",
+          "summary": "[View all branch alerts](/safal207/robys-coffee-house-demo/security/code-scanning?query=pr%3A446+tool%3ACodeQL+is%3Aopen).",
+          "text": null,
+          "annotations_count": 0,
+          "annotations_url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/check-runs/118058510817/annotations"
+        }
+      },
+      {
+        "id": 118057543770,
+        "name": "SAST-001 JavaScript and TypeScript",
+        "head": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T12:26:20Z",
+        "completedAt": "2026-10-19T12:27:40Z",
+        "output": {
+          "title": null,
+          "summary": null,
+          "text": null,
+          "annotations_count": 2,
+          "annotations_url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/check-runs/118057543770/annotations"
+        }
+      }
+    ],
+    "sastLogRelevant": [
+      "2026-10-19T12:26:25.3335173Z HEAD is now at 0fe789d Merge b94c3317cfa66fbf26056847fd8ccc142a10d12b into 585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+      "2026-10-19T12:27:31.7578505Z Successfully uploaded results",
+      "2026-10-19T12:27:37.0593515Z Analysis upload status is complete.",
+      "2026-10-19T12:27:37.8434197Z CodeQL job status was success.",
+      "2026-10-19T12:27:38.5141874Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+    ],
+    "warningBoundary": "SAST reports two annotations. Actual log contains one explicit warning line for actions/checkout@v4 Node20 deprecation and forced Node24 execution, and no explicit error annotation lines. This monitor does not assert complete per-annotation classification.",
+    "alertBoundary": "Native CodeQL reports no new alerts in changed code; zero branch-wide alerts or absence of vulnerabilities is not asserted."
+  },
+  "provider": {
+    "codex": {
+      "requestId": 6267161069,
+      "requestAt": "2026-10-19T12:25:42Z",
+      "summaryId": 6265015921,
+      "summaryUpdatedAt": "2026-10-19T12:30:44Z",
+      "state": {
+        "code_review": {
+          "commit_sha": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+          "has_any_findings": true,
+          "has_unresolved_findings": true,
+          "status": "completed"
+        },
+        "security_review": {
+          "commit_sha": null,
+          "has_any_findings": null,
+          "has_unresolved_findings": null,
+          "status": null
+        }
+      },
+      "review": {
+        "id": 5571551403,
+        "head": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "submittedAt": "2026-10-19T12:30:41Z",
+        "state": "COMMENTED"
+      },
+      "newFinding": {
+        "id": 4313821191,
+        "threadId": "PRRT_kwDOS-8ZNM6t6tgK",
+        "commit": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "path": "src/app.ts",
+        "line": 135,
+        "createdAt": "2026-10-19T12:30:41Z",
+        "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Restore focus when resizing closes the mobile menu**\n\nWhen an open menu crosses from 980px to 981px, this closes it while focus remains on a navigation link; if the viewport then returns to mobile width, the new `visibility:hidden` rule hides that focused link and leaves keyboard focus invisible or reset. This occurs during tablet rotation or split-screen resizing, and the same `setOpen(false)` resize path in `ru/coffee-gazipasa.html` has the defect. Move focus to a control that remains visible across the breakpoint, or explicitly restore it when re-entering the mobile layout.\n\nAGENTS.md reference: [AGENTS.md:L33-L36](https://github.com/safal207/robys-coffee-house-demo/blob/b94c3317cfa66fbf26056847fd8ccc142a10d12b/AGENTS.md#L33-L36)\n\nUseful? React with 👍 / 👎.\n\n<!-- codex-code-review-finding:v1 -->",
+        "url": "https://github.com/safal207/robys-coffee-house-demo/pull/446#discussion_r4313821191",
+        "verificationState": "Fresh provider P2 finding; independent runtime reproduction and disposition are outside this read-only monitor."
+      }
+    },
+    "jules": {
+      "requestId": 6267161394,
+      "requestAt": "2026-10-19T12:25:43Z",
+      "state": "UNANSWERED as of snapshot; no approval inferred."
+    }
+  },
+  "reviewThreads": [
+    {
+      "id": "PRRT_kwDOS-8ZNM6t4EXx",
+      "path": "src/app.ts",
+      "resolved": true,
+      "outdated": false,
+      "commentIds": [
+        4312723747,
+        4312924607
+      ]
+    },
+    {
+      "id": "PRRT_kwDOS-8ZNM6t5IJS",
+      "path": "mobile.css",
+      "resolved": true,
+      "outdated": false,
+      "commentIds": [
+        4313162619,
+        4313318874
+      ]
+    },
+    {
+      "id": "PRRT_kwDOS-8ZNM6t6tgK",
+      "path": "src/app.ts",
+      "resolved": false,
+      "outdated": false,
+      "commentIds": [
+        4313821191
+      ]
+    }
+  ],
+  "verdict": {
+    "nativeCodeQL": "PASS",
+    "sast": "PASS with deprecation warning",
+    "codex": "COMPLETED_WITH_NEW_P2_FINDING",
+    "jules": "UNANSWERED",
+    "releaseAdvisory": "HOLD: fresh resize/focus finding requires disposition."
+  },
+  "authorityBoundary": "Read-only monitor; no source changes, GitHub comments, thread resolutions, reruns, approval, merge or deployment performed in this task. This outside-repo receipt does not trigger another evidence commit."
+}

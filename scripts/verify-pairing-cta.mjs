@@ -114,7 +114,7 @@ assert.match(pairingRuntime, /removeExperiencePanel\(\{ restoreFocus: true \}\)/
 assert.match(pairingCss, /\.pairing-poster-card \.full-menu-item-media:focus-visible/, "pairing trigger must have a visible keyboard focus state");
 assert.match(pairingCss, /content: "→"/, "pairing card must expose a visible action affordance");
 
-assert.match(index, /<section class="section visit-section" id="visit">[\s\S]*google\.com\/maps\/dir\//);
+assert.match(index, /<section class="section visit-section" id="visit"[^>]*>[\s\S]*google\.com\/maps\/dir\//);
 assert.match(index, /<nav class="mobile-cta"[\s\S]*google\.com\/maps\/dir\//);
 
 console.log("✅ PAIRING-CTA-001: CTA behavior, pairing accessibility, cache revisions and the customer path remain intact.");

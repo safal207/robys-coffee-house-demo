@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "kind": "h5-review-and-security",
+  "capturedAt": "2026-10-19T11:54:38.911Z",
+  "subject": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pr": 446,
+    "expectedHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+    "base": "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+    "sourceTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+    "initialObservedHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+    "finalObservedHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+    "headIdentityMatches": true
+  },
+  "provenance": {
+    "sastCheckout": "3ab5bcb53426edff6ea634354250d0c50a1b86d5",
+    "derivedMergeParents": [
+      "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+      "4bed909a7860a00654085f4bf7c345b864b1b80b"
+    ],
+    "derivedMergeTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+    "sourceAndMergeTreesEqual": true,
+    "source": "GitHub PR, commit check-runs, SAST job logs, Git objects, issue comments and review-thread API reads."
+  },
+  "security": {
+    "checks": [
+      {
+        "name": "CodeQL",
+        "id": 118042931880,
+        "head": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T11:50:09Z",
+        "completedAt": "2026-10-19T11:50:12Z",
+        "output": {
+          "title": "No new alerts in code changed by this pull request",
+          "summary": "[View all branch alerts](/safal207/robys-coffee-house-demo/security/code-scanning?query=pr%3A446+tool%3ACodeQL+is%3Aopen).",
+          "text": null,
+          "annotations_count": 0,
+          "annotations_url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/check-runs/118042931880/annotations"
+        }
+      },
+      {
+        "name": "SAST-001 JavaScript and TypeScript",
+        "id": 118042529233,
+        "head": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+        "status": "completed",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T11:49:10Z",
+        "completedAt": "2026-10-19T11:50:19Z",
+        "output": {
+          "title": null,
+          "summary": null,
+          "text": null,
+          "annotations_count": 2,
+          "annotations_url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/check-runs/118042529233/annotations"
+        }
+      }
+    ],
+    "sastLog": {
+      "jobId": 118042529233,
+      "checkout": "3ab5bcb53426edff6ea634354250d0c50a1b86d5",
+      "resultsUploadedAt": "2026-10-19T11:50:09.9318292Z",
+      "processingCompletedAt": "2026-10-19T11:50:15.1666012Z",
+      "explicitWarning": "Node.js 20 is deprecated. actions/checkout@v4 targets Node.js 20 and is forced to run on Node.js 24.",
+      "explicitWarningAt": "2026-10-19T11:50:16.5563482Z",
+      "explicitErrorAnnotationLinesObserved": 0,
+      "annotationsBoundary": "The check reports two annotations. The log has the explicit deprecation warning recorded above; a complete per-annotation classification is not asserted."
+    },
+    "alertBoundary": "The native CodeQL check reports no new alerts in code changed by this PR. This is not a claim of zero branch-wide alerts or complete absence of vulnerabilities."
+  },
+  "providers": {
+    "codex": {
+      "request": {
+        "id": 6266509102,
+        "createdAt": "2026-10-19T11:49:21Z"
+      },
+      "summary": {
+        "id": 6265015921,
+        "updatedAt": "2026-10-19T11:52:40Z",
+        "state": {
+          "code_review": {
+            "commit_sha": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+            "has_any_findings": false,
+            "has_unresolved_findings": false,
+            "status": "completed"
+          },
+          "security_review": {
+            "commit_sha": null,
+            "has_any_findings": null,
+            "has_unresolved_findings": null,
+            "status": null
+          }
+        }
+      },
+      "receipt": {
+        "id": 6266564817,
+        "createdAt": "2026-10-19T11:52:38Z",
+        "reviewedCommit": "4bed909a78",
+        "result": "Did not find any major issues"
+      },
+      "interpretation": "Fresh automated review completed for the exact H5 head with no findings; no human approval is inferred."
+    },
+    "jules": {
+      "request": {
+        "id": 6266509383,
+        "createdAt": "2026-10-19T11:49:22Z"
+      },
+      "state": "UNANSWERED at snapshot; no approval or review completion is inferred."
+    }
+  },
+  "ruStandaloneFinding": {
+    "threadId": "PRRT_kwDOS-8ZNM6t5IJS",
+    "findingCommentId": 4313162619,
+    "fixReplyCommentId": 4313318874,
+    "path": "mobile.css",
+    "priorFixHead": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "integratedHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+    "action": "Resolved the existing thread under root's explicit instruction, preserving the original finding and fix reply.",
+    "resolvedAtObserved": "2026-10-19T11:54:26.716Z",
+    "confirmedResolved": true,
+    "resolvedBy": "safal207",
+    "support": {
+      "historicalEvidence": "qa/evidence/home-menu-20261019/ru-standalone-focus.json",
+      "integratedEvidence": "Local .artifacts/integrated-navigation42/report.json and its focused followup, summarized below.",
+      "freshProviderDisposition": "Exact-H5 Codex completed with no findings."
+    },
+    "integratedVerification": {
+      "originalReportSha256": "17f847fed5f2d6cb5bf008c14e807a4f2518ad08afa3408aa68f919a91096451",
+      "originalOverall": {
+        "passed": 41,
+        "failed": 1,
+        "total": 42
+      },
+      "originalStandalone": {
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "failedCase": "webkit-ru-standalone-900",
+        "failure": "Screenshot capture timed out at 15000ms after functional assertions/facts were recorded; original failure remains retained."
+      },
+      "followupReportSha256": "79ca9020949e6a8e870f8ecdb2395624a73913f2b362a48af3cd6904f45e835a",
+      "followup": {
+        "head": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+        "caseId": "webkit-ru-standalone-900",
+        "status": "PASS",
+        "startedAt": "2026-10-19T11:52:48.277Z",
+        "finishedAt": "2026-10-19T11:53:06.126Z"
+      },
+      "functionalScope": "Chromium/Firefox/WebKit at 390/900px: Tab navigation, Escape focus return, native #location/#faq focus on visible SECTION, catalog language retention and 980px resize boundary.",
+      "identityBoundary": "Original report was captured during the uncommitted main integration and records the old checkout head. Independently compared all ten measured input SHA256 values against the immutable H5 Git blobs: all match. Both reports recorded unchanged input hashes.",
+      "physicalPhonesUsed": false
+    }
+  },
+  "limitations": [
+    "This record is advisory evidence for H5 only; it does not attest future H6 metadata/source changes.",
+    "Resolving a repaired review thread is not a release, merge or deployment approval.",
+    "Jules did not respond as of this snapshot; provider availability is not manufactured."
+  ],
+  "verdict": {
+    "nativeCodeQL": "PASS: no new changed-code alerts reported",
+    "sast": "PASS with deprecation warning",
+    "codex": "COMPLETED_NO_FINDINGS",
+    "jules": "UNANSWERED",
+    "ruThread": "RESOLVED_AFTER_FIX_AND_FRESH_DISPOSITION"
+  }
+}

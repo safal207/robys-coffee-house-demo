@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "kind": "ios-route-trace-and-followup",
+  "capturedAt": "2026-10-19T11:30:56.883787+00:00",
+  "subject": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pr": 446,
+    "historicalHead": "161215e3f4a4f818700c770090eb8590c72ecd1d",
+    "currentRevisionState": "Uncommitted H4 candidate; local integration is bound to exact file SHA256 values, not claimed as executed at a later published head."
+  },
+  "historicalCI": {
+    "runId": 39242885842,
+    "runUrl": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39242885842",
+    "head": "161215e3f4a4f818700c770090eb8590c72ecd1d",
+    "attempts": [
+      {
+        "attempt": 1,
+        "jobId": 118027693433,
+        "status": "completed",
+        "conclusion": "failure",
+        "artifact": {
+          "id": 12182351109,
+          "sha256": "5fa0cce96aa0d293eb90f910c1c39148ef669784e63ac24ec5fffe7d9c299aa5"
+        },
+        "failure": {
+          "route": "index.html route 1/3, button button-light",
+          "message": "page.waitForEvent: Timeout 5000ms exceeded while waiting for event \"popup\"",
+          "location": "scripts/verify-ios-route-webkit.mjs:122:12; call:146:3",
+          "reachedLaterRoutes": false
+        }
+      },
+      {
+        "attempt": 2,
+        "jobId": 118029262176,
+        "status": "completed",
+        "conclusion": "success",
+        "artifact": {
+          "id": 12182691053,
+          "sha256": "cb7127c345b8dd9f944904a42efac6682dbc2b115384d3746c4c14bdbac56aa8"
+        },
+        "routeCtasPassed": {
+          "index": 3,
+          "menu": 2
+        },
+        "assertions": "Five named CTAs opened nonblank Google Maps driving-route popups; source page stayed in place."
+      }
+    ],
+    "attemptMetadataEvidence": {
+      "path": "qa/evidence/home-menu-20261019/h3-journey-ci.json",
+      "sha256": "19daaa6d8c8f19668a029e351ec4d2dcf5349142607af7eae4b71044b9322747",
+      "source": "GitHub run/job/log reads recorded separately by the CI monitoring agent."
+    },
+    "retryBoundary": "One authorized bounded failed-job rerun; both original failure and same-head success retained."
+  },
+  "originalFailureTrace": {
+    "artifactId": 12182351109,
+    "artifactSha256": "5fa0cce96aa0d293eb90f910c1c39148ef669784e63ac24ec5fffe7d9c299aa5",
+    "traceZipSha256": "852789ae1c77dae32567c47e24ac7eafc2ecbea3178da9970b8dc556ebde71e9",
+    "downloadedAndIndependentlyRehashed": true,
+    "route": "index.html Visit button, route 1/3",
+    "url": "https://127.0.0.1:4173/index.html",
+    "viewport": {
+      "width": 390,
+      "height": 664
+    },
+    "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+    "callIds": {
+      "trialClick": "call@52",
+      "popupWait": "call@54",
+      "realClick": "call@57"
+    },
+    "monotonicMs": {
+      "trialStart": 5141.166,
+      "trialEnd": 6882.898,
+      "popupWaitStart": 6888.409,
+      "popupWaitFailure": 11889.926,
+      "realClickStart": 6889.163,
+      "actionabilityCheckStart": 6899.954,
+      "stable": 11707.212,
+      "input": 11724.811,
+      "realClickEnd": 11761.531
+    },
+    "derivedMs": {
+      "realClickActionabilityWait": 4807.258,
+      "nominalPopupWindowRemainingAfterClick": 126.878,
+      "actualObservedTimeAfterClickBeforeWaitFailure": 128.395
+    },
+    "clickPointCSS": {
+      "x": 195,
+      "y": 331.5
+    },
+    "observations": [
+      "Input DOM snapshot identifies the correct native Visit anchor as the click target; href matches the intended Google Maps driving route.",
+      "Click action completed without an overlay, interception or retry error; input screenshot point lies within the visible white Visit button.",
+      "No popup page event or external Google Directions network request is recorded before this trace ends.",
+      "The popup wait started before a roughly 4.8-second actionability wait, leaving approximately 128 milliseconds after the actual click completed."
+    ],
+    "adjudication": "Confirmed harness deadline coupling: actionability consumed the handoff observation window. The trace does not prove why no popup was captured in the remaining window, or establish a sole cause. The same-head passing rerun is retained without labeling the original result flaky.",
+    "productDefectConfirmedByThisTrace": false
+  },
+  "correction": {
+    "script": "scripts/verify-ios-route-webkit.mjs",
+    "behavior": "Arm a resolve-only popup observer before the separately bounded click; apply the existing five-second handoff deadline after the click completes; always detach the observer.",
+    "unchangedAssertions": "Native href, nonblank popup, exact Google Maps driving destination and source-page location assertions remain active.",
+    "budgets": {
+      "clickTimeoutMs": 30000,
+      "postClickPopupDeadlineMs": 5000
+    },
+    "focusedFaultControls": {
+      "path": "qa/evidence/home-menu-20261019/ios-popup-deadline-controls.json",
+      "sha256": "684f1d626ae7d643d1a32b4600cd3cdb16920a56a2ae546425cfecd994db9951",
+      "passed": 5,
+      "failed": 0,
+      "realBudgetsUsed": true,
+      "unhandledRejections": 0,
+      "remainingPopupListeners": 0
+    }
+  },
+  "localIntegration": {
+    "startedAt": "2026-10-19T11:27:47.982102+00:00",
+    "finishedAt": "2026-10-19T11:29:03.465442+00:00",
+    "command": [
+      "node",
+      "scripts/verify-ios-route-webkit.mjs"
+    ],
+    "exitCode": 0,
+    "engine": "WebKit",
+    "deviceProfile": "iPhone 13",
+    "transport": "Ephemeral localhost HTTPS with original production CSP; only localhost self-signed certificate is ignored.",
+    "externalBoundary": "The existing harness intercepts Google Directions and fulfills a stub popup document. No actual external navigation or Google Maps service availability is certified.",
+    "sourceHashesStart": {
+      "scripts/verify-ios-route-webkit.mjs": "af819bea433b2b43e0f98a0aa16aea57f069aedec221b92151bc96e842c72b02",
+      "scripts/live-smoke-deadlines.mjs": "0c679efcc76fae9b82fe30b23b97551998550bef6c3312cf44c30a22fab4dba2",
+      "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "menu.html": "78edda4a5be379702f2f0be7db8ab6d772c8e3ab13afd9d4f62489798280695c",
+      "menu-runtime.css": "9cbd23b8ee679ef7f6f3f401d789f11a8a8264d8fb611476cb539fda344d451d",
+      "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+      "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "menu-preview.css": "4ef1398382fa84b08229c48eb8f269e19bb3ecc71d5452457df59c397ff09a03",
+      "integrity-manifest.json": "aacc08fbafce9f73750b69c901244e200476ef39fc0f8015dcc0551a5d3996a6"
+    },
+    "sourceHashesEnd": {
+      "scripts/verify-ios-route-webkit.mjs": "af819bea433b2b43e0f98a0aa16aea57f069aedec221b92151bc96e842c72b02",
+      "scripts/live-smoke-deadlines.mjs": "0c679efcc76fae9b82fe30b23b97551998550bef6c3312cf44c30a22fab4dba2",
+      "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "menu.html": "78edda4a5be379702f2f0be7db8ab6d772c8e3ab13afd9d4f62489798280695c",
+      "menu-runtime.css": "9cbd23b8ee679ef7f6f3f401d789f11a8a8264d8fb611476cb539fda344d451d",
+      "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+      "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+      "menu-preview.css": "4ef1398382fa84b08229c48eb8f269e19bb3ecc71d5452457df59c397ff09a03",
+      "integrity-manifest.json": "aacc08fbafce9f73750b69c901244e200476ef39fc0f8015dcc0551a5d3996a6"
+    },
+    "inputsUnchanged": true,
+    "routes": [
+      {
+        "pathname": "index.html",
+        "index": 0,
+        "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "popupUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "passed": true,
+        "timing": {
+          "clickActionMs": 2140,
+          "popupWaitAfterClickMs": 1069,
+          "popupObservedDuringClick": false,
+          "clickTimeoutMs": 30000,
+          "postClickPopupDeadlineMs": 5000
+        }
+      },
+      {
+        "pathname": "index.html",
+        "index": 1,
+        "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "popupUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "passed": true,
+        "timing": {
+          "clickActionMs": 601,
+          "popupWaitAfterClickMs": 326,
+          "popupObservedDuringClick": false,
+          "clickTimeoutMs": 30000,
+          "postClickPopupDeadlineMs": 5000
+        }
+      },
+      {
+        "pathname": "index.html",
+        "index": 2,
+        "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "popupUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "passed": true,
+        "timing": {
+          "clickActionMs": 957,
+          "popupWaitAfterClickMs": 874,
+          "popupObservedDuringClick": false,
+          "clickTimeoutMs": 30000,
+          "postClickPopupDeadlineMs": 5000
+        }
+      },
+      {
+        "pathname": "menu.html",
+        "index": 0,
+        "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "popupUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "passed": true,
+        "timing": {
+          "clickActionMs": 368,
+          "popupWaitAfterClickMs": 1004,
+          "popupObservedDuringClick": false,
+          "clickTimeoutMs": 30000,
+          "postClickPopupDeadlineMs": 5000
+        }
+      },
+      {
+        "pathname": "menu.html",
+        "index": 1,
+        "href": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "popupUrl": "https://www.google.com/maps/dir/?api=1&destination=Roby%27s+Coffee+House+Gazipasa&travelmode=driving",
+        "passed": true,
+        "timing": {
+          "clickActionMs": 447,
+          "popupWaitAfterClickMs": 204,
+          "popupObservedDuringClick": false,
+          "clickTimeoutMs": 30000,
+          "postClickPopupDeadlineMs": 5000
+        }
+      }
+    ],
+    "passed": 5,
+    "failed": 0,
+    "rawEvidenceSha256": {
+      "run.json": "e30e1f4081e745e8a9f68f838531616e3cb8987107157f741e1226de1fb6d6c9",
+      "ios-route-webkit.json": "305e3e31a061f9ab16c70ea73faf48c31baf2e7a8470a9c3f5954f614c6933ea",
+      "ios-route-trace.zip": "09fbd6a3b4f0e953dfe015871166e80a4b12e9664caff794e10adace8bcca8e4",
+      "ios-route-map.png": "653289a7724e180e44d8934c60c961dfad30c2b20650c3ec8f70bfb8eb68d3d4"
+    },
+    "rawEvidenceLocation": "Local scratch capture ios-route-h4-integration; large trace and screenshot are not embedded in this compact repository record."
+  },
+  "limits": [
+    "No real iOS device or Chinese OEM browser was used.",
+    "Assistant-generated trace diagnosis and local test evidence are advisory; no human or provider approval is inferred.",
+    "Fresh published-head CI, review and release authorization are outside this record."
+  ],
+  "status": "PASS for the five focused helper controls and five current-file local route integration cases; historical CI attempt 1 remains FAIL and attempt 2 PASS."
+}

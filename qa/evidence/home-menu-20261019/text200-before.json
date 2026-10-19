@@ -1,0 +1,361 @@
+{
+  "head": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+  "startedAt": "2026-10-19T10:55:22.260Z",
+  "browser": "140.0.7339.186",
+  "mode": "Local HTTPS emitted files with original CSP; root-font enlargement, not native browser zoom; no physical device",
+  "sourceHashesStart": {
+    "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd"
+  },
+  "cases": [
+    {
+      "rootFont": "16px",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "bodyOverflow": "hidden",
+      "nav": {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "top": 0,
+          "right": 320,
+          "bottom": 568,
+          "left": 0
+        },
+        "overflowY": "visible",
+        "overflowX": "visible",
+        "scrollHeight": 568,
+        "clientHeight": 568,
+        "scrollWidth": 320,
+        "clientWidth": 320
+      },
+      "links": [
+        {
+          "text": "О нас",
+          "rect": {
+            "x": 30,
+            "y": 202.5,
+            "width": 102.796875,
+            "height": 61,
+            "top": 202.5,
+            "right": 132.796875,
+            "bottom": 263.5,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 212.5,
+                "width": 102.796875,
+                "height": 41,
+                "top": 212.5,
+                "right": 132.796875,
+                "bottom": 253.5,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Меню",
+          "rect": {
+            "x": 30,
+            "y": 283.5,
+            "width": 104.640625,
+            "height": 61,
+            "top": 283.5,
+            "right": 134.640625,
+            "bottom": 344.5,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 293.5,
+                "width": 104.640625,
+                "height": 41,
+                "top": 293.5,
+                "right": 134.640625,
+                "bottom": 334.5,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Контакты",
+          "rect": {
+            "x": 30,
+            "y": 364.5,
+            "width": 181.109375,
+            "height": 61,
+            "top": 364.5,
+            "right": 211.109375,
+            "bottom": 425.5,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 374.5,
+                "width": 181.109375,
+                "height": 41,
+                "top": 374.5,
+                "right": 211.109375,
+                "bottom": 415.5,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        }
+      ],
+      "screenshot": "chromium-ru-320x568-text100.png"
+    },
+    {
+      "rootFont": "32px",
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "bodyOverflow": "hidden",
+      "nav": {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 568,
+          "top": 0,
+          "right": 320,
+          "bottom": 568,
+          "left": 0
+        },
+        "overflowY": "visible",
+        "overflowX": "visible",
+        "scrollHeight": 568,
+        "clientHeight": 568,
+        "scrollWidth": 392,
+        "clientWidth": 320
+      },
+      "links": [
+        {
+          "text": "О нас",
+          "rect": {
+            "x": 30,
+            "y": 141,
+            "width": 205.640625,
+            "height": 102,
+            "top": 141,
+            "right": 235.640625,
+            "bottom": 243,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 151,
+                "width": 205.640625,
+                "height": 82,
+                "top": 151,
+                "right": 235.640625,
+                "bottom": 233,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Меню",
+          "rect": {
+            "x": 30,
+            "y": 263,
+            "width": 209.328125,
+            "height": 102,
+            "top": 263,
+            "right": 239.328125,
+            "bottom": 365,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 273,
+                "width": 209.328125,
+                "height": 82,
+                "top": 273,
+                "right": 239.328125,
+                "bottom": 355,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Контакты",
+          "rect": {
+            "x": 30,
+            "y": 385,
+            "width": 362.3125,
+            "height": 102,
+            "top": 385,
+            "right": 392.3125,
+            "bottom": 487,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 395,
+                "width": 362.3125,
+                "height": 82,
+                "top": 395,
+                "right": 392.3125,
+                "bottom": 477,
+                "left": 30
+              },
+              "onscreen": false
+            }
+          ]
+        }
+      ],
+      "screenshot": "chromium-ru-320x568-text200.png"
+    },
+    {
+      "rootFont": "32px",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "bodyOverflow": "hidden",
+      "nav": {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 844,
+          "height": 390,
+          "top": 0,
+          "right": 844,
+          "bottom": 390,
+          "left": 0
+        },
+        "overflowY": "visible",
+        "overflowX": "visible",
+        "scrollHeight": 398,
+        "clientHeight": 390,
+        "scrollWidth": 844,
+        "clientWidth": 844
+      },
+      "links": [
+        {
+          "text": "О нас",
+          "rect": {
+            "x": 30,
+            "y": 52,
+            "width": 205.640625,
+            "height": 102,
+            "top": 52,
+            "right": 235.640625,
+            "bottom": 154,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 62,
+                "width": 205.640625,
+                "height": 82,
+                "top": 62,
+                "right": 235.640625,
+                "bottom": 144,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Меню",
+          "rect": {
+            "x": 30,
+            "y": 174,
+            "width": 209.328125,
+            "height": 102,
+            "top": 174,
+            "right": 239.328125,
+            "bottom": 276,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 184,
+                "width": 209.328125,
+                "height": 82,
+                "top": 184,
+                "right": 239.328125,
+                "bottom": 266,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        },
+        {
+          "text": "Контакты",
+          "rect": {
+            "x": 30,
+            "y": 296,
+            "width": 362.3125,
+            "height": 102,
+            "top": 296,
+            "right": 392.3125,
+            "bottom": 398,
+            "left": 30
+          },
+          "textRects": [
+            {
+              "rect": {
+                "x": 30,
+                "y": 306,
+                "width": 362.3125,
+                "height": 82,
+                "top": 306,
+                "right": 392.3125,
+                "bottom": 388,
+                "left": 30
+              },
+              "onscreen": true
+            }
+          ]
+        }
+      ],
+      "screenshot": "chromium-ru-844x390-text200.png"
+    }
+  ],
+  "sourceHashesEnd": {
+    "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd"
+  },
+  "inputsUnchanged": true,
+  "finishedAt": "2026-10-19T10:55:33.270Z"
+}

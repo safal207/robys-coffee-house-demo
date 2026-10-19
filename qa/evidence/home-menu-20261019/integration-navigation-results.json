@@ -1,0 +1,6339 @@
+{
+  "version": 1,
+  "kind": "local-navigation-integration-regression",
+  "integrationHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "integrationTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+  "parents": [
+    "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "585135e07d08bb2680d4893b5bfc5ee89ca286f6"
+  ],
+  "originalRunHeadMarker": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+  "boundary": "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
+  "allCapturedGroupsMatchH5AndWorkingTree": true,
+  "sourceEquivalence": "integration-source-equivalence.json",
+  "engines": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0",
+    "webkit": "26.0"
+  },
+  "textEnlargement": "32px root font (200% of the normal 16px); not native browser zoom",
+  "original": {
+    "reportSha256": "17f847fed5f2d6cb5bf008c14e807a4f2518ad08afa3408aa68f919a91096451",
+    "startedAt": "2026-10-19T11:42:51.786Z",
+    "finishedAt": "2026-10-19T11:52:24.979Z",
+    "command": "MOZ_DISABLE_CONTENT_SANDBOX=1 ROBYS_HOME_NAV_QA_DIR=.artifacts/integrated-navigation42 node scripts/test-home-navigation-browser.mjs",
+    "exitCode": 1,
+    "total": 42,
+    "passed": 41,
+    "failed": 1,
+    "cases": [
+      {
+        "id": "chromium-tr-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96.390625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.390625,
+                "bottom": 1551.421875
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.78125,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.78125,
+                "bottom": 1454.484375
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-en-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 95.890625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.890625,
+                "bottom": 1481.34375
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96.109375,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.109375,
+                "bottom": 1454.8125
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-ru-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96.046875,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.046875,
+                "bottom": 1532.6875
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96.03125,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.03125,
+                "bottom": 1498.71875
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-tr-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 95.671875,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.671875,
+                "bottom": 1166.1875
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96.328125,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.328125,
+                "bottom": 1356.0625
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-en-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96.25,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.25,
+                "bottom": 1192.359375
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.5,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.5,
+                "bottom": 1355.234375
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-ru-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96.296875,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96.296875,
+                "bottom": 1192.40625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.546875,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.546875,
+                "bottom": 1355.28125
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-tr-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.1875,
+              "width": 204.53125,
+              "height": 71.1875,
+              "top": -72.1875,
+              "right": 220.53125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.53125,
+              "top": -56.1875,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 204.53125,
+              "height": 71.1875,
+              "top": 16,
+              "right": 220.53125,
+              "bottom": 87.1875,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.53125,
+              "top": 32,
+              "bottom": 70,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 568,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 260,
+                "height": 184,
+                "top": 100,
+                "right": 290,
+                "bottom": 284,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 242.890625,
+                "top": 110,
+                "bottom": 274,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 304,
+                "width": 193.265625,
+                "height": 102,
+                "top": 304,
+                "right": 223.265625,
+                "bottom": 406,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.265625,
+                "top": 314,
+                "bottom": 396,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 426,
+                "width": 250.875,
+                "height": 102,
+                "top": 426,
+                "right": 280.875,
+                "bottom": 528,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 280.875,
+                "top": 436,
+                "bottom": 518,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "chromium-en-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.1875,
+              "width": 271.03125,
+              "height": 71.1875,
+              "top": -72.1875,
+              "right": 287.03125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.03125,
+              "top": -56.1875,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 271.03125,
+              "height": 71.1875,
+              "top": 16,
+              "right": 287.03125,
+              "bottom": 87.1875,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.03125,
+              "top": 32,
+              "bottom": 70,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 568,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 141,
+                "width": 208.125,
+                "height": 102,
+                "top": 141,
+                "right": 238.125,
+                "bottom": 243,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 238.125,
+                "top": 151,
+                "bottom": 233,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 263,
+                "width": 193.265625,
+                "height": 102,
+                "top": 263,
+                "right": 223.265625,
+                "bottom": 365,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.265625,
+                "top": 273,
+                "bottom": 355,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 385,
+                "width": 150,
+                "height": 102,
+                "top": 385,
+                "right": 180,
+                "bottom": 487,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 180,
+                "top": 395,
+                "bottom": 477,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "chromium-ru-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -123.375,
+              "width": 304,
+              "height": 122.375,
+              "top": -123.375,
+              "right": 320,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 2,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 246.390625,
+              "top": -107.375,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 304,
+              "height": 122.375,
+              "top": 16,
+              "right": 320,
+              "bottom": 138.375,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 2,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 246.390625,
+              "top": 32,
+              "bottom": 121.1875,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 568,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 205.640625,
+                "height": 102,
+                "top": 100,
+                "right": 235.640625,
+                "bottom": 202,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 235.640625,
+                "top": 110,
+                "bottom": 192,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 222,
+                "width": 209.328125,
+                "height": 102,
+                "top": 222,
+                "right": 239.328125,
+                "bottom": 324,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 239.328125,
+                "top": 232,
+                "bottom": 314,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 344,
+                "width": 260,
+                "height": 184,
+                "top": 344,
+                "right": 290,
+                "bottom": 528,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 253.203125,
+                "top": 354,
+                "bottom": 518,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "chromium-tr-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.1875,
+              "width": 204.53125,
+              "height": 71.1875,
+              "top": -72.1875,
+              "right": 220.53125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.53125,
+              "top": -56.1875,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 204.53125,
+              "height": 71.1875,
+              "top": 16,
+              "right": 220.53125,
+              "bottom": 87.1875,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.53125,
+              "top": 32,
+              "bottom": 70,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 486,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 166,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 410.046875,
+                "height": 102,
+                "top": 100,
+                "right": 440.046875,
+                "bottom": 202,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 440.046875,
+                "top": 110,
+                "bottom": 192,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 4,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 218,
+                "width": 193.265625,
+                "height": 102,
+                "top": 218,
+                "right": 223.265625,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.265625,
+                "top": 228,
+                "bottom": 310,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 166,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 178,
+                "width": 250.875,
+                "height": 102,
+                "top": 178,
+                "right": 280.875,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 280.875,
+                "top": 188,
+                "bottom": 270,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "chromium-en-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.1875,
+              "width": 271.03125,
+              "height": 71.1875,
+              "top": -72.1875,
+              "right": 287.03125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.03125,
+              "top": -56.1875,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 271.03125,
+              "height": 71.1875,
+              "top": 16,
+              "right": 287.03125,
+              "bottom": 87.1875,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.03125,
+              "top": 32,
+              "bottom": 70,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 486,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 166,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 208.125,
+                "height": 102,
+                "top": 100,
+                "right": 238.125,
+                "bottom": 202,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 238.125,
+                "top": 110,
+                "bottom": 192,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 4,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 218,
+                "width": 193.265625,
+                "height": 102,
+                "top": 218,
+                "right": 223.265625,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.265625,
+                "top": 228,
+                "bottom": 310,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 166,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 178,
+                "width": 150,
+                "height": 102,
+                "top": 178,
+                "right": 180,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 180,
+                "top": 188,
+                "bottom": 270,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "chromium-ru-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.1875,
+              "width": 428.046875,
+              "height": 71.1875,
+              "top": -72.1875,
+              "right": 444.046875,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 430.046875,
+              "top": -56.1875,
+              "bottom": -18.1875,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 428.046875,
+              "height": 71.1875,
+              "top": 16,
+              "right": 444.046875,
+              "bottom": 87.1875,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 430.046875,
+              "top": 32,
+              "bottom": 70,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 486,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 166,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 205.640625,
+                "height": 102,
+                "top": 100,
+                "right": 235.640625,
+                "bottom": 202,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 235.640625,
+                "top": 110,
+                "bottom": 192,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 4,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 218,
+                "width": 209.328125,
+                "height": 102,
+                "top": 218,
+                "right": 239.328125,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 239.328125,
+                "top": 228,
+                "bottom": 310,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 166,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 178,
+                "width": 362.3125,
+                "height": 102,
+                "top": 178,
+                "right": 392.3125,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 392.3125,
+                "top": 188,
+                "bottom": 270,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "chromium-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0.3125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "chromium-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.453125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.421875,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-tr-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1554.1666259765625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1454.8333740234375
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-en-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1484.566650390625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1454.8333740234375
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-ru-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1535.7666015625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1498.8333740234375
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-tr-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1169.566650390625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1355.800048828125
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-en-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1195.1666259765625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1355.800048828125
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-ru-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1195.1666259765625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1355.800048828125
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-tr-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.19999694824219,
+              "width": 204.51666259765625,
+              "height": 71.19999694824219,
+              "top": -72.19999694824219,
+              "right": 220.51666259765625,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.51666259765625,
+              "top": -55.600006103515625,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 204.51666259765625,
+              "height": 71.19999694824219,
+              "top": 16,
+              "right": 220.51666259765625,
+              "bottom": 87.19999694824219,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.51666259765625,
+              "top": 32.600006103515625,
+              "bottom": 70.60000610351562,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 580,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "wheelScrollDown": 12,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 260,
+                "height": 190,
+                "top": 100,
+                "right": 290,
+                "bottom": 290,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 242.93333435058594,
+                "top": 111,
+                "bottom": 279,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 310,
+                "width": 193.3000030517578,
+                "height": 105,
+                "top": 310,
+                "right": 223.3000030517578,
+                "bottom": 415,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.3000030517578,
+                "top": 321,
+                "bottom": 404,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 435,
+                "width": 250.93333435058594,
+                "height": 105,
+                "top": 435,
+                "right": 280.93333435058594,
+                "bottom": 540,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 280.93333435058594,
+                "top": 446,
+                "bottom": 529,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "firefox-en-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.19999694824219,
+              "width": 271.04998779296875,
+              "height": 71.19999694824219,
+              "top": -72.19999694824219,
+              "right": 287.04998779296875,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.0500030517578,
+              "top": -55.600006103515625,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 271.04998779296875,
+              "height": 71.19999694824219,
+              "top": 16,
+              "right": 287.04998779296875,
+              "bottom": 87.19999694824219,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.0500030517578,
+              "top": 32.600006103515625,
+              "bottom": 70.60000610351562,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 568,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 136.5,
+                "width": 208.14999389648438,
+                "height": 105,
+                "top": 136.5,
+                "right": 238.14999389648438,
+                "bottom": 241.5,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 238.14999389648438,
+                "top": 147.5,
+                "bottom": 230.5,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 261.5,
+                "width": 193.3000030517578,
+                "height": 105,
+                "top": 261.5,
+                "right": 223.3000030517578,
+                "bottom": 366.5,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.3000030517578,
+                "top": 272.5,
+                "bottom": 355.5,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 386.5,
+                "width": 150.03334045410156,
+                "height": 105,
+                "top": 386.5,
+                "right": 180.03334045410156,
+                "bottom": 491.5,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 180.03334045410156,
+                "top": 397.5,
+                "bottom": 480.5,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "firefox-ru-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -123.39999389648438,
+              "width": 304,
+              "height": 122.39999389648438,
+              "top": -123.39999389648438,
+              "right": 320,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 2,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 246.4166717529297,
+              "top": -106.80000305175781,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 304,
+              "height": 122.39999389648438,
+              "top": 16,
+              "right": 320,
+              "bottom": 138.39999389648438,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 2,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 246.4166717529297,
+              "top": 32.600006103515625,
+              "bottom": 121.80000305175781,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 580,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "wheelScrollDown": 12,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 205.6999969482422,
+                "height": 105,
+                "top": 100,
+                "right": 235.6999969482422,
+                "bottom": 205,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 235.6999969482422,
+                "top": 111,
+                "bottom": 194,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 225,
+                "width": 209.36666870117188,
+                "height": 105,
+                "top": 225,
+                "right": 239.36666870117188,
+                "bottom": 330,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 239.36666870117188,
+                "top": 236,
+                "bottom": 319,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 350,
+                "width": 260,
+                "height": 190,
+                "top": 350,
+                "right": 290,
+                "bottom": 540,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 253.26666259765625,
+                "top": 361,
+                "bottom": 529,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "firefox-tr-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.19999694824219,
+              "width": 204.51666259765625,
+              "height": 71.19999694824219,
+              "top": -72.19999694824219,
+              "right": 220.51666259765625,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.51666259765625,
+              "top": -55.600006103515625,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 204.51666259765625,
+              "height": 71.19999694824219,
+              "top": 16,
+              "right": 220.51666259765625,
+              "bottom": 87.19999694824219,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 206.51666259765625,
+              "top": 32.600006103515625,
+              "bottom": 70.60000610351562,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 495,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 175,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 410.1333312988281,
+                "height": 105,
+                "top": 100,
+                "right": 440.1333312988281,
+                "bottom": 205,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 440.1333312988281,
+                "top": 111,
+                "bottom": 194,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 225,
+                "width": 193.3000030517578,
+                "height": 105,
+                "top": 225,
+                "right": 223.3000030517578,
+                "bottom": 330,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.3000030517578,
+                "top": 236,
+                "bottom": 319,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 175,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 175,
+                "width": 250.93333435058594,
+                "height": 105,
+                "top": 175,
+                "right": 280.93333435058594,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 280.93333435058594,
+                "top": 186,
+                "bottom": 269,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "firefox-en-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.19999694824219,
+              "width": 271.04998779296875,
+              "height": 71.19999694824219,
+              "top": -72.19999694824219,
+              "right": 287.04998779296875,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.0500030517578,
+              "top": -55.600006103515625,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 271.04998779296875,
+              "height": 71.19999694824219,
+              "top": 16,
+              "right": 287.04998779296875,
+              "bottom": 87.19999694824219,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 273.0500030517578,
+              "top": 32.600006103515625,
+              "bottom": 70.60000610351562,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 495,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 175,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 208.14999389648438,
+                "height": 105,
+                "top": 100,
+                "right": 238.14999389648438,
+                "bottom": 205,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 238.14999389648438,
+                "top": 111,
+                "bottom": 194,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 225,
+                "width": 193.3000030517578,
+                "height": 105,
+                "top": 225,
+                "right": 223.3000030517578,
+                "bottom": 330,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 223.3000030517578,
+                "top": 236,
+                "bottom": 319,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 175,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 175,
+                "width": 150.03334045410156,
+                "height": 105,
+                "top": 175,
+                "right": 180.03334045410156,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 180.03334045410156,
+                "top": 186,
+                "bottom": 269,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "firefox-ru-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -72.19999694824219,
+              "width": 428.066650390625,
+              "height": 71.19999694824219,
+              "top": -72.19999694824219,
+              "right": 444.066650390625,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 430.066650390625,
+              "top": -55.600006103515625,
+              "bottom": -17.600006103515625,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 428.066650390625,
+              "height": 71.19999694824219,
+              "top": 16,
+              "right": 444.066650390625,
+              "bottom": 87.19999694824219,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 430.066650390625,
+              "top": 32.600006103515625,
+              "bottom": 70.60000610351562,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 495,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 175,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 205.6999969482422,
+                "height": 105,
+                "top": 100,
+                "right": 235.6999969482422,
+                "bottom": 205,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 235.6999969482422,
+                "top": 111,
+                "bottom": 194,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 225,
+                "width": 209.36666870117188,
+                "height": 105,
+                "top": 225,
+                "right": 239.36666870117188,
+                "bottom": 330,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 239.36666870117188,
+                "top": 236,
+                "bottom": 319,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 175,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 175,
+                "width": 362.3999938964844,
+                "height": 105,
+                "top": 175,
+                "right": 392.3999938964844,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 392.3999938964844,
+                "top": 186,
+                "bottom": 269,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "firefox-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "firefox-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": -0.3333282470703125,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-tr-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1354
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1402
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-en-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1360
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1402
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-ru-390",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1428
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 96,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 96,
+                "bottom": 1445
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-tr-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Siparişimi oluştur",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "Hakkımızda",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menü",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Ziyaret",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Menüyü aç",
+            "close": "Menüyü kapat"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1161.65625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1350.65625
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "tr"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-en-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Build my order",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "About",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Menu",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Visit",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Open menu",
+            "close": "Close menu"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1161.65625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1350.65625
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "en"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-ru-900",
+        "status": "PASS",
+        "facts": {
+          "closedTabSequence": [
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inHeader": true
+            },
+            {
+              "tag": "A",
+              "text": "Собрать заказ",
+              "inNavigation": false,
+              "inHeader": false
+            }
+          ],
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "EN",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "RU",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "inActions": true
+            },
+            {
+              "tag": "A",
+              "text": "О нас",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "A",
+              "text": "Контакты",
+              "inNavigation": true,
+              "inActions": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "TR",
+              "inNavigation": false,
+              "inActions": true
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "localizedToggleLabels": {
+            "open": "Открыть меню",
+            "close": "Закрыть меню"
+          },
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#about",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "about",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1161.65625
+              }
+            },
+            {
+              "hash": "#visit",
+              "top": 95.65625,
+              "viewport": 900,
+              "focus": {
+                "tag": "SECTION",
+                "id": "visit",
+                "label": null,
+                "insideClosedNavigation": false,
+                "meaningful": true,
+                "visible": true,
+                "onScreen": true,
+                "top": 95.65625,
+                "bottom": 1350.65625
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-tr-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 106.203125,
+              "height": 45,
+              "top": -46,
+              "right": 122.203125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 108.192138671875,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 184.390625,
+              "height": 71,
+              "top": 16,
+              "right": 200.390625,
+              "bottom": 87,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 186.38430786132812,
+              "top": 35,
+              "bottom": 67,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 576,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "wheelScrollDown": 8,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 260,
+                "height": 188,
+                "top": 100,
+                "right": 290,
+                "bottom": 288,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 288.4043273925781,
+                "top": 117,
+                "bottom": 271,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 308,
+                "width": 176.0625,
+                "height": 104,
+                "top": 308,
+                "right": 206.0625,
+                "bottom": 412,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 206.0471649169922,
+                "top": 325,
+                "bottom": 395,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 432,
+                "width": 211.609375,
+                "height": 104,
+                "top": 432,
+                "right": 241.609375,
+                "bottom": 536,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 241.59400939941406,
+                "top": 449,
+                "bottom": 519,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "webkit-en-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 133.65625,
+              "height": 45,
+              "top": -46,
+              "right": 149.65625,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 135.648193359375,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 239.296875,
+              "height": 71,
+              "top": 16,
+              "right": 255.296875,
+              "bottom": 87,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 241.29640197753906,
+              "top": 35,
+              "bottom": 67,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 568,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 138,
+                "width": 184.21875,
+                "height": 104,
+                "top": 138,
+                "right": 214.21875,
+                "bottom": 242,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 214.2125244140625,
+                "top": 155,
+                "bottom": 225,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 262,
+                "width": 176.0625,
+                "height": 104,
+                "top": 262,
+                "right": 206.0625,
+                "bottom": 366,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 206.0471649169922,
+                "top": 279,
+                "bottom": 349,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 386,
+                "width": 132.625,
+                "height": 104,
+                "top": 386,
+                "right": 162.625,
+                "bottom": 490,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 162.6160430908203,
+                "top": 403,
+                "bottom": 473,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "webkit-ru-320x568-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 320,
+          "height": 568,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 200.734375,
+              "height": 45,
+              "top": -46,
+              "right": 216.734375,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 202.72032165527344,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 304,
+              "height": 122,
+              "top": 16,
+              "right": 320,
+              "bottom": 138,
+              "left": 16
+            },
+            "viewport": {
+              "width": 320,
+              "height": 568
+            },
+            "rowCount": 2,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 216.81637573242188,
+              "top": 35,
+              "bottom": 118,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 320,
+          "navigation": {
+            "scrollHeight": 576,
+            "clientHeight": 568,
+            "scrollWidth": 320,
+            "clientWidth": 320,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 320,
+            "viewportWidth": 320
+          },
+          "wheelScrollDown": 8,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 187.53125,
+                "height": 104,
+                "top": 100,
+                "right": 217.53125,
+                "bottom": 204,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 217.52084350585938,
+                "top": 117,
+                "bottom": 187,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 0,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 224,
+                "width": 189.421875,
+                "height": 104,
+                "top": 224,
+                "right": 219.421875,
+                "bottom": 328,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 219.42138671875,
+                "top": 241,
+                "bottom": 311,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 0,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 348,
+                "width": 260,
+                "height": 188,
+                "top": 348,
+                "right": 290,
+                "bottom": 536,
+                "left": 30
+              },
+              "viewport": {
+                "width": 320,
+                "height": 568
+              },
+              "rowCount": 2,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 279.5345458984375,
+                "top": 365,
+                "bottom": 519,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 4
+        }
+      },
+      {
+        "id": "webkit-tr-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 106.203125,
+              "height": 45,
+              "top": -46,
+              "right": 122.203125,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 108.192138671875,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "İçeriğe geç",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 184.390625,
+              "height": 71,
+              "top": 16,
+              "right": 200.390625,
+              "bottom": 87,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 186.38430786132812,
+              "top": 35,
+              "bottom": 67,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 492,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 18,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "Hakkımızda",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 371.59375,
+                "height": 104,
+                "top": 100,
+                "right": 401.59375,
+                "bottom": 204,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 401.5925598144531,
+                "top": 117,
+                "bottom": 187,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 8,
+              "text": "Menü",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 216,
+                "width": 176.0625,
+                "height": 104,
+                "top": 216,
+                "right": 206.0625,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 206.0471649169922,
+                "top": 233,
+                "bottom": 303,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 172,
+              "text": "Ziyaret",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 176,
+                "width": 211.609375,
+                "height": 104,
+                "top": 176,
+                "right": 241.609375,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 241.59400939941406,
+                "top": 193,
+                "bottom": 263,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "webkit-en-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 133.65625,
+              "height": 45,
+              "top": -46,
+              "right": 149.65625,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 135.648193359375,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Skip to content",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 239.296875,
+              "height": 71,
+              "top": 16,
+              "right": 255.296875,
+              "bottom": 87,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 241.29640197753906,
+              "top": 35,
+              "bottom": 67,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 492,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 126,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "About",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 184.21875,
+                "height": 104,
+                "top": 100,
+                "right": 214.21875,
+                "bottom": 204,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 214.2125244140625,
+                "top": 117,
+                "bottom": 187,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 8,
+              "text": "Menu",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 216,
+                "width": 176.0625,
+                "height": 104,
+                "top": 216,
+                "right": 206.0625,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 206.0471649169922,
+                "top": 233,
+                "bottom": 303,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 172,
+              "text": "Visit",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 176,
+                "width": 132.625,
+                "height": 104,
+                "top": 176,
+                "right": 162.625,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 162.6160430908203,
+                "top": 193,
+                "bottom": 263,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "webkit-ru-568x320-text200",
+        "status": "PASS",
+        "facts": {
+          "width": 568,
+          "height": 320,
+          "rootFontPixels": 32,
+          "textEnlargement": "200% root font; not native browser zoom",
+          "skipUnfocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": false,
+            "rect": {
+              "x": 16,
+              "y": -46,
+              "width": 200.734375,
+              "height": 45,
+              "top": -46,
+              "right": 216.734375,
+              "bottom": -1,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 202.72032165527344,
+              "top": -32,
+              "bottom": -16,
+              "allUncovered": false
+            }
+          },
+          "skipFocused": {
+            "text": "Перейти к содержанию",
+            "visible": true,
+            "focused": true,
+            "rect": {
+              "x": 16,
+              "y": 16,
+              "width": 373.453125,
+              "height": 71,
+              "top": 16,
+              "right": 389.453125,
+              "bottom": 87,
+              "left": 16
+            },
+            "viewport": {
+              "width": 568,
+              "height": 320
+            },
+            "rowCount": 1,
+            "nativeRangeBounds": {
+              "left": 30,
+              "right": 375.440673828125,
+              "top": 35,
+              "bottom": 67,
+              "allUncovered": true
+            }
+          },
+          "documentWidthBeforeOpen": 568,
+          "navigation": {
+            "scrollHeight": 492,
+            "clientHeight": 320,
+            "scrollWidth": 568,
+            "clientWidth": 568,
+            "scrollTop": 0,
+            "overflowY": "auto",
+            "documentWidth": 568,
+            "viewportWidth": 568
+          },
+          "wheelScrollDown": 64,
+          "wheelScrollBack": 0,
+          "focusedLinks": [
+            {
+              "index": 0,
+              "scrollTop": 0,
+              "text": "О нас",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 100,
+                "width": 187.53125,
+                "height": 104,
+                "top": 100,
+                "right": 217.53125,
+                "bottom": 204,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 217.52084350585938,
+                "top": 117,
+                "bottom": 187,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 1,
+              "scrollTop": 8,
+              "text": "Меню",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 216,
+                "width": 189.421875,
+                "height": 104,
+                "top": 216,
+                "right": 219.421875,
+                "bottom": 320,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 219.42138671875,
+                "top": 233,
+                "bottom": 303,
+                "allUncovered": true
+              }
+            },
+            {
+              "index": 2,
+              "scrollTop": 172,
+              "text": "Контакты",
+              "visible": true,
+              "focused": true,
+              "rect": {
+                "x": 30,
+                "y": 176,
+                "width": 300.15625,
+                "height": 104,
+                "top": 176,
+                "right": 330.15625,
+                "bottom": 280,
+                "left": 30
+              },
+              "viewport": {
+                "width": 568,
+                "height": 320
+              },
+              "rowCount": 1,
+              "nativeRangeBounds": {
+                "left": 30,
+                "right": 330.14544677734375,
+                "top": 193,
+                "bottom": 263,
+                "allUncovered": true
+              }
+            }
+          ],
+          "enlargedPageTextFieldCount": 11,
+          "horizontalTextRowCount": 3
+        }
+      },
+      {
+        "id": "webkit-ru-standalone-390",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      },
+      {
+        "id": "webkit-ru-standalone-900",
+        "status": "FAIL",
+        "error": "page.screenshot: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\n    at verifyStandaloneCase (/workspace/scratch/4a3e6279e984/robys-integration/scripts/test-home-navigation-browser.mjs:317:16)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-home-navigation-browser.mjs:464:47",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        },
+        "errors": []
+      }
+    ]
+  },
+  "followup": {
+    "reportSha256": "79ca9020949e6a8e870f8ecdb2395624a73913f2b362a48af3cd6904f45e835a",
+    "startedAt": "2026-10-19T11:52:48.277Z",
+    "finishedAt": "2026-10-19T11:53:06.126Z",
+    "command": "MOZ_DISABLE_CONTENT_SANDBOX=1 ROBYS_HOME_NAV_FILTER=webkit-ru-standalone-900 ROBYS_HOME_NAV_QA_DIR=.artifacts/integrated-navigation42-followup node scripts/test-home-navigation-browser.mjs",
+    "exitCode": 0,
+    "total": 1,
+    "passed": 1,
+    "cases": [
+      {
+        "id": "webkit-ru-standalone-900",
+        "status": "PASS",
+        "facts": {
+          "path": "/ru/coffee-gazipasa.html",
+          "openTabSequence": [
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Адрес",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "A",
+              "text": "Вопросы",
+              "inNavigation": true,
+              "toggle": false
+            },
+            {
+              "tag": "BUTTON",
+              "text": "",
+              "inNavigation": false,
+              "toggle": true
+            },
+            {
+              "tag": "A",
+              "text": "Меню",
+              "inNavigation": true,
+              "toggle": false
+            }
+          ],
+          "escapeClosesAndRestoresFocus": true,
+          "resizeKeepsMobileAndClosesAtDesktop": true,
+          "destinations": [
+            {
+              "hash": "#location",
+              "focus": {
+                "tag": "SECTION",
+                "id": "location",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "hash": "#faq",
+              "focus": {
+                "tag": "SECTION",
+                "id": "faq",
+                "insideClosedNavigation": false,
+                "visible": true,
+                "meaningful": true,
+                "onScreen": true,
+                "targetTop": 0,
+                "viewportHeight": 900
+              }
+            },
+            {
+              "path": "/menu.html",
+              "preservedLanguage": "ru"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "assetHashesStart": {
+    "index.html": "14161b5d591afe803fb91f4946e4c6b3bed9bd62d043acf5183acfd43dda6702",
+    "app.js": "696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9",
+    "styles-v2.css": "26e28dbd28466e5ff81e92b445840bd0923dcb2fb67ccb6dcc01c70031485edd",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "ru/coffee-gazipasa.html": "7d5ad33f69a5ccbba70cda7f74986eb17fd15d72c58c5a8ef72fafa33d05a3e6",
+    "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+  },
+  "assetHashesEnd": {
+    "index.html": "14161b5d591afe803fb91f4946e4c6b3bed9bd62d043acf5183acfd43dda6702",
+    "app.js": "696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9",
+    "styles-v2.css": "26e28dbd28466e5ff81e92b445840bd0923dcb2fb67ccb6dcc01c70031485edd",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "ru/coffee-gazipasa.html": "7d5ad33f69a5ccbba70cda7f74986eb17fd15d72c58c5a8ef72fafa33d05a3e6",
+    "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+  },
+  "followupAssetHashesStart": {
+    "index.html": "14161b5d591afe803fb91f4946e4c6b3bed9bd62d043acf5183acfd43dda6702",
+    "app.js": "696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9",
+    "styles-v2.css": "26e28dbd28466e5ff81e92b445840bd0923dcb2fb67ccb6dcc01c70031485edd",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "ru/coffee-gazipasa.html": "7d5ad33f69a5ccbba70cda7f74986eb17fd15d72c58c5a8ef72fafa33d05a3e6",
+    "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+  },
+  "followupAssetHashesEnd": {
+    "index.html": "14161b5d591afe803fb91f4946e4c6b3bed9bd62d043acf5183acfd43dda6702",
+    "app.js": "696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9",
+    "styles-v2.css": "26e28dbd28466e5ff81e92b445840bd0923dcb2fb67ccb6dcc01c70031485edd",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "ru/coffee-gazipasa.html": "7d5ad33f69a5ccbba70cda7f74986eb17fd15d72c58c5a8ef72fafa33d05a3e6",
+    "scripts/test-home-navigation-browser.mjs": "7f4cd101d02e1f1dc7d27999ca0eba5c53280654236b771054d92d0bf382099a"
+  },
+  "assetsUnchangedAcrossBothRuns": true,
+  "disposition": "All42 unique journeys have successful executions under identical measured input bytes. The original full command remains41/42 exit1: its last finalcatalog screenshot exceeded15000ms after all behavior assertions. Exact unchangedcase retry passed1/1 with same timeout. Cause of capture timeout unconfirmed; failure retained. Not one clean42case command.",
+  "limits": "Native and keyboard assertions use actual emitted HTTPS documents without CSP bypass.200% rootfont is not native browser zoom. Physical OEM/Android/iOS browsers not tested."
+}

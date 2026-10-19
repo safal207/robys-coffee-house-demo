@@ -1,0 +1,54 @@
+{
+  "kind": "read-only-independent-provisional-binding-check-not-visual-approval",
+  "checkedAt": "2026-10-19T12:53:56.979258+00:00",
+  "head": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+  "finalHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+  "recordSHA256": "e9e76dae0df10ebe51f4c8bff9f362ffce56a6b54956e6c77c23453ec6116bd1",
+  "bindingCount": 795,
+  "publicManifestCount": 457,
+  "mismatches": [],
+  "bindingDigest": "0963ada9d7e1f1c88175df641ac9dad3a3911b622c7deb2bbc31af3d4c03bd06",
+  "changedBindings": {
+    "app.js": {
+      "old": "2770613edef677fe93284586803d94fe3e311a67",
+      "new": "af6b15b2ebadf96bac81aa2f19a2adf52184958f"
+    },
+    "index.html": {
+      "old": "c2641d98fbd301e1ff877be98b22bc38a349af50",
+      "new": "8299a4320c615aaef283711f3a416eb639c19df6"
+    },
+    "integrity-manifest.json": {
+      "old": "94134dc57d743cc60c27bb8677a8edb9cee8be08",
+      "new": "ccd0ada9ccc8eb620332b4b03037f140a1f3c3ae"
+    },
+    "ru/coffee-gazipasa.html": {
+      "old": "a771e36891b67c369624699d064df69a87ec72c3",
+      "new": "41b01c3efa355b83918aadcb97c7f69c7dbf6732"
+    },
+    "scripts/test-home-navigation-browser.mjs": {
+      "old": "3f7ba60e207707f40e3097973e887a847a6d8cf6",
+      "new": "9ef18bb3d34cbd8a06da1244865dacd16aa1c2d9"
+    },
+    "src/app.ts": {
+      "old": "8a6280888f09bf06b7af7ba89eb110aadaea891e",
+      "new": "6fc957879a2d0b8a2121afdee407a633d555a709"
+    },
+    "sw-core-v64.js": {
+      "old": "9f0ef5b3ea9a68ced06a273c36a1bfc5b51fd290",
+      "new": "aaa7e0b0c84ffda0fafc0a700da32ed586afd11e"
+    }
+  },
+  "expectedSixRowsAndReviewedCaptureMetadataUnchanged": true,
+  "exactObservedHistoricalMetricsValidated": [
+    "visual-446-head5/screenshot-attempt-1",
+    "visual-446-head5/screenshot-attempt-2",
+    "visual-446-head5/final",
+    "visual-446-head6/screenshot-attempt-1",
+    "visual-446-head6/screenshot-attempt-2",
+    "visual-446-head6/final"
+  ],
+  "expectedFailureCanonicalFingerprintSHA256": "5f37b82c84483f33ed3d6afb23a3fd45f1a94311d5133d6e57514a4f71241657",
+  "pendingFreshCurrentHeadCIAndActualPairInspection": true,
+  "H7VisualPass": false,
+  "scope": "Provisional current-input binding is internally consistent. H5/H6 capture attribution remains historical. Incomplete local34pairs provide no source-equivalence verdict."
+}

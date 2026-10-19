@@ -1,0 +1,736 @@
+{
+  "version": 1,
+  "kind": "native-kids-sets-integration-regression",
+  "integrationHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "integrationTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+  "parents": [
+    "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "585135e07d08bb2680d4893b5bfc5ee89ca286f6"
+  ],
+  "originalRunHeadMarker": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+  "boundary": "Runs began in an uncommitted integration checkout at the older HEAD marker. Every listed captured SHA256 was independently compared with actual immutable H5 git-show bytes and current workingtree; matching the old marker alone is not used as proof.",
+  "allCapturedGroupsMatchH5AndWorkingTree": true,
+  "sourceEquivalence": "integration-source-equivalence.json",
+  "originalSummarySha256": "6dbaf9d49bdd072a7c26f206fd6b4f0eaa0ef3b7b29bda139c94c0456e3a0321",
+  "originalParitySha256": "6a5344f755fb6410528f8141d8134afdb87a2850b10d5793a754c5520a6ef5c1",
+  "capturedAt": "2026-10-19T11:48:24.334631+00:00",
+  "mode": "Local HTTPS source fixture preserving original HTML CSP; four source-compiled runtime modules separately verified byte-identical to emitted merged build. Linux desktop engines with 390x844 touch viewport, not physical Android/iOS or vendor browsers.",
+  "scriptSha256": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+  "uniqueNativeCasesWithObservedPass": 18,
+  "initialFinalFileMatrixPassed": 17,
+  "initialFinalFileMatrixFailed": 1,
+  "retry": "Only WebKit ready-kids-big-ru repeated with identical script and 7000ms timeout; PASS. Initial failure occurred in page.goto waiting for load before scenario assertions. It remains preserved and is not counted as an initial pass.",
+  "runs": [
+    {
+      "run": "chromium-final",
+      "reportSha256": "084e1bd79f3172cbe2aad7de5eaf57b848ae57eae77e12fed4a6f93ddc9ea65a",
+      "browserName": "chromium",
+      "browserVersion": "140.0.7339.186",
+      "startedAt": "2026-10-19T11:45:30.533Z",
+      "finishedAt": "2026-10-19T11:46:18.940Z",
+      "summary": {
+        "passed": 6,
+        "failed": 0
+      },
+      "sourceHashes": {
+        "scripts/test-menu-family-browser.mjs": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+        "src/menu-app.js": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+        "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+        "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+        "src/menu-family-ui.js": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+        "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+        "src/kids-menu.js": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+        "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+        "src/menu-order-ui.js": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+        "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+        "kids-menu.css": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+        "menu.html": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+        "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+        "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+        "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+        "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+        "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+      },
+      "cases": [
+        {
+          "id": "ready-kids-mini-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:31.527Z",
+          "finishedAt": "2026-10-19T11:45:37.460Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:37.663Z",
+          "finishedAt": "2026-10-19T11:45:43.536Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:43.674Z",
+          "finishedAt": "2026-10-19T11:45:50.076Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:51.593Z",
+          "finishedAt": "2026-10-19T11:45:58.527Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:58.822Z",
+          "finishedAt": "2026-10-19T11:46:08.369Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:08.714Z",
+          "finishedAt": "2026-10-19T11:46:18.705Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        }
+      ]
+    },
+    {
+      "run": "firefox-final",
+      "reportSha256": "969e4dced98ed2d669033632b631b62aeded077b6c200369a8677334a9e6172a",
+      "browserName": "firefox",
+      "browserVersion": "141.0",
+      "startedAt": "2026-10-19T11:46:12.443Z",
+      "finishedAt": "2026-10-19T11:47:26.216Z",
+      "summary": {
+        "passed": 6,
+        "failed": 0
+      },
+      "sourceHashes": {
+        "scripts/test-menu-family-browser.mjs": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+        "src/menu-app.js": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+        "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+        "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+        "src/menu-family-ui.js": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+        "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+        "src/kids-menu.js": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+        "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+        "src/menu-order-ui.js": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+        "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+        "kids-menu.css": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+        "menu.html": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+        "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+        "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+        "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+        "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+        "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+      },
+      "cases": [
+        {
+          "id": "ready-kids-mini-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:19.475Z",
+          "finishedAt": "2026-10-19T11:46:31.114Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:32.774Z",
+          "finishedAt": "2026-10-19T11:46:39.279Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:42.462Z",
+          "finishedAt": "2026-10-19T11:46:48.090Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:49.305Z",
+          "finishedAt": "2026-10-19T11:46:55.739Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:57.291Z",
+          "finishedAt": "2026-10-19T11:47:09.648Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:47:14.447Z",
+          "finishedAt": "2026-10-19T11:47:23.390Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        }
+      ]
+    },
+    {
+      "run": "webkit-final",
+      "reportSha256": "08a292efb78eeae84e2a60c1d29836bd8c6a398d9e343f72d633e346689ecdc1",
+      "browserName": "webkit",
+      "browserVersion": "26.0",
+      "startedAt": "2026-10-19T11:45:49.682Z",
+      "finishedAt": "2026-10-19T11:47:27.935Z",
+      "summary": {
+        "passed": 5,
+        "failed": 1
+      },
+      "sourceHashes": {
+        "scripts/test-menu-family-browser.mjs": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+        "src/menu-app.js": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+        "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+        "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+        "src/menu-family-ui.js": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+        "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+        "src/kids-menu.js": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+        "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+        "src/menu-order-ui.js": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+        "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+        "kids-menu.css": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+        "menu.html": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+        "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+        "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+        "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+        "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+        "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+      },
+      "cases": [
+        {
+          "id": "ready-kids-mini-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:45:53.039Z",
+          "finishedAt": "2026-10-19T11:46:05.707Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-tr",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:07.400Z",
+          "finishedAt": "2026-10-19T11:46:21.947Z",
+          "facts": {
+            "language": "tr",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:22.848Z",
+          "finishedAt": "2026-10-19T11:46:37.735Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-en",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:38.666Z",
+          "finishedAt": "2026-10-19T11:46:51.610Z",
+          "facts": {
+            "language": "en",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-mini-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:46:52.419Z",
+          "finishedAt": "2026-10-19T11:47:14.571Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-mini",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 160,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        },
+        {
+          "id": "ready-kids-big-ru",
+          "status": "FAIL",
+          "startedAt": "2026-10-19T11:47:15.516Z",
+          "finishedAt": "2026-10-19T11:47:27.762Z",
+          "error": "page.goto: Timeout 7000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://127.0.0.1:37327/menu.html#kids-menu\", waiting until \"load\"\u001b[22m\n\n    at openMenu (/workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:89:14)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:313:7\n    at async run (/workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+          "uncaughtErrors": []
+        }
+      ]
+    },
+    {
+      "run": "webkit-ru-big-retry",
+      "reportSha256": "a15db65c2c7c47ab01a0857397571f0c26dd3e3503be3287bdc7e9c587be54ae",
+      "browserName": "webkit",
+      "browserVersion": "26.0",
+      "startedAt": "2026-10-19T11:47:51.494Z",
+      "finishedAt": "2026-10-19T11:48:08.198Z",
+      "summary": {
+        "passed": 1,
+        "failed": 0
+      },
+      "sourceHashes": {
+        "scripts/test-menu-family-browser.mjs": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+        "src/menu-app.js": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+        "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+        "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+        "src/menu-family-ui.js": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+        "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+        "src/kids-menu.js": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+        "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+        "src/menu-order-ui.js": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+        "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+        "kids-menu.css": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+        "menu.html": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+        "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+        "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+        "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+        "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+        "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+      },
+      "cases": [
+        {
+          "id": "ready-kids-big-ru",
+          "status": "PASS",
+          "startedAt": "2026-10-19T11:47:53.493Z",
+          "finishedAt": "2026-10-19T11:48:07.624Z",
+          "facts": {
+            "language": "ru",
+            "combo": "kids-big",
+            "deepLink": "#kids-menu",
+            "canonicalItems": [
+              "brew-hot:milk",
+              "food:three-cheese-croissant",
+              "desserts:cookie"
+            ],
+            "catalogTotal": 330,
+            "busyStateVisible": true,
+            "oneNativeAdd": true,
+            "duplicatePendingActivationIgnored": true,
+            "quantityIncreaseAndDecrease": true,
+            "componentReplacementSaved": true,
+            "editedSetRemoved": true,
+            "existingMilkQuantity": 2,
+            "existingOrderPreserved": true,
+            "focusRestored": true
+          }
+        }
+      ]
+    }
+  ],
+  "runtimeParity": {
+    "capturedAt": "2026-10-19T11:46:29.179Z",
+    "worktreeHead": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "testScriptSha256": "a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82",
+    "mode": "Local HTTPS source fixture with original HTML CSP; real emitted runtime parity independently checked",
+    "rows": [
+      {
+        "file": "menu-app.js",
+        "byteLength": 22204,
+        "sha256": "74941e12c4d8c0ba5b2e5878ad5b38bb302b567e98527c6e985b12756008753f",
+        "fixtureEqualsEmitted": true
+      },
+      {
+        "file": "menu-family-ui.js",
+        "byteLength": 19665,
+        "sha256": "c6e39d14b3d5267ccd62775a925abe44bcad7cf880741ffea8377ec3438c5068",
+        "fixtureEqualsEmitted": true
+      },
+      {
+        "file": "menu-order-ui.js",
+        "byteLength": 35198,
+        "sha256": "206dca9f16f063a8c25c155dae901eb44e3bd6f4b573d0ea1d72e4abb15906ad",
+        "fixtureEqualsEmitted": true
+      },
+      {
+        "file": "order-storage.js",
+        "byteLength": 26153,
+        "sha256": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+        "fixtureEqualsEmitted": true
+      }
+    ]
+  },
+  "earlierOracleFailures": {
+    "reportSha256": "050e6836928ec8cac82ca9a0039a701906155f8338c9782e3f9d2a94f0813d2d",
+    "headMarker": "58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72",
+    "scriptSha256": "f27973ab49aa17b594b3dc72a6a2c13c36c49d40c1df50bff3e6cbb6534a561b",
+    "sourceHashes": {
+      "scripts/test-menu-family-browser.mjs": "f27973ab49aa17b594b3dc72a6a2c13c36c49d40c1df50bff3e6cbb6534a561b",
+      "src/menu-app.js": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e",
+      "src/order-storage.js": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4",
+      "src/order-storage-notice.js": "7c4be995c675929ed0cdf66bce5dea8fb050f68b7af4afcb9f46e205bd418bb6",
+      "src/menu-family-ui.js": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662",
+      "src/menu-family.js": "487ce4e6255594d9ed525179d3464765a79aa8b53e844a7a72f34894389eb192",
+      "src/kids-menu.js": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c",
+      "src/order-draft.js": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522",
+      "src/menu-order-ui.js": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc",
+      "menu-family.css": "e7dc86c94a4b8c7698d8dc6f29be7a6d77133ef0085fd9d1a0e4feb96ab2d8fa",
+      "kids-menu.css": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611",
+      "menu.html": "4faced215148d7a24742983f925e673726cd8d7087af4a4b07397fc87df1ab9b",
+      "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+      "src/products/family-sets-v1/milk-cookie.webp": "3aa407636cd85a7e23ae91df33f854d8996b0997d6ec44bde84ee2cd35c66faf",
+      "src/products/family-sets-v1/simit-break.webp": "07f4cd9bdcb454b0eeae5270aa96459c70893dcf1da58e34a8393ff6bd927b4f",
+      "src/products/family-sets-v1/milk-roll.webp": "97b195341f409a579d49be9df6c99d0ac36fa169af3c28619ceb6e2b8898f763",
+      "src/products/family-sets-v1/kids-box.webp": "986a78a2da516ba449788e1a2df1b2c1c21332f32a43d593b4e1620874211a2e"
+    },
+    "summary": {
+      "passed": 0,
+      "failed": 6
+    },
+    "cases": [
+      {
+        "id": "ready-kids-mini-tr",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:04.693Z",
+        "finishedAt": "2026-10-19T11:44:17.323Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      },
+      {
+        "id": "ready-kids-big-tr",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:17.494Z",
+        "finishedAt": "2026-10-19T11:44:26.209Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      },
+      {
+        "id": "ready-kids-mini-en",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:26.408Z",
+        "finishedAt": "2026-10-19T11:44:36.361Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      },
+      {
+        "id": "ready-kids-big-en",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:36.520Z",
+        "finishedAt": "2026-10-19T11:44:45.971Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      },
+      {
+        "id": "ready-kids-mini-ru",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:46.241Z",
+        "finishedAt": "2026-10-19T11:44:57.253Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:502:9)\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      },
+      {
+        "id": "ready-kids-big-ru",
+        "status": "FAIL",
+        "startedAt": "2026-10-19T11:44:57.516Z",
+        "finishedAt": "2026-10-19T11:45:11.938Z",
+        "error": "TypeError: Cannot read properties of undefined (reading 'items')\n    at file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:386:36\n    at async run (file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:71:19)\n    at async file:///workspace/scratch/4a3e6279e984/robys-integration/scripts/test-menu-family-browser.mjs:305:6",
+        "uncaughtErrors": []
+      }
+    ],
+    "disposition": "The initial new test wrongly assumed group identity survives composition replacement. Existing normalization derives identity from composition; the final oracle verifies selected items, quantity, group count, prices, unrelated order preservation and removal."
+  },
+  "limits": "Linux desktop engines at390x844touchviewport. Fixture module byte parity is explicitly measured; this is not physical iOS/Android/OEM validation. Initial goto timeout7000ms and earlier test-oracle failures remain failures in their original runs; no timeout changes."
+}
