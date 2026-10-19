@@ -105,6 +105,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   let lastActivity = lastTick - Math.max(0, Number(options.initialIdle) || 0);
   let checking = 0;
   let generation = 0;
+  let pendingManualToken = null;
   let destroyed = false;
   let cartKnownBusy = false;
   let manuallyOpened = false;
@@ -271,6 +272,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
     const state = snapshot();
     if (manual ? !state.visible || state.editing || state.overlay : !canOfferChoiceHelp(state)) return;
     const token = ++generation;
+    if (manual) pendingManualToken = token;
     let draft;
     checking += 1;
     try {
@@ -298,12 +300,20 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
       panel.hidden = false;
       entry.setAttribute("aria-expanded", "true");
       // Deliberately do not focus: reading and keyboard navigation continue.
-    } finally { checking -= 1; }
+    } finally {
+      checking -= 1;
+      if (pendingManualToken === token) pendingManualToken = null;
+    }
   }
 
-  function activity() {
+  function activity(event) {
     lastActivity = now();
-    generation += 1;
+    // Focusing the entry or its settling scroll must not undo an explicit
+    // request while suggestion data loads. New intent still cancels it.
+    const settlingManual = pendingManualToken === generation
+      && (event?.type === "scroll" || event?.type === "focusin" && event.target === entry)
+      && !document.hidden && !editing() && !overlay();
+    if (!settlingManual) generation += 1;
     if (!panel.hidden && editing()) hide();
   }
 
@@ -331,7 +341,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
     else dismiss();
   }
   function keydown(event) {
-    activity();
+    activity(event);
     if (event.key === "Escape" && !panel.hidden) {
       const inside = panel.contains(event.target);
       dismiss();
@@ -358,7 +368,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   }
   const observer = new MutationObserver(records => {
     if (records.some(record => record.attributeName === "lang")) translate();
-    if (!panel.hidden && overlay()) hide();
+    if ((!panel.hidden || pendingManualToken === generation) && overlay()) hide();
   });
   // Observe open/aria-modal directly, so an order dialog never waits for a tick
   // to cover a helper that was already on screen.
@@ -366,7 +376,9 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   // Home and the Russian landing use a fullscreen navigation overlay rather
   // than a dialog. Observe its body state even after the offer timer stops.
   observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-  const overlays = new MutationObserver(() => { if (!panel.hidden && overlay()) hide(); });
+  const overlays = new MutationObserver(() => {
+    if ((!panel.hidden || pendingManualToken === generation) && overlay()) hide();
+  });
   overlays.observe(document.body, { subtree: true, childList: true, attributes: true,
     attributeFilter: ["open", "aria-modal", "hidden", "data-checkout-complete"] });
   entry.addEventListener("click", entryClick);

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-0fb4903b1cf7-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-05ee67c3a518-family-menu-6295cf334f91-occasion-combos-405893d032be-custom-pair-295ab06cd70e-menu-css-3826789704c1-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-0fb4903b1cf7-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-3fb5784e6802-custom-pair-652d257dcde2-menu-css-3826789704c1-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -85,7 +85,7 @@ const CORE_ASSETS = [
   "./menu-combos-ui.js?v=b9d8b40529d5",
   "./menu-combos.css?v=4b9d2b078011",
   "./combo-entry.css?v=da624d45b4d6",
-  "./choice-help.js?v=98cc0d9e1fc3",
+  "./choice-help.js?v=5dd77e1acead",
   "./choice-help.css?v=6b3dac7b0da1",
   "./src/products/occasion-sets-v1/student.webp",
   "./src/products/occasion-sets-v1/cycle.webp",
@@ -99,7 +99,7 @@ const CORE_ASSETS = [
   "./src/products/occasion-sets-v1/morning.webp",
   "./src/products/occasion-sets-v1/sweet.webp",
   "./src/products/occasion-sets-v1/hearty.webp",
-  "./choice-help-entry.js?v=9f08f13a961d",
+  "./choice-help-entry.js?v=9e23e4241447",
   "./seasonal-theme.js?v=7e07ce1187f0",
   "./seasonal.css?v=f2437d09532e",
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
@@ -138,10 +138,10 @@ const CORE_ASSETS = [
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
-  "./app.js?v=c25586973996",
+  "./app.js?v=1cd220e6b7d9",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=a144515ae86a",
+  "./menu-app.js?v=23b02b64c278",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",

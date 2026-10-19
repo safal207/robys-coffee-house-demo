@@ -44,6 +44,8 @@ const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sh
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   mode: "Unchanged emitted runtime over local HTTPS, production CSP, blocked external requests, read-only canonical basket verification",
   viewportNote: "Desktop browser engines at touch-sized viewports; screenshots are not physical-device evidence",
+  screenshotEvidence: { policy: "Capture screenshots in exercised Chromium/Firefox cases",
+    webkit: { status: "NOT_CAPTURED", reason: "Playwright 1.55.1 unconditionally injects an inline body{} stylesheet for screenshot animation synchronization; functional, geometry and strict CSP assertions remain enabled" } },
   assetHashesStart: hashes(), browsers: {}, cases: [] };
 const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
 const money = text => Number(text.replace(/[^\d]/g, ""));
@@ -54,6 +56,12 @@ const sweetLines = sort([{ id: "hot-coffee:caffe-latte", quantity: 1 }, { id: "d
 const preview = page => page.locator(".menu-combos-dialog[open]");
 const panel = page => page.locator(".choice-help-panel:not([hidden])");
 const choose = (page, id) => page.locator(`[data-combo-recipe="${id}"] .menu-combos-choose`);
+async function screenshot(browser, target, filename) {
+  // WebKit's screenshot preparation itself inserts a forbidden inline style.
+  // Avoid that tool action while retaining the same strict application checks.
+  if (browser.browserType().name() === "webkit") return;
+  await target.screenshot({ path: join(output, filename), caret: "initial" });
+}
 
 async function run(browser, id, callback, { width = 390, height = 844, language = "ru" } = {}) {
   if (process.env.ROBYS_OFFER_FILTER && !id.includes(process.env.ROBYS_OFFER_FILTER)) return;
@@ -80,7 +88,7 @@ async function run(browser, id, callback, { width = 390, height = 844, language 
   } catch (error) {
     const diagnostics = [];
     for (const [index, page] of context.pages().entries()) {
-      await page.screenshot({ path: join(output, `${id}-failure-${index}.png`) }).catch(() => {});
+      await screenshot(browser, page, `${id}-failure-${index}.png`).catch(() => {});
       diagnostics.push(await page.evaluate(() => ({ url: location.href, active: document.activeElement?.outerHTML.slice(0, 250),
         openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
         text: document.body.innerText.slice(-2500), cspViolations: window.__offerCspViolations })).catch(() => ({})));
@@ -188,14 +196,14 @@ try {
             "No invented video control or media when the catalog has no valid video source");
           const layout = await geometry(page, ".menu-combos-dialog[open]");
           assert.deepEqual(layout, { pageOverflow: false, contained: true, dialogFits: true, clippedControls: [] });
-          await preview(page).screenshot({ path: join(output, `family-dialog-${width}-${language}.png`) });
+          await screenshot(browser, preview(page), `family-dialog-${width}-${language}.png`);
           await preview(page).locator(".menu-combos-close").focus(); await page.keyboard.press("Shift+Tab");
           assert.equal(await preview(page).locator(".menu-combos-add").evaluate(button => document.activeElement === button), true);
           await page.keyboard.press("Tab");
           assert.equal(await preview(page).locator(".menu-combos-close").evaluate(button => document.activeElement === button), true);
           await page.keyboard.press("Escape");
           assert.equal(await choose(page, "family").evaluate(button => document.activeElement === button), true);
-          await card.screenshot({ path: join(output, `family-card-${width}-${language}.png`) });
+          await screenshot(browser, card, `family-card-${width}-${language}.png`);
           return { viewport: { width, height }, language, familyTotal: 750, sweetTotal: 280, photo, layout, escapeRestoresFocus: true };
         }, { width, height, language });
       }
@@ -259,7 +267,7 @@ try {
             "The automatic offer never moves keyboard focus");
           const layout = await geometry(page, ".choice-help-panel:not([hidden])");
           assert.deepEqual(layout, { pageOverflow: false, contained: true, dialogFits: true, clippedControls: [] });
-          await panel(page).screenshot({ path: join(output, `${recipe}-suggestion-390-ru.png`) });
+          await screenshot(browser, panel(page), `${recipe}-suggestion-390-ru.png`);
           await panel(page).locator(".choice-help-actions a:visible").click(); await preview(page).waitFor();
           assert.equal(money(await preview(page).locator(".menu-combos-total").textContent()), recipe === "family" ? 750 : 280);
           await page.keyboard.press("Escape");
@@ -285,6 +293,71 @@ try {
         return { dismissedAcrossReload: true, explicitHelpAvailable: true, escapeFocusRestored: true };
       });
 
+      for (const { manual, activity, visible } of [
+        { manual: true, activity: "scroll", visible: true },
+        { manual: false, activity: "scroll", visible: false },
+        { manual: true, activity: "pointerdown", visible: false }
+      ]) await run(browser, `${name}-pending-${manual ? "manual" : "automatic"}-suggestion-${activity}`, async context => {
+        const page = await context.newPage(); await clock(page); await openMenu(page);
+        await page.locator("#menu-share-button").evaluate(button => button.focus({ preventScroll: true }));
+        const before = await page.evaluate(async () => {
+          const snapshot = async () => {
+            const projection = Object.fromEntries(Object.keys(localStorage).filter(key => key.startsWith("robys-menu-order")).sort()
+              .map(key => [key, localStorage.getItem(key)]));
+            if (!(await indexedDB.databases()).some(database => database.name === "robys-order-transactions.v1")) return { projection, canonical: null };
+            const canonical = await new Promise((resolve, reject) => {
+              const opening = indexedDB.open("robys-order-transactions.v1");
+              opening.onerror = () => reject(opening.error);
+              opening.onsuccess = () => {
+                const database = opening.result;
+                const transaction = database.transaction("shared-order", "readonly");
+                const request = transaction.objectStore("shared-order").get("robys-menu-order.v1");
+                let record;
+                request.onsuccess = () => { record = request.result ?? null; };
+                transaction.oncomplete = () => { database.close(); resolve(record); };
+                transaction.onabort = () => { database.close(); reject(transaction.error); };
+              };
+            });
+            return { projection, canonical };
+          };
+          window.__qaOfferCartSnapshot = snapshot;
+          return snapshot();
+        });
+        const panelId = await page.evaluate(async manual => {
+          const { initChoiceHelp } = await import("/choice-help.js");
+          const host = document.createElement("div");
+          host.id = "qa-offer-lifecycle-host";
+          document.body.append(host); // Preserve the real host and entry driver.
+          let entered, release;
+          const pending = new Promise(resolve => { release = resolve; });
+          const started = new Promise(resolve => { entered = resolve; });
+          const helper = initChoiceHelp(host, { initialElapsed: 45_000, initialIdle: 8_000,
+            readDraft: async () => ({ lines: [] }), readSuggestion: async () => { entered(); return pending; } });
+          const completion = manual ? helper.show() : helper.offerAutomatic();
+          await started;
+          window.__qaOfferLifecycle = { release, completion, helper };
+          return host.querySelector(".choice-help-entry").getAttribute("aria-controls");
+        }, manual);
+        await page.evaluate(async activity => {
+          // Settling scroll is advisory; a new pointer action is fresh intent.
+          document.dispatchEvent(activity === "pointerdown" ? new PointerEvent("pointerdown", { bubbles: true }) : new Event(activity));
+          window.__qaOfferLifecycle.release({ total: 280, recipe: { id: "sweet", guests: 1,
+            name: { tr: "Tatlı bir mola", en: "A sweet break", ru: "Сладкая пауза" },
+            eyebrow: { tr: "Kahve ve kurabiye", en: "Coffee and a cookie", ru: "Кофе и печенье" },
+            image: "src/products/occasion-sets-v1/sweet.webp" } });
+          await window.__qaOfferLifecycle.completion;
+        }, activity);
+        assert.equal(await page.locator(`#${panelId}`).isVisible(), visible,
+          visible ? "An explicitly requested suggestion survives a settling scroll during lazy data loading"
+            : "Renewed activity cancels a pending automatic suggestion or a fresh pointer action cancels a pending manual request");
+        assert.equal(await page.locator("#menu-share-button").evaluate(button => document.activeElement === button), true,
+          "Resolving a pending suggestion does not move keyboard focus");
+        assert.deepEqual(await page.evaluate(() => window.__qaOfferCartSnapshot()), before, "Suggestion resolution does not mutate the order");
+        await page.evaluate(() => window.__qaOfferLifecycle.helper.destroy());
+        return { manual, emittedModule: "choice-help.js", fixture: "Gated readSuggestion on a separate synthetic host", activityDuringPending: activity,
+          visibleAfterResolution: visible, noFocusSteal: true, orderUnchanged: true };
+      });
+
       await run(browser, `${name}-editing-overlay-cart-suppression`, async context => {
         const page = await context.newPage(); await clock(page); await openMenu(page);
         await page.locator("#menu-search").focus(); await advance(page, 50_000);
@@ -301,13 +374,16 @@ try {
 
       await run(browser, `${name}-hidden-visible-time`, async context => {
         const page = await context.newPage(); await clock(page); await openMenu(page);
+        await page.waitForLoadState("networkidle");
         // A deterministic visibility fixture exercises the browser's read-only
         // state boundary without waiting in wall-clock time or changing app code.
         await page.evaluate(() => {
           Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
           document.dispatchEvent(new Event("visibilitychange"));
         });
-        await advance(page, 60_000); assert.equal(await panel(page).count(), 0);
+        // A background fixture need not become network-idle while its clock is
+        // paused; account for hidden time without a network-quiescence wait.
+        await page.clock.runFor(60_000); assert.equal(await panel(page).count(), 0);
         await page.evaluate(() => {
           Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
           document.dispatchEvent(new Event("visibilitychange"));

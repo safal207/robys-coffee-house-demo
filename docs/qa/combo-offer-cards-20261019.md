@@ -22,6 +22,9 @@ There is no new sale SKU, discount, delivery or payment promise.
   for `hearty`, and the together filter for `together`; otherwise suggest `sweet`.
   This uses the current menu view, without inferred personal attributes.
 - A failed recipe load keeps the original generic help with working navigation.
+- An explicit request survives settling scroll or focus on its own entry while
+  suggestion data loads. New user intent, editing, overlays and navigation still
+  cancel it; renewed activity continues to cancel pending automatic offers.
 
 The action links to `menu.html#menu-combo-<recipeId>`. Explicit navigation opens
 that recipe; an ordinary menu visit opens no preview. Same-page navigation
@@ -53,3 +56,7 @@ empty player or unrelated promotional clip.
 Browser harnesses serve emitted files over local HTTPS under the production
 CSP, record source/artifact hashes and use read-only canonical order checks.
 Their viewport captures are browser-engine evidence, not physical-device tests.
+The focused WebKit cases keep the same functional, geometry and CSP assertions
+but skip screenshot calls: Playwright's WebKit screenshot preparation inserts
+an inline `body {}` stylesheet which the production CSP correctly blocks.
+Chromium/Firefox captures and the existing browser matrix provide visual evidence.
