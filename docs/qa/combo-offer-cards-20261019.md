@@ -55,6 +55,9 @@ the complete frame is preserved. Native source selection supports browsers
 without an H.264 decoder. Both use same-origin network-only delivery, preserving
 byte-range requests, and are excluded from offline precache. Both are protected
 by the integrity manifest.
+After appending the sources, the player explicitly calls `load()` before `play()`.
+An HTTPS diagnostic on Ubuntu and macOS WebKit isolated this requirement: the
+same sources stayed at readyState 0 without `load()` and decoded with it.
 The original uploaded file is preserved separately. Source SHA-256:
 `eff9886753b3985b33b148f0d1b16bdaabb33eb7602040c5832cd7971310f0a0`.
 
