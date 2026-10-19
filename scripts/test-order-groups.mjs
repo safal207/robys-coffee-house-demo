@@ -141,6 +141,89 @@ test("full-menu +/- gestures use the current transaction draft rather than a sta
   await run(3, 1, "decrease", 2); // The old row still showed two when another tab added one.
 });
 
+function menuReplacement() {
+  const source = readFileSync(new URL("../src/menu-order-ui.js", import.meta.url), "utf8");
+  const start = source.indexOf("export function replaceMenuGroupItem(");
+  const end = source.indexOf("\n// Ordering dialogs", start);
+  assert.ok(start >= 0 && end > start, "exercise the actual full-menu replacement operation");
+  return vm.runInNewContext(`${source.slice(start, end).replace(/^export /, "")}\nreplaceMenuGroupItem`, { normalizeOrderDraft });
+}
+
+test("full-menu replacement retains pair component counts and unrelated fresh edits", () => {
+  const replace = menuReplacement();
+  const original = addOrderGroup(null, [line("tea"), line("cake", 2)], 3, ids).draft;
+  const latest = addOrderGroup(original, [line("hot")], 4, ids).draft;
+  const result = replace(latest, original.groups[0], 0, { id: "coffee" }, ids);
+  assert.equal(result.applied, true);
+  assert.deepEqual(result.draft.lines, [line("cake", 6), line("coffee", 3), line("hot", 4)]);
+  const pair = result.draft.groups.find(group => group.items.some(item => item.id === "cake"));
+  assert.equal(pair.quantity, 3);
+  assert.equal(pair.items.find(item => item.id === "cake").quantity, 2);
+  assert.deepEqual(latest.lines, [line("cake", 6), line("hot", 4), line("tea", 3)], "Previewing replacement cannot mutate the input draft");
+});
+
+test("full-menu replacement merges matching components and groups without losing quantities", () => {
+  const replace = menuReplacement();
+  let draft = addOrderGroup(null, [line("tea"), line("coffee")], 2, ids).draft;
+  let result = replace(draft, draft.groups[0], 1, { id: "tea" }, ids);
+  assert.equal(result.applied, true);
+  assert.deepEqual(result.draft.lines, [line("tea", 4)]);
+  assert.deepEqual(result.draft.groups[0].items, [line("tea", 2)]);
+  draft = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  draft = addOrderGroup(draft, [line("coffee"), line("cake")], 3, ids).draft;
+  result = replace(draft, draft.groups[0], 0, { id: "coffee" }, ids);
+  assert.equal(result.draft.groups.length, 1);
+  assert.equal(result.draft.groups[0].quantity, 5);
+  assert.deepEqual(result.draft.lines, [line("cake", 5), line("coffee", 5)]);
+});
+
+test("full-menu replacement rejects stale removals, quantity changes and recommendation changes", () => {
+  const replace = menuReplacement();
+  const original = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const snapshot = original.groups[0];
+  for (const latest of [removeOrderGroup(original, snapshot.id, ids), updateOrderGroupQuantity(original, snapshot.id, 3, ids).draft]) {
+    const result = replace(latest, snapshot, 0, { id: "coffee" }, ids);
+    assert.equal(result.reason, "stale");
+    assert.deepEqual(result.draft, latest);
+  }
+  const owned = applyOrderRecommendation(null, { token: "pair", signature: "tea", lines: [line("tea"), line("cake")] }, ids).draft;
+  const changed = applyOrderRecommendation(owned, { token: "pair", signature: "hot", lines: [line("hot"), line("cake")] }, ids).draft;
+  assert.equal(replace(changed, owned.groups[0], 0, { id: "coffee" }, ids).reason, "stale", "A stable recommendation ID does not make changed contents safe to overwrite");
+});
+
+test("full-menu replacement validates mandatory flavors and refuses overflow atomically", () => {
+  const replace = menuReplacement();
+  let draft = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  for (const replacement of [{ id: "flavored" }, { id: "flavored", variant: "unknown" }]) {
+    const result = replace(draft, original, 0, replacement, ids, ["vanilla", "caramel"]);
+    assert.equal(result.applied, false);
+    assert.deepEqual(result.draft, draft);
+  }
+  const flavored = replace(draft, original, 0, { id: "flavored", variant: "vanilla" }, ids, ["vanilla", "caramel"]);
+  assert.equal(flavored.applied, true);
+  assert.equal(flavored.draft.groups[0].items[0].variant, "vanilla");
+  assert.equal(replace(draft, original, 0, { id: "coffee", variant: "vanilla" }, ids).applied, false);
+  draft = addOrderGroup(draft, [line("coffee")], 98, ids).draft;
+  const limited = replace(draft, original, 0, { id: "coffee" }, ids);
+  assert.equal(limited.reason, "limit");
+  assert.deepEqual(limited.draft, draft, "A failed substitution cannot remove the original or companion dessert");
+});
+
+test("full-menu replacement preserves recommendation ownership and explicit dessert substitution", () => {
+  const replace = menuReplacement();
+  const selection = { token: "pair", signature: "first", lines: [line("tea"), line("cake")] };
+  const original = applyOrderRecommendation(null, selection, ids).draft;
+  const dessertIndex = original.groups[0].items.findIndex(item => item.id === "cake");
+  const result = replace(original, original.groups[0], dessertIndex, { id: "hot" }, ids);
+  assert.equal(result.draft.groups[0].source, "recommendation");
+  assert.deepEqual(result.draft.recommendation.removedLines, [line("cake")]);
+  const revised = applyOrderRecommendation(result.draft, { ...selection, signature: "next", lines: [line("coffee"), line("cake")] }, ids).draft;
+  assert(!revised.lines.some(item => item.id === "cake"), "A same-selection advisor update cannot restore the replaced dessert");
+  const restored = replace(result.draft, result.draft.groups[0], dessertIndex, { id: "cake" }, ids);
+  assert.deepEqual(restored.draft.recommendation.removedLines, [], "Explicitly restoring the original dessert clears its removal marker");
+});
+
 test("flat legacy drafts migrate without repricing or losing recommendation ownership", () => {
   const draft = normalizeOrderDraft({ version: 1, lines: [line("tea", 2), line("cake")],
     recommendation: { token: "old", signature: "old", lines: [line("tea"), line("cake")] } }, ids);

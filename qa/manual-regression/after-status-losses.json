@@ -1,0 +1,32 @@
+{
+  "at": "2026-10-14T14:34:48.814Z",
+  "orders": [
+    {
+      "sequence": 1,
+      "status": "issued",
+      "version": 4,
+      "totalMinor": 16000,
+      "paid": 1
+    }
+  ],
+  "audit": [
+    {
+      "sequence": 1,
+      "action": "pay",
+      "fromVersion": 1,
+      "count": 1
+    },
+    {
+      "sequence": 1,
+      "action": "ready",
+      "fromVersion": 2,
+      "count": 1
+    },
+    {
+      "sequence": 1,
+      "action": "issued",
+      "fromVersion": 3,
+      "count": 1
+    }
+  ]
+}

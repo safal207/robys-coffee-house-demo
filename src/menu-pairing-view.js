@@ -54,14 +54,14 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
     if (text !== undefined) node.textContent = text;
     return node;
   };
-  const photo = (product) => {
+  const photo = (product, selected = false) => {
     const image = element("img");
     image.src = product.image;
     // The adjacent card name or figure caption supplies the same information.
     image.alt = "";
     image.width = 160;
     image.height = 160;
-    image.loading = "lazy";
+    image.loading = selected ? "eager" : "lazy";
     image.decoding = "async";
     return image;
   };
@@ -117,7 +117,7 @@ export function createMenuPairingView({ root, preview, productIndex, onChange, l
       const caption = element("figcaption");
       caption.append(element("span", "menu-pairing-figure-name", name(product)),
         element("span", "menu-pairing-unit-price", price(product.item.price)));
-      figure.append(photo(product), caption);
+      figure.append(photo(product, true), caption);
       images.append(figure);
     }
     const quote = element("p", "menu-pairing-preview-quote");

@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "title": "Additional cart browser scenarios could not start",
+      "result": "blocked",
+      "caseIds": ["GUEST-015", "GUEST-016", "GUEST-041", "GUEST-047"],
+      "actual": "Browser inventory returned an empty list. Creating a tab through iab and the retained browser binding failed. Reinitializing known browser ID 2, including after the documented JavaScript-session reset, still reported that the browser was unavailable. No additional cart UI actions occurred.",
+      "viewport": null,
+      "evidence": "CUA tool responses in this follow-up"
+    }
+  ],
+  "limitations": [
+    "At the start of this follow-up, the browser-control inventory was empty and a new in-app-browser tab could not be created. No additional cart scenario has yet been executed."
+  ],
+  "requestedCaseIds": ["GUEST-015", "GUEST-016", "GUEST-041", "GUEST-047"],
+  "sourcePlanRead": "qa/manual-regression/customer-cases.json",
+  "origin": "http://localhost:8793"
+}

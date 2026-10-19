@@ -1,0 +1,97 @@
+
+> robys-coffee-house@2.0.0 test:counter
+> node --test counter/test/*.test.mjs
+
+(node:4388) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/counter-checkout.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ server checkout preserves the exact grouped ticket and language (22.8304ms)
+✔ static disabled mode and untrusted handoff locations never navigate (11.2025ms)
+✔ configuration reads bypass caches; unavailable or corrupt configuration retains static checkout (252.4633ms)
+✔ installed menu worker never intercepts staff sessions, status, counter pages or configuration (39.737ms)
+(node:40484) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/counter/src/guest.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ guest capability uses 32 secure random bytes and survives same-ticket reload/retry (17.9404ms)
+✔ a private pending fragment preserves the retry key even with blocked browser storage (35.2457ms)
+✔ cashier QR contains only same-origin order identity, never guest capability or composition (62.8532ms)
+✔ receipt metadata is restored only for the matching guest capability (7.6347ms)
+✔ new-order cleanup removes only the completed identity, preserving cart, receipts and newer tickets (1.6223ms)
+✔ guest accepts only documented server statuses and a bounded order shape (1.6095ms)
+✔ RU to EN to TR updates same-version receipt items after each localized GET (432.207ms)
+✔ guest retries lost creation response without a new identity, polls server transitions and preserves QR on loss (64.3364ms)
+(node:15984) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/order-ticket.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ HTTP login uses hashed credentials, HttpOnly strict cookies, CSRF, revocation and expiry (2561.121ms)
+✔ origin, JSON bounds, host and CSRF protect all write paths (1213.2797ms)
+✔ explicit secure-cookie mode uses the secure Host cookie prefix (1162.2679ms)
+✔ canonical quote, server timestamps and opaque IDs ignore no client price or state (1331.7066ms)
+✔ malformed, unknown catalog/variant and extra wire data are rejected (1184.8751ms)
+✔ guest isolation, ticket idempotency, concurrent retries and conflicts disclose no existing data (1193.7905ms)
+✔ only cashier acknowledges payment; queues hide unpaid orders from barista (1512.538ms)
+✔ payment/status workflow is sequential and concurrent stale writes are atomic/idempotent (1474.3194ms)
+✔ orders, immutable quotes, sessions and audit survive restart; reprovisioning revokes sessions (2279.2182ms)
+✔ rate limits protect login, creation and polling and expire without trusting proxy headers (1841.7819ms)
+✔ authenticated polling limits are independent for different guests on one address (871.0219ms)
+✔ queue is bounded and oldest first; issued history leaves the queue after 24 hours (5176.0374ms)
+✔ more than 200 older issued orders cannot hide fresh unpaid or preparing work (1493.9279ms)
+✔ static server exposes only manifest plus six exact counter assets and local enabled config (1014.0917ms)
+✔ committed creation and payment survive discarded HTTP response bodies across a second cashier session (1551.2303ms)
+✔ expired, revoked and invalid-CSRF payment writes preserve the exact unpaid order and audit (2482.1623ms)
+✔ read throttles recover at their window boundary and isolate staff sessions as well as guests (1495.6251ms)
+✔ both roles retain the oldest 200 active orders and only the latest 30 issued through the exact 24h boundary (2557.6956ms)
+✔ accept an opaque order ID and only the cashier QR path on this origin (26.4347ms)
+✔ cashier sees unpaid first, barista sees only preparation and ready orders (8.1594ms)
+✔ offer only sequential actions authorized for the current role (0.9853ms)
+✔ payment confirmation is invalidated by a changed order, amount, status or version (1.1208ms)
+✔ minor units retain the actual amount across all three locales (336.6215ms)
+✔ late pre-payment queue response cannot roll back the server-confirmed status (477.4897ms)
+✔ a late queue v1 cannot roll back v2 opened directly by QR in the detail or cards (53.9784ms)
+✔ a late direct QR read v1 cannot roll back queue v2 in the detail or cards (69.3343ms)
+✔ an issued barista order cannot reappear from an older queue snapshot (36.4195ms)
+✔ login markup cannot fall back to a GET containing credentials before JavaScript starts (8.8147ms)
+✔ failed payment never invents a paid state and disables actions until refreshed (35.9718ms)
+✔ logout cleanup defeats late requests and removes protected data and payment intent (12.5766ms)
+✔ a concurrent version conflict refreshes from server instead of guessing the outcome (37.4978ms)
+✔ a failed QR read disables actions on retained details until the queue reconnects (26.8799ms)
+✔ changing language during sign out cannot strand the login or retry controls (15.1262ms)
+✔ rapid duplicate payment submissions issue one write while the first is pending (66.0915ms)
+✔ a payment dialog becomes unsubmitable when polling observes another cashier's payment (16.5539ms)
+✔ a delayed QR for order A cannot replace order B selected by queue card (15.6228ms)
+✔ a delayed QR for order A cannot replace order B selected by second QR (11.3792ms)
+✔ lost pay response reconciles an undelivered transition by reading, without an automatic second write (107.0375ms)
+✔ lost pay response reconciles a committed transition by reading, without an automatic second write (34.3898ms)
+✔ lost ready response reconciles an undelivered transition by reading, without an automatic second write (13.1312ms)
+✔ lost ready response reconciles a committed transition by reading, without an automatic second write (14.6674ms)
+✔ lost issued response reconciles an undelivered transition by reading, without an automatic second write (20.3348ms)
+✔ lost issued response reconciles a committed transition by reading, without an automatic second write (23.0156ms)
+✔ failed sign out can recover when the request never reached the server (9.824ms)
+✔ failed sign out can recover when the server already revoked the session (7.4114ms)
+✔ poll401 clears the protected workspace and payment confirmation without retrying a write (8.46ms)
+✔ write401 clears the protected workspace and payment confirmation without retrying a write (17.6213ms)
+✔ writeInvalidCsrf clears the protected workspace and payment confirmation without retrying a write (8.1819ms)
+✔ pagehide cleanup stops attached camera tracks and defeats a delayed QR response (5.5296ms)
+✔ persisted pageshow revalidates an expired session without reviving a cached payment intent (13.049ms)
+✔ persisted pageshow revalidates a valid session without reviving a cached payment intent (42.8746ms)
+✔ a 429 queue response preserves the order and blocks writes until a successful refresh (20.4328ms)
+(node:35592) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/order-ticket.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ unchanged public assets return an empty 304 for GET and HEAD validators (1031.9472ms)
+✔ a changed file invalidates the previous ETag even when its size stays the same (228.1263ms)
+✔ unknown and private paths cannot use a wildcard to bypass the public allowlist (236.4651ms)
+✔ live API, runtime config and counter pages ignore cache validators and stay no-store (352.0571ms)
+✔ range requests and ordinary HEAD requests retain their existing behavior (219.9369ms)
+ℹ tests 69
+ℹ suites 0
+ℹ pass 69
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33951.6991

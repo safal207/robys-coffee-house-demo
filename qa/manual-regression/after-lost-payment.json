@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-14T14:30:28.939Z",
+  "orders": [
+    {
+      "sequence": 1,
+      "status": "preparing",
+      "version": 2,
+      "totalMinor": 16000,
+      "paid": 1
+    }
+  ],
+  "audit": [
+    {
+      "sequence": 1,
+      "action": "pay",
+      "fromVersion": 1,
+      "count": 1
+    }
+  ]
+}

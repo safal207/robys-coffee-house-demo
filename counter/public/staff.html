@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#241c1b">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'">
+  <title>ROBY’S · Команда</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="staff.css">
+  <script type="module" src="staff.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="/" aria-label="Roby's Coffee House"><img src="../src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore" width="142" height="45" alt="Roby's Coffee House"></a>
+    <div class="header-end">
+      <label class="language-label"><span data-copy="language">Язык</span><select id="language" aria-label="Язык"><option value="ru">RU</option><option value="tr">TR</option><option value="en">EN</option></select></label>
+      <button id="logout" class="quiet" type="button" hidden data-copy="logout">Выйти</button>
+    </div>
+  </header>
+  <main>
+    <div id="message" class="notice" role="status" aria-live="polite" hidden></div>
+    <section id="login-panel" class="login-panel" aria-labelledby="login-title">
+      <p class="eyebrow" data-copy="team">ДЛЯ КОМАНДЫ ROBY’S</p>
+      <h1 id="login-title" data-copy="loginTitle">Каждый заказ — на своём месте.</h1>
+      <p class="muted" data-copy="loginIntro">Войдите в рабочее место кассира или бариста.</p>
+      <form id="login-form" method="post" action="/api/counter/login">
+        <label><span data-copy="username">Логин</span><input id="username" name="username" autocomplete="username" maxlength="80" required autocapitalize="none" spellcheck="false"></label>
+        <label><span data-copy="password">Пароль</span><input id="password" name="password" type="password" autocomplete="current-password" maxlength="256" required></label>
+        <button id="login-submit" class="primary" type="submit" data-copy="login" disabled>Войти</button>
+      </form>
+      <button id="logout-retry" type="button" class="secondary" hidden data-copy="logoutRetry">Повторить выход</button>
+      <p class="small muted" data-copy="private">Заказы доступны только сотрудникам после входа.</p>
+    </section>
+    <section id="workspace" hidden aria-labelledby="workspace-title">
+      <div class="workspace-heading"><div><p id="identity" class="eyebrow"></p><h1 id="workspace-title" data-copy="queueTitle">Заказы в работе</h1></div><p class="connection"><span id="connection-dot" class="connection-dot"></span><span id="connection" aria-live="polite"></span><button id="retry" type="button" class="text-button" data-copy="retry">Обновить</button></p></div>
+      <section class="find-panel" aria-labelledby="find-title">
+        <div><h2 id="find-title" data-copy="findTitle">Открыть заказ</h2><p class="small muted" data-copy="scanHint">Сканируйте QR гостя или вставьте ссылку из QR.</p></div>
+        <form id="find-form"><label class="sr-only" for="order-input" data-copy="orderInput">Ссылка из QR или ID заказа</label><input id="order-input" maxlength="2048" placeholder="Ссылка из QR или ID заказа" autocomplete="off" spellcheck="false"><button class="secondary" type="submit" data-copy="open">Открыть</button></form>
+        <button id="camera-start" type="button" class="secondary" data-copy="scan">Сканировать QR</button>
+        <div id="camera-panel" class="camera-panel" hidden><video id="camera-video" muted playsinline aria-label="Камера для QR"></video><p id="camera-message" class="small" role="status"></p><button id="camera-stop" type="button" class="secondary" data-copy="stopCamera">Остановить камеру</button></div>
+        <canvas id="camera-canvas" hidden></canvas>
+      </section>
+      <div class="workspace-grid">
+        <section class="queue-panel" aria-label="Очередь заказов" id="queue-panel"><div id="queue"></div></section>
+        <section id="detail" class="detail-panel" aria-label="Состав заказа" tabindex="-1"></section>
+      </div>
+    </section>
+    <noscript><p>Для работы с очередью включите JavaScript. / Enable JavaScript to use the order queue. / Sipariş kuyruğu için JavaScript’i etkinleştirin.</p></noscript>
+  </main>
+  <dialog id="payment-dialog" aria-labelledby="payment-title" aria-describedby="payment-description">
+    <form id="payment-form">
+      <p class="eyebrow" data-copy="paymentEyebrow">ПРОВЕРКА ОПЛАТЫ</p><h2 id="payment-title" data-copy="paymentTitle">Оплата уже получена?</h2>
+      <p id="payment-order" class="payment-amount"></p>
+      <p id="payment-description" data-copy="paymentExplanation">Сначала примите оплату на кассе. Эта кнопка фиксирует полученную оплату и передаёт заказ в приготовление — деньги с карты не списываются.</p>
+      <label class="check-label"><input id="payment-confirmed" type="checkbox" required><span data-copy="paymentCheck">Я проверил(а): полная сумма получена на кассе.</span></label>
+      <p id="payment-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button id="payment-submit" class="primary" type="submit" disabled data-copy="paymentConfirm">Оплата получена · готовить</button><button id="payment-cancel" class="secondary" type="button" data-copy="cancel">Отмена</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

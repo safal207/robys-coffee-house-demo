@@ -47,10 +47,10 @@ test("all Smart Choice consumers share the canonical revisioned catalog and offl
 
 test("shared Smart Choice catalog rejects stale, missing and merely mentioned imports", () => {
   const inputs = readSmartChoiceCatalogRevisionInputs();
-  const { expectedUrl } = verifySmartChoiceCatalogRevision(inputs);
+  const { smartCatalogUrl } = verifySmartChoiceCatalogRevision(inputs);
   for (const file of SMART_CHOICE_CATALOG_CONSUMERS) {
-    for (const altered of [inputs.runtimes[file].replace(expectedUrl, "../menu-catalog.js?v=000000000000"),
-      "export const empty = true;", `const mention = ${JSON.stringify(`import { menuCategories } from "${expectedUrl}";`)};`]) {
+    for (const altered of [inputs.runtimes[file].replace(smartCatalogUrl, "./catalog.js?v=000000000000"),
+      "export const empty = true;", `const mention = ${JSON.stringify(`import { SMART_CHOICE_CATALOG } from "${smartCatalogUrl}";`)};`]) {
       assert.notEqual(altered, inputs.runtimes[file]);
       assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, runtimes: { ...inputs.runtimes, [file]: altered } }), /must import the shared catalog/);
     }
@@ -59,11 +59,34 @@ test("shared Smart Choice catalog rejects stale, missing and merely mentioned im
 
 test("shared catalog consumers reject changed data and stale offline cache references", () => {
   const inputs = readSmartChoiceCatalogRevisionInputs();
-  const { revision } = verifySmartChoiceCatalogRevision(inputs);
+  const { revision, smartCatalogRevision } = verifySmartChoiceCatalogRevision(inputs);
   assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, catalogBytes: Buffer.concat([inputs.catalogBytes, Buffer.from("\n")]) }), /must import the shared catalog/);
-  const alteredWorker = inputs.serviceWorker.replace(`./menu-catalog.js?v=${revision}`, "./menu-catalog.js?v=000000000000");
-  assert.notEqual(alteredWorker, inputs.serviceWorker);
-  assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, serviceWorker: alteredWorker }), /precached at its exact content revision/);
+  assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, smartCatalogBytes: Buffer.concat([inputs.smartCatalogBytes, Buffer.from("\n")]) }), /must import the shared catalog/);
+  for (const [path, contentRevision] of [["menu-catalog.js", revision], ["smart-choice/catalog.js", smartCatalogRevision]]) {
+    const alteredWorker = inputs.serviceWorker.replace(`./${path}?v=${contentRevision}`, `./${path}?v=000000000000`);
+    assert.notEqual(alteredWorker, inputs.serviceWorker);
+    assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, serviceWorker: alteredWorker }), /precached at its exact content revision/);
+  }
+});
+
+test("shared derived catalog and remaining direct consumers reject stale ordering catalog edges", () => {
+  const inputs = readSmartChoiceCatalogRevisionInputs();
+  const { expectedUrl, smartCatalogUrl } = verifySmartChoiceCatalogRevision(inputs);
+  const staleDerived = inputs.smartCatalogBytes.toString().replace(expectedUrl, "../menu-catalog.js?v=000000000000");
+  // Update the parent links as a real build would, so this negative control
+  // specifically exercises the derived catalog -> ordering catalog edge.
+  const alteredRevision = menuCatalogRevision(staleDerived);
+  const runtimes = Object.fromEntries(Object.entries(inputs.runtimes).map(([file, source]) =>
+    [file, source.replaceAll(smartCatalogUrl, `./catalog.js?v=${alteredRevision}`)]));
+  assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, smartCatalogBytes: staleDerived, runtimes }), /Derived catalog must import/);
+  let directEdges = 0;
+  for (const [file, source] of Object.entries(inputs.runtimes)) {
+    if (!source.includes(expectedUrl)) continue;
+    directEdges++;
+    const altered = source.replace(expectedUrl, "../menu-catalog.js?v=000000000000");
+    assert.throws(() => verifySmartChoiceCatalogRevision({ ...inputs, runtimes: { ...inputs.runtimes, [file]: altered } }), /must import the shared catalog/);
+  }
+  assert.ok(directEdges > 0, "Negative control must mutate an actual direct ordering catalog import");
 });
 
 function readPairingRevisionInputs() {
@@ -212,6 +235,7 @@ async function verifyReturningModuleCache(worker, file, currentRevision) {
 test("returning service-worker cache does not reuse old catalog or lazy pairing bytes at new content URLs", async () => {
   const worker = readFileSync("sw-core-v64.js", "utf8");
   await verifyReturningModuleCache(worker, "menu-catalog.js", menuCatalogRevision(readFileSync("menu-catalog.js")));
+  await verifyReturningModuleCache(worker, "smart-choice/catalog.js", menuCatalogRevision(readFileSync("smart-choice/catalog.js")));
   await verifyReturningModuleCache(worker, "menu-pairing.js", menuCatalogRevision(readFileSync("menu-pairing.js")));
   await verifyReturningModuleCache(worker, "menu-order-ui.js", menuCatalogRevision(readFileSync("menu-order-ui.js")));
   await verifyReturningModuleCache(worker, "order-storage.js", menuCatalogRevision(readFileSync("order-storage.js")));

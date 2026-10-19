@@ -1,0 +1,163 @@
+Ручной прогон Roby’s, 13.10.2026. Только тестовые заказы на8790.
+
+ГОСТЬ, R-000001:
+- banner:
+  - link "Roby's Coffee House":
+    - /url: /
+    - generic: ROBY’S
+    - generic: COFFEE HOUSE
+  - navigation "Язык":
+    - button "TR"
+    - button "EN"
+    - button "RU" [pressed]
+- main:
+  - paragraph: Немного времени для себя
+  - generic: Номер твоего заказа
+  - strong: R-000001
+  - status:
+    - heading "Приятного аппетита!" [level=1]
+    - paragraph: Заказ выдан. Если хочется ещё чего-нибудь, можно начать новый выбор.
+  - list:
+    - listitem: Оплата на кассе
+    - listitem: Готовим
+    - listitem: Готово
+    - listitem: Выдан
+  - region "Покажи кассиру":
+    - heading "Покажи кассиру" [level=2]
+    - img "QR-код для открытия заказа кассиром"
+    - paragraph: Кассир откроет твой заказ по этому QR-коду.
+    - paragraph: Кассир подтвердил оплату.
+  - region "Твой выбор":
+    - heading "Твой выбор" [level=2]
+    - list:
+      - list:
+        - generic: 2 ×
+        - generic: Чёрный чай
+        - generic: 2 ×
+        - generic: Макарон
+      - generic: 160 ₺
+    - paragraph:
+      - generic: Итого
+      - strong: 160 ₺
+  - paragraph: Статус обновляется
+  - time: "Последняя проверка: 12:11:20"
+  - button "Собрать новый заказ"
+- contentinfo:
+  - paragraph: Можно оставить этот экран открытым. Статус изменится автоматически, когда команда обновит заказ.
+  - generic: ROBY’S · COFFEE & YOUR MOMENT
+
+КАССИР:
+- banner:
+  - link "Roby's Coffee House":
+    - /url: /
+    - img "Roby's Coffee House"
+  - generic: Dil
+  - combobox "Dil":
+    - option "RU"
+    - option "TR" [selected]
+    - option "EN"
+  - button "Çıkış"
+- main:
+  - status: Sipariş kimliğini veya bu kafenin QR bağlantısını yapıştırın. Başka sitelerin bağlantıları kabul edilmez.
+  - region "Aktif siparişler":
+    - paragraph: Kasiyer · qa-cashier
+    - heading "Aktif siparişler" [level=1]
+    - paragraph:
+      - generic: Güncellendi 12:11
+      - button "Yenile"
+    - region "Sipariş aç":
+      - heading "Sipariş aç" [level=2]
+      - paragraph: Misafirin QR kodunu tarayın veya bağlantısını yapıştırın.
+      - generic: QR bağlantısı veya sipariş kimliği
+      - textbox "QR bağlantısı veya sipariş kimliği": не QR
+      - button "Aç" [active]
+      - button "QR tara"
+    - region "Sipariş kuyruğu":
+      - heading "Ödeme bekleyen" [level=2]
+      - generic: "1"
+      - button "№ R-000002 Ödeme bekliyor 2 × Aromalı Buzlu Caffè Latte · 2 × Brownie Oluşturuldu 12:07 ₺700":
+        - generic: № R-000002
+        - generic: Ödeme bekliyor
+        - generic: 2 × Aromalı Buzlu Caffè Latte · 2 × Brownie
+        - generic: Oluşturuldu 12:07
+        - strong: ₺700
+      - heading "Ödendi · hazırlanıyor" [level=2]
+      - generic: "0"
+      - paragraph: Her şey yolunda. Ödenen siparişler burada görünecek.
+      - heading "Son teslim edilenler" [level=2]
+      - generic: "1"
+      - button "№ R-000001 Teslim edildi 2 × Siyah Çay · 2 × Makaron Oluşturuldu 11:52 ₺160":
+        - generic: № R-000001
+        - generic: Teslim edildi
+        - generic: 2 × Siyah Çay · 2 × Makaron
+        - generic: Oluşturuldu 11:52
+        - strong: ₺160
+    - region "Sipariş içeriği":
+      - heading "Sipariş № R-000001" [level=2]
+      - generic: Teslim edildi
+      - paragraph: Oluşturuldu 11:52 · Ödeme onaylandı 11:57
+      - list:
+        - strong: Set 1 · ×2
+        - generic: ₺160
+        - list:
+          - listitem: 2 × Siyah Çay
+          - listitem: 2 × Makaron
+      - generic: Toplam
+      - strong: ₺160
+      - paragraph: Sipariş teslim edildi. İyi günler!
+
+БАРИСТА:
+- banner:
+  - link "Roby's Coffee House":
+    - /url: /
+    - img "Roby's Coffee House"
+  - generic: Язык
+  - combobox "Язык":
+    - option "RU" [selected]
+    - option "TR"
+    - option "EN"
+  - button "Выйти"
+- main:
+  - status: Статус заказа обновлён.
+  - region "Заказы в работе":
+    - paragraph: Бариста · qa-barista
+    - heading "Заказы в работе" [level=1]
+    - paragraph:
+      - generic: Обновлено 12:11
+      - button "Обновить"
+    - region "Открыть заказ":
+      - heading "Открыть заказ" [level=2]
+      - paragraph: Сканируйте QR гостя или вставьте ссылку из QR.
+      - generic: Ссылка из QR или ID заказа
+      - textbox "Ссылка из QR или ID заказа"
+      - button "Открыть"
+      - button "Сканировать QR"
+    - region "Очередь заказов":
+      - heading "Оплачены · в работе" [level=2]
+      - generic: "0"
+      - paragraph: Всё спокойно. Оплаченные заказы появятся здесь.
+    - region "Состав заказа" [active]:
+      - heading "Выберите заказ" [level=2]
+      - paragraph: Откройте карточку в очереди или QR гостя — здесь появятся состав и следующий шаг.
+
+КАССИР ПОСЛЕ ВЫХОДА И ПЕРЕЗАГРУЗКИ (RUN-048):
+- banner:
+  - link "Roby's Coffee House":
+    - /url: /
+    - img "Roby's Coffee House"
+  - generic: Язык
+  - combobox "Язык":
+    - option "RU" [selected]
+    - option "TR"
+    - option "EN"
+- main:
+  - region "Каждый заказ — на своём месте.":
+    - paragraph: ДЛЯ КОМАНДЫ ROBY’S
+    - heading "Каждый заказ — на своём месте." [level=1]
+    - paragraph: Войдите в рабочее место кассира или бариста.
+    - generic: Логин
+    - textbox "Логин"
+    - generic: Пароль
+    - textbox "Пароль"
+    - button "Войти"
+    - paragraph: Заказы доступны только сотрудникам после входа.

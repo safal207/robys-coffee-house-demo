@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { menuCategories } from "../menu-catalog.js";
 import { addOrderGroup, normalizeOrderDraft } from "../src/order-draft.js";
 import { familyRecipes, quoteFamilySelection, stageFamilySelection } from "../src/menu-family.js";
@@ -90,5 +92,92 @@ test("a missing or corrupt catalog component blocks the recipe rather than inven
     const result = stageFamilySelection(draft, "milk-cookie", familyRecipes[0].productIds, changed, validIds);
     assert.equal(result.applied, false);
     assert.strictEqual(result.draft, draft);
+  }
+});
+
+test("one family hub retains ready sets, editable ideas and Kids Box across languages and real actions", async () => {
+  class Element extends EventTarget {
+    constructor(tag) { super(); this.tagName = tag; this.children = []; this.dataset = {}; this.attributes = new Map(); this.className = ""; this._text = ""; }
+    set textContent(value) { this._text = String(value); this.children = []; }
+    get textContent() { return this._text + this.children.map(child => child.textContent).join(""); }
+    append(...nodes) { nodes.forEach(child => { child.parentElement = this; this.children.push(child); }); }
+    replaceChildren(...nodes) { this._text = ""; this.children = []; this.append(...nodes); }
+    setAttribute(name, value) { this.attributes.set(name, String(value)); }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    hasAttribute(name) { return this.attributes.has(name); }
+    removeAttribute(name) { this.attributes.delete(name); }
+    matches(selector) {
+      if (selector === "input:checked") return this.tagName === "input" && this.checked;
+      if (selector.startsWith(".")) return this.className.split(/\s+/).includes(selector.slice(1));
+      const data = selector.match(/^\[data-([\w-]+)\]$/);
+      if (data) return this.dataset[data[1].replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] !== undefined;
+      return this.tagName === selector;
+    }
+    querySelectorAll(selector) {
+      return this.children.flatMap(child => [...(child.matches(selector) ? [child] : []), ...child.querySelectorAll(selector)]);
+    }
+    querySelector(selector) { return this.querySelectorAll(selector)[0] ?? null; }
+    get classList() { return { add() {}, remove() {} }; }
+    focus() { this.focused = true; }
+    get isConnected() { return true; }
+    showModal() { this.open = true; this.setAttribute("open", ""); }
+    close() { this.open = false; this.removeAttribute("open"); }
+    click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
+  }
+  const kidsSource = readFileSync(new URL("../src/kids-menu.js", import.meta.url), "utf8").replace(/^export /gm, "");
+  const familySource = readFileSync(new URL("../src/menu-family-ui.js", import.meta.url), "utf8")
+    .replace(/^import [^\n]+\n/gm, "").replace(/^export /gm, "");
+  const settle = async () => { for (let tick = 0; tick < 5; tick++) await Promise.resolve(); };
+  for (const language of ["tr", "en", "ru"]) {
+    const document = Object.assign(new EventTarget(), {
+      body: new Element("body"), createElement: tag => new Element(tag),
+      createTextNode: text => { const node = new Element("#text"); node.textContent = text; return node; }
+    });
+    const notice = new Element("p");
+    document.querySelector = () => notice;
+    const createMenuFamilyUi = runInNewContext(`${kidsSource}\n${familySource}\ncreateMenuFamilyUi`, {
+      document, familyRecipes, quoteFamilySelection, stageFamilySelection
+    });
+    const root = new Element("section"); document.body.append(root);
+    let currentLanguage = language, draft = empty(), transactions = 0, opens = 0;
+    const readyAdds = [], openedProducts = [];
+    const ui = createMenuFamilyUi({ root, productIndex: index, orderProductIds: validIds, initialLanguage: language,
+      localized: value => value[currentLanguage], formatPrice: value => `${value} ₺`, readDraft: () => draft,
+      mutateDraft: async updater => { transactions++; const result = updater(draft); if (result.applied) draft = result.draft; return result; },
+      onCartChange() {}, onIntent: () => () => true, openCart: async () => { opens++; },
+      addKidsCombo: async (combo, trigger) => { readyAdds.push([combo.id, trigger]); return true; },
+      openProduct: (id, trigger) => openedProducts.push([id, trigger])
+    });
+    const checkHub = () => {
+      assert.equal(root.querySelectorAll(".kids-combo").length, 2, `${currentLanguage}: ready sets survive family initialization/refresh`);
+      assert.equal(root.querySelectorAll(".menu-family-card").length, 3, `${currentLanguage}: accepted editable ideas remain`);
+      assert.equal(root.querySelectorAll(".menu-family-coming-soon").length, 1);
+      assert.equal(root.querySelector(".kids-menu-title").id, "kids-menu-title");
+      assert.notEqual(root.querySelector(".kids-menu-title").textContent, root.querySelector(".menu-family-ideas-title").textContent);
+      assert.equal(root.querySelectorAll(".kids-combo-total")[0].textContent.replace(/\D/g, ""), "160");
+      assert.equal(root.querySelectorAll(".kids-combo-total")[1].textContent.replace(/\D/g, ""), "330");
+    };
+    checkHub();
+    const addMini = root.querySelector(".kids-combo-add"); addMini.click(); addMini.click(); await settle();
+    assert.equal(readyAdds.length, 1, "The ready Mini action delegates once, with its real trigger");
+    assert.equal(readyAdds[0][0], "kids-mini"); assert.equal(readyAdds[0][1], addMini);
+    assert.equal(transactions, 0, "The family UI must not also add separate copies of a ready set");
+    root.querySelector(".kids-menu-product").click();
+    assert.equal(openedProducts[0][0], "brew-hot:milk");
+    root.querySelector(".menu-family-choose").click();
+    const dialog = document.body.querySelector("dialog");
+    assert.equal(dialog.open, true);
+    const options = dialog.querySelectorAll("input"); assert.equal(options.length, 2);
+    options[1].checked = false; options[1].dispatchEvent(new Event("change"));
+    dialog.querySelector(".menu-family-add").click(); await settle();
+    assert.equal(transactions, 1, "Accepted editable ideas still use one authoritative transaction");
+    assert.deepEqual(draft.lines, [{ id: "brew-hot:milk", quantity: 1 }]);
+    assert.equal(draft.groups.length, 1); assert.equal(draft.groups[0].items.length, 1);
+    assert.equal(opens, 1);
+    for (const nextLanguage of ["ru", "en", "tr"]) {
+      currentLanguage = nextLanguage; ui.refresh(nextLanguage); checkHub();
+    }
+    assert.equal(readyAdds.length, 1, "Refreshing translations cannot re-add a ready set");
+    assert.equal(transactions, 1, "Refreshing translations cannot re-add editable components");
   }
 });

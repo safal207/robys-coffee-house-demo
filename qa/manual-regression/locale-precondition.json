@@ -1,0 +1,7 @@
+{
+  "seededPrecondition": true,
+  "purpose": "Guest locale/new-order UI only; status transitions prepared through store, not counted as a manual payment flow.",
+  "number": "R-000003",
+  "status": "issued",
+  "totalMinor": 11000
+}

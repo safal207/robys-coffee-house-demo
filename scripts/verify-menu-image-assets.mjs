@@ -165,3 +165,4 @@ if (!serviceWorker.includes(`"./${kidsBox}"`)) fail("Kids Box concept photo is n
 verifyAsset(kidsBox, digests, 900);
 
 console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} product and ${expectedSetFiles.length} pairing photos at 1024px; ${expectedFamilyFiles.length} family photos at 900px. All are complete, unique WebP assets.`);
+await import('./verify-menu-thumbnails.mjs');

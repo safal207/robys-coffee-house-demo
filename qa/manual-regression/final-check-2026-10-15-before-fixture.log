@@ -1,0 +1,181 @@
+
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run build && npm run verify:menu-images && npm run verify:menu-order && node scripts/test-audit-dependencies.mjs && node scripts/test-hero-playback.mjs && npm run audit:deps -- --check && npm run verify:entry-handoff && npm run verify:smart-choice && npm run test:smart-choice && npm run verify:gallery:assets && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check smart-choice/app-v2.js && node --check smart-choice/cart-v2.js && node --check smart-choice/experiments-v2.js && node --check smart-choice/analytics-v2.js && node --check smart-choice/decision-trace-v2.js && node --check smart-choice/release-qa.js && node --check smart-choice/simulator-v2.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression && npm run test:takeaway-entry
+
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+
+> robys-coffee-house@2.0.0 build
+> npm run verify:smart-choice-catalog && npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && node scripts/build.mjs && npm run test:ordering && node scripts/build-smart-choice-revenue-simulator.mjs && npm run test:smart-choice-page && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 0 expected warning(s), TypeScript clean, adversarial mutations rejected.
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs && node scripts/test-smart-choice-helpful-options.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+✅ SMART-CHOICE-HELPFUL-OPTIONS passed: 3240 questionnaire inputs, 9720 actual-priced options, explicit tradeoffs, guest counts and availability blocks.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs && node scripts/test-shared-order.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and local QR checkout verified.
+PASS legacy menu draft + selected coffee = 270 TRY
+PASS reload / locale redraw / Back cannot duplicate the recommendation
+PASS explicitly selecting the same recommendation replaces its own contribution
+PASS deleting recommendation in menu stays deleted on returning to Smart Choice
+PASS explicit reselection can add the deleted recommendation again
+PASS emptying the menu remains empty on reload
+PASS manual and recommended quantities of the same product are preserved separately
+PASS increasing quantity in menu retains the added portion when recommendation changes
+PASS deleting a shared product clamps ownership and does not remove another manual product
+PASS quantity limit blocks atomically without dropping existing products
+PASS unknown products, corrupt quantities, stale prices and malformed storage are ignored
+PASS invalid recommendation cannot partially replace a valid one
+PASS a differing offer price blocks instead of silently changing the quoted price
+PASS unavailable recommendations do not alter the existing order
+PASS combo, substitution, upgrade and bump use menu prices without losing manual espresso
+PASS all languages share the complete draft with truthful draft flags
+Shared order: 16/16 passed.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+Counter guest and staff interfaces built from source.
+SMART-CHOICE-ENCODING: 8 source/runtime pairs and decoded literals match; 259238 B ASCII -> 238383 B UTF-8; mutated currency rejected.
+Built app.js (ad71d6b67116), bootstrap-v2.js (845efb76f384), morning-entry-v2.js (8a158515f4de), styles-v2.css (a4431b07fc04), menu-security-v2.css (c9ec36b38ff3), pairing-posters.css (d1e9096d1ee4), pairing-posters.js (024743e64919), Smart Choice app-v2.js (ce43ffdb4829), Smart Choice cart-v2.js (a9a22eafb683), Smart Choice experiments-v2.js (b490556c5d92), Smart Choice analytics-v2.js (30d0c744a255), Smart Choice decision-trace-v2.js (832120e21e45), Smart Choice release-qa.js (2811759ef7b2), featured-gallery.js (5a90456cb0d7), social-offer.js (77cf212ed128), discover-v2.js (48db52a5d59f), discover-rotation-v3.js (b7b8c4df73db), Smart Choice style.css (70ca8d782644), Smart Choice cart.css (42034af591c0), Smart Choice decision-trace.css (caa831d49b1f), and Smart Choice release-qa.css (382f68926f7d) with synchronized cache keys.
+
+> robys-coffee-house@2.0.0 test:ordering
+> node --test scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs
+
+(node:29676) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/order-draft.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ different pairs remain independently editable and removable; repeats merge the same pair (35.8639ms)
+✔ flavors retain separate identities through serialization and reload (0.8393ms)
+✔ the global product cap spans groups and flavors and rejects entire pairs (0.6148ms)
+✔ changing a flavor preserves components when their identities collide inside or between groups (2.9427ms)
+✔ full-menu +/- gestures use the current shared draft rather than a stale visible row (6.8746ms)
+✔ full-menu replacement retains pair component counts and unrelated fresh edits (3.4699ms)
+✔ full-menu replacement merges matching components and groups without losing quantities (2.5875ms)
+✔ full-menu replacement rejects stale removals, quantity changes and recommendation changes (3.2507ms)
+✔ full-menu replacement validates mandatory flavors and refuses overflow atomically (4.0002ms)
+✔ full-menu replacement preserves recommendation ownership and explicit dessert substitution (4.5492ms)
+✔ flat legacy drafts migrate without repricing or losing recommendation ownership (0.6273ms)
+✔ a substitution cannot resurrect a component removed from the current recommendation (1.8375ms)
+✔ same-selection substitutions retain pair quantity and chosen flavors; a new selection starts once (1.5164ms)
+✔ retaining recommendation quantity makes substitutions respect the product cap atomically (0.6915ms)
+✔ legacy quantity edits preserve manual ownership before changing a recommendation (0.67ms)
+✔ legacy flat quantity edits share one allowance across flavors inside the same group (0.5532ms)
+✔ removing an extra copy does not suppress the base recommendation (1.4872ms)
+✔ shared storage migrates the session once and an empty shared cart never restores old items (1.3431ms)
+✔ ordering remains usable when both browser storage APIs are unavailable (0.5736ms)
+✔ readable storage cannot roll back an edit after quota errors, and persistence recovers (0.8569ms)
+✔ a later local read failure cannot restore stale session quantities (0.8129ms)
+✔ failed local writes survive a fresh module reload and commit after quota recovery (7.4858ms)
+✔ a pending session write never rolls back a newer canonical draft from another tab (31.7607ms)
+(node:32308) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ every drink/dessert/flavor × quantity1/2 retains composition and prices through checkout, edits and removal (3133.269ms)
+ℹ 1368 combinations; 57 drink/flavor choices × 12 desserts × 2 quantities × 3 languages; source + built cashier prices agree
+✔ ticket preserves pairs, reprices catalog and never encodes paid/preparing or prices (1.5251ms)
+✔ unchanged checkout is idempotent across reload; edited composition makes a fresh ticket (0.6511ms)
+✔ ticket survives session migration when persistent storage rejects writes (0.837ms)
+✔ failed ticket writes keep the latest ticket instead of restoring stale persistent data (0.8295ms)
+✔ quota failure followed by reload preserves the pending ticket and recovers persistence (0.9292ms)
+✔ a pending session write cannot replace a newer ticket saved by another tab (0.6345ms)
+✔ invalid cached ticket cannot replace validated composition (0.3483ms)
+✔ empty, unknown, duplicate and noninteger/overflowing groups are rejected (1.0272ms)
+✔ flavor survives QR and missing/unknown flavor is rejected (0.9508ms)
+✔ bounded decoder rejects malformed/oversized/version/catalog/product/status injection (2.5593ms)
+✔ binary QR rejects truncated bytes, invalid header/counts/variants and trailing status data (4.9438ms)
+✔ earlier v1 QR remains readable while v2 significantly reduces the full catalog payload (10.543ms)
+✔ full catalog fits; excessively large valid composition reports a bounded QR error (5.0181ms)
+✔ actual SVG QR independently decodes both a pair and full63-item cart (401.5166ms)
+✔ independent QR scanner reads every flavor and drink category paired with dessert (279.85ms)
+ℹ 21 rendered flavor/category QR samples independently decoded
+✔ full catalog QR reads at desktop and narrow mobile display pixel sizes (182.0311ms)
+✔ cashier navigation uses its cached page offline, at root and repository subpaths (50.5548ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4414.159
+(node:30144) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Quick builder PASS: 760 complete recipes, 75240 quantity cases (1–99), 4560 TR/EN/RU QR round trips, atomic limits, removal, multilingual search and product photos.
+Quick builder UI PASS: responsive photo identity; visible order quantities; replacements, stale edits and required flavours; persistent double-tap confirmation; abandoned or changed delayed checkout cancels; complete totals and modal focus.
+Built Smart Choice revenue simulator (61580d63024c) and synchronized CSS (b39978b525a7).
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 258237 B JS / 38873 B CSS
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+
+> robys-coffee-house@2.0.0 verify:menu-images
+> node scripts/verify-menu-image-assets.mjs
+
+✅ MENU-IMAGES-001 passed: 61 individual product photos and 5 pairing photos are complete, unique 1024px WebP assets.
+Menu thumbnails PASS: 69 originals preserved, 138 verified responsive copies; {"original":4335128,"small":653636,"large":1866250} bytes.
+
+> robys-coffee-house@2.0.0 verify:menu-order
+> node scripts/verify-menu-order.mjs && node scripts/test-menu-runtime-contract.mjs && node --test scripts/test-menu-pairing.mjs
+
+evalmachine.<anonymous>:5
+  const skipLink = document.querySelector(".skip-link[data-localized]");
+                            ^
+
+TypeError: document.querySelector is not a function
+    at translateStaticPage (evalmachine.<anonymous>:5:29)
+    at evalmachine.<anonymous>:29:1
+    at Script.runInContext (node:vm:149:12)
+    at Script.runInNewContext (node:vm:154:17)
+    at runInNewContext (node:vm:310:38)
+    at file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/scripts/verify-menu-order.mjs:238:3
+
+Node.js v24.19.0

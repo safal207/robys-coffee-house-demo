@@ -250,6 +250,7 @@ let orderUi;
 const MENU_ORDER_ORIGIN = "menu-app";
 let orderUiPromise;
 let orderUiRetry = 0;
+const pendingKidsAdds = new Set();
 // Product, cart and family downloads belong to one navigation stream. A late
 // import may initialize its module, but only the latest user intent can reveal,
 // scroll or focus a view. Clear the previous trigger's busy state immediately.
@@ -273,7 +274,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=0c4db7b85f2d");
+    } else loading = import("./menu-order-ui.js?v=206dca9f16f0");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
@@ -292,20 +293,24 @@ function loadOrderUi() {
   return orderUiPromise;
 }
 async function openOrderIntent(kind, id, trigger = document.activeElement) {
+  const kidsId = kind === "kids" ? id?.id : null;
+  if (kidsId && pendingKidsAdds.has(kidsId)) return false;
+  if (kidsId) pendingKidsAdds.add(kidsId);
   combosUi?.close({ restoreFocus: false });
   const intent = beginMenuIntent(trigger);
   try {
     const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
-    if (intent !== menuIntent) return;
+    if (intent !== menuIntent) return false;
     document.querySelector("#menu-cart-status").classList.remove("is-visible");
     ui.refresh({ nextLanguage: language });
     const returnFocus = trigger?.isConnected ? trigger : (kind === "product"
       ? Array.from(menuRoot.querySelectorAll("[data-product-id]")).find(row => row.dataset.productId === id)?.querySelector(".full-menu-item-media")
       : null) ?? cartTrigger;
+    if (kind === "kids") return await ui.addKidsCombo(id, returnFocus, () => intent === menuIntent);
     if (kind === "product") ui.openProduct(id, returnFocus);
     else ui.openCart(returnFocus, id);
   } catch {
-    if (intent !== menuIntent) return;
+    if (intent !== menuIntent) return false;
     const message = {
       tr: "Seçim açılamadı. Lütfen tekrar deneyin.",
       en: "Your selection could not open. Please try again.",
@@ -314,7 +319,11 @@ async function openOrderIntent(kind, id, trigger = document.activeElement) {
     const notice = document.querySelector("#menu-cart-status");
     notice.textContent = message;
     notice.classList.add("is-visible");
-  } finally { finishMenuIntent(intent); }
+    return false;
+  } finally {
+    if (kidsId) pendingKidsAdds.delete(kidsId);
+    finishMenuIntent(intent);
+  }
 }
 function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
 const familyTrigger = document.querySelector("#menu-family-trigger");
@@ -333,11 +342,13 @@ function loadFamilyUi() {
       const url = new URL("./menu-family-ui.js", import.meta.url);
       url.searchParams.set("retry", String(familyRetry));
       loading = import(url.href);
-    } else loading = import("./menu-family-ui.js?v=f6778abdbe89");
+    } else loading = import("./menu-family-ui.js?v=c6e39d14b3d5");
     familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
       familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
         readDraft: () => { cart = readCart(); return orderDraft; }, mutateDraft: mutateMenuDraft,
+        addKidsCombo: (combo, trigger) => openOrderIntent("kids", combo, trigger),
+        openProduct,
         onCartChange: renderCart,
         onIntent: () => {
           const intent = beginMenuIntent();
@@ -403,7 +414,7 @@ function loadCombosUi() {
       const url = new URL("./menu-combos-ui.js", import.meta.url);
       url.searchParams.set("retry", String(combosRetry));
       loading = import(url.href);
-    } else loading = import("./menu-combos-ui.js?v=a679972ee3b5");
+    } else loading = import("./menu-combos-ui.js?v=68984827367e");
     combosUiPromise = loading.then(({ createMenuCombosUi }) => {
       combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
@@ -758,6 +769,8 @@ function translateStaticPage() {
   const copy = menuCopy[language];
   document.documentElement.lang = language;
   document.title = `${copy.pageTitle} | Roby's Coffee House`;
+  const skipLink = document.querySelector(".skip-link[data-localized]");
+  if (skipLink) skipLink.textContent = skipLink.dataset[language] ?? skipLink.dataset.tr;
 
   document.querySelectorAll("[data-menu-copy]").forEach((element) => {
     const key = element.dataset.menuCopy;
@@ -888,7 +901,7 @@ window.addEventListener("hashchange", () => {
     void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
     return;
   }
-  if (window.location.hash === "#menu-family") {
+  if (["#menu-family", "#kids-menu"].includes(window.location.hash)) {
     void openFamilySuggestions();
     return;
   }
@@ -902,7 +915,7 @@ window.addEventListener("hashchange", () => {
 
 if (language !== "tr") void loadMenuActions();
 
-if (window.location.hash === "#menu-family") void openFamilySuggestions();
+if (["#menu-family", "#kids-menu"].includes(window.location.hash)) void openFamilySuggestions();
 if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
   void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
 }

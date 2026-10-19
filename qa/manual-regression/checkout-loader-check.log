@@ -1,0 +1,1 @@
+Checkout loader PASS: browser-cached imports recover on explicit retry; bounded same-origin loads; abandoned quick import and delayed configuration cannot create a ticket or navigate.

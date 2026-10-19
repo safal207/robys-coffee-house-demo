@@ -1,0 +1,1903 @@
+{
+  "encoder": {
+    "aom": "3.15.1",
+    "archive": "3.8.9",
+    "cairo": "1.18.6",
+    "cgif": "0.5.4",
+    "exif": "0.6.26",
+    "expat": "2.8.5",
+    "ffi": "3.8.0",
+    "fontconfig": "2.18.3",
+    "freetype": "2.14.3",
+    "fribidi": "1.0.17",
+    "glib": "2.90.0",
+    "harfbuzz": "14.5.0",
+    "heif": "1.23.5",
+    "highway": "1.4.0",
+    "imagequant": "2.4.1",
+    "lcms": "2.19.1",
+    "mozjpeg": "0826579",
+    "pango": "1.58.2",
+    "pixman": "0.46.4",
+    "png": "1.6.58",
+    "proxy-libintl": "0.5",
+    "rsvg": "2.63.2",
+    "tiff": "4.7.2",
+    "uhdr": "2.0.2",
+    "vips": "8.18.7",
+    "webp": "1.6.0",
+    "xml2": "2.15.4",
+    "zlib-ng": "2.3.3",
+    "sharp": "0.35.5"
+  },
+  "quality": 80,
+  "widths": [
+    256,
+    512
+  ],
+  "assets": [
+    {
+      "source": "src/products/menu-v1/brew-hot--black-tea.webp",
+      "bytes": 42476,
+      "sha256": "96016711fe99aaf0c89927b73179f45c154f7a44c15e4d79f8d59772c75d1640",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 336,
+        "sha256": "5a80f6eabaac37d2b9ff6e7a3bae9db5147b88a95e53c85347b232d38a69785d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--black-tea-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8172,
+          "sha256": "e30d63a699b83e264a6e639aac77f400db13fa1d1932b39be1821de00ec5d744"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--black-tea-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 20188,
+          "sha256": "f0cb2bdca7181f7ac02ed7a50ca0752e2c34aaf97e035bc596c8a04669465683"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--chai-tea-latte.webp",
+      "bytes": 63360,
+      "sha256": "a6d218204de4eaf20089fa0c40b2f8e8f3f72589e451ce8e4eebd681fed826a6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 324,
+        "sha256": "597eef75f1b2178f03d1a62dc56a024393bac511ac1ba0fee7a0d30ea01b7fc1"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--chai-tea-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9314,
+          "sha256": "17642ac398f44e47ad3e548f7034c2f727749672c34e0a331f48028fe534c63f"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--chai-tea-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 26948,
+          "sha256": "b3bc18497499f1bc972735333561890c7dc6f63867bd3ae899f3cabca7f0c5e8"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--filter-coffee.webp",
+      "bytes": 42896,
+      "sha256": "27fbd6f0c65d72dcbd590e5b7de395492d3192d2166f0904854e322c2a2c5abd",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 346,
+        "sha256": "ae8756adc77a9e4309931a65930a500e8dc3784d90a6ed77306ec30d402008c7"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--filter-coffee-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8048,
+          "sha256": "7cd7ae6c118bcfd7715b99720befceb444072a9b9474a73c8d62a1ad0dadc11e"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--filter-coffee-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 20200,
+          "sha256": "6da4c69676af67afdc7c2453340a7711465f89d0f1410b497a81c62a94f07e43"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--hot-chocolate.webp",
+      "bytes": 63934,
+      "sha256": "c4851ac7910eba433d1a88d1a6066fba9386149d71feaefb8e0197cfb772f32c",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 346,
+        "sha256": "6532a54cf6582cf5b8dae9edcc8994a779603e7b5ef0ed679a0cfc118d63b38d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--hot-chocolate-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10026,
+          "sha256": "4fd4d06b347f6e0e5876dced6685dff8063c2721cb1f8a460717340cb76c91bb"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--hot-chocolate-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 27706,
+          "sha256": "333c9b9d3f4629ccac011a67fe23b54a8e60bb831c9e033a32c98c76b3bdab2c"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--milk.webp",
+      "bytes": 37660,
+      "sha256": "770b4156e46822a1fcfe1a643c1935b4be3a8bb4d7dd8a7f988e1fede4cd4be0",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 312,
+        "sha256": "9d9534da105954b9b6737247db6bcb222749aa7073e93accd90a6982e5fd43a3"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--milk-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7050,
+          "sha256": "018fce9dd9b4251c839afbc6497838a5b6662783778e8fa89e3424c712c8edbf"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--milk-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 17810,
+          "sha256": "ff75710046010a75e0527b21dde116d49baf0b10df60d5aea68df5be16374f94"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--salep.webp",
+      "bytes": 57966,
+      "sha256": "68797040c0e9e72c39d9b172465e1843eeff0e38c44345585db78414415caf18",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 318,
+        "sha256": "5c29d466fcf0ea805bb794db779186e41d43861e9ea6d1a00337a88b22823b67"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--salep-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9014,
+          "sha256": "3eaacbafa8db21e7e76f9aaecb4b79be36306d0f824ff2e6bf63e95cb7e52a94"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--salep-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 24880,
+          "sha256": "a676865e723dcc2e2174544b44650172201f5d79d06ac6c32ec32a31e528bade"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/brew-hot--turkish-coffee.webp",
+      "bytes": 47878,
+      "sha256": "78789ed8e4b00f3f1c0e8104c728c6b3b781fa221c37c9b828e4cc7771ea0266",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 268,
+        "sha256": "4048ec9161be5d5149ddd7617192d156cc03c7977d66fd377b3025ce3fecbc47"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--turkish-coffee-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7482,
+          "sha256": "19f2103e6afa37be46ec92b4ce36ab4da3f7a42721ca69ad3200f8c54d017b53"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/brew-hot--turkish-coffee-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 21404,
+          "sha256": "55e266308cf2d1d749fd621895bed6a9ba6b255bad488fab727072c76c12ee09"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp",
+      "bytes": 60136,
+      "sha256": "f7a9d51c7e3ff5a4bf64480d3ba1c2d5969124c62c429bed2d02b0f7978792fd",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 224,
+        "sha256": "79f17865c4941330f27ff6bd8285b9e63446ad7e4bdbc267b16e1933c0bbe860"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--caffe-latte-frappe-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8144,
+          "sha256": "bbf4fc0b42e7b871799d85024f705942519b21fa45ef14e1f976f2d9ee9cfbb2"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--caffe-latte-frappe-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25268,
+          "sha256": "f1136a36e61db139281e1f6368365d044feb10ce34b239bfd3a28db566b8e775"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp",
+      "bytes": 58054,
+      "sha256": "706de883652756824745ceb6f9d1842de5204926ebdf5c59beafe183f1075338",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 242,
+        "sha256": "25f968dd0fc2f33c41e81cd7f8c7ecc53bda0cda092841abac619b9b15049d02"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--flavoured-iced-caffe-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9048,
+          "sha256": "e2379f2fe8f56273ae6e67425748f23b4be8ee665a4c81ea2a992a99a6e4ac23"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--flavoured-iced-caffe-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25206,
+          "sha256": "ada4cb7e079f5c5669b93164aaa323b615f326ed00df8283245a00f2171205a2"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--iced-americano.webp",
+      "bytes": 69830,
+      "sha256": "83b4fee1ea93a82d9f97b02373398db10b8b874d11d101a8cac0fedf082d9903",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 234,
+        "sha256": "b75e862ff66357ef44f71e322140a1629ff3d28ed06ef6e596cfa8ffdf888251"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-americano-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8924,
+          "sha256": "2b20c73ef0b988fc734cffde44c40efdeea98ec615b55085b81132974b8a22c4"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-americano-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 28206,
+          "sha256": "dae66fee945efc541b4b88e9b71827948946aae640265150ad2e9e3bce3dc8b3"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp",
+      "bytes": 58032,
+      "sha256": "490062813c350107548f791f5b07b7e19ef5622905fe5a2c73e7411474a812ef",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 232,
+        "sha256": "c772ceffc3cbb1029e3b424bcbe0bbe8a8d19172b83f8ca1f549d0bab1d34036"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-caffe-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8594,
+          "sha256": "174050b491d315c6184d7786722d1d70368f2b7718fed154cba05624b09dc836"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-caffe-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25024,
+          "sha256": "ee79c873dac59e05abc802ec1aafd8bf608996d26dd6e719621aa1ecf632a755"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp",
+      "bytes": 65872,
+      "sha256": "8b17a4c61c8b578d5aa96170df85c04db64e4ef63fefec70f70a224ad0ca242b",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 218,
+        "sha256": "0c1ea9208c8241d9abfd229acfea902df2f371f27f9ced42208dd4a3e8233fc4"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-filter-coffee-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8250,
+          "sha256": "b28cb3c5e0b04fe0cc9632dc8e84f41f34993f1419f327a14c7d7d452b89e79b"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-filter-coffee-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25774,
+          "sha256": "cb12075871bb2cf0ddc9a6d79aa9a9d87e04f07c1a3f26f61e7cd558fa581167"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--iced-mocha.webp",
+      "bytes": 63752,
+      "sha256": "3814b654244997d522085808639d3f83a0c98f5b2ed69405ef1173a936af442a",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 234,
+        "sha256": "dd4c7293c6d76289057ccfa9f5bdbb6ad71ce4c598d8c31a2380771cc1f6faf1"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-mocha-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9290,
+          "sha256": "e18ca6c37985dfad4395d4c66a40f7c5d7baaa23dd53235581de4e1b608a308d"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--iced-mocha-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 27762,
+          "sha256": "85653ef52673c4834b1c176b67b43d0592ecb8d65cc0d097236b7042e9d381ec"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--milkshake.webp",
+      "bytes": 53134,
+      "sha256": "97be5c5d079e53295e209d9e795aa0e90f822fab41b476cadd1d889b45ad3278",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 218,
+        "sha256": "9d32b7ad59c1eccd92e926e0922efe68c24008a5cf96088b041dc9b8c5906fc0"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--milkshake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7940,
+          "sha256": "451ccd9df69073bdc9d73fde7fb9c88d2f554e0b331fc99753385e1cf20d3454"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--milkshake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23136,
+          "sha256": "4678e4fe4a91136328af44b98ad85724c5f492d20df0f87d676d1d47d1a68207"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp",
+      "bytes": 53716,
+      "sha256": "b5a88be5330923bb8f860c418f54b8617072b84a96a5dc2ec947d4485ef52501",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 226,
+        "sha256": "284c28ff5bb197be98d862b8e17e1d56f58a9d10df4949b96cb2cda802937341"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--white-chocolate-mocha-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8242,
+          "sha256": "a5271fa90fe88f99d670cad5784a7f9b944a2deb17ffdc9505f55d45a2164a83"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/cold-coffee--white-chocolate-mocha-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23552,
+          "sha256": "6e361f89bb80551df3370a84ddbfdc2e980cf406be3fb9b3c8a761a5aa9bc18f"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--almond-tart.webp",
+      "bytes": 67620,
+      "sha256": "d49d286958e20530bcc5634f4824f96f5fbaf48d9d31720ac6c71a35e017f5bf",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 240,
+        "sha256": "8e150767ddcb19d23bd89b039d2c3e31a5a367ad58bf4a5710a7bc9699972450"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--almond-tart-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10254,
+          "sha256": "9de989d5ebfb316aceccb4feecd1a861bce7e9b9ee6c271f9506446e2d3cfdef"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--almond-tart-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 28890,
+          "sha256": "3bcc57e234c1833e3074ab4320ce2dcd4986fc6c99a122799ddd1c97695a6b52"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--brownie.webp",
+      "bytes": 79488,
+      "sha256": "60acee5688b87fc43c2e947e953a87e9ba3029746b503a164e4ce27bc27b27fc",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 262,
+        "sha256": "2499266b08ad83af26d2cf6b388bbbdc4c542eee689a33bc54fb9801f1666336"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--brownie-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 11276,
+          "sha256": "006c2506d7402335bd2a091459250bf0064455abf13235cd21373e0907628685"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--brownie-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 33568,
+          "sha256": "837e565586db16bccac5b5d26e5b740421282335db628e5b26cee89bf9f541b8"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--cake-roll.webp",
+      "bytes": 70800,
+      "sha256": "0b217928759d251c131a7ed9f8d615892f43100451acda8c1c0da66fd9fe6fc6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 244,
+        "sha256": "88a0bfbdbdfcf6f7b9fb6799c00d746452383a306fab8862c7e4dda052348695"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--cake-roll-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10668,
+          "sha256": "9971c5856e97fbfdf2bc9496d4da7aefdcf557815ace6c8bb1a32ecb5bfe014b"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--cake-roll-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 30854,
+          "sha256": "bc9b8427c6f07c9566dea44814192f7ccd8c19308fe9c3d90a962d830ff5c2bc"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--chocolate-cake.webp",
+      "bytes": 88132,
+      "sha256": "168fa354480b98311e86b5620e16ab160d5026bdcb451169c7ae40f0f4703b34",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 262,
+        "sha256": "760a994367eb2f84cd999157c32fae76348e477548218b1d7cb2c7f01abab7a2"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--chocolate-cake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 11216,
+          "sha256": "6588273234a9ffe41cd96daa37f5a9444f517828360df649638faecdaf680756"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--chocolate-cake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 35462,
+          "sha256": "db1b9d46630c4efef4d8409e39e45dab1fa285a07add291fecf3b9823c9db861"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--cookie.webp",
+      "bytes": 67680,
+      "sha256": "89122ffc87a88670057f47775b2795fc4f97a7fb294825e3509a4998f86250f6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 260,
+        "sha256": "88144bc336da9cb7fd5b5636bd38d2e956f22c5834c1366dfb162b37c2224d33"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--cookie-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10764,
+          "sha256": "501cd98cbe588f309d2ec297eaeed93e9b46b18989ff19c83bffe3167012827e"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--cookie-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 30428,
+          "sha256": "37a9a7fa3a6f76962433e738708c2d3690d89cdbbfbfea45c2f8f26dd5a2bd68"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--lotus-cheesecake.webp",
+      "bytes": 55296,
+      "sha256": "cfc8b63aae670d977908e5d2c4e3c84af24ea295152689d67c8ad8f97d785c68",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 260,
+        "sha256": "b64da64bcd8fc6f719fef26863b2265ce1504b4ee2671ebb553729515b5c1b0c"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--lotus-cheesecake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8428,
+          "sha256": "796bec744863a088d6253185571a6840c8eb7d12be8ffe2e793b7b815f3a0868"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--lotus-cheesecake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23328,
+          "sha256": "9a117862f74331c387fb3c17015240b29e369e434807c7b3c50c92d0edca5746"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--macaron.webp",
+      "bytes": 53438,
+      "sha256": "3bec3fce0f62d9a9e3731711a4463a097828be24ab2168472ae8a3d79d6e47ce",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 224,
+        "sha256": "a610f176cdf09933f5ad11c213bddb0bc0f6e28641eed8e8c67f782b412d9054"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--macaron-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8252,
+          "sha256": "ae69aed61687004419e75c5a0b14026621d8c98dbd200674d4bcc6fedbd11dfe"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--macaron-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23122,
+          "sha256": "2060804fc3fb9fa3ea2eb6da5c327e8fb2cef53f23582e42c44ab666e2cd2e72"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--mosaic-cake.webp",
+      "bytes": 83566,
+      "sha256": "ce41ac050aa8f565a26f9d016ab40558d2f676426c68c1ef1d25603a33fa2ffa",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 282,
+        "sha256": "fc01376dd9d25e6bcc80dc2e1778718a9a19434f38b15d32ce98c936dce56f88"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--mosaic-cake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 11272,
+          "sha256": "f27962d0520588a925af9c8a1c11951d1ab1328269f719bbf4b72d93bfdec74e"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--mosaic-cake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 34596,
+          "sha256": "c50cdbcdb8350a1e4a7e09367e4270c4c378a7b95a917b0070c8ef7cd9994a66"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--raspberry-cheesecake.webp",
+      "bytes": 62102,
+      "sha256": "76c33722630550946150820c10210010f5906368af57f6bc86ff60a3a5e8b6cf",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 272,
+        "sha256": "d238b4961eba1e31e6c0c3e4f2b56cfb12b36ada1fea26ba5194e7a4f39f6119"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--raspberry-cheesecake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9470,
+          "sha256": "6270b5baacc2facd70f757805bf31ed4427be5ad98c8b10caeda9fe87c90d7f3"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--raspberry-cheesecake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 26862,
+          "sha256": "c3607d91af6c020d7c68d3cbcd43e32eef542a9c27be6eec8f6661f8f81eb044"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp",
+      "bytes": 80590,
+      "sha256": "4093302be7d2409381965abcd9cfea14cc15e93ac2fd0c6bee52bc2051750855",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 268,
+        "sha256": "14729b8d771b38fce2961e7f82e39bd6a8e7972cbd8a9b6dad4a832687642716"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--san-sebastian-cheesecake-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10428,
+          "sha256": "59335a2d01c98de4b147106ddd75d7d901f823bab3ca521b554d1d0cd42a06d1"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--san-sebastian-cheesecake-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 32384,
+          "sha256": "686d96081a9a8a80b836bbb80c86a15b668f423e7855156f58c963beb509bcfe"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--savoury-cookie.webp",
+      "bytes": 71148,
+      "sha256": "97da5bb96b12b51adf0121edcf73ec12899effdc420c25b3af0ac695b99a2604",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 248,
+        "sha256": "f30221ee3015f34e4f4e2e9689694717257299a48385dea2b2e896ba233faadb"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--savoury-cookie-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10218,
+          "sha256": "2f302a6fb6baae59ced6ddbd8deed3ed3499880dda6f6a642977393cbb709b55"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--savoury-cookie-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 29922,
+          "sha256": "99b22bbcfb2b0c912e4edf18cdef110d273901cd8ee5265a14c16fa8f8eed3b5"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/desserts--tiramisu.webp",
+      "bytes": 82434,
+      "sha256": "2b0eaed94ed82163562d2929d0afef7ab901454d5d15d45768b002018a6c0bbe",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 274,
+        "sha256": "8234dff1c53cb7d9a3f1bddd270356cef2d7de247a9e348ba76961eb92676dc8"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--tiramisu-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10924,
+          "sha256": "7b43a9723113665747b82cfedc6521fb3d05bce26042dd9854f642f4192d5b76"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/desserts--tiramisu-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 33960,
+          "sha256": "41d1aa98c50707388c1cf4c22fa83e3637717ba7999a220e7e5f7b2cd35529b4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp",
+      "bytes": 82692,
+      "sha256": "b5687be1001710693bddefb9556e5f99869c82a4a393ecbfec06244af023bc5d",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 332,
+        "sha256": "4ababb87453954ea506c8a2b65b4f7b93f14068eaeaa9bb70a5a580758fd3419"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/food--beef-sirloin-baguette-sandwich-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 13192,
+          "sha256": "8ce81b2cf23f76579202bd82321a236d012c7aacdd27b7e16ce5e93c26732ab2"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/food--beef-sirloin-baguette-sandwich-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 36632,
+          "sha256": "145d0c4e4c0613059e3841fe827f8d8ec2a4785dcba4aa4322e927173239a4c7"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/food--nutella-croissant.webp",
+      "bytes": 100400,
+      "sha256": "a589ceca10e28a4441e9eb670a790db24671b4577c69d8858e5422640e6a7d6a",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 320,
+        "sha256": "014f448524738d26a9e31ae0bfa8429d1f6de9762068edf66126ab8a06f32032"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/food--nutella-croissant-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 15484,
+          "sha256": "a616998e0ff878e4d2154e287c8144cabc705c6aefd2bbd8e9a8dd57dccb858f"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/food--nutella-croissant-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 44222,
+          "sha256": "2f7c9904bcedf879924d9477245c2bdff55803fc68dccd1c9b75339e9bfd07b2"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/food--sesame-simit.webp",
+      "bytes": 91878,
+      "sha256": "7ff690066a8f5d611d192eddcc17976ea8894384549b1653649a8b6775e9c1a7",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 314,
+        "sha256": "3692c84bee9fdd8572304d0894f365de2aa90d45be9626a2d674ea593b95eccc"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/food--sesame-simit-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 13472,
+          "sha256": "5981f64407a7fc82c3e643983fac8b51c19f2279dbef06f61dfe30568a1e4146"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/food--sesame-simit-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 40304,
+          "sha256": "6e51d3977485de180b840695cba54b2b97e3c46c17796020d496828cf5b26fd4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/food--three-cheese-croissant.webp",
+      "bytes": 78434,
+      "sha256": "c0fb87e1a40e2ea29a7a8248e6d16b5d706fcb08fb66628367e33c471166cf5c",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 322,
+        "sha256": "293530ca196ccf7fcbe6e1c0e257a88a5b24319e7fc02405626affefdadf249d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/food--three-cheese-croissant-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 12692,
+          "sha256": "61868f393d3e3301f67e5cf770e999191edc513c4a2445da4e2fd566bcdecbff"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/food--three-cheese-croissant-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 35286,
+          "sha256": "974c8239d056ae50f59e29e150c123c9de6f1f443e2843aae62a45df1aa45ca7"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp",
+      "bytes": 89156,
+      "sha256": "b14d0ec491f4efb706270ee6122725a656903ccf10d13ac50640da1a1a6cb0a1",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 342,
+        "sha256": "604d0658ccce96f3d6c685c6a3d36b93aa4403a9e83988787c2865600eabbc28"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/food--white-cheese-baguette-sandwich-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 13788,
+          "sha256": "9e029d9cd9a7dec981a591864602bbc58a04ee2b752e75be68e9dda201b9f488"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/food--white-cheese-baguette-sandwich-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 39150,
+          "sha256": "9557de0e1c21f6d2167e06197e3392f8fa004431a524426ae89858eaa30a2d36"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp",
+      "bytes": 57388,
+      "sha256": "6231866d1d19e718932fe3fc377c5aae820059446a527d245c53a68eac150cf8",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 340,
+        "sha256": "625dcd94eb516e8ec67484139a2b51caa6a9e90fd25dd8de84946baa850376f3"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--balance-tea-detox-green-tea-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9590,
+          "sha256": "870583269e61bce4d2da6d6f9e467bcc8430e32c3a549d61e1eb84187d7ab53a"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--balance-tea-detox-green-tea-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25460,
+          "sha256": "dcb3124b4df711127f0a04f44e0cdf4f1926ec368e0b8acde2a49be8f7406cd4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp",
+      "bytes": 50626,
+      "sha256": "9411bd475a283f942a1dff253c19b998f282fecc03895db51e195f23633bb1ed",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 352,
+        "sha256": "d39916814aac870334c12d06ba890e54f186b545189ec14085068c03654e873d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--beauty-tea-floral-white-tea-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9332,
+          "sha256": "4b0b9eb657ef3e7ecffc9e6ea83ba00395d00d4d76339191d0d344e190e90882"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--beauty-tea-floral-white-tea-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23812,
+          "sha256": "c988273425e70f4993f38153ab625bbfbeec9aa8239045dd1d6e5ee642bf1783"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp",
+      "bytes": 58584,
+      "sha256": "e0db6c55c4c9bb82ba1a77912921b4f311fa67ffb7689de48a8d95d6661818c8",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 334,
+        "sha256": "f4a51c73ffb058263dc269aa78774f20e1ef61008349392ecb685cd32f9ff5dc"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--maroc-tea-mint-green-tea-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9740,
+          "sha256": "272c25bd91d330887c8ab755e168c427c54ed894ee7c8bcf928eb1fac161f3e9"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--maroc-tea-mint-green-tea-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 26258,
+          "sha256": "0fd44bdbe6f82924427554927cc0bbc6607c77758b019798f28765cb81163272"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp",
+      "bytes": 50450,
+      "sha256": "78a2d9b6946a6142c81d19a81dd8b2891dffd8f0a346804f2968b030b95fe2d6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 336,
+        "sha256": "7984b24219fc56f40820937d16d1d44f45f628742ddd11e908999dfa5302b112"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--relax-tea-lavender-rooibos-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9424,
+          "sha256": "276c3292e220663d77855f3c16676384cae0fc9d312608d6e9b34651ca266e3d"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--relax-tea-lavender-rooibos-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23642,
+          "sha256": "dcf746496c92fcfdfad397fe3496cd930468deb987769c87b6c8513fbe7856d4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp",
+      "bytes": 54740,
+      "sha256": "8707f2c072eff77030641c1704be848cfe0fe6f25954f48f0b040fd818d7bcfb",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 356,
+        "sha256": "56883b27f657553a4b7e1695be294032484966348bba5c7e76dc283c4f0f94c5"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9316,
+          "sha256": "254a095202a50ddb89363eda897f0c060f3f7d5a98a67f85fc8c3b8ca830b58a"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 24224,
+          "sha256": "0040da81cd69bf38887dfb4a248617bf595c095c0e0701ed7b0f3449272008b4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--americano.webp",
+      "bytes": 45314,
+      "sha256": "9cde8bad634634f8a62685c0b9b93b9b352900b3f6e3466e75fc658410b6c303",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 336,
+        "sha256": "f02a0f8f2bc7e30f6e4a01d3a58acacc783fd2d54528ae5d5cbf485d0da0cf96"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--americano-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8090,
+          "sha256": "4c4915fa9db09ad5d264a3891b5b33e2cabb30254c4c8cd1190ceb0555d8f07b"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--americano-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 20802,
+          "sha256": "4d6b6b87feee2f51ecb449b4e3495b82af2f1db57c65b9a1105467ee9443cb75"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--caffe-latte.webp",
+      "bytes": 51312,
+      "sha256": "2340d439078ecc8fbcb2143073c9fedf5552db353cb79a702aa39e17b0fbb68d",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 346,
+        "sha256": "84584dc1bb327ddb845d6a35748c85c31d1cd4b1d90331f4b1969e6dbf28d0fa"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caffe-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8910,
+          "sha256": "da6e5baa912cad98e3f385aa9e1f02004fd4cfc8e4e135093c99ca35c128f61d"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caffe-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23374,
+          "sha256": "002a802eeeed24d7bc02c2cac5f0405c51ce8ab0246beb406275145b4a6f3619"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--caffe-mocha.webp",
+      "bytes": 73798,
+      "sha256": "28edb23701e1b2081c2f34b48f4f9ca892121dbc48769ad22814a8fe28bdfbce",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 340,
+        "sha256": "7def517a5e91ef7996e43bd54e56724a78dd21301bd5a1109acae9e4c135fe3b"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caffe-mocha-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10766,
+          "sha256": "ceedb8c89f8f581ab83ad91653f076f08918eb1ea6971f217a45760b4d6632a0"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caffe-mocha-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 31312,
+          "sha256": "cfc001a0276eb1312dd7441e2f849c7ba483d5d6db80991126394a1862f69f3d"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--cappuccino.webp",
+      "bytes": 58192,
+      "sha256": "087e9798fad9f55068578f355f4fcd266dfbdd61a20bd90b4cca3c128f06ea5b",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 326,
+        "sha256": "2253aba0c19c623a3ef61416ac513fad74a03435a249870284f18acb1c56911c"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cappuccino-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9154,
+          "sha256": "1bf8f353e4d6bcaf25587378c7d9d40615965284af927b52e1213bc2dc794058"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cappuccino-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25596,
+          "sha256": "02352dd180bae8ae70b5764d0d1663a882ba8f48c8455aba9f91150265c608ce"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp",
+      "bytes": 56320,
+      "sha256": "8e7163039486fe85ba101678d32b8c279c99f65698e2958fd34070668e337ca5",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 316,
+        "sha256": "3ea8d18d3091c63948e688060290045c2690e4cc372d48c879330c574910996d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caramel-cappuccino-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9696,
+          "sha256": "1b3c931eb6e5df31dd10f5634d2a93972ad8409d8e9683f489a18dade1f1e147"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caramel-cappuccino-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25200,
+          "sha256": "1b518142d278974a05a30578d453cf3d1be32ac52ae96c2f13ac34e390f620a5"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--caramel-latte.webp",
+      "bytes": 50828,
+      "sha256": "ba7c11162c753abc252118eabc64af21c0c42233393bab5723ff22c323eb635a",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 324,
+        "sha256": "9bebc276defe615603e64b6ff83af9a2a9fbc61ae9c6f0bc543ffc205e915c76"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caramel-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8710,
+          "sha256": "5d21426e311e6dc742ccf6944bbe1c4b61f8c8be53abe73385974891dd95284b"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--caramel-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 22522,
+          "sha256": "31bd8ac0569380c65fae3320987b77eba33e07e615c3f49f75ae20381e79067a"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp",
+      "bytes": 70634,
+      "sha256": "a2ad38e5db3152c971fa9a273916dc5c812f8d01da47a3786139f6e375d9b70c",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 354,
+        "sha256": "7a7220b7b7c86ad5c1020a56478cda04223b92b1f9b9bcd11573c8ef3e45a38e"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--chocolate-cookie-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10812,
+          "sha256": "8830a37d4f1a1f05483c1febb5c835081c975026ad93fd6ae6e3d020483b9096"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--chocolate-cookie-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 30892,
+          "sha256": "a69f65b918ef5569911a9b76e2967eba3eb7b77130fb0dbb0582c452e3177a88"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--cinnamon-latte.webp",
+      "bytes": 69324,
+      "sha256": "5744eb8f70e76ac9b328369fee2fe5d4791b55ef46906680ffcc7661e1192b28",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 328,
+        "sha256": "f62b68009cbb4aa61054864190f6ea1c6cdac6228154af63905eb1d6fb547dea"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cinnamon-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9330,
+          "sha256": "eaf5f944e2a8e0cdba9b96d917a6c6afa64fe1607f9194822db2b8794a78caca"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cinnamon-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 28416,
+          "sha256": "0ac164e80a976440b1f44d09a82dbdb0640acd4a3e0d81b996207a20429c0845"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--cortado.webp",
+      "bytes": 43970,
+      "sha256": "a591f800cb6f9e1dd8e68641994541e214b3398dacf3a9d28e918ee6c6a31a02",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 274,
+        "sha256": "bcd8d8b50828e4ababa0000913ca87a5bae4d329c2f583e2abeeb4e37ec1979c"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cortado-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7304,
+          "sha256": "b3d52c999578298e1e9b0c3f246968bc41c076ec58a42987a429321067efc166"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--cortado-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 19866,
+          "sha256": "b2123e3870f117e93ff84d793bade7a1f24c5c027690be5d0bebeed12949cadb"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--espresso-macchiato.webp",
+      "bytes": 42456,
+      "sha256": "ac3ca5cac28e644c0846abda4f7872a673b5ac55e1411d695cffa4be3b07d1e5",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 272,
+        "sha256": "a954a1f65f2cf40f036cbb78382ce9a13540f820ddd7780f126ae3079aa34b6e"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--espresso-macchiato-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7316,
+          "sha256": "e2df13d18a04f9fff2f71e46f89b9b24c7a13aa26e0cd80cfde693ab7030ac63"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--espresso-macchiato-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 19694,
+          "sha256": "6d3d5c931466faea47f9ebf0ef72da3c731e3185cc01bfe2638351a2cc5b3ab6"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--espresso.webp",
+      "bytes": 42546,
+      "sha256": "62ac47f2f0dedf9e5f95f207fa7b4af0de7d35ac64c845353d6f1cd1829b1da6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 270,
+        "sha256": "1e1aaddead68f4e95aee712f76484a5fe20535f9ef53b3c280e3dabf567705ca"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--espresso-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 6882,
+          "sha256": "f8fced8f39375ba83c50d7a33d174f97cb323637319caeb38ede2d6cc80b3765"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--espresso-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 18856,
+          "sha256": "0804d24a25004edc49b7e6c13c9c9917c82f9f460063f21ca6eefc604bf802d3"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--flat-white.webp",
+      "bytes": 47266,
+      "sha256": "accf9d507aee844fe5cef0c4bff39006ea2170656f0b7832967a950ef8f3d5fe",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 330,
+        "sha256": "8489d7dd424fec258e8db3d4c4b6dfe486844c85ca1a9c289969b08569f5107d"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--flat-white-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8260,
+          "sha256": "3632e34dd0002145e11ea917036c9014daf9a0daf94ba20cb74398f54944a4d7"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--flat-white-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 21436,
+          "sha256": "e243c4234a38720fc6e46bfa1e75bdc3f7c141e3100caf0fbbee60ceb0fbfe49"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--hazelnut-latte.webp",
+      "bytes": 53846,
+      "sha256": "7da1d39aa859ba1f23448fc87ef2471b5ba3f5698278f5386236e9fa3c7e2bfb",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 326,
+        "sha256": "cd21fdabd9bd1c3f3dce9a7c83df89f048194b9e6ea658ea20250fb165171b74"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--hazelnut-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9008,
+          "sha256": "e0b4a2a8bc506dbb7ffd9a72c5cde351f9ef254947873ab8666bac61e833c2b4"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--hazelnut-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 24326,
+          "sha256": "361ba4491ca5a401cb6e678db58af422da38a93b485563f6ac66db055e23b63b"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--vanilla-latte.webp",
+      "bytes": 35534,
+      "sha256": "5410ec12a2aa04ae5c58e4aab16e19ea1d13cb725c7ff7a496b8361ce149fb5a",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 306,
+        "sha256": "2e0b321a5ae6a70568fc0fa58d118baec36be77f1ce1e6d19d7ef76f6b269028"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--vanilla-latte-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7054,
+          "sha256": "b114bb351ac95afcc84207df86d3224d949ba7663e37394b56d4d2fee333c41d"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--vanilla-latte-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 17198,
+          "sha256": "ca7ee82b413f943a87d48d8e9b1a7ae023bde50f62bc51a0634bcf475f4d0371"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp",
+      "bytes": 43796,
+      "sha256": "66079b113b005faece68e2870be060f549a34d528520ae9923186fb2b021217e",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 310,
+        "sha256": "42ac566384458ae00eb66d589e674e8ef48ba1b38c67cb111be28fbf4c136da4"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--white-chocolate-mocha-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 7758,
+          "sha256": "9e5ff537d00c3e9878c1b9d694e74842dc4354566d2ed1138246c2bc8176c323"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/hot-coffee--white-chocolate-mocha-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 20054,
+          "sha256": "cee70765534c501cad2a0f235d0063d4b52c551d75e8d8e58f7fbecb9371315f"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--berry-hibiscus.webp",
+      "bytes": 79190,
+      "sha256": "efe27181617d801f8dc079c828e811762931869cf732f72318386de19e473bc3",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 228,
+        "sha256": "16ecf458de7a69809b95c25881392ea78fe0173b2bd60edb3135119117ac6ec4"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--berry-hibiscus-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9436,
+          "sha256": "8aa7f6bb9d45e6a5464363c39c4e7fbc90e1446fbf3d15e3d09f8df5f547b261"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--berry-hibiscus-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 30370,
+          "sha256": "d3b62008f717209f47b130353bb0905249846014442b67b3a13635639b8ec6a5"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--berry-lemonade.webp",
+      "bytes": 78508,
+      "sha256": "1910f28bf86bb20da59eb32630fb8728f5a5eb34a2865a3e1542b5bdeae1d9a0",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 240,
+        "sha256": "44b13f075ab4a9c2ceb1cff3323450e4f940597b9be095e2e9ea22383ba57cde"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--berry-lemonade-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9600,
+          "sha256": "8bb6963eae81c258b28175cdf5457d2b52d92f158a0e9ac7bd5f8fa83050fedd"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--berry-lemonade-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 31062,
+          "sha256": "e8b8fa940ec85110dd7209f7592cde43602d4cf28630a10da9c2ad57c311d5a2"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--cool-lime.webp",
+      "bytes": 71454,
+      "sha256": "0dd4b28f9fe0dcfdec85267c5868ca790f079716869ebe143fa30f90c3196e0e",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 232,
+        "sha256": "256ecbee18b7f6c25bde6c27a08fcc316d5815df035e7f846564c414acbea44f"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--cool-lime-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9196,
+          "sha256": "4a4e55b9f015cc6f05e79a5be4a6ef57effe34f33de0c4791ef83fceecb2d8e1"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--cool-lime-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 28650,
+          "sha256": "ae168b79baba1c736ed8bb50d1e08c1a48bc510f97f5417448d9e510aafcb9ae"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--mango-passionfruit.webp",
+      "bytes": 68536,
+      "sha256": "651b8cf2f8b586c33519a9bb2d0e86252df098bfb5dd864d864cde3ea797e6b0",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 230,
+        "sha256": "ed0fe572a20d2d5390e2808f74bb689d730bd82f00b77d4b5ececc7f1b27b5c1"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--mango-passionfruit-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9196,
+          "sha256": "a8306c59d0b68b9ca455983fba53947963f690b9c1640ef174da59d10e756222"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--mango-passionfruit-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 27546,
+          "sha256": "2c5cc3ace2c6f57062df3779bd0eecd7a3d2ea89ef682d05d32785bdb7da9631"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--pineapple-berry.webp",
+      "bytes": 62468,
+      "sha256": "ae2e21000119dd4530905f618d1143f29e00450755ec6dcbf5622f12542b1bc6",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 256,
+        "sha256": "3944c6e3935fcf4373d067932e684879e98b001cce4024e67aacb556b52311ab"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--pineapple-berry-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8710,
+          "sha256": "f8aebe908c6503948b1745bad7cfd700f96a0bafe031cd09a29592632a23fb51"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--pineapple-berry-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 26232,
+          "sha256": "3dc2cf762454fbbe1eb346cd9d87a90c4ccb050f37b0dc8f198d87ca831fb0a2"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--strawberry-lime.webp",
+      "bytes": 60676,
+      "sha256": "9bec6674d1eb564abe76d09142201005356e34eca04734d63b0286bc7ea8031e",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 230,
+        "sha256": "d16802f84a9b43ca693cd839c60f281a5e359cee988ab62a58edfc5c5e702921"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--strawberry-lime-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8096,
+          "sha256": "a500e54f8f433b7d358e13196c06f5447f3b4749c87a024ee8a935077e73a45f"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--strawberry-lime-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25004,
+          "sha256": "3cab4735140cfd1228a0a779842a4815f0c8a7a91f45ce640dde7e129bea1fe3"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--summer-pine.webp",
+      "bytes": 65390,
+      "sha256": "38b4f7925d5fcea1be570a88a334985506bf17c56531b2baa9918e7a2bf8107d",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 238,
+        "sha256": "9d2dc20b16450dd12e87a6a4527d95704986c545dc6912b053e0a31379d62cd8"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--summer-pine-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8780,
+          "sha256": "736506c085af461083eee8b60507d509b81d427127011aa80b8b66c59961e5be"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--summer-pine-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 27196,
+          "sha256": "5266461e9934de19d983466a85e4de2be2c71b56ec2b8c797138287a3314e57b"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--tropical-mango.webp",
+      "bytes": 59658,
+      "sha256": "d143d18c1d573f74dc1ace3f5bf221403aaf2ba8bf60aaf8bf3ba3c83db04d77",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 238,
+        "sha256": "fd53a98a7cff8ab1202ceb8f255bbe5093116aeae74d5dee748ad1dc4d530394"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--tropical-mango-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8200,
+          "sha256": "203dbf2aaa94a1d32a593fbb9c267ffceec65c826832138a335901f95d44e70c"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--tropical-mango-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 24464,
+          "sha256": "f264c6e2a7c27222fdabab9bfbada2bbb99fd3f59a07fdfa3e5ccda87cb7b3f7"
+        }
+      ]
+    },
+    {
+      "source": "src/products/menu-v1/refreshers--yuzu-popcorn.webp",
+      "bytes": 59184,
+      "sha256": "3b1d2980840011c9d452cbc86ba79134c057adfd9f81fc71e634e69a358fc764",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 228,
+        "sha256": "81962a9f87d26b8fbbf93b67880c8ff6a17de60113d729204359b0018bb21caf"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--yuzu-popcorn-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8416,
+          "sha256": "d1cc630c8f64e0ff669a946b5cbfa7589ba8f7d780fe10e2a46669ff2b9db364"
+        },
+        {
+          "path": "src/products/quick-v1/menu-v1/refreshers--yuzu-popcorn-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 25058,
+          "sha256": "09c0bf2bc1e34dde15ca28e401b22df89421ba3d442935cac8eee08db09bf613"
+        }
+      ]
+    },
+    {
+      "source": "src/products/sets-v1/cool-lime-macaron.webp",
+      "bytes": 77838,
+      "sha256": "0b7baea6fd5756d019b5414cff9424cab42ca5a69042697b1f3a5ec5c52560d4",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 248,
+        "sha256": "41c9e017019f9c9586ad77d40081fb8ab66a81dc7fcfafeaab8cd049134be06e"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/sets-v1/cool-lime-macaron-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9812,
+          "sha256": "28fc5637e4510a4655f75042ad4f347ec1e6b65e578ab255f3ebbd28c8c0b57f"
+        },
+        {
+          "path": "src/products/quick-v1/sets-v1/cool-lime-macaron-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 31120,
+          "sha256": "f1bf796ff70e6ee13dffd56c9874d72f9855f1d4e337a3819af2ab33e198e09e"
+        }
+      ]
+    },
+    {
+      "source": "src/products/sets-v1/filter-lotus.webp",
+      "bytes": 63998,
+      "sha256": "f97b147bb15eb6085a543095cd44f7d1480e9b6024388c8d3183ca5e64faaec5",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 278,
+        "sha256": "8c50b199b3687dfeaea0105c0c55788062082cab533d97ac4945210cc6216d7f"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/sets-v1/filter-lotus-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9858,
+          "sha256": "40bf7b3f6abf924c9a3c2eca0c4970ae00c8049a57b916e357fd514f4db059b7"
+        },
+        {
+          "path": "src/products/quick-v1/sets-v1/filter-lotus-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 28020,
+          "sha256": "cc9419b4f42afc24d049ed6f09ffb7a716d310b28895a3b2bb9e447429d89974"
+        }
+      ]
+    },
+    {
+      "source": "src/products/sets-v1/iced-san-sebastian.webp",
+      "bytes": 75600,
+      "sha256": "5375ec1c1ed730a8d829e971efb3fd04c1777e510570bcfac21c3050a59bae99",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 206,
+        "sha256": "482b068aa3ea87ca1a67d9853b71258a0d6873afe549c42223f043b5029f5d0c"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/sets-v1/iced-san-sebastian-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9740,
+          "sha256": "c97586b5414e02c8db6500a55257df21b9c9f983b1c2b40729a1e098dbd4d090"
+        },
+        {
+          "path": "src/products/quick-v1/sets-v1/iced-san-sebastian-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 30558,
+          "sha256": "d663d81356482f010a2c95276c7f513ab54cbf05722fd184e456757142a6237d"
+        }
+      ]
+    },
+    {
+      "source": "src/products/sets-v1/latte-nutella.webp",
+      "bytes": 95766,
+      "sha256": "2db329a943a5e1bec86ec9db1cc4fb57b4743325fb8f1bd5f4810d3ea7d1af4f",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 288,
+        "sha256": "1fd86dae8aa38147e87849893559c363720bd8d2935d55c5b42d86f4319f10e1"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/sets-v1/latte-nutella-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 12354,
+          "sha256": "9ddcea43113ecd70ab6533a75c124bd3eececb943e3c96cfd302c7c14062e430"
+        },
+        {
+          "path": "src/products/quick-v1/sets-v1/latte-nutella-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 38600,
+          "sha256": "679f177337526c44cd62ad57e839677e4919e32db2143c5433c92c90c4406ba4"
+        }
+      ]
+    },
+    {
+      "source": "src/products/sets-v1/relax-lotus.webp",
+      "bytes": 72602,
+      "sha256": "6d05c3fa2bf91cee04d294bc3adea3d16312b42b4c78976bd1da13231e3fbcc1",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 292,
+        "sha256": "2df8af2a74711123e0d76b1c6f6ace076c093abbc89f05c3a5d296c8c13a2229"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/sets-v1/relax-lotus-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 10038,
+          "sha256": "f79c550da105b023bac598fdaf5e98ad082ff525c1e2b7370ee3cea041b6882b"
+        },
+        {
+          "path": "src/products/quick-v1/sets-v1/relax-lotus-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 29512,
+          "sha256": "72b00cc1c02f02e5dc1ce649fe0c880015aa085f41605088e18d502b7800050d"
+        }
+      ]
+    },
+    {
+      "source": "src/products/quick-choice-v1/coffee.webp",
+      "bytes": 46324,
+      "sha256": "311479da1249fb1c9ce7eb4a0c58c75f3f3b240825a3a97e153779a2e1bb0ff0",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 230,
+        "sha256": "353ef8d2309e6750986405de2fa1eeaf20b6e44a02a13329213811726881f1c9"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/coffee-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 8110,
+          "sha256": "0412d797526f21e18ca98f36522ef746aa8dc6835465a35634e1801b015bd952"
+        },
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/coffee-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 21464,
+          "sha256": "4392fb6ebe8be934cde26d89494078eefa924583fe890b46a79a318a65cb6f32"
+        }
+      ]
+    },
+    {
+      "source": "src/products/quick-choice-v1/cold.webp",
+      "bytes": 49382,
+      "sha256": "af28ec5e0ff0b9c5c5c55ad44f4708f2ff1cf4618ea7b9b63f79c839030c8eaf",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 220,
+        "sha256": "4b397d163fbd87fcdac32fe7ecb14ad6a22b9250f8c3540d4b98b5d85f4b2db8"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/cold-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9138,
+          "sha256": "f21cee246b0034efea45fe26f63561988525c137cdd8c2ad7aae38c18550923b"
+        },
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/cold-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 23540,
+          "sha256": "65f0c2ee0236e9123ed8ff16b327be33f4e8a478157d57b5d0a972bd8b85468a"
+        }
+      ]
+    },
+    {
+      "source": "src/products/quick-choice-v1/tea.webp",
+      "bytes": 48080,
+      "sha256": "5b601f22bc07dcc4322f67bbcf48b19b389079f20c07ccbec6ed1eea70336ffc",
+      "preview": {
+        "width": 32,
+        "height": 32,
+        "bytes": 234,
+        "sha256": "bcc51ab20f909698f5c295739f2fc5dde8c972bca6da54d40b54e2d4c5342b56"
+      },
+      "variants": [
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/tea-256.webp",
+          "width": 256,
+          "height": 256,
+          "bytes": 9168,
+          "sha256": "3e22b4fed96dcfd4332cfc2a29c4ccb87d97c036365cdf5073db4201e98c217b"
+        },
+        {
+          "path": "src/products/quick-v1/quick-choice-v1/tea-512.webp",
+          "width": 512,
+          "height": 512,
+          "bytes": 22880,
+          "sha256": "d840bcddf3601ea99905cfe8980228e572efbc12fc6b331a42862a717062bd1c"
+        }
+      ]
+    }
+  ]
+}

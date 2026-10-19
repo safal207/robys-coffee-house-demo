@@ -1,0 +1,158 @@
+{
+  "recordedOn": "2026-10-14",
+  "evidenceType": "automated-and-source-review",
+  "manualBrowserResults": false,
+  "scope": "Customer menu, quick order, grouping, photos, static QR and checkout module loading. No user data, payments or primary localhost:8787 orders were accessed.",
+  "checks": [
+    {
+      "command": "node scripts/test-quick-builder-ui.mjs",
+      "result": "passed",
+      "details": "Real component event handlers in a DOM boundary fixture: photo node identity, inline previews, bounded original fallback and explicit retry, price/quantity consistency, visible order badges, replacements, cancellation, stale edit/removal guards, required flavor and focus restoration. New regression: carried-over second Add tap cannot close confirmation; later deliberate backdrop still closes. Delayed checkout deduplicates concurrent actions and cancels after new selection, draft mutation or builder detachment.",
+      "supportsCases": [
+        "GUEST-020",
+        "GUEST-021",
+        "GUEST-022",
+        "GUEST-023",
+        "GUEST-024",
+        "GUEST-025",
+        "GUEST-026",
+        "GUEST-038",
+        "GUEST-042",
+        "GUEST-046",
+        "GUEST-052",
+        "GUEST-053",
+        "GUEST-054"
+      ]
+    },
+    {
+      "command": "node --test scripts/test-order-groups.mjs",
+      "result": "passed",
+      "tests": 23,
+      "details": "Variant groups and collisions, paired quantities, atomic global cap, stale mutation rejection, replacement ownership, cross-tab quantities and failed browser storage recovery.",
+      "supportsCases": [
+        "GUEST-010",
+        "GUEST-011",
+        "GUEST-013",
+        "GUEST-014",
+        "GUEST-015",
+        "GUEST-016",
+        "GUEST-040",
+        "GUEST-041",
+        "GUEST-044",
+        "GUEST-045",
+        "GUEST-046",
+        "GUEST-047"
+      ]
+    },
+    {
+      "command": "node scripts/test-quick-builder.mjs",
+      "result": "passed",
+      "recipes": 760,
+      "quantityCases": 75240,
+      "qrRoundTrips": 4560,
+      "details": "All canonical recipes × quantities 1 through 99, atomic limits, removal, multilingual search and QR composition serialization. Source-domain execution, not a manual browser run.",
+      "supportsCases": [
+        "GUEST-021",
+        "GUEST-031",
+        "GUEST-040",
+        "GUEST-043",
+        "GUEST-047",
+        "GUEST-056"
+      ]
+    },
+    {
+      "command": "node --test scripts/test-order-ticket.mjs",
+      "result": "passed",
+      "tests": 18,
+      "combinationCases": 1368,
+      "independentlyDecodedFlavorCategorySamples": 21,
+      "details": "Independent jsQR optical decoding of actual SVG QR geometry: representative pair and full 63-item cart, every flavored choice/category paired with dessert, including narrow mobile display pixel sizes. Static QR correctness and persistent ticket identity pass. Does not certify a physical phone camera or live camera permission prompt.",
+      "supportsCases": [
+        "GUEST-055",
+        "GUEST-056",
+        "GUEST-057",
+        "GUEST-058"
+      ]
+    },
+    {
+      "command": "node scripts/test-checkout-loader.mjs",
+      "result": "passed",
+      "details": "Replays an import module registry that permanently caches each failed URL against the real menu and quick loaders. Verifies no automatic retry, one request per explicit later action, fresh same-origin URL, shared concurrent import and recovered module reuse. Executes actual shared checkout continuation suspended during counter configuration: cancellation creates no ticket and no navigation; current intent still redirects once.",
+      "supportsCases": [
+        "GUEST-060",
+        "GUEST-065"
+      ],
+      "partialSupportOnly": true
+    },
+    {
+      "command": "npm run typecheck",
+      "result": "passed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "GUEST-IMPORT-RECOVERY",
+      "severity": "P1",
+      "result": "fixed-in-source-runtime-build-pending",
+      "cause": "Both QR loaders retried the exact module URL after a failed first download, even though browsers remember the failed import in the module map.",
+      "reproduction": "In a fresh isolated browser, add tea in full menu or quick, block /order-checkout.js before the first checkout action, click checkout, restore the network, and retry checkout.",
+      "fix": "Keep the successful/in-flight module promise, clear it on import rejection, and use a new same-origin retry query only on the next explicit checkout action. No timer or recursive retry.",
+      "files": [
+        "src/menu-order-ui.js",
+        "src/smart-choice/checkout-link.ts",
+        "scripts/test-checkout-loader.mjs",
+        "scripts/verify-menu-order.mjs",
+        "scripts/test-menu-runtime-contract.mjs"
+      ],
+      "remainingValidation": "Root rebuilds generated runtimes and performs browser block/unblock verification on isolated QA service."
+    },
+    {
+      "id": "QUICK-DOUBLE-TAP-CONFIRMATION",
+      "severity": "P1",
+      "result": "fixed-in-source-runtime-build-pending",
+      "cause": "After Add, the confirmation is shorter than the composer. The second tap of a double tap can land outside its new bounds and dismiss it.",
+      "reproduction": "Root reproduced on actual 480 × 844 browser UI: tea + macaron × 2, double activate Add pair. Basket correct at 160 TRY but next-action confirmation disappeared.",
+      "fix": "Ignore carry-over backdrop activation for 500 ms after a dialog content transition, matching the full-menu guard. Explicit close and later deliberate backdrop remain available.",
+      "test": "Real quick component handlers: immediate outside click after successful Add keeps confirmation open and draft unchanged; outside click after 600 ms closes.",
+      "files": [
+        "src/smart-choice/quick-builder.ts",
+        "scripts/test-quick-builder-ui.mjs"
+      ]
+    },
+    {
+      "id": "CHECKOUT-ABANDONED-INTENT",
+      "severity": "P1",
+      "result": "fixed-in-source-runtime-build-pending",
+      "cause": "Optional checkout import and counter configuration complete asynchronously. Quick ordering had no guard preventing a late QR or redirect after the guest selected another product or changed the cart. Shared checkout also did not recheck cancellation after its configuration await.",
+      "fix": "Quick checkout uses a pending-action guard and validates builder connection, view generation and draft snapshot. Shared checkout rechecks a supplied shouldOpen callback after configuration. Full menu supplies a guard over dialog/session/language/draft. Closing or editing during the wait cannot create or navigate to an old ticket. Search input, clearing/resetting search, category changes and inspiration cards now also invalidate a pending checkout intent.",
+      "test": "Real quick handlers cancel for new selection, cart quantity edit and detached builder; unchanged flow opens once. Actual shared post-config continuation cancels before ticket creation/navigation and redirects once for current intent. Actual delayed handler scenarios additionally cover search, clear, reset, category and inspiration; current intent still opens once.",
+      "files": [
+        "src/smart-choice/quick-builder.ts",
+        "src/smart-choice/checkout-link.ts",
+        "src/menu-order-ui.js",
+        "src/order-checkout.js",
+        "scripts/test-quick-builder-ui.mjs",
+        "scripts/test-checkout-loader.mjs"
+      ]
+    },
+    {
+      "id": "QUICK-RETRY-STALE-ERROR",
+      "severity": "P2",
+      "result": "fixed-in-source-runtime-build-pending",
+      "cause": "A failed checkout announcement remained visible after restored connection and successful QR retry.",
+      "reproduction": "Root browser: quick checkout returns503; restoremodule response; retry creates static50TRYQR; close to order showed prior failure text.",
+      "fix": "Clear announcements after draft and flavor validation at the start of each explicit valid checkout request.",
+      "test": "Real quick component handlers: first boundary rejects, visible error confirmed; retry succeeds, old error cleared immediately and remains empty.",
+      "files": [
+        "src/smart-choice/quick-builder.ts",
+        "scripts/test-quick-builder-ui.mjs"
+      ]
+    }
+  ],
+  "browserEvidenceStillNeeded": [
+    "Actual mobile viewport geometry, touch targets, scaling and short-height dialog controls.",
+    "Real network block/unblock recovery for image candidates and both checkout chunk URLs.",
+    "Two-tab stale recommendation edit/removal and aggregation badge synchronization.",
+    "Physical camera/scanner behavior and permission prompts are not covered by DOM or jsQR decoding."
+  ]
+}

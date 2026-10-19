@@ -1,0 +1,5 @@
+
+> robys-coffee-house@2.0.0 verify:menu-content
+> node scripts/verify-menu-content.mjs
+
+✅ MENU-CONTENT-001 passed: 8 categories, 63 items, 3 languages, all verified prices unchanged.

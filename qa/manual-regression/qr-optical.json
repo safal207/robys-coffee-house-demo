@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "result": "passed",
+  "recordedAt": "2026-10-14T14:24:25.080Z",
+  "method": "Independent jsQR 1.4.0 decode of RGBA pixels rasterized from the actual guest-page exported SVG geometry. No payload/link string was read from the guest DOM or QR generator.",
+  "input": {
+    "source": "CUA guest SVG export",
+    "svgSha256": "89c18c7f0ceff00270b01127fa0c6b9323aaff4be532a57c2927e54df8f7479a",
+    "exportFileSha256": "c5461d147bb7965e4661a7f186761cfe91b0a17653f76b800b707b91cae06737",
+    "exportedTag": "svg"
+  },
+  "matrix": {
+    "viewBoxWidth": 45,
+    "viewBoxHeight": 45,
+    "dataMatrixWidth": 37,
+    "version": 5,
+    "quietZoneModules": {
+      "left": 4,
+      "top": 4,
+      "right": 4,
+      "bottom": 4
+    },
+    "blackRectangleRuns": 692
+  },
+  "pixelTests": [
+    {
+      "width": 192,
+      "height": 192,
+      "format": "RGBA8",
+      "decoded": true,
+      "sameDecodedTarget": true,
+      "pixelSha256": "9468654baf1953e2454d985739d5d896cd3ed0ec0b87736a5185d634e4208d05"
+    },
+    {
+      "width": 240,
+      "height": 240,
+      "format": "RGBA8",
+      "decoded": true,
+      "sameDecodedTarget": true,
+      "pixelSha256": "71061062af9e0faf884b957de942ee8893df04159ddb34183c8d1015a1a2b181"
+    },
+    {
+      "width": 264,
+      "height": 264,
+      "format": "RGBA8",
+      "decoded": true,
+      "sameDecodedTarget": true,
+      "pixelSha256": "f4fc4c4501393077bb5dae64a46b90f540c59fdc534587ffcf7f52ce42248d97"
+    },
+    {
+      "width": 320,
+      "height": 320,
+      "format": "RGBA8",
+      "decoded": true,
+      "sameDecodedTarget": true,
+      "pixelSha256": "4e2bef3d71da442ae72b2b790c5f80117ec97291853f4a41304e4dbb82d8047d"
+    },
+    {
+      "width": 528,
+      "height": 528,
+      "format": "RGBA8",
+      "decoded": true,
+      "sameDecodedTarget": true,
+      "pixelSha256": "05f226f288e09df88e60ecbeacb38d96bba55e89e29e8df20d87461f93536c50"
+    }
+  ],
+  "targetValidation": {
+    "sameOriginAsQaRun": true,
+    "path": "/counter/staff.html",
+    "hashParameterNames": [
+      "order"
+    ],
+    "opaqueOrderIdLength": 32,
+    "noQuery": true,
+    "noUserinfo": true,
+    "noGuestKey": true,
+    "noCompositionOrPrices": true
+  },
+  "limitations": [
+    "Software optical decoding of the actual SVG raster is confirmed. This does not constitute a physical phone-camera scan, printed-paper scan, autofocus, glare, permission, or camera-stop test."
+  ],
+  "privateOutput": "The exact decoded target is available only in the private QA folder; no URL, order ID, guest key, or credentials are included in this public report."
+}
