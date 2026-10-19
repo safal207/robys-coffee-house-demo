@@ -1,0 +1,133 @@
+{
+  "head": "040fe7a2c12bc517e3450aec13f6ae71c40bbe1d",
+  "startedAt": "2026-10-19T22:06:00.907Z",
+  "assetHashesStart": {
+    "src/smart-choice/quick-builder.ts": "27da8fd773e5439d0400b414a9c75c62315a27e93978f290bec2d7499549adfc",
+    "smart-choice/app-v2.js": "2950655c220344d7d91479e04a2fa29e27ad0e6f7350cde5a6598329fd604381",
+    "smart-choice/index.html": "e95af52b9e0a3244045aa4882a79419ab5d9f8e7a18b628841a7a0e8ce711dc3",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  },
+  "browsers": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0"
+  },
+  "cases": [
+    {
+      "id": "chromium/390x844/ru",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.5625,
+          "afterY": 167.84375,
+          "movement": 0.28125
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 167.5,
+          "afterY": 167.5,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 167.84375,
+          "afterY": 167.5625,
+          "movement": -0.28125
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.5625,
+          "afterY": 167.84375,
+          "movement": 0.28125
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.5625,
+          "afterY": 167.84375,
+          "movement": 0.28125
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 167.546875,
+          "afterY": 167.546875,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 167.546875,
+          "afterY": 167.546875,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 167.546875,
+          "afterY": 167.546875,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "firefox/390x844/ru",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.8333282470703,
+          "movement": 0.26666259765625
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168.5,
+          "afterY": 168.5,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 167.8333282470703,
+          "afterY": 167.56666564941406,
+          "movement": -0.26666259765625
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.8333282470703,
+          "movement": 0.26666259765625
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.8333282470703,
+          "movement": 0.26666259765625
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.56666564941406,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.56666564941406,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 167.56666564941406,
+          "afterY": 167.56666564941406,
+          "movement": 0
+        }
+      ]
+    }
+  ],
+  "harnessSha256": "c06a8d6a066eb1bc17d8ebca62ec7c4d9301eb208f10420808fb1a6246d1de33",
+  "environment": "Local HTTPS with a temporary self-signed certificate, original CSP, emitted runtime, external requests and service workers blocked; desktop engines at responsive sizes, not physical-device certification",
+  "finishedAt": "2026-10-19T22:07:18.863Z",
+  "assetHashesEnd": {
+    "src/smart-choice/quick-builder.ts": "27da8fd773e5439d0400b414a9c75c62315a27e93978f290bec2d7499549adfc",
+    "smart-choice/app-v2.js": "2950655c220344d7d91479e04a2fa29e27ad0e6f7350cde5a6598329fd604381",
+    "smart-choice/index.html": "e95af52b9e0a3244045aa4882a79419ab5d9f8e7a18b628841a7a0e8ce711dc3",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  }
+}

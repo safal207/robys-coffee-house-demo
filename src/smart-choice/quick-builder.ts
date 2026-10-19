@@ -599,6 +599,23 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     renderOptions(); customizer.scrollTop = 0; title.focus({ preventScroll: true });
   }
 
+  function updateComposer(controlSelector: string, fallbackSelector?: string): void {
+    const previous = composer.querySelector<HTMLElement>(controlSelector);
+    const previousTop = previous?.getBoundingClientRect().top;
+    const scrollTop = customizer.scrollTop;
+    renderComposer();
+    // A drink's description or the selected pair can change the content above
+    // the tapped control. Keep that control under the same finger position.
+    customizer.scrollTop = scrollTop;
+    const current = composer.querySelector<HTMLButtonElement>(controlSelector);
+    if (current && previousTop !== undefined) {
+      customizer.scrollTop += current.getBoundingClientRect().top - previousTop;
+    }
+    const target = current && !current.disabled ? current
+      : fallbackSelector ? composer.querySelector<HTMLButtonElement>(fallbackSelector) : undefined;
+    target?.focus({ preventScroll: true });
+  }
+
   function renderComposer(): void {
     customizerChangedAt = performance.now();
     // Reuse the same photo frames through quantity, flavour and pair changes,
@@ -635,8 +652,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         const name = `${choice.product.name[language]}${choice.variant ? ` · ${choice.variant.name[language]}` : ""}`;
         const button = action(`${drinkChoiceLabel(choice, language)} · ${price(choice.product.unitPriceMinor)}`, "qb-flavour", () => {
           selectedId = choice.product.id; variantId = choice.variant?.id ?? "";
-          renderComposer();
-          composer.querySelector<HTMLButtonElement>(`[data-choice-id="${key}"]`)?.focus({ preventScroll: true });
+          updateComposer(`[data-choice-id="${key}"]`);
         });
         button.setAttribute("aria-label", `${name} · ${price(choice.product.unitPriceMinor)}`);
         button.dataset.choiceId = key;
@@ -649,7 +665,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
       const field = node("fieldset", "qb-flavours"); field.append(node("legend", "", text.flavour));
       for (const variant of variants) {
         const button = action(variant.name[language], "qb-flavour", () => {
-          variantId = variant.id; renderComposer(); composer.querySelector<HTMLButtonElement>(`[data-variant-id="${variant.id}"]`)?.focus({ preventScroll: true });
+          variantId = variant.id; updateComposer(`[data-variant-id="${variant.id}"]`);
         });
         button.dataset.variantId = variant.id; button.setAttribute("aria-pressed", String(variant.id === variantId)); field.append(button);
       }
@@ -658,13 +674,13 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     if (drinkCategories.has(product.categoryId)) {
       const field = node("fieldset", "qb-sweets-field"); field.append(node("legend", "", text.sweet));
       const none = action(text.noSweet, "qb-no-sweet", () => {
-        dessertId = ""; renderComposer(); composer.querySelector<HTMLButtonElement>(".qb-no-sweet")?.focus({ preventScroll: true });
+        dessertId = ""; updateComposer(".qb-no-sweet");
       });
       none.setAttribute("aria-pressed", String(!dessertId)); field.append(none);
       const sweets = node("div", "qb-sweets");
       for (const dessert of sweetProducts) {
         const button = action("", "qb-sweet", () => {
-          dessertId = dessert.id; renderComposer(); composer.querySelector<HTMLButtonElement>(`[data-dessert-id="${dessert.id}"]`)?.focus({ preventScroll: true });
+          dessertId = dessert.id; updateComposer(`[data-dessert-id="${dessert.id}"]`);
         });
         button.dataset.dessertId = dessert.id; button.setAttribute("aria-pressed", String(dessert.id === dessertId));
         button.append(composerPhoto(dessert, "sweet"), node("span", "qb-sweet-name", dessert.name[language]), node("strong", "", `+${price(dessert.unitPriceMinor)}`));
@@ -678,9 +694,8 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     footer.append(node("p", "qb-choice-summary", `${text.selected}: ${quantity} × ${orderGroupName({ id: "selection", items: selectedItems, quantity }, language)}`));
     const row = node("div", "qb-quantity-row");
     row.append(node("span", "", sweet ? text.pairs : text.quantity));
-    const stepper = quantityControl(quantity, 99, value => { const direction = value > quantity ? "up" : "down"; quantity = value; renderComposer();
-      const target = composer.querySelector<HTMLButtonElement>(`[data-step="${direction}"]`);
-      (target && !target.disabled ? target : composer.querySelector<HTMLButtonElement>("[data-step]:not(:disabled)"))?.focus(); }, product.name[language]);
+    const stepper = quantityControl(quantity, 99, value => { const direction = value > quantity ? "up" : "down"; quantity = value;
+      updateComposer(`[data-step="${direction}"]`, "[data-step]:not(:disabled)"); }, product.name[language]);
     row.append(stepper); footer.append(row);
     const total = (product.unitPriceMinor + (sweet?.unitPriceMinor ?? 0)) * quantity;
     const totalRow = node("p", "qb-add-total"); totalRow.append(node("span", "", editingGroup ? text.editTotal : text.selectedTotal), node("strong", "", price(total)));

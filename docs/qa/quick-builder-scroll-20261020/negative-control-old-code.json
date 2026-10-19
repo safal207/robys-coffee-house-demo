@@ -1,0 +1,30 @@
+{
+  "head": "b6ca90b98b679d80c5091519c01e6b77bb8177e1",
+  "startedAt": "2026-10-19T22:06:45.412Z",
+  "assetHashesStart": {
+    "src/smart-choice/quick-builder.ts": "11982bb60f9ef135a61a9c9f2df0a73626e8640549dd39a24d8b5ec5ed69ddae",
+    "smart-choice/app-v2.js": "adcdda14a5f7b8363fc9c419d1c5cd46e85c00132ccf8ec274103d38f25ec274",
+    "smart-choice/index.html": "4ba91862ca3b945689eee80bec455e1d68ad4720bd22dd58c546d39e616f2bc6",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  },
+  "browsers": {
+    "chromium": "140.0.7339.186"
+  },
+  "cases": [
+    {
+      "id": "chromium/390x844/ru",
+      "passed": false,
+      "transitions": [],
+      "error": "AssertionError [ERR_ASSERTION]: [data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"] moved 57.28125px after selection (expected <= 2px)\n    at stableTap (file://REPO/scripts/test-quick-builder-scroll-browser.mjs:60:10)\n    at async file://REPO/scripts/test-quick-builder-scroll-browser.mjs:98:37"
+    }
+  ],
+  "harnessSha256": "c06a8d6a066eb1bc17d8ebca62ec7c4d9301eb208f10420808fb1a6246d1de33",
+  "environment": "Local HTTPS with a temporary self-signed certificate, original CSP, emitted runtime, external requests and service workers blocked; desktop engines at responsive sizes, not physical-device certification",
+  "finishedAt": "2026-10-19T22:07:00.576Z",
+  "assetHashesEnd": {
+    "src/smart-choice/quick-builder.ts": "11982bb60f9ef135a61a9c9f2df0a73626e8640549dd39a24d8b5ec5ed69ddae",
+    "smart-choice/app-v2.js": "adcdda14a5f7b8363fc9c419d1c5cd46e85c00132ccf8ec274103d38f25ec274",
+    "smart-choice/index.html": "4ba91862ca3b945689eee80bec455e1d68ad4720bd22dd58c546d39e616f2bc6",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  }
+}
