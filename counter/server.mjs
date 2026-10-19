@@ -108,31 +108,47 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   }
   async function api(request, response, url, origin) {
     const ip = request.socket.remoteAddress ?? "unknown";
-    apiLimit(ip);
     const language = url.searchParams.get("lang") ?? "tr";
-    if (!LANGUAGES.has(language) || [...url.searchParams.keys()].some(key => key !== "lang") || url.searchParams.getAll("lang").length > 1) fail(400, "invalid_query");
-    if (request.headers["sec-fetch-site"] === "cross-site") fail(403, "invalid_origin");
+    if (!LANGUAGES.has(language) || [...url.searchParams.keys()].some(key => key !== "lang") || url.searchParams.getAll("lang").length > 1) {
+      apiLimit(ip); fail(400, "invalid_query");
+    }
+    if (request.headers["sec-fetch-site"] === "cross-site") { apiLimit(ip); fail(403, "invalid_origin"); }
     const path = url.pathname.slice(PREFIX.length);
+    const orderRead = request.method === "GET" && path.match(/^\/orders\/([A-Za-z0-9_-]{32})$/);
+    let pollingAuth, pollingOrder, pollingToken;
+    // Valid polling has its own session/capability budget. A café LAN or an
+    // untrusted reverse proxy may give every guest the same socket address;
+    // their routine reads must not exhaust the address budget for writes.
+    // Never derive a principal from a forwarded header or token shape alone.
+    if (request.method === "GET" && (path === "/session" || path === "/queue" || orderRead)) {
+      try {
+        pollingAuth = authentication(request, !orderRead);
+        if (orderRead) {
+          const bearer = request.headers.authorization?.match(/^Bearer ([A-Za-z0-9_-]{43})$/)?.[1];
+          pollingOrder = store.readOrder(orderRead[1], { user: pollingAuth?.user,
+            guestKey: validSecret(bearer) ? bearer : null, language });
+          pollingToken = pollingAuth?.token ?? bearer;
+        } else pollingToken = pollingAuth.token;
+      } catch (error) {
+        apiLimit(ip);
+        throw error;
+      }
+    }
+    // Keep this outside the verification catch: a throttled valid reader must
+    // not spill into the shared address bucket on its next polling attempt.
+    if (pollingToken) readLimit(digest(pollingToken));
+    else apiLimit(ip);
     if (request.method === "GET") {
       if (path === "/health") return json(response, 200, { ok: true });
       if (path === "/session") {
-        const { user, csrfToken, token } = authentication(request, true);
-        readLimit(digest(token));
+        const { user, csrfToken } = pollingAuth;
         return json(response, 200, { user: { username: user.username, role: user.role }, csrfToken });
       }
       if (path === "/queue") {
-        const { user, token } = authentication(request, true);
-        readLimit(digest(token));
+        const { user } = pollingAuth;
         return json(response, 200, { orders: store.queue(user, language, now()) });
       }
-      const match = path.match(/^\/orders\/([A-Za-z0-9_-]{32})$/);
-      if (match) {
-        const auth = authentication(request);
-        const bearer = request.headers.authorization?.match(/^Bearer ([A-Za-z0-9_-]{43})$/)?.[1];
-        const order = store.readOrder(match[1], { user: auth?.user, guestKey: validSecret(bearer) ? bearer : null, language });
-        readLimit(digest(auth?.token ?? bearer));
-        return json(response, 200, { order });
-      }
+      if (orderRead) return json(response, 200, { order: pollingOrder });
       fail(404, "not_found");
     }
     if (request.method !== "POST") fail(405, "method_not_allowed");

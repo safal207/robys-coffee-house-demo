@@ -54,12 +54,31 @@ async function fixture(t, options = {}) {
   await provisionUser({ dbPath, username: "barista", password: credentials.barista, role: "barista" });
   await start();
   const api = async (path, { method = "GET", body, headers = {}, auth, guestKey } = {}) => {
-    const response = await fetch(`${origin}/api/counter${path}`, {
-      method, headers: { ...(method === "POST" ? { "Content-Type": "application/json", Origin: origin } : {}),
+    const requestOptions = {
+      method, headers: { ...(options.publicOrigin ? { Host: new URL(options.publicOrigin).host } : {}),
+        ...(method === "POST" ? { "Content-Type": "application/json", Origin: options.publicOrigin ?? origin } : {}),
         ...(auth ? { Cookie: auth.cookie, "X-CSRF-Token": auth.csrfToken } : {}),
         ...(guestKey ? { Authorization: `Bearer ${guestKey}` } : {}), ...headers },
       ...(body !== undefined ? { body: typeof body === "string" ? body : JSON.stringify(body) } : {})
+    };
+    // Model a TLS-terminating proxy's backend request without fetch rewriting Host.
+    if (options.publicOrigin) return new Promise((resolveResponse, reject) => {
+      const request = httpRequest(`${origin}/api/counter${path}`, requestOptions, response => {
+        const chunks = [];
+        response.on("data", chunk => chunks.push(chunk));
+        response.on("end", () => {
+          const text = Buffer.concat(chunks).toString("utf8"), responseHeaders = new Headers();
+          for (const [name, value] of Object.entries(response.headers)) {
+            for (const entry of Array.isArray(value) ? value : [value]) if (entry !== undefined) responseHeaders.append(name, entry);
+          }
+          resolveResponse({ status: response.statusCode, headers: responseHeaders, body: text ? JSON.parse(text) : null });
+        });
+        response.on("error", reject);
+      });
+      request.on("error", reject);
+      request.end(requestOptions.body);
     });
+    const response = await fetch(`${origin}/api/counter${path}`, requestOptions);
     const text = await response.text();
     return { status: response.status, headers: response.headers, body: text ? JSON.parse(text) : null };
   };
@@ -289,6 +308,76 @@ test("authenticated polling limits are independent for different guests on one a
   for (let count = 0; count < 2; count++) assert.equal((await f.api(`/orders/${one.order.id}`, { guestKey: one.guestKey })).status, 200);
   assert.equal((await f.api(`/orders/${one.order.id}`, { guestKey: one.guestKey })).status, 429);
   assert.equal((await f.api(`/orders/${two.order.id}`, { guestKey: two.guestKey })).status, 200);
+});
+
+test("forty guest pollers behind one proxy do not consume the default address budget for counter actions", async t => {
+  let time = Date.now();
+  const f = await fixture(t, { host: "0.0.0.0", publicOrigin: "https://counter.example.test", now: () => time });
+  const guests = [];
+  for (let index = 0; index < 40; index++) {
+    // Existing orders may arrive over several minutes; preserve creation's
+    // default 30/minute guard while testing one later minute of normal polls.
+    if (index === 30) time += 60000;
+    const created = await f.create(); assert.equal(created.status, 201); guests.push(created);
+  }
+  const cashier = await f.login("cashier"), barista = await f.login("barista");
+  assert.match(cashier.setCookie, /; Secure$/);
+  for (let poll = 0; poll < 30; poll++) {
+    for (const guest of guests) assert.equal((await f.api(`/orders/${guest.order.id}`, { guestKey: guest.guestKey })).status, 200);
+    for (const auth of [cashier, barista]) {
+      assert.equal((await f.api("/queue", { auth })).status, 200);
+      assert.equal((await f.api("/session", { auth })).status, 200);
+    }
+  }
+  assert.equal((await f.api("/health")).status, 200, "1320 valid polls must not starve health checks");
+  await f.login("cashier");
+  const created = await f.create(); assert.equal(created.status, 201);
+  const paid = await f.api(`/orders/${created.order.id}/pay`, { method: "POST", auth: cashier, body: { version: 1 } });
+  assert.equal(paid.status, 200);
+  assert.equal((await f.api(`/orders/${created.order.id}/status`, { method: "POST", auth: barista,
+    body: { version: 2, status: "ready" } })).status, 200);
+});
+
+test("only verified polling bypasses the address quota and principal-limit failures never consume it", async t => {
+  let time = Date.now();
+  const f = await fixture(t, { now: () => time, sessionTtlMs: 1000 });
+  const cashier = await f.login("cashier"), first = await f.create(), second = await f.create();
+  await f.stop();
+  await f.start({ rateLimits: { api: { max: 2 }, read: { max: 2 } } });
+  for (let count = 0; count < 2; count++) assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).status, 200);
+  for (let count = 0; count < 5; count++) assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).status, 429);
+  assert.equal((await f.api("/queue", { auth: cashier })).status, 200);
+  assert.equal((await f.api("/session?lang=ru", { auth: cashier })).status, 200);
+  assert.equal((await f.api(`/orders/${first.order.id}`, { auth: cashier })).status, 429,
+    "Queue, session and order reads share the same staff-session allowance");
+  assert.equal((await f.api("/health")).status, 200);
+  assert.equal((await f.api("/health")).status, 200);
+  assert.equal((await f.api("/health")).status, 429, "Anonymous traffic remains address-limited");
+  assert.equal((await f.api(`/orders/${second.order.id}`, { guestKey: second.guestKey })).status, 200,
+    "A full anonymous bucket must not block another valid capability");
+  const invalid = [
+    [`/orders/${first.order.id}`, { guestKey: secret() }],
+    [`/orders/${first.order.id}`, { guestKey: second.guestKey }],
+    [`/orders/${first.order.id}`, {}],
+    ["/session", { headers: { Cookie: `roby-counter-session=${secret()}` } }],
+    ["/unknown", { auth: cashier }],
+    ["/queue", { method: "POST", auth: cashier, body: {} }],
+    ["/session?lang=invalid", { auth: cashier }],
+    ["/queue", { auth: cashier, headers: { "Sec-Fetch-Site": "cross-site" } }]
+  ];
+  for (const [index, [path, options]] of invalid.entries()) {
+    const result = await f.api(path, { ...options, headers: { ...options.headers,
+      "X-Forwarded-For": `192.0.2.${index + 1}`, Forwarded: "for=198.51.100.1;proto=https" } });
+    assert.equal(result.status, 429, `An invalid or non-polling request cannot obtain an exemption: ${path}`);
+    assert.equal(result.body.error, "rate_limited");
+  }
+  time += 1001;
+  assert.equal((await f.api("/session", { auth: cashier })).status, 429, "An expired session also consumes the address budget");
+  time += 60000;
+  assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).status, 200);
+  assert.equal((await f.api("/health")).status, 200);
+  assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: secret() })).status, 404);
+  assert.equal((await f.api("/health")).status, 429, "A wrong capability spends the recovered anonymous budget");
 });
 
 test("queue is bounded and oldest first; issued history leaves the queue after 24 hours", async t => {

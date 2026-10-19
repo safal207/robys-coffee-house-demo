@@ -203,9 +203,16 @@ async function captureMatrix(browser, baseUrl, destination) {
       if (capture.selector) {
         const locator = page.locator(capture.selector).first();
         await locator.waitFor({ state: "visible", timeout: 10000 });
-        if (capture.id === "menu-share") {
-          // Document-flow component. Reachability is tested separately;
-          // locator auto-scroll can move the sticky filters over this crop.
+        if (["menu-share", "visit-map", "discover-pairing"].includes(capture.id)) {
+          // Document-flow components, including regions taller than a viewport.
+          // Locator screenshot resizing can paint offscreen fixed UI into the
+          // crop. Interaction/scroll gates separately verify viewport coverage.
+          // Reject a real visible skip-link before taking document evidence.
+          const skipLinkVisible = await page.locator(".skip-link").evaluate(link => {
+            const bounds = link.getBoundingClientRect();
+            return bounds.bottom > 0 && bounds.top < innerHeight && bounds.right > 0 && bounds.left < innerWidth;
+          });
+          if (skipLinkVisible) throw new Error(`VISUAL-REGION-001: skip-link overlaps the viewport before ${capture.id}`);
           await captureDocumentRegion(page, locator, filePath);
         } else {
           await locator.scrollIntoViewIfNeeded();
