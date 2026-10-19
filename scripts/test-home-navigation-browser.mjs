@@ -167,7 +167,27 @@ async function verifyCase(browser, engine, width, language) {
       assert.equal(await toggle.getAttribute("aria-expanded"), "false", "Native section links close mobile navigation");
       const target = await page.locator(hash).evaluate(node => ({ top: node.getBoundingClientRect().top, viewport: innerHeight }));
       assert.ok(target.top >= -1 && target.top < target.viewport, `Native ${hash} navigation reaches the target section`);
-      facts.destinations.push({ hash, ...target });
+      const focus = await page.evaluate(hash => {
+        const node = document.activeElement;
+        const target = document.querySelector(hash);
+        const bounds = node.getBoundingClientRect();
+        let visible = node.getClientRects().length > 0;
+        for (let ancestor = node; ancestor; ancestor = ancestor.parentElement) {
+          const style = getComputedStyle(ancestor);
+          if (style.display === "none" || style.visibility !== "visible" || Number(style.opacity) === 0) visible = false;
+        }
+        return {
+          tag: node.tagName, id: node.id, label: node.getAttribute("aria-label"),
+          insideClosedNavigation: Boolean(node.closest("#main-navigation")),
+          meaningful: node.matches(".menu-toggle") || node === target || target.contains(node), visible,
+          onScreen: bounds.bottom > 0 && bounds.right > 0 && bounds.top < innerHeight && bounds.left < innerWidth,
+          top: bounds.top, bottom: bounds.bottom
+        };
+      }, hash);
+      facts.destinations.push({ hash, ...target, focus });
+      assert.equal(focus.insideClosedNavigation, false, `Native ${hash} navigation cannot retain focus inside the closed menu: ${JSON.stringify(focus)}`);
+      assert.equal(focus.visible, true, `Native ${hash} navigation leaves focus on a visible element: ${JSON.stringify(focus)}`);
+      assert.equal(focus.meaningful, true, `Native ${hash} navigation restores a meaningful destination or menu control: ${JSON.stringify(focus)}`);
     }
     await toggle.click();
     await expectFocus(first, "Full-menu navigation starts inside the opened navigation");

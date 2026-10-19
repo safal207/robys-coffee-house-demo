@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-19T10:43:46.732Z",
+  "head": "405ac753f479affc103d13fa24c838b3c8bd2f68",
+  "revisionState": "Uncommitted follow-up; exact observed source and emitted bytes are bound by SHA-256 below.",
+  "verifier": {
+    "path": "scripts/verify-pairing-cta-static.mjs",
+    "sha256": "d0c6432c4a6b5ba375b767710553be7f705505c50e7b56f9df393c7b87383a4e",
+    "execution": "Actual verifier source transformed to CommonJS in memory with esbuild; its assertions and control flow are unchanged."
+  },
+  "method": "Positive uses actual emitted app and the actual compiler. Negative controls substitute one in-memory app byte through node:fs, or force charset ascii only in the esbuild provider. Repository assets and verifier are never mutated.",
+  "sourceHashesStart": {
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "scripts/verify-pairing-cta-static.mjs": "d0c6432c4a6b5ba375b767710553be7f705505c50e7b56f9df393c7b87383a4e",
+    "scripts/build.mjs": "b8a045ed455c97ef3e54461f6aaffb8ea5e811de4392a7a6adc14694bf1a4fde"
+  },
+  "cases": [
+    {
+      "case": "positive_actual_shipped_guard",
+      "expected": "pass",
+      "observed": "passed",
+      "status": "PASS",
+      "builds": [
+        {
+          "charset": "utf8",
+          "write": false,
+          "entryPoints": [
+            "src/app.ts"
+          ]
+        }
+      ],
+      "logs": [
+        "PASS: static pairing CTA and cache revision are bound"
+      ],
+      "error": null
+    },
+    {
+      "case": "one_byte_app_tamper",
+      "expected": "reject_at_byte_parity",
+      "observed": "rejected",
+      "status": "PASS",
+      "builds": [
+        {
+          "charset": "utf8",
+          "write": false,
+          "entryPoints": [
+            "src/app.ts"
+          ]
+        }
+      ],
+      "logs": [],
+      "error": {
+        "name": "AssertionError",
+        "code": "ERR_ASSERTION",
+        "message": "The deferred app must match all current bundled inputs",
+        "actualType": "boolean",
+        "expectedType": "boolean"
+      },
+      "fault": {
+        "appByteOffset": 12383,
+        "changedBytes": 1,
+        "originalSha256": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+        "inMemoryTamperedSha256": "7df2dcf091e24cbca185d29f8e60618d3b6fc91a0356ea4452350dccbcb18787"
+      }
+    },
+    {
+      "case": "stale_ascii_compiler",
+      "expected": "reject_at_byte_parity",
+      "observed": "rejected",
+      "status": "PASS",
+      "builds": [
+        {
+          "charset": "ascii",
+          "write": false,
+          "entryPoints": [
+            "src/app.ts"
+          ]
+        }
+      ],
+      "logs": [],
+      "error": {
+        "name": "AssertionError",
+        "code": "ERR_ASSERTION",
+        "message": "The deferred app must match all current bundled inputs",
+        "actualType": "boolean",
+        "expectedType": "boolean"
+      }
+    }
+  ],
+  "sourceHashesEnd": {
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "scripts/verify-pairing-cta-static.mjs": "d0c6432c4a6b5ba375b767710553be7f705505c50e7b56f9df393c7b87383a4e",
+    "scripts/build.mjs": "b8a045ed455c97ef3e54461f6aaffb8ea5e811de4392a7a6adc14694bf1a4fde"
+  },
+  "boundary": "Assistant-produced focused verification, not independent human approval, a completed full check, or proof for a later commit.",
+  "inputsUnchanged": true,
+  "status": "PASS"
+}

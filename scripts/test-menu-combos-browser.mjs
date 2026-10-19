@@ -593,8 +593,11 @@ try {
           });
           await page.goto(`${origin}/${path}`, { waitUntil: "domcontentloaded" });
           const toggle = page.locator(".menu-toggle");
+          const navigationFocus = view === "home" ? page.locator("#main-navigation a").first() : toggle;
           await toggle.click();
           assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+          assert.equal(await navigationFocus.evaluate(node => document.activeElement === node), true,
+            "Opening navigation focuses its intended entry point");
           assert.equal(await page.locator("body").evaluate(body => body.classList.contains("menu-open")), true);
           await page.clock.runFor(40_000); await page.waitForLoadState("networkidle");
           assert.equal(await page.locator(".choice-help-panel").isHidden(), true,
@@ -606,19 +609,22 @@ try {
           await page.clock.runFor(9_000);
           await page.locator(".choice-help-panel:not([hidden])").waitFor();
           await toggle.click();
+          assert.equal(await navigationFocus.evaluate(node => document.activeElement === node), true,
+            "Reopening navigation focuses its intended entry point before suggestion suppression");
           await page.clock.runFor(20); // One frame, before the next one-second eligibility tick.
           assert.equal(await page.locator("body").evaluate(body => body.classList.contains("menu-open")), true);
           assert.equal(await page.locator(".choice-help-panel").isHidden(), true,
             "Opening mobile navigation immediately hides a suggestion that is already visible");
-          assert.equal(await toggle.evaluate(button => document.activeElement === button), true,
-            "Hiding a suggestion preserves the navigation toggle's focus");
+          assert.equal(await navigationFocus.evaluate(node => document.activeElement === node), true,
+            "Hiding a suggestion preserves the intended navigation focus");
 
           await toggle.click();
           await page.locator(".choice-help-entry").click();
           await page.locator(".choice-help-panel:not([hidden])").waitFor();
           return { view, viewport: { width: 390, height: 844 }, navigationOpenSuppressesAutomaticOffer: true,
             navigationOpenBasketRequests: 0, closeThenIdleAllowsOffer: true, openingNavigationHidesVisibleOfferWithinMs: 20,
-            navigationFocusPreserved: true, explicitHelpAfterNavigationClose: true };
+            navigationFocusPreserved: true, navigationFocusTarget: view === "home" ? "first-navigation-link" : "navigation-toggle",
+            explicitHelpAfterNavigationClose: true };
         });
       }
 

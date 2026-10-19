@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-62f2c586009f-family-menu-696c2d6971a7-occasion-combos-b94a636fa834-custom-pair-1349da07aafd-menu-css-eac65cc9ff28-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-439932ccad28-family-menu-696c2d6971a7-occasion-combos-7fd483113944-custom-pair-1349da07aafd-menu-css-eac65cc9ff28-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -135,7 +135,7 @@ const CORE_ASSETS = [
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
-  "./app.js?v=f5daa86017eb",
+  "./app.js?v=b7ccd8d120a0",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
   "./menu-app.js?v=5f6321d28329",

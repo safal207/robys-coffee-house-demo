@@ -1,0 +1,333 @@
+{
+  "kind": "focused-followup-after-review",
+  "nativeSections": {
+    "startedAt": "2026-10-19T10:34:41.081Z",
+    "finishedAt": "2026-10-19T10:35:12.677Z",
+    "head": "405ac753f479affc103d13fa24c838b3c8bd2f68",
+    "boundary": "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
+    "selection": {
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "filter": "ru-390",
+      "caseIds": [
+        "chromium-ru-390",
+        "firefox-ru-390",
+        "webkit-ru-390"
+      ]
+    },
+    "assetHashesStart": {
+      "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+      "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+      "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "scripts/test-home-navigation-browser.mjs": "b8337bf3dd652873f3e1db454bfcff4e6650a143a5229b1d9b12304c6bd8793a"
+    },
+    "assetHashesEnd": {
+      "index.html": "728392605fc29957b0dec6d2cc2e2373ec4cbf6409af94ff09aa878daee3a6ac",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+      "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+      "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "scripts/test-home-navigation-browser.mjs": "b8337bf3dd652873f3e1db454bfcff4e6650a143a5229b1d9b12304c6bd8793a"
+    },
+    "assetsUnchanged": true,
+    "browsers": {
+      "chromium": "140.0.7339.186",
+      "firefox": "141.0",
+      "webkit": "26.0"
+    },
+    "cases": [
+      {
+        "id": "chromium-ru-390",
+        "status": "PASS",
+        "destinations": [
+          {
+            "hash": "#about",
+            "top": 96.046875,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "about",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96.046875,
+              "bottom": 1532.6875
+            }
+          },
+          {
+            "hash": "#visit",
+            "top": 96.03125,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "visit",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96.03125,
+              "bottom": 1498.71875
+            }
+          },
+          {
+            "path": "/menu.html",
+            "preservedLanguage": "ru"
+          }
+        ]
+      },
+      {
+        "id": "firefox-ru-390",
+        "status": "PASS",
+        "destinations": [
+          {
+            "hash": "#about",
+            "top": 96,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "about",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96,
+              "bottom": 1535.7666015625
+            }
+          },
+          {
+            "hash": "#visit",
+            "top": 96,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "visit",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96,
+              "bottom": 1498.8333740234375
+            }
+          },
+          {
+            "path": "/menu.html",
+            "preservedLanguage": "ru"
+          }
+        ]
+      },
+      {
+        "id": "webkit-ru-390",
+        "status": "PASS",
+        "destinations": [
+          {
+            "hash": "#about",
+            "top": 96,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "about",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96,
+              "bottom": 1428
+            }
+          },
+          {
+            "hash": "#visit",
+            "top": 96,
+            "viewport": 900,
+            "focus": {
+              "tag": "SECTION",
+              "id": "visit",
+              "label": null,
+              "insideClosedNavigation": false,
+              "meaningful": true,
+              "visible": true,
+              "onScreen": true,
+              "top": 96,
+              "bottom": 1445
+            }
+          },
+          {
+            "path": "/menu.html",
+            "preservedLanguage": "ru"
+          }
+        ]
+      }
+    ]
+  },
+  "helperSuppression": {
+    "startedAt": "2026-10-19T10:30:55.457Z",
+    "finishedAt": "2026-10-19T10:31:38.396Z",
+    "head": "405ac753f479affc103d13fa24c838b3c8bd2f68",
+    "assetHashesStart": {
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "menu.html": "c1c521f77ed61fdff779025fd556791fb3623e19cebcc72283526fc694342b33",
+      "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
+      "menu-runtime.css": "eac65cc9ff280979a82c6f63e61a38664950df92ef4a5e42cd3cea784980a7b1",
+      "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+      "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
+      "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+      "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+      "index.html": "b5052d426d6d3bd8a1767474f4b4aa7160362613b25b25040f27b683ca8bd74f",
+      "discover.html": "e69aeba77235f384f56857f5de72fe62958fbea2e57fcc34d963db684997afbe",
+      "experience/index.html": "754ed22ec5b321a79fd79748d03415eae7318e10c3563a031fad5e236e7d2a90",
+      "smart-choice/index.html": "c361e4f81ceabe67917531b4bfc1643bec51c448f34345777be3bbc1bc8758bc",
+      "ru/coffee-gazipasa.html": "62b37948b78e1f381948d9b9956b43a2867803ca4924e135f31b5f3fcb830eb5",
+      "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+      "choice-help-entry.js": "23ec0e1f0addbe1caba718f4d4c591d17cc24906bfff793e51bd6e005d685247",
+      "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
+      "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+      "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+      "sw-core-v64.js": "b2e66f76fa186a03da65742860bfd3da5cfac4be0ddf0e538409c44fc4518306",
+      "scripts/test-menu-combos-browser.mjs": "25a92206df4822d9916d3f9ae97774ddf20f90c0a2677385111047ef1e1283f2",
+      "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+      "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+      "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+      "src/choice-help-entry.js": "62104cbfedb07911ee818a4fc78d328fbca4f3a9f8c73827f2e30d9fbfb9f205",
+      "src/choice-help.js": "b9aca6ace9d7cc089c59848896b480a594957648d20b85629cdba91571ba7a8a",
+      "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+      "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+      "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+      "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+      "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+      "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+      "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+      "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+      "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+      "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+      "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+      "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+      "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+      "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+      "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+    },
+    "assetHashesEnd": {
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "menu.html": "c1c521f77ed61fdff779025fd556791fb3623e19cebcc72283526fc694342b33",
+      "menu-app.js": "5f6321d28329c9757ec948233bc6a4ab36707ec099ba32732c2ccb839454f369",
+      "menu-runtime.css": "eac65cc9ff280979a82c6f63e61a38664950df92ef4a5e42cd3cea784980a7b1",
+      "menu-combos-ui.js": "a679972ee3b594e728d49123a01880d70c4146135a8dfb4aaef3ffd2535e18f4",
+      "menu-combos.css": "84f6a6f33e598afd74c618475edeee35162f94d2c8715ea8230eabdad12216eb",
+      "menu-order-ui.js": "0c4db7b85f2d4796dd382157e08ecc9d4dff8975f0174dbe51659e5876f6fccf",
+      "menu-catalog.js": "05e7dac3c17b47eb2dadcc561df1231bc5dbd7cf6b82b644908c45ea094bf826",
+      "index.html": "b5052d426d6d3bd8a1767474f4b4aa7160362613b25b25040f27b683ca8bd74f",
+      "discover.html": "e69aeba77235f384f56857f5de72fe62958fbea2e57fcc34d963db684997afbe",
+      "experience/index.html": "754ed22ec5b321a79fd79748d03415eae7318e10c3563a031fad5e236e7d2a90",
+      "smart-choice/index.html": "c361e4f81ceabe67917531b4bfc1643bec51c448f34345777be3bbc1bc8758bc",
+      "ru/coffee-gazipasa.html": "62b37948b78e1f381948d9b9956b43a2867803ca4924e135f31b5f3fcb830eb5",
+      "combo-entry.css": "da624d45b4d6d248ea9b48ae158931cbe565c66535ad40f030358c7a1aed6965",
+      "choice-help-entry.js": "23ec0e1f0addbe1caba718f4d4c591d17cc24906bfff793e51bd6e005d685247",
+      "choice-help.js": "4897eacb8db8e1cc0636eb757a8d68077975cabfc36e0b7323a8e504b98877f6",
+      "choice-help.css": "36b90bedc7906e4d4528fbf40757d4d0f431155adf11426f1c2ac5334f44d628",
+      "sw.js": "d38d87a2d51f5f1cbabd736a4256609f81d83a382325c0d66c96a9a15bd0a529",
+      "sw-core-v64.js": "b2e66f76fa186a03da65742860bfd3da5cfac4be0ddf0e538409c44fc4518306",
+      "scripts/test-menu-combos-browser.mjs": "25a92206df4822d9916d3f9ae97774ddf20f90c0a2677385111047ef1e1283f2",
+      "src/menu-app.js": "d36a6f18af570de3e03b8d253c2d465647e74f4a97e39ecb79116f59b6858bfc",
+      "src/menu-combos-ui.js": "241968990257e5cc4c61412bdb052d02242129cc967746cfd887a9fb7cdcf203",
+      "src/menu-combos.js": "385df1e44a94d61d5370d0b75817bfbbfb3f6e82f841dadf959200c0e30c8ef9",
+      "src/choice-help-entry.js": "62104cbfedb07911ee818a4fc78d328fbca4f3a9f8c73827f2e30d9fbfb9f205",
+      "src/choice-help.js": "b9aca6ace9d7cc089c59848896b480a594957648d20b85629cdba91571ba7a8a",
+      "order-storage.js": "6908555cd79b5eb9a0b1e1ff41ae4326b120aec8ee659c4937a04f5703270940",
+      "src/brand/robys-compact-master-v1.svg": "dbb6d4385e12f0ede5cfa95fc165b29494cab253eabe26c788ea72f7dba1dfcb",
+      "src/brand/robys-takeaway-cup-v1.webp": "c0fd3edba8fa19f80d6a7cfbfefc11d4b50361893970bbc72fcdcb9a984194d1",
+      "src/products/occasion-sets-v1/student.webp": "08562b807dfee338edb67e3b1997708921d1547ee605003bb3369d23d3018894",
+      "src/products/occasion-sets-v1/cycle.webp": "f3083bc74902b5c058aaf5b6709cc603d9c9c1a99beb3fb6b9041dfac1b347fa",
+      "src/products/occasion-sets-v1/rain.webp": "78ead30d9e1d15b91c395a26f2464ccb63314f99d0dcb87f25e7901fb7bdbd72",
+      "src/products/occasion-sets-v1/tea.webp": "28059b6e11432ca62d52baa72ef10ab8fd062fb86620729d92787b912faa14d7",
+      "src/products/occasion-sets-v1/refresh.webp": "858f883ee67e5f4c5c2903789dbcbf049ddb2f258ab7ea97fe0f4dfc8779d599",
+      "src/products/occasion-sets-v1/together.webp": "13e54af69ff655bc3bd93a42fef716149bf81f9c2da90b86576e5fc1ac33033b",
+      "src/products/occasion-sets-v1/family.webp": "f43e0f4cb584f8314031b99d2b95f709d293b9debeb780969518cd1686f49031",
+      "src/products/occasion-sets-v1/local.webp": "c8652578d6b67061d5fa9d289dd6ae0c17ecc3c498a87a68eb7d960ee717416e",
+      "src/products/occasion-sets-v1/go.webp": "0f5777b07fa575db9f8853be0a426d2e3f6d24036f65499f5eed6e8dddcedda9",
+      "src/products/occasion-sets-v1/morning.webp": "13a03421c0fe6c62d6ea64ca330b7cb025a23c6e9a3e9cb9c43c30906cb8eb0a",
+      "src/products/occasion-sets-v1/sweet.webp": "68360ec3563a0cdb89e885be9a8a1d7cdb16532cecc00bf22c9a2e1effcb0bbf",
+      "src/products/occasion-sets-v1/hearty.webp": "f6c770fb43c762e3f78f51042e035abda80e0afc2bb3cd5ac323310e056956e9"
+    },
+    "assetsUnchanged": true,
+    "browsers": {
+      "chromium": "140.0.7339.186",
+      "firefox": "141.0",
+      "webkit": "26.0"
+    },
+    "cases": [
+      {
+        "id": "chromium-mobile-navigation-suppresses-helper-home",
+        "status": "PASS"
+      },
+      {
+        "id": "chromium-mobile-navigation-suppresses-helper-ru-local",
+        "status": "PASS"
+      },
+      {
+        "id": "firefox-mobile-navigation-suppresses-helper-home",
+        "status": "PASS"
+      },
+      {
+        "id": "firefox-mobile-navigation-suppresses-helper-ru-local",
+        "status": "PASS"
+      },
+      {
+        "id": "webkit-mobile-navigation-suppresses-helper-home",
+        "status": "PASS"
+      },
+      {
+        "id": "webkit-mobile-navigation-suppresses-helper-ru-local",
+        "status": "PASS"
+      }
+    ]
+  },
+  "scope": "Local emitted builds from working tree based on405ac753, content-hash bound; fresh committed-head CI remains required.",
+  "negativeCounterexample": {
+    "scope": "close(true) alone, before focusable section destinations; all three engines failed actual native focus recovery",
+    "sourceHashesStart": {
+      "index.html": "b5052d426d6d3bd8a1767474f4b4aa7160362613b25b25040f27b683ca8bd74f",
+      "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+      "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+      "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+      "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+      "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+      "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+      "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+      "scripts/test-home-navigation-browser.mjs": "5335931dca6db7e0edc9b99781e54a9f2af11a2a0e0a49a1a2f70d569f4d6a58"
+    },
+    "cases": [
+      {
+        "id": "chromium-ru-390",
+        "status": "FAIL",
+        "error": "AssertionError [ERR_ASSERTION]: Native #about navigation restores a meaningful destination or menu control"
+      },
+      {
+        "id": "firefox-ru-390",
+        "status": "FAIL",
+        "error": "AssertionError [ERR_ASSERTION]: Native #about navigation restores a meaningful destination or menu control"
+      },
+      {
+        "id": "webkit-ru-390",
+        "status": "FAIL",
+        "error": "AssertionError [ERR_ASSERTION]: Native #about navigation restores a meaningful destination or menu control"
+      }
+    ]
+  }
+}

@@ -70,6 +70,7 @@ await build({
   entryPoints: ["src/app.ts"],
   external: ["./choice-help.js*"],
   bundle: true,
+  charset: "utf8",
   minify: true,
   format: "iife",
   target: "es2020",

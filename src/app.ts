@@ -108,7 +108,7 @@ function setupNavigation() {
   });
 
   navigation?.addEventListener("click", (event) => {
-    if ((event.target as Element).closest("a")) close();
+    if ((event.target as Element).closest("a")) close(true);
   });
 
   document.addEventListener("keydown", (event) => {

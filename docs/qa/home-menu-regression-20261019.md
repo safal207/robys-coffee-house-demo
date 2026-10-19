@@ -24,6 +24,17 @@ content hashes; current-head CI binds the committed release candidate.
 4. Returning visitors need the repaired bytes. The build now revisions the home
    preview/mobile CSS and app together, binds them to the service-worker cache
    namespace and precaches each exact URL. Old queries cannot satisfy new ones.
+5. Review caught focus remaining in hidden navigation after native section links.
+   Those links close with focus recovery and their section destinations are
+   focusable with `tabindex="-1"`, so native fragment navigation can focus the
+   section without adding it to the normal Tab sequence. The test rejects focus
+   on hidden links or BODY/HTML while requiring the correct native scroll.
+   The existing choice-help suppression test now follows the intentional first
+   navigation link focus rather than expecting focus to stay on the toggle.
+6. The first CI build exceeded the unchanged 5% JavaScript transfer-growth limit
+   by about 18 bytes. Emitting translations as UTF-8 instead of ASCII escapes
+   reduces `app.js` from 35,595 to 24,767 bytes with every translation retained.
+   Fresh Lighthouse checks must confirm the transfer budget on the new head.
 
 ## Reproducible checks
 
@@ -77,6 +88,16 @@ were unchanged during that run; the compact result packet is
 The completed native navigation run passed 18/18 journeys with unchanged emitted
 home assets across Chromium 140.0.7339.186, Firefox 141.0 and WebKit 26.0. Its
 compact packet is `qa/evidence/home-menu-20261019/navigation-results.json`.
+The review follow-up passed six helper-suppression cases and three native-focus
+cases across the same engines; About/Visit received visible, onscreen SECTION
+focus. The preceding BODY-focus failures are preserved as counterexamples in
+`focus-followup-results.json`. `utf8-runtime-parity.json` confirms the actual
+emitted UTF-8 app matches a fresh production build and shares all 3515 decoded
+AST nodes with an isolated ASCII build of the same source.
+The byte-parity verifier uses the same UTF-8 compiler option and strict
+`Buffer.equals` with a bounded failure message. Independent in-memory controls
+accepted the actual app and rejected both a one-byte change and a stale ASCII
+compiler; see `static-parity-controls.json`.
 
 The local baseline recording is `home-menu-baseline-fast`: RU981 PASS and RU1121
 FAIL with six measured overlaps. `home-menu-critical` repeats RU1121 after the
