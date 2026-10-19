@@ -259,6 +259,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/menu-feed.css") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
     url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
@@ -321,6 +323,7 @@ async function navigationResponse(request) {
   const url = new URL(request.url);
   const scopePath = new URL(self.registration.scope).pathname;
   const isMenu = url.pathname.endsWith("/menu.html");
+  const isMenuFeed = url.pathname.endsWith("/menu-feed.html");
   const isCashier = url.pathname.endsWith("/cashier.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
@@ -332,7 +335,7 @@ async function navigationResponse(request) {
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
+      if (isMenu || isMenuFeed || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -343,6 +346,7 @@ async function navigationResponse(request) {
   }
 
   if (isMenu) return cachedPage("menu.html");
+  if (isMenuFeed) return cachedPage("menu-feed.html");
   if (isCashier) return cachedPage("cashier.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isSmartChoice) return cachedPage("smart-choice/index.html");

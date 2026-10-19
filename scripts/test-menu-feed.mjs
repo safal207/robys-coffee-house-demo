@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import vm from "node:vm";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts, filterFeed, quoteFeedOrder } from "../src/menu-feed-model.js";
 import { addOrderGroup, updateOrderGroupQuantity } from "../src/order-draft.js";
@@ -64,4 +65,23 @@ test("shipped feed matches authored source and content-derived cache revisions",
   for (const file of ["menu-feed.html", "menu-feed.js", "menu-feed.css"]) assert.ok(sw.includes(`./${file}`));
   assert.match(html, /require-trusted-types-for 'script'/);
   assert.match(html, /<noscript>/);
+});
+
+test("offline navigation opens the feed and never substitutes another asset revision", async () => {
+  for (const scope of ["https://example.test/", "https://example.test/cafe/"]) {
+    const cached = new Map([[scope + "menu-feed.html", "FEED"], [scope + "404.html", "NOT_FOUND"],
+      [scope + "menu-feed.js?v=current", "CURRENT_JS"], [scope + "menu-feed.css?v=current", "CURRENT_CSS"]]);
+    const context = { URL, Request, Response, fetch: async () => { throw new Error("offline"); },
+      caches: { open: async () => ({ match: async (request, options) => {
+        const key = options?.ignoreSearch ? [...cached.keys()].find(key => key.split("?")[0] === request.url.split("?")[0]) : request.url;
+        return cached.has(key) ? new Response(cached.get(key)) : undefined;
+      } }) }, self: { registration: { scope }, location: { origin: "https://example.test" }, addEventListener() {} } };
+    vm.runInNewContext(readFileSync("sw-core-v64.js", "utf8"), context);
+    assert.equal(await (await context.navigationResponse(new Request(scope + "menu-feed.html?lang=ru"))).text(), "FEED");
+    assert.equal(await (await context.navigationResponse(new Request(scope + "unknown.html"))).text(), "NOT_FOUND");
+    for (const extension of ["js", "css"]) {
+      assert.equal(await context.cachedResponse(new Request(scope + `menu-feed.${extension}?v=old`)), undefined);
+      assert.match(await (await context.cachedResponse(new Request(scope + `menu-feed.${extension}?v=current`))).text(), /CURRENT_/);
+    }
+  }
 });
