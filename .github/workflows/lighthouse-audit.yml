@@ -3,6 +3,9 @@ name: Lighthouse mobile audit
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - ".github/workflows/lighthouse-audit.yml"
   workflow_dispatch:
 
 permissions:
@@ -32,6 +35,58 @@ jobs:
       - name: Install exact Lighthouse version
         run: npm install --global lighthouse@12.8.2
 
+      - name: Start Chrome and verify DevTools readiness
+        run: |
+          set -euo pipefail
+          diagnostics="$RUNNER_TEMP/robys-lighthouse"
+          mkdir -p "$diagnostics"
+          chrome_path="$(command -v google-chrome)"
+          {
+            printf 'Chrome path: %s\n' "$chrome_path"
+            "$chrome_path" --version
+            node --version
+            lighthouse --version
+          } | tee "$diagnostics/versions.log"
+          # Preserve the defaults used by this exact Lighthouse installation.
+          lighthouse_entry="$(readlink -f "$(command -v lighthouse)")"
+          default_flags="$(node --input-type=module - "$lighthouse_entry" <<'NODE'
+          import { createRequire } from 'node:module';
+          const require = createRequire(process.argv[2]);
+          const { Launcher } = await import(require.resolve('chrome-launcher'));
+          console.log(Launcher.defaultFlags().join('\n'));
+          NODE
+          )"
+          mapfile -t chrome_defaults <<< "$default_flags"
+          if curl --noproxy '*' --silent --fail --max-time 1 http://127.0.0.1:9222/json/version >/dev/null; then
+            echo "Refusing to audit through an existing DevTools endpoint"
+            exit 1
+          fi
+          profile="$(mktemp -d "$RUNNER_TEMP/robys-lighthouse-profile.XXXXXX")"
+          "$chrome_path" "${chrome_defaults[@]}" --headless --no-sandbox --disable-gpu \
+            --no-first-run --no-default-browser-check \
+            --user-data-dir="$profile" \
+            --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222 \
+            about:blank >"$diagnostics/chrome-out.log" 2>"$diagnostics/chrome-err.log" &
+          chrome_pid=$!
+          printf '%s\n' "$chrome_pid" > "$diagnostics/chrome.pid"
+          for attempt in {1..30}; do
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then
+              echo "Chrome exited before DevTools became ready"
+              cat "$diagnostics/chrome-err.log"
+              exit 1
+            fi
+            if curl --noproxy '*' --silent --fail --max-time 1 \
+              http://127.0.0.1:9222/json/version > "$diagnostics/devtools.json"; then
+              node -e 'const fs=require("fs"); const d=JSON.parse(fs.readFileSync(process.argv[1], "utf8")); if (!d.Browser || !d.webSocketDebuggerUrl) process.exit(1)' "$diagnostics/devtools.json"
+              echo "Chrome DevTools is ready on 127.0.0.1:9222"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$diagnostics/chrome-err.log"
+          echo "Chrome DevTools did not become ready within 30 attempts"
+          exit 1
+
       - name: Start local server
         run: |
           set -euo pipefail
@@ -50,6 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           lighthouse http://127.0.0.1:8080/ \
+            --hostname=127.0.0.1 --port=9222 \
             --output=json \
             --output=html \
             --output-path=./lighthouse-report \
@@ -58,16 +114,24 @@ jobs:
             --screen-emulation.mobile=true \
             --throttling-method=simulate \
             --chrome-flags='--headless --no-sandbox --disable-gpu' \
-            --quiet
+            --verbose 2>&1 | tee "$RUNNER_TEMP/robys-lighthouse/lighthouse.log"
 
       - name: Create exact-run readable summary
         env:
           AUDITED_SHA: ${{ github.sha }}
           SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           node <<'NODE'
           const fs = require('fs');
           const report = JSON.parse(fs.readFileSync('lighthouse-report.report.json', 'utf8'));
+          if (report.runtimeError) throw new Error(`Lighthouse runtime error: ${JSON.stringify(report.runtimeError)}`);
+          for (const id of ['performance', 'accessibility', 'best-practices', 'seo']) {
+            const score = report.categories?.[id]?.score;
+            if (typeof score !== 'number' || !Number.isFinite(score) || score < 0 || score > 1) {
+              throw new Error(`Missing or invalid Lighthouse category: ${id}`);
+            }
+          }
           const categories = Object.fromEntries(
             Object.entries(report.categories).map(([key, value]) => [key, Math.round(value.score * 100)])
           );
@@ -99,6 +163,7 @@ jobs:
             generatedAt: new Date().toISOString(),
             testedCommit: process.env.AUDITED_SHA,
             sourceRunId: process.env.SOURCE_RUN_ID,
+            sourceRunAttempt: process.env.SOURCE_RUN_ATTEMPT,
             lighthouseVersion: report.lighthouseVersion,
             testedUrl: report.finalDisplayedUrl,
             device: {
@@ -128,6 +193,32 @@ jobs:
           console.log(JSON.stringify(summary, null, 2));
           NODE
           cat lighthouse-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop audit processes and collect server diagnostics
+        if: always()
+        run: |
+          diagnostics="$RUNNER_TEMP/robys-lighthouse"
+          mkdir -p "$diagnostics"
+          if test -f "$diagnostics/chrome.pid"; then
+            kill "$(cat "$diagnostics/chrome.pid")" 2>/dev/null || true
+          fi
+          if test -f /tmp/robys-server.pid; then
+            kill "$(cat /tmp/robys-server.pid)" 2>/dev/null || true
+          fi
+          if test -f /tmp/robys-server.log; then
+            cp /tmp/robys-server.log "$diagnostics/server.log"
+          fi
+
+      - name: Upload browser startup diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lighthouse-diagnostics-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/robys-lighthouse/*.log
+            ${{ runner.temp }}/robys-lighthouse/devtools.json
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Upload immutable Lighthouse report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
