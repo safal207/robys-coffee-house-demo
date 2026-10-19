@@ -414,7 +414,7 @@ function loadCombosUi() {
       const url = new URL("./menu-combos-ui.js", import.meta.url);
       url.searchParams.set("retry", String(combosRetry));
       loading = import(url.href);
-    } else loading = import("./menu-combos-ui.js?v=68984827367e");
+    } else loading = import("./menu-combos-ui.js?v=b9d8b40529d5");
     combosUiPromise = loading.then(({ createMenuCombosUi }) => {
       combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
@@ -435,7 +435,7 @@ function loadCombosUi() {
   }
   return combosUiPromise;
 }
-async function openComboSuggestions(event, filter = "all") {
+async function openComboSuggestions(event, filter = "all", recipeId = "") {
   event?.preventDefault();
   const trigger = event?.target?.closest?.("a,button") ?? event?.currentTarget ?? combosTrigger;
   const intent = beginMenuIntent(trigger);
@@ -448,6 +448,14 @@ async function openComboSuggestions(event, filter = "all") {
     ui.reveal(filter);
     combosTrigger?.setAttribute("aria-expanded", "true");
     document.querySelector("#menu-combos").scrollIntoView({ block: "start" });
+    if (recipeId) {
+      // The quiet helper closes before navigation. Return focus to the matching
+      // visible card instead of its now-hidden suggestion link.
+      const card = Array.from(document.querySelectorAll("#menu-combos [data-combo-recipe]"))
+        .find(node => node.dataset.comboRecipe === recipeId);
+      const returnFocus = card?.querySelector(".menu-combos-choose") ?? combosTrigger;
+      ui.open(recipeId, returnFocus);
+    }
   } catch {
     if (intent !== menuIntent) return;
     const notice = document.querySelector("#menu-cart-status");
@@ -459,10 +467,19 @@ combosTrigger?.addEventListener("click", event => { void openComboSuggestions(ev
 document.querySelector("#menu-combos-takeaway-trigger")?.addEventListener("click", event => { void openComboSuggestions(event, "takeaway"); });
 document.addEventListener("click", event => {
   const anchor = event.target.closest?.(".choice-help-actions a");
-  if (!anchor) return;
+  if (!anchor || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const url = new URL(anchor.href);
-  if (url.pathname === window.location.pathname && url.hash === "#menu-combos") void openComboSuggestions(event);
+  if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) return;
+  const recipeId = comboRecipeFromHash(url.hash);
+  if (recipeId) {
+    // replaceState avoids a second asynchronous reveal from hashchange.
+    window.history.replaceState(null, "", url);
+    void openComboSuggestions(event, "all", recipeId);
+  } else if (url.hash === "#menu-combos") void openComboSuggestions(event);
 });
+function comboRecipeFromHash(hash = window.location.hash) {
+  return /^#menu-combo-([a-z][a-z0-9-]{0,50})$/.exec(hash)?.[1] ?? "";
+}
 // Escape also cancels an intent whose optional code is still downloading.
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") beginMenuIntent();
@@ -897,6 +914,11 @@ window.addEventListener("robys:order-change", event => {
 window.addEventListener("focus", () => refreshObservedCart());
 
 window.addEventListener("hashchange", () => {
+  const recipeId = comboRecipeFromHash();
+  if (recipeId) {
+    void openComboSuggestions(undefined, "all", recipeId);
+    return;
+  }
   if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
     void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
     return;
@@ -919,6 +941,7 @@ if (["#menu-family", "#kids-menu"].includes(window.location.hash)) void openFami
 if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
   void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
 }
+if (comboRecipeFromHash()) void openComboSuggestions(undefined, "all", comboRecipeFromHash());
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {

@@ -70,6 +70,7 @@ jobs:
       ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
       ROBYS_COMBO_BROWSERS: ${{ matrix.browser }}
       ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
+      ROBYS_OFFER_BROWSERS: ${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,6 +91,8 @@ jobs:
         run: node scripts/test-menu-family-browser.mjs
       - name: Editable combos, all views and gentle choice help
         run: node scripts/test-menu-combos-browser.mjs
+      - name: Contextual offer cards and exact recipe navigation
+        run: node scripts/test-combo-offer-cards-browser.mjs
       - name: First offline combo reveal and missing-photo negative control
         if: matrix.browser == 'chromium'
         run: node scripts/test-combo-offline.mjs

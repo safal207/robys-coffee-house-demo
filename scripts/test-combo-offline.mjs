@@ -151,7 +151,10 @@ async function runBrowser({ cacheName }) {
       offline = false;
       const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", serviceWorkers: "allow", ignoreHTTPSErrors: true });
       const page = await context.newPage();
-      page.setDefaultTimeout(20000);
+      const timeoutMs = Number(process.env.ROBYS_QA_TIMEOUT_MS ?? 20000);
+      assert.ok(Number.isFinite(timeoutMs) && timeoutMs > 0, "ROBYS_QA_TIMEOUT_MS must be positive");
+      page.setDefaultTimeout(timeoutMs);
+      page.setDefaultNavigationTimeout(timeoutMs);
       const errors = [];
       page.on("pageerror", error => errors.push(error.message));
       await context.addInitScript(language => localStorage.setItem("robys-language", language), language);
@@ -179,8 +182,9 @@ async function runBrowser({ cacheName }) {
         await page.locator(".choice-help-entry").scrollIntoViewIfNeeded();
         await page.locator(".choice-help-entry").click();
         await page.locator(".choice-help-panel").waitFor({ state: "visible" });
-        assert.equal(await page.locator('.choice-help-panel a[href$="menu.html#menu-combos"]').count(), 1);
-        assert.equal(await page.locator('.choice-help-panel a[href$="smart-choice/"]').count(), 1);
+        assert.equal(await page.locator('.choice-help-panel a[href$="menu.html#menu-combo-sweet"]').count(), 1);
+        assert.equal(await page.locator('.choice-help-actions a:visible').count(), 1,
+          "Offline assistance shows one real recipe instead of competing actions");
         assert.deepEqual(await auditCache(page), { missing: [], mismatched: [] });
         let missingPhotoNegativeControl = false;
         if (language === "tr") {

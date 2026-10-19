@@ -5,40 +5,49 @@ const copy = {
     title: "Menüden seçmeler", lead: "Anına uygun bir başlangıç seç. İçeriği ve adetleri dilediğin gibi değiştir.",
     note: "Normal menü ürünleri ve fiyatları. Porsiyon, içerik ve alerjenleri kasada sorun. Çocuklar için uygunluğuna ebeveyn karar verir.",
     all: "Tümü", pause: "Bir mola", together: "Birlikte", family: "Çocuklarla", takeaway: "Al götür",
-    filters: "Anına göre seç", choose: "İçeriği düzenle", total: "Menü fiyatları toplamı", guests: { 1: "1 kişilik", 2: "2 kişilik", 4: "4 kişilik" },
+    filters: "Anına göre seç", choose: "Seçimi incele", total: "Menü fiyatları toplamı", guests: { 1: "1 kişilik", 2: "2 kişilik", 4: "4 kişilik" },
     edit: "Adetleri değiştir, istemediğini kaldır veya başka bir ürün ekle. Ürünler siparişine ayrı ayrı eklenir.",
     quantity: "Adet", decrease: "Adedi azalt", increase: "Adedi artır", remove: "Kaldır", addProduct: "Başka bir ürün ekle",
     selectProduct: "Menüden ürün seç", add: "Seçilenleri ekle", empty: "En az bir ürün seçin.",
     limit: "Bir ürün sipariş limitine ulaştı. Siparişini kontrol et veya seçilen adedi azalt.",
     error: "Seçim eklenemedi. Tekrar deneyin.", cartError: "Ürünler eklendi. Siparişini üstteki düğmeden açabilirsin.",
     close: "Kapat", fewer: "Önerileri gizle", loading: "Ekleniyor…", regular: "Menüden kendim seçeyim", kids: "Çocuklar için diğer fikirler ve Kids Box",
-    maximum: "Bu seçimde ürün başına en fazla 20 adet."
+    maximum: "Bu seçimde ürün başına en fazla 20 adet.",
+    ready: "Hazır bir seçim", contents: "İçindekiler", editContents: "İçeriği değiştir",
+    photoNote: "Fotoğraf başlangıçtaki seçimi gösterir. Güncel içeriği aşağıda düzenleyebilirsin.",
+    footerNote: "Ön hesaplama. İçerik ve alerjenleri kasada sorun."
   },
   en: {
     title: "Menu selections", lead: "Find a starting point for your moment. Change the contents and quantities to suit you.",
     note: "Regular menu products and prices. Ask at the counter about portions, ingredients and allergens. Parents decide what is suitable for children.",
     all: "All", pause: "Take a break", together: "Together", family: "With kids", takeaway: "To go",
-    filters: "Choose your moment", choose: "Edit contents", total: "Menu total", guests: { 1: "Serves 1", 2: "Serves 2", 4: "Serves 4" },
+    filters: "Choose your moment", choose: "Choose this selection", total: "Menu total", guests: { 1: "Serves 1", 2: "Serves 2", 4: "Serves 4" },
     edit: "Change quantities, remove anything or add another item. Products are added as separate order lines.",
     quantity: "Quantity", decrease: "Decrease quantity", increase: "Increase quantity", remove: "Remove", addProduct: "Add another item",
     selectProduct: "Choose an item from the menu", add: "Add selected items", empty: "Choose at least one item.",
     limit: "An item has reached the order limit. Check your order or reduce its selected quantity.",
     error: "Could not add this selection. Please try again.", cartError: "Items added. Open your order using the button above.",
     close: "Close", fewer: "Hide suggestions", loading: "Adding…", regular: "Choose from the full menu", kids: "More ideas for kids and Kids Box",
-    maximum: "Up to 20 of each item in this selection."
+    maximum: "Up to 20 of each item in this selection.",
+    ready: "A ready-made selection", contents: "What’s included", editContents: "Edit contents",
+    photoNote: "The photo shows the original selection. You can change the current contents below.",
+    footerNote: "Preliminary total. Ask at the counter about ingredients and allergens."
   },
   ru: {
     title: "Подборки из меню", lead: "Выбери идею под свой момент. Состав и количество можно изменить под себя.",
     note: "Обычные позиции и цены меню. Порции, состав и аллергены уточните на кассе. Что подойдёт ребёнку, решает родитель.",
     all: "Все", pause: "На паузу", together: "Вместе", family: "С детьми", takeaway: "С собой",
-    filters: "Выбрать по ситуации", choose: "Изменить состав", total: "Сумма по меню", guests: { 1: "1 гость", 2: "2 гостя", 4: "4 гостя" },
+    filters: "Выбрать по ситуации", choose: "Выбрать набор", total: "Сумма по меню", guests: { 1: "1 гость", 2: "2 гостя", 4: "4 гостя" },
     edit: "Измени количество, убери лишнее или добавь другую позицию. Продукты добавятся отдельными строками в заказ.",
     quantity: "Количество", decrease: "Уменьшить количество", increase: "Увеличить количество", remove: "Убрать", addProduct: "Добавить другую позицию",
     selectProduct: "Выбрать позицию из меню", add: "Добавить выбранное", empty: "Выбери хотя бы одну позицию.",
     limit: "Для одной из позиций достигнут лимит заказа. Проверь заказ или уменьши выбранное количество.",
     error: "Не удалось добавить выбор. Попробуй ещё раз.", cartError: "Продукты добавлены. Открыть заказ можно кнопкой сверху.",
     close: "Закрыть", fewer: "Скрыть подборки", loading: "Добавляем…", regular: "Выбрать из полного меню", kids: "Ещё идеи для детей и Kids Box",
-    maximum: "До 20 штук каждой позиции в этой подборке."
+    maximum: "До 20 штук каждой позиции в этой подборке.",
+    ready: "Готовая подборка", contents: "Что входит", editContents: "Изменить состав",
+    photoNote: "На фото — исходная подборка. Текущий состав можно изменить ниже.",
+    footerNote: "Предварительный расчёт. Состав и аллергены уточните на кассе."
   }
 };
 const filters = ["all", "pause", "together", "family", "takeaway"];
@@ -73,6 +82,25 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     image.decoding = "async";
     return image;
   };
+  const brandLogo = () => {
+    const logo = photo("src/brand/robys-compact-master-v1.svg", 100);
+    logo.className = "menu-combos-logo";
+    logo.width = 100;
+    logo.height = 32;
+    return logo;
+  };
+  function recipePhoto(recipe, products, className = "menu-combos-photo") {
+    const figure = element("div", className);
+    const image = photo(recipe.image, 640);
+    image.addEventListener("error", () => {
+      const ribbon = figure.querySelector(".menu-combos-ribbon");
+      figure.classList.add("is-fallback");
+      figure.replaceChildren(...products.map(product => photo(product.image)));
+      if (ribbon) figure.append(ribbon);
+    }, { once: true });
+    figure.append(image);
+    return figure;
+  }
   const title = element("h2");
   title.id = "menu-combos-title";
   title.tabIndex = -1;
@@ -100,12 +128,25 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   const backdrop = element("div", "menu-combos-backdrop");
   backdrop.hidden = true;
   const closeButton = button("menu-combos-close", "×");
+  const previewTop = element("div", "menu-combos-preview-top");
+  const previewBadge = element("span", "menu-combos-badge");
+  previewTop.append(brandLogo(), previewBadge, closeButton);
   const dialogTitle = element("h2");
   dialogTitle.id = "menu-combos-preview-title";
   dialogTitle.tabIndex = -1;
+  const audience = element("p", "menu-combos-preview-audience");
+  const previewMedia = element("figure", "menu-combos-preview-media");
+  const photoCaption = element("figcaption", "menu-combos-photo-note");
+  const editorHeading = element("div", "menu-combos-editor-heading");
+  const contentsTitle = element("h3");
+  contentsTitle.id = "menu-combos-contents-title";
+  const editContents = button("menu-combos-edit");
+  editorHeading.append(contentsTitle, editContents);
   const help = element("p", "menu-combos-preview-help");
   help.id = "menu-combos-preview-help";
   const options = element("div", "menu-combos-options");
+  options.setAttribute("role", "group");
+  options.setAttribute("aria-labelledby", contentsTitle.id);
   const addLabel = element("label", "menu-combos-add-label");
   addLabel.htmlFor = "menu-combos-add-product";
   const addProduct = element("select", "menu-combos-add-product");
@@ -118,7 +159,9 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   status.setAttribute("role", "status");
   status.hidden = true;
   const add = button("menu-combos-add");
-  dialog.append(closeButton, dialogTitle, help, options, addLabel, addProduct, maximum, total, status, add);
+  const footerNote = element("p", "menu-combos-footer-note");
+  dialog.append(previewTop, dialogTitle, audience, previewMedia, editorHeading, help, options,
+    addLabel, addProduct, maximum, total, status, add, footerNote);
   document.body.append(backdrop, dialog);
 
   function setStatus(key) {
@@ -143,6 +186,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     add.disabled = confirming || !quote.valid || invalidQuantity;
     add.textContent = confirming ? text("loading") : `${text("add")} · ${formatPrice(quote.total)}`;
     addProduct.disabled = confirming || addProduct.options.length === 1;
+    editContents.disabled = confirming;
     options.querySelectorAll("button,input").forEach(control => { control.disabled = confirming; });
     options.querySelectorAll("[data-combo-increase]").forEach(control => {
       const quantity = selectedItems.find(item => item.id === control.dataset.comboIncrease)?.quantity ?? 0;
@@ -249,6 +293,14 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   }
   function renderPreview() {
     dialogTitle.textContent = localized(activeRecipe.name);
+    previewBadge.textContent = text("ready");
+    audience.textContent = `${localized(activeRecipe.eyebrow)} · ${text("guests")[activeRecipe.guests]}`;
+    photoCaption.textContent = text("photoNote");
+    const original = quoteComboSelection(activeRecipe.id, activeRecipe.items, productIndex);
+    previewMedia.replaceChildren(recipePhoto(activeRecipe, original.products, "menu-combos-preview-hero"), photoCaption);
+    contentsTitle.textContent = text("contents");
+    editContents.textContent = text("editContents");
+    footerNote.textContent = text("footerNote");
     help.textContent = text("edit");
     closeButton.setAttribute("aria-label", text("close"));
     addLabel.textContent = text("addProduct");
@@ -277,6 +329,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     }
     dialog.setAttribute("aria-modal", "true");
     document.body.classList.add("menu-combos-open");
+    dialog.scrollTop = 0;
     dialogTitle.focus({ preventScroll: true });
   }
   function renderCards() {
@@ -289,39 +342,31 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       const card = element("article", "menu-combos-card");
       card.dataset.comboRecipe = recipe.id;
       const top = element("div", "menu-combos-card-top");
-      const logo = photo("src/brand/robys-compact-master-v1.svg", 100);
-      logo.className = "menu-combos-logo";
-      logo.width = 100;
-      logo.height = 32;
-      const guests = element("span", "menu-combos-guests", text("guests")[recipe.guests]);
-      top.append(logo, guests);
-      const figure = element("div", "menu-combos-photo");
-      const image = photo(recipe.image, 640);
-      image.addEventListener("error", () => {
-        const ribbon = figure.querySelector(".menu-combos-ribbon");
-        figure.classList.add("is-fallback");
-        figure.replaceChildren(...quote.products.map(product => photo(product.image)));
-        if (ribbon) figure.append(ribbon);
-      }, { once: true });
-      figure.append(image);
-      if (recipe.id === "family") {
-        const ribbon = element("span", "menu-combos-ribbon");
-        const heart = element("span", "", "❤");
-        heart.setAttribute("aria-hidden", "true");
-        ribbon.append(heart, document.createTextNode(text("family")));
-        figure.append(ribbon);
-      }
-      const eyebrow = element("p", "menu-combos-eyebrow", localized(recipe.eyebrow));
+      top.append(element("span", "menu-combos-badge", text("ready")), brandLogo());
       const name = element("h3", "", localized(recipe.name));
-      const composition = element("p", "menu-combos-composition", quote.products.map(product =>
-        `${product.quantity} × ${localized(product.item.name)}`).join(" · "));
+      const eyebrow = element("p", "menu-combos-eyebrow", localized(recipe.eyebrow));
+      const figure = recipePhoto(recipe, quote.products);
+      const guests = element("span", "menu-combos-guests", text("guests")[recipe.guests]);
+      const ribbon = element("span", "menu-combos-ribbon", recipe.id === "family" ? text("family") : text(recipe.filters[0]));
+      figure.append(ribbon);
+      const composition = element("div", "menu-combos-composition");
+      const compositionHeading = element("div", "menu-combos-composition-heading");
+      compositionHeading.append(element("h4", "", text("contents")), guests);
+      const contents = element("ul", "menu-combos-contents");
+      quote.products.forEach(product => {
+        const item = element("li");
+        item.append(element("span", "menu-combos-content-quantity", `${product.quantity} ×`),
+          element("span", "", localized(product.item.name)));
+        contents.append(item);
+      });
+      composition.append(compositionHeading, contents);
       const price = element("p", "menu-combos-price");
       price.append(element("span", "", text("total")), element("strong", "", formatPrice(quote.total)));
       const choose = buttons.get(recipe.id) ?? button("menu-combos-choose");
       choose.textContent = text("choose");
       choose.setAttribute("aria-label", `${text("choose")}: ${localized(recipe.name)}`);
       if (!buttons.has(recipe.id)) choose.addEventListener("click", () => showPreview(recipe, choose));
-      card.append(top, figure, eyebrow, name, composition, price, choose);
+      card.append(top, name, eyebrow, figure, composition, price, choose);
       cards.append(card);
     });
   }
@@ -350,6 +395,11 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     renderProductSelect();
     updateQuote();
     Array.from(options.querySelectorAll("input")).find(input => input.dataset.comboQuantity === id)?.focus();
+  });
+  editContents.addEventListener("click", () => {
+    const target = options.querySelector("input") ?? addProduct;
+    target.focus();
+    target.scrollIntoView({ block: "nearest" });
   });
   closeButton.addEventListener("click", () => closePreview());
   backdrop.addEventListener("click", () => closePreview());
@@ -434,6 +484,12 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       if (section) section.hidden = false;
       if (filters.includes(filter) && activeFilter !== filter) { activeFilter = filter; renderFilters(); renderCards(); }
       title.focus({ preventScroll: true });
+    },
+    open(recipeId, trigger) {
+      const recipe = comboRecipes.find(entry => entry.id === recipeId);
+      if (!recipe || !quoteComboSelection(recipe.id, recipe.items, productIndex).valid) return false;
+      showPreview(recipe, trigger);
+      return true;
     },
     close() { closePreview(false, true); },
     focusHeading() { title.focus({ preventScroll: true }); },

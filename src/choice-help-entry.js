@@ -27,7 +27,7 @@ if (entry) {
     if (loading) return;
     loading = true;
     try {
-      const { initChoiceHelp } = await import("./choice-help.js?v=39b405586c5c");
+      const { initChoiceHelp } = await import("./choice-help.js?v=98cc0d9e1fc3");
       window.clearInterval(timer);
       for (const event of events) document.removeEventListener(event, activity, true);
       document.removeEventListener("visibilitychange", visibility);
@@ -45,6 +45,6 @@ if (entry) {
     const now = performance.now();
     if (!document.hidden) elapsed += now - last;
     last = now;
-    if (elapsed >= 35000 && !document.hidden) void load();
+    if (elapsed >= 45000 && !document.hidden) void load();
   }, 1000);
 }
