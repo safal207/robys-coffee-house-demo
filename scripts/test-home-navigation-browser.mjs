@@ -69,9 +69,89 @@ async function expectFocus(locator, message) {
   await locator.page().waitForFunction(selector => document.activeElement === document.querySelector(selector), await locator.evaluate(node => {
     if (node.id) return `#${node.id}`;
     if (node.matches(".menu-toggle")) return ".menu-toggle";
+    if (node.matches(".site-header .brand")) return ".site-header .brand";
+    if (node.matches(".lang-button[data-lang]")) return `.lang-button[data-lang="${node.dataset.lang}"]`;
+    if (node.matches(".hero-actions .button-primary")) return ".hero-actions .button-primary";
     return "#main-navigation a:first-child";
   }));
   assert.equal(await focused(locator), true, message);
+}
+
+async function verifyResizeFocusRecovery(page, { toggle, first, width, language }) {
+  const facts = {};
+  const brand = page.locator(".site-header .brand");
+  const recordFocus = async (key, locator) => {
+    await expectFocus(locator, `${key}: resize preserves meaningful focus`);
+    const state = await locator.evaluate(node => {
+      const bounds = node.getBoundingClientRect();
+      let visible = node.getClientRects().length > 0;
+      for (let ancestor = node; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor);
+        if (style.display === "none" || style.visibility !== "visible" || Number(style.opacity) === 0) visible = false;
+      }
+      return { tag: node.tagName, id: node.id, className: node.className, label: node.getAttribute("aria-label"),
+        focused: document.activeElement === node, visible, insideNavigation: Boolean(node.closest("#main-navigation")),
+        onScreen: bounds.bottom > 0 && bounds.right > 0 && bounds.top < innerHeight && bounds.left < innerWidth,
+        rect: bounds.toJSON(), viewportWidth: innerWidth };
+    });
+    assert.equal(state.focused, true, `${key}: expected control owns focus`);
+    assert.equal(state.visible, true, `${key}: focused control is visible`);
+    assert.equal(state.onScreen, true, `${key}: focused control is onscreen`);
+    facts[key] = state;
+  };
+
+  // The existing first-link journey has just crossed 980 -> 981. A stable
+  // header target must stay focused when the closed mobile layout returns.
+  await recordFocus("firstLinkAtDesktop", brand);
+  await page.setViewportSize({ width: 900, height: 900 });
+  await afterLayout(page);
+  await recordFocus("firstLinkReturnMobile", brand);
+
+  // The toggle itself disappears at desktop width. Some engines reset its
+  // focus to BODY before firing resize; that must also recover visibly.
+  await toggle.click();
+  await expectFocus(first, "Toggle resize journey starts at the first link");
+  await page.keyboard.press("Shift+Tab");
+  await expectFocus(toggle, "Shift+Tab reaches the open menu toggle");
+  await page.setViewportSize({ width: 980, height: 900 });
+  await afterLayout(page);
+  await recordFocus("toggleAt980", toggle);
+  assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+  await page.setViewportSize({ width: 981, height: 900 });
+  await page.waitForFunction(() => document.querySelector(".menu-toggle")?.getAttribute("aria-expanded") === "false");
+  await recordFocus("toggleAtDesktop", brand);
+  await page.setViewportSize({ width: 900, height: 900 });
+  await afterLayout(page);
+  await recordFocus("toggleReturnMobile", brand);
+
+  // A visible header control already has meaningful focus. Closing an open
+  // menu on resize must preserve it instead of always choosing the brand.
+  await toggle.click();
+  await expectFocus(first, "Unrelated header focus journey starts in the menu");
+  const unrelated = language ? page.locator(`.lang-button[data-lang="${language}"]`) : brand;
+  await unrelated.focus();
+  await page.setViewportSize({ width: 981, height: 900 });
+  await page.waitForFunction(() => document.querySelector(".menu-toggle")?.getAttribute("aria-expanded") === "false");
+  await recordFocus("unrelatedHeaderAtDesktop", unrelated);
+  await page.setViewportSize({ width: 900, height: 900 });
+  await afterLayout(page);
+  await recordFocus("unrelatedHeaderReturnMobile", unrelated);
+
+  // An ordinary desktop CTA remains the user's focus through later resizes.
+  await page.setViewportSize({ width: 981, height: 900 });
+  await afterLayout(page);
+  const cta = page.locator(".hero-actions .button-primary").first();
+  await cta.focus();
+  await recordFocus("desktopCtaBeforeResize", cta);
+  await page.setViewportSize({ width: 1000, height: 900 });
+  await afterLayout(page);
+  await recordFocus("desktopCtaAt1000", cta);
+  await page.setViewportSize({ width: 900, height: 900 });
+  await afterLayout(page);
+  await recordFocus("desktopCtaReturnMobile", cta);
+  await page.setViewportSize({ width, height: 900 });
+  await afterLayout(page);
+  return facts;
 }
 
 async function verifyCase(browser, engine, width, language) {
@@ -162,8 +242,7 @@ async function verifyCase(browser, engine, width, language) {
     assert.equal(await toggle.getAttribute("aria-label"), navigationLabels[language].open, "Desktop transition restores the opening label");
     assert.equal(await first.isVisible(), true, "Desktop links remain available after closing the mobile layout");
     facts.resizeKeepsMobileAndClosesAtDesktop = true;
-    await page.setViewportSize({ width, height: 900 });
-    await afterLayout(page);
+    facts.resizeFocus = await verifyResizeFocusRecovery(page, { toggle, first, width, language });
 
     facts.destinations = [];
     for (const hash of ["#about", "#visit"]) {
@@ -304,8 +383,7 @@ async function verifyStandaloneCase(browser, { engine, width, id }) {
     assert.equal(await first.isVisible(), true);
     assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.open);
     facts.resizeKeepsMobileAndClosesAtDesktop = true;
-    await page.setViewportSize({ width, height: 900 });
-    await afterLayout(page);
+    facts.resizeFocus = await verifyResizeFocusRecovery(page, { toggle, first, width });
     await toggle.click();
     await expectFocus(first, "Standalone full-menu navigation begins at its first link");
     await page.keyboard.press("Enter");

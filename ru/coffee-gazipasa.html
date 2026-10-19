@@ -289,7 +289,13 @@
         }
       });
       window.addEventListener('resize', () => {
-        if (window.innerWidth > 980) setOpen(false);
+        if (window.innerWidth > 980) {
+          const active = document.activeElement;
+          const recoverFocus = document.body.classList.contains('menu-open') &&
+            (nav.contains(active) || active === button || active === document.body || active === document.documentElement);
+          setOpen(false);
+          if (recoverFocus) document.querySelector('.site-header .brand')?.focus({ preventScroll: true });
+        }
       }, { passive: true });
     })();
   </script>

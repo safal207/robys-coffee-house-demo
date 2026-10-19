@@ -2,18 +2,16 @@
   "version": 1,
   "reviewedChanges": [
     {
-      "id": "ru-home-menu-20261019-h5",
-      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "id": "ru-home-menu-20261019-resize-followup",
+      "reviewKind": "assistant-historical-pair-inspection-with-provisional-focus-repair-input-binding-not-human-attestation",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/446",
-      "sourceHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
-      "sourceTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
       "baselineHead": "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
       "evidenceKind": "github-actions-locked-toolchain-fresh-new-baseline-captures",
       "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39247387929",
       "evidenceArtifactId": "12183882541",
       "evidenceArtifactSha256": "733bc1740e1f3defebc66a5574fb0bd28851a22b39d59bd0dee69616660eeb22",
       "captureSummarySha256": "9a161fb9437c50de9ec2e9366ae61c097497b278d7d347011f04f3bb604b127d",
-      "summary": "Inspected all six failing comparisons from the actual fresh H5/new-main-base artifact, including all portions of both full landings and exact category, social and visit pairs. Category icons shrink from 78px to 54px and the text track gains space; all six labels, descriptions, arrows and destinations remain. The desktop menu section and full landing become exactly 53px shorter; following sections retain complete content and controls. At tablet width the category icons shrink while the one-column card sizes and page height remain unchanged. The desktop social and laptop visit captures retain their copy, line breaks, links and buttons, with small paint/alignment differences; no content collision or clipping was observed in these pairs. Both fresh attempts and final have identical failure rows and metrics. Only the six exact dimensions/pixel totals and observed ratios below are covered, bound to all 457 public files and 338 additional tracked build/source/counter/workflow inputs. Global thresholds, capture scenarios, security policy and privileges are unchanged. This is assistant inspection, not an independent human attestation. Original H5 visual failure is retained; this record requires a fresh current-head CI run.",
+      "summary": "The six visual difference pairs described below were inspected on H5 and corroborated by H6 CI. Their historical source heads/run/digests stay explicit. After the resize-focus repair, this entry provisionally binds the exact locally tested candidate blobs. The incomplete local differential does NOT establish source equivalence:34pairs,31byte-identical,3differing capture states, then a30000ms screenshot timeout. Those three differences are NOT accepted by this record. Fresh current-head CI must produce a complete43-cell comparison within the unchanged exact six-cell map, and the actual current PNG pairs must be inspected before merge. Any new/excess cell remains blocking. Inspected all six failing comparisons from the actual fresh H5/new-main-base artifact, including all portions of both full landings and exact category, social and visit pairs. Category icons shrink from 78px to 54px and the text track gains space; all six labels, descriptions, arrows and destinations remain. The desktop menu section and full landing become exactly 53px shorter; following sections retain complete content and controls. At tablet width the category icons shrink while the one-column card sizes and page height remain unchanged. The desktop social and laptop visit captures retain their copy, line breaks, links and buttons, with small paint/alignment differences; no content collision or clipping was observed in these pairs. Both fresh attempts and final have identical failure rows and metrics. Only the six exact dimensions/pixel totals and observed ratios below are covered, bound to all 457 public files and 338 additional tracked build/source/counter/workflow inputs. Global thresholds, capture scenarios, security policy and privileges are unchanged. This is assistant inspection, not an independent human attestation. Original H5 visual failure is retained; this record requires a fresh current-head CI run.",
       "expectedFailures": [
         {
           "capture": "landing-full",
@@ -587,7 +585,7 @@
         "404.html": "5be4ea1b3624924525ab1d2064fe437c437f49de",
         "AGENTS.md": "c48aea446a584ca878c02bf015b994520223e938",
         "analytics.js": "9ad1eff5f0fb31d2a53e9f259e2ca8f5acee8842",
-        "app.js": "2770613edef677fe93284586803d94fe3e311a67",
+        "app.js": "af6b15b2ebadf96bac81aa2f19a2adf52184958f",
         "bootstrap-v2.js": "2d1469db6b610a77a6c2039f23fd2b3d7eb78c03",
         "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
         "cashier.html": "9f21a128831a26bb0c4bf2c9bdc5605af29dc643",
@@ -660,8 +658,8 @@
         "gallery-clean.css": "7dcc1a17d57fb1d106656f9eacf81e7c63035fe8",
         "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
         "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
-        "index.html": "c2641d98fbd301e1ff877be98b22bc38a349af50",
-        "integrity-manifest.json": "94134dc57d743cc60c27bb8677a8edb9cee8be08",
+        "index.html": "8299a4320c615aaef283711f3a416eb639c19df6",
+        "integrity-manifest.json": "ccd0ada9ccc8eb620332b4b03037f140a1f3c3ae",
         "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
         "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
         "menu-app.js": "4746be47d3db533be90a931c5fda2e5c1b7a62b8",
@@ -703,7 +701,7 @@
         "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
         "refresh.html": "54b746a5436e17831faa10b773d890752afe5854",
         "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
-        "ru/coffee-gazipasa.html": "a771e36891b67c369624699d064df69a87ec72c3",
+        "ru/coffee-gazipasa.html": "41b01c3efa355b83918aadcb97c7f69c7dbf6732",
         "scripts/.community-video/part.021": "963a1976a616d94ada61410e37ea6bc9e2d0fb6f",
         "scripts/.community-video/part.03": "9e468a108f4e6892ae84085e368f92ff9f3309cb",
         "scripts/.community-video/part.04": "41d175fd054cc8654545271b2bbc1585e078dab5",
@@ -786,7 +784,7 @@
         "scripts/test-feature-traceability.mjs": "21ce27006c97b53127744c211724d6a7b3bb77a4",
         "scripts/test-hero-playback.mjs": "0beea14257d76d5520d8d1556df9751e0d0a2426",
         "scripts/test-home-menu-responsive-browser.mjs": "0b42e93d258ba93002d96ba61ee061735e7727a7",
-        "scripts/test-home-navigation-browser.mjs": "3f7ba60e207707f40e3097973e887a847a6d8cf6",
+        "scripts/test-home-navigation-browser.mjs": "9ef18bb3d34cbd8a06da1244865dacd16aa1c2d9",
         "scripts/test-home-navigation-cache.mjs": "0b645fc4d8d4b455dc3a444f554a0f470e2da0c5",
         "scripts/test-html-evidence.mjs": "4721ea8ad167ea6626e48432dd13ce04a828f006",
         "scripts/test-kids-menu.mjs": "a96df46ab05059a2a79ae42d66004f776c89a2b1",
@@ -936,7 +934,7 @@
         "src/.parts/main.03.b64": "82c599793bbae084fcdfbcee9dda61b9e6bd253d",
         "src/.parts/main.04.txt": "f799f7dcbfd189b0f6f76765e4cc80d56ba829fe",
         "src/amenities.ts": "20f6756ae071955d9ae14dd5fddf54c987af3bc6",
-        "src/app.ts": "8a6280888f09bf06b7af7ba89eb110aadaea891e",
+        "src/app.ts": "6fc957879a2d0b8a2121afdee407a633d555a709",
         "src/bootstrap-v2.js": "f9a75f4a7638d69f3cab462f3b91f3e10b6b933b",
         "src/brand/robys-compact-master-v1.svg": "808c11a8d3109b03fe5ef6b173d93cd79392128a",
         "src/brand/robys-header-master-v1.svg": "ccf15f06963a7b49d5e1a7e6acc9a1f5010726fa",
@@ -1325,7 +1323,7 @@
         "src/smart-choice/shared-order.ts": "183c5d70073b64b09f9527f3f43e314d8fb255c2",
         "src/social-offer.ts": "953c527684d66acd69229acfbcc3273ddbd325d6",
         "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
-        "sw-core-v64.js": "9f0ef5b3ea9a68ced06a273c36a1bfc5b51fd290",
+        "sw-core-v64.js": "aaa7e0b0c84ffda0fafc0a700da32ed586afd11e",
         "sw.js": "eb44e5325f793744d8a77bdefd797a0c2504030c",
         "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
         "tsconfig.json": "c9658e19f3fcf59c267f0a537dc6c9f11ccec2c6",
@@ -1368,7 +1366,58 @@
           "Visual screenshots use deterministic Turkish Chromium captures; cross-engine/language behavior is covered separately.",
           "This record does not approve any extra failure, changed crop, larger ratio or changed bound runtime byte."
         ]
-      }
+      },
+      "captureSourceHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+      "captureSourceTree": "f4dda9f1e1916de72cfd03dfa228086e3410c5a1",
+      "inputBindingReferenceHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+      "inputBindingStateAtCreation": "Locally tested focus-repair working tree based on H6, exact blobs below; fresh current-head CI and actual pair inspection are required before release.",
+      "inputBindingEnvelopeSha256": "0963ada9d7e1f1c88175df641ac9dad3a3911b622c7deb2bbc31af3d4c03bd06",
+      "previousRecordSha256": "049af670e57ec0237065ce8616cc31aad9c76aed486f67f7edc1c2b1969da376",
+      "inputBindingChanges": {
+        "app.js": {
+          "old": "2770613edef677fe93284586803d94fe3e311a67",
+          "new": "af6b15b2ebadf96bac81aa2f19a2adf52184958f"
+        },
+        "index.html": {
+          "old": "c2641d98fbd301e1ff877be98b22bc38a349af50",
+          "new": "8299a4320c615aaef283711f3a416eb639c19df6"
+        },
+        "integrity-manifest.json": {
+          "old": "94134dc57d743cc60c27bb8677a8edb9cee8be08",
+          "new": "ccd0ada9ccc8eb620332b4b03037f140a1f3c3ae"
+        },
+        "ru/coffee-gazipasa.html": {
+          "old": "a771e36891b67c369624699d064df69a87ec72c3",
+          "new": "41b01c3efa355b83918aadcb97c7f69c7dbf6732"
+        },
+        "scripts/test-home-navigation-browser.mjs": {
+          "old": "3f7ba60e207707f40e3097973e887a847a6d8cf6",
+          "new": "9ef18bb3d34cbd8a06da1244865dacd16aa1c2d9"
+        },
+        "src/app.ts": {
+          "old": "8a6280888f09bf06b7af7ba89eb110aadaea891e",
+          "new": "6fc957879a2d0b8a2121afdee407a633d555a709"
+        },
+        "sw-core-v64.js": {
+          "old": "9f0ef5b3ea9a68ced06a273c36a1bfc5b51fd290",
+          "new": "aaa7e0b0c84ffda0fafc0a700da32ed586afd11e"
+        }
+      },
+      "visualVerificationAtRecordCreation": "PENDING_FRESH_CURRENT_HEAD_CI_AND_PAIR_INSPECTION",
+      "bindingUpdateReason": "Only focus recovery on closing an open menu above980px and its regression assertions changed, plus emitted app/URL/cache/manifest bytes. No CSS, capture policy, viewport, threshold or expected failure entry changed. Historical H5/H6 images are not presented as new-candidate captures.",
+      "historicalCorroboration": {
+        "sourceHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+        "runId": 39251917976,
+        "artifactId": 12185224541,
+        "archiveSha256": "cda59bd396e19bfb0805237995e5a4e450451de39b86273fb18902c7fc34094a",
+        "result": "Visual and downstream continuation success; six failure metrics and12reviewed PNGs match H5; this is historical for the focus follow-up."
+      },
+      "releaseConditions": [
+        "All fresh current-head technical checks succeed.",
+        "Complete actual current43-cell comparison matches only these six bounded differences.",
+        "Root inspects actual current failing pairs; a matching scalar summary alone is insufficient.",
+        "Resolve the reproduced resize-focus review finding using actual focus results; do not manufacture an approval."
+      ]
     }
   ]
 }

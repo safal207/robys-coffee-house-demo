@@ -1,0 +1,77 @@
+{
+  "kind": "retained-incomplete-local-differential-not-CI",
+  "state": {
+    "kind": "local-same-host-toolchain-not-CI",
+    "attempt": 1,
+    "state": "INCOMPLETE",
+    "exitCode": 1,
+    "reason": "page.screenshot Timeout 30000ms exceeded at visual-regression.mjs:223; fonts had loaded",
+    "completeSummary": false,
+    "pairedPNGCount": 34,
+    "byteEqualPairedPNGCount": 31,
+    "candidateWorkingTreeBaseHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "controlHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "candidateBindingsStableBeforeAfter": true,
+    "controlBindingsStableBeforeAfter": true,
+    "candidateBindingCount": 795,
+    "candidateBindingDigest": "0963ada9d7e1f1c88175df641ac9dad3a3911b622c7deb2bbc31af3d4c03bd06",
+    "controlBindingDigest": "7ad8b3699a9d336c5b5c2e0f9bec6bb28f1fd7db928b11bcb62828168eba80f7",
+    "rawLog": "attempt-1.log",
+    "rawCaptureDirectory": "attempt-1",
+    "partialByteDiagnostic": "attempt-1-partial-byte-comparison.json",
+    "partialPixelDiagnostic": "attempt-1-partial-pixel-comparison.json",
+    "conclusion": "No 43-cell verdict. No claim of source regression or source equivalence. Exact unchanged retry awaits quiet browser load."
+  },
+  "partialPixels": {
+    "kind": "INCOMPLETE-first-attempt-partial-diagnostic",
+    "rows": [
+      {
+        "file": "hero__phone-360-short.png",
+        "dimensions": [
+          360,
+          679
+        ],
+        "changedPixels": 48011,
+        "maxChannelDelta": 221,
+        "bounds": [
+          0,
+          544,
+          359,
+          678
+        ]
+      },
+      {
+        "file": "landing-full__phone-390.png",
+        "dimensions": [
+          390,
+          9135
+        ],
+        "changedPixels": 411,
+        "maxChannelDelta": 216,
+        "bounds": [
+          212,
+          40,
+          342,
+          3740
+        ]
+      },
+      {
+        "file": "menu-full__phone-390.png",
+        "dimensions": [
+          390,
+          11498
+        ],
+        "changedPixels": 53972,
+        "maxChannelDelta": 220,
+        "bounds": [
+          38,
+          400,
+          351,
+          9225
+        ]
+      }
+    ]
+  },
+  "partialProvenanceSha256": "a048d03378a73407b4b13c97908cfcb2d50bae566799452324e63efc7168ec6c",
+  "transition": "No local retry was counted or accepted. Fresh dedicated-runner current-head CI will provide the complete43-cell evidence. Existing six-cell bounds are unchanged; three differing local capture states are not accepted."
+}

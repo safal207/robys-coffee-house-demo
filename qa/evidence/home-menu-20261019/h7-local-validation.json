@@ -1,0 +1,29 @@
+{
+  "kind": "local-focus-repair-candidate-validation-not-current-head-CI",
+  "workingTreeBaseHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+  "candidateInputBindingDigest": "0963ada9d7e1f1c88175df641ac9dad3a3911b622c7deb2bbc31af3d4c03bd06",
+  "check": {
+    "firstAttempt": "INCOMPLETE: tool reported exit0 but retained log stops before final suite; not counted as full pass",
+    "firstLogSha256": "524923ac30fda19131da9169b188f20dabad25d3fb7fbb2c28b050b8a2c775b9",
+    "secondAttemptExitCode": 0,
+    "completionMarker": "0",
+    "finalSuite": "takeaway-entry22/22",
+    "secondLogSha256": "14bec0d0dc1e88e14cf6f39e9b173269fa58aa53acdcc8328a90d0205f920eb5"
+  },
+  "security": {
+    "exitCode": 0,
+    "contracts": 354,
+    "secrets": "none found",
+    "logSha256": "e97414c4a6e582c5e4c47260a68019ba32a7cbbcdd65cb6e088db6eaf75d2763"
+  },
+  "provisionalRecordValidation": {
+    "actualShippedVerifier": "scripts/verify-reviewed-visual-change.mjs",
+    "historicalSummaryHead": "b94c3317cfa66fbf26056847fd8ccc142a10d12b",
+    "recordSha256": "e9e76dae0df10ebe51f4c8bff9f362ffce56a6b54956e6c77c23453ec6116bd1",
+    "exitCode": 0,
+    "matchingComparisons": 6,
+    "logSha256": "ca70aeb3680ab58e6e1dc8ba785782d8552d058f65165762947fb1c572add166",
+    "scope": "795 current candidate byte bindings and unchanged historical six-cell map; NOT a fresh candidate43-cell visual pass."
+  },
+  "release": "HOLD until actual fresh current-head CI and pair inspection, resolved review finding, expected-head merge and published checks."
+}

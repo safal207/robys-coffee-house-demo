@@ -279,3 +279,51 @@ were not changed. See `h5-visual-*` packets for provenance, summary, independent
 observations and controls. The evidence-only successor must pass fresh CI;
 the original H5 red visual job is not relabelled as a green run. Publication and
 live UI/integrity verification are subsequent release steps.
+
+## Resize round-trip review follow-up
+
+H6 `b94c3317cfa66fbf26056847fd8ccc142a10d12b` passed all 32 observed workflow
+runs, including the full Visual continuation. The fresh visual artifact retained
+the six exact H5 failure metrics and byte-identical reviewed image pairs. This
+did not prove every interaction was correct: fresh Codex review `4313821191`
+found focus recovery missing when returning from desktop to the mobile layout.
+
+Twelve actual H6 counterexamples reproduced this across Chromium, Firefox and
+WebKit on both home and the standalone RU page. An open menu's first link kept
+focus at 981px, then focus reset to BODY at 900px. With the toggle focused,
+the reset already happened at 981px. The old test checked closure and visible
+desktop links, then clicked the toggle on return; that click concealed the
+lost-focus state. The new assertion inspects focus before another click.
+
+The resize handler now moves focus to the always-visible brand link when an
+open menu closes at desktop width and focus belonged to the disappearing menu,
+toggle, or was already lost to BODY/HTML. It uses `preventScroll` and preserves
+focus on unrelated language controls and ordinary desktop CTAs. The regression
+adds both first-link and toggle round trips plus these negative controls to the
+existing navigation cases. Historical H5/H6 packets remain labelled by their
+actual revisions; they are not current-head proof for this follow-up.
+
+The local follow-up completed 41/42 initially; its single Firefox 320×568 text200
+case timed out on a read-only navigation measurement after earlier assertions.
+An exact unchanged-case retry passed 1/1 with the same 15-second limit. All 24
+existing standard/standalone journeys extended with the new resize assertions
+passed on the first run, retaining 240 visible focus snapshots. The measured
+10-file envelope and the complete 795-binding digest remained stable. See
+`h7-resize-focus.json`; the initial failure and its screenshot hash are retained.
+
+The local visual differential is explicitly INCOMPLETE: it captured 34 paired
+images before the unchanged 30-second screenshot timeout, with 31 byte-identical
+pairs and three differing capture states. It provides no 43-cell verdict or
+source-equivalence claim. Those three differences are not accepted by the
+supplemental record. Its original six-cell dimensions/ratios are unchanged;
+only the seven changed focus-repair/source/cache input bindings were provisionally
+updated, with historical H5/H6 attribution preserved. Fresh current-head CI must
+produce all 43 comparisons and actual pairs must be inspected before merge.
+
+`h7-local-validation.json` records a complete repeated `npm run check` with an
+explicit exit marker and final 22/22 takeaway suite, security354/no-secrets, and
+the shipped verifier accepting the historical six-cell map against the exact
+new input bindings. A preceding partial check log was not counted as a full pass.
+This input validation is not a new-candidate CI screenshot approval. The earlier
+14 isolated verifier controls apply to the unchanged matcher/expected failure
+policy; H7's actual CI and current image inspection remain the release gate.

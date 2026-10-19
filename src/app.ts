@@ -132,7 +132,13 @@ function setupNavigation() {
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 980) close();
+    if (window.innerWidth > 980) {
+      const active = document.activeElement;
+      const recoverFocus = document.body.classList.contains("menu-open") &&
+        (navigation?.contains(active) || active === toggle || active === document.body || active === document.documentElement);
+      close();
+      if (recoverFocus) q<HTMLAnchorElement>(".site-header .brand")?.focus({ preventScroll: true });
+    }
   }, { passive: true });
 }
 
