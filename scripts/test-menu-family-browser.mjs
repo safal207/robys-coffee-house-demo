@@ -110,6 +110,12 @@ async function assertRecipePhotos(page, language) {
   for (const recipeId of recipeIds) {
     const image = page.locator(`[data-family-recipe="${recipeId}"] .menu-family-photos > img`);
     await image.scrollIntoViewIfNeeded();
+    // Scrolling schedules lazy loading; Firefox can reject decode() until the
+    // image request has actually completed. Still require the real photo bytes.
+    await page.waitForFunction(recipeId => {
+      const image = document.querySelector(`[data-family-recipe="${recipeId}"] .menu-family-photos > img`);
+      return image?.complete && image.naturalWidth > 0;
+    }, recipeId);
     const actual = await image.evaluate(async node => {
       await node.decode();
       return { src: new URL(node.currentSrc).pathname, width: node.naturalWidth, height: node.naturalHeight };
@@ -316,9 +322,14 @@ try {
     await page.route("**/src/products/family-sets-v1/milk-cookie.webp", route => route.abort("failed"));
     await openMenu(page);
     const card = page.locator('[data-family-recipe="milk-cookie"]');
+    await card.locator(".menu-family-photos").scrollIntoViewIfNeeded();
     await card.locator(".menu-family-photos.is-fallback").waitFor();
     const images = card.locator(".menu-family-photos > img");
     assert.equal(await images.count(), 2, "Both ordinary component images replace the failed combined photo");
+    await page.waitForFunction(() => {
+      const images = Array.from(document.querySelectorAll('[data-family-recipe="milk-cookie"] .menu-family-photos > img'));
+      return images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0);
+    });
     for (const image of await images.all()) await image.evaluate(node => node.decode());
     assert.deepEqual(await images.evaluateAll(nodes => nodes.map(node => new URL(node.currentSrc).pathname)),
       ["/src/products/menu-v1/brew-hot--milk.webp", "/src/products/menu-v1/desserts--cookie.webp"]);

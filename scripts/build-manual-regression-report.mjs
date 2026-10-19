@@ -566,12 +566,39 @@ ${checks.length ? '<details class="logbook section"><summary>Журнал авт
 </main><footer>Автономный QA-артефакт. Нет сетевых запросов и связи с рабочей кассой. Полные исходные сценарии: regression.md · Данные: regression.json · Граф: cause-effect.mmd.</footer>
 <script type="application/json" id="qa-data">${JSON.stringify(manifest).replaceAll("<","\\u003c").replaceAll("\u2028","\\u2028").replaceAll("\u2029","\\u2029")}</script>
 <script>${graphMermaid.toString()}\n${reportApp.toString()}\nreportApp();</script></body></html>`;
+  const fencedMd = value => {
+    const content = String(value).split(/\r?\n/).map(line => line.trimEnd()).join("\n");
+    const fence = "`".repeat(Math.max(3, ...Array.from(content.matchAll(/`+/g), match => match[0].length + 1)));
+    return fence + "text\n" + content + "\n" + fence;
+  };
+  const compactMd = content => {
+    let fence = null;
+    let blank = false;
+    return content.split("\n").filter(line => {
+      const marker = line.match(/^\s*(`{3,})(.*)$/);
+      if (marker && (!fence || (marker[1] === fence && !marker[2]))) {
+        fence = fence ? null : marker[1];
+        blank = false;
+      } else if (!fence) {
+        const empty = !line.trim();
+        if (empty && blank) return false;
+        blank = empty;
+      }
+      return true;
+    }).join("\n");
+  };
   const recordMd = (record, heading = "###") => [
     `${heading} ${record.id} · ${record.title}`, "", `Результат: **${record.result}**. Область: ${record.area || "не указана"}.`, "",
-    record.actual, "", record.environment ? "Среда: " + (typeof record.environment === "string" ? record.environment : JSON.stringify(record.environment)) + "\n" : "",
+    /[\r\n]/.test(record.actual) ? fencedMd(record.actual) : record.actual.trimEnd(), "", record.environment ? "Среда: " + (typeof record.environment === "string" ? record.environment : JSON.stringify(record.environment)) + "\n" : "",
     ...(record.evidence?.length ? ["Доказательства:", "", ...record.evidence.map(value => "- " + (typeof value === "string" ? value : JSON.stringify(value))), ""] : [])
   ].join("\n");
-  const listMd = (title, values, numbered = false) => ["#### " + title, "", ...values.map((value,index) => (numbered ? `${index+1}. ` : "- ") + value), ""].join("\n");
+  const listMd = (title, values, numbered = false) => ["#### " + title, "", ...values.map((value,index) => {
+    const marker = numbered ? `${index+1}. ` : "- ";
+    const lines = String(value).split(/\r?\n/);
+    if (lines.length === 1) return marker + value;
+    const indent = " ".repeat(marker.length);
+    return marker + lines[0] + "\n\n" + fencedMd(lines.slice(1).join("\n")).split("\n").map(line => indent + line).join("\n") + "\n";
+  }), ""].join("\n");
   const executionMd = item => {
     const execution = item.executionEvidence || item;
     const sections = [];
@@ -587,9 +614,9 @@ ${checks.length ? '<details class="logbook section"><summary>Журнал авт
     }
     return sections.join("\n");
   };
-  const allCaseMd = ["# Roby's: полный каталог ручной регрессии", "", "Собрано: " + localStamp + ". Ревизия каталога: " + fingerprint + ".", "",
+  const allCaseMd = compactMd(["# Roby's: полный каталог ручной регрессии", "", "Собрано: " + localStamp + ". Ревизия каталога: " + fingerprint + ".", "",
     "**Сценарии и выполненные RUN — разные сущности.** Связи с проверенными условиями записываются явно; результат RUN не подтверждает остальные варианты.", "", "Покрытие сценариев: " + caseSummary + ".", "",
-    missingSources.length ? "Не хватает исходников: " + missingSources.join(", ") + ".\n" : "",
+    ...(missingSources.length ? ["Не хватает исходников: " + missingSources.join(", ") + ".", ""] : []),
     ...(runs.length ? ["## Фактические ручные RUN", "", ...runs.map(item=>recordMd(item))] : []),
     ...(checks.length ? ["## Автоматические проверки", "", ...checks.map(item=>recordMd(item))] : []),
     "## Каталог сценариев", "",
@@ -597,15 +624,14 @@ ${checks.length ? '<details class="logbook section"><summary>Журнал авт
       "", "Источник: " + item.sourceFile + ".", "", listMd("Предусловия",item.preconditions),listMd("Шаги",item.steps,true),
       listMd("Ожидаемый результат",item.expected),listMd("Варианты",item.variants),listMd("Причины / условия",item.causes),
       listMd("Эффекты / последствия",item.effects), executionMd(item), item.evidence.length ? listMd("Доказательства",item.evidence.map(value=>typeof value==="string"?value:JSON.stringify(value))) : "Дополнительные файлы доказательств исходного кейса: не приложены.\n"].join("\n"))
-  ].join("\n");
+  ].join("\n"));
   const readme = `# Roby's: ручная регрессия покупки и рабочей очереди
 
 Это воспроизводимый план и журнал доказательств. Здесь ${sourceCases.length} сценариев, ${runs.length} фактических ручных RUN и ${checks.length} записей автоматических проверок. Все три набора считаются отдельно. Создано ${localStamp}.
 
 Покрытие сценариев: ${caseSummary}. Запланированные и частично проверенные кейсы считаются раздельно; RUN не превращается в полный проход всех вариантов.
 
-${missingSources.length ? "**Комплект неполный:** отсутствуют " + missingSources.join(", ") + ". После появления файлов повторите генерацию.\n" : ""}
-## Открыть и пересобрать
+${missingSources.length ? "**Комплект неполный:** отсутствуют " + missingSources.join(", ") + ". После появления файлов повторите генерацию.\n\n" : ""}## Открыть и пересобрать
 
 Откройте report.html обычным браузером. Интернет и зависимости не нужны. Для пересборки из корня рабочего пространства:
 

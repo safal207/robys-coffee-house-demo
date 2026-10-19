@@ -6,7 +6,6 @@
 
 Покрытие сценариев: 40 ещё запланировано · 92 частично проверено · 3 полностью пройдено · 0 с ошибкой · 0 заблокировано.
 
-
 ## Фактические ручные RUN
 
 ### RUN-001 · Первый вход и переключение TR→RU
@@ -1318,6 +1317,7 @@ Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 
 
 Результат: **passed**. Область: не указана.
 
+```text
       - button \"Русский\" [pressed]: RU
   - region \"Какой бюджет комфортен?\":
     - region \"Какой бюджет комфортен?\":
@@ -1337,6 +1337,7 @@ Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 
       - button \"Компания / семья →\" [pressed]:
         - button \"4\" [pressed]
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1348,6 +1349,7 @@ Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 
 
 Результат: **passed**. Область: не указана.
 
+```text
       - button \"Русский\" [pressed]: RU
   - region \"Какой бюджет комфортен?\":
     - region \"Какой бюджет комфортен?\":
@@ -1367,6 +1369,7 @@ Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 
       - button \"Компания / семья →\" [pressed]:
         - button \"5\" [pressed]
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1390,6 +1393,7 @@ After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; ba
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1428,6 +1432,7 @@ After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; ba
       - button "Продолжить"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1439,6 +1444,7 @@ After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; ba
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1477,6 +1483,7 @@ After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; ba
       - button "Продолжить"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1488,6 +1495,7 @@ After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; ba
 
 Результат: **passed**. Область: не указана.
 
+```text
 coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budget with coffee mismatch; espresso6×110=660 +60. Each photo/action present. - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1542,6 +1550,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1554,6 +1563,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1609,6 +1619,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1620,6 +1631,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1674,6 +1686,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -1685,6 +1698,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1737,6 +1751,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -1749,6 +1764,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
       - button \"Русский\" [pressed]: RU
 - status: \"Цена обновлена: Итого: 540 TRY\"
       - heading \"Какой вкус сейчас ближе?\" [active] [level=1]
@@ -1759,6 +1775,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
       - button \"Компания / семья →\" [pressed]:
         - button \"6\" [pressed]
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -1770,6 +1787,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
         - generic: 130 TRY
       - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
@@ -1815,6 +1833,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Посмотреть заказ 110 TRY":
       - strong: 110 TRY
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -1826,6 +1845,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1882,6 +1902,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -1893,6 +1914,7 @@ coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budg
 
 Результат: **passed**. Область: не указана.
 
+```text
 Supplemental preference combination; manual espresso110 already exists. - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -1948,6 +1970,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
     - button "Собрать заказ самому"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -1959,6 +1982,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
       - 'button "Выбрать: Юдзу-попкорн, 220 TRY"':
         - generic: 220 TRY
       - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
@@ -2020,6 +2044,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
         - button "Айс латте со вкусом · Ваниль · 200 TRY": Ваниль · 200 TRY
         - button "Айс латте со вкусом · Шоколадное печенье · 200 TRY": Шоколадное печень
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2031,6 +2056,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
       - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
         - generic: 190 TRY
       - 'button "Выбрать: Шоколадный торт, 190 TRY"':
@@ -2070,6 +2096,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
     - button "Посмотреть заказ 110 TRY":
       - strong: 110 TRY
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2081,6 +2108,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 {"chosenVanilla":"   - generic: 35 TRY
     - heading \"Твой заказ\" [level=2]
       - heading \"Эспрессо\" [level=3]
@@ -2144,6 +2172,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
         - generic: 30 TRY
       - 'button \"Выбрать: Круассан с т
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2155,6 +2184,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
         - generic: 130 TRY
       - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
@@ -2204,6 +2234,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
         - strong: 180 TRY
       - button "Добавить в заказ · 180 TRY"
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2215,6 +2246,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
  Юдзу-попкорн, 220 TRY"':
         - generic: 220 TRY
       - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
@@ -2281,6 +2313,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
         - generic: Итого
         -
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2292,6 +2325,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -2345,6 +2379,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2356,6 +2391,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -2409,6 +2445,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2420,6 +2457,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2473,6 +2511,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2484,6 +2523,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
         - generic: TRY 130
       - 'button "Choose: Maroc Tea / Mint Green Tea, TRY 130"':
         - generic: TRY 130
@@ -2541,6 +2581,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
     - button "Review order TRY 480":
       - strong: TRY 480
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2552,6 +2593,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2603,6 +2645,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2614,6 +2657,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2665,6 +2709,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2676,6 +2721,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2727,6 +2773,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2738,6 +2785,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2789,6 +2837,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2800,6 +2849,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2848,6 +2898,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2859,6 +2910,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2905,6 +2957,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2917,6 +2970,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -2963,6 +3017,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -2974,6 +3029,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
       - button "English" [pressed]: EN
 - status: "Price updated: Whole order totalTRY 370"
     - heading "Lovely choice." [active] [level=1]
@@ -2988,6 +3044,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - heading "Would you like one small add-on?" [level=3]
       - strong: +TRY 30
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -2999,6 +3056,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -3047,6 +3105,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3058,6 +3117,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -3106,6 +3166,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3117,6 +3178,7 @@ Supplemental preference combination; manual espresso110 already exists. - link "
 
 Результат: **passed**. Область: не указана.
 
+```text
 Responsive subvariant only after desktop explicit decline. - link "Skip to content":
   - /url: "#smart-choice-main"
 - banner:
@@ -3163,6 +3225,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3174,6 +3237,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
   - /url: "#smart-choice-main"
 - banner:
@@ -3220,6 +3284,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3231,6 +3296,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
   - /url: "#smart-choice-main"
 - banner:
@@ -3277,6 +3343,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3288,6 +3355,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
   - /url: "#smart-choice-main"
 - banner:
@@ -3334,6 +3402,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3345,6 +3414,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
   - /url: "#smart-choice-main"
 - banner:
@@ -3391,6 +3461,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3402,6 +3473,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3448,6 +3520,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3459,6 +3532,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **blocked**. Область: не указана.
 
+```text
 Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3505,6 +3579,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3516,6 +3591,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3562,6 +3638,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -3573,6 +3650,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3619,6 +3697,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -3630,6 +3709,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3676,6 +3756,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -3687,6 +3768,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "Перейти к содержимому":
   - /url: "#smart-choice-main"
 - banner:
@@ -3733,6 +3815,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -3744,6 +3827,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 - link "İçeriğe geç":
   - /url: "#smart-choice-main"
 - banner:
@@ -3790,6 +3874,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - /url: ../menu.html
 - contentinfo:
   - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -3801,6 +3886,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 ть: Тирамису, 170 TRY"':
         - generic: 170 TRY
       - 'button "Выбрать: Брауни, 150 TRY"':
@@ -3864,6 +3950,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
         - strong: 420 TRY
       - button "Добавить пару · 420 TRY"
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3875,6 +3962,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
  с мятой, 130 TRY"':
         - generic: 130 TRY
       - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
@@ -3923,6 +4011,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - strong: 0 TRY
     - button "Всё, к оформлению" [disabled]
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3934,6 +4023,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 Выбрать +
       - 'button "Выбрать: Печенье, 100 TRY"':
         - generic: Печенье
@@ -3977,6 +4067,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
     - text: ✓ ✓
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":800,"overflow":false,"width":1280}
 
@@ -3988,6 +4079,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
         - button \"Чизкейк Сан-Себастьян +190 TRY\":
           - strong: +190 TRY
         - button \"Чизкейк Lotus +190 TRY\":
@@ -4056,6 +4148,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
       - heading \"Добавлено в заказ\" [active] [level=2]
       - headi
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -4067,6 +4160,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
         - generic: 170 TRY
       - 'button "Выбрать: Мозаичный торт, 170 TRY"':
         - generic: 170 TRY
@@ -4103,6 +4197,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
         - generic: Итого
         - strong: 420 TRY
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -4114,6 +4209,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
         - button \"Чизкейк Сан-Себастьян +190 TRY\":
           - strong: +190 TRY
         - button \"Чизкейк Lotus +190 TRY\":
@@ -4167,6 +4263,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
         - strong: 460 TRY
       - button \"Добавить пару · 460 TRY\"
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -4178,6 +4275,7 @@ Responsive subvariant only after desktop explicit decline. - link "Skip to conte
 
 Результат: **passed**. Область: не указана.
 
+```text
 RY" [active] [pressed]: Классический · 180 TRY ✓
         - button "Карамельный капучино · 200 TRY": Карамель · 200 TRY
       - group "Сладкое к напитку":
@@ -4231,6 +4329,7 @@ RY" [active] [pressed]: Классический · 180 TRY ✓
       - button "Добавить пару · 420 TRY"
 - contentinfo:
   - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -4242,6 +4341,7 @@ RY" [active] [pressed]: Классический · 180 TRY ✓
 
 Результат: **passed**. Область: не указана.
 
+```text
         - generic: 190 TRY
       - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
         - generic: 190 TRY
@@ -4290,6 +4390,7 @@ RY" [active] [pressed]: Классический · 180 TRY ✓
         - generic: Итого
         - strong: 460 TRY
 Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+```
 
 Среда: Изолированный браузерный стенд; фактический CSS viewport {"devicePixelRatio":1.0000000149011612,"height":844,"overflow":false,"width":390}
 
@@ -4399,7 +4500,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 44 теста, 44 passed, 0 failed.
 
-
 Доказательства:
 
 - counter-check.log
@@ -4409,7 +4509,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: ordering.
 
 41 тест, 0 failed; дополнительно 760 рецептов, 75 240 количественных случаев 1–99, 4 560 QR round trips TR/EN/RU.
-
 
 Доказательства:
 
@@ -4421,7 +4520,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 Контракт интерфейса quick-builder прошёл. Это автоматическая проверка модели DOM, не физический телефон.
 
-
 Доказательства:
 
 - quick-ui-check.log
@@ -4431,7 +4529,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: photos.
 
 Проверены 69 сохранённых исходников и 138 responsive WebP-копий. Проверка файлов не доказывает холодную загрузку в каждом браузере.
-
 
 Доказательства:
 
@@ -4443,7 +4540,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 69/69 тестов кассы прошли в изолированных базах. Включены гонки двух кассиров, устаревший диалог, поздние ответы, потерянные ответы pay/ready/issued, выход и BFCache, 401/CSRF, лимиты и границы очереди. Это автоматические HTTP и DOM-модель проверки, не физическая камера.
 
-
 Доказательства:
 
 - final-test-counter.log
@@ -4454,7 +4550,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: recovery.
 
 Проверки реальных обработчиков и загрузчиков прошли: явный повтор после отказа импорта, отсутствие автоматического цикла, защита подтверждения от второго нажатия, отмена позднего оформления после нового выбора/поиска/категории/изменения корзины/ухода, проверка после ожидания конфигурации и очистка старой ошибки.
-
 
 Доказательства:
 
@@ -4468,7 +4563,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 Действительный SVG QR независимо декодирован по пикселям на192/240/264/320/528px. Во всех случаях один корректный адрес кассы без гостевого ключа и состава. Это программное чтение, не камера телефона.
 
-
 Доказательства:
 
 - qr-optical.json
@@ -4479,7 +4573,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 353 проверки безопасности прошли; секреты в дереве не найдены.
 
-
 Доказательства:
 
 - final-verify-security.log
@@ -4489,7 +4582,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: tooling.
 
 115/115 файлов доступны, потерянных0;41/41 регресс проверки графа. Проверки не ослаблялись.
-
 
 Доказательства:
 
@@ -4502,7 +4594,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 8/8 тестов гостевых обработчиков: явный язык сохраняется при новом заказе; открытие QR не меняет прежнюю настройку. Эти8 входят в общий набор кассы.
 
-
 Доказательства:
 
 - guest-locale-followup.log
@@ -4512,7 +4603,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: site.
 
 Полная npm run check завершилась с явным exitCode0 после сборки и обновления манифеста. Она не заменяет ручной проход всех вариантов.
-
 
 Доказательства:
 
@@ -4525,7 +4615,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 Проверка реальных обработчиков: 98 отдельных чаёв + 1 пара дают 4980 ₺; плюсы обеих групп отключены в корзине и подтверждении. Уменьшение отдельного чая до97 возвращает плюс; добавление второй пары даёт5010 ₺ и вновь блокирует увеличение. Атомарная проверка при действии сохранена.
 
-
 Доказательства:
 
 - guest-ui-check.log
@@ -4535,7 +4624,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: language.
 
 Штатные entry-handoff,menu-content и discover-rotation проверки прошли после локализации skip-link. Это targetedsource/runtime проверки; отдельный браузерный повтор указан только если фактически записан.
-
 
 Доказательства:
 
@@ -4548,7 +4636,6 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 Результат: **passed**. Область: site.
 
 15 октября полная npm run check завершилась с exitCode0 после исправления общего лимита количества, сборки и обновления манифеста. Предыдущий успешный прогон и остановленные попытки (тестовый DOM, ограничение Windows-песочницы) сохранены отдельно; они не считаются успешными прогонами.
-
 
 Доказательства:
 
@@ -5844,159 +5931,170 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3047: ть: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - button "Посмотреть заказ 0 TRY":
+
+  ```text
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-      - heading "Собери свой вариант" [level=2]
-        - strong: 180 TRY
-        - strong: 30 TRY
-        - button "Кафе латте · 180 TRY" [pressed]: Классический · 180 TRY ✓
-        - button "Латте «Шоколадное печенье» · 200 TRY": Шоколадное печенье · 200 TRY
-        - button "Латте с корицей · 200 TRY": Корица · 200 TRY
-        - button "Карамельный латте · 200 TRY": Карамель · 200 TRY
-        - button "Ванильный латте · 200 TRY": Ваниль · 200 TRY
-        - button "Ореховый латте · 200 TRY": Фундук · 200 TRY
-        - button "Чизкейк Сан-Себастьян +190 TRY":
-          - strong: +190 TRY
-        - button "Чизкейк Lotus +190 TRY":
-          - strong: +190 TRY
-        - button "Малиновый чизкейк +190 TRY":
-          - strong: +190 TRY
-        - button "Шоколадный торт +190 TRY":
-          - strong: +190 TRY
-        - button "Миндальный тарт +180 TRY":
-          - strong: +180 TRY
-        - button "Бисквитный рулет +170 TRY":
-          - strong: +170 TRY
-        - button "Мозаичный торт +170 TRY":
-          - strong: +170 TRY
-        - button "Тирамису +170 TRY":
-          - strong: +170 TRY
-        - button "Брауни +150 TRY":
-          - strong: +150 TRY
-        - button "Печенье +100 TRY":
-          - strong: +100 TRY
-        - button "Макарон +30 TRY ✓" [pressed]:
-          - strong: +30 TRY
-        - button "Круассан с Nutella +170 TRY":
-          - strong: +170 TRY
-        - strong: 420 TRY
-      - button "Добавить пару · 420 TRY"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "Всё, к оформлению" [disabled]
+      - button "Посмотреть заказ 0 TRY":
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+        - heading "Собери свой вариант" [level=2]
+          - strong: 180 TRY
+          - strong: 30 TRY
+          - button "Кафе латте · 180 TRY" [pressed]: Классический · 180 TRY ✓
+          - button "Латте «Шоколадное печенье» · 200 TRY": Шоколадное печенье · 200 TRY
+          - button "Латте с корицей · 200 TRY": Корица · 200 TRY
+          - button "Карамельный латте · 200 TRY": Карамель · 200 TRY
+          - button "Ванильный латте · 200 TRY": Ваниль · 200 TRY
+          - button "Ореховый латте · 200 TRY": Фундук · 200 TRY
+          - button "Чизкейк Сан-Себастьян +190 TRY":
+            - strong: +190 TRY
+          - button "Чизкейк Lotus +190 TRY":
+            - strong: +190 TRY
+          - button "Малиновый чизкейк +190 TRY":
+            - strong: +190 TRY
+          - button "Шоколадный торт +190 TRY":
+            - strong: +190 TRY
+          - button "Миндальный тарт +180 TRY":
+            - strong: +180 TRY
+          - button "Бисквитный рулет +170 TRY":
+            - strong: +170 TRY
+          - button "Мозаичный торт +170 TRY":
+            - strong: +170 TRY
+          - button "Тирамису +170 TRY":
+            - strong: +170 TRY
+          - button "Брауни +150 TRY":
+            - strong: +150 TRY
+          - button "Печенье +100 TRY":
+            - strong: +100 TRY
+          - button "Макарон +30 TRY ✓" [pressed]:
+            - strong: +30 TRY
+          - button "Круассан с Nutella +170 TRY":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button "Добавить пару · 420 TRY"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3048:  с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - button "Посмотреть заказ 0 TRY":
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "Всё, к оформлению" [disabled]
+      - button "Посмотреть заказ 0 TRY":
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3049: Выбрать +
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: Печенье
-        - generic: 100 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: Макарон
-        - generic: 30 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: Круассан с тремя сырами
-        - generic: 170 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: Круассан с Nutella
-        - generic: 170 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: Багет с белым сыром
-        - generic: 180 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: Багет с говяжьим контрфиле
-        - generic: 230 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: Симит с кунжутом
-        - generic: 35 TRY
-        - generic: Выбрать +
-    - heading "Твой заказ" [level=2]
-    - paragraph: Пока ничего не добавлено.
-    - paragraph: Начни с первого напитка.
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - paragraph: Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.
-    - button "Посмотреть заказ 0 TRY":
-      - generic: Посмотреть заказ
+
+  ```text
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: Печенье
+          - generic: 100 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: Макарон
+          - generic: 30 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: Круассан с тремя сырами
+          - generic: 170 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: Круассан с Nutella
+          - generic: 170 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: Багет с белым сыром
+          - generic: 180 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: Багет с говяжьим контрфиле
+          - generic: 230 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: Симит с кунжутом
+          - generic: 35 TRY
+          - generic: Выбрать +
+      - heading "Твой заказ" [level=2]
+      - paragraph: Пока ничего не добавлено.
+      - paragraph: Начни с первого напитка.
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - text: ✓ ✓
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "Всё, к оформлению" [disabled]
+      - paragraph: Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.
+      - button "Посмотреть заказ 0 TRY":
+        - generic: Посмотреть заказ
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+      - text: ✓ ✓
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -6008,159 +6106,170 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3047 · Desktop quick latte macaron2 preview420 before add — ть: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - button "Посмотреть заказ 0 TRY":
+
+  ```text
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-      - heading "Собери свой вариант" [level=2]
-        - strong: 180 TRY
-        - strong: 30 TRY
-        - button "Кафе латте · 180 TRY" [pressed]: Классический · 180 TRY ✓
-        - button "Латте «Шоколадное печенье» · 200 TRY": Шоколадное печенье · 200 TRY
-        - button "Латте с корицей · 200 TRY": Корица · 200 TRY
-        - button "Карамельный латте · 200 TRY": Карамель · 200 TRY
-        - button "Ванильный латте · 200 TRY": Ваниль · 200 TRY
-        - button "Ореховый латте · 200 TRY": Фундук · 200 TRY
-        - button "Чизкейк Сан-Себастьян +190 TRY":
-          - strong: +190 TRY
-        - button "Чизкейк Lotus +190 TRY":
-          - strong: +190 TRY
-        - button "Малиновый чизкейк +190 TRY":
-          - strong: +190 TRY
-        - button "Шоколадный торт +190 TRY":
-          - strong: +190 TRY
-        - button "Миндальный тарт +180 TRY":
-          - strong: +180 TRY
-        - button "Бисквитный рулет +170 TRY":
-          - strong: +170 TRY
-        - button "Мозаичный торт +170 TRY":
-          - strong: +170 TRY
-        - button "Тирамису +170 TRY":
-          - strong: +170 TRY
-        - button "Брауни +150 TRY":
-          - strong: +150 TRY
-        - button "Печенье +100 TRY":
-          - strong: +100 TRY
-        - button "Макарон +30 TRY ✓" [pressed]:
-          - strong: +30 TRY
-        - button "Круассан с Nutella +170 TRY":
-          - strong: +170 TRY
-        - strong: 420 TRY
-      - button "Добавить пару · 420 TRY"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - button "Всё, к оформлению" [disabled]
+      - button "Посмотреть заказ 0 TRY":
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+        - heading "Собери свой вариант" [level=2]
+          - strong: 180 TRY
+          - strong: 30 TRY
+          - button "Кафе латте · 180 TRY" [pressed]: Классический · 180 TRY ✓
+          - button "Латте «Шоколадное печенье» · 200 TRY": Шоколадное печенье · 200 TRY
+          - button "Латте с корицей · 200 TRY": Корица · 200 TRY
+          - button "Карамельный латте · 200 TRY": Карамель · 200 TRY
+          - button "Ванильный латте · 200 TRY": Ваниль · 200 TRY
+          - button "Ореховый латте · 200 TRY": Фундук · 200 TRY
+          - button "Чизкейк Сан-Себастьян +190 TRY":
+            - strong: +190 TRY
+          - button "Чизкейк Lotus +190 TRY":
+            - strong: +190 TRY
+          - button "Малиновый чизкейк +190 TRY":
+            - strong: +190 TRY
+          - button "Шоколадный торт +190 TRY":
+            - strong: +190 TRY
+          - button "Миндальный тарт +180 TRY":
+            - strong: +180 TRY
+          - button "Бисквитный рулет +170 TRY":
+            - strong: +170 TRY
+          - button "Мозаичный торт +170 TRY":
+            - strong: +170 TRY
+          - button "Тирамису +170 TRY":
+            - strong: +170 TRY
+          - button "Брауни +150 TRY":
+            - strong: +150 TRY
+          - button "Печенье +100 TRY":
+            - strong: +100 TRY
+          - button "Макарон +30 TRY ✓" [pressed]:
+            - strong: +30 TRY
+          - button "Круассан с Nutella +170 TRY":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button "Добавить пару · 420 TRY"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3048 · Desktop quick close preview no false cart markers0 —  с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - button "Посмотреть заказ 0 TRY":
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - button "Всё, к оформлению" [disabled]
+      - button "Посмотреть заказ 0 TRY":
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3049 · Desktop quick Escape remembered preview420 cancellation0 — Выбрать +
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: Печенье
-        - generic: 100 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: Макарон
-        - generic: 30 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: Круассан с тремя сырами
-        - generic: 170 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: Круассан с Nutella
-        - generic: 170 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: Багет с белым сыром
-        - generic: 180 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: Багет с говяжьим контрфиле
-        - generic: 230 TRY
-        - generic: Выбрать +
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: Симит с кунжутом
-        - generic: 35 TRY
-        - generic: Выбрать +
-    - heading "Твой заказ" [level=2]
-    - paragraph: Пока ничего не добавлено.
-    - paragraph: Начни с первого напитка.
-    - generic: Итого
-    - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - paragraph: Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.
-    - button "Посмотреть заказ 0 TRY":
-      - generic: Посмотреть заказ
+
+  ```text
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: Печенье
+          - generic: 100 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: Макарон
+          - generic: 30 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: Круассан с тремя сырами
+          - generic: 170 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: Круассан с Nutella
+          - generic: 170 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: Багет с белым сыром
+          - generic: 180 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: Багет с говяжьим контрфиле
+          - generic: 230 TRY
+          - generic: Выбрать +
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: Симит с кунжутом
+          - generic: 35 TRY
+          - generic: Выбрать +
+      - heading "Твой заказ" [level=2]
+      - paragraph: Пока ничего не добавлено.
+      - paragraph: Начни с первого напитка.
+      - generic: Итого
       - strong: 0 TRY
-    - button "Всё, к оформлению" [disabled]
-    - text: ✓ ✓
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+      - button "Всё, к оформлению" [disabled]
+      - paragraph: Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.
+      - button "Посмотреть заказ 0 TRY":
+        - generic: Посмотреть заказ
+        - strong: 0 TRY
+      - button "Всё, к оформлению" [disabled]
+      - text: ✓ ✓
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
 
 #### Доказательства
 
@@ -6216,109 +6325,116 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3050:         - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
+
+  ```text
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button \"Добавить пару · 420 TRY\"
+          - generic: 190 TRY
+        - 'button \"Выбрать: Малиновый чизкейк, 190 TRY\"':
+          - generic: 190 TRY
+        - 'button \"Выбрать: Шоколадный торт, 190 TRY\"':
+          - generic: 190 TRY
+        - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Тирамису, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Брауни, 150 TRY\"':
+          - generic: 150 TRY
+        - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
+          - generic: 130 TRY
+        - 'button \"Выбрать: Печенье, 100 TRY\"':
+          - generic: 100 TRY
+        - 'button \"Выбрать: Макарон, 30 TRY. В заказе: 2\"':
+          - generic: 30 TRY
+        - 'button \"Выбрать: Круассан с тремя сырами, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Круассан с Nutella, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Багет с белым сыром, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Багет с говяжьим контрфиле, 230 TRY\"':
+          - generic: 230 TRY
+        - 'button \"Выбрать: Симит с кунжутом, 35 TRY\"':
+          - generic: 35 TRY
+      - status: \"Добавлено в заказ: Айс латте + Макарон × 2\"
+      - heading \"Твой заказ\" [level=2]
+        - heading \"Айс латте + Макарон\" [level=3]
         - strong: 420 TRY
-      - button \"Добавить пару · 420 TRY\"
-        - generic: 190 TRY
-      - 'button \"Выбрать: Малиновый чизкейк, 190 TRY\"':
-        - generic: 190 TRY
-      - 'button \"Выбрать: Шоколадный торт, 190 TRY\"':
-        - generic: 190 TRY
-      - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Тирамису, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Брауни, 150 TRY\"':
-        - generic: 150 TRY
-      - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
-        - generic: 130 TRY
-      - 'button \"Выбрать: Печенье, 100 TRY\"':
-        - generic: 100 TRY
-      - 'button \"Выбрать: Макарон, 30 TRY. В заказе: 2\"':
-        - generic: 30 TRY
-      - 'button \"Выбрать: Круассан с тремя сырами, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Круассан с Nutella, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Багет с белым сыром, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Багет с говяжьим контрфиле, 230 TRY\"':
-        - generic: 230 TRY
-      - 'button \"Выбрать: Симит с кунжутом, 35 TRY\"':
-        - generic: 35 TRY
-    - status: \"Добавлено в заказ: Айс латте + Макарон × 2\"
-    - heading \"Твой заказ\" [level=2]
-      - heading \"Айс латте + Макарон\" [level=3]
+      - generic: Итого
       - strong: 420 TRY
-    - generic: Итого
-    - strong: 420 TRY
-    - button \"Посмотреть заказ 420 TRY\":
-      - strong: 420 TRY
-      - heading \"Добавлено в заказ\" [active] [level=2]
-      - headi
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button \"Посмотреть заказ 420 TRY\":
+        - strong: 420 TRY
+        - heading \"Добавлено в заказ\" [active] [level=2]
+        - headi
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3051:         - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Айс латте + Макарон" [level=3]
-      - strong: 420 TRY
-    - generic: Итого
-    - strong: 420 TRY
-    - button "Посмотреть заказ 420 TRY":
-      - strong: 420 TRY
-      - heading "Твой заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
+
+  ```text
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Айс латте + Макарон" [level=3]
         - strong: 420 TRY
-        - generic: Итого
+      - generic: Итого
+      - strong: 420 TRY
+      - button "Посмотреть заказ 420 TRY":
         - strong: 420 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - heading "Твой заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 420 TRY
+          - generic: Итого
+          - strong: 420 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -6329,109 +6445,116 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3050 · Mobile cold-latte macaron2 confirmed420 —         - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
+
+  ```text
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button \"Добавить пару · 420 TRY\"
+          - generic: 190 TRY
+        - 'button \"Выбрать: Малиновый чизкейк, 190 TRY\"':
+          - generic: 190 TRY
+        - 'button \"Выбрать: Шоколадный торт, 190 TRY\"':
+          - generic: 190 TRY
+        - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Тирамису, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Брауни, 150 TRY\"':
+          - generic: 150 TRY
+        - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
+          - generic: 130 TRY
+        - 'button \"Выбрать: Печенье, 100 TRY\"':
+          - generic: 100 TRY
+        - 'button \"Выбрать: Макарон, 30 TRY. В заказе: 2\"':
+          - generic: 30 TRY
+        - 'button \"Выбрать: Круассан с тремя сырами, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Круассан с Nutella, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Багет с белым сыром, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Багет с говяжьим контрфиле, 230 TRY\"':
+          - generic: 230 TRY
+        - 'button \"Выбрать: Симит с кунжутом, 35 TRY\"':
+          - generic: 35 TRY
+      - status: \"Добавлено в заказ: Айс латте + Макарон × 2\"
+      - heading \"Твой заказ\" [level=2]
+        - heading \"Айс латте + Макарон\" [level=3]
         - strong: 420 TRY
-      - button \"Добавить пару · 420 TRY\"
-        - generic: 190 TRY
-      - 'button \"Выбрать: Малиновый чизкейк, 190 TRY\"':
-        - generic: 190 TRY
-      - 'button \"Выбрать: Шоколадный торт, 190 TRY\"':
-        - generic: 190 TRY
-      - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Тирамису, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Брауни, 150 TRY\"':
-        - generic: 150 TRY
-      - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
-        - generic: 130 TRY
-      - 'button \"Выбрать: Печенье, 100 TRY\"':
-        - generic: 100 TRY
-      - 'button \"Выбрать: Макарон, 30 TRY. В заказе: 2\"':
-        - generic: 30 TRY
-      - 'button \"Выбрать: Круассан с тремя сырами, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Круассан с Nutella, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Багет с белым сыром, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Багет с говяжьим контрфиле, 230 TRY\"':
-        - generic: 230 TRY
-      - 'button \"Выбрать: Симит с кунжутом, 35 TRY\"':
-        - generic: 35 TRY
-    - status: \"Добавлено в заказ: Айс латте + Макарон × 2\"
-    - heading \"Твой заказ\" [level=2]
-      - heading \"Айс латте + Макарон\" [level=3]
+      - generic: Итого
       - strong: 420 TRY
-    - generic: Итого
-    - strong: 420 TRY
-    - button \"Посмотреть заказ 420 TRY\":
-      - strong: 420 TRY
-      - heading \"Добавлено в заказ\" [active] [level=2]
-      - headi
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - button \"Посмотреть заказ 420 TRY\":
+        - strong: 420 TRY
+        - heading \"Добавлено в заказ\" [active] [level=2]
+        - headi
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3051 · Mobile cold pair review same420 —         - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Айс латте + Макарон" [level=3]
-      - strong: 420 TRY
-    - generic: Итого
-    - strong: 420 TRY
-    - button "Посмотреть заказ 420 TRY":
-      - strong: 420 TRY
-      - heading "Твой заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
+
+  ```text
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Айс латте + Макарон" [level=3]
         - strong: 420 TRY
-        - generic: Итого
+      - generic: Итого
+      - strong: 420 TRY
+      - button "Посмотреть заказ 420 TRY":
         - strong: 420 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+        - heading "Твой заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 420 TRY
+          - generic: Итого
+          - strong: 420 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
 
 #### Доказательства
 
@@ -6485,159 +6608,170 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3052:         - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 420 TRY
-      - button \"Добавить пару · 420 TRY\"
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.","after":"utton \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 460 TRY
-      - button \"Добавить пару · 460 TRY\"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button \"Добавить пару · 420 TRY\"
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.","after":"utton \"Чизкейк Сан-Себастьян +190 TRY\":
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 460 TRY
+        - button \"Добавить пару · 460 TRY\"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3053: RY" [active] [pressed]: Классический · 180 TRY ✓
-        - button "Карамельный капучино · 200 TRY": Карамель · 200 TRY
-      - group "Сладкое к напитку":
-        - generic: Сладкое к напитку
-        - button "Только напиток"
-        - button "Чизкейк Сан-Себастьян +190 TRY":
-          - generic: Чизкейк Сан-Себастьян
-          - strong: +190 TRY
-        - button "Чизкейк Lotus +190 TRY":
-          - generic: Чизкейк Lotus
-          - strong: +190 TRY
-        - button "Малиновый чизкейк +190 TRY":
-          - generic: Малиновый чизкейк
-          - strong: +190 TRY
-        - button "Шоколадный торт +190 TRY":
-          - generic: Шоколадный торт
-          - strong: +190 TRY
-        - button "Миндальный тарт +180 TRY":
-          - generic: Миндальный тарт
-          - strong: +180 TRY
-        - button "Бисквитный рулет +170 TRY":
-          - generic: Бисквитный рулет
-          - strong: +170 TRY
-        - button "Мозаичный торт +170 TRY":
-          - generic: Мозаичный торт
-          - strong: +170 TRY
-        - button "Тирамису +170 TRY":
-          - generic: Тирамису
-          - strong: +170 TRY
-        - button "Брауни +150 TRY":
-          - generic: Брауни
-          - strong: +150 TRY
-        - button "Печенье +100 TRY":
-          - generic: Печенье
-          - strong: +100 TRY
-        - button "Макарон +30 TRY ✓" [pressed]:
-          - generic: Макарон
-          - strong: +30 TRY
-          - text: ✓
-        - button "Круассан с Nutella +170 TRY":
-          - generic: Круассан с Nutella
-          - strong: +170 TRY
-      - paragraph: "Выбрано: 2 × Капучино + Макарон"
-      - generic: Количество пар
-      - 'button "Уменьшить количество: Капучино"': −
-      - status "Количество": "2"
-      - 'button "Увеличить количество: Капучино"': +
-      - paragraph:
-        - generic: Добавится к заказу
-        - strong: 420 TRY
-      - button "Добавить пару · 420 TRY"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+          - button "Карамельный капучино · 200 TRY": Карамель · 200 TRY
+        - group "Сладкое к напитку":
+          - generic: Сладкое к напитку
+          - button "Только напиток"
+          - button "Чизкейк Сан-Себастьян +190 TRY":
+            - generic: Чизкейк Сан-Себастьян
+            - strong: +190 TRY
+          - button "Чизкейк Lotus +190 TRY":
+            - generic: Чизкейк Lotus
+            - strong: +190 TRY
+          - button "Малиновый чизкейк +190 TRY":
+            - generic: Малиновый чизкейк
+            - strong: +190 TRY
+          - button "Шоколадный торт +190 TRY":
+            - generic: Шоколадный торт
+            - strong: +190 TRY
+          - button "Миндальный тарт +180 TRY":
+            - generic: Миндальный тарт
+            - strong: +180 TRY
+          - button "Бисквитный рулет +170 TRY":
+            - generic: Бисквитный рулет
+            - strong: +170 TRY
+          - button "Мозаичный торт +170 TRY":
+            - generic: Мозаичный торт
+            - strong: +170 TRY
+          - button "Тирамису +170 TRY":
+            - generic: Тирамису
+            - strong: +170 TRY
+          - button "Брауни +150 TRY":
+            - generic: Брауни
+            - strong: +150 TRY
+          - button "Печенье +100 TRY":
+            - generic: Печенье
+            - strong: +100 TRY
+          - button "Макарон +30 TRY ✓" [pressed]:
+            - generic: Макарон
+            - strong: +30 TRY
+            - text: ✓
+          - button "Круассан с Nutella +170 TRY":
+            - generic: Круассан с Nutella
+            - strong: +170 TRY
+        - paragraph: "Выбрано: 2 × Капучино + Макарон"
+        - generic: Количество пар
+        - 'button "Уменьшить количество: Капучино"': −
+        - status "Количество": "2"
+        - 'button "Увеличить количество: Капучино"': +
+        - paragraph:
+          - generic: Добавится к заказу
+          - strong: 420 TRY
+        - button "Добавить пару · 420 TRY"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3054:         - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
-    - heading "Твой заказ" [level=2]
-      - heading "Карамельный капучино + Макарон" [level=3]
-      - strong: 460 TRY
-    - generic: Итого
-    - strong: 460 TRY
-    - button "Посмотреть заказ 460 TRY":
-      - strong: 460 TRY
-      - heading "Добавлено в заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
-        - strong: 460 TRY
+
+  ```text
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
       - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
-        - generic: Итого
+      - heading "Твой заказ" [level=2]
+        - heading "Карамельный капучино + Макарон" [level=3]
         - strong: 460 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - generic: Итого
+      - strong: 460 TRY
+      - button "Посмотреть заказ 460 TRY":
+        - strong: 460 TRY
+        - heading "Добавлено в заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 460 TRY
+        - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
+          - generic: Итого
+          - strong: 460 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -6648,159 +6782,170 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3052 · Mobile cappuccino caramel keeps2macaron460 —         - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 420 TRY
-      - button \"Добавить пару · 420 TRY\"
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.","after":"utton \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY ✓\" [pressed]:
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 460 TRY
-      - button \"Добавить пару · 460 TRY\"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+
+  ```text
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 420 TRY
+        - button \"Добавить пару · 420 TRY\"
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.","after":"utton \"Чизкейк Сан-Себастьян +190 TRY\":
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY ✓\" [pressed]:
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 460 TRY
+        - button \"Добавить пару · 460 TRY\"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3053 · Mobile cappuccino classic returns420 — RY" [active] [pressed]: Классический · 180 TRY ✓
-        - button "Карамельный капучино · 200 TRY": Карамель · 200 TRY
-      - group "Сладкое к напитку":
-        - generic: Сладкое к напитку
-        - button "Только напиток"
-        - button "Чизкейк Сан-Себастьян +190 TRY":
-          - generic: Чизкейк Сан-Себастьян
-          - strong: +190 TRY
-        - button "Чизкейк Lotus +190 TRY":
-          - generic: Чизкейк Lotus
-          - strong: +190 TRY
-        - button "Малиновый чизкейк +190 TRY":
-          - generic: Малиновый чизкейк
-          - strong: +190 TRY
-        - button "Шоколадный торт +190 TRY":
-          - generic: Шоколадный торт
-          - strong: +190 TRY
-        - button "Миндальный тарт +180 TRY":
-          - generic: Миндальный тарт
-          - strong: +180 TRY
-        - button "Бисквитный рулет +170 TRY":
-          - generic: Бисквитный рулет
-          - strong: +170 TRY
-        - button "Мозаичный торт +170 TRY":
-          - generic: Мозаичный торт
-          - strong: +170 TRY
-        - button "Тирамису +170 TRY":
-          - generic: Тирамису
-          - strong: +170 TRY
-        - button "Брауни +150 TRY":
-          - generic: Брауни
-          - strong: +150 TRY
-        - button "Печенье +100 TRY":
-          - generic: Печенье
-          - strong: +100 TRY
-        - button "Макарон +30 TRY ✓" [pressed]:
-          - generic: Макарон
-          - strong: +30 TRY
-          - text: ✓
-        - button "Круассан с Nutella +170 TRY":
-          - generic: Круассан с Nutella
-          - strong: +170 TRY
-      - paragraph: "Выбрано: 2 × Капучино + Макарон"
-      - generic: Количество пар
-      - 'button "Уменьшить количество: Капучино"': −
-      - status "Количество": "2"
-      - 'button "Увеличить количество: Капучино"': +
-      - paragraph:
-        - generic: Добавится к заказу
-        - strong: 420 TRY
-      - button "Добавить пару · 420 TRY"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+          - button "Карамельный капучино · 200 TRY": Карамель · 200 TRY
+        - group "Сладкое к напитку":
+          - generic: Сладкое к напитку
+          - button "Только напиток"
+          - button "Чизкейк Сан-Себастьян +190 TRY":
+            - generic: Чизкейк Сан-Себастьян
+            - strong: +190 TRY
+          - button "Чизкейк Lotus +190 TRY":
+            - generic: Чизкейк Lotus
+            - strong: +190 TRY
+          - button "Малиновый чизкейк +190 TRY":
+            - generic: Малиновый чизкейк
+            - strong: +190 TRY
+          - button "Шоколадный торт +190 TRY":
+            - generic: Шоколадный торт
+            - strong: +190 TRY
+          - button "Миндальный тарт +180 TRY":
+            - generic: Миндальный тарт
+            - strong: +180 TRY
+          - button "Бисквитный рулет +170 TRY":
+            - generic: Бисквитный рулет
+            - strong: +170 TRY
+          - button "Мозаичный торт +170 TRY":
+            - generic: Мозаичный торт
+            - strong: +170 TRY
+          - button "Тирамису +170 TRY":
+            - generic: Тирамису
+            - strong: +170 TRY
+          - button "Брауни +150 TRY":
+            - generic: Брауни
+            - strong: +150 TRY
+          - button "Печенье +100 TRY":
+            - generic: Печенье
+            - strong: +100 TRY
+          - button "Макарон +30 TRY ✓" [pressed]:
+            - generic: Макарон
+            - strong: +30 TRY
+            - text: ✓
+          - button "Круассан с Nutella +170 TRY":
+            - generic: Круассан с Nutella
+            - strong: +170 TRY
+        - paragraph: "Выбрано: 2 × Капучино + Макарон"
+        - generic: Количество пар
+        - 'button "Уменьшить количество: Капучино"': −
+        - status "Количество": "2"
+        - 'button "Увеличить количество: Капучино"': +
+        - paragraph:
+          - generic: Добавится к заказу
+          - strong: 420 TRY
+        - button "Добавить пару · 420 TRY"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3054 · Mobile caramel cappuccino pair add460 —         - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
-    - heading "Твой заказ" [level=2]
-      - heading "Карамельный капучино + Макарон" [level=3]
-      - strong: 460 TRY
-    - generic: Итого
-    - strong: 460 TRY
-    - button "Посмотреть заказ 460 TRY":
-      - strong: 460 TRY
-      - heading "Добавлено в заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
-        - strong: 460 TRY
+
+  ```text
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 2"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
       - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
-        - generic: Итого
+      - heading "Твой заказ" [level=2]
+        - heading "Карамельный капучино + Макарон" [level=3]
         - strong: 460 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - generic: Итого
+      - strong: 460 TRY
+      - button "Посмотреть заказ 460 TRY":
+        - strong: 460 TRY
+        - heading "Добавлено в заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 460 TRY
+        - status: "Добавлено в заказ: Карамельный капучино + Макарон × 2"
+          - generic: Итого
+          - strong: 460 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
 
 #### Доказательства
 
@@ -7247,60 +7392,67 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3012:       - button \"Русский\" [pressed]: RU
-- status: \"Цена обновлена: Итого: 540 TRY\"
-      - heading \"Какой вкус сейчас ближе?\" [active] [level=1]
-      - button \"Сладкое →\" [pressed]:
-      - button \"Русский\" [pressed]: RU
-- status: \"Цена обновлена: Итого: 540 TRY\"
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"6\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+  - status: \"Цена обновлена: Итого: 540 TRY\"
+        - heading \"Какой вкус сейчас ближе?\" [active] [level=1]
+        - button \"Сладкое →\" [pressed]:
+        - button \"Русский\" [pressed]: RU
+  - status: \"Цена обновлена: Итого: 540 TRY\"
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"6\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3013:       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
       - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -7312,60 +7464,67 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3012 · Mobile Back restores answer and accepts change —       - button \"Русский\" [pressed]: RU
-- status: \"Цена обновлена: Итого: 540 TRY\"
-      - heading \"Какой вкус сейчас ближе?\" [active] [level=1]
-      - button \"Сладкое →\" [pressed]:
-      - button \"Русский\" [pressed]: RU
-- status: \"Цена обновлена: Итого: 540 TRY\"
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"6\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+
+  ```text
+  - status: \"Цена обновлена: Итого: 540 TRY\"
+        - heading \"Какой вкус сейчас ближе?\" [active] [level=1]
+        - button \"Сладкое →\" [pressed]:
+        - button \"Русский\" [pressed]: RU
+  - status: \"Цена обновлена: Итого: 540 TRY\"
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"6\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3013 · Mobile restart preserves manual espresso110 —       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
       - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
 
 #### Доказательства
 
@@ -7424,120 +7583,135 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-3001: First company selection showed exactly buttons 3,4,5,6; none pressed; Continue disabled. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
 - RUN-3002: Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 pressed. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
 - RUN-3003:       - button \"Русский\" [pressed]: RU
-  - region \"Какой бюджет комфортен?\":
+
+  ```text
     - region \"Какой бюджет комфортен?\":
-      - heading \"Какой бюджет комфортен?\" [active] [level=1]
-      - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
-      - button \"До 250 ₺ →\":
-        - generic: До 250 ₺
-      - button \"До 400 ₺ →\":
-        - generic: До 400 ₺
-      - button \"До 600 ₺ →\":
-        - generic: До 600 ₺
-      - button \"Гибкий Показывать варианты до 600 ₺ →\":
-        - generic: Показывать варианты до 600 ₺
-      - button \"Продолжить\" [disabled]
-      - button \"Русский\" [pressed]: RU
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"4\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - region \"Какой бюджет комфортен?\":
+        - heading \"Какой бюджет комфортен?\" [active] [level=1]
+        - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
+        - button \"До 250 ₺ →\":
+          - generic: До 250 ₺
+        - button \"До 400 ₺ →\":
+          - generic: До 400 ₺
+        - button \"До 600 ₺ →\":
+          - generic: До 600 ₺
+        - button \"Гибкий Показывать варианты до 600 ₺ →\":
+          - generic: Показывать варианты до 600 ₺
+        - button \"Продолжить\" [disabled]
+        - button \"Русский\" [pressed]: RU
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"4\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3004:       - button \"Русский\" [pressed]: RU
-  - region \"Какой бюджет комфортен?\":
+
+  ```text
     - region \"Какой бюджет комфортен?\":
-      - heading \"Какой бюджет комфортен?\" [active] [level=1]
-      - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
-      - button \"До 250 ₺ →\":
-        - generic: До 250 ₺
-      - button \"До 400 ₺ →\":
-        - generic: До 400 ₺
-      - button \"До 600 ₺ →\":
-        - generic: До 600 ₺
-      - button \"Гибкий Показывать варианты до 600 ₺ →\":
-        - generic: Показывать варианты до 600 ₺
-      - button \"Продолжить\" [disabled]
-      - button \"Русский\" [pressed]: RU
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"5\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - region \"Какой бюджет комфортен?\":
+        - heading \"Какой бюджет комфортен?\" [active] [level=1]
+        - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
+        - button \"До 250 ₺ →\":
+          - generic: До 250 ₺
+        - button \"До 400 ₺ →\":
+          - generic: До 400 ₺
+        - button \"До 600 ₺ →\":
+          - generic: До 600 ₺
+        - button \"Гибкий Показывать варианты до 600 ₺ →\":
+          - generic: Показывать варианты до 600 ₺
+        - button \"Продолжить\" [disabled]
+        - button \"Русский\" [pressed]: RU
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"5\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3005: After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; batch had Continue→budget then Back. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
 - RUN-3006: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status
-- main:
-  - region "На сколько человек?":
-    - button "← Собрать заказ самому"
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status
+  - main:
     - region "На сколько человек?":
-      - generic: Шаг 4
-      - generic: 4 из 5
-      - progressbar
-      - button "Начать заново"
-      - heading "На сколько человек?" [level=1]
-      - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
-      - button "Один →" [active] [pressed]:
-        - generic: Один
-        - generic: →
-      - button "Двое →":
-        - generic: Двое
-        - generic: →
-      - button "Компания / семья →":
-        - generic: Компания / семья
-        - generic: →
-      - button "Назад"
-      - button "Продолжить"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "← Собрать заказ самому"
+      - region "На сколько человек?":
+        - generic: Шаг 4
+        - generic: 4 из 5
+        - progressbar
+        - button "Начать заново"
+        - heading "На сколько человек?" [level=1]
+        - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
+        - button "Один →" [active] [pressed]:
+          - generic: Один
+          - generic: →
+        - button "Двое →":
+          - generic: Двое
+          - generic: →
+        - button "Компания / семья →":
+          - generic: Компания / семья
+          - generic: →
+        - button "Назад"
+        - button "Продолжить"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3007: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status
-- main:
-  - region "На сколько человек?":
-    - button "← Собрать заказ самому"
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status
+  - main:
     - region "На сколько человек?":
-      - generic: Шаг 4
-      - generic: 4 из 5
-      - progressbar
-      - button "Начать заново"
-      - heading "На сколько человек?" [level=1]
-      - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
-      - button "Один →":
-        - generic: Один
-        - generic: →
-      - button "Двое →" [active] [pressed]:
-        - generic: Двое
-        - generic: →
-      - button "Компания / семья →":
-        - generic: Компания / семья
-        - generic: →
-      - button "Назад"
-      - button "Продолжить"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "← Собрать заказ самому"
+      - region "На сколько человек?":
+        - generic: Шаг 4
+        - generic: 4 из 5
+        - progressbar
+        - button "Начать заново"
+        - heading "На сколько человек?" [level=1]
+        - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
+        - button "Один →":
+          - generic: Один
+          - generic: →
+        - button "Двое →" [active] [pressed]:
+          - generic: Двое
+          - generic: →
+        - button "Компания / семья →":
+          - generic: Компания / семья
+          - generic: →
+        - button "Назад"
+        - button "Продолжить"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -7553,120 +7727,135 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-3001 · Company requires explicit 3–6 size — First company selection showed exactly buttons 3,4,5,6; none pressed; Continue disabled.
 - RUN-3002 · Company 3 persists on Back — Explicit 3 enabled Continue; budget screen reached; Back restored company and 3 pressed.
 - RUN-3003 · Company 4 persists on Back —       - button \"Русский\" [pressed]: RU
-  - region \"Какой бюджет комфортен?\":
+
+  ```text
     - region \"Какой бюджет комфортен?\":
-      - heading \"Какой бюджет комфортен?\" [active] [level=1]
-      - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
-      - button \"До 250 ₺ →\":
-        - generic: До 250 ₺
-      - button \"До 400 ₺ →\":
-        - generic: До 400 ₺
-      - button \"До 600 ₺ →\":
-        - generic: До 600 ₺
-      - button \"Гибкий Показывать варианты до 600 ₺ →\":
-        - generic: Показывать варианты до 600 ₺
-      - button \"Продолжить\" [disabled]
-      - button \"Русский\" [pressed]: RU
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"4\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - region \"Какой бюджет комфортен?\":
+        - heading \"Какой бюджет комфортен?\" [active] [level=1]
+        - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
+        - button \"До 250 ₺ →\":
+          - generic: До 250 ₺
+        - button \"До 400 ₺ →\":
+          - generic: До 400 ₺
+        - button \"До 600 ₺ →\":
+          - generic: До 600 ₺
+        - button \"Гибкий Показывать варианты до 600 ₺ →\":
+          - generic: Показывать варианты до 600 ₺
+        - button \"Продолжить\" [disabled]
+        - button \"Русский\" [pressed]: RU
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"4\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3004 · Company 5 persists on Back —       - button \"Русский\" [pressed]: RU
-  - region \"Какой бюджет комфортен?\":
+
+  ```text
     - region \"Какой бюджет комфортен?\":
-      - heading \"Какой бюджет комфортен?\" [active] [level=1]
-      - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
-      - button \"До 250 ₺ →\":
-        - generic: До 250 ₺
-      - button \"До 400 ₺ →\":
-        - generic: До 400 ₺
-      - button \"До 600 ₺ →\":
-        - generic: До 600 ₺
-      - button \"Гибкий Показывать варианты до 600 ₺ →\":
-        - generic: Показывать варианты до 600 ₺
-      - button \"Продолжить\" [disabled]
-      - button \"Русский\" [pressed]: RU
-      - heading \"На сколько человек?\" [active] [level=1]
-      - button \"Компания / семья →\" [pressed]:
-        - button \"5\" [pressed]
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - region \"Какой бюджет комфортен?\":
+        - heading \"Какой бюджет комфортен?\" [active] [level=1]
+        - paragraph: Общая сумма на всю компанию. Если вариант дороже, превышение будет явно указано.
+        - button \"До 250 ₺ →\":
+          - generic: До 250 ₺
+        - button \"До 400 ₺ →\":
+          - generic: До 400 ₺
+        - button \"До 600 ₺ →\":
+          - generic: До 600 ₺
+        - button \"Гибкий Показывать варианты до 600 ₺ →\":
+          - generic: Показывать варианты до 600 ₺
+        - button \"Продолжить\" [disabled]
+        - button \"Русский\" [pressed]: RU
+        - heading \"На сколько человек?\" [active] [level=1]
+        - button \"Компания / семья →\" [pressed]:
+          - button \"5\" [pressed]
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3005 · Company 6 persists on Back — After interrupted batch, fresh AX shows step4 company pressed, only6 pressed; batch had Continue→budget then Back.
 - RUN-3006 · One guest does not require hidden company size — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status
-- main:
-  - region "На сколько человек?":
-    - button "← Собрать заказ самому"
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status
+  - main:
     - region "На сколько человек?":
-      - generic: Шаг 4
-      - generic: 4 из 5
-      - progressbar
-      - button "Начать заново"
-      - heading "На сколько человек?" [level=1]
-      - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
-      - button "Один →" [active] [pressed]:
-        - generic: Один
-        - generic: →
-      - button "Двое →":
-        - generic: Двое
-        - generic: →
-      - button "Компания / семья →":
-        - generic: Компания / семья
-        - generic: →
-      - button "Назад"
-      - button "Продолжить"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+      - button "← Собрать заказ самому"
+      - region "На сколько человек?":
+        - generic: Шаг 4
+        - generic: 4 из 5
+        - progressbar
+        - button "Начать заново"
+        - heading "На сколько человек?" [level=1]
+        - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
+        - button "Один →" [active] [pressed]:
+          - generic: Один
+          - generic: →
+        - button "Двое →":
+          - generic: Двое
+          - generic: →
+        - button "Компания / семья →":
+          - generic: Компания / семья
+          - generic: →
+        - button "Назад"
+        - button "Продолжить"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3007 · Two guests does not require hidden company size — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status
-- main:
-  - region "На сколько человек?":
-    - button "← Собрать заказ самому"
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status
+  - main:
     - region "На сколько человек?":
-      - generic: Шаг 4
-      - generic: 4 из 5
-      - progressbar
-      - button "Начать заново"
-      - heading "На сколько человек?" [level=1]
-      - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
-      - button "Один →":
-        - generic: Один
-        - generic: →
-      - button "Двое →" [active] [pressed]:
-        - generic: Двое
-        - generic: →
-      - button "Компания / семья →":
-        - generic: Компания / семья
-        - generic: →
-      - button "Назад"
-      - button "Продолжить"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+      - button "← Собрать заказ самому"
+      - region "На сколько человек?":
+        - generic: Шаг 4
+        - generic: 4 из 5
+        - progressbar
+        - button "Начать заново"
+        - heading "На сколько человек?" [level=1]
+        - paragraph: Ответ влияет на соответствие, но не меняет цену скрытно.
+        - button "Один →":
+          - generic: Один
+          - generic: →
+        - button "Двое →" [active] [pressed]:
+          - generic: Двое
+          - generic: →
+        - button "Компания / семья →":
+          - generic: Компания / семья
+          - generic: →
+        - button "Назад"
+        - button "Продолжить"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
 
 #### Доказательства
 
@@ -7730,220 +7919,235 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 - RUN-044: Бюджет 250 TRY относится ко всей компании. У трёх айс-латте со вкусом по 200 TRY, всего 600, явно указано превышение +350; у еды указано, что это вариант без напитка. Граница покрытия: Group3 budget250 arithmetic and transparent overage only; group6/400/600/flexible remain.
 - RUN-3008: coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budget with coffee mismatch; espresso6×110=660 +60. Each photo/action present. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Подходит по вашим ответам
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: В пределах бюджета
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +60 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Подходит по вашим ответам
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: В пределах бюджета
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +60 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3009: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Ближайший вариант
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +290 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "6 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 180 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +410 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Ближайший вариант
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +290 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "6 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 180 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +410 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3010: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 400 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Ближайший вариант
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +140 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +260 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 400 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Ближайший вариант
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +140 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +260 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3011: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Подходит по вашим ответам
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: В пределах бюджета
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +60 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Подходит по вашим ответам
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: В пределах бюджета
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +60 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -7957,220 +8161,235 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 
 - RUN-044 · Общий семейный бюджет и явные отклонения — Бюджет 250 TRY относится ко всей компании. У трёх айс-латте со вкусом по 200 TRY, всего 600, явно указано превышение +350; у еды указано, что это вариант без напитка.
 - RUN-3008 · Six guests budget600 exact totals — coffee/hot/any/company6. Turkish coffee6×90=540 in budget; tea6×50=300 in budget with coffee mismatch; espresso6×110=660 +60. Each photo/action present. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Подходит по вашим ответам
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: В пределах бюджета
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +60 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Подходит по вашим ответам
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: В пределах бюджета
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +60 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3009 · Six guests budget250 exact overages — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Ближайший вариант
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +290 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "6 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 180 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +410 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Ближайший вариант
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +290 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "6 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 180 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +410 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3010 · Six guests budget400 exact overages — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-    - link "Полное меню":
-      - /url: ../menu.html
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 400 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Ближайший вариант
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +140 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +260 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+      - link "Полное меню":
+        - /url: ../menu.html
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 400 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Ближайший вариант
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +140 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +260 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3011 · Six guests flexible budget600 mobile — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 540 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Кофе по-турецки"
-      - generic: Подходит по вашим ответам
-      - heading "6 × Кофе по-турецки" [level=2]
-      - paragraph: 90 TRY за штуку
-      - paragraph: "Итого: 540 TRY"
-      - list:
-        - listitem: В пределах бюджета
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Чёрный чай"
-      - generic: Ближайший вариант
-      - heading "6 × Чёрный чай" [level=2]
-      - paragraph: 50 TRY за штуку
-      - paragraph: "Итого: 300 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Изменено пожелание: кофе"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Эспрессо"
-      - generic: Ближайший вариант
-      - heading "6 × Эспрессо" [level=2]
-      - paragraph: 110 TRY за штуку
-      - paragraph: "Итого: 660 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +60 TRY"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 540 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 600 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Кофе по-турецки"
+        - generic: Подходит по вашим ответам
+        - heading "6 × Кофе по-турецки" [level=2]
+        - paragraph: 90 TRY за штуку
+        - paragraph: "Итого: 540 TRY"
+        - list:
+          - listitem: В пределах бюджета
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Чёрный чай"
+        - generic: Ближайший вариант
+        - heading "6 × Чёрный чай" [level=2]
+        - paragraph: 50 TRY за штуку
+        - paragraph: "Итого: 300 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Изменено пожелание: кофе"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Эспрессо"
+        - generic: Ближайший вариант
+        - heading "6 × Эспрессо" [level=2]
+        - paragraph: 110 TRY за штуку
+        - paragraph: "Итого: 660 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +60 TRY"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
 
 #### Доказательства
 
@@ -8233,116 +8452,123 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-043: Десерт, холодное, сладкое, три гостя, бюджет 250 TRY: показаны ближайшие варианты — три макарона за 90, три айс-латте со вкусом за 600, три симита за 105 TRY. Граница покрытия: Helpful fallback for dessert/cold/sweet/3/budget250; exact refresh/hot/neutral/6 setup remains.
 - RUN-044: Бюджет 250 TRY относится ко всей компании. У трёх айс-латте со вкусом по 200 TRY, всего 600, явно указано превышение +350; у еды указано, что это вариант без напитка. Граница покрытия: Group3 budget250 arithmetic and transparent overage only; group6/400/600/flexible remain.
 - RUN-3014: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 1 020 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Айс американо"
-      - generic: Ближайший вариант
-      - heading "6 × Айс американо" [level=2]
-      - paragraph: 170 TRY за штуку
-      - paragraph: "Итого: 1 020 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +770 TRY"
-        - listitem: "Температура: холодное"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "6 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 180 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: сладкий"
-        - listitem: "Изменено пожелание: освежающий напиток"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Холодный фильтр-кофе"
-      - generic: Ближайший вариант
-      - heading "6 × Холодный фильтр-кофе" [level=2]
-      - paragraph: 170 TRY за штуку
-      - paragraph: "Итого: 1 020 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +770 TRY"
-        - listitem: "Температура: холодное"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 1 020 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Айс американо"
+        - generic: Ближайший вариант
+        - heading "6 × Айс американо" [level=2]
+        - paragraph: 170 TRY за штуку
+        - paragraph: "Итого: 1 020 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +770 TRY"
+          - listitem: "Температура: холодное"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "6 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 180 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: сладкий"
+          - listitem: "Изменено пожелание: освежающий напиток"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Холодный фильтр-кофе"
+        - generic: Ближайший вариант
+        - heading "6 × Холодный фильтр-кофе" [level=2]
+        - paragraph: 170 TRY за штуку
+        - paragraph: "Итого: 1 020 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +770 TRY"
+          - listitem: "Температура: холодное"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3015: Supplemental preference combination; manual espresso110 already exists. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 90 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "3 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 90 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Айс латте со вкусом"
-      - generic: Ближайший вариант
-      - heading "3 × Айс латте со вкусом" [level=2]
-      - paragraph: 200 TRY за штуку
-      - paragraph: "Итого: 600 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +350 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Симит с кунжутом"
-      - generic: Ближайший вариант
-      - heading "3 × Симит с кунжутом" [level=2]
-      - paragraph: 35 TRY за штуку
-      - paragraph: "Итого: 105 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: несладкий"
-        - listitem: "Изменено пожелание: десерт"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 90 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "3 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 90 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Айс латте со вкусом"
+        - generic: Ближайший вариант
+        - heading "3 × Айс латте со вкусом" [level=2]
+        - paragraph: 200 TRY за штуку
+        - paragraph: "Итого: 600 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +350 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Симит с кунжутом"
+        - generic: Ближайший вариант
+        - heading "3 × Симит с кунжутом" [level=2]
+        - paragraph: 35 TRY за штуку
+        - paragraph: "Итого: 105 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: несладкий"
+          - listitem: "Изменено пожелание: десерт"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -8356,116 +8582,123 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-043 · Нет точного совпадения → полезные альтернативы — Десерт, холодное, сладкое, три гостя, бюджет 250 TRY: показаны ближайшие варианты — три макарона за 90, три айс-латте со вкусом за 600, три симита за 105 TRY.
 - RUN-044 · Общий семейный бюджет и явные отклонения — Бюджет 250 TRY относится ко всей компании. У трёх айс-латте со вкусом по 200 TRY, всего 600, явно указано превышение +350; у еды указано, что это вариант без напитка.
 - RUN-3014 · Mobile incompatible refresh hot neutral6 budget250 has real alternatives — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 1 020 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
-    - article:
-      - img "Айс американо"
-      - generic: Ближайший вариант
-      - heading "6 × Айс американо" [level=2]
-      - paragraph: 170 TRY за штуку
-      - paragraph: "Итого: 1 020 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +770 TRY"
-        - listitem: "Температура: холодное"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "6 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 180 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: сладкий"
-        - listitem: "Изменено пожелание: освежающий напиток"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Холодный фильтр-кофе"
-      - generic: Ближайший вариант
-      - heading "6 × Холодный фильтр-кофе" [level=2]
-      - paragraph: 170 TRY за штуку
-      - paragraph: "Итого: 1 020 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +770 TRY"
-        - listitem: "Температура: холодное"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 1 020 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (6)"
+      - article:
+        - img "Айс американо"
+        - generic: Ближайший вариант
+        - heading "6 × Айс американо" [level=2]
+        - paragraph: 170 TRY за штуку
+        - paragraph: "Итого: 1 020 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +770 TRY"
+          - listitem: "Температура: холодное"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "6 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 180 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: сладкий"
+          - listitem: "Изменено пожелание: освежающий напиток"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Холодный фильтр-кофе"
+        - generic: Ближайший вариант
+        - heading "6 × Холодный фильтр-кофе" [level=2]
+        - paragraph: 170 TRY за штуку
+        - paragraph: "Итого: 1 020 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +770 TRY"
+          - listitem: "Температура: холодное"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3015 · Dessert cold sweet3 budget250 helpful alternatives — Supplemental preference combination; manual espresso110 already exists. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 90 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "3 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 90 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Айс латте со вкусом"
-      - generic: Ближайший вариант
-      - heading "3 × Айс латте со вкусом" [level=2]
-      - paragraph: 200 TRY за штуку
-      - paragraph: "Итого: 600 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +350 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Симит с кунжутом"
-      - generic: Ближайший вариант
-      - heading "3 × Симит с кунжутом" [level=2]
-      - paragraph: 35 TRY за штуку
-      - paragraph: "Итого: 105 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: несладкий"
-        - listitem: "Изменено пожелание: десерт"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 90 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "3 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 90 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Айс латте со вкусом"
+        - generic: Ближайший вариант
+        - heading "3 × Айс латте со вкусом" [level=2]
+        - paragraph: 200 TRY за штуку
+        - paragraph: "Итого: 600 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +350 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Симит с кунжутом"
+        - generic: Ближайший вариант
+        - heading "3 × Симит с кунжутом" [level=2]
+        - paragraph: 35 TRY за штуку
+        - paragraph: "Итого: 105 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: несладкий"
+          - listitem: "Изменено пожелание: десерт"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
 
 #### Доказательства
 
@@ -8529,338 +8762,361 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-045: Рекомендация открыла макарон количеством 3 за 90 TRY. Существующая корзина за 700 TRY показана отдельно и автоматически не изменена. Граница покрытия: Recommendation prefill qty3/no auto-add only; explicit add,variant,group6 and espresso110 fixture remain.
 - RUN-046: Закрытие рекомендованного выбора не добавило макароны. В корзине остались две пары ванильного айс-латте с брауни за 700 TRY. Граница покрытия: Closing the prefilled recommendation preserves current draft700 only.
 - RUN-3015: Supplemental preference combination; manual espresso110 already exists. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 90 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "3 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 90 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Айс латте со вкусом"
-      - generic: Ближайший вариант
-      - heading "3 × Айс латте со вкусом" [level=2]
-      - paragraph: 200 TRY за штуку
-      - paragraph: "Итого: 600 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +350 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Симит с кунжутом"
-      - generic: Ближайший вариант
-      - heading "3 × Симит с кунжутом" [level=2]
-      - paragraph: 35 TRY за штуку
-      - paragraph: "Итого: 105 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: несладкий"
-        - listitem: "Изменено пожелание: десерт"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 90 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "3 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 90 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Айс латте со вкусом"
+        - generic: Ближайший вариант
+        - heading "3 × Айс латте со вкусом" [level=2]
+        - paragraph: 200 TRY за штуку
+        - paragraph: "Итого: 600 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +350 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Симит с кунжутом"
+        - generic: Ближайший вариант
+        - heading "3 × Симит с кунжутом" [level=2]
+        - paragraph: 35 TRY за штуку
+        - paragraph: "Итого: 105 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: несладкий"
+          - listitem: "Изменено пожелание: десерт"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3016:       - 'button "Выбрать: Юдзу-попкорн, 220 TRY"':
-        - generic: 220 TRY
-      - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-      - heading "Собери свой вариант" [active] [level=2]
-        - strong: 200 TRY
-        - button "Айс латте · 180 TRY": Классический · 180 TRY
-        - button "Айс латте со вкусом · Карамель · 200 TRY": Карамель · 200 TRY
-        - button "Айс латте со вкусом · Ваниль · 200 TRY": Ваниль · 200 TRY
-        - button "Айс латте со вкусом · Шоколадное печенье · 200 TRY": Шоколадное печень
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
-- RUN-3017:       - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
-- RUN-3018: {"chosenVanilla":"   - generic: 35 TRY
-    - heading \"Твой заказ\" [level=2]
-      - heading \"Эспрессо\" [level=3]
-      - strong: 110 TRY
-      - 'button \"Уменьшить количество: Эспрессо\" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button \"Посмотреть заказ 110 TRY\":
-      - strong: 110 TRY
-      - heading \"Собери свой вариант\" [level=2]
-        - strong: 200 TRY
-        - button \"Айс латте · 180 TRY\": Классический · 180 TRY
-        - button \"Айс латте со вкусом · Карамель · 200 TRY\": Карамель · 200 TRY
-        - button \"Айс латте со вкусом · Ваниль · 200 TRY\" [active] [pressed]: Ваниль · 200 TRY ✓
-        - button \"Айс латте со вкусом · Шоколадное печенье · 200 TRY\": Шоколадное печенье · 200 TRY
-        - button \"Айс латте со вкусом · Фундук · 200 TRY\": Фундук · 200 TRY
-        - button \"Айс латте со вкусом · Корица · 200 TRY\": Корица · 200 TRY
-        - button \"Только напиток ✓\" [pressed]
-        - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY\":
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 600 TRY
-      - button \"Добавить в заказ · 600 TRY\"
-        - generic: 190 TRY
-      - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Тирамису, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Брауни, 150 TRY\"':
-        - generic: 150 TRY
-      - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
-        - generic: 130 TRY
-      - 'button \"Выбрать: Печенье, 100 TRY\"':
-        - generic: 100 TRY
-      - 'button \"Выбрать: Макарон, 30 TRY\"':
-        - generic: 30 TRY
-      - 'button \"Выбрать: Круассан с т
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
-- RUN-3019:       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-      - heading "Собери свой вариант" [active] [level=2]
-        - strong: 30 TRY
-        - strong: 180 TRY
-      - button "Добавить в заказ · 180 TRY"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
-- RUN-3020:  Юдзу-попкорн, 220 TRY"':
-        - generic: 220 TRY
-      - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 6"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - status: "Добавлено в заказ: Макарон × 6"
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-      - heading "Макарон" [level=3]
-      - strong: 180 TRY
-    - generic: Итого
-    - strong: 290 TRY
-    - button "Посмотреть заказ 290 TRY":
-      - strong: 290 TRY
-      - heading "Добавлено в заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
+
+  ```text
+          - generic: 220 TRY
+        - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
         - strong: 110 TRY
         - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-        - strong: 180 TRY
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+        - heading "Собери свой вариант" [active] [level=2]
+          - strong: 200 TRY
+          - button "Айс латте · 180 TRY": Классический · 180 TRY
+          - button "Айс латте со вкусом · Карамель · 200 TRY": Карамель · 200 TRY
+          - button "Айс латте со вкусом · Ваниль · 200 TRY": Ваниль · 200 TRY
+          - button "Айс латте со вкусом · Шоколадное печенье · 200 TRY": Шоколадное печень
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
+- RUN-3017:       - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+
+  ```text
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
+- RUN-3018: {"chosenVanilla":"   - generic: 35 TRY
+
+  ```text
+      - heading \"Твой заказ\" [level=2]
+        - heading \"Эспрессо\" [level=3]
+        - strong: 110 TRY
+        - 'button \"Уменьшить количество: Эспрессо\" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button \"Посмотреть заказ 110 TRY\":
+        - strong: 110 TRY
+        - heading \"Собери свой вариант\" [level=2]
+          - strong: 200 TRY
+          - button \"Айс латте · 180 TRY\": Классический · 180 TRY
+          - button \"Айс латте со вкусом · Карамель · 200 TRY\": Карамель · 200 TRY
+          - button \"Айс латте со вкусом · Ваниль · 200 TRY\" [active] [pressed]: Ваниль · 200 TRY ✓
+          - button \"Айс латте со вкусом · Шоколадное печенье · 200 TRY\": Шоколадное печенье · 200 TRY
+          - button \"Айс латте со вкусом · Фундук · 200 TRY\": Фундук · 200 TRY
+          - button \"Айс латте со вкусом · Корица · 200 TRY\": Корица · 200 TRY
+          - button \"Только напиток ✓\" [pressed]
+          - button \"Чизкейк Сан-Себастьян +190 TRY\":
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY\":
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 600 TRY
+        - button \"Добавить в заказ · 600 TRY\"
+          - generic: 190 TRY
+        - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Тирамису, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Брауни, 150 TRY\"':
+          - generic: 150 TRY
+        - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
+          - generic: 130 TRY
+        - 'button \"Выбрать: Печенье, 100 TRY\"':
+          - generic: 100 TRY
+        - 'button \"Выбрать: Макарон, 30 TRY\"':
+          - generic: 30 TRY
+        - 'button \"Выбрать: Круассан с т
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
+- RUN-3019:       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+        - heading "Собери свой вариант" [active] [level=2]
+          - strong: 30 TRY
+          - strong: 180 TRY
+        - button "Добавить в заказ · 180 TRY"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
+- RUN-3020:  Юдзу-попкорн, 220 TRY"':
+
+  ```text
+          - generic: 220 TRY
+        - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 6"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
       - status: "Добавлено в заказ: Макарон × 6"
-        - generic: Итого
-        -
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+        - heading "Макарон" [level=3]
+        - strong: 180 TRY
+      - generic: Итого
+      - strong: 290 TRY
+      - button "Посмотреть заказ 290 TRY":
+        - strong: 290 TRY
+        - heading "Добавлено в заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 110 TRY
+          - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+          - strong: 180 TRY
+        - status: "Добавлено в заказ: Макарон × 6"
+          - generic: Итого
+          -
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -8875,338 +9131,361 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 - RUN-045 · Рекомендация открывает готовый выбор с правильным количеством — Рекомендация открыла макарон количеством 3 за 90 TRY. Существующая корзина за 700 TRY показана отдельно и автоматически не изменена.
 - RUN-046 · Закрытие рекомендованного выбора не добавляет товар — Закрытие рекомендованного выбора не добавило макароны. В корзине остались две пары ванильного айс-латте с брауни за 700 TRY.
 - RUN-3015 · Dessert cold sweet3 budget250 helpful alternatives — Supplemental preference combination; manual espresso110 already exists. - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Итого: 90 TRY"
-- main:
-  - region "Вот что можно выбрать":
-    - button "← Собрать заказ самому"
-    - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
-    - heading "Вот что можно выбрать" [active] [level=1]
-    - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
-    - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
-    - article:
-      - img "Макарон"
-      - generic: Ближайший вариант
-      - heading "3 × Макарон" [level=2]
-      - paragraph: 30 TRY за штуку
-      - paragraph: "Итого: 90 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Айс латте со вкусом"
-      - generic: Ближайший вариант
-      - heading "3 × Айс латте со вкусом" [level=2]
-      - paragraph: 200 TRY за штуку
-      - paragraph: "Итого: 600 TRY"
-      - list:
-        - listitem: "Сверх бюджета: +350 TRY"
-      - button "Выбрать и дополнить"
-    - article:
-      - img "Симит с кунжутом"
-      - generic: Ближайший вариант
-      - heading "3 × Симит с кунжутом" [level=2]
-      - paragraph: 35 TRY за штуку
-      - paragraph: "Итого: 105 TRY"
-      - list:
-        - listitem: В пределах бюджета
-        - listitem: "Температура: это еда, без напитка"
-        - listitem: "Вкус: несладкий"
-        - listitem: "Изменено пожелание: десерт"
-      - button "Выбрать и дополнить"
-    - button "Изменить ответы"
-    - button "Собрать заказ самому"
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Итого: 90 TRY"
+  - main:
+    - region "Вот что можно выбрать":
+      - button "← Собрать заказ самому"
+      - paragraph: ПОДХОДЯЩИЕ ВАРИАНТЫ
+      - heading "Вот что можно выбрать" [active] [level=1]
+      - paragraph: Собрали ближайшие варианты из меню. Отличия от пожеланий указаны на каждой карточке — выбор за вами.
+      - paragraph: "Общий бюджет: 250 TRY · По одной позиции на человека (3)"
+      - article:
+        - img "Макарон"
+        - generic: Ближайший вариант
+        - heading "3 × Макарон" [level=2]
+        - paragraph: 30 TRY за штуку
+        - paragraph: "Итого: 90 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Айс латте со вкусом"
+        - generic: Ближайший вариант
+        - heading "3 × Айс латте со вкусом" [level=2]
+        - paragraph: 200 TRY за штуку
+        - paragraph: "Итого: 600 TRY"
+        - list:
+          - listitem: "Сверх бюджета: +350 TRY"
+        - button "Выбрать и дополнить"
+      - article:
+        - img "Симит с кунжутом"
+        - generic: Ближайший вариант
+        - heading "3 × Симит с кунжутом" [level=2]
+        - paragraph: 35 TRY за штуку
+        - paragraph: "Итого: 105 TRY"
+        - list:
+          - listitem: В пределах бюджета
+          - listitem: "Температура: это еда, без напитка"
+          - listitem: "Вкус: несладкий"
+          - listitem: "Изменено пожелание: десерт"
+        - button "Выбрать и дополнить"
+      - button "Изменить ответы"
+      - button "Собрать заказ самому"
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3016 · Recommendation3 flavored latte prefills qty without autoadd —       - 'button "Выбрать: Юдзу-попкорн, 220 TRY"':
-        - generic: 220 TRY
-      - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-      - heading "Собери свой вариант" [active] [level=2]
-        - strong: 200 TRY
-        - button "Айс латте · 180 TRY": Классический · 180 TRY
-        - button "Айс латте со вкусом · Карамель · 200 TRY": Карамель · 200 TRY
-        - button "Айс латте со вкусом · Ваниль · 200 TRY": Ваниль · 200 TRY
-        - button "Айс латте со вкусом · Шоколадное печенье · 200 TRY": Шоколадное печень
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
-- RUN-3017 · Cancel recommendation leaves espresso only110 —       - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
-- RUN-3018 · Mobile recommendation3 explicit vanilla + manual espresso total710 — {"chosenVanilla":"   - generic: 35 TRY
-    - heading \"Твой заказ\" [level=2]
-      - heading \"Эспрессо\" [level=3]
-      - strong: 110 TRY
-      - 'button \"Уменьшить количество: Эспрессо\" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button \"Посмотреть заказ 110 TRY\":
-      - strong: 110 TRY
-      - heading \"Собери свой вариант\" [level=2]
-        - strong: 200 TRY
-        - button \"Айс латте · 180 TRY\": Классический · 180 TRY
-        - button \"Айс латте со вкусом · Карамель · 200 TRY\": Карамель · 200 TRY
-        - button \"Айс латте со вкусом · Ваниль · 200 TRY\" [active] [pressed]: Ваниль · 200 TRY ✓
-        - button \"Айс латте со вкусом · Шоколадное печенье · 200 TRY\": Шоколадное печенье · 200 TRY
-        - button \"Айс латте со вкусом · Фундук · 200 TRY\": Фундук · 200 TRY
-        - button \"Айс латте со вкусом · Корица · 200 TRY\": Корица · 200 TRY
-        - button \"Только напиток ✓\" [pressed]
-        - button \"Чизкейк Сан-Себастьян +190 TRY\":
-          - strong: +190 TRY
-        - button \"Чизкейк Lotus +190 TRY\":
-          - strong: +190 TRY
-        - button \"Малиновый чизкейк +190 TRY\":
-          - strong: +190 TRY
-        - button \"Шоколадный торт +190 TRY\":
-          - strong: +190 TRY
-        - button \"Миндальный тарт +180 TRY\":
-          - strong: +180 TRY
-        - button \"Бисквитный рулет +170 TRY\":
-          - strong: +170 TRY
-        - button \"Мозаичный торт +170 TRY\":
-          - strong: +170 TRY
-        - button \"Тирамису +170 TRY\":
-          - strong: +170 TRY
-        - button \"Брауни +150 TRY\":
-          - strong: +150 TRY
-        - button \"Печенье +100 TRY\":
-          - strong: +100 TRY
-        - button \"Макарон +30 TRY\":
-          - strong: +30 TRY
-        - button \"Круассан с Nutella +170 TRY\":
-          - strong: +170 TRY
-        - strong: 600 TRY
-      - button \"Добавить в заказ · 600 TRY\"
-        - generic: 190 TRY
-      - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
-        - generic: 180 TRY
-      - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Тирамису, 170 TRY\"':
-        - generic: 170 TRY
-      - 'button \"Выбрать: Брауни, 150 TRY\"':
-        - generic: 150 TRY
-      - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
-        - generic: 130 TRY
-      - 'button \"Выбрать: Печенье, 100 TRY\"':
-        - generic: 100 TRY
-      - 'button \"Выбрать: Макарон, 30 TRY\"':
-        - generic: 30 TRY
-      - 'button \"Выбрать: Круассан с т
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
-- RUN-3019 · Recommendation6 no variants prefills qty6 without autoadd —       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-    - generic: Итого
-    - strong: 110 TRY
-    - button "Посмотреть заказ 110 TRY":
-      - strong: 110 TRY
-      - heading "Собери свой вариант" [active] [level=2]
-        - strong: 30 TRY
-        - strong: 180 TRY
-      - button "Добавить в заказ · 180 TRY"
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
-- RUN-3020 · Recommendation6 macaron + manual espresso total290 —  Юдзу-попкорн, 220 TRY"':
-        - generic: 220 TRY
-      - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Шоколадный торт, 190 TRY"':
-        - generic: 190 TRY
-      - 'button "Выбрать: Миндальный тарт, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Мозаичный торт, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Тирамису, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Брауни, 150 TRY"':
-        - generic: 150 TRY
-      - 'button "Выбрать: Солёное печенье, 130 TRY"':
-        - generic: 130 TRY
-      - 'button "Выбрать: Печенье, 100 TRY"':
-        - generic: 100 TRY
-      - 'button "Выбрать: Макарон, 30 TRY. В заказе: 6"':
-        - generic: 30 TRY
-      - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
-        - generic: 170 TRY
-      - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
-        - generic: 180 TRY
-      - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
-        - generic: 230 TRY
-      - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
-        - generic: 35 TRY
-    - status: "Добавлено в заказ: Макарон × 6"
-    - heading "Твой заказ" [level=2]
-      - heading "Эспрессо" [level=3]
-      - strong: 110 TRY
-      - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-      - heading "Макарон" [level=3]
-      - strong: 180 TRY
-    - generic: Итого
-    - strong: 290 TRY
-    - button "Посмотреть заказ 290 TRY":
-      - strong: 290 TRY
-      - heading "Добавлено в заказ" [active] [level=2]
-      - heading "Твой заказ" [level=3]
+
+  ```text
+          - generic: 220 TRY
+        - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
         - strong: 110 TRY
         - 'button "Уменьшить количество: Эспрессо" [disabled]': −
-        - strong: 180 TRY
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+        - heading "Собери свой вариант" [active] [level=2]
+          - strong: 200 TRY
+          - button "Айс латте · 180 TRY": Классический · 180 TRY
+          - button "Айс латте со вкусом · Карамель · 200 TRY": Карамель · 200 TRY
+          - button "Айс латте со вкусом · Ваниль · 200 TRY": Ваниль · 200 TRY
+          - button "Айс латте со вкусом · Шоколадное печенье · 200 TRY": Шоколадное печень
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
+- RUN-3017 · Cancel recommendation leaves espresso only110 —       - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+
+  ```text
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
+- RUN-3018 · Mobile recommendation3 explicit vanilla + manual espresso total710 — {"chosenVanilla":"   - generic: 35 TRY
+
+  ```text
+      - heading \"Твой заказ\" [level=2]
+        - heading \"Эспрессо\" [level=3]
+        - strong: 110 TRY
+        - 'button \"Уменьшить количество: Эспрессо\" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button \"Посмотреть заказ 110 TRY\":
+        - strong: 110 TRY
+        - heading \"Собери свой вариант\" [level=2]
+          - strong: 200 TRY
+          - button \"Айс латте · 180 TRY\": Классический · 180 TRY
+          - button \"Айс латте со вкусом · Карамель · 200 TRY\": Карамель · 200 TRY
+          - button \"Айс латте со вкусом · Ваниль · 200 TRY\" [active] [pressed]: Ваниль · 200 TRY ✓
+          - button \"Айс латте со вкусом · Шоколадное печенье · 200 TRY\": Шоколадное печенье · 200 TRY
+          - button \"Айс латте со вкусом · Фундук · 200 TRY\": Фундук · 200 TRY
+          - button \"Айс латте со вкусом · Корица · 200 TRY\": Корица · 200 TRY
+          - button \"Только напиток ✓\" [pressed]
+          - button \"Чизкейк Сан-Себастьян +190 TRY\":
+            - strong: +190 TRY
+          - button \"Чизкейк Lotus +190 TRY\":
+            - strong: +190 TRY
+          - button \"Малиновый чизкейк +190 TRY\":
+            - strong: +190 TRY
+          - button \"Шоколадный торт +190 TRY\":
+            - strong: +190 TRY
+          - button \"Миндальный тарт +180 TRY\":
+            - strong: +180 TRY
+          - button \"Бисквитный рулет +170 TRY\":
+            - strong: +170 TRY
+          - button \"Мозаичный торт +170 TRY\":
+            - strong: +170 TRY
+          - button \"Тирамису +170 TRY\":
+            - strong: +170 TRY
+          - button \"Брауни +150 TRY\":
+            - strong: +150 TRY
+          - button \"Печенье +100 TRY\":
+            - strong: +100 TRY
+          - button \"Макарон +30 TRY\":
+            - strong: +30 TRY
+          - button \"Круассан с Nutella +170 TRY\":
+            - strong: +170 TRY
+          - strong: 600 TRY
+        - button \"Добавить в заказ · 600 TRY\"
+          - generic: 190 TRY
+        - 'button \"Выбрать: Миндальный тарт, 180 TRY\"':
+          - generic: 180 TRY
+        - 'button \"Выбрать: Бисквитный рулет, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Мозаичный торт, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Тирамису, 170 TRY\"':
+          - generic: 170 TRY
+        - 'button \"Выбрать: Брауни, 150 TRY\"':
+          - generic: 150 TRY
+        - 'button \"Выбрать: Солёное печенье, 130 TRY\"':
+          - generic: 130 TRY
+        - 'button \"Выбрать: Печенье, 100 TRY\"':
+          - generic: 100 TRY
+        - 'button \"Выбрать: Макарон, 30 TRY\"':
+          - generic: 30 TRY
+        - 'button \"Выбрать: Круассан с т
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
+- RUN-3019 · Recommendation6 no variants prefills qty6 without autoadd —       - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+
+  ```text
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+      - generic: Итого
+      - strong: 110 TRY
+      - button "Посмотреть заказ 110 TRY":
+        - strong: 110 TRY
+        - heading "Собери свой вариант" [active] [level=2]
+          - strong: 30 TRY
+          - strong: 180 TRY
+        - button "Добавить в заказ · 180 TRY"
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
+- RUN-3020 · Recommendation6 macaron + manual espresso total290 —  Юдзу-попкорн, 220 TRY"':
+
+  ```text
+          - generic: 220 TRY
+        - 'button "Выбрать: Beauty Tea / Цветочный белый чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Tahiti Tea / Гибискус и лемонграсс, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Maroc Tea / Зелёный чай с мятой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Relax Tea / Ройбуш с лавандой, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Balance Tea / Детокс-зелёный чай, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Чизкейк Сан-Себастьян, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Чизкейк Lotus, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Малиновый чизкейк, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Шоколадный торт, 190 TRY"':
+          - generic: 190 TRY
+        - 'button "Выбрать: Миндальный тарт, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Бисквитный рулет, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Мозаичный торт, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Тирамису, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Брауни, 150 TRY"':
+          - generic: 150 TRY
+        - 'button "Выбрать: Солёное печенье, 130 TRY"':
+          - generic: 130 TRY
+        - 'button "Выбрать: Печенье, 100 TRY"':
+          - generic: 100 TRY
+        - 'button "Выбрать: Макарон, 30 TRY. В заказе: 6"':
+          - generic: 30 TRY
+        - 'button "Выбрать: Круассан с тремя сырами, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Круассан с Nutella, 170 TRY"':
+          - generic: 170 TRY
+        - 'button "Выбрать: Багет с белым сыром, 180 TRY"':
+          - generic: 180 TRY
+        - 'button "Выбрать: Багет с говяжьим контрфиле, 230 TRY"':
+          - generic: 230 TRY
+        - 'button "Выбрать: Симит с кунжутом, 35 TRY"':
+          - generic: 35 TRY
       - status: "Добавлено в заказ: Макарон × 6"
-        - generic: Итого
-        -
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - heading "Твой заказ" [level=2]
+        - heading "Эспрессо" [level=3]
+        - strong: 110 TRY
+        - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+        - heading "Макарон" [level=3]
+        - strong: 180 TRY
+      - generic: Итого
+      - strong: 290 TRY
+      - button "Посмотреть заказ 290 TRY":
+        - strong: 290 TRY
+        - heading "Добавлено в заказ" [active] [level=2]
+        - heading "Твой заказ" [level=3]
+          - strong: 110 TRY
+          - 'button "Уменьшить количество: Эспрессо" [disabled]': −
+          - strong: 180 TRY
+        - status: "Добавлено в заказ: Макарон × 6"
+          - generic: Итого
+          -
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
 
 #### Доказательства
 
@@ -9268,221 +9547,236 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3021: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ480 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [active] [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 480 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Эспрессо
-        - strong: 110 TRY
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
-        - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - heading "Добавить небольшое дополнение?" [level=3]
-      - paragraph: Добавить один макарон с собой
-      - paragraph: Небольшое дополнение в отдельной упаковке
-      - strong: +30 TRY
-      - button "Да, добавить"
-      - button "Нет, спасибо"
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ480 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [active] [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
+        - strong: 480 TRY
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Эспрессо
+          - strong: 110 TRY
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - heading "Добавить небольшое дополнение?" [level=3]
+        - paragraph: Добавить один макарон с собой
+        - paragraph: Небольшое дополнение в отдельной упаковке
+        - strong: +30 TRY
+        - button "Да, добавить"
+        - button "Нет, спасибо"
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3022: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ480 TRY"
-- main:
-  - region:
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 480 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Эспрессо
-        - strong: 110 TRY
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
-        - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - heading "Добавить небольшое дополнение?" [level=3]
-      - paragraph: Добавить один макарон с собой
-      - paragraph: Небольшое дополнение в отдельной упаковке
-      - strong: +30 TRY
-      - button "Да, добавить"
-      - button "Нет, спасибо"
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ480 TRY"
+  - main:
+    - region:
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
+        - strong: 480 TRY
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Эспрессо
+          - strong: 110 TRY
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - heading "Добавить небольшое дополнение?" [level=3]
+        - paragraph: Добавить один макарон с собой
+        - paragraph: Небольшое дополнение в отдельной упаковке
+        - strong: +30 TRY
+        - button "Да, добавить"
+        - button "Нет, спасибо"
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3023: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 480"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 480
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Espresso
-        - strong: TRY 110
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
-        - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 480"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
+        - strong: TRY 480
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Espresso
+          - strong: TRY 110
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3024:         - generic: TRY 130
-      - 'button "Choose: Maroc Tea / Mint Green Tea, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Relax Tea / Lavender Rooibos, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Balance Tea / Detox Green Tea, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: San Sebastian Cheesecake, TRY 190. In your order: 1"':
-        - generic: TRY 190
-      - 'button "Choose: Lotus Cheesecake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Raspberry Cheesecake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Chocolate Cake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Almond Tart, TRY 180"':
-        - generic: TRY 180
-      - 'button "Choose: Cake Roll, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Mosaic Cake, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Tiramisu, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Brownie, TRY 150"':
-        - generic: TRY 150
-      - 'button "Choose: Savoury Cookie, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Cookie, TRY 100"':
-        - generic: TRY 100
-      - 'button "Choose: Macaron, TRY 30"':
-        - generic: TRY 30
-      - 'button "Choose: Three-Cheese Croissant, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Nutella Croissant, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: White Cheese Baguette Sandwich, TRY 180"':
-        - generic: TRY 180
-      - 'button "Choose: Beef Sirloin Baguette Sandwich, TRY 230"':
-        - generic: TRY 230
-      - 'button "Choose: Sesame Simit, TRY 35"':
-        - generic: TRY 35
-    - heading "Your order" [level=2]
-      - heading "Espresso" [level=3]
-      - strong: TRY 110
-      - 'button "Decrease quantity: Espresso" [disabled]': −
-      - status "Quantity": "1"
-      - 'button "Increase quantity: Espresso"': +
-      - heading "Iced Caffè Latte + San Sebastian Cheesecake" [level=3]
-      - strong: TRY 370
-      - 'button "Decrease quantity: Iced Caffè Latte + San Sebastian Cheesecake" [disabled]': −
-      - status "Quantity": "1"
-      - 'button "Increase quantity: Iced Caffè Latte + San Sebastian Cheesecake"': +
-    - generic: Total
-    - strong: TRY 480
-    - button "Review order TRY 480":
+
+  ```text
+        - 'button "Choose: Maroc Tea / Mint Green Tea, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Relax Tea / Lavender Rooibos, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Balance Tea / Detox Green Tea, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: San Sebastian Cheesecake, TRY 190. In your order: 1"':
+          - generic: TRY 190
+        - 'button "Choose: Lotus Cheesecake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Raspberry Cheesecake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Chocolate Cake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Almond Tart, TRY 180"':
+          - generic: TRY 180
+        - 'button "Choose: Cake Roll, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Mosaic Cake, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Tiramisu, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Brownie, TRY 150"':
+          - generic: TRY 150
+        - 'button "Choose: Savoury Cookie, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Cookie, TRY 100"':
+          - generic: TRY 100
+        - 'button "Choose: Macaron, TRY 30"':
+          - generic: TRY 30
+        - 'button "Choose: Three-Cheese Croissant, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Nutella Croissant, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: White Cheese Baguette Sandwich, TRY 180"':
+          - generic: TRY 180
+        - 'button "Choose: Beef Sirloin Baguette Sandwich, TRY 230"':
+          - generic: TRY 230
+        - 'button "Choose: Sesame Simit, TRY 35"':
+          - generic: TRY 35
+      - heading "Your order" [level=2]
+        - heading "Espresso" [level=3]
+        - strong: TRY 110
+        - 'button "Decrease quantity: Espresso" [disabled]': −
+        - status "Quantity": "1"
+        - 'button "Increase quantity: Espresso"': +
+        - heading "Iced Caffè Latte + San Sebastian Cheesecake" [level=3]
+        - strong: TRY 370
+        - 'button "Decrease quantity: Iced Caffè Latte + San Sebastian Cheesecake" [disabled]': −
+        - status "Quantity": "1"
+        - 'button "Increase quantity: Iced Caffè Latte + San Sebastian Cheesecake"': +
+      - generic: Total
       - strong: TRY 480
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+      - button "Review order TRY 480":
+        - strong: TRY 480
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -9494,221 +9788,236 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3021 · Mobile chosen pair retains manual espresso total480 — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ480 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [active] [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 480 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Эспрессо
-        - strong: 110 TRY
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
-        - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - heading "Добавить небольшое дополнение?" [level=3]
-      - paragraph: Добавить один макарон с собой
-      - paragraph: Небольшое дополнение в отдельной упаковке
-      - strong: +30 TRY
-      - button "Да, добавить"
-      - button "Нет, спасибо"
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ480 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [active] [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
+        - strong: 480 TRY
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Эспрессо
+          - strong: 110 TRY
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - heading "Добавить небольшое дополнение?" [level=3]
+        - paragraph: Добавить один макарон с собой
+        - paragraph: Небольшое дополнение в отдельной упаковке
+        - strong: +30 TRY
+        - button "Да, добавить"
+        - button "Нет, спасибо"
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3022 · Reload chosen pair retains manual480 no duplication — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ480 TRY"
-- main:
-  - region:
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 480 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Эспрессо
-        - strong: 110 TRY
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
-        - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - heading "Добавить небольшое дополнение?" [level=3]
-      - paragraph: Добавить один макарон с собой
-      - paragraph: Небольшое дополнение в отдельной упаковке
-      - strong: +30 TRY
-      - button "Да, добавить"
-      - button "Нет, спасибо"
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ480 TRY"
+  - main:
+    - region:
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
+        - strong: 480 TRY
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Эспрессо
+          - strong: 110 TRY
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - heading "Добавить небольшое дополнение?" [level=3]
+        - paragraph: Добавить один макарон с собой
+        - paragraph: Небольшое дополнение в отдельной упаковке
+        - strong: +30 TRY
+        - button "Да, добавить"
+        - button "Нет, спасибо"
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3023 · Chosen pair language rerender EN preserves480 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 480"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 480
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Espresso
-        - strong: TRY 110
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
-        - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 480"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
+        - strong: TRY 480
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Espresso
+          - strong: TRY 110
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3024 · Chosen recommendation quick transition retains480 —         - generic: TRY 130
-      - 'button "Choose: Maroc Tea / Mint Green Tea, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Relax Tea / Lavender Rooibos, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Balance Tea / Detox Green Tea, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: San Sebastian Cheesecake, TRY 190. In your order: 1"':
-        - generic: TRY 190
-      - 'button "Choose: Lotus Cheesecake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Raspberry Cheesecake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Chocolate Cake, TRY 190"':
-        - generic: TRY 190
-      - 'button "Choose: Almond Tart, TRY 180"':
-        - generic: TRY 180
-      - 'button "Choose: Cake Roll, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Mosaic Cake, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Tiramisu, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Brownie, TRY 150"':
-        - generic: TRY 150
-      - 'button "Choose: Savoury Cookie, TRY 130"':
-        - generic: TRY 130
-      - 'button "Choose: Cookie, TRY 100"':
-        - generic: TRY 100
-      - 'button "Choose: Macaron, TRY 30"':
-        - generic: TRY 30
-      - 'button "Choose: Three-Cheese Croissant, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: Nutella Croissant, TRY 170"':
-        - generic: TRY 170
-      - 'button "Choose: White Cheese Baguette Sandwich, TRY 180"':
-        - generic: TRY 180
-      - 'button "Choose: Beef Sirloin Baguette Sandwich, TRY 230"':
-        - generic: TRY 230
-      - 'button "Choose: Sesame Simit, TRY 35"':
-        - generic: TRY 35
-    - heading "Your order" [level=2]
-      - heading "Espresso" [level=3]
-      - strong: TRY 110
-      - 'button "Decrease quantity: Espresso" [disabled]': −
-      - status "Quantity": "1"
-      - 'button "Increase quantity: Espresso"': +
-      - heading "Iced Caffè Latte + San Sebastian Cheesecake" [level=3]
-      - strong: TRY 370
-      - 'button "Decrease quantity: Iced Caffè Latte + San Sebastian Cheesecake" [disabled]': −
-      - status "Quantity": "1"
-      - 'button "Increase quantity: Iced Caffè Latte + San Sebastian Cheesecake"': +
-    - generic: Total
-    - strong: TRY 480
-    - button "Review order TRY 480":
+
+  ```text
+        - 'button "Choose: Maroc Tea / Mint Green Tea, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Relax Tea / Lavender Rooibos, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Balance Tea / Detox Green Tea, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: San Sebastian Cheesecake, TRY 190. In your order: 1"':
+          - generic: TRY 190
+        - 'button "Choose: Lotus Cheesecake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Raspberry Cheesecake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Chocolate Cake, TRY 190"':
+          - generic: TRY 190
+        - 'button "Choose: Almond Tart, TRY 180"':
+          - generic: TRY 180
+        - 'button "Choose: Cake Roll, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Mosaic Cake, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Tiramisu, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Brownie, TRY 150"':
+          - generic: TRY 150
+        - 'button "Choose: Savoury Cookie, TRY 130"':
+          - generic: TRY 130
+        - 'button "Choose: Cookie, TRY 100"':
+          - generic: TRY 100
+        - 'button "Choose: Macaron, TRY 30"':
+          - generic: TRY 30
+        - 'button "Choose: Three-Cheese Croissant, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: Nutella Croissant, TRY 170"':
+          - generic: TRY 170
+        - 'button "Choose: White Cheese Baguette Sandwich, TRY 180"':
+          - generic: TRY 180
+        - 'button "Choose: Beef Sirloin Baguette Sandwich, TRY 230"':
+          - generic: TRY 230
+        - 'button "Choose: Sesame Simit, TRY 35"':
+          - generic: TRY 35
+      - heading "Your order" [level=2]
+        - heading "Espresso" [level=3]
+        - strong: TRY 110
+        - 'button "Decrease quantity: Espresso" [disabled]': −
+        - status "Quantity": "1"
+        - 'button "Increase quantity: Espresso"': +
+        - heading "Iced Caffè Latte + San Sebastian Cheesecake" [level=3]
+        - strong: TRY 370
+        - 'button "Decrease quantity: Iced Caffè Latte + San Sebastian Cheesecake" [disabled]': −
+        - status "Quantity": "1"
+        - 'button "Increase quantity: Iced Caffè Latte + San Sebastian Cheesecake"': +
+      - generic: Total
       - strong: TRY 480
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+      - button "Review order TRY 480":
+        - strong: TRY 480
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
 
 #### Доказательства
 
@@ -9765,715 +10074,774 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3025: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3026: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 550"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: 2 × Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 550"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 550
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × 2 × Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 550"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: 2 × Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 550"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 550
-      - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Remove · −TRY 180" [pressed]:
-        - generic: Add a second Latte
-        - strong: Remove · −TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × 2 × Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 550
+        - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Remove · −TRY 180" [pressed]:
+          - generic: Add a second Latte
+          - strong: Remove · −TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3027: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 550"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: 2 × Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 550"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 550
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × 2 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 550"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: 2 × Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 550"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 550
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Remove · −TRY 180" [pressed]:
-        - generic: Add a second Latte
-        - strong: Remove · −TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × 2 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 550
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Remove · −TRY 180" [pressed]:
+          - generic: Add a second Latte
+          - strong: Remove · −TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3028: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3036: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3037: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺550"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: 2 × Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺550"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺550
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × 2 × Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺550"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: 2 × Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺550"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺550
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
-        - generic: İkinci bir Latte ekle
-        - strong: Kaldır · −₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × 2 × Caffè Latte + San Sebastian
+          - strong: ₺550
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
+          - generic: İkinci bir Latte ekle
+          - strong: Kaldır · −₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3038: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺550"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: 2 × Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺550"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺550
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × 2 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺550"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: 2 × Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺550"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺550
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
-        - generic: İkinci bir Latte ekle
-        - strong: Kaldır · −₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × 2 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺550
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
+          - generic: İkinci bir Latte ekle
+          - strong: Kaldır · −₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3039: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3040: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3041: Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: blocked; это не успешное подтверждение сценария.
+  ```
+
 - RUN-3042: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Кафе латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Кафе латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Кафе латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Кафе латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3043: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Кафе латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Кафе латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Кафе латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Кафе латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3044: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3045: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3046: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [active] [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [active] [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -10484,715 +10852,774 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3025 · Mobile EN hot latte replacement unchanged370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3026 · Mobile EN second hot latte total550 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 550"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: 2 × Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 550"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 550
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × 2 × Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 550"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: 2 × Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 550"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 550
-      - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Remove · −TRY 180" [pressed]:
-        - generic: Add a second Latte
-        - strong: Remove · −TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × 2 × Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 550
+        - button "Switch Iced Latte to hot Latte No extra charge" [pressed]:
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Remove · −TRY 180" [pressed]:
+          - generic: Add a second Latte
+          - strong: Remove · −TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3027 · Mobile EN undo hot keeps second latte550 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 550"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: 2 × Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 550"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 550
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × 2 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 550"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: 2 × Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 550"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 550
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Remove · −TRY 180" [pressed]:
-        - generic: Add a second Latte
-        - strong: Remove · −TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × 2 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 550
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Remove · −TRY 180" [pressed]:
+          - generic: Add a second Latte
+          - strong: Remove · −TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3028 · Mobile EN remove second latte returns370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - paragraph: Add one takeaway macaron
-      - paragraph: A small, separately packed add-on
-      - strong: +TRY 30
-      - button "Yes, add it"
-      - button "No, thanks"
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - paragraph: Add one takeaway macaron
+        - paragraph: A small, separately packed add-on
+        - strong: +TRY 30
+        - button "Yes, add it"
+        - button "No, thanks"
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3036 · TR mobile hot replacement370 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+  ```
+
 - RUN-3037 · TR mobile second hot latte550 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺550"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: 2 × Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺550"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺550
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × 2 × Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺550"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: 2 × Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺550"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺550
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
-        - generic: İkinci bir Latte ekle
-        - strong: Kaldır · −₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × 2 × Caffè Latte + San Sebastian
+          - strong: ₺550
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok" [pressed]:
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
+          - generic: İkinci bir Latte ekle
+          - strong: Kaldır · −₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+  ```
+
 - RUN-3038 · TR mobile undo hot keeps cold550 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺550"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: 2 × Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺550"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺550
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × 2 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺550"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: 2 × Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺550"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺550
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
-        - generic: İkinci bir Latte ekle
-        - strong: Kaldır · −₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × 2 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺550
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Kaldır · −₺180" [pressed]:
+          - generic: İkinci bir Latte ekle
+          - strong: Kaldır · −₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+  ```
+
 - RUN-3039 · TR mobile remove second restores370 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+  ```
+
 - RUN-3040 · RU mobile hot replacement370 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3041 · RU mobile second hot latte550 — Неопределённое наблюдение, не считается успешным проходом. Captured during prior-session cleanup; selected hot state not consistently reflected. Do not count as a complete pass. Raw observation: - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3042 · RU current tab hot370 selected — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Кафе латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Кафе латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Кафе латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Кафе латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3043 · RU current tab two hot550 selected — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Кафе латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Кафе латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Кафе латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Кафе латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты" [pressed]:
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3044 · RU current tab undo hot cold550 — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ550 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 550 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 550 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ550 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: 2 × Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 550 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 550 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
-        - generic: Добавить второй Latte
-        - strong: Убрать · −180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × 2 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 550 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Убрать · −180 TRY" [pressed]:
+          - generic: Добавить второй Latte
+          - strong: Убрать · −180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3045 · RU current tab remove second370 — - link "Перейти к содержимому":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "На главную Roby's Coffee House":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Управление Smart Choice":
-    - group "Выбор языка":
-      - button "Турецкий": TR
-      - button "Английский": EN
-      - button "Русский" [pressed]: RU
-- status: "Цена обновлена: Весь заказ370 TRY"
-- main:
-  - region "Отличный выбор.":
-    - button "← Собрать заказ самому"
-    - paragraph: ВЫБОР СОХРАНЁН
-    - heading "Отличный выбор." [level=1]
-    - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
-    - strong: Айс латте + Чизкейк Сан-Себастьян
-    - generic: "Сумма выбранного варианта: 370 TRY"
-    - region "Как продолжим?":
-      - heading "Как продолжим?" [level=2]
-      - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
-      - generic: Весь заказ
-      - strong: 370 TRY
-      - button "Всё, к оформлению"
-      - button "Выбрать ещё"
-      - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
-      - heading "Состав заказа" [level=3]
-      - list:
-        - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "На главную Roby's Coffee House":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Управление Smart Choice":
+      - group "Выбор языка":
+        - button "Турецкий": TR
+        - button "Английский": EN
+        - button "Русский" [pressed]: RU
+  - status: "Цена обновлена: Весь заказ370 TRY"
+  - main:
+    - region "Отличный выбор.":
+      - button "← Собрать заказ самому"
+      - paragraph: ВЫБОР СОХРАНЁН
+      - heading "Отличный выбор." [level=1]
+      - paragraph: Выбор сохранён в этом браузере. Покажи QR на кассе, чтобы подтвердить заказ.
+      - strong: Айс латте + Чизкейк Сан-Себастьян
+      - generic: "Сумма выбранного варианта: 370 TRY"
+      - region "Как продолжим?":
+        - heading "Как продолжим?" [level=2]
+        - paragraph: Если всё подходит, можно переходить к оформлению. Хочется чего-то ещё — выбери; дополнения необязательны.
+        - generic: Весь заказ
         - strong: 370 TRY
-      - button "Заменить Iced Latte на горячий Latte Без доплаты":
-        - generic: Заменить Iced Latte на горячий Latte
-        - strong: Без доплаты
-      - button "Добавить второй Latte Добавить · +180 TRY":
-        - generic: Добавить второй Latte
-        - strong: Добавить · +180 TRY
-      - paragraph: В этой сессии предложение больше не появится.
-    - button "Собрать заказ самому"
-    - button "Выбрать другое"
-    - link "Открыть полное меню":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+        - button "Всё, к оформлению"
+        - button "Выбрать ещё"
+        - paragraph: Далее получишь QR заказа. Оплата и окончательное подтверждение — на кассе в кафе.
+        - heading "Состав заказа" [level=3]
+        - list:
+          - generic: 1 × Айс латте + Чизкейк Сан-Себастьян
+          - strong: 370 TRY
+        - button "Заменить Iced Latte на горячий Latte Без доплаты":
+          - generic: Заменить Iced Latte на горячий Latte
+          - strong: Без доплаты
+        - button "Добавить второй Latte Добавить · +180 TRY":
+          - generic: Добавить второй Latte
+          - strong: Добавить · +180 TRY
+        - paragraph: В этой сессии предложение больше не появится.
+      - button "Собрать заказ самому"
+      - button "Выбрать другое"
+      - link "Открыть полное меню":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice помогает выбрать. На этом экране заказ и оплата ещё не отправляются.
+  ```
+
 - RUN-3046 · TR current tab upsell localized totals370 — - link "İçeriğe geç":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House ana sayfası":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice kontrolleri":
-    - group "Dil seçici":
-      - button "Türkçe" [pressed]: TR
-      - button "İngilizce": EN
-      - button "Rusça": RU
-- status: "Fiyat güncellendi: Sipariş toplamı₺370"
-- main:
-  - region "Güzel seçim.":
-    - button "← Siparişini kendin oluştur"
-    - paragraph: SEÇİM KAYDEDİLDİ
-    - heading "Güzel seçim." [active] [level=1]
-    - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
-    - strong: Buzlu Caffè Latte + San Sebastian
-    - generic: "Bu seçimin tutarı: ₺370"
-    - region "Nasıl devam edelim?":
-      - heading "Nasıl devam edelim?" [level=2]
-      - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
-      - generic: Sipariş toplamı
-      - strong: ₺370
-      - button "Tamam, devam et"
-      - button "Başka bir şey seç"
-      - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
-      - heading "Seçilen içerik" [level=3]
-      - list:
-        - generic: 1 × Buzlu Caffè Latte + San Sebastian
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House ana sayfası":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice kontrolleri":
+      - group "Dil seçici":
+        - button "Türkçe" [pressed]: TR
+        - button "İngilizce": EN
+        - button "Rusça": RU
+  - status: "Fiyat güncellendi: Sipariş toplamı₺370"
+  - main:
+    - region "Güzel seçim.":
+      - button "← Siparişini kendin oluştur"
+      - paragraph: SEÇİM KAYDEDİLDİ
+      - heading "Güzel seçim." [active] [level=1]
+      - paragraph: Seçiminiz bu tarayıcıda kaydedildi. Siparişi tamamlamak için QR'ı kasaya gösterin.
+      - strong: Buzlu Caffè Latte + San Sebastian
+      - generic: "Bu seçimin tutarı: ₺370"
+      - region "Nasıl devam edelim?":
+        - heading "Nasıl devam edelim?" [level=2]
+        - paragraph: Seçiminiz size uygunsa devam edebilirsiniz. İsterseniz başka bir şey de seçin; ekleme yapmak zorunda değilsiniz.
+        - generic: Sipariş toplamı
         - strong: ₺370
-      - button "Iced Latte yerine sıcak Latte Ek ücret yok":
-        - generic: Iced Latte yerine sıcak Latte
-        - strong: Ek ücret yok
-      - button "İkinci bir Latte ekle Ekle · +₺180":
-        - generic: İkinci bir Latte ekle
-        - strong: Ekle · +₺180
-      - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
-    - button "Siparişini kendin oluştur"
-    - button "Başka bir seçim yap"
-    - link "Tam menüyü aç":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+        - button "Tamam, devam et"
+        - button "Başka bir şey seç"
+        - paragraph: Sonraki adımda sipariş QR'ını alın. Ödeme ve son onay kafede, kasada yapılır.
+        - heading "Seçilen içerik" [level=3]
+        - list:
+          - generic: 1 × Buzlu Caffè Latte + San Sebastian
+          - strong: ₺370
+        - button "Iced Latte yerine sıcak Latte Ek ücret yok":
+          - generic: Iced Latte yerine sıcak Latte
+          - strong: Ek ücret yok
+        - button "İkinci bir Latte ekle Ekle · +₺180":
+          - generic: İkinci bir Latte ekle
+          - strong: Ekle · +₺180
+        - paragraph: Ek teklif bu oturumda tekrar gösterilmeyecek.
+      - button "Siparişini kendin oluştur"
+      - button "Başka bir seçim yap"
+      - link "Tam menüyü aç":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice bir seçim yardımcısıdır. Bu ekranda sipariş veya ödeme alınmaz.
+  ```
 
 #### Доказательства
 
@@ -11259,161 +11686,176 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3032:       - button "English" [pressed]: EN
-- status: "Price updated: Whole order totalTRY 370"
-    - heading "Lovely choice." [active] [level=1]
-    - generic: "Current selection total: TRY 370"
-      - heading "What would you like to do next?" [level=2]
-      - generic: Whole order total
-      - strong: TRY 370
-      - heading "Selected contents" [level=3]
+
+  ```text
+  - status: "Price updated: Whole order totalTRY 370"
+      - heading "Lovely choice." [active] [level=1]
+      - generic: "Current selection total: TRY 370"
+        - heading "What would you like to do next?" [level=2]
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Add a second Latte Add · +TRY 180":
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - strong: +TRY 30
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - heading "Selected contents" [level=3]
+          - strong: TRY 370
+        - button "Add a second Latte Add · +TRY 180":
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - strong: +TRY 30
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3033: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-    - link "Full menu":
-      - /url: ../menu.html
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+      - link "Full menu":
+        - /url: ../menu.html
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3034: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-    - link "Full menu":
-      - /url: ../menu.html
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region:
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+      - link "Full menu":
+        - /url: ../menu.html
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region:
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3035: Responsive subvariant only after desktop explicit decline. - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -11424,161 +11866,176 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3032 · Fresh desktop EN session offers optional macaron before decision370 —       - button "English" [pressed]: EN
-- status: "Price updated: Whole order totalTRY 370"
-    - heading "Lovely choice." [active] [level=1]
-    - generic: "Current selection total: TRY 370"
-      - heading "What would you like to do next?" [level=2]
-      - generic: Whole order total
-      - strong: TRY 370
-      - heading "Selected contents" [level=3]
+
+  ```text
+  - status: "Price updated: Whole order totalTRY 370"
+      - heading "Lovely choice." [active] [level=1]
+      - generic: "Current selection total: TRY 370"
+        - heading "What would you like to do next?" [level=2]
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Add a second Latte Add · +TRY 180":
-        - strong: Add · +TRY 180
-      - heading "Would you like one small add-on?" [level=3]
-      - strong: +TRY 30
-Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+        - heading "Selected contents" [level=3]
+          - strong: TRY 370
+        - button "Add a second Latte Add · +TRY 180":
+          - strong: Add · +TRY 180
+        - heading "Would you like one small add-on?" [level=3]
+        - strong: +TRY 30
+  Полная исходная DOM/AX запись сохранена в указанном JSON-артефакте; краткая выдержка не заменяет её.
+  ```
+
 - RUN-3033 · Desktop EN decline macaron preserves370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-    - link "Full menu":
-      - /url: ../menu.html
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+      - link "Full menu":
+        - /url: ../menu.html
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3034 · Desktop EN decline persists reload without repeated offer370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-    - link "Full menu":
-      - /url: ../menu.html
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region:
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+      - link "Full menu":
+        - /url: ../menu.html
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region:
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3035 · Mobile390 declined offer retains370 — Responsive subvariant only after desktop explicit decline. - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
 
 #### Доказательства
 
@@ -11636,145 +12093,156 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Что проверено
 
 - RUN-3029: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 400"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + Macaron + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 400"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 400
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 400"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 400"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 400
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - button "Add one takeaway macaron Remove · −TRY 30" [pressed]:
-        - generic: Add one takeaway macaron
-        - strong: Remove · −TRY 30
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+          - strong: TRY 400
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - button "Add one takeaway macaron Remove · −TRY 30" [pressed]:
+          - generic: Add one takeaway macaron
+          - strong: Remove · −TRY 30
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3030: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
+
 - RUN-3031: - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.
+  ```
 
 #### Что осталось проверить
 
@@ -11786,145 +12254,156 @@ Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save dis
 #### Связанные ручные RUN
 
 - RUN-3029 · Mobile EN keyboard accept macaron total400 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 400"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + Macaron + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 400"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 400
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 400"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 400"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 400
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - button "Add one takeaway macaron Remove · −TRY 30" [pressed]:
-        - generic: Add one takeaway macaron
-        - strong: Remove · −TRY 30
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + Macaron + San Sebastian Cheesecake
+          - strong: TRY 400
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - button "Add one takeaway macaron Remove · −TRY 30" [pressed]:
+          - generic: Add one takeaway macaron
+          - strong: Remove · −TRY 30
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3030 · Mobile EN keyboard remove macaron returns370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
+
 - RUN-3031 · Reload does not restore removed macaron370 — - link "Skip to content":
-  - /url: "#smart-choice-main"
-- banner:
-  - link "Roby's Coffee House home":
-    - /url: ../index.html
-    - strong: ROBY'S
-    - generic: COFFEE HOUSE
-  - navigation "Smart Choice controls":
-    - group "Language selector":
-      - button "Turkish": TR
-      - button "English" [pressed]: EN
-      - button "Russian": RU
-- status: "Price updated: Whole order totalTRY 370"
-- main:
-  - region "Lovely choice.":
-    - button "← Build your order"
-    - paragraph: CHOICE SAVED
-    - heading "Lovely choice." [active] [level=1]
-    - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
-    - strong: Iced Caffè Latte + San Sebastian Cheesecake
-    - generic: "Current selection total: TRY 370"
-    - region "What would you like to do next?":
-      - heading "What would you like to do next?" [level=2]
-      - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
-      - generic: Whole order total
-      - strong: TRY 370
-      - button "All set · continue"
-      - button "Choose more"
-      - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
-      - heading "Selected contents" [level=3]
-      - list:
-        - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+
+  ```text
+    - /url: "#smart-choice-main"
+  - banner:
+    - link "Roby's Coffee House home":
+      - /url: ../index.html
+      - strong: ROBY'S
+      - generic: COFFEE HOUSE
+    - navigation "Smart Choice controls":
+      - group "Language selector":
+        - button "Turkish": TR
+        - button "English" [pressed]: EN
+        - button "Russian": RU
+  - status: "Price updated: Whole order totalTRY 370"
+  - main:
+    - region "Lovely choice.":
+      - button "← Build your order"
+      - paragraph: CHOICE SAVED
+      - heading "Lovely choice." [active] [level=1]
+      - paragraph: Your choice is saved in this browser. Show the QR at the counter to confirm your order.
+      - strong: Iced Caffè Latte + San Sebastian Cheesecake
+      - generic: "Current selection total: TRY 370"
+      - region "What would you like to do next?":
+        - heading "What would you like to do next?" [level=2]
+        - paragraph: If this feels right, you can continue. Choose something else if you like; extras are optional.
+        - generic: Whole order total
         - strong: TRY 370
-      - button "Switch Iced Latte to hot Latte No extra charge":
-        - generic: Switch Iced Latte to hot Latte
-        - strong: No extra charge
-      - button "Add a second Latte Add · +TRY 180":
-        - generic: Add a second Latte
-        - strong: Add · +TRY 180
-      - paragraph: This offer will not appear again in this session.
-    - button "Build your order"
-    - button "Choose another"
-    - link "Open full menu":
-      - /url: ../menu.html
-- contentinfo:
-  - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+        - button "All set · continue"
+        - button "Choose more"
+        - paragraph: Get your order QR in the next step. Pay and confirm your order at the café counter.
+        - heading "Selected contents" [level=3]
+        - list:
+          - generic: 1 × Iced Caffè Latte + San Sebastian Cheesecake
+          - strong: TRY 370
+        - button "Switch Iced Latte to hot Latte No extra charge":
+          - generic: Switch Iced Latte to hot Latte
+          - strong: No extra charge
+        - button "Add a second Latte Add · +TRY 180":
+          - generic: Add a second Latte
+          - strong: Add · +TRY 180
+        - paragraph: This offer will not appear again in this session.
+      - button "Build your order"
+      - button "Choose another"
+      - link "Open full menu":
+        - /url: ../menu.html
+  - contentinfo:
+    - paragraph: Smart Choice is a selection assistant. No order or payment is submitted on this screen.
+  ```
 
 #### Доказательства
 
