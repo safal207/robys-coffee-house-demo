@@ -1,0 +1,2078 @@
+{
+  "startedAt": "2026-10-14T15:19:40.793Z",
+  "origin": "http://localhost:8793",
+  "method": "CUA real browser UI and read-only DOM",
+  "desktop": {
+    "width": 1280,
+    "height": 800
+  },
+  "items": [
+    {
+      "name": "Увеличить фото и добавить в заказ: Эспрессо",
+      "dialog": {
+        "clientWidth": 980,
+        "scrollWidth": 980
+      },
+      "height": 800,
+      "images": [
+        {
+          "alt": "Эспрессо",
+          "complete": true,
+          "fit": "contain",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 528.3250122070312,
+            "width": 528.3250122070312,
+            "x": 150.8000030517578,
+            "y": 65.26250457763672
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "contain",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "src": null
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "contain",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 72.4000015258789,
+            "width": 144.8000030517578,
+            "x": 724.7250366210938,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 898.7250366210938,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 972.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1072.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1146.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--lotus-cheesecake.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1246.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1320.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--raspberry-cheesecake.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1420.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1494.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--chocolate-cake.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1594.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1668.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--almond-tart.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1768.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1842.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--cake-roll.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 1942.7249755859375,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2016.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--mosaic-cake.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2116.72509765625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2190.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--tiramisu.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2290.72509765625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2364.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--brownie.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2464.72509765625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2538.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--cookie.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2638.72509765625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2712.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/desserts--macaron.webp"
+        },
+        {
+          "alt": "",
+          "complete": true,
+          "fit": "cover",
+          "naturalWidth": 1024,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2812.72509765625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/hot-coffee--espresso.webp"
+        },
+        {
+          "alt": "",
+          "complete": false,
+          "fit": "cover",
+          "naturalWidth": 0,
+          "rect": {
+            "height": 70.9000015258789,
+            "width": 70.9000015258789,
+            "x": 2886.625,
+            "y": 367.7250061035156
+          },
+          "src": "src/products/menu-v1/food--nutella-croissant.webp"
+        }
+      ],
+      "overflow": false,
+      "title": "Эспрессо",
+      "width": 1280,
+      "index": 0,
+      "mainPhoto": {
+        "src": "src/products/menu-v1/hot-coffee--espresso.webp",
+        "complete": true,
+        "naturalWidth": 1024,
+        "width": 528.3250122070312,
+        "height": 528.3250122070312,
+        "fit": "contain"
+      },
+      "dialogOverflow": false,
+      "pageOverflow": false
+    },
+    {
+      "index": 1,
+      "name": "Увеличить фото и добавить в заказ: Американо",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--americano.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Американо",
+      "width": 1280
+    },
+    {
+      "index": 2,
+      "name": "Увеличить фото и добавить в заказ: Эспрессо макиато",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--espresso-macchiato.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Эспрессо макиато",
+      "width": 1280
+    },
+    {
+      "index": 3,
+      "name": "Увеличить фото и добавить в заказ: Кортадо",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--cortado.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Кортадо",
+      "width": 1280
+    },
+    {
+      "index": 4,
+      "name": "Увеличить фото и добавить в заказ: Флэт уайт",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--flat-white.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Флэт уайт",
+      "width": 1280
+    },
+    {
+      "index": 5,
+      "name": "Увеличить фото и добавить в заказ: Капучино",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.1978759765625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--cappuccino.webp",
+        "width": 527.1978759765625
+      },
+      "pageOverflow": false,
+      "title": "Капучино",
+      "width": 1280
+    },
+    {
+      "index": 6,
+      "name": "Увеличить фото и добавить в заказ: Карамельный капучино",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.2359619140625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--caramel-cappuccino.webp",
+        "width": 528.2360229492188
+      },
+      "pageOverflow": false,
+      "title": "Карамельный капучино",
+      "width": 1280
+    },
+    {
+      "index": 7,
+      "name": "Увеличить фото и добавить в заказ: Кафе латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.2339477539062,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--caffe-latte.webp",
+        "width": 526.2340087890625
+      },
+      "pageOverflow": false,
+      "title": "Кафе латте",
+      "width": 1280
+    },
+    {
+      "index": 8,
+      "name": "Увеличить фото и добавить в заказ: Латте «Шоколадное печенье»",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.2337036132812,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--chocolate-cookie-latte.webp",
+        "width": 526.2337036132812
+      },
+      "pageOverflow": false,
+      "title": "Латте «Шоколадное печенье»",
+      "width": 1280
+    },
+    {
+      "index": 9,
+      "name": "Увеличить фото и добавить в заказ: Латте с корицей",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3170776367188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--cinnamon-latte.webp",
+        "width": 528.3170776367188
+      },
+      "pageOverflow": false,
+      "title": "Латте с корицей",
+      "width": 1280
+    },
+    {
+      "index": 10,
+      "name": "Увеличить фото и добавить в заказ: Карамельный латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.899169921875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--caramel-latte.webp",
+        "width": 527.8991088867188
+      },
+      "pageOverflow": false,
+      "title": "Карамельный латте",
+      "width": 1280
+    },
+    {
+      "index": 11,
+      "name": "Увеличить фото и добавить в заказ: Ванильный латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.7288208007812,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--vanilla-latte.webp",
+        "width": 527.7288208007812
+      },
+      "pageOverflow": false,
+      "title": "Ванильный латте",
+      "width": 1280
+    },
+    {
+      "index": 12,
+      "name": "Увеличить фото и добавить в заказ: Ореховый латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.1190185546875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--hazelnut-latte.webp",
+        "width": 528.1190795898438
+      },
+      "pageOverflow": false,
+      "title": "Ореховый латте",
+      "width": 1280
+    },
+    {
+      "index": 13,
+      "name": "Увеличить фото и добавить в заказ: Кафе мокка",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.1970825195312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--caffe-mocha.webp",
+        "width": 527.197021484375
+      },
+      "pageOverflow": false,
+      "title": "Кафе мокка",
+      "width": 1280
+    },
+    {
+      "index": 14,
+      "name": "Увеличить фото и добавить в заказ: Горячая мокка с белым шоколадом",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.8997192382812,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/hot-coffee--white-chocolate-mocha.webp",
+        "width": 527.899658203125
+      },
+      "pageOverflow": false,
+      "title": "Горячая мокка с белым шоколадом",
+      "width": 1280
+    },
+    {
+      "index": 15,
+      "name": "Увеличить фото и добавить в заказ: Фильтр-кофе",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.0292358398438,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--filter-coffee.webp",
+        "width": 528.0292358398438
+      },
+      "pageOverflow": false,
+      "title": "Фильтр-кофе",
+      "width": 1280
+    },
+    {
+      "index": 16,
+      "name": "Увеличить фото и добавить в заказ: Кофе по-турецки",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.5038452148438,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--turkish-coffee.webp",
+        "width": 527.5038452148438
+      },
+      "pageOverflow": false,
+      "title": "Кофе по-турецки",
+      "width": 1280
+    },
+    {
+      "index": 17,
+      "name": "Увеличить фото и добавить в заказ: Чёрный чай · Мой заказ: 1",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--black-tea.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Чёрный чай",
+      "width": 1280
+    },
+    {
+      "index": 18,
+      "name": "Увеличить фото и добавить в заказ: Горячий шоколад",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.7404174804688,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--hot-chocolate.webp",
+        "width": 527.7404174804688
+      },
+      "pageOverflow": false,
+      "title": "Горячий шоколад",
+      "width": 1280
+    },
+    {
+      "index": 19,
+      "name": "Увеличить фото и добавить в заказ: Молоко",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.7911987304688,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--milk.webp",
+        "width": 526.7911987304688
+      },
+      "pageOverflow": false,
+      "title": "Молоко",
+      "width": 1280
+    },
+    {
+      "index": 20,
+      "name": "Увеличить фото и добавить в заказ: Салеп",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.1875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--salep.webp",
+        "width": 528.1874389648438
+      },
+      "pageOverflow": false,
+      "title": "Салеп",
+      "width": 1280
+    },
+    {
+      "index": 21,
+      "name": "Увеличить фото и добавить в заказ: Чай-латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.0282592773438,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/brew-hot--chai-tea-latte.webp",
+        "width": 528.0282592773438
+      },
+      "pageOverflow": false,
+      "title": "Чай-латте",
+      "width": 1280
+    },
+    {
+      "index": 22,
+      "name": "Увеличить фото и добавить в заказ: Холодный фильтр-кофе",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--iced-filter-coffee.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Холодный фильтр-кофе",
+      "width": 1280
+    },
+    {
+      "index": 23,
+      "name": "Увеличить фото и добавить в заказ: Айс американо",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--iced-americano.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Айс американо",
+      "width": 1280
+    },
+    {
+      "index": 24,
+      "name": "Увеличить фото и добавить в заказ: Айс латте",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.7933959960938,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--iced-caffe-latte.webp",
+        "width": 526.7933959960938
+      },
+      "pageOverflow": false,
+      "title": "Айс латте",
+      "width": 1280
+    },
+    {
+      "index": 25,
+      "name": "Увеличить фото и добавить в заказ: Айс латте со вкусом",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.026123046875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--flavoured-iced-caffe-latte.webp",
+        "width": 528.026123046875
+      },
+      "pageOverflow": false,
+      "title": "Айс латте со вкусом",
+      "width": 1280
+    },
+    {
+      "index": 26,
+      "name": "Увеличить фото и добавить в заказ: Айс мокка",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3078002929688,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--iced-mocha.webp",
+        "width": 528.3078002929688
+      },
+      "pageOverflow": false,
+      "title": "Айс мокка",
+      "width": 1280
+    },
+    {
+      "index": 27,
+      "name": "Увеличить фото и добавить в заказ: Холодная мокка с белым шоколадом",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.2346801757812,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--white-chocolate-mocha.webp",
+        "width": 528.2346801757812
+      },
+      "pageOverflow": false,
+      "title": "Холодная мокка с белым шоколадом",
+      "width": 1280
+    },
+    {
+      "index": 28,
+      "name": "Увеличить фото и добавить в заказ: Кафе латте фраппе",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.32421875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--caffe-latte-frappe.webp",
+        "width": 528.32421875
+      },
+      "pageOverflow": false,
+      "title": "Кафе латте фраппе",
+      "width": 1280
+    },
+    {
+      "index": 29,
+      "name": "Увеличить фото и добавить в заказ: Милкшейк",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 525.4802856445312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/cold-coffee--milkshake.webp",
+        "width": 525.4802856445312
+      },
+      "pageOverflow": false,
+      "title": "Милкшейк",
+      "width": 1280
+    },
+    {
+      "index": 30,
+      "name": "Увеличить фото и добавить в заказ: Cool Lime",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--cool-lime.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Cool Lime",
+      "width": 1280
+    },
+    {
+      "index": 31,
+      "name": "Увеличить фото и добавить в заказ: Ягодный гибискус",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--berry-hibiscus.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Ягодный гибискус",
+      "width": 1280
+    },
+    {
+      "index": 32,
+      "name": "Увеличить фото и добавить в заказ: Манго-маракуйя",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.3250122070312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--mango-passionfruit.webp",
+        "width": 528.3250122070312
+      },
+      "pageOverflow": false,
+      "title": "Манго-маракуйя",
+      "width": 1280
+    },
+    {
+      "index": 33,
+      "name": "Увеличить фото и добавить в заказ: Ягодный лимонад",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--berry-lemonade.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Ягодный лимонад",
+      "width": 1280
+    },
+    {
+      "index": 33,
+      "name": "Увеличить фото и добавить в заказ: Ягодный лимонад",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--berry-lemonade.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Ягодный лимонад",
+      "width": 1280
+    },
+    {
+      "index": 33,
+      "name": "Увеличить фото и добавить в заказ: Ягодный лимонад",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.5009765625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--berry-lemonade.webp",
+        "width": 527.5009765625
+      },
+      "pageOverflow": false,
+      "title": "Ягодный лимонад",
+      "width": 1280
+    },
+    {
+      "index": 33,
+      "name": "Увеличить фото и добавить в заказ: Ягодный лимонад",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.1857299804688,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--berry-lemonade.webp",
+        "width": 528.1857299804688
+      },
+      "pageOverflow": false,
+      "title": "Ягодный лимонад",
+      "width": 1280
+    },
+    {
+      "index": 34,
+      "name": "Увеличить фото и добавить в заказ: Ананас с ягодами",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.73193359375,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--pineapple-berry.webp",
+        "width": 527.73193359375
+      },
+      "pageOverflow": false,
+      "title": "Ананас с ягодами",
+      "width": 1280
+    },
+    {
+      "index": 35,
+      "name": "Увеличить фото и добавить в заказ: Summer Pine",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--summer-pine.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Summer Pine",
+      "width": 1280
+    },
+    {
+      "index": 36,
+      "name": "Увеличить фото и добавить в заказ: Тропический манго",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 525.4866333007812,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--tropical-mango.webp",
+        "width": 525.4866333007812
+      },
+      "pageOverflow": false,
+      "title": "Тропический манго",
+      "width": 1280
+    },
+    {
+      "index": 37,
+      "name": "Увеличить фото и добавить в заказ: Клубника и лайм",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--strawberry-lime.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Клубника и лайм",
+      "width": 1280
+    },
+    {
+      "index": 38,
+      "name": "Увеличить фото и добавить в заказ: Юдзу-попкорн",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/refreshers--yuzu-popcorn.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Юдзу-попкорн",
+      "width": 1280
+    },
+    {
+      "index": 39,
+      "name": "Увеличить фото и добавить в заказ: Beauty Tea / Цветочный белый чай",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 519.5396118164062,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/herbal-tea--beauty-tea-floral-white-tea.webp",
+        "width": 519.53955078125
+      },
+      "pageOverflow": false,
+      "title": "Beauty Tea / Цветочный белый чай",
+      "width": 1280
+    },
+    {
+      "index": 40,
+      "name": "Увеличить фото и добавить в заказ: Tahiti Tea / Гибискус и лемонграсс",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 520.125,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/herbal-tea--tahiti-tea-hibiscus-lemongrass.webp",
+        "width": 520.125
+      },
+      "pageOverflow": false,
+      "title": "Tahiti Tea / Гибискус и лемонграсс",
+      "width": 1280
+    },
+    {
+      "index": 41,
+      "name": "Увеличить фото и добавить в заказ: Maroc Tea / Зелёный чай с мятой",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 518.6173706054688,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/herbal-tea--maroc-tea-mint-green-tea.webp",
+        "width": 518.6173706054688
+      },
+      "pageOverflow": false,
+      "title": "Maroc Tea / Зелёный чай с мятой",
+      "width": 1280
+    },
+    {
+      "index": 42,
+      "name": "Увеличить фото и добавить в заказ: Relax Tea / Ройбуш с лавандой",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 516.31298828125,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/herbal-tea--relax-tea-lavender-rooibos.webp",
+        "width": 516.3129272460938
+      },
+      "pageOverflow": false,
+      "title": "Relax Tea / Ройбуш с лавандой",
+      "width": 1280
+    },
+    {
+      "index": 43,
+      "name": "Увеличить фото и добавить в заказ: Balance Tea / Детокс-зелёный чай",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 519.537353515625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/herbal-tea--balance-tea-detox-green-tea.webp",
+        "width": 519.5374145507812
+      },
+      "pageOverflow": false,
+      "title": "Balance Tea / Детокс-зелёный чай",
+      "width": 1280
+    },
+    {
+      "index": 44,
+      "name": "Увеличить фото и добавить в заказ: Чизкейк Сан-Себастьян",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.197998046875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--san-sebastian-cheesecake.webp",
+        "width": 527.197998046875
+      },
+      "pageOverflow": false,
+      "title": "Чизкейк Сан-Себастьян",
+      "width": 1280
+    },
+    {
+      "index": 45,
+      "name": "Увеличить фото и добавить в заказ: Чизкейк Lotus",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.786865234375,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--lotus-cheesecake.webp",
+        "width": 526.786865234375
+      },
+      "pageOverflow": false,
+      "title": "Чизкейк Lotus",
+      "width": 1280
+    },
+    {
+      "index": 46,
+      "name": "Увеличить фото и добавить в заказ: Малиновый чизкейк",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.1949462890625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--raspberry-cheesecake.webp",
+        "width": 527.1948852539062
+      },
+      "pageOverflow": false,
+      "title": "Малиновый чизкейк",
+      "width": 1280
+    },
+    {
+      "index": 47,
+      "name": "Увеличить фото и добавить в заказ: Шоколадный торт",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.5016479492188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--chocolate-cake.webp",
+        "width": 527.5016479492188
+      },
+      "pageOverflow": false,
+      "title": "Шоколадный торт",
+      "width": 1280
+    },
+    {
+      "index": 48,
+      "name": "Увеличить фото и добавить в заказ: Миндальный тарт",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.8991088867188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--almond-tart.webp",
+        "width": 527.8991088867188
+      },
+      "pageOverflow": false,
+      "title": "Миндальный тарт",
+      "width": 1280
+    },
+    {
+      "index": 49,
+      "name": "Увеличить фото и добавить в заказ: Бисквитный рулет",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.785400390625,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--cake-roll.webp",
+        "width": 526.7854614257812
+      },
+      "pageOverflow": false,
+      "title": "Бисквитный рулет",
+      "width": 1280
+    },
+    {
+      "index": 50,
+      "name": "Увеличить фото и добавить в заказ: Мозаичный торт",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--mosaic-cake.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Мозаичный торт",
+      "width": 1280
+    },
+    {
+      "index": 51,
+      "name": "Увеличить фото и добавить в заказ: Тирамису",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--tiramisu.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Тирамису",
+      "width": 1280
+    },
+    {
+      "index": 52,
+      "name": "Увеличить фото и добавить в заказ: Брауни",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--brownie.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Брауни",
+      "width": 1280
+    },
+    {
+      "index": 53,
+      "name": "Увеличить фото и добавить в заказ: Солёное печенье",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 528.0249633789062,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--savoury-cookie.webp",
+        "width": 528.0249633789062
+      },
+      "pageOverflow": false,
+      "title": "Солёное печенье",
+      "width": 1280
+    },
+    {
+      "index": 54,
+      "name": "Увеличить фото и добавить в заказ: Печенье",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.1961059570312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--cookie.webp",
+        "width": 527.1961669921875
+      },
+      "pageOverflow": false,
+      "title": "Печенье",
+      "width": 1280
+    },
+    {
+      "index": 55,
+      "name": "Увеличить фото и добавить в заказ: Макарон",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.8982543945312,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/desserts--macaron.webp",
+        "width": 527.8982543945312
+      },
+      "pageOverflow": false,
+      "title": "Макарон",
+      "width": 1280
+    },
+    {
+      "index": 56,
+      "name": "Увеличить фото и добавить в заказ: Круассан с тремя сырами",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 526.7896118164062,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/food--three-cheese-croissant.webp",
+        "width": 526.78955078125
+      },
+      "pageOverflow": false,
+      "title": "Круассан с тремя сырами",
+      "width": 1280
+    },
+    {
+      "index": 57,
+      "name": "Увеличить фото и добавить в заказ: Круассан с Nutella",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 524.44873046875,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/food--nutella-croissant.webp",
+        "width": 524.44873046875
+      },
+      "pageOverflow": false,
+      "title": "Круассан с Nutella",
+      "width": 1280
+    },
+    {
+      "index": 58,
+      "name": "Увеличить фото и добавить в заказ: Багет с белым сыром",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 527.727783203125,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/food--white-cheese-baguette-sandwich.webp",
+        "width": 527.7278442382812
+      },
+      "pageOverflow": false,
+      "title": "Багет с белым сыром",
+      "width": 1280
+    },
+    {
+      "index": 59,
+      "name": "Увеличить фото и добавить в заказ: Багет с говяжьим контрфиле",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/food--beef-sirloin-baguette-sandwich.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Багет с говяжьим контрфиле",
+      "width": 1280
+    },
+    {
+      "index": 60,
+      "name": "Увеличить фото и добавить в заказ: Симит с кунжутом",
+      "dialogOverflow": false,
+      "height": 800,
+      "mainPhoto": {
+        "complete": true,
+        "fit": "contain",
+        "height": 515.1168823242188,
+        "naturalWidth": 1024,
+        "src": "src/products/menu-v1/food--sesame-simit.webp",
+        "width": 515.1168823242188
+      },
+      "pageOverflow": false,
+      "title": "Симит с кунжутом",
+      "width": 1280
+    }
+  ],
+  "pairs": [
+    {
+      "buttons": [
+        {
+          "name": "Увеличить фото и добавить в заказ: Cool Lime + макарон",
+          "text": "ПУТЕШЕСТВИЕ ВКУСАCool Lime+макарон220 ₺ЛаймФисташковый макаронЛёгкая пара"
+        }
+      ],
+      "images": [
+        {
+          "fit": "cover",
+          "height": 470.34625244140625,
+          "naturalWidth": 1024,
+          "src": "src/products/sets-v1/cool-lime-macaron.webp",
+          "width": 470.3600158691406
+        }
+      ],
+      "name": "Увеличить фото и добавить в заказ: Cool Lime + макарон",
+      "overflow": false,
+      "text": "ПУТЕШЕСТВИЕ ВКУСА\nCool Lime\n+\nмакарон\n220 ₺\nЛАЙМ\nФИСТАШКОВЫЙ МАКАРОН\nЛЁГКАЯ ПАРА",
+      "width": 1280
+    },
+    {
+      "images": [
+        {
+          "fit": "cover",
+          "height": 461.7945251464844,
+          "naturalWidth": 1024,
+          "src": "src/products/sets-v1/iced-san-sebastian.webp",
+          "width": 461.8080139160156
+        }
+      ],
+      "name": "Увеличить фото и добавить в заказ: Айс-латте + чизкейк Сан-Себастьян",
+      "overflow": false,
+      "panelText": "✨\nЗнакомство со вкусом\n\nВыбери пару — знакомство со вкусом и объяснение сочетания откроются прямо здесь.\n\nПУТЕШЕСТВИЕ ВКУСА\nCool Lime\n+\nмакарон\n220 ₺\nЛАЙМ\nФИСТАШКОВЫЙ МАКАРОН\nЛЁГКАЯ ПАРА\nПУТЕШЕСТВИЕ ВКУСА\nАйс-латте\n+\nчизкейк Сан-Себастьян\n370 ₺\nАЙС-ЛАТТЕ\nSAN SEBASTIAN\nСЛИВОЧНАЯ ПАРА\n\nЗНАКОМСТВО СО ВКУСОМ\n\nТвоя пара\nАйс-латте + чизкейк Сан-Себастьян\n370 ₺\nПОЧЕМУ ОНИ ВМЕСТЕ?\n\nХолодный латте освежает, а плотный сливочный San Sebastian продолжает мягкость кофе. Получается спокойное, насыщенное и десертное сочетание.\n\nЧТО ПОЧУВСТВУЕШЬ?\nХолодный кофе\nСливочный\nКарамельный\nВыбрать эту пару\nЯ познакомился со вкусом\nЗакрыть"
+    }
+  ],
+  "mobile": [
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Все",
+      "visibleHeadings": [
+        "Знакомство со вкусом",
+        "Горячий кофе",
+        "Заварной кофе и горячие напитки",
+        "Холодный кофе",
+        "Освежающие напитки и фрозены",
+        "Травяной чай",
+        "Десерты",
+        "Круассаны и сэндвичи"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Знакомство со вкусом",
+      "visibleHeadings": [
+        "Знакомство со вкусом"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Горячий кофе",
+      "visibleHeadings": [
+        "Горячий кофе"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Заварной кофе и горячие напитки",
+      "visibleHeadings": [
+        "Заварной кофе и горячие напитки"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Холодный кофе",
+      "visibleHeadings": [
+        "Холодный кофе"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Освежающие напитки и фрозены",
+      "visibleHeadings": [
+        "Освежающие напитки и фрозены"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Травяной чай",
+      "visibleHeadings": [
+        "Травяной чай"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Десерты",
+      "visibleHeadings": [
+        "Десерты"
+      ],
+      "width": 390
+    },
+    {
+      "kind": "category",
+      "cart": "Мой заказ 1 50 ₺",
+      "height": 844,
+      "overflow": false,
+      "pressed": "Круассаны и сэндвичи",
+      "visibleHeadings": [
+        "Круассаны и сэндвичи"
+      ],
+      "width": 390
+    },
+    {
+      "buttons": [
+        {
+          "name": "×",
+          "rect": {
+            "h": 46,
+            "w": 46,
+            "x": 319.6000061035156,
+            "y": 24.80000114440918
+          }
+        },
+        {
+          "name": "−",
+          "rect": {
+            "h": 44,
+            "w": 44,
+            "x": 224.8000030517578,
+            "y": 673.375
+          }
+        },
+        {
+          "name": "+",
+          "rect": {
+            "h": 44,
+            "w": 44,
+            "x": 316.8000183105469,
+            "y": 673.375
+          }
+        },
+        {
+          "name": "Добавить ещё · 160 ₺",
+          "rect": {
+            "h": 50.400001525878906,
+            "w": 332.8000183105469,
+            "x": 28.80000114440918,
+            "y": 728.1749877929688
+          }
+        }
+      ],
+      "dialogOverflow": false,
+      "height": 844,
+      "kind": "tea-macaron-quantity2",
+      "pageOverflow": false,
+      "text": "×\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай + Макарон\n160 ₺\n\nЦена за одну пару: 80 ₺ · × 2\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nЦена за одну пару · один напиток + один десерт: 80 ₺\nЧёрный чай + Макарон\nЧёрный чай\n50 ₺\nМакарон\n30 ₺\n\nЦена за одну пару · один напиток + один десерт\n80 ₺\n\nКоличество пар\n−\n2\n+\nДобавить ещё · 160 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+      "width": 390
+    },
+    {
+      "kind": "added-two-tea-macaron",
+      "height": 844,
+      "overflow": false,
+      "text": "×\n\nROBY'S · COFFEE HOUSE\n\nДобавлено в заказ\n\nЧёрный чай + Макарон × 2 · 160 ₺\n\nУже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.\n\nЧёрный чай\nЦена за штуку: 50 ₺ × 1\n−\n1\n+\nЗаменить\nУбрать\n50 ₺\nЧёрный чай + Макарон\nЦена за одну пару: 80 ₺ × 2\n−\n2\n+\nЗаменить\nУбрать\n160 ₺\n\nИТОГО\n210 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 390
+    },
+    {
+      "dialogOverflow": false,
+      "height": 844,
+      "kind": "replacement-preview",
+      "overflow": false,
+      "text": "ппе · 220 ₺\nМилкшейк · 220 ₺\nCool Lime · 190 ₺\nЯгодный гибискус · 190 ₺\nМанго-маракуйя · 190 ₺\nЯгодный лимонад · 190 ₺\nАнанас с ягодами · 190 ₺\nSummer Pine · 190 ₺\nТропический манго · 220 ₺\nКлубника и лайм · 220 ₺\nЮдзу-попкорн · 220 ₺\nBeauty Tea / Цветочный белый чай · 130 ₺\nTahiti Tea / Гибискус и лемонграсс · 130 ₺\nMaroc Tea / Зелёный чай с мятой · 130 ₺\nRelax Tea / Ройбуш с лавандой · 130 ₺\nBalance Tea / Детокс-зелёный чай · 130 ₺\nЧизкейк Сан-Себастьян · 190 ₺\nЧизкейк Lotus · 190 ₺\nМалиновый чизкейк · 190 ₺\nШоколадный торт · 190 ₺\nМиндальный тарт · 180 ₺\nБисквитный рулет · 170 ₺\nМозаичный торт · 170 ₺\nТирамису · 170 ₺\nБрауни · 150 ₺\nСолёное печенье · 130 ₺\nПеченье · 100 ₺\nМакарон · 30 ₺\nКруассан с тремя сырами · 170 ₺\nКруассан с Nutella · 170 ₺\nБагет с белым сыром · 180 ₺\nБагет с говяжьим контрфиле · 230 ₺\nСимит с кунжутом · 35 ₺\n\nНовая сумма выбора: 160 ₺ → 400 ₺\n\nСохранить замену\nОставить как было\n\nИТОГО\n210 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 390
+    },
+    {
+      "height": 844,
+      "kind": "replacement-saved",
+      "overflow": false,
+      "text": "×\n\nROBY'S · COFFEE HOUSE\n\nРасчёт заказа\n\nУже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.\n\nЧёрный чай\nЦена за штуку: 50 ₺ × 1\n−\n1\n+\nЗаменить\nУбрать\n50 ₺\nЧёрный чай + Брауни\nЦена за одну пару: 200 ₺ × 2\n−\n2\n+\nЗаменить\nУбрать\n400 ₺\n\nЗаказ обновлён\n\nИТОГО\n450 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 390
+    },
+    {
+      "buttons": [
+        {
+          "h": 44,
+          "label": "Закрыть",
+          "text": "×",
+          "w": 44,
+          "x": 244,
+          "y": 26.80000114440918
+        },
+        {
+          "h": 44,
+          "label": "Уменьшить количество: Чёрный чай",
+          "text": "−",
+          "w": 44,
+          "x": 35.60000228881836,
+          "y": 268.13751220703125
+        },
+        {
+          "h": 44,
+          "label": "Увеличить количество: Чёрный чай",
+          "text": "+",
+          "w": 44,
+          "x": 117.5999984741211,
+          "y": 268.13751220703125
+        },
+        {
+          "h": 44,
+          "label": "Заменить: Чёрный чай",
+          "text": "Заменить",
+          "w": 96.6624984741211,
+          "x": 168.60000610351562,
+          "y": 268.13751220703125
+        },
+        {
+          "h": 44,
+          "label": "Убрать: Чёрный чай",
+          "text": "Убрать",
+          "w": 75.48750305175781,
+          "x": 39.60000228881836,
+          "y": 319.13751220703125
+        },
+        {
+          "h": 44,
+          "label": "Уменьшить количество: Чёрный чай + Брауни",
+          "text": "−",
+          "w": 44,
+          "x": 35.60000228881836,
+          "y": 475.4125061035156
+        },
+        {
+          "h": 44,
+          "label": "Увеличить количество: Чёрный чай + Брауни",
+          "text": "+",
+          "w": 44,
+          "x": 117.5999984741211,
+          "y": 475.4125061035156
+        },
+        {
+          "h": 44,
+          "label": "Заменить: Чёрный чай + Брауни",
+          "text": "Заменить",
+          "w": 96.6624984741211,
+          "x": 168.60000610351562,
+          "y": 475.4125061035156
+        },
+        {
+          "h": 44,
+          "label": "Убрать: Чёрный чай + Брауни",
+          "text": "Убрать",
+          "w": 75.48750305175781,
+          "x": 39.60000228881836,
+          "y": 526.4125366210938
+        },
+        {
+          "h": 49.60000228881836,
+          "label": null,
+          "text": "Всё, к оформлению",
+          "w": 259.20001220703125,
+          "x": 22.80000114440918,
+          "y": 664.0125122070312
+        },
+        {
+          "h": 55.20000076293945,
+          "label": null,
+          "text": "Выбрать ещё",
+          "w": 259.20001220703125,
+          "x": 22.80000114440918,
+          "y": 723.6124877929688
+        }
+      ],
+      "dialogOverflow": false,
+      "height": 640,
+      "kind": "cart-320",
+      "overflow": false,
+      "text": "×\n\nROBY'S · COFFEE HOUSE\n\nРасчёт заказа\n\nУже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.\n\nЧёрный чай\nЦена за штуку: 50 ₺ × 1\n−\n1\n+\nЗаменить\nУбрать\n50 ₺\nЧёрный чай + Брауни\nЦена за одну пару: 200 ₺ × 1\n−\n1\n+\nЗаменить\nУбрать\n200 ₺\n\nИТОГО\n250 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "pair-removed",
+      "overflow": false,
+      "text": "×\n\nROBY'S · COFFEE HOUSE\n\nРасчёт заказа\n\nУже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.\n\nЧёрный чай\nЦена за штуку: 50 ₺ × 1\n−\n1\n+\nЗаменить\nУбрать\n50 ₺\n\nУбрано из заказа: Чёрный чай + Брауни\n\nИТОГО\n50 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 320
+    },
+    {
+      "addDisabled": true,
+      "dialogOverflow": false,
+      "height": 640,
+      "kind": "flavour",
+      "options": [
+        {
+          "disabled": true,
+          "text": "Выберите вкус",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "text": "Карамель",
+          "value": "caramel"
+        },
+        {
+          "disabled": false,
+          "text": "Ваниль",
+          "value": "vanilla"
+        },
+        {
+          "disabled": false,
+          "text": "Шоколадное печенье",
+          "value": "chocolate-cookie"
+        },
+        {
+          "disabled": false,
+          "text": "Фундук",
+          "value": "hazelnut"
+        },
+        {
+          "disabled": false,
+          "text": "Корица",
+          "value": "cinnamon"
+        }
+      ],
+      "overflow": false,
+      "photo": {
+        "fit": "contain",
+        "height": 220,
+        "natural": 1024,
+        "width": 220
+      },
+      "product": "Айс латте со вкусом",
+      "width": 320
+    },
+    {
+      "addDisabled": true,
+      "dialogOverflow": false,
+      "height": 640,
+      "kind": "flavour",
+      "options": [
+        {
+          "disabled": true,
+          "text": "Выберите вкус",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "text": "Карамель",
+          "value": "caramel"
+        },
+        {
+          "disabled": false,
+          "text": "Ваниль",
+          "value": "vanilla"
+        },
+        {
+          "disabled": false,
+          "text": "Шоколадное печенье",
+          "value": "chocolate-cookie"
+        },
+        {
+          "disabled": false,
+          "text": "Корица",
+          "value": "cinnamon"
+        },
+        {
+          "disabled": false,
+          "text": "Фундук",
+          "value": "hazelnut"
+        },
+        {
+          "disabled": false,
+          "text": "Шоколад",
+          "value": "chocolate"
+        },
+        {
+          "disabled": false,
+          "text": "Белый шоколад",
+          "value": "white-chocolate"
+        }
+      ],
+      "overflow": false,
+      "product": "Кафе латте фраппе",
+      "width": 320
+    },
+    {
+      "addDisabled": true,
+      "dialogOverflow": false,
+      "height": 640,
+      "kind": "flavour",
+      "options": [
+        {
+          "disabled": true,
+          "text": "Выберите вкус",
+          "value": ""
+        },
+        {
+          "disabled": false,
+          "text": "Ваниль",
+          "value": "vanilla"
+        },
+        {
+          "disabled": false,
+          "text": "Клубника",
+          "value": "strawberry"
+        },
+        {
+          "disabled": false,
+          "text": "Манго",
+          "value": "mango"
+        },
+        {
+          "disabled": false,
+          "text": "Шоколад",
+          "value": "chocolate"
+        }
+      ],
+      "overflow": false,
+      "product": "Милкшейк",
+      "width": 320
+    },
+    {
+      "checkoutDisabled": true,
+      "height": 640,
+      "kind": "empty-cart-320",
+      "overflow": false,
+      "text": "×\n\nROBY'S · COFFEE HOUSE\n\nРасчёт заказа\n\nВы пока ничего не добавили.\n\nУбрано из заказа: Чёрный чай\n\nИТОГО\n0 ₺\nВсё, к оформлениюВыбрать ещё\n\nДальше — QR для кассира. Оплата на кассе.",
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Все",
+      "visibleHeadings": [
+        "Знакомство со вкусом",
+        "Горячий кофе",
+        "Заварной кофе и горячие напитки",
+        "Холодный кофе",
+        "Освежающие напитки и фрозены",
+        "Травяной чай",
+        "Десерты",
+        "Круассаны и сэндвичи"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Знакомство со вкусом",
+      "visibleHeadings": [
+        "Знакомство со вкусом"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Горячий кофе",
+      "visibleHeadings": [
+        "Горячий кофе"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Заварной кофе и горячие напитки",
+      "visibleHeadings": [
+        "Заварной кофе и горячие напитки"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Холодный кофе",
+      "visibleHeadings": [
+        "Холодный кофе"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Освежающие напитки и фрозены",
+      "visibleHeadings": [
+        "Освежающие напитки и фрозены"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Травяной чай",
+      "visibleHeadings": [
+        "Травяной чай"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Десерты",
+      "visibleHeadings": [
+        "Десерты"
+      ],
+      "width": 320
+    },
+    {
+      "height": 640,
+      "kind": "category-320",
+      "overflow": false,
+      "pressed": "Круассаны и сэндвичи",
+      "visibleHeadings": [
+        "Круассаны и сэндвичи"
+      ],
+      "width": 320
+    }
+  ],
+  "limitations": [
+    "Responsive browser viewport, not physical mobile hardware or touch screen.",
+    "All61normal main photo dialogs were opened on desktop; mobile photo/layout sampled tea+dessertpair and3flavoureddrinks.",
+    "Flavour options lists5/7/4 inspected in real UI; representative caramel/whitechocolate/strawberry selections verified. All individual flavours were not added to checkout in this batch.",
+    "Two transient close clicks required a second semantic click after inspecting actual DOM; subsequent repetition passed. Tool or timing cause remains uncertain."
+  ],
+  "observations": [
+    {
+      "kind": "transient-control",
+      "item": 33,
+      "detail": "First close button click returned but dialog stayed open; fresh DOM/AX confirmed. Second ordinary semantic click closed. No cart change."
+    },
+    {
+      "kind": "transient-control",
+      "item": 59,
+      "detail": "First ordinary close click returned while beef baguette dialog remained open; second ordinary semantic close click succeeded after state inspection. Not reproducible as a consistent app fault."
+    },
+    {
+      "kind": "tool-interruption",
+      "detail": "One category batch timed out after all nine390px category records had already been saved. Rebound existing tab by ID and completed remaining320px sequence."
+    },
+    {
+      "kind": "flavour-selection",
+      "product": "Айс латте со вкусом",
+      "selected": "Карамель",
+      "addEnabled": true,
+      "price": 200
+    },
+    {
+      "kind": "flavour-selection",
+      "product": "Кафе латте фраппе",
+      "selected": "Белый шоколад",
+      "addEnabled": true,
+      "price": 220
+    },
+    {
+      "kind": "flavour-selection",
+      "product": "Милкшейк",
+      "selected": "Клубника",
+      "addEnabled": true,
+      "price": 220
+    }
+  ],
+  "finishedAt": "2026-10-14T15:47:04.493Z",
+  "summary": {
+    "uniqueNormalProductsOpened": 61,
+    "normalOpenObservations": 64,
+    "pairCardsExpanded": 2,
+    "desktopViewport": "1280×800",
+    "mobileViewports": [
+      "390×844",
+      "320×640"
+    ],
+    "categoriesAtEachMobileWidth": 9,
+    "finalCart": "Чёрный чай ×1 ·50 ₺",
+    "reproducibleAppFailures": 0
+  },
+  "proofs": [
+    "menu-desktop.png",
+    "menu-mobile-390.png",
+    "menu-cart-mobile-320.png",
+    "menu-flavour-mobile-320.png",
+    "menu-empty-mobile-320.png"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "validatedAt": "2026-10-15T11:54:36.761Z",
+  "result": "passed",
+  "caseCount": 135,
+  "caseStatuses": {
+    "planned": 47,
+    "partial": 86,
+    "passed": 2,
+    "failed": 0,
+    "blocked": 0
+  },
+  "runs": 181,
+  "checks": 13,
+  "fixedFindings": 9,
+  "embeddedDataIdentical": true,
+  "knownEvidenceReferences": true,
+  "javascriptParses": true,
+  "noPrivateCapabilities": true,
+  "historicalFailuresPreserved": true,
+  "uniqueAgentImports": true
+}

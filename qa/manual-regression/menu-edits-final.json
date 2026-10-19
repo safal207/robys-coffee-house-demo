@@ -1,0 +1,87 @@
+{
+  "records": [
+    {
+      "title": "Final item minus and latest add feedback — RU desktop",
+      "result": "passed",
+      "caseIds": [
+        "GUEST-039"
+      ],
+      "actual": "1280×800: initial espresso1/110₺ removed by minus; empty cart0₺ and disabled checkout observed. Added black tea1/50₺; newest confirmation shows tea and50₺ without old removal message. Other locale/mobile variants remain unverified.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-039-desktop.png"
+      ]
+    },
+    {
+      "title": "Tea pair dessert preview resets to tea only — RU desktop",
+      "result": "passed",
+      "caseIds": [
+        "GUEST-006"
+      ],
+      "actual": "Empty cart via UI; configured2×tea+macaron160₺, switched to brownie400₺ then only drink100₺. Dessert image/title removed from product heading/preview. Added exact two black teas100₺ with no desserts. Mobile variant still pending.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-006-desktop.png"
+      ]
+    },
+    {
+      "title": "Identical manual pair merges across menu and quick — RU desktop",
+      "result": "passed",
+      "caseIds": [
+        "GUEST-040"
+      ],
+      "actual": "UI empty cart. Added one tea+macaron80₺ in menu, then two same pairs160TRY in quick. Both open orders show one merged group3×tea+macaron240. Reverse page order and EN/TR remain unverified.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-040-menu.png",
+        "menu-edits-040-quick.png"
+      ]
+    },
+    {
+      "title": "Two same-origin tabs propagate quantity and removal",
+      "result": "passed",
+      "caseIds": [
+        "SITE-029"
+      ],
+      "actual": "Menu+quick tabs same8794 origin: menu added1pair, quick read it; quick added2pairs and menu read3/240; quick minus to2/160 reflected in open menu cart; menu removed group and quick reflected empty0. History-return and separate-profile control not executed.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-040-menu.png",
+        "menu-edits-040-quick.png",
+        "menu-edits-029-empty-sync.png"
+      ]
+    },
+    {
+      "title": "Dessert edit commits after save — RU desktop confirmation",
+      "result": "passed",
+      "caseIds": [
+        "GUEST-023"
+      ],
+      "actual": "Exact2latte+macaron420. From add confirmation edited brownie: saved-cart DOM remains420 while preview660. Save→2latte+2brownie660, reopen→onlydrink→save→2latte360 no dessert. Order-view entry variant remains unverified.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-023-desktop.png"
+      ]
+    },
+    {
+      "title": "Required flavour blocks replacement save — Vanilla RU desktop",
+      "result": "passed",
+      "caseIds": [
+        "GUEST-025"
+      ],
+      "actual": "Exact2tea+macaron160 replaced to flavouredicedlatte200. Without flavour save disabled, Сначала выбери вкус visible and savedcart remains2tea+macaron160. ChooseVanilla→save:2×Айс латте со вкусом · Ваниль + Макарон460TRY. Other four flavour variants unverified.",
+      "viewport": "1280×800",
+      "evidence": [
+        "menu-edits-025-required.png",
+        "menu-edits-025-saved.png"
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "kind": "browser-session-reset",
+      "detail": "Сохранены только выполненные наблюдения. После сброса браузерной сессии оставшиеся варианты этого дополнительного прохода не выполнялись и не считаются успешными."
+    }
+  ],
+  "finishedAt": "2026-10-15T12:53:00.111Z"
+}

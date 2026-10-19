@@ -5,7 +5,7 @@ export interface OrderTicket {
   createdAt: number;
   groups: Array<{ quantity: number; items: Array<{ id: string; variant?: string; quantity: number }> }>;
 }
-export function openOrderCheckout(options: { draft: unknown; language?: CheckoutLanguage; returnFocus?: Element | null }): Promise<{ ticket: OrderTicket | null; dialog: HTMLDialogElement; error?: unknown }>;
+export function openOrderCheckout(options: { draft: unknown; language?: CheckoutLanguage; returnFocus?: Element | null }): Promise<{ ticket: OrderTicket | null; dialog: HTMLDialogElement | null; redirected?: boolean; error?: unknown }>;
 export function createOrderQr(url: string, language?: CheckoutLanguage): SVGSVGElement;
 export function checkoutErrorMessage(error: unknown, language?: CheckoutLanguage): string;
 export const checkoutCopy: Record<CheckoutLanguage, Record<string, string>>;

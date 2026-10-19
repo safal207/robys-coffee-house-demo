@@ -1,6 +1,7 @@
 import type { SmartChoiceLanguage } from "./catalog.js";
 import { normalizeOrderDraft, updateOrderGroupQuantity, addOrderGroup, removeOrderGroup, type OrderDraft, type OrderGroupResult } from "../order-draft.js";
 import { orderProducts, orderProductIds } from "./shared-order.js";
+import { kidsComboForItems } from "../kids-menu.js";
 
 export type QuickProduct = (typeof orderProducts extends Map<string, infer T> ? T : never);
 export interface QuickOrderItem { id: string; variant?: string; quantity: number }
@@ -144,7 +145,9 @@ export function orderGroupTotal(group: QuickOrderGroup): number {
 }
 
 export function orderGroupName(group: QuickOrderGroup, language: SmartChoiceLanguage): string {
-  return orderGroupItems(group).map(item => `${item.quantity > 1 ? `${item.quantity} × ` : ""}${orderItemName(item, language)}`).join(" + ");
+  const components = orderGroupItems(group).map(item => `${item.quantity > 1 ? `${item.quantity} × ` : ""}${orderItemName(item, language)}`).join(" + ");
+  const combo = kidsComboForItems(group.items);
+  return combo ? `${combo.name[language]}: ${components}` : components;
 }
 
 export function orderGroupItems(group: QuickOrderGroup): QuickOrderItem[] {

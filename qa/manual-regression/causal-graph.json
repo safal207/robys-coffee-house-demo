@@ -1,0 +1,825 @@
+{
+  "nodes": [
+    {
+      "id": "GUEST_ENTER",
+      "label": "Гость открывает сайт",
+      "actor": "guest",
+      "kind": "intent"
+    },
+    {
+      "id": "ENTRY_ROUTE",
+      "label": "Переход с главной или Discover в меню",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "MENU_READY",
+      "label": "Меню доступно: товар, цена и категория",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "LANGUAGE_CHANGE",
+      "label": "Смена языка TR / EN / RU",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "SMART_PREFERENCES",
+      "label": "Выбор пожеланий, температуры и бюджета",
+      "actor": "guest",
+      "kind": "decision"
+    },
+    {
+      "id": "SMART_OPTIONS",
+      "label": "Подтверждённые варианты или объяснённые альтернативы",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "PRODUCT_OPEN",
+      "label": "Открытие товара или рекомендованной пары",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "PHOTO_LOADING",
+      "label": "Фото загружается с сохранением места и превью",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "PHOTO_READY",
+      "label": "Фото соответствующего товара показано",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "PHOTO_ERROR",
+      "label": "Основное фото недоступно, товар остаётся понятным",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "CUSTOMIZE",
+      "label": "Выбор доступного вкуса, пары и количества",
+      "actor": "guest",
+      "kind": "decision"
+    },
+    {
+      "id": "SELECTION_CANCEL",
+      "label": "Закрытие выбора без добавления",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "CART_ADD",
+      "label": "Добавление подтверждённого состава в корзину",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "CART_REPLACE",
+      "label": "Замена товара или пары в редактируемой группе",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "CART_REMOVE",
+      "label": "Удаление позиции или группы",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "CART_TOTAL",
+      "label": "Пересчитаны количество, состав и общая сумма",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "NEXT_STEP",
+      "label": "Решение после добавления: ещё выбрать или оформить",
+      "actor": "guest",
+      "kind": "decision"
+    },
+    {
+      "id": "MORE_ITEMS",
+      "label": "Продолжение выбора товаров",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "CHECKOUT_ENOUGH",
+      "label": "Гость считает заказ достаточным и оформляет",
+      "actor": "guest",
+      "kind": "decision"
+    },
+    {
+      "id": "VARIANT_REQUIRED",
+      "label": "Не выбран обязательный вкус",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "CHECKOUT_ROUTE",
+      "label": "Выбор статического QR или включённого сервера",
+      "actor": "system",
+      "kind": "decision"
+    },
+    {
+      "id": "STATIC_TICKET",
+      "label": "Статический QR-состав для показа кассиру",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "STATIC_CASHIER_VIEW",
+      "label": "Чтение или печать статического состава",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_CREATE",
+      "label": "Создание серверного заказа из подтверждённого состава",
+      "actor": "system",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_AWAITING_PAYMENT",
+      "label": "Заказ создан и ожидает оплаты на кассе",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "GUEST_QR",
+      "label": "Гость показывает QR своего серверного заказа",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "STAFF_LOGIN",
+      "label": "Вход сотрудника и определение роли",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "QR_OPEN",
+      "label": "Сканирование или ввод допустимого QR / ID",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_REVIEW",
+      "label": "Кассир видит состав, номер и сумму",
+      "actor": "cashier",
+      "kind": "state"
+    },
+    {
+      "id": "PAYMENT_DIALOG",
+      "label": "Проверка фактически полученной оплаты",
+      "actor": "cashier",
+      "kind": "decision"
+    },
+    {
+      "id": "PAYMENT_CANCEL",
+      "label": "Отмена подтверждения оплаты",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "CASHIER_CONFIRM",
+      "label": "Кассир явно подтверждает полученную оплату",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_PREPARING",
+      "label": "Оплаченный заказ принят в приготовление",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "BARISTA_QUEUE",
+      "label": "Бариста видит оплаченные активные заказы",
+      "actor": "barista",
+      "kind": "state"
+    },
+    {
+      "id": "BARISTA_READY",
+      "label": "Сотрудник отмечает готовность полного заказа",
+      "actor": "barista",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_READY",
+      "label": "Заказ готов к выдаче",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "HANDOVER",
+      "label": "Сотрудник сверяет номер и выдаёт заказ",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "ORDER_ISSUED",
+      "label": "Заказ выдан",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "GUEST_STATUS",
+      "label": "У гостя отображается подтверждённый сервером статус",
+      "actor": "guest",
+      "kind": "state"
+    },
+    {
+      "id": "NEW_ORDER",
+      "label": "Гость начинает новый заказ",
+      "actor": "guest",
+      "kind": "action"
+    },
+    {
+      "id": "REQUEST_ERROR",
+      "label": "Запрос не подтверждён или связь потеряна",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "RETRY",
+      "label": "Явный повтор или автоматическое обновление после восстановления",
+      "actor": "system",
+      "kind": "action"
+    },
+    {
+      "id": "AUTH_REQUIRED",
+      "label": "Сессия отсутствует, истекла или отозвана",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "STALE_ORDER",
+      "label": "Версия заказа изменилась в другой сессии",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "INVALID_QR",
+      "label": "QR или входная ссылка отклонены",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "OFFLINE_MENU",
+      "label": "Ранее сохранённое меню доступно без сети",
+      "actor": "system",
+      "kind": "state"
+    },
+    {
+      "id": "BARISTA_LOGIN",
+      "label": "Вход бариста в рабочую очередь",
+      "actor": "barista",
+      "kind": "action"
+    },
+    {
+      "id": "CASHIER_READY",
+      "label": "Кассир также может отметить приготовленный заказ готовым",
+      "actor": "cashier",
+      "kind": "action"
+    },
+    {
+      "id": "BARISTA_HANDOVER",
+      "label": "Бариста также может выдать готовый заказ",
+      "actor": "barista",
+      "kind": "action"
+    }
+  ],
+  "edges": [
+    {
+      "from": "GUEST_ENTER",
+      "to": "ENTRY_ROUTE",
+      "condition": "Выбрана ссылка главной, Discover или прямой маршрут",
+      "observable": "Открывается выбранная страница",
+      "invariant": "Одна навигация не создаёт заказ и не меняет корзину."
+    },
+    {
+      "from": "ENTRY_ROUTE",
+      "to": "MENU_READY",
+      "condition": "Маршрут и данные меню доступны",
+      "observable": "Видны категория, названия и цены",
+      "invariant": "Показывается подтверждённый каталог, а не выдуманный товар."
+    },
+    {
+      "from": "MENU_READY",
+      "to": "LANGUAGE_CHANGE",
+      "condition": "Гость выбирает TR, EN или RU",
+      "observable": "Меняются подписи и формат цены",
+      "invariant": "Идентичность товара, количество и сумма в минимальных единицах сохраняются."
+    },
+    {
+      "from": "LANGUAGE_CHANGE",
+      "to": "MENU_READY",
+      "condition": "Локализация выполнена",
+      "observable": "Тот же состав читается на выбранном языке",
+      "invariant": "Смена языка не добавляет и не удаляет товары."
+    },
+    {
+      "from": "MENU_READY",
+      "to": "SMART_PREFERENCES",
+      "condition": "Гость открывает помощь с выбором",
+      "observable": "Доступны вопросы о пожеланиях",
+      "invariant": "Ответы не являются оформленным заказом."
+    },
+    {
+      "from": "SMART_PREFERENCES",
+      "to": "SMART_OPTIONS",
+      "condition": "Получен достаточный набор ответов",
+      "observable": "Показаны подходящие варианты либо объяснённые альтернативы",
+      "invariant": "Отклонения от бюджета или условий обозначены; цена не подменяется."
+    },
+    {
+      "from": "SMART_OPTIONS",
+      "to": "PRODUCT_OPEN",
+      "condition": "Гость выбирает вариант",
+      "observable": "Открывается состав выбранного варианта",
+      "invariant": "Автоматическая рекомендация не подтверждает оплату."
+    },
+    {
+      "from": "MENU_READY",
+      "to": "PRODUCT_OPEN",
+      "condition": "Гость открывает карточку каталога",
+      "observable": "Виден выбор товара и доступных параметров",
+      "invariant": "Открытие карточки не равно добавлению."
+    },
+    {
+      "from": "PRODUCT_OPEN",
+      "to": "PHOTO_LOADING",
+      "condition": "Создан фотоэлемент",
+      "observable": "Зарезервировано место, видно превью того же товара или подпись загрузки",
+      "invariant": "Загрузка изображения не блокирует название, цену и действия."
+    },
+    {
+      "from": "PHOTO_LOADING",
+      "to": "PHOTO_READY",
+      "condition": "Превью или оригинал успешно загружены",
+      "observable": "Показано соответствующее товару фото",
+      "invariant": "Логотип и пропорции не искажаются."
+    },
+    {
+      "from": "PHOTO_LOADING",
+      "to": "PHOTO_ERROR",
+      "condition": "Недоступны responsive-фото и однократный fallback",
+      "observable": "Показано состояние недоступности, сохранено локальное превью если есть",
+      "invariant": "Ошибка не запускает бесконечные сетевые повторы."
+    },
+    {
+      "from": "PHOTO_ERROR",
+      "to": "RETRY",
+      "condition": "Гость повторно явно открывает / выбирает товар после восстановления связи",
+      "observable": "Запускается ограниченный повтор",
+      "invariant": "Повтор фото не меняет состав заказа."
+    },
+    {
+      "from": "PRODUCT_OPEN",
+      "to": "CUSTOMIZE",
+      "condition": "Для товара есть доступные вкусы, пары или количество",
+      "observable": "Выбор и сумма отражаются в карточке",
+      "invariant": "Показываются только существующие варианты и цены."
+    },
+    {
+      "from": "CUSTOMIZE",
+      "to": "SELECTION_CANCEL",
+      "condition": "Гость закрывает окно без подтверждения",
+      "observable": "Возвращается каталог и фокус",
+      "invariant": "Черновые изменения не применяются к корзине."
+    },
+    {
+      "from": "SELECTION_CANCEL",
+      "to": "MENU_READY",
+      "condition": "Возврат к каталогу",
+      "observable": "Можно выбрать другой товар",
+      "invariant": "Отмена выбора не отменяет уже созданный серверный заказ."
+    },
+    {
+      "from": "CUSTOMIZE",
+      "to": "CART_ADD",
+      "condition": "Гость нажимает добавить с допустимым составом",
+      "observable": "Показан добавленный состав и следующий шаг",
+      "invariant": "Одна активация добавляет одну выбранную операцию."
+    },
+    {
+      "from": "CART_ADD",
+      "to": "CART_TOTAL",
+      "condition": "Изменён черновик корзины",
+      "observable": "Обновлены строки, количество и итог",
+      "invariant": "Сумма равна сумме фактических строк и не включает скрытых добавок."
+    },
+    {
+      "from": "CART_TOTAL",
+      "to": "CART_REPLACE",
+      "condition": "Гость открывает редактирование и подтверждает замену",
+      "observable": "Старая группа заменяется выбранным составом",
+      "invariant": "Количество соседних групп сохраняется; равные группы объединяются по правилам черновика."
+    },
+    {
+      "from": "CART_REPLACE",
+      "to": "CART_TOTAL",
+      "condition": "Замена подтверждена",
+      "observable": "Показаны новые названия и точный итог",
+      "invariant": "Старый и новый товар не учитываются одновременно без явного добавления."
+    },
+    {
+      "from": "CART_TOTAL",
+      "to": "CART_REMOVE",
+      "condition": "Гость нажимает доступное удаление",
+      "observable": "Выбранная строка или группа исчезает",
+      "invariant": "Удаляются именно выбранные позиции, а не соседняя группа."
+    },
+    {
+      "from": "CART_REMOVE",
+      "to": "CART_TOTAL",
+      "condition": "Черновик сохранён",
+      "observable": "Счётчик и итог уменьшились; пустая корзина явно обозначена",
+      "invariant": "При пустой корзине оформление недоступно."
+    },
+    {
+      "from": "CART_TOTAL",
+      "to": "NEXT_STEP",
+      "condition": "Подтверждено добавление или открыт обзор",
+      "observable": "Доступны продолжение выбора и оформление",
+      "invariant": "Пользователь понимает результат предыдущего действия."
+    },
+    {
+      "from": "NEXT_STEP",
+      "to": "MORE_ITEMS",
+      "condition": "Гость хочет добавить ещё",
+      "observable": "Каталог снова доступен",
+      "invariant": "Уже собранные позиции сохраняются."
+    },
+    {
+      "from": "MORE_ITEMS",
+      "to": "MENU_READY",
+      "condition": "Закрыто подтверждение добавления",
+      "observable": "Фокус и прокрутка возвращаются к выбору",
+      "invariant": "Повторное открытие меню не дублирует заказ."
+    },
+    {
+      "from": "NEXT_STEP",
+      "to": "CHECKOUT_ENOUGH",
+      "condition": "Гость выбирает оформление",
+      "observable": "Проверяется полнота состава",
+      "invariant": "Оформление пустой корзины не начинается."
+    },
+    {
+      "from": "CHECKOUT_ENOUGH",
+      "to": "VARIANT_REQUIRED",
+      "condition": "В составе отсутствует обязательный вкус",
+      "observable": "Показана необходимость завершить выбор",
+      "invariant": "Нельзя молча выбрать вкус за гостя."
+    },
+    {
+      "from": "VARIANT_REQUIRED",
+      "to": "CUSTOMIZE",
+      "condition": "Гость открывает незавершённую позицию",
+      "observable": "Доступны существующие вкусы",
+      "invariant": "Сумма и состав проверяются после завершения выбора."
+    },
+    {
+      "from": "CHECKOUT_ENOUGH",
+      "to": "CHECKOUT_ROUTE",
+      "condition": "Корзина полная и допустимая",
+      "observable": "Система определяет включён ли локальный сервис заказов",
+      "invariant": "Настройки принимаются только с допустимым same-origin маршрутом."
+    },
+    {
+      "from": "CHECKOUT_ROUTE",
+      "to": "STATIC_TICKET",
+      "condition": "Сервис не включён либо конфигурация недоступна",
+      "observable": "Показан статический QR-состав для кассы",
+      "invariant": "Статический QR не утверждает, что заказ оплачен или принят в общую очередь."
+    },
+    {
+      "from": "STATIC_TICKET",
+      "to": "STATIC_CASHIER_VIEW",
+      "condition": "Открыт cashier.html с валидным ticket-фрагментом",
+      "observable": "Кассир видит состав, сумму и печать",
+      "invariant": "Этот экран не предоставляет подтверждение оплаты или изменение серверного статуса."
+    },
+    {
+      "from": "CHECKOUT_ROUTE",
+      "to": "ORDER_CREATE",
+      "condition": "Включён допустимый same-origin сервис",
+      "observable": "Открывается гостевой экран создания",
+      "invariant": "Товарные данные и цены проверяются сервером."
+    },
+    {
+      "from": "ORDER_CREATE",
+      "to": "ORDER_AWAITING_PAYMENT",
+      "condition": "Сервер создал или вернул тот же заказ",
+      "observable": "Появились стабильный номер и состав",
+      "invariant": "Повтор того же ticket с тем же guestKey не создаёт второй заказ."
+    },
+    {
+      "from": "ORDER_AWAITING_PAYMENT",
+      "to": "GUEST_QR",
+      "condition": "Гость показывает код кассиру",
+      "observable": "QR указывает на staff.html#order=...",
+      "invariant": "QR кассира не содержит гостевой read-capability или пароль."
+    },
+    {
+      "from": "GUEST_QR",
+      "to": "STAFF_LOGIN",
+      "condition": "У сотрудника нет действующей сессии",
+      "observable": "Открыта форма входа",
+      "invariant": "До входа состав заказа не раскрывается."
+    },
+    {
+      "from": "STAFF_LOGIN",
+      "to": "QR_OPEN",
+      "condition": "Вход успешен и сохранён допустимый order-фрагмент",
+      "observable": "Начинается чтение заказа",
+      "invariant": "Роль берётся из серверной сессии."
+    },
+    {
+      "from": "GUEST_QR",
+      "to": "QR_OPEN",
+      "condition": "Сотрудник уже вошёл и сканирует / вводит код",
+      "observable": "Запрашивается конкретный заказ",
+      "invariant": "Принимаются только допустимый ID или same-origin staff QR без лишних параметров."
+    },
+    {
+      "from": "QR_OPEN",
+      "to": "INVALID_QR",
+      "condition": "Ссылка чужого сайта, с query или лишними hash-параметрами",
+      "observable": "Показано сообщение о неверном QR",
+      "invariant": "Внешние ссылки не исполняются и не раскрывают данные."
+    },
+    {
+      "from": "INVALID_QR",
+      "to": "QR_OPEN",
+      "condition": "Введён исправленный допустимый QR",
+      "observable": "Заказ читается заново",
+      "invariant": "Ошибка ввода не изменяет заказ."
+    },
+    {
+      "from": "QR_OPEN",
+      "to": "ORDER_REVIEW",
+      "condition": "Заказ существует и доступен роли",
+      "observable": "Виден номер, состав, варианты и сумма",
+      "invariant": "Бариста не получает неоплаченные заказы."
+    },
+    {
+      "from": "ORDER_REVIEW",
+      "to": "PAYMENT_DIALOG",
+      "condition": "Кассир открывает подтверждение для awaiting_payment",
+      "observable": "Показаны номер, сумма и обязательная проверка оплаты",
+      "invariant": "Само открытие окна не меняет статус."
+    },
+    {
+      "from": "PAYMENT_DIALOG",
+      "to": "PAYMENT_CANCEL",
+      "condition": "Кассир отменяет или закрывает окно",
+      "observable": "Окно закрыто",
+      "invariant": "Заказ остаётся awaiting_payment."
+    },
+    {
+      "from": "PAYMENT_CANCEL",
+      "to": "ORDER_REVIEW",
+      "condition": "Кассир продолжает работу",
+      "observable": "Состав доступен без изменения статуса",
+      "invariant": "Не появляется ложное paidAt."
+    },
+    {
+      "from": "PAYMENT_DIALOG",
+      "to": "CASHIER_CONFIRM",
+      "condition": "Получена внешняя оплата и кассир явно отметил проверку",
+      "observable": "Отправляется подтверждение текущей версии",
+      "invariant": "Кнопка фиксирует ручное подтверждение, а не списывает деньги."
+    },
+    {
+      "from": "CASHIER_CONFIRM",
+      "to": "ORDER_PREPARING",
+      "condition": "Сервер подтвердил переход awaiting_payment → preparing",
+      "observable": "Виден preparing и отметка подтверждения оплаты",
+      "invariant": "Оплату нельзя подтвердить второй раз или пропустить проверку роли."
+    },
+    {
+      "from": "ORDER_PREPARING",
+      "to": "BARISTA_QUEUE",
+      "condition": "Бариста обновляет очередь",
+      "observable": "Заказ появился среди оплаченных активных",
+      "invariant": "Неоплаченные заказы отсутствуют в рабочей очереди бариста."
+    },
+    {
+      "from": "BARISTA_QUEUE",
+      "to": "BARISTA_READY",
+      "condition": "Все позиции приготовлены и сотрудник отмечает готовность",
+      "observable": "Отправляется переход текущей версии",
+      "invariant": "Нельзя перейти из awaiting_payment сразу в ready."
+    },
+    {
+      "from": "BARISTA_READY",
+      "to": "ORDER_READY",
+      "condition": "Сервер подтвердил preparing → ready",
+      "observable": "Заказ отмечен готовым",
+      "invariant": "Успех отображается только после подтверждения сервера."
+    },
+    {
+      "from": "ORDER_READY",
+      "to": "HANDOVER",
+      "condition": "Сотрудник сверил номер и выдаёт полный заказ",
+      "observable": "Доступна последовательная выдача",
+      "invariant": "Нельзя выдать заказ из неоплаченного или preparing состояния."
+    },
+    {
+      "from": "HANDOVER",
+      "to": "ORDER_ISSUED",
+      "condition": "Сервер подтвердил ready → issued",
+      "observable": "Выдача отражена у сотрудников и гостя",
+      "invariant": "Состав и номер не меняются; возврат к preparing не предусмотрен."
+    },
+    {
+      "from": "ORDER_AWAITING_PAYMENT",
+      "to": "GUEST_STATUS",
+      "condition": "Гостевой экран получил серверный ответ",
+      "observable": "Виден статус ожидания оплаты",
+      "invariant": "Статус не выводится из одного лишь факта показа QR."
+    },
+    {
+      "from": "ORDER_PREPARING",
+      "to": "GUEST_STATUS",
+      "condition": "Автоматический опрос получил новую версию",
+      "observable": "Статус гостя обновился на приготовление",
+      "invariant": "Локальные действия гостя не подтверждают оплату."
+    },
+    {
+      "from": "ORDER_READY",
+      "to": "GUEST_STATUS",
+      "condition": "Автоматический опрос получил готовность",
+      "observable": "Гость видит что заказ готов",
+      "invariant": "Не требуется ручная перезагрузка страницы при доступной сети."
+    },
+    {
+      "from": "ORDER_ISSUED",
+      "to": "GUEST_STATUS",
+      "condition": "Гостевой экран получил выдачу",
+      "observable": "Гость видит завершение",
+      "invariant": "Более старый ответ не откатывает статус."
+    },
+    {
+      "from": "GUEST_STATUS",
+      "to": "NEW_ORDER",
+      "condition": "Гость явно начинает новый заказ",
+      "observable": "Открывается сбор следующего заказа",
+      "invariant": "Новая покупка не меняет уже созданный заказ."
+    },
+    {
+      "from": "NEW_ORDER",
+      "to": "MENU_READY",
+      "condition": "Завершён переход к сборке",
+      "observable": "Доступен каталог",
+      "invariant": "Очищается только относящаяся к прежнему ticket идентичность согласно текущему сценарию."
+    },
+    {
+      "from": "ORDER_CREATE",
+      "to": "REQUEST_ERROR",
+      "condition": "Нет подтверждённого ответа сервера",
+      "observable": "Виден понятный сбой и возможность повтора",
+      "invariant": "Успех или номер не выдумываются."
+    },
+    {
+      "from": "GUEST_STATUS",
+      "to": "REQUEST_ERROR",
+      "condition": "Связь с сервером потеряна",
+      "observable": "Показан последний известный статус и индикатор отсутствия связи",
+      "invariant": "Последний статус не выдаётся за свежий."
+    },
+    {
+      "from": "CASHIER_CONFIRM",
+      "to": "REQUEST_ERROR",
+      "condition": "Ответ на подтверждение оплаты не получен",
+      "observable": "Сотруднику предложено обновить заказ",
+      "invariant": "Нельзя считать запрос неуспешным и без проверки повторно принимать оплату."
+    },
+    {
+      "from": "REQUEST_ERROR",
+      "to": "RETRY",
+      "condition": "Связь восстановлена или выбран повтор",
+      "observable": "Сервис заново проверяет результат",
+      "invariant": "Повтор использует тот же ticket/key или актуальную серверную версию."
+    },
+    {
+      "from": "RETRY",
+      "to": "GUEST_STATUS",
+      "condition": "Повторное чтение гостевого заказа успешно",
+      "observable": "Показан актуальный статус",
+      "invariant": "Чтение не создаёт новый заказ."
+    },
+    {
+      "from": "RETRY",
+      "to": "ORDER_AWAITING_PAYMENT",
+      "condition": "Повтор создания вернул исходный неоплаченный заказ",
+      "observable": "Сохраняется тот же номер",
+      "invariant": "Идемпотентность сохраняет единственный заказ."
+    },
+    {
+      "from": "RETRY",
+      "to": "ORDER_REVIEW",
+      "condition": "Сотрудник получил свежий состав и статус",
+      "observable": "Снова доступно допустимое следующее действие",
+      "invariant": "Действия запрещены при неподтверждённой связи."
+    },
+    {
+      "from": "ORDER_REVIEW",
+      "to": "AUTH_REQUIRED",
+      "condition": "Сессия истекла или выход подтверждён",
+      "observable": "Рабочие данные скрыты, требуется вход",
+      "invariant": "Состав и кнопки не остаются доступны без сессии."
+    },
+    {
+      "from": "AUTH_REQUIRED",
+      "to": "STAFF_LOGIN",
+      "condition": "Сотрудник снова входит",
+      "observable": "Проверяются серверные полномочия",
+      "invariant": "Сохранённый клиентский интерфейс не заменяет авторизацию."
+    },
+    {
+      "from": "CASHIER_CONFIRM",
+      "to": "STALE_ORDER",
+      "condition": "Другой сотрудник уже изменил текущую версию",
+      "observable": "Показан конфликт и обновлённый заказ",
+      "invariant": "Устаревшая версия не перезаписывает новый статус."
+    },
+    {
+      "from": "BARISTA_READY",
+      "to": "STALE_ORDER",
+      "condition": "Параллельная сессия изменила версию",
+      "observable": "Предложено свериться с обновлённым статусом",
+      "invariant": "Нет обратного перехода и двойной операции."
+    },
+    {
+      "from": "STALE_ORDER",
+      "to": "ORDER_REVIEW",
+      "condition": "Получена актуальная версия",
+      "observable": "Сотрудник видит текущий разрешённый шаг",
+      "invariant": "Повтор действия основывается на свежем серверном состоянии."
+    },
+    {
+      "from": "MENU_READY",
+      "to": "OFFLINE_MENU",
+      "condition": "Страница и необходимые ресурсы предварительно сохранены",
+      "observable": "Можно читать доступное меню без сети",
+      "invariant": "Офлайн-меню не означает доступность общей очереди или оплаты."
+    },
+    {
+      "from": "OFFLINE_MENU",
+      "to": "MENU_READY",
+      "condition": "Сеть восстановлена и страница обновлена",
+      "observable": "Возвращается актуальная версия меню",
+      "invariant": "Кеш не подменяет новые revisioned модули устаревшими."
+    },
+    {
+      "from": "BARISTA_LOGIN",
+      "to": "BARISTA_QUEUE",
+      "condition": "Вход успешен, серверная роль — barista",
+      "observable": "Показаны только оплаченные активные заказы",
+      "invariant": "Обход формы входа или локальное имя роли не дают доступа."
+    },
+    {
+      "from": "AUTH_REQUIRED",
+      "to": "BARISTA_LOGIN",
+      "condition": "Бариста восстанавливает рабочую сессию",
+      "observable": "После входа очередь обновлена",
+      "invariant": "До подтверждения сессии рабочие данные скрыты."
+    },
+    {
+      "from": "ORDER_PREPARING",
+      "to": "CASHIER_READY",
+      "condition": "Заказ приготовлен; авторизованный кассир выбирает готовность",
+      "observable": "Отправлена смена текущей версии на ready",
+      "invariant": "Та же последовательная смена разрешена кассиру и бариста."
+    },
+    {
+      "from": "CASHIER_READY",
+      "to": "ORDER_READY",
+      "condition": "Сервер подтвердил preparing → ready",
+      "observable": "Показан ready",
+      "invariant": "Кассир не может пропустить приготовление или изменить состав."
+    },
+    {
+      "from": "ORDER_READY",
+      "to": "BARISTA_HANDOVER",
+      "condition": "Бариста сверил номер и выдаёт заказ",
+      "observable": "Отправлена смена текущей версии на issued",
+      "invariant": "Выдача доступна только после ready."
+    },
+    {
+      "from": "BARISTA_HANDOVER",
+      "to": "ORDER_ISSUED",
+      "condition": "Сервер подтвердил ready → issued",
+      "observable": "Заказ исчезает из активной очереди бариста",
+      "invariant": "Повтор или старый ответ не возвращают выданный заказ."
+    }
+  ]
+}

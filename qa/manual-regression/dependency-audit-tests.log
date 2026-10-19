@@ -1,0 +1,42 @@
+PASS conversion: reached output links readable input
+PASS conversion: detached pair is NOT whitelisted
+PASS conversion: source without output remains an orphan
+PASS menu-app: reached output links readable input
+PASS menu-app: detached pair is NOT whitelisted
+PASS menu-app: source without output remains an orphan
+PASS lazy pairing output links its readable view only when reached
+PASS detached lazy pairing output cannot retain its readable view
+PASS lazy order UI reaches its source and actual bundled helpers
+PASS detached order UI cannot retain its source or helpers
+PASS unreferenced pairing domain remains an orphan
+PASS menu-stability: reached cache-isolated CSS links canonical input
+PASS menu-stability: detached stylesheet pair is NOT whitelisted
+PASS menu-stability: canonical CSS without output remains an orphan
+PASS final-qa: reached cache-isolated CSS links canonical input
+PASS final-qa: detached stylesheet pair is NOT whitelisted
+PASS final-qa: canonical CSS without output remains an orphan
+PASS community-reel: reached cache-isolated CSS links canonical input
+PASS community-reel: detached stylesheet pair is NOT whitelisted
+PASS community-reel: canonical CSS without output remains an orphan
+PASS unrelated source and output remain orphans
+PASS build script mentioning output does not make it reachable
+PASS root-relative emitted imports remain traversed
+PASS reached menu links its bundled draft helper
+PASS unreferenced draft helper remains an orphan
+PASS detached menu cannot retain its bundled helper
+PASS missing menu output cannot retain its bundled helper
+PASS order-checkout: reached bundle retains only actual source-relative imported helpers
+PASS order-checkout: detached bundle and imported helpers remain orphans
+PASS order-checkout: absent bundle cannot retain source or helpers
+PASS order-checkout: mentioning helpers without importing them cannot hide orphans
+PASS cashier: reached bundle retains only actual source-relative imported helpers
+PASS cashier: detached bundle and imported helpers remain orphans
+PASS cashier: absent bundle cannot retain source or helpers
+PASS cashier: mentioning helpers without importing them cannot hide orphans
+PASS configured server command traverses its real imports
+PASS server files without an actual start command stay orphaned
+PASS guest counter bundle retains only its reached source and imported helper
+PASS guest detached counter bundle remains an orphan
+PASS staff counter bundle retains only its reached source and imported helper
+PASS staff detached counter bundle remains an orphan
+Dependency build-edge regression: 41/41 PASS

@@ -1,0 +1,16 @@
+{
+  "totalJsBytes": 93005,
+  "largestJs": {
+    "file": "app.js",
+    "size": 30846
+  },
+  "totalCssBytes": 133248,
+  "totalHtmlBytes": 37544,
+  "heroBytes": 79501,
+  "posterBytes": 33321,
+  "auditedPages": [
+    "index.html",
+    "menu.html"
+  ]
+}
+✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected.

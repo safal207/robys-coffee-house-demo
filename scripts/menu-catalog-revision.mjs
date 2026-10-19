@@ -11,28 +11,42 @@ export const SMART_CHOICE_CATALOG_CONSUMERS = [
 export function readSmartChoiceCatalogRevisionInputs() {
   return {
     catalogBytes: readFileSync("menu-catalog.js"),
+    smartCatalogBytes: readFileSync("smart-choice/catalog.js"),
     runtimes: Object.fromEntries(SMART_CHOICE_CATALOG_CONSUMERS.map(file => [file, readFileSync(file, "utf8")])),
     serviceWorker: readFileSync("sw-core-v64.js", "utf8")
   };
 }
 
-export function verifySmartChoiceCatalogRevision({ catalogBytes, runtimes, serviceWorker }) {
+export function verifySmartChoiceCatalogRevision({ catalogBytes, smartCatalogBytes, runtimes, serviceWorker }) {
   const revision = menuCatalogRevision(catalogBytes);
   const expectedUrl = `../menu-catalog.js?v=${revision}`;
-  for (const file of SMART_CHOICE_CATALOG_CONSUMERS) {
-    const parsed = ts.createSourceFile(file, runtimes[file] ?? "", ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-    const imports = parsed.statements.filter(ts.isImportDeclaration)
+  const smartCatalogRevision = menuCatalogRevision(smartCatalogBytes);
+  const smartCatalogUrl = `./catalog.js?v=${smartCatalogRevision}`;
+  const importsFor = (file, source, pattern) => {
+    const parsed = ts.createSourceFile(file, String(source ?? ""), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    return [...new Set(parsed.statements.filter(ts.isImportDeclaration)
       .filter(node => ts.isStringLiteral(node.moduleSpecifier))
       .map(node => node.moduleSpecifier.text)
-      .filter(specifier => /(?:^|\/)menu-catalog\.js(?:\?|$)/.test(specifier));
-    // Separate named imports may remain after bundling; the browser fetches
-    // and evaluates one module for their identical revisioned URL.
-    assert.deepEqual([...new Set(imports)], [expectedUrl], `[CATALOG-REV-002] ${file} must import the shared catalog's exact content revision ${revision}`);
+      .filter(specifier => pattern.test(specifier)))];
+  };
+  const menuPattern = /(?:^|\/)menu-catalog\.js(?:\?|$)/;
+  assert.deepEqual(importsFor("smart-choice/catalog.js", smartCatalogBytes, menuPattern), [expectedUrl],
+    `[CATALOG-REV-002] Derived catalog must import the shared catalog's exact content revision ${revision}`);
+  for (const file of SMART_CHOICE_CATALOG_CONSUMERS) {
+    assert.deepEqual(importsFor(file, runtimes[file], /(?:^|\/)catalog\.js(?:\?|$)/), [smartCatalogUrl],
+      `[CATALOG-REV-002] ${file} must import the shared catalog's exact content revision ${smartCatalogRevision}`);
+    // Some entry points also use the full ordering catalog directly. Every
+    // direct edge must agree with the shared derived catalog's dependency.
+    const directImports = importsFor(file, runtimes[file], menuPattern);
+    if (directImports.length) assert.deepEqual(directImports, [expectedUrl],
+      `[CATALOG-REV-002] ${file} must import the shared catalog's exact content revision ${revision}`);
   }
   const precache = serviceWorker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1] ?? "";
   const urls = Array.from(precache.matchAll(/["'](\.\/menu-catalog\.js(?:\?[^"']*)?)["']/g), match => match[1]);
   assert.deepEqual(urls, [`./menu-catalog.js?v=${revision}`], "[CATALOG-REV-002] Shared catalog must be precached at its exact content revision");
-  return { revision, expectedUrl };
+  const smartUrls = Array.from(precache.matchAll(/["'](\.\/smart-choice\/catalog\.js(?:\?[^"']*)?)["']/g), match => match[1]);
+  assert.deepEqual(smartUrls, [`./smart-choice/catalog.js?v=${smartCatalogRevision}`], "[CATALOG-REV-002] Derived catalog must be precached at its exact content revision");
+  return { revision, expectedUrl, smartCatalogRevision, smartCatalogUrl };
 }
 
 export function menuCatalogRevision(catalogBytes) {

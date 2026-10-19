@@ -1,0 +1,39 @@
+{
+  "clientDate": "2026-10-13",
+  "timezone": "Europe/Moscow",
+  "branch": "codex/counter-live-orders",
+  "baseCommit": "d368897b8185cbf120f051398fb2dc2a5cc9663b",
+  "workingTreeDirty": true,
+  "runtime": "Node 24 local service; Codex In-app Browser desktop DOM controls",
+  "observedViewport": {
+    "width": 2560,
+    "height": 1440
+  },
+  "cashierOrigin": "http://127.0.0.1:8790",
+  "baristaOrigin": "http://localhost:8790",
+  "sharedDisposableDatabase": true,
+  "fixtureCookieAlias": "roby-qa-session",
+  "authenticationRules": "Same HttpOnly/SameSite/Origin/CSRF and server role checks; only fixture cookie name differs to protect the user session on port 8787.",
+  "userServiceMutations": false,
+  "realPaymentPerformed": false,
+  "paymentTest": "Acknowledgement of synthetic fixture payment only.",
+  "limitations": [
+    "No physical phone or camera scan in this run.",
+    "Viewport override did not change the observed DOM width.",
+    "Current browser screenshot API unavailable.",
+    "Controlled offline/slow-network/race cases remain planned unless a separate explicit RUN records them."
+  ],
+  "sourceSha256": {
+    "menu.html": "ede81252059f536603a940b990fc4b052a4fd8a3d2ac63e4fd61966437baeb30",
+    "menu-order-ui.js": "df662632e0148504dd95763f1454e24a30f9ff7c9b20642febd166105c7d432b",
+    "menu-pairing.js": "c0e800261c912a92d51bb657534a6ed062942d97daaf1dc3f0e1cb4f2522ac75",
+    "smart-choice/app-v2.js": "fc0174f816ea016001e420bf3d54dd1136bc3ebf2782f84dbd9d0fdeceda8531",
+    "smart-choice/style.css": "70ca8d782644861838095850a42c6dac4cc788668903c5a967d533e8f8dd1d41",
+    "smart-choice/catalog.js": "ad31ffd8e2491e36c514023d7a63460d548908e137f4e9a697befc289d3b0d90",
+    "counter/public/staff.html": "137008def6c90b1547e33613c245657ab42d9b46d8305601a4ce510c286f5f2f",
+    "counter/public/staff.css": "0483ea68e5e235a1cf74f14acff19ad1119cc8da07c99f8ca1be2b3338c267dc",
+    "counter/public/staff.js": "d2751ee7bbeb46e10484a1bb5a73baba20a715e639db4541af5732bca9a619b7",
+    "counter/public/guest.js": "567e95a3cfa77a831cb592dd6c4f5a06a09b3327949df64694cb521452c2fa52",
+    "counter/server.mjs": "2a482c7f589309384ecbcc47d7f270dec6f39af9b08136cfc67310f7a611e7bc"
+  }
+}

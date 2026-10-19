@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -135,6 +136,7 @@ const jsFiles = [
   "smart-choice/release-qa.js"
 ];
 const cssFiles = [
+  "kids-menu.css",
   "smart-choice/style.css",
   "smart-choice/cart.css",
   "smart-choice/decision-trace.css",
@@ -143,8 +145,20 @@ const cssFiles = [
 ];
 // Count the shared dependency once: removing duplicate copies must reduce the
 // real delivered payload, not merely move bytes outside the budget inventory.
-const sharedJsFiles = ["menu-catalog.js"];
-verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
+const sharedJsFiles = ["menu-catalog.js", "smart-choice/photo-previews.js", "smart-choice/catalog.js"];
+const catalogRevisions = verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
+for (const url of [catalogRevisions.smartCatalogUrl.slice(2), catalogRevisions.expectedUrl]) {
+  requireText(html, `<link rel="modulepreload" href="${url}"`, "Both levels of the shared catalog must preload alongside the app");
+}
+const photoPreviewRevision = createHash("sha256").update(read("smart-choice/photo-previews.js")).digest("hex").slice(0, 12);
+const photoPreviewUrl = `photo-previews.js?v=${photoPreviewRevision}`;
+const appAst = ts.createSourceFile("app-v2.js", read("smart-choice/app-v2.js"), ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+const photoPreviewImports = appAst.statements.filter(ts.isImportDeclaration)
+  .filter(node => ts.isStringLiteral(node.moduleSpecifier))
+  .map(node => node.moduleSpecifier.text).filter(specifier => /(?:^|\/)photo-previews\.js(?:\?|$)/.test(specifier));
+assert.deepEqual([...new Set(photoPreviewImports)], [`./${photoPreviewUrl}`], "App must import the photo placeholders at their current content revision");
+requireText(html, `<link rel="modulepreload" href="${photoPreviewUrl}"`, "Photo placeholders must preload alongside the app");
+requireText(serviceWorker, `"./smart-choice/${photoPreviewUrl}"`, "Photo placeholders must be precached at their exact revision");
 const totalJs = [...jsFiles, ...sharedJsFiles].reduce((sum, file) => sum + size(file), 0);
 const totalCss = cssFiles.reduce((sum, file) => sum + size(file), 0);
 for (const file of [...jsFiles, ...sharedJsFiles]) {
@@ -158,6 +172,7 @@ requireText(smartChoicePwa, `../sw.js?v=${SHARED_SERVICE_WORKER_REVISION}`, "Sma
 requireText(smartChoicePwa, 'scope: "../"', "Smart Choice PWA bootstrap must retain the project-root scope");
 requireText(serviceWorker, '"./smart-choice/index.html"', "Smart Choice page must be precached");
 requireText(serviceWorker, 'const isVersionedSmartChoiceAsset', "Smart Choice assets must use exact-revision cache matching");
+requireText(serviceWorker, 'url.pathname.endsWith("/kids-menu.css")', "The shared kids stylesheet must not reuse an earlier revision from offline cache");
 requireText(serviceWorker, 'if (isSmartChoice) return cachedPage("smart-choice/index.html")', "Smart Choice must have a dedicated offline navigation route");
 requireText(serviceWorker, 'url.pathname === `${scopePath}smart-choice/`', "Smart Choice clean URL must not be classified as the home page");
 requireText(buildScript, "synchronizeServiceWorkerAsset", "Smart Choice build must synchronize worker asset revisions");
@@ -170,7 +185,7 @@ for (const legacyFile of ["app.js", "cart.js", "experiments.js", "analytics.js",
 }
 
 for (const file of [...jsFiles, ...cssFiles.filter((file) => !file.endsWith("brand-v4.css"))]) {
-  const fileName = path.basename(file);
+  const fileName = file === "kids-menu.css" ? "../kids-menu.css" : path.basename(file);
   const revision = html.match(new RegExp(`(?:src|href)="${fileName.replaceAll(".", "\\.")}\\?v=([a-f0-9]{12})"`))?.[1];
   assert.ok(revision, `${file} lacks a content revision in Smart Choice HTML`);
   requireText(serviceWorker, `"./${file}?v=${revision}"`, `${file} is not precached at its HTML revision`);

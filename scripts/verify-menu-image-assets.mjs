@@ -150,3 +150,4 @@ for (const fileName of expectedMenuFiles) verifyAsset(path.join(MENU_ROOT, fileN
 for (const fileName of expectedSetFiles) verifyAsset(path.join(SETS_ROOT, fileName), digests);
 
 console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} individual product photos and ${expectedSetFiles.length} pairing photos are complete, unique 1024px WebP assets.`);
+await import('./verify-menu-thumbnails.mjs');

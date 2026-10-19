@@ -1,0 +1,720 @@
+
+> robys-coffee-house@2.0.0 check
+> npm run typecheck && npm run build && npm run verify:menu-images && npm run verify:menu-order && node scripts/test-audit-dependencies.mjs && node scripts/test-hero-playback.mjs && npm run audit:deps -- --check && npm run verify:entry-handoff && npm run verify:smart-choice && npm run test:smart-choice && npm run verify:gallery:assets && npm run test:discover-rotation && npm run verify:taste-journey-posters && npm run verify:pr140-blockers && node --check app.js && node --check featured-gallery.js && node --check social-offer.js && node --check smart-choice/app-v2.js && node --check smart-choice/cart-v2.js && node --check smart-choice/experiments-v2.js && node --check smart-choice/analytics-v2.js && node --check smart-choice/decision-trace-v2.js && node --check smart-choice/release-qa.js && node --check smart-choice/simulator-v2.js && node --check discover-weather-guard.js && node --check discover-rotation.js && node --check discover-v2.js && node --check discover-journeys-v2.js && node --check discover-rotation-v2.js && node --check discover-rotation-v3.js && node --check pwa.js && node --check sw.js && npm run verify:session-state-fixture && npm run test:session-state && npm run verify:regression && npm run test:takeaway-entry
+
+
+> robys-coffee-house@2.0.0 typecheck
+> tsc --noEmit
+
+
+> robys-coffee-house@2.0.0 build
+> npm run verify:smart-choice-catalog && npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && node scripts/build.mjs && npm run test:ordering && node scripts/build-smart-choice-revenue-simulator.mjs && npm run test:smart-choice-page && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 0 expected warning(s), TypeScript clean, adversarial mutations rejected.
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs && node scripts/test-smart-choice-helpful-options.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+✅ SMART-CHOICE-HELPFUL-OPTIONS passed: 3240 questionnaire inputs, 9720 actual-priced options, explicit tradeoffs, guest counts and availability blocks.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs && node scripts/test-shared-order.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and local QR checkout verified.
+PASS legacy menu draft + selected coffee = 270 TRY
+PASS reload / locale redraw / Back cannot duplicate the recommendation
+PASS explicitly selecting the same recommendation replaces its own contribution
+PASS deleting recommendation in menu stays deleted on returning to Smart Choice
+PASS explicit reselection can add the deleted recommendation again
+PASS emptying the menu remains empty on reload
+PASS manual and recommended quantities of the same product are preserved separately
+PASS increasing quantity in menu retains the added portion when recommendation changes
+PASS deleting a shared product clamps ownership and does not remove another manual product
+PASS quantity limit blocks atomically without dropping existing products
+PASS unknown products, corrupt quantities, stale prices and malformed storage are ignored
+PASS invalid recommendation cannot partially replace a valid one
+PASS a differing offer price blocks instead of silently changing the quoted price
+PASS unavailable recommendations do not alter the existing order
+PASS combo, substitution, upgrade and bump use menu prices without losing manual espresso
+PASS all languages share the complete draft with truthful draft flags
+Shared order: 16/16 passed.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+Counter guest and staff interfaces built from source.
+SMART-CHOICE-ENCODING: 8 source/runtime pairs and decoded literals match; 259164 B ASCII -> 238309 B UTF-8; mutated currency rejected.
+Built app.js (ad71d6b67116), bootstrap-v2.js (845efb76f384), morning-entry-v2.js (8a158515f4de), styles-v2.css (a4431b07fc04), menu-security-v2.css (c9ec36b38ff3), pairing-posters.css (d1e9096d1ee4), pairing-posters.js (024743e64919), Smart Choice app-v2.js (7c58cf19f464), Smart Choice cart-v2.js (a9a22eafb683), Smart Choice experiments-v2.js (b490556c5d92), Smart Choice analytics-v2.js (30d0c744a255), Smart Choice decision-trace-v2.js (832120e21e45), Smart Choice release-qa.js (2811759ef7b2), featured-gallery.js (5a90456cb0d7), social-offer.js (77cf212ed128), discover-v2.js (c871d3f4f240), discover-rotation-v3.js (b7b8c4df73db), Smart Choice style.css (70ca8d782644), Smart Choice cart.css (42034af591c0), Smart Choice decision-trace.css (caa831d49b1f), and Smart Choice release-qa.css (382f68926f7d) with synchronized cache keys.
+
+> robys-coffee-house@2.0.0 test:ordering
+> node --test scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs
+
+(node:21168) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/order-draft.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ different pairs remain independently editable and removable; repeats merge the same pair (63.8757ms)
+✔ flavors retain separate identities through serialization and reload (1.5295ms)
+✔ the global product cap spans groups and flavors and rejects entire pairs (1.434ms)
+✔ changing a flavor preserves components when their identities collide inside or between groups (8.515ms)
+✔ full-menu +/- gestures use the current shared draft rather than a stale visible row (18.7292ms)
+✔ full-menu replacement retains pair component counts and unrelated fresh edits (9.9307ms)
+✔ full-menu replacement merges matching components and groups without losing quantities (42.3017ms)
+✔ full-menu replacement rejects stale removals, quantity changes and recommendation changes (41.1892ms)
+✔ full-menu replacement validates mandatory flavors and refuses overflow atomically (6.2924ms)
+✔ full-menu replacement preserves recommendation ownership and explicit dessert substitution (9.7096ms)
+✔ flat legacy drafts migrate without repricing or losing recommendation ownership (1.2063ms)
+✔ a substitution cannot resurrect a component removed from the current recommendation (4.5696ms)
+✔ same-selection substitutions retain pair quantity and chosen flavors; a new selection starts once (3.3859ms)
+✔ retaining recommendation quantity makes substitutions respect the product cap atomically (1.5479ms)
+✔ legacy quantity edits preserve manual ownership before changing a recommendation (1.5612ms)
+✔ legacy flat quantity edits share one allowance across flavors inside the same group (13.1671ms)
+✔ removing an extra copy does not suppress the base recommendation (6.5266ms)
+✔ shared storage migrates the session once and an empty shared cart never restores old items (5.0722ms)
+✔ ordering remains usable when both browser storage APIs are unavailable (2.8912ms)
+✔ readable storage cannot roll back an edit after quota errors, and persistence recovers (3.7994ms)
+✔ a later local read failure cannot restore stale session quantities (3.0935ms)
+✔ failed local writes survive a fresh module reload and commit after quota recovery (25.7614ms)
+✔ a pending session write never rolls back a newer canonical draft from another tab (90.8503ms)
+(node:34068) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ every drink/dessert/flavor × quantity1/2 retains composition and prices through checkout, edits and removal (12381.5098ms)
+ℹ 1368 combinations; 57 drink/flavor choices × 12 desserts × 2 quantities × 3 languages; source + built cashier prices agree
+✔ ticket preserves pairs, reprices catalog and never encodes paid/preparing or prices (7.2254ms)
+✔ unchanged checkout is idempotent across reload; edited composition makes a fresh ticket (2.758ms)
+✔ ticket survives session migration when persistent storage rejects writes (4.184ms)
+✔ failed ticket writes keep the latest ticket instead of restoring stale persistent data (3.1862ms)
+✔ quota failure followed by reload preserves the pending ticket and recovers persistence (3.1808ms)
+✔ a pending session write cannot replace a newer ticket saved by another tab (3.0182ms)
+✔ invalid cached ticket cannot replace validated composition (1.6551ms)
+✔ empty, unknown, duplicate and noninteger/overflowing groups are rejected (3.5257ms)
+✔ flavor survives QR and missing/unknown flavor is rejected (3.0064ms)
+✔ bounded decoder rejects malformed/oversized/version/catalog/product/status injection (15.8809ms)
+✔ binary QR rejects truncated bytes, invalid header/counts/variants and trailing status data (15.6649ms)
+✔ earlier v1 QR remains readable while v2 significantly reduces the full catalog payload (13.1377ms)
+✔ full catalog fits; excessively large valid composition reports a bounded QR error (13.719ms)
+✔ actual SVG QR independently decodes both a pair and full63-item cart (1378.5119ms)
+✔ independent QR scanner reads every flavor and drink category paired with dessert (1047.4454ms)
+ℹ 21 rendered flavor/category QR samples independently decoded
+✔ full catalog QR reads at desktop and narrow mobile display pixel sizes (483.5075ms)
+✔ cashier navigation uses its cached page offline, at root and repository subpaths (264.6089ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17520.1415
+(node:2100) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Quick builder PASS: 760 complete recipes, 75240 quantity cases (1–99), 4560 TR/EN/RU QR round trips, atomic limits, removal, multilingual search and product photos.
+Quick builder UI PASS: responsive photo identity; visible order quantities; replacements, stale edits and required flavours; persistent double-tap confirmation; abandoned or changed delayed checkout cancels; complete totals and modal focus.
+Built Smart Choice revenue simulator (61580d63024c) and synchronized CSS (b39978b525a7).
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 258163 B JS / 38873 B CSS
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+
+> robys-coffee-house@2.0.0 verify:menu-images
+> node scripts/verify-menu-image-assets.mjs
+
+✅ MENU-IMAGES-001 passed: 61 individual product photos and 5 pairing photos are complete, unique 1024px WebP assets.
+Menu thumbnails PASS: 69 originals preserved, 138 verified responsive copies; {"original":4335128,"small":653636,"large":1866250} bytes.
+
+> robys-coffee-house@2.0.0 verify:menu-order
+> node scripts/verify-menu-order.mjs && node scripts/test-menu-runtime-contract.mjs && node --test scripts/test-menu-pairing.mjs
+
+✅ MENU-ORDER-001 passed: 63 clickable photos, localized modal, shared grouped cart, quantity controls and total calculator are wired.
+Menu runtime contract: PASS (source parity, compact output, tamper rejection, stale-source rejection, rebuild recovery)
+Menu order loader PASS: no eager import, shared initialization/storage, latest intent/language/focus, cancellation, retry, exact offline revision.
+Menu interaction regressions PASS: double-tap confirmation, deliberate dismissal, padding, stale live announcements.
+Checkout loader PASS: browser-cached imports recover on explicit retry; bounded same-origin loads; abandoned quick import and delayed configuration cannot create a ticket or navigate.
+(node:36132) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Catalog pair prices and atomic additions: 324 combinations.
+✔ hot eligibility covers all three hot categories and excludes every other catalog category (7.5115ms)
+✔ sweets are exactly eleven desserts and Nutella croissant, preserving catalog objects and order (3.3145ms)
+✔ every catalog hot × sweet combination quotes and atomically adds actual menu prices (32.6636ms)
+✔ real coffee/tea examples sum ordinary prices without introducing a combo discount (0.8184ms)
+✔ either existing line can cap the complete pair, with no partial addition (1.8988ms)
+✔ quote clamps to the tighter remaining line, while apply refuses an oversized request (1.1514ms)
+✔ repeated pairs preserve existing unequal quantities and unrelated products (1.331ms)
+✔ a full sweet line still permits adding only the drink (1.1746ms)
+✔ ordinary single-product ordering remains available for the entire existing catalog (3.9212ms)
+✔ unknown, duplicate and ineligible pairs are rejected before any cart change (3.55ms)
+✔ apply rejects nonpositive, fractional and malformed quantities even when quote can display a safe quantity (1.4792ms)
+✔ custom limits and malformed selected cart lines cannot overflow either product (1.6467ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 703.6104
+PASS conversion: reached output links readable input
+PASS conversion: detached pair is NOT whitelisted
+PASS conversion: source without output remains an orphan
+PASS menu-app: reached output links readable input
+PASS menu-app: detached pair is NOT whitelisted
+PASS menu-app: source without output remains an orphan
+PASS lazy pairing output links its readable view only when reached
+PASS detached lazy pairing output cannot retain its readable view
+PASS lazy order UI reaches its source and actual bundled helpers
+PASS detached order UI cannot retain its source or helpers
+PASS unreferenced pairing domain remains an orphan
+PASS menu-stability: reached cache-isolated CSS links canonical input
+PASS menu-stability: detached stylesheet pair is NOT whitelisted
+PASS menu-stability: canonical CSS without output remains an orphan
+PASS final-qa: reached cache-isolated CSS links canonical input
+PASS final-qa: detached stylesheet pair is NOT whitelisted
+PASS final-qa: canonical CSS without output remains an orphan
+PASS community-reel: reached cache-isolated CSS links canonical input
+PASS community-reel: detached stylesheet pair is NOT whitelisted
+PASS community-reel: canonical CSS without output remains an orphan
+PASS unrelated source and output remain orphans
+PASS build script mentioning output does not make it reachable
+PASS root-relative emitted imports remain traversed
+PASS reached menu links its bundled draft helper
+PASS unreferenced draft helper remains an orphan
+PASS detached menu cannot retain its bundled helper
+PASS missing menu output cannot retain its bundled helper
+PASS order-checkout: reached bundle retains only actual source-relative imported helpers
+PASS order-checkout: detached bundle and imported helpers remain orphans
+PASS order-checkout: absent bundle cannot retain source or helpers
+PASS order-checkout: mentioning helpers without importing them cannot hide orphans
+PASS cashier: reached bundle retains only actual source-relative imported helpers
+PASS cashier: detached bundle and imported helpers remain orphans
+PASS cashier: absent bundle cannot retain source or helpers
+PASS cashier: mentioning helpers without importing them cannot hide orphans
+PASS configured server command traverses its real imports
+PASS server files without an actual start command stay orphaned
+PASS guest counter bundle retains only its reached source and imported helper
+PASS guest detached counter bundle remains an orphan
+PASS staff counter bundle retains only its reached source and imported helper
+PASS staff detached counter bundle remains an orphan
+Dependency build-edge regression: 41/41 PASS
+Hero playback: normal web autoplay, visible-tab recovery, missing-source fallback and reduced motion PASS
+
+> robys-coffee-house@2.0.0 audit:deps
+> node scripts/audit-dependencies.mjs --check
+
+Dependency graph roots: 404.html, cashier.html, counter/public/guest.html, counter/public/staff.html, discover.html, docs/instagram-tools.html, docs/owner-pitch.html, experience/index.html, index.html, menu.html, qa/manual-regression/report.html, qa/takeaway-preview.html, qa/takeaway-scene.html, refresh.html, ru/coffee-gazipasa.html, smart-choice/index.html, smart-choice/simulator.html, src/app.ts, counter/server.mjs, counter/provision.mjs
+Runtime CSS/JS: 115
+Reachable runtime: 115
+Suspicious runtime: 0
+Proven orphan runtime: 0
+SUSPICIOUS_REFERENCES
+counter/test/server.test.mjs: ${f.origin}/script.js -> no current matches
+scripts/verify-menu-order.mjs: ${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")} -> no current matches
+scripts/verify-menu-order.mjs: href="menu-stability-v2.css?v=${stabilityRevision}" -> no current matches
+scripts/verify-menu-order.mjs: "./menu-stability-v2.css?v=${stabilityRevision}" -> no current matches
+scripts/test-menu-order-loader.mjs: import("./menu-order-ui.js?v=${revision}") -> no current matches
+scripts/test-menu-order-loader.mjs: "./menu-order-ui.js?v=${revision}" -> no current matches
+UNRESOLVED_LITERAL_REFERENCES
+counter/public/staff.html: ../src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore
+qa/manual-regression/report.html: Перейти на /menu.html#brew-hot.
+qa/manual-regression/report.html: Закрыть карточку и перейти на /menu.html#hot-coffee.
+qa/manual-regression/report.html: robys-qa-results.json
+counter/server.mjs: guest.html
+counter/server.mjs: guest.js
+counter/server.mjs: guest.css
+counter/server.mjs: staff.html
+counter/server.mjs: staff.js
+counter/server.mjs: staff.css
+counter/server.mjs: /counter/guest.html
+counter/server.mjs: /counter/staff.html
+counter/public/staff.js: ../src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore
+qa/manual-regression/customer-cases.json: Перейти на /menu.html#brew-hot.
+qa/manual-regression/customer-cases.json: Закрыть карточку и перейти на /menu.html#hot-coffee.
+qa/manual-regression/customer-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Static410 receipt/composition/cashier link only; static QR optical decode and exact510 fixture/locales remain.
+qa/manual-regression/customer-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Config503→honest static410 on desktop; attempted QR-module failure was cached and is NOT covered.
+qa/manual-regression/counter-cases.json: QR содержит только QA_BASE/counter/staff.html#order=<opaqueId>; в нём нет guestKey, ticketPayload, цен или состава.
+qa/manual-regression/counter-cases.json: Повторить с относительной /counter/staff.html#order=<ID A>.
+qa/manual-regression/counter-cases.json: /counter/guest.html вместо staff.html
+qa/manual-regression/counter-cases.json: Не подтверждено полное прохождение варианта: /counter/guest.html вместо staff.html
+qa/manual-regression/site-cases.json: Маршрут menu.html?product=...#category соответствует нажатой карточке.
+qa/manual-regression/site-cases.json: Открыть /menu.html#brew-hot, затем /menu.html#hot-coffee.
+qa/manual-regression/site-cases.json: В статической среде открыть cashier.html#<payload> из сформированного QR.
+qa/manual-regression/site-cases.json: Локальный экран создаёт один заказ awaiting_payment и даёт QR staff.html#order=....
+qa/manual-regression/site-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Static410 receipt/composition/cashier link only; static QR optical decode and exact510 fixture/locales remain.
+qa/manual-regression/site-cases.json: Ссылка counter/staff.html#order=<id> без query; ID взят из тестового QR.
+qa/manual-regression/site-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Config503→honest static410 on desktop; attempted QR-module failure was cached and is NOT covered.
+qa/manual-regression/causal-graph.json: QR указывает на staff.html#order=...
+sw.js: /android-app.css
+sw.js: /mobile-install.js
+sw.js: /mobile-install.css
+sw.js: /mobile-install-copy.json
+sw.js: /android-handoff.js
+sw.js: /manifest.webmanifest
+sw.js: /icon-maskable.svg
+sw.js: /apple-touch-icon.png
+qa/manual-regression/counter-analysis.json: node --test counter/test/staff-runtime.test.mjs counter/test/guest.test.mjs counter/test/staff-model.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/guest.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/staff-runtime.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/server.test.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-quick-builder-ui.mjs
+qa/manual-regression/guest-analysis.json: node --test scripts/test-order-groups.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-quick-builder.mjs
+qa/manual-regression/guest-analysis.json: node --test scripts/test-order-ticket.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-checkout-loader.mjs
+qa/manual-regression/qr-optical.json: /counter/staff.html
+counter/src/guest.js: /counter/staff.html
+counter/src/staff.js: ../src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore
+data/featured-products.json: src/products/cards/iced-latte-poster.v1.avif?v=20260625-3
+src/counter-checkout.js: counter/guest.html
+src/menu-app.js: ./menu-catalog.js?v=bc69a9e52fa4
+src/menu-app.js: ./menu-search-clear.js
+src/menu-app.js: ./src/order-draft.js
+src/menu-app.js: ./menu-interactions.js?v=20260923-web-only-v4
+src/menu-order-ui.js: ./src/order-draft.js
+src/menu-order-ui.js: ./src/menu-pairing.js
+counter/test/staff-runtime.test.mjs: \/icon\.svg
+counter/test/staff-runtime.test.mjs: /counter/staff.html
+counter/test/server.test.mjs: script.js
+counter/test/server.test.mjs: counter/data/secret.json
+counter/test/server.test.mjs: guest.html
+counter/test/server.test.mjs: guest.js
+counter/test/server.test.mjs: guest.css
+counter/test/server.test.mjs: staff.html
+counter/test/server.test.mjs: staff.js
+counter/test/server.test.mjs: staff.css
+counter/test/server.test.mjs: /script.js
+counter/test/server.test.mjs: /counter/guest.html
+counter/test/server.test.mjs: /counter/staff.js
+counter/test/server.test.mjs: /counter/guest.css
+counter/test/server.test.mjs: /counter/data/secret.json
+src/smart-choice/checkout-link.ts: ./catalog.js
+scripts/test-checkout-loader.mjs: /cafe/order-checkout.js
+scripts/verify-menu-order.mjs: ./menu-stability-v2.css?v=${stabilityRevision}
+scripts/verify-menu-order.mjs: ./menu-security-v2.css?v=
+scripts/test-menu-runtime-contract.mjs: ./src/order-draft.js
+src/smart-choice/quick-builder.ts: ./catalog.js
+src/smart-choice/quick-builder.ts: ./checkout-link.js
+src/smart-choice/quick-builder.ts: ./shared-order.js
+src/smart-choice/quick-builder.ts: ./product-photo.js
+src/smart-choice/quick-builder.ts: ./quick-builder-domain.js
+scripts/test-quick-builder-ui.mjs: src/products/unlisted-photo.webp
+counter/src/staff-model.mjs: staff.html
+scripts/menu-runtime-source.mjs: ./menu-search-clear.js
+scripts/test-menu-order-loader.mjs: ./menu-order-ui.js?v=${revision}
+src/smart-choice/product-photo.ts: ./catalog.js
+src/smart-choice/product-photo.ts: ./photo-previews.js
+Report: .artifacts/dependency-graph.json
+
+> robys-coffee-house@2.0.0 verify:entry-handoff
+> node scripts/verify-entry-handoff.mjs
+
+✅ ENTRY-HANDOFF-001 passed: paintable branded pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.
+
+> robys-coffee-house@2.0.0 verify:smart-choice
+> npm run verify:smart-choice-catalog && npm run verify:smart-choice-release && npm run verify:smart-choice-revenue-simulator
+
+
+> robys-coffee-house@2.0.0 verify:smart-choice-catalog
+> node scripts/verify-smart-choice-catalog.mjs
+
+✅ SMART-CHOICE-CATALOG passed: 16 items, 18 combos, 1 bumps, 0 expected warning(s), TypeScript clean, adversarial mutations rejected.
+
+> robys-coffee-house@2.0.0 verify:smart-choice-release
+> node scripts/verify-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] verified approved identity v4, locales, TRY, a11y, fallback, navigation, 320px and budgets: 258163 B JS / 38873 B CSS
+
+> robys-coffee-house@2.0.0 verify:smart-choice-revenue-simulator
+> node scripts/verify-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR verified: owner-only page, catalog parity, exports, guardrails and budgets passed.
+
+> robys-coffee-house@2.0.0 test:smart-choice
+> npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && npm run test:smart-choice-page
+
+
+> robys-coffee-house@2.0.0 test:smart-choice-engine
+> node scripts/test-smart-choice-engine.mjs && node scripts/test-smart-choice-helpful-options.mjs
+
+✅ SMART-CHOICE-ENGINE passed: happy path, deterministic replay, ties, no-match, missing input, boundary budgets, availability, business guardrail and bump selection.
+✅ SMART-CHOICE-HELPFUL-OPTIONS passed: 3240 questionnaire inputs, 9720 actual-priced options, explicit tradeoffs, guest counts and availability blocks.
+
+> robys-coffee-house@2.0.0 test:smart-choice-cart
+> node scripts/test-smart-choice-cart.mjs && node scripts/test-shared-order.mjs
+
+✅ SMART-CHOICE-CART passed: catalog pricing, optional upgrades, one-session bump, stable draft payload and local QR checkout verified.
+PASS legacy menu draft + selected coffee = 270 TRY
+PASS reload / locale redraw / Back cannot duplicate the recommendation
+PASS explicitly selecting the same recommendation replaces its own contribution
+PASS deleting recommendation in menu stays deleted on returning to Smart Choice
+PASS explicit reselection can add the deleted recommendation again
+PASS emptying the menu remains empty on reload
+PASS manual and recommended quantities of the same product are preserved separately
+PASS increasing quantity in menu retains the added portion when recommendation changes
+PASS deleting a shared product clamps ownership and does not remove another manual product
+PASS quantity limit blocks atomically without dropping existing products
+PASS unknown products, corrupt quantities, stale prices and malformed storage are ignored
+PASS invalid recommendation cannot partially replace a valid one
+PASS a differing offer price blocks instead of silently changing the quoted price
+PASS unavailable recommendations do not alter the existing order
+PASS combo, substitution, upgrade and bump use menu prices without losing manual espresso
+PASS all languages share the complete draft with truthful draft flags
+Shared order: 16/16 passed.
+
+> robys-coffee-house@2.0.0 test:smart-choice-analytics
+> node scripts/test-smart-choice-analytics.mjs
+
+✅ SMART-CHOICE-ANALYTICS passed: strict event schema, PII rejection, render dedupe, S0–S6 reconstruction, local sink, adapters, revisioned runtime asset and funnel formulas verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-decision-trace
+> node scripts/test-smart-choice-decision-trace.mjs
+
+✅ SMART-CHOICE-DECISION-TRACE passed: stable JSON, engine independence, candidate and bump explanations, event linkage, causal graph, debug renderer and fail-closed versions verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-experiments
+> node scripts/test-smart-choice-experiments.mjs
+
+✅ SMART-CHOICE-EXPERIMENTS passed: stable anonymous assignment, commerce parity, minimum sample, uncertainty, kill switch and financial guardrails verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-release
+> node scripts/test-smart-choice-release.mjs
+
+[SMART-CHOICE-RELEASE] locale, TRY, fallback, and fail-closed tests passed
+
+> robys-coffee-house@2.0.0 test:smart-choice-revenue-simulator
+> node scripts/test-smart-choice-revenue-simulator.mjs
+
+✅ SMART-CHOICE-REVENUE-SIMULATOR passed: arithmetic, scenarios, guardrails, missing data and exports verified.
+
+> robys-coffee-house@2.0.0 test:smart-choice-page
+> node scripts/test-smart-choice-page.mjs
+
+✅ SMART-CHOICE-PAGE passed: direct page, five configured questions, engine integration, session recovery, browser-back contract, accessibility and safe menu fallback verified.
+
+> robys-coffee-house@2.0.0 verify:gallery:assets
+> bash scripts/verify-gallery-assets.sh
+
+Gallery asset sizes:
+    74432  src/products/gallery-v5/latte.webp
+    59454  src/products/gallery-v5/latte-828.webp
+    95474  src/products/gallery-v5/iced-latte.webp
+    72290  src/products/gallery-v5/iced-latte-828.webp
+   117056  src/products/gallery-v5/san-sebastian.webp
+    84966  src/products/gallery-v5/san-sebastian-828.webp
+    84986  src/products/gallery-v5/lotus-cheesecake.webp
+    65248  src/products/gallery-v5/lotus-cheesecake-828.webp
+   104576  src/products/gallery-v5/croissant.webp
+    84028  src/products/gallery-v5/croissant-828.webp
+   120740  src/products/gallery-v5/nutella-croissant.webp
+    95968  src/products/gallery-v5/nutella-croissant-828.webp
+croissant-828.webp: OK
+iced-latte-828.webp: OK
+latte-828.webp: OK
+lotus-cheesecake-828.webp: OK
+nutella-croissant-828.webp: OK
+san-sebastian-828.webp: OK
+Gallery checks passed: masters=597264 bytes, responsive=461954 bytes.
+
+> robys-coffee-house@2.0.0 test:discover-rotation
+> node scripts/test-discover-pairing-rotation.mjs
+
+✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.
+
+> robys-coffee-house@2.0.0 verify:taste-journey-posters
+> node scripts/verify-taste-journey-posters.mjs
+
+✅ TASTE-POSTER-001 verified the unchanged approved 1254x1254 Iced Latte + San Sebastian PNG (2198571 bytes, SHA-256 6569d568bfa58df33b82f0e116ea0a16bcc8f5b4a559ec52e9fec9f590f58329), optimized 249910-byte WebP delivery, source/runtime mapping, offline delivery and synchronized cache revisions.
+
+> robys-coffee-house@2.0.0 verify:pr140-blockers
+> node scripts/verify-pr140-release-blockers.mjs
+
+✅ PR140-BLOCKERS-001 passed: menu pairing agrees with the 190 + 30 TRY individual items; HTML, build and service worker agree on Discover runtime c871d3f4f240, poster JS b7b8c4df73db and CSS 96b566c9731e.
+
+> robys-coffee-house@2.0.0 verify:session-state-fixture
+> node scripts/verify-session-state.mjs qa/fixtures/session-state/pr-126-stale-review.json
+
+Session state valid: qa/fixtures/session-state/pr-126-stale-review.json (BLOCKED, seq=1, head=144ab511642c9b394beeb9a49575a192e8ab5501)
+
+> robys-coffee-house@2.0.0 test:session-state
+> node scripts/test-session-state.mjs
+
+Session state tests passed.
+
+> robys-coffee-house@2.0.0 verify:regression
+> npm run verify:evidence-boundary && npm run verify:proof-depth && npm run test:proof-depth && npm run verify:review-routing && npm run test:review-routing && npm run verify:traceability && npm run test:traceability && npm run verify:ai-style-matrix && npm run verify:brand-identity && npm run verify:brand-candidate && npm run verify:social-offer && npm run verify:pairing-cta && node scripts/verify-regression-contracts.mjs && npm run verify:menu-content && npm run verify:instagram-tools && npm run verify:menu-share && npm run verify:integrity && npm run verify:adversarial && npm run verify:causal-refactoring && npm run test:causal-refactoring
+
+
+> robys-coffee-house@2.0.0 verify:evidence-boundary
+> node scripts/verify-evidence-publication-boundary.mjs
+
+PASS: no workflow mutates repository history to publish Lighthouse evidence.
+
+> robys-coffee-house@2.0.0 verify:proof-depth
+> node scripts/verify-proof-depth-graph.mjs
+
+✅ PDG-001 valid: 7 nodes, 6 edges, depth D6, 1 independent reviewers on binding paths.
+
+> robys-coffee-house@2.0.0 test:proof-depth
+> node scripts/test-proof-depth-graph.mjs && node scripts/test-ci-proof-summary.mjs
+
+✅ PDG-001 mutation tests passed: provider-neutral independent evidence occupies D4, exact-head freshness is binding, and dispositions plus the later proof seal remain mandatory.
+✅ PDG summary mutation test passed: metadata is escaped and D4 is provider-neutral while D5, D6, CI and human authority remain intact.
+
+> robys-coffee-house@2.0.0 verify:review-routing
+> npm run verify:review-depth && npm run verify:reviewer-roster && npm run verify:review-route
+
+
+> robys-coffee-house@2.0.0 verify:review-depth
+> node scripts/evaluate-review-depth.mjs --validate-only
+
+{"contract":"RRM-DEPTH-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:reviewer-roster
+> node scripts/probe-reviewer-roster.mjs --validate-only
+
+{"contract":"RRM-ROSTER-001","valid":true}
+
+> robys-coffee-house@2.0.0 verify:review-route
+> node scripts/select-review-route.mjs --validate-only
+
+{"contract":"RRM-ROUTE-001","valid":true}
+
+> robys-coffee-house@2.0.0 test:review-routing
+> npm run test:review-depth && npm run test:reviewer-roster && npm run test:reviewer-roster-module && npm run test:review-route && npm run test:review-route-workflow
+
+
+> robys-coffee-house@2.0.0 test:review-depth
+> node scripts/test-review-depth.mjs
+
+✅ RRM-DEPTH-001 mutation tests passed: import safety, L1-L4 routing, nested migrations, signal floors, path containment and non-negotiable policy floors.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster
+> node scripts/test-reviewer-roster.mjs
+
+✅ RRM-ROSTER-001 mutation tests passed: the human maintainer is the sole binding reviewer and optional AI reviewers remain advisory at every depth.
+
+> robys-coffee-house@2.0.0 test:reviewer-roster-module
+> node scripts/test-reviewer-roster-module.mjs
+
+✅ RRM roster module passed: human maintainer authority is binding, optional AI reviewers remain advisory, and unavailable human authority fails closed.
+
+> robys-coffee-house@2.0.0 test:review-route
+> node scripts/test-review-route.mjs
+
+✅ RRM-ROUTE-001 tests passed: provider-neutral routes stay deterministic, human maintainer authority is binding, and optional AI reviewers cannot satisfy a route.
+
+> robys-coffee-house@2.0.0 test:review-route-workflow
+> node scripts/test-review-route-preflight-workflow.mjs
+
+✅ RRM-WORKFLOW-001 passed: exact-head path evidence, route selection, audited manual input and read-only PR execution are present.
+
+> robys-coffee-house@2.0.0 verify:traceability
+> node scripts/verify-html-evidence.mjs && node scripts/verify-source-evidence.mjs && node scripts/verify-feature-traceability.mjs
+
+✅ TRACE-HTML-001 valid: 10 HTML evidence fragment(s) matched real start-tag attributes.
+✅ TRACE-SOURCE-001 valid: 20 script evidence fragment(s) matched outside line and block comments.
+✅ TRACE-001 valid: 14 features, 42 requirements, 6 milestones.
+Lifecycle summary: released=8, implemented=3, planned=3
+
+> robys-coffee-house@2.0.0 test:traceability
+> node scripts/test-html-evidence.mjs && node scripts/test-source-evidence.mjs && node scripts/test-feature-traceability.mjs
+
+✅ TRACE-HTML-001 mutation tests passed: empty fragments fail; natural ids and selector evidence require real HTML start-tag attributes outside comments and raw-text containers.
+✅ TRACE-SOURCE-001 mutation tests passed: empty fragments and comment-only symbols fail while code and string literals remain parseable.
+✅ TRACE-001 mutation tests passed: real HTML attributes, semantic selectors, exact fragments, relative paths, reachability, dependency graph, invariants.
+
+> robys-coffee-house@2.0.0 verify:ai-style-matrix
+> node scripts/verify-ai-style-review-matrix.mjs
+
+✅ AI-STYLE-001 max: 5 checks passed
+✅ AI-STYLE-001 qwen: 5 checks passed
+✅ AI-STYLE-001 grok: 5 checks passed
+✅ AI-STYLE-001 manus: 5 checks passed
+✅ AI-STYLE-001 gemini: 5 checks passed
+✅ AI-STYLE-001 gpt: 5 checks passed
+✅ AI-STYLE-001 claude: 5 checks passed
+✅ AI-STYLE-001 passed 7 review lenses across 10 coverage areas.
+
+> robys-coffee-house@2.0.0 verify:brand-identity
+> node scripts/verify-brand-identity-assets.mjs
+
+✅ BRAND-IDENTITY-001: 20260917-approved-v4-restore is path-only, white-backed, canonically shared, statically delivered and cache-revisioned.
+
+> robys-coffee-house@2.0.0 verify:brand-candidate
+> node scripts/verify-robys-approved-identity-v4.mjs
+
+✅ ROBYs-IDENTITY-V4 candidate structure passed
+✅ ROBYs-IDENTITY-V4 production geometry matches approved source
+mark: 2344 bytes sha256:e1285dc0aeef8f8952c5b419cf67b09ee47a3989006462c0387ae575c008bbe4
+compact: 5229 bytes sha256:5b60908b602a1f57799265cffbafa6caec8988c1800ffa3b66181d417578c712
+header: 6078 bytes sha256:9d158b2714a0aabbc11fddc101ae885780de4eb34d9f656e2adea7ee6815709d
+primary: 8233 bytes sha256:67af003ae8e739660331feafae65d9708f989697cb2bae7f962e881337179ab3
+
+> robys-coffee-house@2.0.0 verify:social-offer
+> node scripts/verify-social-offer.mjs
+
+(node:21516) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✅ SOCIAL-OFFER-001 gated: typed daily offer renders safely between the map and footer with responsive mobile layouts.
+
+> robys-coffee-house@2.0.0 verify:pairing-cta
+> node scripts/verify-pairing-cta.mjs
+
+(node:19616) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: static pairing CTA and cache revision are bound
+✅ PAIRING-CATALOG-001: 2 offers match Discover identities and verified pricing policies.
+✅ MENU-TRUTH-LIVE-001: global search, neutral pairing claims, and exact poster cache binding verified at 024743e64919.
+✅ PAIRING-CTA-001: CTA behavior, pairing accessibility, cache revisions and the customer path remain intact.
+✅ MOBILE-001, CTA-001, A11Y-001 and ASSET-001 passed.
+✅ SEO-001 gated: metadata, social cards and JSON-LD are consistent.
+✅ CONTENT-001 gated: visible and structured business details match the canonical profile.
+✅ DEPLOY-001 gated: the GitHub Pages artifact layout is project-path safe.
+PASS: deployed owner-approved SVG-path Roby's identity v4 contract
+PASS: production owner-approved Roby's identity v4 contract
+✅ VISUAL-001 configuration is wired, bounded and protected.
+{
+  "totalJsBytes": 92900,
+  "largestJs": {
+    "file": "app.js",
+    "size": 30846
+  },
+  "totalCssBytes": 133248,
+  "totalHtmlBytes": 37428,
+  "heroBytes": 79501,
+  "posterBytes": 33321,
+  "auditedPages": [
+    "index.html",
+    "menu.html"
+  ]
+}
+✅ PERF-001 passed: Core Web Vitals and static asset budgets are protected.
+✅ LIVE-001 build markers match: 20260904-1.
+✅ INTEGRITY-001 delegates pre-refresh pushes and verifies after refreshed publication.
+✅ LIVE-001 bounded Chrome workflow and smoke coverage are protected.
+✅ CSP-001 AST contract passed: Trusted Types offline registration, no install pointer dependency and unregister prohibition verified.
+✅ NAV-001 gated: internal navigation, deep links and critical CTAs resolve.
+✅ MENU-001 gated: menu structure, translations and protected prices are valid.
+✅ I18N-001 gated: TR/EN/RU coverage and persistence contracts are intact.
+✅ SEARCH-001 gated: multilingual search, filtering and clear behavior are intact.
+✅ Security contracts passed: 353 checks.
+✅ MAP-001 gated: blocked external map pixels stay hidden behind a stable clickable map preview.
+✅ VIDEO-001 gated: hero playback has explicit mobile recovery.
+✅ THEME-001 gated: hero contrast and light-section palette remain balanced.
+✅ FEATURED-001 gated: the TypeScript gallery keeps six complete images, actionable mobile visit controls, exact offline CSS revisioning, stable fallback height and no crop.
+✅ WEB-ONLY-001 gated: retired installer bootstraps remain absent.
+
+> robys-coffee-house@2.0.0 verify:menu-content
+> node scripts/verify-menu-content.mjs
+
+✅ MENU-CONTENT-001 passed: 8 categories, 63 items, 3 languages, all verified prices unchanged.
+
+> robys-coffee-house@2.0.0 verify:instagram-tools
+> node scripts/verify-instagram-tools.mjs
+
+✅ INSTAGRAM-001 passed: API-free profile, table messages, TR/EN/RU copy and QR remain intact.
+
+> robys-coffee-house@2.0.0 verify:menu-share
+> node scripts/verify-menu-share.mjs
+
+✅ SHARE-001 passed: centered feedback, Web Share and copy-link fallbacks, cache generation 64 (20260910), and offline revision pairing-video-fix-20260916-2 remain valid.
+
+> robys-coffee-house@2.0.0 verify:integrity
+> node scripts/generate-integrity-manifest.mjs --check && node scripts/verify-integrity-manifest.mjs
+
+✅ INTEGRITY-001 manifest is current: 414 public files, build 20260904-1.
+✅ INTEGRITY-001 passed: 414 public files match build 20260904-1.
+
+> robys-coffee-house@2.0.0 verify:adversarial
+> node scripts/verify-adversarial-contracts.mjs
+
+✅ ADV-001, DAST-001 and INTEGRITY-001 control wiring passed.
+
+> robys-coffee-house@2.0.0 verify:causal-refactoring
+> node scripts/verify-causal-refactoring.mjs
+
+Fractal causal refactoring valid: 3 patterns, 0 owner-critical fields pending encoded confirmation, publication mode=production.
+
+> robys-coffee-house@2.0.0 test:causal-refactoring
+> node scripts/test-causal-refactoring.mjs
+
+Fractal causal refactoring tests passed.
+
+> robys-coffee-house@2.0.0 test:takeaway-entry
+> node --test scripts/test-takeaway-entry.mjs
+
+✔ morning: one scene, stationary dissolve, cold entry closes in 1530 ms (23.7515ms)
+✔ day: one scene, stationary dissolve, cold entry closes in 1530 ms (5.7785ms)
+✔ night: one scene, stationary dissolve, cold entry closes in 1530 ms (9.7274ms)
+✔ delayed cold entrance preserves a 350 ms stationary hold after settle (5.0104ms)
+✔ warm entry closes in 600 ms (4.4541ms)
+✔ tr copy follows the saved language (3.9494ms)
+✔ en copy follows the saved language (4.6652ms)
+✔ ru copy follows the saved language (4.8642ms)
+✔ broken image never reveals partial content or strands the page (4.4488ms)
+✔ stalled image never reveals partial content or strands the page (3.7693ms)
+✔ pointer dismisses immediately and allows at most one 8 ms pulse (6.7518ms)
+✔ Escape immediately releases the page and makes the next entry warm without vibration (7.5206ms)
+✔ Escape still releases the page when session storage is unavailable (4.474ms)
+✔ Tab immediately releases the page and makes the next entry warm without vibration (8.0974ms)
+✔ Tab still releases the page when session storage is unavailable (4.508ms)
+✔ reduced motion bypasses the scene (3.1747ms)
+✔ changing to reduced motion releases a running scene (4.827ms)
+✔ hidden tab releases the scene and no late decode revives it (4.239ms)
+✔ absent vibration and blocked storage cannot break entry (6.3617ms)
+✔ throws vibration and blocked storage cannot break entry (6.4062ms)
+✔ throws animation still releases the page within the hard stop (4.5903ms)
+✔ stalled animation still releases the page within the hard stop (4.2002ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 609.8956

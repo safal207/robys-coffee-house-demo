@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-a7df01fbb25a-custom-pair-d09f99a1021f-shared-order-social-offer-77cf212ed128-20260922-web-only-20260923-share-v4-c871d3f4f240-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-42e4489ca0ce-custom-pair-7d6fdfc375f8-shared-order-social-offer-77cf212ed128-20260922-web-only-20260923-share-v4-48db52a5d59f-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -63,16 +63,19 @@ const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/refreshers--yuzu-popcorn.webp"
 ];
 const CORE_ASSETS = [
+  "./kids-menu.css?v=e2dec4adf195",
   "./",
   "./index.html",
   "./cashier.html",
-  "./cashier.js?v=ee5541cb1c07",
-  "./order-checkout.js?v=6aa30239d031",
+  "./cashier.js?v=5560e3078642",
+  "./order-checkout.js?v=9c561c168e25",
   "./order-checkout.css?v=52d404809a87",
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=54ae56c1bd70",
+  "./menu-order-ui.js?v=45c60435d829",
+  "./smart-choice/photo-previews.js?v=a8f51a54c367",
+  "./smart-choice/catalog.js?v=ad31ffd8e249",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -86,7 +89,7 @@ const CORE_ASSETS = [
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
   "./social-offer.js?v=77cf212ed128",
-  "./menu-premium.css?v=435e50173a1f",
+  "./menu-premium.css?v=35ec46062690",
   "./pairing-posters.css?v=d1e9096d1ee4",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
@@ -108,8 +111,8 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=e9efa592727d",
-  "./menu-pairing.js?v=413cfaa7a0d5",
+  "./menu-app.js?v=799f0e9fcaa9",
+  "./menu-pairing.js?v=c0e800261c91",
   "./menu-product-reveal.js?v=497fa714ac94",
   "./menu-product-reveal-runtime.js?v=496a14490e84",
   "./pairing-posters.js?v=024743e64919",
@@ -135,19 +138,19 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=27e35fbd4218",
+  "./smart-choice/style.css?v=70ca8d782644",
   "./smart-choice/cart.css?v=42034af591c0",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=aed4068915da",
-  "./smart-choice/cart-v2.js?v=a21523eadf8f",
-  "./smart-choice/experiments-v2.js?v=5de1d0eb1bea",
-  "./smart-choice/analytics-v2.js?v=c267da7f3a89",
-  "./smart-choice/decision-trace-v2.js?v=66ee1d986996",
+  "./smart-choice/app-v2.js?v=dde77da16738",
+  "./smart-choice/cart-v2.js?v=4e494bc9b17a",
+  "./smart-choice/experiments-v2.js?v=b490556c5d92",
+  "./smart-choice/analytics-v2.js?v=30d0c744a255",
+  "./smart-choice/decision-trace-v2.js?v=832120e21e45",
   "./discover.js",
-  "./discover-v2.js?v=c871d3f4f240",
+  "./discover-v2.js?v=48db52a5d59f",
   "./discover-deck.js?v=7228be958854",
   "./discover-copy.js",
   "./discover-journeys.js",
@@ -219,6 +222,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
+    url.pathname.endsWith("/kids-menu.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-deck.css") ||
@@ -301,6 +305,13 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Live staff sessions and order status must never pass through offline caches,
+  // even when a previously installed menu worker controls the counter pages.
+  const scopePath = new URL(self.registration.scope).pathname;
+  const relativePath = url.pathname.startsWith(scopePath) ? url.pathname.slice(scopePath.length) : "";
+  if (relativePath === "counter-config.json" || relativePath.startsWith("api/counter/") ||
+      relativePath.startsWith("counter/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(navigationResponse(event.request));

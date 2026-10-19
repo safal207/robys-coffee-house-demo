@@ -15,3 +15,19 @@ export function sharedMenuCatalogPlugin(revision) {
     }
   };
 }
+
+// The derived recommendation catalog and its validation run once per page,
+// instead of repeating the same immutable data in five browser entry points.
+export function sharedSmartChoiceCatalogPlugin(revision) {
+  if (!/^[a-f0-9]{12}$/.test(revision)) throw new Error("Expected the current Smart Choice catalog content revision");
+  const canonicalPath = resolve("src/smart-choice/catalog.js");
+  return {
+    name: "smart-choice-shared-derived-catalog",
+    setup(context) {
+      context.onResolve({ filter: /(?:^|\/)catalog\.js(\?.*)?$/ }, args => {
+        if (resolve(args.resolveDir, args.path.split("?")[0]) !== canonicalPath) return;
+        return { path: `./catalog.js?v=${revision}`, external: true };
+      });
+    }
+  };
+}

@@ -1,0 +1,27 @@
+name: Counter service
+
+on:
+  push:
+    branches: [main]
+    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", ".github/workflows/counter-service.yml"]
+  pull_request:
+    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", ".github/workflows/counter-service.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  counter-workflow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build:counter
+      - run: npm run test:counter

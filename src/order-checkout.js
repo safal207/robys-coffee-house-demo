@@ -1,6 +1,7 @@
 import qrcode from "qrcode-generator";
 import { buildCashierUrl, getOrCreateOrderTicket, quoteOrderTicket, ticketOrderNumber } from "./order-ticket.js";
 import { createTicketStorage } from "./order-ticket-storage.js";
+import { counterCheckoutUrl, readCounterConfiguration } from "./counter-checkout.js";
 
 export const checkoutCopy = {
   tr: { title: "Sipariş numaran", cashierTitle: "Kasada sipariş", awaiting: "Kasada ödeme bekleniyor",
@@ -128,10 +129,23 @@ function siteRootUrl() {
   return new URL("./", import.meta.url).href;
 }
 
-export async function openOrderCheckout({ draft, language = "tr", returnFocus = document.activeElement } = {}) {
+export async function openOrderCheckout({ draft, language = "tr", returnFocus = document.activeElement,
+  shouldOpen = () => true } = {}) {
   const lang = Object.hasOwn(checkoutCopy, language) ? language : "tr";
   const copy = checkoutCopy[lang];
   activeDismiss?.();
+  const counterConfig = await readCounterConfiguration(siteRootUrl());
+  // The guest may resume choosing while configuration is loading. A stale
+  // checkout must not later open a ticket or redirect the current selection.
+  if (!shouldOpen()) return { ticket: null, dialog: null, cancelled: true };
+  if (counterConfig?.enabled === true) {
+    const ticket = getOrCreateOrderTicket(draft, { storage: ticketStorage });
+    const counterUrl = counterCheckoutUrl(counterConfig, ticket, lang, siteRootUrl());
+    if (counterUrl) {
+      window.location.assign(counterUrl);
+      return { ticket, dialog: null, redirected: true };
+    }
+  }
   const dialog = element("dialog", "order-checkout-dialog");
   dialog.setAttribute("aria-labelledby", "order-checkout-title");
   dialog.setAttribute("aria-modal", "true");

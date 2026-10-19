@@ -1,0 +1,1185 @@
+{
+  "records": [
+    {
+      "title": "Home entry → menu → browser Back → smart choice, TR desktop",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-001",
+        "SITE-004"
+      ],
+      "actual": "At /, visible Menü opened /menu.html with 0 items/0₺; browser Back returned home; Seçmeme yardım et opened /smart-choice/#quick with empty cart and catalog. No auto-add.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "AX",
+          "url": "http://localhost:8794/smart-choice/#quick",
+          "text": "Bugün ne iyi gider?; 63 seçenek; Henüz bir şey eklemedin.; ₺0"
+        }
+      ]
+    },
+    {
+      "title": "/index.html featured Latte opens hot coffee without adding",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-001"
+      ],
+      "actual": "Explicit /index.html loaded. Featured Latte180₺ link navigated /menu.html#hot-coffee; Sıcak Kahveler visible, Siparişim0/0₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html#hot-coffee",
+          "text": "Sıcak Kahveler; Siparişim: 0 ürün, Toplam 0 ₺"
+        }
+      ]
+    },
+    {
+      "title": "Discover next coffee/dessert pair passes exact dessert product",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-002"
+      ],
+      "actual": "TR1280: Cool Lime+Makaron220 initial; Next selected Buzlu Latte+San Sebastian370. Visible Menüde gör href menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts; destination dialog San Sebastian190₺, pairing370₺, cart0. Correct dessert handoff, no auto-add.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/discover-dessert-desktop.jpg",
+          "url": "http://localhost:8794/menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts"
+        },
+        {
+          "type": "DOM",
+          "text": "San Sebastian190₺; Buzlu Latte+San Sebastian370₺; Siparişim0"
+        }
+      ]
+    },
+    {
+      "title": "Discover Back and alternate pair handoff",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-002"
+      ],
+      "actual": "Browser Back returned Discover. Next selected Cool Lime+Makaron220. Menüde gör href menu.html?product=pairing-offers%3Acool-lime-macaron-pairing#pairing-offers opened exact Cool Lime+Makaron220 dialog; cart remains empty.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html?product=pairing-offers%3Acool-lime-macaron-pairing#pairing-offers",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nLEZZETLE TANIŞ\n\nCool Lime + Makaron\n\nFerah lime ve yumuşak fıstıklı makaron.\n\n220 ₺\n\nBirim fiyat: 220 ₺ · × 1\n\nAdet\n−\n1\n+\nSiparişe ekle · 220 ₺\n\nBu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez."
+        }
+      ]
+    },
+    {
+      "title": "RU direct brew-hot and hot-coffee product prices, empty cart",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-001",
+        "SITE-003"
+      ],
+      "actual": "At1280×800 RU: /menu.html#brew-hot showed Чёрный чай dialog50₺; Escape closed; /menu.html#hot-coffee showed Кафе латте180₺. Cart0/0 remained. 1440×900 and mobile repeated separately.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html#hot-coffee",
+          "text": "Кафе латте180₺; Мой заказ:0 позиций,Итого0₺"
+        }
+      ]
+    },
+    {
+      "title": "Menu tea search Чёрный чай under RU",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-002"
+      ],
+      "actual": "Query opened Чёрный чай50₺, closed with Escape; espresso1/110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "query": "Чёрный чай",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 1 позиция, Итого 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "Menu tea search Black Tea under RU",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-002"
+      ],
+      "actual": "Black Tea found Чёрный чай50₺; Escape closed with espresso1/110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 1 позиция, Итого 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "Turkish tea query under RU and search clear",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-002"
+      ],
+      "actual": "Siyah Çay opened Чёрный чай50₺; Escape closed. Clear emptied input and restored61 regular product buttons plus2 pair cards; espresso1/110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 1 позиция, Итого 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "English menu tea search/open/clear",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-002",
+        "SITE-009"
+      ],
+      "actual": "EN Black Tea query opened Black Tea50₺; Escape and Clear search restored menu; My order1 item110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nBREWED & HOT DRINKS\n\nBlack Tea\n50 ₺\n\nPrice each: 50 ₺ · × 1\n\nSweet with your drink\n\nChoose a dessert or keep just the drink.\n\nJust the drink\n50 ₺\nSan Sebastian Cheesecake\nPair · 240 ₺\nLotus Cheesecake\nPair · 240 ₺\nRaspberry Cheesecake\nPair · 240 ₺\nChocolate Cake\nPair · 240 ₺\nAlmond Tart\nPair · 230 ₺\nCake Roll\nPair · 220 ₺\nMosaic Cake\nPair · 220 ₺\nTiramisu\nPair · 220 ₺\nBrownie\nPair · 200 ₺\nCookie\nPair · 150 ₺\nMacaron\nPair · 80 ₺\nNutella Croissant\nPair · 220 ₺\nJust the drink · 50 ₺\nQuantity\n−\n1\n+\nAdd to order · 50 ₺\n\nThis is an order draft; it is not sent automatically to the café or payment system.",
+          "cart": "My order: 1 item, Total 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "Turkish menu tea search/open/clear",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-002"
+      ],
+      "actual": "TR Siyah Çay query opened Siyah Çay50₺; Escape and Aramayı temizle restored menu; espresso1/110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nDEMLEME VE SICAK İÇECEKLER\n\nSiyah Çay\n50 ₺\n\nBirim fiyat: 50 ₺ · × 1\n\nİçeceğinin yanına tatlı\n\nBir tatlı seç veya sadece içeceğinle devam et.\n\nSadece içecek\n50 ₺\nSan Sebastian\nÇift · 240 ₺\nLotus Cheesecake\nÇift · 240 ₺\nFrambuazlı Cheesecake\nÇift · 240 ₺\nÇikolatalı Pasta\nÇift · 240 ₺\nBademli Turta\nÇift · 230 ₺\nRulo Pasta\nÇift · 220 ₺\nMozaik Pasta\nÇift · 220 ₺\nTiramisu\nÇift · 220 ₺\nBrownie\nÇift · 200 ₺\nCookie\nÇift · 150 ₺\nMakaron\nÇift · 80 ₺\nNutellalı Kruvasan\nÇift · 220 ₺\nSadece içecek · 50 ₺\nAdet\n−\n1\n+\nSiparişe ekle · 50 ₺\n\nBu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.",
+          "cart": "Siparişim: 1 ürün, Toplam 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "EN persists across index → Discover → menu → smart-choice",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009",
+        "SITE-004"
+      ],
+      "actual": "Main headings/actions English on all4 guest surfaces; shared espresso1/110₺ retained menu and quick. Skip-link exception separately recorded.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "page": "index",
+          "text": "Good coffee.\nCalm moments."
+        },
+        {
+          "page": "discover",
+          "text": [
+            "Get to know the menu a little better with every meeting.",
+            "First meeting",
+            "A good pairing for right now",
+            "Cool Lime + Macaron"
+          ]
+        },
+        {
+          "page": "menu",
+          "text": "My order: 1 item, Total 110 ₺"
+        },
+        {
+          "page": "smart-choice",
+          "text": "Your order\nEspresso\nTRY 110\n−\n1\n+\nCustomize selection\nReplace\nRemove\nTotal\nTRY 110\nAll set · continue\n\nShow the QR at the counter. Payment and final confirmation happen at the café."
+        }
+      ]
+    },
+    {
+      "title": "Nonempty quick routes and reload retain one espresso",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-004"
+      ],
+      "actual": "EN /smart-choice/#quick ordinary reload and /smart-choice/index.html#quick both showed exactly Espresso1 TotalTRY110 with no duplicate.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "Your order\nEspresso\nTRY 110\n−\n1\n+\nCustomize selection\nReplace\nRemove\nTotal\nTRY 110\nAll set · continue\n\nShow the QR at the counter. Payment and final confirmation happen at the café.",
+          "url": "http://localhost:8794/smart-choice/#quick"
+        },
+        {
+          "type": "DOM",
+          "text": "Your order\nEspresso\nTRY 110\n−\n1\n+\nCustomize selection\nReplace\nRemove\nTotal\nTRY 110\nAll set · continue\n\nShow the QR at the counter. Payment and final confirmation happen at the café.",
+          "url": "http://localhost:8794/smart-choice/index.html#quick"
+        }
+      ]
+    },
+    {
+      "title": "RU persists across quick → index → Discover → menu",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009"
+      ],
+      "actual": "Russian main UI persisted across4 pages; Эспрессо1 and110₺ unchanged. Skip-link exception separately recorded.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "page": "smart-choice",
+          "text": "Твой заказ\nЭспрессо\n110 TRY\n−\n1\n+\nИзменить выбор\nЗаменить\nУбрать\nИтого\n110 TRY\nВсё, к оформлению\n\nПокажи QR на кассе. Оплата и окончательное подтверждение — в кафе."
+        },
+        {
+          "page": "index",
+          "text": "Хороший кофе.\nСпокойные моменты."
+        },
+        {
+          "page": "discover",
+          "text": [
+            "С каждой встречей узнавай меню немного глубже.",
+            "Первая встреча",
+            "Хорошая пара для этого момента",
+            "Cool Lime + макарон"
+          ]
+        },
+        {
+          "page": "menu",
+          "text": "Мой заказ: 1 позиция, Итого 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "RU/EN menu and Discover skip link remains Turkish",
+      "result": "failed-subvariant",
+      "caseIds": [
+        "SITE-009",
+        "SITE-016"
+      ],
+      "actual": "RU menu keyboard Shift+Tab from Back to café revealed focused skip-link İçeriğe geç at top-left while remaining main UI is Russian. EN menu and RU/EN Discover DOM also expose same Turkish skip-link. index/quick correctly translate it.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/skip-ru-menu-before.jpg",
+          "url": "http://localhost:8794/menu.html"
+        },
+        {
+          "type": "DOM",
+          "text": "focused A İçeriğe geç; RU pressed"
+        }
+      ]
+    },
+    {
+      "title": "RU keyboard modal quantity preview, focus trap and Escape",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-004",
+        "SITE-016"
+      ],
+      "actual": "From focused skip-link keyboard Enter→Tab traversed product buttons; Enter on Кафе латте opened180₺.20Tabs cycled only checked dessert radio,plus,add,close in native dialog. Keyboard plus made quantity2/360₺; Escape cancelled, closed dialog, restored focus to latte trigger and vertical scroll auto; espresso1/110₺ unchanged.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "Кафе латте×2→360₺; afterEscape open dialogs0; focus latte trigger; cart110₺"
+        }
+      ]
+    },
+    {
+      "title": "RU mouse Close cancels increased latte preview",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-004"
+      ],
+      "actual": "Latte preview incremented quantity and closed using visible Закрыть button; cart remains soleespresso1/110₺; modal gone. Reopened unconfirmed product retains preview quantity; this was not asserted to reset.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "No visible dialog; Мой заказ1/110₺"
+        }
+      ]
+    },
+    {
+      "title": "RU desktop backdrop click cancels latte preview",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-004"
+      ],
+      "actual": "Ordinary click at x60,y400 outside native dialog closed qty4/720₺ latte preview; focus returned latte trigger, espresso1/110₺ unchanged. Touch variant unavailable.",
+      "viewport": {
+        "width": 1280,
+        "height": 800,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "No visible dialog; Мой заказ1/110₺; focused latte trigger"
+        }
+      ]
+    },
+    {
+      "title": "TR home at real CSS390×844",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-001",
+        "SITE-014"
+      ],
+      "actual": "Actual innerWidth390/innerHeight844; main home actions visible, document scrollWidth375 (no horizontal overflow). CSS emulation only.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/entry-home-tr-390.jpg",
+          "url": "http://localhost:8794/"
+        }
+      ]
+    },
+    {
+      "title": "TR390 mobile home navigation and shared espresso",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-001",
+        "SITE-004",
+        "SITE-009",
+        "SITE-014"
+      ],
+      "actual": "390×844 home Menüyü Gör→menu cart1/110₺; browserBack→Seçmeme yardım et→quick sameespresso1/110₺. TR preserved; noautoadd. Menu document375wide within390 viewport.",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/smart-choice/#quick",
+          "text": "Siparişin\nEspresso\n₺110\n−\n1\n+\nSeçimi düzenle\nDeğiştir\nKaldır\nToplam\n₺110\nTamam, devam et\n\nQR'ı kasaya göster. Ödeme ve son onay kafede yapılır."
+        }
+      ]
+    },
+    {
+      "title": "TR390 current Discover pair handoff",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-002",
+        "SITE-014"
+      ],
+      "actual": "Actual 390×844: visible Cool Lime + Makaron 220 ₺ menu link opened the same 220 ₺ pair modal; espresso 110 ₺ unchanged; Discover document width 375. The preceding Next action was not independently observed after its transition, so this record proves the current visible pair handoff. A settled second-pair transition is recorded separately.",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/discover-tr-390.jpg",
+          "url": "http://localhost:8794/discover.html"
+        },
+        {
+          "type": "DOM",
+          "text": "×\n\nLEZZETLE TANIŞ\n\nCool Lime + Makaron\n\nFerah lime ve yumuşak fıstıklı makaron.\n\n220 ₺\n\nBirim fiyat: 220 ₺ · × 1\n\nAdet\n−\n1\n+\nSiparişe ekle · 220 ₺\n\nBu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.",
+          "cart": "Siparişim: 1 ürün, Toplam 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "TR390 settled second Discover pair opens exact dessert",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-002"
+      ],
+      "actual": "After Back, clicked visible upcoming BuzluLatte+SanSebastian370 card and waited AX settled. Href desserts:san-sebastian-cheesecake#desserts opened SanSebastian190₺ with pairing370; espresso110 unchanged.",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts",
+          "text": "×\n\nTATLILAR\n\nSan Sebastian\n190 ₺\nMENÜ EŞLEŞMESİ\nBuzlu Latte + San Sebastian\n370 ₺\nEşleşmeyi gör\n\nBirim fiyat: 190 ₺ · × 1\n\nAdet\n−\n1\n+\nSiparişe ekle · 190 ₺\n\nBu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.",
+          "cart": "Siparişim: 1 ürün, Toplam 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "EN390 index.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/index.html",
+          "text": "Good coffee.\nCalm moments."
+        }
+      ]
+    },
+    {
+      "title": "EN390 discover.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/discover.html",
+          "text": "Cool Lime + Macaron"
+        }
+      ]
+    },
+    {
+      "title": "EN390 menu.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html",
+          "text": "My order\n1"
+        }
+      ]
+    },
+    {
+      "title": "EN390 smart-choice/#quick layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/smart-choice/#quick",
+          "text": "Your order\nEspresso\nTRY 110\n−\n1\n+\nCustomize selection\nReplace\nRemove\nTotal\nTRY 110\nAll set · continue\n\nShow the QR at the counter. Payment and final confirmation happen at the café."
+        }
+      ]
+    },
+    {
+      "title": "RU390 index.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/index.html",
+          "text": "Хороший кофе.\nСпокойные моменты."
+        }
+      ]
+    },
+    {
+      "title": "RU390 discover.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/discover.html",
+          "text": "Cool Lime + макарон"
+        }
+      ]
+    },
+    {
+      "title": "RU390 menu.html layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html",
+          "text": "Мой заказ\n1"
+        }
+      ]
+    },
+    {
+      "title": "RU390 smart-choice/#quick layout",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-014",
+        "SITE-009"
+      ],
+      "actual": "Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 375,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/smart-choice/#quick",
+          "text": "Твой заказ\nЭспрессо\n110 TRY\n−\n1\n+\nИзменить выбор\nЗаменить\nУбрать\nИтого\n110 TRY\nВсё, к оформлению\n\nПокажи QR на кассе. Оплата и окончательное подтверждение — в кафе."
+        }
+      ]
+    },
+    {
+      "title": "After fix RU menu skip-link localized and keyboard visible",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009",
+        "SITE-016"
+      ],
+      "actual": "New runtime reload; Tab focused visible Перейти к содержанию at320×740. Original Turkish label corrected; espresso1/110₺ retained.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/skip-ru-menu-after.jpg",
+          "url": "http://localhost:8794/menu.html"
+        },
+        {
+          "type": "DOM",
+          "text": {
+            "height": 740,
+            "rect": {
+              "bottom": 61.60000228881836,
+              "height": 45.60000228881836,
+              "left": 16,
+              "right": 216.52500915527344,
+              "top": 16,
+              "width": 200.52500915527344,
+              "x": 16,
+              "y": 16
+            },
+            "text": "Перейти к содержанию",
+            "width": 320
+          }
+        }
+      ]
+    },
+    {
+      "title": "After fix RU Discover skip-link localized",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009"
+      ],
+      "actual": "Fresh Discover navigation after build; Tab focused visible Перейти к содержанию, Russian main content consistent.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/skip-ru-discover-after.jpg",
+          "url": "http://localhost:8794/discover.html"
+        },
+        {
+          "type": "DOM",
+          "text": {
+            "height": 740,
+            "rect": {
+              "bottom": 61.60000228881836,
+              "height": 45.60000228881836,
+              "left": 16,
+              "right": 216.52500915527344,
+              "top": 16,
+              "width": 200.52500915527344,
+              "x": 16,
+              "y": 16
+            },
+            "text": "Перейти к содержанию",
+            "width": 320
+          }
+        }
+      ]
+    },
+    {
+      "title": "After fix EN Discover skip-link localized",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009"
+      ],
+      "actual": "EN Discover DOM skip-link localized to Skip to content after reload; first immediate Tab focus was not captured, visible focus retested separately.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/discover.html",
+          "text": "Skip to content; EN selected. Initial immediate Tab focus was not captured; later keyboard record verifies visible focus."
+        }
+      ]
+    },
+    {
+      "title": "After fix EN menu skip-link localized",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009",
+        "SITE-016"
+      ],
+      "actual": "EN menu DOM skip-link localized to Skip to content after fresh navigation; first immediate Tab focus was not captured, visible focus retested separately.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html",
+          "text": "Skip to content; EN selected; My order 1 item Total 110 ₺. Later keyboard record verifies visible focus."
+        }
+      ]
+    },
+    {
+      "title": "After fix EN menu skip-link keyboard visible",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009",
+        "SITE-016"
+      ],
+      "actual": "Keyboard Shift+Tab from Back to café focused visible Skip to content atx16,y16. English text correct, cart1/110₺ unchanged.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/skip-en-menu-after.jpg",
+          "url": "http://localhost:8794/menu.html"
+        },
+        {
+          "type": "DOM",
+          "text": {
+            "rect": {
+              "bottom": 61.60000228881836,
+              "height": 45.60000228881836,
+              "left": 16,
+              "right": 149.85000610351562,
+              "top": 16,
+              "width": 133.85000610351562,
+              "x": 16,
+              "y": 16
+            },
+            "tag": "A",
+            "text": "Skip to content"
+          }
+        }
+      ]
+    },
+    {
+      "title": "After fix EN Discover skip-link keyboard visible",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-009"
+      ],
+      "actual": "Ordinary keyboard Shift+Tab from Robys home link focused visible Skip to content atx16,y16. English main content and link consistent.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/skip-en-discover-after.jpg",
+          "url": "http://localhost:8794/discover.html"
+        },
+        {
+          "type": "DOM",
+          "text": {
+            "rect": {
+              "bottom": 61.60000228881836,
+              "height": 45.60000228881836,
+              "left": 16,
+              "right": 149.85000610351562,
+              "top": 16,
+              "width": 133.85000610351562,
+              "x": 16,
+              "y": 16
+            },
+            "tag": "A",
+            "text": "Skip to content"
+          }
+        }
+      ]
+    },
+    {
+      "title": "EN320 full-menu keyboard search/open/Escape/add/remove",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-016",
+        "GUEST-002",
+        "GUEST-004"
+      ],
+      "actual": "Keyboard only from headerShift+Tab→skip→8Tabs search; typedBlackTea; Tab traversed Clear+9categories to tea; Enter opened50₺, Escape keptespresso110. Enter reopened,3Tabs→Add,Enter created total160; Tab→RemoveBlackTea,Enter returned110. All modal focus remained in native dialog; removal focused Espresso decrease, useful next action.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB100%"
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/keyboard-menu-added-320.jpg",
+          "url": "http://localhost:8794/menu.html"
+        },
+        {
+          "type": "DOM",
+          "text": [
+            {
+              "inside": true,
+              "label": "Decrease quantity: Espresso",
+              "text": "−"
+            },
+            {
+              "inside": true,
+              "label": "Increase quantity: Espresso",
+              "text": "+"
+            },
+            {
+              "inside": true,
+              "label": "Replace: Espresso",
+              "text": "Replace"
+            },
+            {
+              "inside": true,
+              "label": "Remove: Espresso",
+              "text": "Remove"
+            },
+            {
+              "inside": true,
+              "label": "Decrease quantity: Black Tea",
+              "text": "−"
+            },
+            {
+              "inside": true,
+              "label": "Increase quantity: Black Tea",
+              "text": "+"
+            },
+            {
+              "inside": true,
+              "label": "Replace: Black Tea",
+              "text": "Replace"
+            },
+            {
+              "inside": true,
+              "label": "Remove: Black Tea",
+              "text": "Remove"
+            }
+          ],
+          "cart": "RemovedBlackTea,total110"
+        }
+      ]
+    },
+    {
+      "title": "RU320×640 unknown search clears and tea remains available, empty cart",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-003",
+        "SITE-014"
+      ],
+      "actual": "Exactemptycartprecondition; queryнеттовараxyz showed По вашему запросу ничего не найдено and0productbuttons. Clear restoredmenu; Чёрныйчай50₺ modalopened. Cart0/0 unchanged; actual320×640document320wide.",
+      "viewport": {
+        "height": 640,
+        "scrollWidth": 320,
+        "width": 320
+      },
+      "evidence": [
+        {
+          "type": "screenshot",
+          "path": "C:/Users/safal/Documents/Codex/2026-10-10/new-chat/outputs/remaining-regression/empty-search-ru-320.jpg",
+          "url": "http://localhost:8794/menu.html"
+        },
+        {
+          "type": "DOM",
+          "text": "×\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 0 позиций, Итого 0 ₺",
+          "missingProducts": 0
+        }
+      ]
+    },
+    {
+      "title": "GUEST001 exact RU emptycart mobile320×640 direct tea+latte",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-001"
+      ],
+      "actual": "Atactual320×640emptyRUcart, brew-hot→Чёрныйчай50₺; closeEscape; hot-coffee→Кафелатте180₺. Noautoadd,cart0/0.",
+      "viewport": {
+        "width": 320,
+        "height": 640,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/menu.html#hot-coffee",
+          "text": "×\n\nГОРЯЧИЙ КОФЕ\n\nКафе латте\n720 ₺\n\nЦена за штуку: 180 ₺ · × 4\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n180 ₺\nЧизкейк Сан-Себастьян\nПара · 370 ₺\nЧизкейк Lotus\nПара · 370 ₺\nМалиновый чизкейк\nПара · 370 ₺\nШоколадный торт\nПара · 370 ₺\nМиндальный тарт\nПара · 360 ₺\nБисквитный рулет\nПара · 350 ₺\nМозаичный торт\nПара · 350 ₺\nТирамису\nПара · 350 ₺\nБрауни\nПара · 330 ₺\nПеченье\nПара · 280 ₺\nМакарон\nПара · 210 ₺\nКруассан с Nutella\nПара · 350 ₺\nТолько напиток · 180 ₺\nКоличество\n−\n4\n+\nДобавить в заказ · 720 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 0 позиций, Итого 0 ₺"
+        }
+      ]
+    },
+    {
+      "title": "GUEST001 exact RU emptycart mobile390×844 direct tea+latte",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-001"
+      ],
+      "actual": "Atactual390×844emptyRUcart, brew-hot→Чёрныйчай50₺; Escape; hot-coffee→Кафелатте180₺; cart0/0.",
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        {
+          "type": "DOM",
+          "text": "×\n\nГОРЯЧИЙ КОФЕ\n\nКафе латте\n720 ₺\n\nЦена за штуку: 180 ₺ · × 4\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n180 ₺\nЧизкейк Сан-Себастьян\nПара · 370 ₺\nЧизкейк Lotus\nПара · 370 ₺\nМалиновый чизкейк\nПара · 370 ₺\nШоколадный торт\nПара · 370 ₺\nМиндальный тарт\nПара · 360 ₺\nБисквитный рулет\nПара · 350 ₺\nМозаичный торт\nПара · 350 ₺\nТирамису\nПара · 350 ₺\nБрауни\nПара · 330 ₺\nПеченье\nПара · 280 ₺\nМакарон\nПара · 210 ₺\nКруассан с Nutella\nПара · 350 ₺\nТолько напиток · 180 ₺\nКоличество\n−\n4\n+\nДобавить в заказ · 720 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 0 позиций, Итого 0 ₺"
+        }
+      ]
+    },
+    {
+      "title": "GUEST001 exact RU emptycart desktop1440×900 direct tea+latte",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-001"
+      ],
+      "actual": "Atactual1440×900emptyRUcart, brew-hot→Чёрныйчай50₺; Escape; hot-coffee→Кафелатте180₺; cart0/0.",
+      "viewport": {
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически."
+        },
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nГОРЯЧИЙ КОФЕ\n\nКафе латте\n720 ₺\n\nЦена за штуку: 180 ₺ · × 4\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n180 ₺\nЧизкейк Сан-Себастьян\nПара · 370 ₺\nЧизкейк Lotus\nПара · 370 ₺\nМалиновый чизкейк\nПара · 370 ₺\nШоколадный торт\nПара · 370 ₺\nМиндальный тарт\nПара · 360 ₺\nБисквитный рулет\nПара · 350 ₺\nМозаичный торт\nПара · 350 ₺\nТирамису\nПара · 350 ₺\nБрауни\nПара · 330 ₺\nПеченье\nПара · 280 ₺\nМакарон\nПара · 210 ₺\nКруассан с Nutella\nПара · 350 ₺\nТолько напиток · 180 ₺\nКоличество\n−\n4\n+\nДобавить в заказ · 720 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 0 позиций, Итого 0 ₺"
+        }
+      ]
+    },
+    {
+      "title": "RU desktop unknown search recovers, empty cart",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "GUEST-003"
+      ],
+      "actual": "1440×900emptycart; неттовараxyz gave clear no-result and0products; Clear restoredmenu; tea50₺ opened withcart0/0. Desktopvariantpassed.",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "text": "×\nROBY'S · COFFEE HOUSE\n\nЗАВАРНОЙ КОФЕ И ГОРЯЧИЕ НАПИТКИ\n\nЧёрный чай\n50 ₺\n\nЦена за штуку: 50 ₺ · × 1\n\nСладкое к напитку\n\nВыбери десерт или оставь только напиток.\n\nТолько напиток\n50 ₺\nЧизкейк Сан-Себастьян\nПара · 240 ₺\nЧизкейк Lotus\nПара · 240 ₺\nМалиновый чизкейк\nПара · 240 ₺\nШоколадный торт\nПара · 240 ₺\nМиндальный тарт\nПара · 230 ₺\nБисквитный рулет\nПара · 220 ₺\nМозаичный торт\nПара · 220 ₺\nТирамису\nПара · 220 ₺\nБрауни\nПара · 200 ₺\nПеченье\nПара · 150 ₺\nМакарон\nПара · 80 ₺\nКруассан с Nutella\nПара · 220 ₺\nТолько напиток · 50 ₺\nКоличество\n−\n1\n+\nДобавить в заказ · 50 ₺\n\nЭто предварительный расчёт: заказ не отправляется в кафе или платёжную систему автоматически.",
+          "cart": "Мой заказ: 0 позиций, Итого 0 ₺"
+        }
+      ]
+    },
+    {
+      "title": "RU1440 category history and unknown routes safe",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-003"
+      ],
+      "actual": "Knownbrew-hot/hot-coffee loaded;UI Desserts→HerbalTea;Back returnedbrew-hot (UIcategorychangesreplacecurrententry),ForwardHerbalTea, eachhash/displayconsistent. Unknownhash/product workingallmenu,no wrongdialog;espresso1/110₺preserved.",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "url": "http://localhost:8794/menu.html#herbal-tea",
+          "headings": [
+            "Полное меню",
+            "Травяной чай",
+            "Отправьте меню друзьям",
+            "ROBY'SCOFFEE HOUSE"
+          ]
+        },
+        {
+          "url": "http://localhost:8794/menu.html#brew-hot",
+          "headings": [
+            "Полное меню",
+            "Заварной кофе и горячие напитки",
+            "Отправьте меню друзьям",
+            "ROBY'SCOFFEE HOUSE"
+          ],
+          "note": "Back skips category clicks; current hash and displayed category agree"
+        },
+        {
+          "url": "http://localhost:8794/menu.html#herbal-tea",
+          "headings": [
+            "Полное меню",
+            "Травяной чай",
+            "Отправьте меню друзьям",
+            "ROBY'SCOFFEE HOUSE"
+          ]
+        },
+        {
+          "url": "http://localhost:8794/menu.html#qa-unknown",
+          "dialogCount": 0,
+          "cart": "Мой заказ: 1 позиция, Итого 110 ₺"
+        },
+        {
+          "url": "http://localhost:8794/menu.html?product=qa-no-match#qa-unknown",
+          "dialogCount": 0,
+          "cart": "Мой заказ: 1 позиция, Итого 110 ₺"
+        }
+      ]
+    },
+    {
+      "title": "Fresh tab #step-3 without answers starts safely",
+      "result": "passed-subvariant",
+      "caseIds": [
+        "SITE-005"
+      ],
+      "actual": "Newtab2 no wizard answers, sharedespresso110. Direct/smart-choice/#step-3 showed quickcatalog and Help me choose, no inventedwizardresult. Actual320×740.",
+      "viewport": {
+        "width": 320,
+        "height": 740,
+        "kind": "CSS IAB"
+      },
+      "evidence": [
+        {
+          "type": "DOM",
+          "url": "http://localhost:8794/smart-choice/#step-3",
+          "text": "Чего хочется сегодня?; Помочь с выбором;63вариантов;ТвойзаказЭспрессо110TRY"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "caseIds": [
+        "SITE-013",
+        "SITE-016"
+      ],
+      "kind": "unsupported",
+      "detail": "Only visibility and viewport browser capabilities are advertised; no documented real browser zoom control. 200% variants blocked, not emulated by width."
+    },
+    {
+      "caseIds": [
+        "SITE-024",
+        "SITE-025",
+        "SITE-030"
+      ],
+      "kind": "unsupported",
+      "detail": "No documented network offline/throttling/interception capability. Offline cache and weather timeout/error/late success manual variants blocked."
+    },
+    {
+      "caseIds": [
+        "GUEST-004",
+        "SITE-014",
+        "SITE-015"
+      ],
+      "kind": "unsupported",
+      "detail": "IAB CSS viewport test only; physical phone, touch, DPR2, orientation sensor and on-screen keyboard are unavailable."
+    },
+    {
+      "caseIds": [
+        "SITE-005",
+        "SITE-010",
+        "SITE-015",
+        "SITE-017",
+        "SITE-022"
+      ],
+      "kind": "not-completed",
+      "detail": "Browser execution ended at the RU wizard first question. The action selecting Coffee and Continue did not return a verifiable state because the CUA call timed out. On continuation, parent confirmed all QA servers and browser state were reset. No saved-answer wizard history/reload/result sequence, smart-choice pair edit/language cancellation, short-height orientation, quick-builder keyboard purchase or rapid-photo sequence is claimed. Fresh-tab RU #step-3 safe recovery at 320×740 is the only saved SITE-005 subvariant."
+    },
+    {
+      "caseIds": [
+        "GUEST-002",
+        "SITE-001",
+        "SITE-002",
+        "SITE-004",
+        "SITE-009"
+      ],
+      "kind": "remaining-variants",
+      "detail": "Only explicit records establish coverage. RU menu searched all three tea names; EN/TR interfaces searched their own tea name, and EN320 keyboard searched Black Tea. All three queries on each EN/TR interface and a complete keyboard clear sequence were not executed. Home navigation and Discover handoffs were exercised in TR at 1280 and390; EN/RU home/Discover layout and shared language checks do not establish their full handoff scenarios. Both quick paths plus ordinary reload were verified nonempty in EN; every empty/nonempty × route × language combination was not executed. Long-name dialog and full language-cycle variants remain partial."
+    },
+    {
+      "caseIds": [
+        "GUEST-004",
+        "SITE-003",
+        "SITE-014",
+        "SITE-016"
+      ],
+      "kind": "remaining-variants",
+      "detail": "GUEST-004 mouse Close, Escape, backdrop and return focus were verified on desktop, with a separate EN320 keyboard tea sequence. Touch and844×390 landscape were not executed. SITE-003 history/unknown routes were verified at1440;320×740 was not repeated. SITE-014 measured all four guest surfaces at390 forEN/RU and TR home/menu/quick/Discover, plus selected RU320 menu/Discover/quick states; full320 home traversal, pair add/cart edit, staff/counter and all locale interactions were not completed by this worker. SITE-016 completed EN320 menu keyboard search/open/cancel/add/remove plus RU desktop modal traversal; allTR/RU first/last-item paths and200% zoom remain unverified."
+    },
+    {
+      "caseIds": [
+        "SITE-023"
+      ],
+      "kind": "unsupported",
+      "detail": "Only UI repeat visits and ordinary reload were observed through SITE-004. The documented browser surface exposes no network request/response inspection or service-worker controls. ETag/304/no-store and old-SW/new-build public-cache behavior were not manually verified. A source or HTTP contract check is separate evidence, not a browser pass."
+    },
+    {
+      "caseIds": [
+        "GUEST-001",
+        "GUEST-003"
+      ],
+      "kind": "coverage-note",
+      "detail": "Saved records include exact RU empty-cart GUEST-001 tea50/latte180 at actual1440×900,390×844 and320×640, and GUEST-003 unknown-search/clear/tea50 with empty cart at desktop1440×900 andmobile320×640. All browser dimensions are CSS IAB viewport measurements, not physical-device tests."
+    },
+    {
+      "caseIds": [
+        "SITE-009",
+        "SITE-016"
+      ],
+      "kind": "fixed-finding",
+      "detail": "The historical failed Turkish skip-link record is retained. After parent rebuilt the correction, RU andEN menu/Discover were separately verified with visible keyboard focus at320×740. This establishes the specific localization fix, not full completion of every SITE-009/SITE-016 variant."
+    }
+  ]
+}

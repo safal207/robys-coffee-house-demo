@@ -1,0 +1,216 @@
+{
+  "date": "2026-10-13",
+  "scope": "Counter source recovery analysis and isolated automated contracts; this file is not evidence of manual browser or physical-camera execution.",
+  "productionOrderMutations": 0,
+  "sourceFilesChanged": [
+    "counter/src/staff.js",
+    "counter/test/staff-runtime.test.mjs"
+  ],
+  "fixes": [
+    {
+      "id": "RECOVERY-QR-READ-ACTIONS",
+      "severity": "P1",
+      "cases": ["COUNTER-008", "COUNTER-031", "COUNTER-039"],
+      "cause": "An authenticated cashier has a selected order and online=true; GET used to open a QR/order fails with a network error or HTTP 429.",
+      "before": "The UI displayed an error but retained online=true, allowing the old payment/status button until a later queue poll failed.",
+      "after": "Network and 429 failures retain the last known order, set online=false and re-render disabled write actions. A successful queue refresh restores the usual action path. 403/404 invalid or inaccessible IDs retain their existing not-found handling.",
+      "reproductionEvidence": "The new VM test failed before the source fix: online true !== false.",
+      "regressionTest": "a failed QR read disables actions on retained details until the queue reconnects",
+      "testResult": "passed",
+      "manualBrowserResult": "coordinator-pending"
+    },
+    {
+      "id": "RECOVERY-LOGOUT-LOCALE",
+      "severity": "P1",
+      "cases": ["COUNTER-030", "COUNTER-033", "COUNTER-034"],
+      "cause": "A sign-out request is pending; locale changes increment the request generation and abort the request.",
+      "before": "The logout finally branch ignored the changed generation and left both login and retry-sign-out disabled. The protected data was hidden but recovery became unreachable.",
+      "after": "Locale selection is disabled while sign-out is pending, and the handler rejects a pending locale change. On completion or failure the selector, login and retry controls are enabled again; a network failure exposes retry-sign-out and does not claim the server session is revoked.",
+      "reproductionEvidence": "The new VM test failed before the source fix: login-submit disabled true !== false.",
+      "regressionTest": "changing language during sign out cannot strand the login or retry controls",
+      "testResult": "passed",
+      "manualBrowserResult": "coordinator-pending"
+    }
+  ],
+  "automatedRuns": [
+    {
+      "kind": "source-runtime VM and pure model/unit contracts",
+      "command": "node --test counter/test/staff-runtime.test.mjs counter/test/guest.test.mjs counter/test/staff-model.test.mjs",
+      "passed": 23,
+      "failed": 0,
+      "log": "outputs/remaining-regression-counter-focused.log"
+    },
+    {
+      "kind": "full counter suite including ephemeral HTTP servers and isolated temporary SQLite databases",
+      "command": "npm run test:counter",
+      "passed": 46,
+      "failed": 0,
+      "exitCode": 0,
+      "log": "outputs/remaining-regression-counter-suite.log"
+    }
+  ],
+  "contractCoverage": [
+    {"cases": ["COUNTER-006", "COUNTER-007", "COUNTER-035"], "evidence": "HTTP authentication, password hashing, expiry/revocation, role, Origin, host, body bounds and CSRF server tests; manual UI expiry and rate-limit feedback still need browser evidence."},
+    {"cases": ["COUNTER-016", "COUNTER-018", "COUNTER-019", "COUNTER-020", "COUNTER-021"], "evidence": "Atomic/idempotent server writes and VM delayed queue/direct QR response contracts. The server confirms versions and the role-filtered queue cannot resurrect issued barista work."},
+    {"cases": ["COUNTER-023", "COUNTER-024", "COUNTER-025", "COUNTER-026", "COUNTER-027", "COUNTER-029"], "evidence": "Server ticket/guest idempotency and conflict tests; guest private-fragment key persistence, blocked-storage retry and matching-capability receipt tests. These are not manual browser executions."},
+    {"cases": ["COUNTER-022", "COUNTER-028", "COUNTER-030", "COUNTER-032", "COUNTER-033", "COUNTER-034"], "evidence": "Guest transition/offline/lost-create simulation, all three localized receipt GETs, failed-payment uncertainty, logout late-response cleanup, and new locale/sign-out recovery contract."},
+    {"cases": ["COUNTER-036", "COUNTER-037", "COUNTER-038", "COUNTER-039"], "evidence": "Server restart with retained SQLite, quote/session/audit persistence, wire/canonical quote rejection, high-volume/aged queue bounds, isolated polling limits, service-worker bypass and live endpoint no-store contracts."},
+    {"cases": ["COUNTER-003", "COUNTER-008", "COUNTER-009", "COUNTER-012", "COUNTER-017"], "evidence": "Staff QR URL contains only the order ID; model parser enforces same-origin staff path; payment current/version/amount guards are unit-tested. Camera scan, checkbox/dialog interaction and visual readability require separate browser evidence."}
+  ],
+  "notManuallyExecutedByThisAgent": [
+    "Physical phone camera capture of screen or printed QR",
+    "Browser camera permission dialog and actual hardware release",
+    "320px/390px/low-height visual and keyboard UI scenarios",
+    "Browser transport faults and response loss on the coordinator QA service"
+  ],
+  "runtimeBuild": "Source only. Coordinator must run scripts/build-counter.mjs before browser verification and regenerate integrity after all agents finish.",
+  "guestLocaleFollowup": {
+    "date": "2026-10-14",
+    "id": "GUEST-NEXT-ORDER-LOCALE",
+    "severity": "P2",
+    "cases": ["COUNTER-015", "COUNTER-030"],
+    "source": "counter/src/guest.js",
+    "cause": "Guest language is taken from the private link and explicit guest selection, while the client menu independently reads the existing robys-language preference.",
+    "before": "An explicit RU to EN guest switch did not update the site preference; Start a new order reopened the menu in a previously stored language such as Turkish.",
+    "after": "Explicit guest language choices and the issued-order continuation save only the shared robys-language key before continuing. Opening an existing QR alone does not overwrite an existing site preference. Storage access errors are caught so selection and navigation remain usable.",
+    "automatedRun": {
+      "command": "node --test counter/test/guest.test.mjs",
+      "passed": 8,
+      "failed": 0,
+      "exitCode": 0,
+      "log": "outputs/remaining-regression/guest-locale-followup.log"
+    },
+    "verifiedActualHandlers": ["Opening a RU guest link with a stored TR preference leaves TR unchanged until a user choice.", "Explicit EN and TR language clicks update the same shared site preference without changing an unrelated setting.", "Starting a new order from a RU issued receipt saves RU before navigating even when the previous site preference was TR.", "Blocked storage does not throw from language selection or from Start a new order."],
+    "limitation": "When localStorage is blocked, the destination menu cannot read a persisted preference; this scoped fix keeps navigation working and does not add a new URL-language protocol.",
+    "manualBrowserResult": "coordinator-pending"
+  },
+  "dangerousConditionsFollowup": {
+    "date": "2026-10-14",
+    "ownership": ["counter/test/staff-runtime.test.mjs", "counter/test/server.test.mjs"],
+    "sourceEditsInFollowup": [],
+    "newDefectsFoundInFollowup": [],
+    "resultBoundary": "All results below are automated contracts. They do not change any manual case to passed; manual desktop/mobile, camera and transport-inspector evidence is owned by the coordinator.",
+    "automatedRuns": [
+      {
+        "kind": "actual staff source executed in VM with a minimal DOM and deliberately deferred/rejected transport",
+        "command": "node --test counter/test/staff-runtime.test.mjs",
+        "passed": 29,
+        "failed": 0,
+        "exitCode": 0,
+        "log": "outputs/remaining-regression/counter-danger-runtime.log",
+        "addedTestsComparedWith46TestBaseline": 19
+      },
+      {
+        "kind": "real HTTP against loopback ephemeral listeners, fixture-controlled clock and disposable SQLite databases",
+        "command": "node --test counter/test/server.test.mjs",
+        "passed": 18,
+        "failed": 0,
+        "exitCode": 0,
+        "log": "outputs/remaining-regression/counter-danger-http.log",
+        "addedTestsComparedWith46TestBaseline": 4
+      }
+    ],
+    "fullCounterSuite": "The 46-pass run above is the earlier historical baseline. The coordinator runs the final whole suite after the concurrent guest worker finishes; do not present 29+18 as the final suite total.",
+    "cases": [
+      {
+        "id": "COUNTER-016",
+        "automatedStatus": "passed",
+        "existingTests": ["payment/status workflow is sequential and concurrent stale writes are atomic/idempotent"],
+        "addedTests": ["rapid duplicate payment submissions issue one write while the first is pending", "committed creation and payment survive discarded HTTP response bodies across a second cashier session"],
+        "verifiedConditions": ["Two rapid pending UI payment submissions produce one POST.", "Concurrent identical server payments and repeated ready/issued operations retain one transition/audit entry per original version.", "A stale payment replay from a distinct valid cashier session after the original committed has the same paidAt, version and quote; SQLite contains one pay audit row."],
+        "manualNotExecutedHere": ["Physical double tap on a phone", "Two simultaneously operated staff browsers"]
+      },
+      {
+        "id": "COUNTER-017",
+        "automatedStatus": "passed",
+        "existingTests": ["payment confirmation is invalidated by a changed order, amount, status or version"],
+        "addedTests": ["a payment dialog becomes unsubmitable when polling observes another cashier's payment"],
+        "verifiedConditions": ["An open dialog with an already checked confirmation initially permits submit.", "A queue result preparing/version2 disables submit and checkbox and exposes the conflict feedback.", "Submitting the stale form event after the poll issues zero writes."],
+        "manualNotExecutedHere": ["Visual dialog feedback and keyboard path at mobile sizes", "Actual competing browser payment"]
+      },
+      {
+        "id": "COUNTER-019",
+        "automatedStatus": "passed-existing-contracts-rechecked",
+        "existingTests": ["late pre-payment queue response cannot roll back the server-confirmed status", "a late queue v1 cannot roll back v2 opened directly by QR in the detail or cards", "a late direct QR read v1 cannot roll back queue v2 in the detail or cards"],
+        "addedTests": [],
+        "verifiedConditions": ["Release an awaiting-payment snapshot only after payment committed: detail remains preparing.", "Both directions of a delayed direct read versus queue read retain the highest server version in detail and cards."],
+        "manualNotExecutedHere": ["Browser transport delay with visible cards and timestamps"]
+      },
+      {
+        "id": "COUNTER-020",
+        "automatedStatus": "passed",
+        "existingTests": [],
+        "addedTests": ["a delayed QR for order A cannot replace order B selected by queue card", "a delayed QR for order A cannot replace order B selected by second QR"],
+        "verifiedConditions": ["Start a deferred direct read for A; select B by the same source function used by a card, then release A.", "Start a deferred read for A; complete a second direct QR read for B, then release A.", "In both orders B remains selected with B's status and no resurrected payment intent."],
+        "manualNotExecutedHere": ["Actual camera emitting two scan results", "Rendered focus and scroll position"]
+      },
+      {
+        "id": "COUNTER-021",
+        "automatedStatus": "passed",
+        "existingTests": ["an issued barista order cannot reappear from an older queue snapshot"],
+        "addedTests": ["lost issued response reconciles a committed transition by reading, without an automatic second write"],
+        "verifiedConditions": ["The issued result of a barista transition removes the order from detail and role queue.", "A later older ready snapshot cannot resurrect the removed order, because the known highest version survives role filtering.", "An unknown issued response followed by an empty authorized barista queue clears the stale selection without another write."],
+        "clarification": "A fresh GET of an already issued order is intentionally inaccessible to barista. An issued direct result means a transition response, not bypassing the role guard.",
+        "manualNotExecutedHere": ["Visible barista card disappearance and guest issued feedback in coordinated browsers"]
+      },
+      {
+        "id": "COUNTER-024",
+        "automatedStatus": "passed-supported-contracts-with-UI-variant-delegated",
+        "existingTests": ["guest retries lost creation response without a new identity, polls server transitions and preserves QR on loss", "a private pending fragment preserves the retry key even with blocked browser storage", "guest isolation, ticket idempotency, concurrent retries and conflicts disclose no existing data"],
+        "addedTests": ["committed creation and payment survive discarded HTTP response bodies across a second cashier session"],
+        "verifiedConditions": ["The guest VM repeats exactly the same ticket payload and guest key after an unknown create result.", "A pending fragment independently survives blocked storage and a reload-style re-entry.", "Real HTTP create returns 201 headers, but the client destroys the response without consuming its JSON; retry returns 200 and SQLite contains one order."],
+        "notCoveredByThisAgent": ["Rapid Retry events while the original guest POST remains in flight and browser pending-link reload are delegated to the concurrent guest worker/coordinator."],
+        "manualNotExecutedHere": ["Actual browser refresh and retry buttons under response loss"]
+      },
+      {
+        "id": "COUNTER-032",
+        "automatedStatus": "passed",
+        "existingTests": ["failed payment never invents a paid state and disables actions until refreshed", "payment/status workflow is sequential and concurrent stale writes are atomic/idempotent"],
+        "addedTests": ["lost pay response reconciles an undelivered transition by reading, without an automatic second write", "lost pay response reconciles a committed transition by reading, without an automatic second write", "lost ready response reconciles an undelivered transition by reading, without an automatic second write", "lost ready response reconciles a committed transition by reading, without an automatic second write", "lost issued response reconciles an undelivered transition by reading, without an automatic second write", "lost issued response reconciles a committed transition by reading, without an automatic second write", "committed creation and payment survive discarded HTTP response bodies across a second cashier session"],
+        "verifiedConditions": ["While the reconciliation read is deferred, the old status remains, actionUnknown is exposed, online=false and an attempted second write is ignored.", "After reconciliation pay/ready/issued matches either the committed server state or the unchanged undelivered state, with one original write only.", "An undelivered payment can be retried only through a fresh unchecked confirmation dialog.", "A committed issued transition disappears from the barista queue and selection.", "Actual discarded pay response followed by cross-session replay keeps one payment audit row and identical server paidAt/quote/version."],
+        "manualNotExecutedHere": ["Reading the uncertainty warning in an actual browser", "Two-browser guest/barista update timing"]
+      },
+      {
+        "id": "COUNTER-033",
+        "automatedStatus": "passed",
+        "existingTests": ["logout cleanup defeats late requests and removes protected data and payment intent", "HTTP login uses hashed credentials, HttpOnly strict cookies, CSRF, revocation and expiry"],
+        "addedTests": ["pagehide cleanup stops attached camera tracks and defeats a delayed QR response", "persisted pageshow revalidates an expired session without reviving a cached payment intent", "persisted pageshow revalidates a valid session without reviving a cached payment intent"],
+        "verifiedConditions": ["Immediate cleanup clears protected queue/detail, input fields, identity and payment intent before deferred reads are released.", "Every attached fake camera track receives stop; video source is nulled and the camera panel hidden.", "A late QR result after pagehide cannot restore the workspace.", "A persisted pageshow always revalidates session; an expired session remains at login, a valid one reads a fresh queue, and neither resurrects the cached selection or checked payment dialog."],
+        "manualNotExecutedHere": ["Physical camera indicator and hardware capture release", "Native browser Back/Forward cache behavior and focus"]
+      },
+      {
+        "id": "COUNTER-034",
+        "automatedStatus": "passed",
+        "existingTests": ["changing language during sign out cannot strand the login or retry controls"],
+        "addedTests": ["failed sign out can recover when the request never reached the server", "failed sign out can recover when the server already revoked the session"],
+        "verifiedConditions": ["The first network failure hides protected data and exposes logoutFailed plus an enabled retry without falsely claiming the cookie is revoked.", "If the session remains valid, retry obtains a fresh session CSRF token and successfully sends logout.", "If the server already revoked the session, retry sees 401 on the session check and ends as loggedOut without another logout POST.", "Both outcomes enable login and hide the retry; a pending locale change cannot strand recovery controls."],
+        "manualNotExecutedHere": ["Visible sign-out/retry interactions and localized copy in browsers"]
+      },
+      {
+        "id": "COUNTER-035",
+        "automatedStatus": "passed",
+        "existingTests": ["HTTP login uses hashed credentials, HttpOnly strict cookies, CSRF, revocation and expiry", "orders, immutable quotes, sessions and audit survive restart; reprovisioning revokes sessions"],
+        "addedTests": ["poll401 clears the protected workspace and payment confirmation without retrying a write", "write401 clears the protected workspace and payment confirmation without retrying a write", "writeInvalidCsrf clears the protected workspace and payment confirmation without retrying a write", "expired, revoked and invalid-CSRF payment writes preserve the exact unpaid order and audit"],
+        "verifiedConditions": ["401 during polling or payment and invalid_csrf during payment return the UI to login with expired feedback and cleared queue/detail/dialog/check.", "There is zero automatic write retry after auth failure.", "Real invalid-CSRF, clock-expired and externally revoked session writes each fail; guest read remains byte-equivalent at the order-data level and the order has zero audit entries.", "A freshly provisioned valid credential can log in after revocation."],
+        "manualNotExecutedHere": ["Actual browser session expiry and fresh login flow"]
+      },
+      {
+        "id": "COUNTER-038",
+        "automatedStatus": "passed",
+        "existingTests": ["queue is bounded and oldest first; issued history leaves the queue after 24 hours", "more than 200 older issued orders cannot hide fresh unpaid or preparing work"],
+        "addedTests": ["both roles retain the oldest 200 active orders and only the latest 30 issued through the exact 24h boundary"],
+        "verifiedConditions": ["A fixture with 205 active and 36 issued orders returns exactly the oldest 200 active to each role.", "Cashier additionally receives only the latest 30 issued; the exact IDs are checked, not just the count.", "At exactly 24h the boundary issued order remains; at +1ms it leaves recent history, while authorized direct reads still succeed.", "The older HTTP contract also verifies a retired issued guest receipt remains accessible and active work survives a larger historical backlog."],
+        "manualNotExecutedHere": ["Rendering and scrolling a large queue on mobile", "Visual ordering of sections and card selection"]
+      },
+      {
+        "id": "COUNTER-039",
+        "automatedStatus": "passed-supported-contracts-with-guest-UI-variant-delegated",
+        "existingTests": ["installed menu worker never intercepts staff sessions, status, counter pages or configuration", "live API, runtime config and counter pages ignore cache validators and stay no-store", "authenticated polling limits are independent for different guests on one address"],
+        "addedTests": ["a 429 queue response preserves the order and blocks writes until a successful refresh", "read throttles recover at their window boundary and isolate staff sessions as well as guests"],
+        "verifiedConditions": ["The service-worker source fetch handler never intercepts counter/config/API requests, including navigation mode.", "Real HTTP endpoints ignore If-None-Match and return no-store rather than a stale 304.", "A 429 staff queue result preserves its last order but disables payment/writes; a later confirmed read restores normal payment.", "Two independent cashier sessions and two guest capabilities have separate read buckets; a limited identity recovers at the exact fixture window boundary."],
+        "notCoveredByThisAgent": ["Guest UI QR preservation specifically for 429 is delegated to the concurrent guest worker; its generic network-loss preservation is already tested."],
+        "manualNotExecutedHere": ["Installed service worker in a real browser profile", "Read-only Network inspector cache evidence", "429 feedback and recovery in desktop/mobile browsers"]
+      }
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=bc69a9e52fa4";
 import "./menu-search-clear.js";
 import { readStoredOrderDraft, writeStoredOrderDraft } from "./src/order-draft.js";
+import { createKidsMenuSection, kidsMenuCopy } from "./src/kids-menu.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -29,7 +30,7 @@ function readStoredLanguage() {
 
 function readInitialCategory() {
   const requested = window.location.hash.slice(1);
-  return menuCategories.some((category) => category.id === requested) ? requested : "all";
+  return requested === "kids-menu" || menuCategories.some((category) => category.id === requested) ? requested : "all";
 }
 
 function storeLanguage(next) {
@@ -104,6 +105,9 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
+const kidsProducts = new Map(Array.from(productIndex, ([id, product]) => [id, {
+  id, name: product.item.name, image: product.image, unitPriceMinor: Math.round(product.item.price * 100)
+}]));
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
 
@@ -151,6 +155,7 @@ let orderUi;
 let orderUiPromise;
 let orderUiRetry = 0;
 let orderIntent = 0;
+const pendingKidsAdds = new Set();
 function loadOrderUi() {
   if (!orderUiPromise) {
     let loading;
@@ -158,7 +163,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=54ae56c1bd70");
+    } else loading = import("./menu-order-ui.js?v=45c60435d829");
     orderUiPromise = loading.then(({ createMenuOrderUi }) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
@@ -176,20 +181,24 @@ function loadOrderUi() {
   return orderUiPromise;
 }
 async function openOrderIntent(kind, id, trigger = document.activeElement) {
+  const kidsId = kind === "kids" ? id.id : null;
+  if (kidsId && pendingKidsAdds.has(kidsId)) return false;
+  if (kidsId) pendingKidsAdds.add(kidsId);
   const intent = ++orderIntent;
   trigger?.setAttribute("aria-busy", "true");
   try {
     const ui = await loadOrderUi();
-    if (intent !== orderIntent) return;
+    if (intent !== orderIntent) return false;
     document.querySelector("#menu-cart-status").classList.remove("is-visible");
     ui.refresh({ nextLanguage: language });
     const returnFocus = trigger?.isConnected ? trigger : (kind === "product"
       ? Array.from(menuRoot.querySelectorAll("[data-product-id]")).find(row => row.dataset.productId === id)?.querySelector(".full-menu-item-media")
       : null) ?? cartTrigger;
+    if (kind === "kids") return await ui.addKidsCombo(id, returnFocus);
     if (kind === "product") ui.openProduct(id, returnFocus);
     else ui.openCart(returnFocus);
   } catch {
-    if (intent !== orderIntent) return;
+    if (intent !== orderIntent) return false;
     const message = {
       tr: "Seçim açılamadı. Lütfen tekrar deneyin.",
       en: "Your selection could not open. Please try again.",
@@ -198,7 +207,11 @@ async function openOrderIntent(kind, id, trigger = document.activeElement) {
     const notice = document.querySelector("#menu-cart-status");
     notice.textContent = message;
     notice.classList.add("is-visible");
-  } finally { trigger?.removeAttribute("aria-busy"); }
+    return false;
+  } finally {
+    if (kidsId) pendingKidsAdds.delete(kidsId);
+    trigger?.removeAttribute("aria-busy");
+  }
 }
 function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
 // Escape also cancels an intent whose optional code is still downloading.
@@ -406,6 +419,7 @@ function renderCategoryNav(focusId = null) {
   let focusButton = null;
   const options = [
     { id: "all", label: menuCopy[language].all },
+    { id: "kids-menu", label: kidsMenuCopy[language].title },
     ...menuCategories.map((category) => ({ id: category.id, label: localized(category.name) }))
   ];
 
@@ -441,6 +455,14 @@ function renderMenu() {
   });
 
   let rendered = 0;
+  if (activeCategory === "all" || activeCategory === "kids-menu") {
+    const section = createKidsMenuSection({ language, products: kidsProducts, query: searchTerm,
+      onAdd: (combo, trigger) => openOrderIntent("kids", combo, trigger), onProduct: openProduct });
+    if (section) {
+      menuRoot.append(section);
+      rendered += 1;
+    }
+  }
   categories.forEach((category) => {
     const section = createCategory(category);
     if (!section) return;
@@ -463,6 +485,8 @@ function translateStaticPage() {
   const copy = menuCopy[language];
   document.documentElement.lang = language;
   document.title = `${copy.pageTitle} | Roby's Coffee House`;
+  const skipLink = document.querySelector(".skip-link[data-localized]");
+  if (skipLink) skipLink.textContent = skipLink.dataset[language] ?? skipLink.dataset.tr;
 
   document.querySelectorAll("[data-menu-copy]").forEach((element) => {
     const key = element.dataset.menuCopy;
@@ -504,7 +528,7 @@ languageButtons.forEach((button) => {
 
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value;
-  if (searchTerm.trim() && activeCategory !== "all") {
+  if (searchTerm.trim() && activeCategory !== "all" && activeCategory !== "kids-menu") {
     activeCategory = "all";
     syncCategoryHash("all");
     renderCategoryNav();

@@ -148,7 +148,7 @@ for (const mode of ["success", "rejected", "disabled"]) {
     menuCopy: { en: { maxQuantity: "Maximum" } }, addToCartButton: { disabled: mode === "disabled" },
     cart: new Map(), readCart: () => new Map(), orderDraft: { groups: [] }, orderProductIds: new Set(),
     selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: mode === "success", draft: { groups: [] } }),
-    announceCart: () => events.push("rejected"), updateProductQuantity: () => {}, localized: value => value.en,
+    announceCart: () => events.push("rejected"), clearCartNotice: () => events.push("cleared old notice"), updateProductQuantity: () => {}, localized: value => value.en,
     rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
     lastAddedSelection: null, cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
     productDialog, cartDialog, cartTitle, cartTrigger: {}, dialogReturnFocus: new Map([[productDialog, origin]]),
@@ -159,7 +159,7 @@ for (const mode of ["success", "rejected", "disabled"]) {
     }
   };
   runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
-  assert.deepEqual(events, mode === "success" ? ["saved", "rendered", "closed product", "opened confirmation"] : mode === "rejected" ? ["rejected"] : []);
+  assert.deepEqual(events, mode === "success" ? ["cleared old notice", "saved", "rendered", "closed product", "opened confirmation"] : mode === "rejected" ? ["rejected"] : []);
   if (mode === "success") {
     assert.deepEqual(JSON.parse(JSON.stringify(context.lastAddedSelection)), {
       items: [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }], quantity: 2
@@ -171,7 +171,7 @@ for (const mode of ["success", "rejected", "disabled"]) {
 // A delayed optional module must not pull a guest back into checkout after
 // they have continued browsing, or move focus out of an already open QR.
 const checkoutHandler = runtime.match(/checkoutButton\.addEventListener\("click", (async \(\) => \{[\s\S]*?\n\})\);/)?.[1]
-  ?.replace(/await import\("\.\/order-checkout\.js\?v=[a-f0-9]+"\)/, "await loadCheckout()");
+  ?.replace("await loadCheckoutModule()", "await loadCheckout()");
 assert(checkoutHandler?.includes("await loadCheckout()"), "Execute the real checkout callback with a controlled module load");
 for (const mode of ["open", "closed", "reopened", "empty", "missing-variant", "load-error"]) {
   let resolveLoad, rejectLoad, loadCount = 0, opens = 0, focuses = 0;
@@ -212,6 +212,7 @@ const fakeCartDialog = {
 };
 const dialogContext = {
   cartDialog: fakeCartDialog, cartSession: 0, dialogReturnFocus: new WeakMap(),
+  dialogOpenedAt: new WeakMap(), performance: { now: () => 1000 },
   document: { activeElement: {}, querySelector: () => qrOpen ? {} : null, body: { classList: { add() {} } } },
   window: { requestAnimationFrame: callback => { scheduledFocus = callback; } }
 };
@@ -225,14 +226,20 @@ assert.equal(titleFocuses, 1, "The confirmation heading receives focus when it i
 
 const translateHandler = runtime.match(/function translateStaticPage\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(translateHandler);
+const skipLinkMarkup = html.match(/<a\b(?=[^>]*class="skip-link")(?=[^>]*data-localized)[^>]*>([^<]*)<\/a>/);
+assert(skipLinkMarkup, "The menu skip link must expose its localized HTML data");
 for (const language of ["tr", "en", "ru"]) {
   const element = () => ({ attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } });
   const iconClose = element();
   const chooseMore = element();
+  const skipLink = { ...element(), textContent: skipLinkMarkup[1],
+    dataset: Object.fromEntries([...skipLinkMarkup[0].matchAll(/\bdata-(tr|en|ru)="([^"]*)"/g)].map(([, key, value]) => [key, value])) };
   const document = {
     documentElement: {},
+    querySelector(selector) { return this.querySelectorAll(selector)[0] ?? null; },
     querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
-      : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore] : []
+      : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore]
+      : selector === ".skip-link[data-localized]" ? [skipLink] : []
   };
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
@@ -242,6 +249,7 @@ for (const language of ["tr", "en", "ru"]) {
   assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
   assert.equal(chooseMore.attributes["aria-label"], undefined,
     "The Choose more text button must retain its visible action as its accessible name");
+  assert.equal(skipLink.textContent, skipLink.dataset[language], "The skip link's visible accessible name follows the selected page language");
 }
 
 for (const contract of [

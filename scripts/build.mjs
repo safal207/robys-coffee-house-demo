@@ -3,7 +3,10 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
-import { sharedMenuCatalogPlugin } from "./smart-choice-catalog-external.mjs";
+import { sharedMenuCatalogPlugin, sharedSmartChoiceCatalogPlugin } from "./smart-choice-catalog-external.mjs";
+import { sharedPhotoPreviewsPlugin } from "./smart-choice-photos-external.mjs";
+
+await import("./build-counter.mjs");
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
 for (const file of ["src/menu-app.js", "menu-product-reveal-runtime.js", "discover-v2.js", "discover-deck.js"]) {
@@ -52,8 +55,22 @@ await build({
 });
 
 await build({
+  entryPoints: ["src/smart-choice/photo-previews.ts"],
+  charset: "utf8", bundle: true, minify: true, format: "esm", platform: "browser",
+  target: "es2020", outfile: "smart-choice/photo-previews.js", legalComments: "none"
+});
+const photoPreviewsRevision = revisionFor("smart-choice/photo-previews.js");
+
+await build({
+  entryPoints: ["src/smart-choice/catalog.ts"], plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  charset: "utf8", bundle: true, minify: true, format: "esm", platform: "browser",
+  target: "es2020", outfile: "smart-choice/catalog.js", legalComments: "none"
+});
+const smartChoiceCatalogRevision = revisionFor("smart-choice/catalog.js");
+
+await build({
   entryPoints: ["src/smart-choice/page.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedPhotoPreviewsPlugin(photoPreviewsRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   external: ["../order-checkout.js*"],
   charset: "utf8",
   bundle: true,
@@ -67,7 +84,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -80,7 +97,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -93,7 +110,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -106,7 +123,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -119,7 +136,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -308,6 +325,7 @@ const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
 const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
 const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-trace.css");
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
+const kidsMenuCssRevision = revisionFor("kids-menu.css");
 
 const experienceEnvironmentFiles = [
   "environments/origin.svg",
@@ -364,6 +382,7 @@ menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
+menuHtml = synchronizeStylesheet(menuHtml, "kids-menu.css", kidsMenuCssRevision);
 if (!menuHtml.includes('href="order-checkout.css')) menuHtml = menuHtml.replace("</head>", '<link rel="stylesheet" href="order-checkout.css" />\n</head>');
 menuHtml = synchronizeStylesheet(menuHtml, "order-checkout.css", orderCheckoutCssRevision);
 menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
@@ -387,6 +406,13 @@ russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css
 writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
+for (const [file, revision] of [["photo-previews.js", photoPreviewsRevision],
+  ["catalog.js", smartChoiceCatalogRevision], ["../menu-catalog.js", menuCatalogRevision]]) {
+  if (!smartChoiceHtml.includes(`href="${file}`)) {
+    smartChoiceHtml = smartChoiceHtml.replace('  <link rel="stylesheet"', `  <link rel="modulepreload" href="${file}" />\n  <link rel="stylesheet"`);
+  }
+  smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, file, revision);
+}
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "release-qa.js", smartChoiceReleaseQaRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "app-v2.js", smartChoiceAppRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart-v2.js", smartChoiceCartRevision);
@@ -398,6 +424,7 @@ smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoice
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "../order-checkout.css", orderCheckoutCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smartChoiceReleaseQaCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "../kids-menu.css", kidsMenuCssRevision);
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
 
 let cashierHtml = readFileSync("cashier.html", "utf8");
@@ -407,6 +434,7 @@ writeFileSync("cashier.html", cashierHtml);
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js",
+  "smart-choice/photo-previews.js", "smart-choice/catalog.js",
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
@@ -458,6 +486,7 @@ for (const [filePath, revision] of [
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
+  ["kids-menu.css", kidsMenuCssRevision],
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
@@ -471,6 +500,8 @@ for (const [filePath, revision] of [
   ["conversion.js", conversionRevision],
   ["smart-choice/release-qa.js", smartChoiceReleaseQaRevision],
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
+  ["smart-choice/photo-previews.js", photoPreviewsRevision],
+  ["smart-choice/catalog.js", smartChoiceCatalogRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],
   ["smart-choice/experiments-v2.js", smartChoiceExperimentsRevision],
   ["smart-choice/analytics-v2.js", smartChoiceAnalyticsRevision],

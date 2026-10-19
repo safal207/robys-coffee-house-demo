@@ -1,0 +1,115 @@
+{
+  "verifiedLocalDate": "2026-10-19",
+  "scope": "Kids Menu local implementation; historical report not relabeled",
+  "preview": "http://localhost:8795/menu.html#kids-menu",
+  "combos": [
+    {
+      "priceMinor": 16000,
+      "id": "kids-mini"
+    },
+    {
+      "priceMinor": 33000,
+      "id": "kids-big"
+    }
+  ],
+  "automation": {
+    "kidsDomainTests": 6,
+    "fullMenuLazyAndAtomicTests": "PASS",
+    "securityChecks": 353,
+    "whitespaceCheck": "PASS",
+    "fullCheck": "PASS",
+    "quickUiLanguages": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "secretScan": "PASS",
+    "counterSyncTests": 69
+  },
+  "browser": {
+    "cashierPhysicalCameraScan": "not performed",
+    "desktop": {
+      "height": 720,
+      "width": 1280
+    },
+    "mobileWidths": [
+      390,
+      320
+    ],
+    "physicalPhone": false,
+    "scenarios": [
+      "full-menu category and quick kids entry",
+      "all five component images loaded and square",
+      "add Mini and Big",
+      "confirmation and focus",
+      "increase quantity",
+      "replace Mini with Big preserving quantity and unrelated order",
+      "remove selection",
+      "guest QR Big total 330 TRY",
+      "guest QR two Mini total 320 TRY",
+      "two Big replacement total 660 TRY",
+      "no horizontal overflow at measured widths"
+    ],
+    "networkFaults": "not rerun this feature pass"
+  },
+  "screenshots": [
+    "smart-choice-desktop.png",
+    "full-menu-mobile-390.png",
+    "quick-confirmation-mobile-320.png"
+  ],
+  "sourceHashes": [
+    {
+      "path": "src/kids-menu.js",
+      "sha256": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c"
+    },
+    {
+      "path": "src/menu-app.js",
+      "sha256": "da4c0847cfc2aa3b0556dd5b8399389ebf32097ebbc6d9d65e39b9c11dd59b5c"
+    },
+    {
+      "path": "src/menu-order-ui.js",
+      "sha256": "df947625002a70f12202d691600896c4d0d50449bb1a235710266e348a178bf6"
+    },
+    {
+      "path": "src/smart-choice/quick-builder.ts",
+      "sha256": "83c19b8d3a1820417364b9f5eede4f1c48d4184e06553d6ca3164554f4a9e216"
+    },
+    {
+      "path": "src/smart-choice/quick-builder-domain.ts",
+      "sha256": "208761b39a4f83ee372c8095d79e32e91863c35de358cd5febff2f37a84d8b30"
+    },
+    {
+      "path": "kids-menu.css",
+      "sha256": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611"
+    },
+    {
+      "path": "menu-app.js",
+      "sha256": "799f0e9fcaa9faa285790fb269bac75bf057b22a5d86486dba0fceb24970bc10"
+    },
+    {
+      "path": "menu-order-ui.js",
+      "sha256": "45c60435d8299e9584bd59cb0dd299fee00e5440800478ac9b09e8c5b5aa85d2"
+    },
+    {
+      "path": "smart-choice/app-v2.js",
+      "sha256": "dde77da167389aae46333cedd03a4bd26c3ad7a5828cdb52c606b312d56297fc"
+    },
+    {
+      "path": "menu.html",
+      "sha256": "0616df671da49fe84c204ecea8de425c3f8a63c9c8c9c25f497f8c5f79a9f5fe"
+    },
+    {
+      "path": "smart-choice/index.html",
+      "sha256": "d66e942de827e201ba40302afbd75f19ac4622edfd35cf2df9829a5f7c8502a9"
+    },
+    {
+      "path": "sw-core-v64.js",
+      "sha256": "81f3b916bc0eec98372174a09e71fe0f137f1a79a40765f376dd950f78d71a22"
+    },
+    {
+      "path": "integrity-manifest.json",
+      "sha256": "da35213e82f3e32e66486572adc3ea71a430b8b63757189f68209ad5088c3797"
+    }
+  ],
+  "evidenceScope": "Local branch validation only; remote main has separate later changes. Physical phone and camera scanning not tested."
+}

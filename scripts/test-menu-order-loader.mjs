@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { runInNewContext } from "node:vm";
 import { readVerifiedMenuSource, readVerifiedMenuOrderSource } from "./menu-runtime-source.mjs";
+import { addOrderGroup, normalizeOrderDraft } from "../src/order-draft.js";
+import { kidsCombos, kidsComboForItems } from "../src/kids-menu.js";
 
 const source = readVerifiedMenuSource();
 const orderSource = readVerifiedMenuOrderSource();
@@ -23,7 +25,7 @@ const loader = source.slice(source.indexOf("let orderUi;"), source.indexOf("func
   .replace("import.meta.url", '"https://example.test/site/menu-app.js"');
 assert(!loader.includes("import("), "The real loader's imports must all be controlled in this test");
 
-function fixture() {
+function fixture({ kidsResult = true } = {}) {
   const requests = [], opens = [], refreshes = [], events = new Map();
   let factoryCount = 0, options, resolveLoad, rejectLoad, currentDraft = { version: 1, groups: [], lines: [] };
   const notice = { textContent: "", classList: { add() {}, remove() {} } };
@@ -44,6 +46,7 @@ function fixture() {
   const module = { createMenuOrderUi(config) {
     factoryCount += 1; options = config;
     return { refresh(value) { refreshes.push(value); }, openProduct(id, target) { opens.push(["product", id, target]); },
+      addKidsCombo(combo, target) { opens.push(["kids", combo, target]); return kidsResult; },
       openCart(target) { opens.push(["cart", target]); } };
   } };
   return { context, api, requests, opens, refreshes, events, trigger, notice,
@@ -108,3 +111,182 @@ function fixture() {
   assert.equal(f.opens.length, 1, "A recovered connection must allow the next real intent to open");
 }
 console.log("Menu order loader PASS: no eager import, shared initialization/storage, latest intent/language/focus, cancellation, retry, exact offline revision.");
+
+{
+  const f = fixture(), trigger = f.trigger(), combo = kidsCombos[0];
+  const first = f.api.openOrderIntent("kids", combo, trigger);
+  assert.equal(await f.api.openOrderIntent("kids", combo, trigger), false,
+    "A repeated combo gesture during loading must not queue a second addition");
+  assert.equal(trigger.attributes.get("aria-busy"), "true");
+  f.resolve();
+  assert.equal(await first, true);
+  assert.equal(f.opens.length, 1);
+  assert.deepEqual(f.opens[0], ["kids", combo, trigger]);
+  assert.equal(trigger.attributes.size, 0);
+  assert.equal(await f.api.openOrderIntent("kids", combo, trigger), true,
+    "A later deliberate addition must remain available");
+  assert.equal(f.opens.length, 2);
+}
+{
+  const f = fixture(), trigger = f.trigger();
+  const pending = f.api.openOrderIntent("kids", kidsCombos[0], trigger);
+  f.events.get("keydown")({ key: "Escape" });
+  f.resolve();
+  assert.equal(await pending, false);
+  assert.equal(f.opens.length, 0, "Cancelled combo intent must not mutate the order");
+  assert.equal(trigger.attributes.size, 0);
+  assert.equal(await f.api.openOrderIntent("kids", kidsCombos[0], trigger), true,
+    "Cancellation must release the combo's pending guard");
+}
+{
+  const f = fixture({ kidsResult: false }), trigger = f.trigger();
+  const pending = f.api.openOrderIntent("kids", kidsCombos[1], trigger);
+  f.resolve();
+  assert.equal(await pending, false, "The local combo view must receive a rejected addition");
+}
+
+// Exercise the real dialog mutation with the real shared draft helper. A cap
+// reached by one component must never leave any other component partially added.
+{
+  const ids = new Set(["unrelated", ...kidsCombos.flatMap(combo => combo.items.map(item => item.id))]);
+  const addition = orderSource.slice(orderSource.indexOf("function addKidsCombo("),
+    orderSource.indexOf('\nproductDecrease.addEventListener('));
+  function kidsFixture(seed, validIds = ids) {
+    let stored = seed, writes = 0, renders = 0;
+    const opened = [], trigger = {}, cartDialog = {}, cartTitle = {};
+    const context = { orderDraft: normalizeOrderDraft(null, ids), cart: new Map(),
+      orderProductIds: validIds, kidsComboForItems, addOrderGroup, lastAddedSelection: null,
+      replacementEditor: {}, cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 42 },
+      cartDialog, cartTitle, clearCartNotice() {},
+      readCart() { context.orderDraft = stored; return new Map(stored.lines.map(line => [line.id, line.quantity])); },
+      saveCart() { stored = context.orderDraft; writes += 1; }, renderCart() { renders += 1; },
+      openDialog(...args) { opened.push(args); }
+    };
+    const api = runInNewContext(`${addition}\n({ addKidsCombo });`, context);
+    return { api, context, trigger, cartDialog, cartTitle, opened,
+      get stored() { return stored; }, get writes() { return writes; }, get renders() { return renders; } };
+  }
+  const seed = addOrderGroup(null, [{ id: "unrelated" }], 2, ids).draft;
+  const success = kidsFixture(seed);
+  assert.equal(success.api.addKidsCombo(kidsCombos[1], success.trigger), true);
+  assert.equal(success.writes, 1, "The entire combo must be saved in one write");
+  assert.equal(success.stored.groups.length, 2, "Fresh unrelated selections must be preserved");
+  assert.equal(success.stored.groups.find(group => group.items.length === 3).quantity, 1);
+  assert.equal(success.stored.lines.find(line => line.id === "unrelated").quantity, 2);
+  assert.deepEqual(JSON.parse(JSON.stringify(success.context.lastAddedSelection)),
+    { items: kidsCombos[1].items, quantity: 1 });
+  assert.equal(success.renders, 1);
+  assert.equal(success.context.cartCheckoutError.hidden, true);
+  assert.equal(success.context.cartLinesRoot.scrollTop, 0);
+  assert.deepEqual(success.opened[0], [success.cartDialog, success.cartTitle, success.trigger],
+    "Successful combo addition must immediately show the existing confirmation");
+
+  const capped = addOrderGroup(seed, [{ id: "brew-hot:milk" }], 99, ids).draft;
+  const blocked = kidsFixture(capped);
+  assert.equal(blocked.api.addKidsCombo(kidsCombos[1], blocked.trigger), false);
+  assert.equal(blocked.stored, capped);
+  assert.equal(blocked.writes, 0, "A capped component must prevent every write");
+  assert.equal(blocked.opened.length, 0);
+  assert.equal(blocked.context.lastAddedSelection, null);
+  assert.equal(blocked.stored.lines.some(line => line.id === "food:three-cheese-croissant"), false);
+
+  const incomplete = kidsFixture(seed, new Set(["unrelated", "brew-hot:milk"]));
+  assert.equal(incomplete.api.addKidsCombo(kidsCombos[0], incomplete.trigger), false);
+  assert.equal(incomplete.writes, 0, "An unavailable component must not shrink the combo");
+}
+console.log("Kids menu ordering PASS: deduplicated/cancellable lazy intent, fresh atomic groups, no partial cap writes, immediate confirmation.");
+
+{
+  const naming = orderSource.slice(orderSource.indexOf("function groupName("),
+    orderSource.indexOf("\nfunction hasMissingVariant("));
+  for (const language of ["tr", "en", "ru"]) {
+    const { groupName } = runInNewContext(`${naming}\n({ groupName });`, {
+      kidsComboForItems, localized: value => value[language], itemName: item => item.id
+    });
+    for (const combo of kidsCombos) {
+      const name = groupName(combo);
+      assert(name.includes(combo.name[language]), `${language}: the cart must retain the set name`);
+      combo.items.forEach(item => assert(name.includes(item.id), `${language}: every actual component must remain visible`));
+    }
+    assert.equal(groupName({ items: [{ id: "unrelated" }] }), "unrelated");
+  }
+}
+
+// A customized three-item set keeps set units after losing its preset name.
+{
+  const pricing = orderSource.slice(orderSource.indexOf("function groupPriceLabel("),
+    orderSource.indexOf("\nfunction groupMaximum("));
+  for (const language of ["tr", "en", "ru"]) {
+    const { groupPriceLabel } = runInNewContext(`${pricing}\n({ groupPriceLabel });`, {
+      kidsComboForItems, language, orderUiCopy: { [language]: { pair: "pair", each: "each" } }
+    });
+    const changed = { items: kidsCombos[1].items.map(item => ({ ...item,
+      id: item.id === "desserts:cookie" ? "desserts:brownie" : item.id })) };
+    assert.equal(kidsComboForItems(changed.items), undefined);
+    assert.equal(groupPriceLabel(changed), { tr: "Bir setin fiyatı", en: "Price per set", ru: "Цена набора" }[language]);
+    assert.equal(groupPriceLabel({ items: [{ id: "a", quantity: 1 }, { id: "b", quantity: 1 }] }), "pair");
+    assert.equal(groupPriceLabel({ items: [{ id: "a", quantity: 1 }] }), "each");
+  }
+}
+
+// Replay a fast Add -> confirmation -> second backdrop click using the actual
+// dialog callbacks. The second click must not hide a successful addition.
+{
+  let now = 1000;
+  const closed = [], openedAt = new WeakMap();
+  const dialog = () => ({ handlers: new Map(),
+    addEventListener(name, handler) { this.handlers.set(name, handler); },
+    // Desktop/fallback dialog covers the viewport; only the inner shell is the card.
+    getBoundingClientRect() { return { left: 0, right: 900, top: 0, bottom: 800 }; },
+    querySelector(selector) {
+      assert.equal(selector, '.menu-dialog-shell');
+      return { getBoundingClientRect: () => ({ left: 100, right: 500, top: 50, bottom: 700 }) };
+    } });
+  const productDialog = dialog(), cartDialog = dialog();
+  const listeners = orderSource.slice(orderSource.indexOf('[productDialog, cartDialog].forEach'),
+    orderSource.indexOf('\nfunction refresh('));
+  runInNewContext(listeners, { productDialog, cartDialog, dialogOpenedAt: openedAt,
+    performance: { now: () => now }, closeDialog: node => closed.push(node), document: {} });
+  for (const node of [productDialog, cartDialog]) {
+    now = 1000;
+    openedAt.set(node, now);
+    const click = node.handlers.get('click');
+    now += 150;
+    click({ target: node, clientX: 50, clientY: 400, detail: 2 });
+    assert.equal(closed.length, 0, 'The carried-over double tap must leave the dialog open');
+    now += 600;
+    click({ target: {}, clientX: 150, clientY: 400 });
+    click({ target: node, clientX: 110, clientY: 60 });
+    assert.equal(closed.length, 0, 'Child controls and dialog padding must not dismiss the dialog');
+    click({ target: node, clientX: 50, clientY: 400 });
+    assert.equal(closed.pop(), node, 'A later deliberate backdrop click must still close the dialog');
+  }
+  assert.match(orderSource, /dialogOpenedAt\.set\(dialog, performance\.now\(\)\)/,
+    'Each opening must reset the backdrop guard');
+}
+
+// Removal feedback must expire, and a subsequent addition/language change must
+// cancel a queued announcement before it can overwrite the current state.
+{
+  const frames = new Map(), timers = new Map(), status = { textContent: '' };
+  const classes = new Set(); let next = 0;
+  const notice = { classList: { add: value => classes.add(value), remove: value => classes.delete(value) } };
+  const announcements = orderSource.slice(orderSource.indexOf('let cartNoticeTimer;'), orderSource.indexOf('\nfunction renderCart('));
+  const api = runInNewContext(`${announcements}\n({ announceCart, clearCartNotice });`, {
+    cartStatuses: [status], document: { querySelector: () => notice }, window: {
+      requestAnimationFrame(fn) { frames.set(++next, fn); return next; }, cancelAnimationFrame(id) { frames.delete(id); },
+      setTimeout(fn) { timers.set(++next, fn); return next; }, clearTimeout(id) { timers.delete(id); }
+    }
+  });
+  api.announceCart('Removed');
+  api.clearCartNotice();
+  assert.equal(frames.size, 0, 'The previous queued removal must be cancelled');
+  api.announceCart('Quantity changed');
+  [...frames.values()].forEach(fn => fn()); frames.clear();
+  assert.equal(status.textContent, 'Quantity changed');
+  assert(classes.has('is-visible'));
+  [...timers.values()].forEach(fn => fn());
+  assert.equal(status.textContent, '', 'Expired text must leave the screen-reader live region too');
+  assert.equal(classes.size, 0);
+}
+console.log('Menu interaction regressions PASS: double-tap confirmation, deliberate dismissal, padding, stale live announcements.');
