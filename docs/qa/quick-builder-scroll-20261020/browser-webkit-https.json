@@ -1,0 +1,510 @@
+{
+  "head": "040fe7a2c12bc517e3450aec13f6ae71c40bbe1d",
+  "startedAt": "2026-10-19T22:06:02.823Z",
+  "assetHashesStart": {
+    "src/smart-choice/quick-builder.ts": "27da8fd773e5439d0400b414a9c75c62315a27e93978f290bec2d7499549adfc",
+    "smart-choice/app-v2.js": "2950655c220344d7d91479e04a2fa29e27ad0e6f7350cde5a6598329fd604381",
+    "smart-choice/index.html": "e95af52b9e0a3244045aa4882a79419ab5d9f8e7a18b628841a7a0e8ce711dc3",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  },
+  "browsers": {
+    "webkit": "26.0"
+  },
+  "cases": [
+    {
+      "id": "webkit/390x844/tr",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/390x844/en",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/390x844/ru",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/360x720/tr",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/360x720/en",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/360x720/ru",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 168,
+          "afterY": 168,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/1280x900/tr",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 231,
+          "afterY": 231,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/1280x900/en",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 231,
+          "afterY": 231,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        }
+      ]
+    },
+    {
+      "id": "webkit/1280x900/ru",
+      "passed": true,
+      "transitions": [
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/chocolate-cookie\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:iced-caffe-latte/plain\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-choice-id=\"cold-coffee:flavoured-iced-caffe-latte/caramel\"]",
+          "beforeY": 176,
+          "afterY": 176,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:lotus-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        },
+        {
+          "selector": ".qb-no-sweet",
+          "beforeY": 231,
+          "afterY": 231,
+          "movement": 0
+        },
+        {
+          "selector": "[data-dessert-id=\"desserts:san-sebastian-cheesecake\"]",
+          "beforeY": 287,
+          "afterY": 287,
+          "movement": 0
+        }
+      ]
+    }
+  ],
+  "harnessSha256": "c06a8d6a066eb1bc17d8ebca62ec7c4d9301eb208f10420808fb1a6246d1de33",
+  "environment": "Local HTTPS with a temporary self-signed certificate, original CSP, emitted runtime, external requests and service workers blocked; desktop engines at responsive sizes, not physical-device certification",
+  "finishedAt": "2026-10-19T22:10:51.248Z",
+  "assetHashesEnd": {
+    "src/smart-choice/quick-builder.ts": "27da8fd773e5439d0400b414a9c75c62315a27e93978f290bec2d7499549adfc",
+    "smart-choice/app-v2.js": "2950655c220344d7d91479e04a2fa29e27ad0e6f7350cde5a6598329fd604381",
+    "smart-choice/index.html": "e95af52b9e0a3244045aa4882a79419ab5d9f8e7a18b628841a7a0e8ce711dc3",
+    "smart-choice/style.css": "c3664b91723202f385049ed317baaa8e68a3330c45fedb9b9ed7d572d9143fb8"
+  }
+}

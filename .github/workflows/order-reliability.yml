@@ -71,6 +71,7 @@ jobs:
       ROBYS_COMBO_BROWSERS: ${{ matrix.browser }}
       ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
       ROBYS_OFFER_BROWSERS: ${{ matrix.browser }}
+      ROBYS_QUICK_BUILDER_BROWSERS: ${{ matrix.browser }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,6 +94,8 @@ jobs:
         run: node scripts/test-menu-combos-browser.mjs
       - name: Contextual offer cards and exact recipe navigation
         run: node scripts/test-combo-offer-cards-browser.mjs
+      - name: Quick builder touch position, cancellation and saved selection
+        run: node scripts/test-quick-builder-scroll-browser.mjs
       - name: First offline combo reveal and missing-photo negative control
         if: matrix.browser == 'chromium'
         run: node scripts/test-combo-offline.mjs
