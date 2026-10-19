@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-10-19T10:59:38.406Z",
+  "scope": "Historical source-head H2 evidence for the listed workflows only; not approval of a later head, merge, deployment or physical OEM handset",
+  "subject": {
+    "repository": "safal207/robys-coffee-house-demo",
+    "pullRequest": 446,
+    "head": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+    "headTree": "233b43596e81e5c1bd1bd2c4ae022b2fabbab1b1",
+    "base": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+    "derivedMerge": "9f90eba9ce325c82477818fefb22f3789687aa8a",
+    "derivedMergeTree": "233b43596e81e5c1bd1bd2c4ae022b2fabbab1b1",
+    "mergeParents": [
+      "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+      "b0efc5b3fa59f3242b252ffb8093acb2da5b5200"
+    ],
+    "mergeTreeEqualsHeadTree": true,
+    "initialAndFinalPrIdentityMatched": true
+  },
+  "provenance": {
+    "provider": "GitHub REST through GitHub connector",
+    "counts": "Parsed completed job logs; setup/build unit tests are excluded from browser-suite totals",
+    "workflowAttempts": "Both H2 workflow runs completed on attempt 1; no reruns or unexpected error/retry lines observed in fetched logs."
+  },
+  "orderReliability": {
+    "runId": 39239902102,
+    "url": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39239902102",
+    "head": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+    "runAttempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "updatedAt": "2026-10-19T10:53:17Z",
+    "checkoutAndCleanBuildVerifiedForAllSixJobs": true,
+    "homeJobs": [
+      {
+        "id": 118017905242,
+        "engine": "webkit",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:48:00Z",
+        "completedAt": "2026-10-19T10:53:16Z",
+        "artifact": {
+          "id": 12181087205,
+          "sha256": "9f96ec1729f53c0f509818249a37603904bba34aec093167385ba9fbf6e9b1b7"
+        }
+      },
+      {
+        "id": 118017905253,
+        "engine": "firefox",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:47:58Z",
+        "completedAt": "2026-10-19T10:49:28Z",
+        "artifact": {
+          "id": 12181645298,
+          "sha256": "5560349755d8d1c0eabd82bd12e914b46abe67621b3c982172c6e8be3dd6a6e0"
+        }
+      },
+      {
+        "id": 118017905441,
+        "engine": "chromium",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:48:03Z",
+        "completedAt": "2026-10-19T10:49:24Z",
+        "artifact": {
+          "id": 12181041809,
+          "sha256": "811f6efa7e16488a1ce07215b5e0b102558c6aba64bbca87a58577a4682f3077"
+        }
+      }
+    ],
+    "homeSuitesPerJob": {
+      "returningVisitorCacheContracts": {
+        "passed": 5,
+        "failed": 0
+      },
+      "responsive": {
+        "passed": 60,
+        "failed": 0
+      },
+      "navigation": {
+        "passed": 6,
+        "failed": 0
+      }
+    },
+    "orderJobs": [
+      {
+        "id": 118017904766,
+        "engine": "firefox",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:47:36Z",
+        "completedAt": "2026-10-19T10:51:39Z",
+        "artifact": {
+          "id": 12181735190,
+          "sha256": "cfaf2f090d5e1e9d2ccb9dc41bad391c56f68cda3e81a478d774fd7601b23278"
+        }
+      },
+      {
+        "id": 118017905228,
+        "engine": "chromium",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:47:59Z",
+        "completedAt": "2026-10-19T10:51:33Z",
+        "artifact": {
+          "id": 12180821817,
+          "sha256": "7c38705e35576ba0710862440e1da58314109b0ed58e18232ed363d1f66cab73"
+        }
+      },
+      {
+        "id": 118017905281,
+        "engine": "webkit",
+        "conclusion": "success",
+        "startedAt": "2026-10-19T10:47:59Z",
+        "completedAt": "2026-10-19T10:53:06Z",
+        "artifact": {
+          "id": 12181605876,
+          "sha256": "369131f2e4bb1a38b51ae6242c49cd15a2d687a6171c3f9316b412c06ec578cc"
+        }
+      }
+    ],
+    "orderSuitesPerEngine": {
+      "lazyImages": {
+        "passed": 10,
+        "failed": 0,
+        "assetsUnchanged": true
+      },
+      "pairingPrices": {
+        "passed": 6,
+        "failed": 0
+      },
+      "family": {
+        "passed": 25,
+        "failed": 0
+      },
+      "combos": {
+        "passed": 48,
+        "failed": 0,
+        "assetsUnchanged": true
+      },
+      "promo": {
+        "passed": 9,
+        "failed": 0
+      },
+      "transactions": {
+        "passed": 116,
+        "failed": 0
+      },
+      "checkoutStaleness": {
+        "passed": 6,
+        "failed": 0
+      },
+      "storageCompatibility": {
+        "passed": 25,
+        "failed": 0
+      },
+      "builtQrCashierAndConcurrency": {
+        "passed": 23,
+        "failed": 0,
+        "assetsUnchanged": true
+      }
+    },
+    "countsIndividuallyVerifiedInAllThreeOrderLogs": true,
+    "promoCasesPerEngine": [
+      "promo-tr-0",
+      "promo-tr-1",
+      "promo-en-0",
+      "promo-en-1",
+      "promo-ru-0",
+      "promo-ru-1",
+      "legacy-promo-0",
+      "legacy-promo-1",
+      "legacy-promo-stale-editor"
+    ],
+    "chromiumOnly": {
+      "offlineCombos": {
+        "status": "PASS",
+        "cases": 4
+      },
+      "mobileNavigation": {
+        "passed": 15,
+        "failed": 0
+      }
+    },
+    "firefoxAndWebkitConditionalSkips": [
+      "First offline combo reveal and missing-photo negative control",
+      "Mobile order navigation"
+    ]
+  },
+  "coverage": {
+    "locales": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "homeResponsive": {
+      "normalWidths": [
+        320,
+        390,
+        680,
+        681,
+        979,
+        980,
+        981,
+        1024,
+        1120,
+        1121,
+        1122,
+        1280,
+        1366,
+        1440,
+        1920
+      ],
+      "text200RootCssWidths": [
+        320,
+        681,
+        981,
+        1121,
+        1440
+      ],
+      "casesPerEngine": 60,
+      "totalPassed": 180,
+      "textScaleBoundary": "CSS root text at 32px; not a physical-phone or full browser-page-zoom certification"
+    },
+    "homeNavigation": {
+      "widths": [
+        390,
+        900
+      ],
+      "height": 900,
+      "casesPerEngine": 6,
+      "totalPassed": 18,
+      "behaviors": [
+        "closed links excluded from Tab",
+        "open first-link focus and focus cycle",
+        "Escape and localized labels",
+        "900/901 stays open; 980/981 closes mobile layout",
+        "native About/Visit meaningful visible focus and scrolling",
+        "catalog destination and language persistence"
+      ]
+    },
+    "runtimeBoundaries": {
+      "emittedBytes": [
+        "home responsive/navigation",
+        "lazy image recovery",
+        "pairing prices",
+        "combos",
+        "built QR/cashier/concurrent Add",
+        "Chromium offline combos",
+        "Chromium mobile navigation"
+      ],
+      "sourceFixtures": [
+        "family",
+        "promo",
+        "transaction stress",
+        "checkout staleness",
+        "storage compatibility"
+      ],
+      "cacheContracts": "Five Node/source/actual-worker fixture contracts repeated in each Home job"
+    },
+    "physicalOemDevicesTested": false,
+    "fieldPerformanceMeasured": false
+  },
+  "lighthouse": {
+    "runId": 39239901874,
+    "url": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39239901874",
+    "head": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+    "runAttempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "checkout": "9f90eba9ce325c82477818fefb22f3789687aa8a",
+    "checkoutTree": "233b43596e81e5c1bd1bd2c4ae022b2fabbab1b1",
+    "checkoutTreeEqualsHeadTree": true,
+    "lighthouseVersion": "12.6.1",
+    "chromeUserAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+    "summaryPath": "index.html?entry=off",
+    "collectionBoundary": "Two local URLs, three Lighthouse runs per URL; the extracted performance summary is for index.html?entry=off. Lab data, not field measurements.",
+    "hardCheckColumns": [
+      "metric",
+      "limit",
+      "status"
+    ],
+    "regressionComparisonColumns": [
+      "metric",
+      "baseline",
+      "delta",
+      "appliedLimit",
+      "kind",
+      "status"
+    ],
+    "profiles": {
+      "desktop": {
+        "jobId": 118018470382,
+        "conclusion": "success",
+        "reportedRunCount": 6,
+        "publicReport": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1792407025109-6308.report.html",
+        "artifact": {
+          "id": 12180184481,
+          "sha256": "6fa85db01a1ee4bac4b44854762ffa238ec4a5cc359dfb714ac13a71c27bc23b"
+        },
+        "values": {
+          "performance": 1,
+          "lcp": 486.24535000000003,
+          "tbt": 0,
+          "cls": 0,
+          "fcp": 348.789575,
+          "speed_index": 378.95426920833626,
+          "total_js_bytes": 22703,
+          "hero_file_bytes": 79501,
+          "hero_transfer_bytes": null,
+          "hero_request_duration": null
+        },
+        "hardChecks": [
+          [
+            "total_js_bytes",
+            170000,
+            "pass"
+          ],
+          [
+            "hero_file_bytes",
+            256000,
+            "pass"
+          ]
+        ],
+        "regressionComparisons": [
+          [
+            "performance",
+            1,
+            0,
+            3,
+            "score-drop",
+            "pass"
+          ],
+          [
+            "lcp",
+            529.880375,
+            -8.234882259981779,
+            250,
+            "percent-with-absolute-floor",
+            "pass"
+          ],
+          [
+            "tbt",
+            0,
+            0,
+            50,
+            "percent-with-absolute-floor",
+            "pass"
+          ],
+          [
+            "cls",
+            0,
+            0,
+            0.02,
+            "absolute-growth",
+            "pass"
+          ],
+          [
+            "total_js_bytes",
+            22139,
+            2.5475405393197526,
+            5,
+            "percent-growth",
+            "pass"
+          ],
+          [
+            "hero_file_bytes",
+            79501,
+            0,
+            5,
+            "percent-growth",
+            "pass"
+          ]
+        ],
+        "violations": [],
+        "targetWarnings": [],
+        "passed": true
+      },
+      "mobile": {
+        "jobId": 118018470486,
+        "conclusion": "success",
+        "reportedRunCount": 6,
+        "publicReport": "https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1792407051471-15402.report.html",
+        "artifact": {
+          "id": 12180199421,
+          "sha256": "e176c6e2c01d2d041984edcd88e4abb9213a967f07e74b1de6252bff54eed62c"
+        },
+        "values": {
+          "performance": 0.985,
+          "lcp": 1974.95185,
+          "tbt": 0,
+          "cls": 0,
+          "fcp": 1373.0432500000002,
+          "speed_index": 1378.44025,
+          "total_js_bytes": 22703,
+          "hero_file_bytes": 79501,
+          "hero_transfer_bytes": null,
+          "hero_request_duration": null
+        },
+        "hardChecks": [
+          [
+            "total_js_bytes",
+            170000,
+            "pass"
+          ],
+          [
+            "hero_file_bytes",
+            256000,
+            "pass"
+          ]
+        ],
+        "regressionComparisons": [
+          [
+            "performance",
+            0.98,
+            0.5000000000000004,
+            3,
+            "score-drop",
+            "pass"
+          ],
+          [
+            "lcp",
+            1803.66255,
+            9.49674871277889,
+            270.5493825,
+            "percent-with-absolute-floor",
+            "pass"
+          ],
+          [
+            "tbt",
+            1.5,
+            -100,
+            50,
+            "percent-with-absolute-floor",
+            "pass"
+          ],
+          [
+            "cls",
+            0,
+            0,
+            0.02,
+            "absolute-growth",
+            "pass"
+          ],
+          [
+            "total_js_bytes",
+            22139,
+            2.5475405393197526,
+            5,
+            "percent-growth",
+            "pass"
+          ],
+          [
+            "hero_file_bytes",
+            79501,
+            0,
+            5,
+            "percent-growth",
+            "pass"
+          ]
+        ],
+        "violations": [],
+        "targetWarnings": [],
+        "passed": true
+      }
+    },
+    "budgetAndBaselineProof": {
+      "comparedFrom": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+      "comparedTo": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+      "changedPaths": [],
+      "unchangedBlobs": {
+        "lighthouse/budgets.json": "a13c454a3942dd2cf4d25a36ffab5da9e9bcbebd",
+        "lighthouse/baseline.json": "d2580f25e0167367d2a6234e830728dcbf5777a4",
+        "lighthouse/lighthouserc.mobile.cjs": "99b234390a9f81f7ee044df26d58766bb408e230",
+        "lighthouse/lighthouserc.desktop.cjs": "a5937a36e39da6738b599116b6c64b9601dfe223",
+        "scripts/compare-lighthouse.mjs": "33df27e1189ebdb9c491091bc815087432a92747",
+        "scripts/run-lighthouse-profile.mjs": "a37633bbe3a37b4fd212ee1e93c7b365ed4ce734",
+        ".github/workflows/lighthouse-profile.yml": "dc47649027158fc25619344c8ac22bdf4f301e02"
+      }
+    }
+  },
+  "attemptHistory": {
+    "h2WorkflowAttempts": {
+      "order": 1,
+      "lighthouse": 1
+    },
+    "h2UnexpectedErrorOrRetryLogLines": [],
+    "supersededH1": {
+      "head": "405ac753f479affc103d13fa24c838b3c8bd2f68",
+      "notCurrentPassEvidence": true,
+      "order": {
+        "runId": 39236974718,
+        "attempt": 1,
+        "conclusion": "failure",
+        "jobs": [
+          118008300711,
+          118008300802,
+          118008300686
+        ],
+        "combosPerEngine": {
+          "passed": 47,
+          "failed": 1,
+          "assetsUnchanged": true
+        },
+        "failure": "Old home-helper assertion expected toggle focus; authorized new behavior focuses the first navigation link. Downstream steps did not run."
+      },
+      "mobileLighthouse": {
+        "runId": 39236974544,
+        "jobId": 118008837286,
+        "attempt": 1,
+        "conclusion": "failure",
+        "checkout": "b2ecf82f753f69a5aa1151cafe2360dd673bad9f",
+        "totalJsBytes": 23263,
+        "baselineBytes": 22139,
+        "growthPercent": 5.077013415240074,
+        "unchangedLimitPercent": 5
+      }
+    }
+  },
+  "subsequentScopeGap": {
+    "reportedBy": "root",
+    "states": [
+      "RU320/text200 open navigation overflow",
+      "skip-link contrast"
+    ],
+    "coverageGap": "H2 responsive geometry inspected closed navigation. Its open-navigation cases used 390/900 px without 200% text.",
+    "requiresFreshHeadEvidence": true
+  },
+  "verdict": "PASS for the listed completed H2 workflows, within the stated coverage; later source work requires fresh checks."
+}

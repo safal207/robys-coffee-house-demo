@@ -23,8 +23,12 @@ const navigationLabels = {
 const selected = (process.env.ROBYS_HOME_NAV_BROWSERS ?? "chromium,firefox,webkit").split(",");
 assert.ok(selected.length && selected.every(name => Object.hasOwn(types, name)), "Known browser engines required");
 const filter = process.env.ROBYS_HOME_NAV_FILTER ?? "";
-const matrix = selected.flatMap(engine => [390, 900].flatMap(width => ["tr", "en", "ru"].map(language =>
-  ({ engine, width, language, id: `${engine}-${language}-${width}` })))).filter(entry => entry.id.includes(filter));
+const standardMatrix = selected.flatMap(engine => [390, 900].flatMap(width => ["tr", "en", "ru"].map(language =>
+  ({ engine, width, language, mode: "standard", id: `${engine}-${language}-${width}` }))));
+const enlargedMatrix = selected.flatMap(engine => [{ width: 320, height: 568 }, { width: 568, height: 320 }]
+  .flatMap(viewport => ["tr", "en", "ru"].map(language => ({ engine, ...viewport, language, mode: "text200",
+    id: `${engine}-${language}-${viewport.width}x${viewport.height}-text200` }))));
+const matrix = [...standardMatrix, ...enlargedMatrix].filter(entry => entry.id.includes(filter));
 assert.ok(matrix.length > 0, "The selected browser and optional filter must exercise at least one case");
 const assets = ["index.html", "app.js", "styles-v2.css", "mobile.css", "brand-photo-logo.css", "conversion.css",
   "src/app.ts", "src/i18n.ts", "scripts/test-home-navigation-browser.mjs"];
@@ -34,7 +38,8 @@ const report = {
   head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   dirtyFilesAtStart: execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim().split("\n").filter(Boolean),
   boundary: "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
-  selection: { browsers: selected, filter, caseIds: matrix.map(entry => entry.id) },
+  selection: { browsers: selected, filter, caseIds: matrix.map(entry => entry.id),
+    textEnlargement: "32px root font (200% of the normal 16px); not native browser zoom" },
   assetHashesStart: hashes(), browsers: {}, cases: []
 };
 const certificate = mkdtempSync(join(tmpdir(), "robys-home-navigation-"));
@@ -207,6 +212,134 @@ async function verifyCase(browser, engine, width, language) {
   } finally { await context.close(); persist(); }
 }
 
+function textGeometry(element) {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  const rows = [...range.getClientRects()].filter(box => box.width > 0 && box.height > 0).map(box => ({
+    left: box.left, right: box.right, top: box.top, bottom: box.bottom,
+    uncovered: [box.left + 1, (box.left + box.right) / 2, box.right - 1].every(x => {
+      const hit = document.elementFromPoint(x, (box.top + box.bottom) / 2);
+      return hit === element || element.contains(hit);
+    })
+  }));
+  let visible = element.getClientRects().length > 0;
+  for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+    const style = getComputedStyle(ancestor);
+    if (style.display === "none" || style.visibility !== "visible" || Number(style.opacity) === 0) visible = false;
+  }
+  return { text: element.textContent.trim(), rect: element.getBoundingClientRect().toJSON(), rows, visible,
+    focused: document.activeElement === element, viewport: { width: innerWidth, height: innerHeight } };
+}
+
+function assertReadable(geometry, message) {
+  assert.equal(geometry.visible, true, `${message}: element is visible`);
+  assert.ok(geometry.rows.length > 0, `${message}: actual text rows exist`);
+  for (const row of geometry.rows) {
+    assert.ok(row.left >= -1 && row.right <= geometry.viewport.width + 1, `${message}: text fits horizontally ${JSON.stringify(row)}`);
+    assert.ok(row.top >= -1 && row.bottom <= geometry.viewport.height + 1, `${message}: text fits vertically ${JSON.stringify(row)}`);
+    assert.equal(row.uncovered, true, `${message}: text is not covered by fixed controls ${JSON.stringify(row)}`);
+  }
+}
+
+async function verifyEnlargedCase(browser, { engine, width, height, language, id }) {
+  const directory = join(output, engine);
+  mkdirSync(directory, { recursive: true });
+  const context = await browser.newContext({ viewport: { width, height }, hasTouch: true, reducedMotion: "reduce",
+    serviceWorkers: "block", ignoreHTTPSErrors: true, bypassCSP: false });
+  await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort("blockedbyclient"));
+  await context.addInitScript(({ language, origin }) => {
+    if (location.origin === origin) localStorage.setItem("robys-language", language);
+  }, { language, origin });
+  const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const facts = { width, height, rootFontPixels: 32, textEnlargement: "200% root font; not native browser zoom", focusedLinks: [] };
+  try {
+    await page.goto(`${origin}/index.html?entry=off`, { waitUntil: "domcontentloaded" });
+    await page.locator(`.lang-button[data-lang="${language}"].active[aria-pressed="true"]`).waitFor();
+    await page.locator("html:not([data-robys-entry-pending])").waitFor({ state: "attached" });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "32px"; });
+    await afterLayout(page);
+    facts.enlargedPageText = await page.locator(".hero h1, #about h2, #about .feature-card h3, #about .feature-card p, #menu .menu-intro .text-link, #visit h2")
+      .evaluateAll(elements => elements.map(element => {
+        const range = document.createRange(); range.selectNodeContents(element);
+        return { text: element.textContent.trim(), rows: [...range.getClientRects()].map(box => ({ left: box.left, right: box.right })) };
+      }));
+    for (const field of facts.enlargedPageText) for (const row of field.rows) {
+      assert.ok(row.left >= -1 && row.right <= width + 1, `Measured enlarged home copy fits horizontally: ${JSON.stringify({ text: field.text, ...row })}`);
+    }
+    const skip = page.locator(".skip-link");
+    facts.skipUnfocused = await skip.evaluate(textGeometry);
+    assert.equal(facts.skipUnfocused.focused, false, "Skip link starts unfocused");
+    assert.ok(facts.skipUnfocused.rect.bottom <= 1, `Unfocused skip link is entirely offscreen at enlarged text: ${JSON.stringify(facts.skipUnfocused.rect)}`);
+    await page.keyboard.press("Tab");
+    await afterLayout(page);
+    facts.skipFocused = await skip.evaluate(textGeometry);
+    assert.equal(facts.skipFocused.focused, true, "Natural first Tab reaches the skip link");
+    assertReadable(facts.skipFocused, "Focused skip link");
+    await page.keyboard.press("Tab");
+    await afterLayout(page);
+    assert.equal(await focused(skip), false, "Tab can leave the enlarged skip link");
+    facts.documentWidthBeforeOpen = await page.evaluate(() => document.documentElement.scrollWidth);
+    assert.ok(facts.documentWidthBeforeOpen <= width + 1, "Enlarged home page has no document overflow before opening navigation");
+
+    const toggle = page.locator(".menu-toggle");
+    const nav = page.locator("#main-navigation");
+    const links = nav.locator("a");
+    await toggle.click();
+    await expectFocus(links.first(), "Opening enlarged navigation focuses its first link");
+    await afterLayout(page);
+    facts.navigation = await nav.evaluate(element => ({
+      scrollHeight: element.scrollHeight, clientHeight: element.clientHeight,
+      scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+      scrollTop: element.scrollTop, overflowY: getComputedStyle(element).overflowY,
+      documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth
+    }));
+    assert.ok(facts.navigation.scrollWidth <= facts.navigation.clientWidth + 1, "Enlarged navigation has no horizontal overflow");
+    assert.ok(facts.navigation.documentWidth <= facts.documentWidthBeforeOpen + 1, "Opening enlarged navigation does not increase the document width");
+    const allRows = await links.evaluateAll(elements => elements.flatMap(element => {
+      const range = document.createRange(); range.selectNodeContents(element);
+      return [...range.getClientRects()].map(box => ({ text: element.textContent.trim(), left: box.left, right: box.right }));
+    }));
+    facts.allHorizontalTextRows = allRows;
+    for (const row of allRows) assert.ok(row.left >= -1 && row.right <= width + 1, `Every enlarged navigation word fits horizontally: ${JSON.stringify(row)}`);
+    await page.screenshot({ path: join(directory, `${id}-first.png`) });
+
+    // Use real wheel input inside the overlay, then natural Tab focus. No
+    // scrollTop assignment, scrollIntoView or production navigation helper is used.
+    if (facts.navigation.scrollHeight > facts.navigation.clientHeight + 1) {
+      await page.mouse.move(width - 12, height - 12);
+      await page.mouse.wheel(0, height * 3);
+      await page.waitForFunction(before => document.querySelector("#main-navigation").scrollTop > before, facts.navigation.scrollTop);
+      facts.wheelScrollDown = await nav.evaluate(element => element.scrollTop);
+      await page.mouse.wheel(0, -height * 6);
+      await page.waitForFunction(() => document.querySelector("#main-navigation").scrollTop <= 1);
+      facts.wheelScrollBack = await nav.evaluate(element => element.scrollTop);
+    }
+    for (let index = 0; index < await links.count(); index++) {
+      if (index > 0) await page.keyboard.press("Tab");
+      await page.waitForFunction(index => document.activeElement === document.querySelectorAll("#main-navigation a")[index], index);
+      await afterLayout(page);
+      const geometry = await links.nth(index).evaluate(textGeometry);
+      facts.focusedLinks.push({ index, ...geometry, scrollTop: await nav.evaluate(element => element.scrollTop) });
+      assert.equal(geometry.focused, true, "Natural Tab focuses each enlarged navigation link");
+      assertReadable(geometry, `Focused navigation link ${index + 1}`);
+    }
+    await page.screenshot({ path: join(directory, `${id}-last.png`) });
+    await page.keyboard.press("Escape");
+    await expectFocus(toggle, "Escape restores focus after scrolling enlarged navigation");
+    assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+    assert.deepEqual(errors, [], "Enlarged navigation produces no uncaught runtime errors");
+    report.cases.push({ id, status: "PASS", facts });
+    console.log(`PASS ${id}`);
+  } catch (error) {
+    await page.screenshot({ path: join(directory, `${id}-failure.png`) }).catch(() => {});
+    report.cases.push({ id, status: "FAIL", error: error.stack, facts, errors });
+    console.error(`FAIL ${id}: ${error.message}`);
+  } finally { await context.close(); persist(); }
+}
+
 try {
   for (const engine of selected) {
     const cases = matrix.filter(entry => entry.engine === engine);
@@ -214,7 +347,10 @@ try {
     const browser = await types[engine].launch({ headless: true });
     report.browsers[engine] = browser.version();
     try {
-      for (const { width, language } of cases) await verifyCase(browser, engine, width, language);
+      for (const entry of cases) {
+        if (entry.mode === "text200") await verifyEnlargedCase(browser, entry);
+        else await verifyCase(browser, engine, entry.width, entry.language);
+      }
     } finally { await browser.close(); }
   }
 } finally {

@@ -2,8 +2,11 @@
 
 User report: Russian menu text escapes its layout on the desktop homepage.
 Initial revision: `f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c`.
-Local post-fix captures used the working tree based on that revision and include
-content hashes; current-head CI binds the committed release candidate.
+Local captures used working trees based on the revision recorded in each packet
+and include emitted/source hashes. Initial captures were based on the revision
+above; the enlarged-text follow-up was based on `b0efc5b3`. A local packet’s HEAD
+field is not a claim that its dirty working tree was already committed. Current-
+head CI binds the committed release candidate.
 
 ## Confirmed findings and fixes
 
@@ -34,7 +37,26 @@ content hashes; current-head CI binds the committed release candidate.
 6. The first CI build exceeded the unchanged 5% JavaScript transfer-growth limit
    by about 18 bytes. Emitting translations as UTF-8 instead of ASCII escapes
    reduces `app.js` from 35,595 to 24,767 bytes with every translation retained.
-   Fresh Lighthouse checks must confirm the transfer budget on the new head.
+   Both fresh Lighthouse profiles at `b0efc5b3` passed: 22,703 bytes total JS versus
+   22,139 baseline (+2.548%, unchanged 5% limit). The following accessibility
+   repair changes CSS/cache bytes and must receive fresh current-head checks.
+
+7. An additional narrow-screen check found Russian “Контакты” reaching
+   x392.3125 at a 320px viewport with 200% root-font text. The open menu now
+   limits each anchor to its available width, wraps oversized words, and permits
+   vertical scrolling with safe alignment when enlarged content exceeds height.
+   At the same text size the unfocused skip link was 122.375px tall but hidden
+   with a fixed -100px offset, leaving a 22.375px white strip. A height-relative
+   transform now hides it completely and restores it on keyboard focus.
+   Before opening the menu, the same text-size check also measured overflowing
+   hero/About/Visit headings and a feature paragraph: RU document width was
+   572px at a 320px viewport. Headings and those two text containers now permit
+   long-word wrapping; the mobile grid tracks can shrink below intrinsic text
+   width. The regression checks document and NativeRange bounds before opening
+   the overlay, separately from the overlay’s own width and scrolling.
+   A follow-up isolated the remaining 5px document overflow to the dynamically
+   added “Познакомиться со вкусом дня” link. Its flex box now fits the menu intro
+   and its label can shrink and wrap while retaining the arrow and destination.
 
 ## Reproducible checks
 
@@ -46,8 +68,10 @@ icon/arrow spacing, header intersections and native category destinations.
 Failures and representative Russian successes have screenshots and JSON geometry.
 
 `scripts/test-home-navigation-browser.mjs` checks 18 keyboard and native-link
-journeys across three engines, three languages and 390/900px initial widths,
-including 900→901→980→981px transitions and persisted language in the catalog.
+standard journeys across three engines, three languages and 390/900px initial widths,
+(36 total cases with the enlargement checks), including 900→901→980→981px transitions and persisted language in the catalog.
+Additional cases exercise 200% root-font text at 320×568 and 568×320, checking
+real glyph bounds and access to every navigation link.
 `scripts/test-home-navigation-cache.mjs` checks actual emitted URL/cache identity
 and exercises the shipped worker against stale cached responses and fault injection.
 
@@ -105,6 +129,11 @@ repair and RU981 with 200% text: both PASS. The first keyboard attempt exposed a
 visibility-transition focus issue; changing the transition to opacity/transform
 only corrected it. Its clean Russian smoke then passed. Earlier interrupted or
 timed-out harness runs are retained as incomplete runs, not counted as passes.
+
+Historical H2 CI evidence is retained in `h2-journey-ci.json`: all six Home/Order
+jobs and both Lighthouse profiles passed at `b0efc5b3`. That packet explicitly
+excludes the subsequently discovered narrow/enlarged navigation and page-text
+states. `text200-before.json` preserves the pre-fix measured geometry.
 
 Final release evidence must be read from the current-head CI artifacts and native
 checks. Engine tests and viewport/text emulation do not establish physical iOS,

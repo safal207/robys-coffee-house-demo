@@ -2,6 +2,8 @@
 .menu-card-link{position:relative;min-height:142px;grid-template-columns:auto minmax(0,1fr);gap:12px;padding:20px 40px 20px 20px;cursor:pointer;transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s,border-color .25s,background .25s}
 .menu-card-link>div{min-width:0;overflow-wrap:anywhere}
 .menu-intro{min-width:0}
+.menu-intro .text-link{max-width:100%;overflow-wrap:anywhere}
+.menu-intro .text-link>span:first-child{min-width:0}
 .menu-intro h2{overflow-wrap:anywhere}
 @media(min-width:681px){.menu-card-link .menu-icon{width:54px;height:54px}}
 .menu-card-link::after{content:"→";position:absolute;right:20px;top:50%;color:rgba(255,255,255,.52);font-size:1.15rem;transform:translateY(-50%);transition:transform .2s,color .2s}
