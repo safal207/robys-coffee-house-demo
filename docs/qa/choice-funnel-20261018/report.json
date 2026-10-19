@@ -1,0 +1,293 @@
+{
+  "baseline": "d368897",
+  "integritySha256": "fdc85a67bf725f8f3f9e15eecf947a24a6aef35a38cc0da4cc0b0583dbf48701",
+  "checks": [
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 320,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 360,
+      "height": 640,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "language": "tr",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "language": "en",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true
+    },
+    {
+      "type": "landing",
+      "width": 390,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "pair-to-QR",
+      "width": 390,
+      "language": "ru",
+      "total": 740,
+      "noAutomaticAddition": true,
+      "expandedChoices": 12,
+      "focusRestored": true
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 768,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "tr",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "en",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "landing",
+      "width": 1440,
+      "height": 900,
+      "language": "ru",
+      "overflow": false,
+      "clipping": false,
+      "photos": true
+    },
+    {
+      "type": "no-JS",
+      "links": 3,
+      "menuFallback": true
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CATALOG-001",
+      "passed": true,
+      "message": "all27 hot drinks are eligible; cold and dessert products remain ordinary"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-PHOTOS-001",
+      "passed": true,
+      "message": "all12 sweet choices use actual catalog photos, names and summed prices"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "tr/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "tr/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "en/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "en/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "ru/native: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ORDER-001",
+      "passed": true,
+      "message": "ru/fallback: quantity2 adds one pair group and preserves existing order"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-RESET-001",
+      "passed": true,
+      "message": "Escape, reopening, deselection, drink-only addition, Back and reload preserve only committed lines"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-GROUP-EDIT-001",
+      "passed": true,
+      "message": "two drinks sharing one dessert stay separate pairs when edited or removed"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-VARIANT-IDENTITY-001",
+      "passed": true,
+      "message": "flavor is required and distinct flavors remain distinct cart selections"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-LEGACY-FLAVOR-001",
+      "passed": true,
+      "message": "a restored order can choose its missing flavor directly in the cart"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "MENU-CATEGORY-SEARCH-001",
+      "passed": true,
+      "message": "category-name searches and Turkish I work across languages"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CAPACITY-001",
+      "passed": true,
+      "message": "hot-coffee:espresso: tighter remaining capacity limits both lines atomically"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-CAPACITY-001",
+      "passed": true,
+      "message": "desserts:san-sebastian-cheesecake: tighter remaining capacity limits both lines atomically"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-ZERO-CAPACITY-001",
+      "passed": true,
+      "message": "a full dessert line blocks the complete pair without partially adding the drink"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-FALLBACK-FOCUS-001",
+      "passed": true,
+      "message": "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-GEOMETRY-001",
+      "passed": true,
+      "message": "representative long names fit320/390/768/1440 at100/200% text"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-LAZY-FAILURE-001",
+      "passed": true,
+      "message": "blocked optional view reports failure and retains drink-only ordering"
+    },
+    {
+      "type": "pairing-regression",
+      "id": "CUSTOM-PAIRING-RETRY-001",
+      "passed": true,
+      "message": "a previously blocked optional module recovers after explicit retry without silently ordering"
+    }
+  ]
+}

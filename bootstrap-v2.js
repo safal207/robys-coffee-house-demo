@@ -1,3 +1,5 @@
+"use strict";(()=>{const t=Date.parse("2026-10-15T00:00:00+03:00"),o=Date.parse("2026-11-01T00:00:00+03:00");let s;function n(){window.clearTimeout(s);const e=Date.now();e>=t&&e<o?document.documentElement.dataset.robysSeason="halloween":delete document.documentElement.dataset.robysSeason;const a=e<t?t:e<o?o:null;a!==null&&(s=window.setTimeout(n,Math.min(a-e,2147483647)))}n(),window.addEventListener("pageshow",n),document.addEventListener("visibilitychange",()=>{document.hidden||n()})})();
+
 document.documentElement.classList.add("js");
 
 const ENTRY_PREPAINT_TIMEOUT_MS = 2_800;

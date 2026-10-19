@@ -145,7 +145,7 @@ const cssFiles = [
 ];
 // Count the shared dependency once: removing duplicate copies must reduce the
 // real delivered payload, not merely move bytes outside the budget inventory.
-const sharedJsFiles = ["menu-catalog.js", "smart-choice/photo-previews.js", "smart-choice/catalog.js"];
+const sharedJsFiles = ["order-storage.js", "menu-catalog.js", "smart-choice/photo-previews.js", "smart-choice/catalog.js"];
 const catalogRevisions = verifySmartChoiceCatalogRevision(readSmartChoiceCatalogRevisionInputs());
 for (const url of [catalogRevisions.smartCatalogUrl.slice(2), catalogRevisions.expectedUrl]) {
   requireText(html, `<link rel="modulepreload" href="${url}"`, "Both levels of the shared catalog must preload alongside the app");

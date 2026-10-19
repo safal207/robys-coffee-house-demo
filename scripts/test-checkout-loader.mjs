@@ -86,25 +86,64 @@ const checkoutSource = readFileSync("src/order-checkout.js", "utf8");
 const checkout = checkoutSource.slice(checkoutSource.indexOf("export async function openOrderCheckout("))
   .replace("export async function", "async function");
 assert(checkout.startsWith("async function openOrderCheckout("));
-for (const cancel of [true, false]) {
-  let resolveConfig, current = true, tickets = 0;
+for (const mode of ["cancel-config", "cancel-latest", "current", "legacy-conflict"]) {
+  let resolveConfig, resolveLatest, current = true, reads = 0, recovery = 0;
+  let signalLatestRead;
+  const latestReadStarted = new Promise(resolve => { signalLatestRead = resolve; });
+  const staleDraft = { version: 1, groups: [{ quantity: 1, items: [{ id: "brew-hot:black-tea", quantity: 1 }] }] };
+  const latestDraft = { version: 1, groups: [{ quantity: 3, items: [{ id: "brew-hot:milk", quantity: 1 }, { id: "desserts:cookie", quantity: 1 }] }] };
+  const validIds = new Set(["brew-hot:black-tea", "brew-hot:milk", "desserts:cookie"]);
+  const ticketInputs = [];
   const redirects = [];
+  const staticRecovery = new Error("entered-static-recovery");
+  class OrderLegacyConflictError extends Error { constructor() { super("unresolved legacy draft"); this.name = "OrderLegacyConflictError"; } }
   const context = {
     checkoutCopy: { en: {} }, activeDismiss: null, ticketStorage: {}, document: { activeElement: {} },
+    orderProductIds: validIds, OrderLegacyConflictError,
     siteRootUrl: () => "https://example.test/cafe/",
     readCounterConfiguration: () => new Promise(resolve => { resolveConfig = resolve; }),
-    getOrCreateOrderTicket: () => { tickets += 1; return {}; },
+    readLatestStoredOrderDraft(ids) {
+      assert.equal(ids, validIds, "Canonical reads use the actual catalog ID set"); reads += 1;
+      signalLatestRead();
+      return new Promise(resolve => { resolveLatest = resolve; });
+    },
+    getOrderStorageState: () => ({ legacyConflict: mode === "legacy-conflict" ? { token: "legacy-conflict" } : undefined }),
+    getOrCreateOrderTicket: draft => { ticketInputs.push(draft); return {}; },
     counterCheckoutUrl: () => "https://example.test/cafe/counter/guest.html#test-ticket",
+    // This boundary proves the real function reaches its ordinary recovery
+    // dialog. Its full immutable-ticket UI is covered by the checkout tests.
+    element(tag, className) {
+      assert.equal(tag, "dialog"); assert.equal(className, "order-checkout-dialog");
+      recovery += 1; throw staticRecovery;
+    },
     window: { location: { assign: url => redirects.push(url) } }
   };
   const open = runInNewContext(`${checkout}\nopenOrderCheckout`, context);
-  const pending = open({ draft: {}, language: "en", shouldOpen: () => current });
-  assert.equal(tickets, 0);
-  if (cancel) current = false;
+  const pending = open({ draft: staleDraft, language: "en", shouldOpen: () => current });
+  const settled = pending.then(value => ({ value }), error => ({ error }));
+  assert.equal(ticketInputs.length, 0); assert.equal(reads, 0);
+  if (mode === "cancel-config") current = false;
   resolveConfig({ enabled: true });
-  const result = await pending;
-  assert.equal(tickets, cancel ? 0 : 1, "Cancel before creating or reusing a ticket");
-  assert.equal(redirects.length, cancel ? 0 : 1, "A recovered configuration must respect cancellation");
-  assert.equal(result.cancelled === true, cancel);
+  if (mode !== "cancel-config") {
+    await latestReadStarted;
+    assert.equal(reads, 1); assert.equal(ticketInputs.length, 0);
+    if (mode === "cancel-latest") current = false;
+    resolveLatest(latestDraft);
+  }
+  const result = await settled;
+  const cancelled = mode.startsWith("cancel-");
+  assert.equal(ticketInputs.length, mode === "current" ? 1 : 0, `${mode}: stale or cancelled input cannot issue a ticket`);
+  assert.equal(redirects.length, mode === "current" ? 1 : 0, `${mode}: navigation requires current authoritative intent`);
+  if (mode === "current") {
+    assert.equal(ticketInputs[0], latestDraft, "Only the latest canonical draft may create the counter ticket");
+    assert.notEqual(ticketInputs[0], staleDraft);
+    assert.equal(result.value.redirected, true);
+  } else if (mode === "legacy-conflict") {
+    assert.equal(result.error, staticRecovery, "An unresolved fork goes to the static recovery dialog");
+    assert.equal(recovery, 1);
+  } else {
+    assert.equal(result.value.cancelled, cancelled);
+    assert.equal(recovery, 0, "Cancellation must not open a recovery dialog either");
+  }
 }
-console.log("Checkout loader PASS: browser-cached imports recover on explicit retry; bounded same-origin loads; abandoned quick import and delayed configuration cannot create a ticket or navigate.");
+console.log("Checkout loader PASS: explicit import retry; canonical latest ticket input; config/read cancellation creates no ticket or navigation; legacy conflict enters static recovery without issuing a ticket.");

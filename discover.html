@@ -9,19 +9,22 @@
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <link rel="stylesheet" href="combo-entry.css?v=da624d45b4d6" />
   <title>Roby's Taste Journey | Menü Keşfi</title>
-  <script src="bootstrap-v2.js?v=845efb76f384"></script>
+  <script src="bootstrap-v2.js?v=d49f5541ba9c"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" media="(max-width: 680px)" fetchpriority="high" />
-  <link rel="stylesheet" href="styles-v2.css?v=a4431b07fc04" />
+  <link rel="stylesheet" href="styles-v2.css?v=f003bf1a9feb" />
   <link rel="stylesheet" href="discover.css?v=27f4dfa8c27e" />
-  <link rel="stylesheet" href="discover-deck.css?v=45ca8486a146" />
+  <link rel="stylesheet" href="discover-deck.css?v=14bb488e526a" />
   <link rel="stylesheet" href="discover-rotation.css?v=96b566c9731e" />
   <link id="robys-wordmark-responsive" rel="stylesheet" href="wordmark-responsive.css?v=20260704-1" />
   <link rel="stylesheet" href="brand-photo-logo.css?v=20260917-approved-v4-restore" />
+  <link rel="stylesheet" href="choice-help.css?v=36b90bedc790" />
+  <link rel="stylesheet" href="seasonal.css?v=f2437d09532e" />
 </head>
 <body class="discover-page">
-  <a class="skip-link" href="#discover-main" data-localized data-tr="İçeriğe geç" data-en="Skip to content" data-ru="Перейти к содержанию">İçeriğe geç</a>
+  <a class="skip-link" href="#discover-main">İçeriğe geç</a>
 
   <header class="discover-header">
     <div class="container discover-header-inner">
@@ -42,6 +45,7 @@
     <section class="discover-hero">
       <div class="container discover-hero-inner">
         <div class="discover-hero-copy">
+      <p class="robys-seasonal-mark"><span class="robys-seasonal-icon" aria-hidden="true"></span><span lang="tr">Cadılar Bayramı havası</span><span lang="en">A little Halloween magic</span><span lang="ru">Немного магии Хэллоуина</span></p>
           <p class="discover-eyebrow">ROBY'S TASTE JOURNEY</p>
           <h1 data-copy="title">Menüyle her buluşmada biraz daha tanış.</h1>
           <p class="discover-lead" data-copy="lead">Bugün tek bir iyi eşleşme. Yarın başka bir tat. Baskı yok, sadece merak.</p>
@@ -96,6 +100,19 @@
       </div>
     </section>
 
+    <div class="container">
+      <section class="combo-entry" aria-labelledby="combo-entry-title">
+        <h2 id="combo-entry-title" data-copy="comboEntryTitle">Her ana bir Roby’s seçimi</h2>
+        <p class="combo-entry-lead" data-copy="comboEntryLead">Bir fikirle başla. İçeriği ve adetleri menüde kendine göre düzenle.</p>
+        <div class="combo-entry-links">
+          <a class="combo-entry-link" href="menu.html#menu-combos"><span class="combo-entry-icon" aria-hidden="true">❤</span><span><strong data-copy="comboEntryAllTitle">Birlikte güzel</strong><span class="combo-entry-detail" data-copy="comboEntryAllBody">Mola, arkadaşlar veya aile için kombinler</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="menu.html#menu-combos-takeaway"><span class="combo-entry-icon" aria-hidden="true">↗</span><span><strong data-copy="comboEntryGoTitle">Al ve devam et</strong><span class="combo-entry-detail" data-copy="comboEntryGoBody">Kahve ve yanına bir atıştırmalık</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="menu.html#menu-family"><span class="combo-entry-icon" aria-hidden="true">☺</span><span><strong data-copy="comboEntryKidsTitle">Çocuklarla</strong><span class="combo-entry-detail" data-copy="comboEntryKidsBody">Menüden 3 küçük mola fikri</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+        </div>
+        <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
+      </section>
+    </div>
+
     <section class="discover-principles" aria-labelledby="principles-title">
       <div class="container discover-principles-inner">
         <div>
@@ -131,8 +148,9 @@
   </footer>
 
   <script defer src="discover-weather-guard.js?v=20260629-1"></script>
-  <script type="module" src="discover-v2.js?v=48db52a5d59f"></script>
-  <script type="module" src="discover-deck.js?v=7228be958854"></script>
+  <script type="module" src="discover-v2.js?v=7d1b6bc8f058"></script>
+  <script type="module" src="discover-deck.js?v=16c7c7dc8590"></script>
   <script defer src="discover-rotation-v3.js?v=b7b8c4df73db"></script>
+  <script type="module" src="choice-help-entry.js?v=7fd832353634"></script>
 </body>
 </html>

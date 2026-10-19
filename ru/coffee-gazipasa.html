@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="stylesheet" href="../combo-entry.css?v=da624d45b4d6" />
   <title>Кофейня в Газипаше — кофе и десерты | Roby's Coffee House</title>
   <meta name="description" content="Roby's Coffee House в Газипаше: кофе, холодные напитки и десерты. Посмотрите меню, адрес и маршрут до кофейни в Газипаше, Анталья." />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1" />
@@ -20,7 +21,7 @@
   <link rel="icon" href="../icon.svg" type="image/svg+xml" />
   <link rel="preload" href="../src/robys-hero-poster.jpg" as="image" fetchpriority="high" />
   <link rel="preload" href="../src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" media="(max-width: 680px)" />
-  <link rel="stylesheet" href="../styles-v2.css?v=a4431b07fc04" />
+  <link rel="stylesheet" href="../styles-v2.css?v=f003bf1a9feb" />
   <link rel="stylesheet" href="../mobile.css?v=polish-20260621-11" />
   <link rel="stylesheet" href="../brand-photo-logo.css?v=20260917-approved-v4-restore" />
 
@@ -105,6 +106,9 @@
     ]
   }
   </script>
+  <link rel="stylesheet" href="../choice-help.css?v=36b90bedc790" />
+  <script src="../seasonal-theme.js?v=7e07ce1187f0"></script>
+  <link rel="stylesheet" href="../seasonal.css?v=f2437d09532e" />
 </head>
 <body class="location-page">
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -133,6 +137,7 @@
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="container hero-content">
+      <p class="robys-seasonal-mark"><span class="robys-seasonal-icon" aria-hidden="true"></span><span lang="tr">Cadılar Bayramı havası</span><span lang="en">A little Halloween magic</span><span lang="ru">Немного магии Хэллоуина</span></p>
         <p class="eyebrow">GAZİPAŞA · ANTALYA</p>
         <h1 id="page-title">Кофейня в Газипаше.<br /><em>Roby's Coffee House.</em></h1>
         <p class="hero-text">Кофе, холодные напитки и десерты в спокойной атмосфере Roby's. Посмотрите меню и сразу постройте маршрут до кофейни.</p>
@@ -148,6 +153,19 @@
         </div>
       </div>
     </section>
+
+    <div class="container">
+      <section class="combo-entry" aria-labelledby="combo-entry-title">
+        <h2 id="combo-entry-title">Твой момент — твой набор Roby’s</h2>
+        <p class="combo-entry-lead">Начни с идеи. Состав и количество можно изменить в меню.</p>
+        <div class="combo-entry-links">
+          <a class="combo-entry-link" href="../menu.html#menu-combos"><span class="combo-entry-icon" aria-hidden="true">❤</span><span><strong>Вместе вкуснее</strong><span class="combo-entry-detail">Комбо для паузы, друзей и семьи</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="../menu.html#menu-combos-takeaway"><span class="combo-entry-icon" aria-hidden="true">↗</span><span><strong>Взял и побежал</strong><span class="combo-entry-detail">Кофе и что-нибудь перекусить</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+          <a class="combo-entry-link" href="../menu.html#menu-family"><span class="combo-entry-icon" aria-hidden="true">☺</span><span><strong>С ребёнком</strong><span class="combo-entry-detail">3 идеи маленькой паузы из меню</span></span><span class="combo-entry-arrow" aria-hidden="true">→</span></a>
+        </div>
+        <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
+      </section>
+    </div>
 
     <section class="section about" id="location" aria-labelledby="location-title">
       <div class="container">
@@ -254,5 +272,6 @@
       });
     })();
   </script>
+  <script type="module" src="../choice-help-entry.js?v=7fd832353634"></script>
 </body>
 </html>

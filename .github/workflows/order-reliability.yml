@@ -1,0 +1,78 @@
+name: Order reliability
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  order-reliability:
+    name: Order integrity (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      ROBYS_FAMILY_BROWSER: ${{ matrix.browser }}
+      ROBYS_FAMILY_QA_DIR: .artifacts/order-reliability/family
+      ROBYS_PROMO_BROWSER: ${{ matrix.browser }}
+      ROBYS_PROMO_QA_DIR: .artifacts/order-reliability/promo
+      ROBYS_TRANSACTION_BROWSER: ${{ matrix.browser }}
+      ROBYS_TRANSACTION_QA_DIR: .artifacts/order-reliability/transactions
+      CHECKOUT_BROWSERS: ${{ matrix.browser }}
+      ROBYS_RELEASE_BUILT_BROWSERS: ${{ matrix.browser }}
+      ROBYS_STORAGE_BROWSER: ${{ matrix.browser }}
+      ROBYS_LAZY_BROWSER: ${{ matrix.browser }}
+      ROBYS_LAZY_QA_DIR: .artifacts/order-reliability/lazy-images
+      ROBYS_PAIRING_BROWSER: ${{ matrix.browser }}
+      ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
+      ROBYS_COMBO_BROWSERS: ${{ matrix.browser }}
+      ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - name: Built menu photo visibility and recovery
+        run: node scripts/test-menu-lazy-images-browser.mjs
+      - name: Pairing prices at increased text size
+        run: node scripts/test-pairing-price-browser.mjs
+      - name: Family loading, contents and photographs
+        run: node scripts/test-menu-family-browser.mjs
+      - name: Editable combos, all views and gentle choice help
+        run: node scripts/test-menu-combos-browser.mjs
+      - name: First offline combo reveal and missing-photo negative control
+        if: matrix.browser == 'chromium'
+        run: node scripts/test-combo-offline.mjs
+      - name: Editable promotional pairs
+        run: node scripts/test-promo-components-browser.mjs
+      - name: Concurrent cart mutations and storage recovery
+        run: node scripts/test-order-transactions-stress-browser.mjs
+      - name: Immutable QR and explicit refresh
+        run: node scripts/test-order-checkout-staleness-browser.mjs
+      - name: Unavailable storage and legacy tab recovery
+        run: node scripts/test-order-storage-compat-browser.mjs
+      - name: Built release QR, cashier and concurrent native Add
+        run: node scripts/test-order-release-built-browser.mjs
+      - name: Mobile order navigation
+        if: matrix.browser == 'chromium'
+        run: node scripts/test-mobile-navigation-browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: order-reliability-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          retention-days: 14

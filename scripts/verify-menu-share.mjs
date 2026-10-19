@@ -1,3 +1,4 @@
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { readMenuCatalogRevisionInputs, verifyMenuCatalogRevision } from "./menu-catalog-revision.mjs";
 import { createHash } from "node:crypto";
@@ -45,7 +46,7 @@ assert(!html.includes('src="menu-interactions.js'), "Menu interactions must stay
 const menuRuntimeRevision = createHash("sha256").update(readFileSync("menu-app.js")).digest("hex").slice(0, 12);
 assert(html.includes(`src="menu-app.js?v=${menuRuntimeRevision}"`), "Menu must load the exact runtime content revision");
 assert(serviceWorker.includes(`"./menu-app.js?v=${menuRuntimeRevision}"`), "Menu runtime must be precached at the exact HTML revision");
-assert(html.includes(`href="menu-premium.css?v=${premiumRevision}"`), "Menu must load the cache-new premium stylesheet path");
+verifyMenuStylesBundle(readMenuStylesBundleInputs());
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-app.js")'), "Menu runtime is not exact-revision cached");
 verifyMenuCatalogRevision(readMenuCatalogRevisionInputs());
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-catalog.js")'), "Menu catalog is not exact-revision cached");

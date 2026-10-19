@@ -8,7 +8,7 @@ mkdirSync(out,{recursive:true});
 const base='http://127.0.0.1:4196/';
 const server=spawn('python3',['-m','http.server','4196','--bind','127.0.0.1'],{stdio:'ignore'});
 const report={source:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),
-  boundary:'Actual Chromium navigation and original CSP; desktop/mobile input emulation, not a physical-device FPS claim',cases:[],negativeControl:null};
+  boundary:'Actual Chromium navigation and original CSP; desktop/mobile input emulation, not a physical-device FPS claim',cases:[],negativeControl:null,headerNegativeControl:null};
 let browser;
 const settle=page=>page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
 async function clearance(page,selector){
@@ -26,6 +26,33 @@ async function clearance(page,selector){
       hit:hit?.className??null,scrollY,padding:getComputedStyle(document.documentElement).scrollPaddingTop};
   });
 }
+async function headerHitRegions(page){
+  return page.evaluate(()=>{
+    const back=document.querySelector('.menu-page-back');
+    const label=back.querySelector('[data-menu-copy="back"]');
+    const languages=document.querySelector('.language-switcher');
+    const box=element=>element.getBoundingClientRect().toJSON();
+    const hit=element=>{
+      const rect=element.getBoundingClientRect();
+      const target=document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2);
+      return !!target&&(target===element||element.contains(target));
+    };
+    return{back:box(back),label:box(label),languages:box(languages),
+      backHit:hit(back),languageHits:[...languages.querySelectorAll('button')].map(hit),
+      viewportWidth:innerWidth};
+  });
+}
+function assertHeaderHitRegions(regions,id){
+  const {back,label,languages}=regions;
+  const overlap=back.left<languages.right-1&&back.right>languages.left+1
+    &&back.top<languages.bottom-1&&back.bottom>languages.top+1;
+  assert.ok(!overlap,`${id}: home link overlaps language controls ${JSON.stringify(regions)}`);
+  assert.ok(label.left>=back.left-1&&label.right<=back.right+1
+    &&label.top>=back.top-1&&label.bottom<=back.bottom+1,`${id}: home link text is clipped or escapes its target`);
+  assert.ok(back.left>=-1&&back.right<=regions.viewportWidth+1
+    &&languages.left>=-1&&languages.right<=regions.viewportWidth+1,`${id}: header controls escape the viewport`);
+  assert.ok(regions.backHit&&regions.languageHits.every(Boolean),`${id}: header hit regions are covered`);
+}
 try{
   for(let i=0;i<60;i++){try{if((await fetch(base)).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
   browser=await chromium.launch({headless:true});
@@ -39,6 +66,19 @@ try{
       await page.locator(`[data-lang="${language}"]`).click();
       await page.evaluate(size=>document.documentElement.style.fontSize=size+'px',fontSize);
       await page.evaluate(()=>document.fonts.ready);await settle(page);
+      result.header=await headerHitRegions(page);
+      assertHeaderHitRegions(result.header,id);
+      if(width===320&&!touch&&fontSize===32&&language==='tr'){
+        await page.locator('.header-inner').evaluate(element=>element.style.display='grid');
+        await settle(page);
+        const broken=await headerHitRegions(page);
+        assert.throws(()=>assertHeaderHitRegions(broken,id),/home link overlaps language controls/,
+          'Negative control must detect the former nonwrapping header');
+        report.headerNegativeControl={id:'missing-responsive-header-wrap',caught:true,evidence:broken};
+        await page.locator('.header-inner').evaluate(element=>element.style.removeProperty('display'));
+        await settle(page);
+        assertHeaderHitRegions(await headerHitRegions(page),id);
+      }
       result.categoryRail=await page.evaluate(()=>{
         const layout=document.querySelector('.menu-kiosk-layout');
         const sidebar=document.querySelector('.menu-kiosk-sidebar');
@@ -104,8 +144,9 @@ try{
   }
 }finally{
   if(browser)await browser.close();server.kill();
-  report.passed=report.cases.length===48&&report.cases.every(row=>row.passed)&&report.negativeControl?.caught===true;
+  report.passed=report.cases.length===48&&report.cases.every(row=>row.passed)
+    &&report.negativeControl?.caught===true&&report.headerNegativeControl?.caught===true;
   writeFileSync(out+'/summary.json',JSON.stringify(report,null,2)+'\n');
 }
 assert.ok(report.passed,`Scroll clearance failed: ${report.cases.filter(row=>!row.passed).map(row=>row.id).join(', ')}`);
-console.log('SCROLL-CLEARANCE: 48 input/viewport/language/text-size cases, desktop kiosk rail/compact horizontal rail, and one detected negative control PASS');
+console.log('SCROLL-CLEARANCE: 48 input/viewport/language/text-size cases, header hit regions, desktop kiosk rail/compact horizontal rail, and two detected negative controls PASS');

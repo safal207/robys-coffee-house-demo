@@ -62,6 +62,14 @@ const localeTag: Record<SmartChoiceLanguage, string> = {
 
 const copy = {
   tr: {
+    comboEntryTitle: "Her ana bir Roby’s seçimi",
+    comboEntryLead: "Bir fikirle başla. İçeriği ve adetleri menüde kendine göre düzenle.",
+    comboEntryAllTitle: "Birlikte güzel",
+    comboEntryAllBody: "Mola, arkadaşlar veya aile için kombinler",
+    comboEntryGoTitle: "Al ve devam et",
+    comboEntryGoBody: "Kahve ve yanına bir atıştırmalık",
+    comboEntryKidsTitle: "Çocuklarla",
+    comboEntryKidsBody: "Menüden 3 küçük mola fikri",
     skipContent: "İçeriğe geç", homeLabel: "Roby's Coffee House ana sayfası", controlsLabel: "Smart Choice kontrolleri", languageLabel: "Dil seçimi",
     quickOrder: "Siparişini kendin oluştur",
     fullMenu: "Tam Menü",
@@ -100,6 +108,14 @@ const copy = {
     price: "Seçim fiyatı"
   },
   en: {
+    comboEntryTitle: "A Roby’s choice for your moment",
+    comboEntryLead: "Start with an idea. Edit the items and quantities in the menu.",
+    comboEntryAllTitle: "Better together",
+    comboEntryAllBody: "Combos for a break, friends or family",
+    comboEntryGoTitle: "Grab and go",
+    comboEntryGoBody: "Coffee with something to eat",
+    comboEntryKidsTitle: "With kids",
+    comboEntryKidsBody: "3 little-break ideas from the menu",
     skipContent: "Skip to content", homeLabel: "Roby's Coffee House home", controlsLabel: "Smart Choice controls", languageLabel: "Language selector",
     quickOrder: "Build your order",
     fullMenu: "Full menu",
@@ -138,6 +154,14 @@ const copy = {
     price: "Choice price"
   },
   ru: {
+    comboEntryTitle: "Твой момент — твой набор Roby’s",
+    comboEntryLead: "Начни с идеи. Состав и количество можно изменить в меню.",
+    comboEntryAllTitle: "Вместе вкуснее",
+    comboEntryAllBody: "Комбо для паузы, друзей и семьи",
+    comboEntryGoTitle: "Взял и побежал",
+    comboEntryGoBody: "Кофе и что-нибудь перекусить",
+    comboEntryKidsTitle: "С ребёнком",
+    comboEntryKidsBody: "3 идеи маленькой паузы из меню",
     skipContent: "Перейти к содержимому", homeLabel: "На главную Roby's Coffee House", controlsLabel: "Управление Smart Choice", languageLabel: "Выбор языка",
     quickOrder: "Собрать заказ самому",
     fullMenu: "Полное меню",

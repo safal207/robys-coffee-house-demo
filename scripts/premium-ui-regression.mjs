@@ -40,6 +40,7 @@ export async function verifyOrder(page, label) {
   await page.locator('#menu-quantity-increase').click();
   assert.equal((await page.locator('#menu-product-quantity').innerText()).trim(), '2');
   await page.locator('#menu-add-to-cart').click();
+  await dialog.waitFor({state:'hidden'});
   assert.equal(await dialog.isVisible(), false);
   const cart = page.locator('#menu-cart-dialog');
   await cart.waitFor({state:'visible'});
@@ -47,17 +48,22 @@ export async function verifyOrder(page, label) {
   assert.equal(await cart.locator('#menu-cart-added-summary').isVisible(), true, `${label}: persistent added confirmation`);
   assert.equal(await cart.locator('#menu-checkout-trigger').isEnabled(), true, `${label}: checkout is immediately available`);
   assert.equal(await page.locator('.order-checkout-dialog[open]').count(), 0, `${label}: adding must not generate a QR`);
-  assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2);
+  // The background cart trigger is intentionally hidden while a dialog is
+  // open. Verify its state with textContent and the visible line separately.
+  assert.equal(Number(await page.locator('#menu-cart-count').textContent()), 2);
+  assert.equal(Number(await cart.locator('.menu-cart-line-controls span').textContent()), 2);
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
   await cart.locator('.menu-cart-continue').click();
   assert.equal(await cart.isVisible(), false);
   assert.equal(await photo.evaluate(node => document.activeElement === node), true, `${label}: choosing more restores product focus`);
-  assert.equal(Number(await page.locator('#menu-cart-count').innerText()), 2, `${label}: choosing more preserves the order`);
+  assert.equal(Number(await page.locator('#menu-cart-count').textContent()), 2, `${label}: choosing more preserves the order`);
   await page.locator('#menu-cart-trigger').click();
   await cart.waitFor({state:'visible'});
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 2);
   const increase = cart.locator('.menu-cart-step').last();
   await increase.click();
+  await page.waitForFunction(() => document.querySelector('#menu-cart-count')?.textContent === '3');
+  assert.equal(Number(await cart.locator('.menu-cart-line-controls span').textContent()), 3);
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), unitPrice * 3);
   assert.equal(await cart.locator('.menu-cart-step').last().evaluate(node => document.activeElement === node), true);
   // announceCart deliberately writes on the next animation frame so repeated
@@ -70,6 +76,7 @@ export async function verifyOrder(page, label) {
   const target = await cart.locator('.menu-cart-step').first().boundingBox();
   assert.ok(target.width >= 44 && target.height >= 44, `${label}: quantity target >=44px ${JSON.stringify(target)}`);
   await cart.locator('.menu-cart-remove').click();
+  await page.waitForFunction(() => document.querySelector('#menu-cart-count')?.textContent === '0');
   assert.equal(Number((await page.locator('#menu-cart-dialog-total').innerText()).replace(/\D/g, '')), 0);
   await page.keyboard.press('Escape');
   await page.waitForFunction(() => !document.querySelector('#menu-cart-dialog').open &&

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-d1e9096d1ee4-quick-order-42e4489ca0ce-custom-pair-7d6fdfc375f8-shared-order-social-offer-77cf212ed128-20260922-web-only-20260923-share-v4-48db52a5d59f-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-0fb4903b1cf7-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-family-menu-6295cf334f91-occasion-combos-43fd06722f6d-custom-pair-87e2085358bf-menu-css-110388cf57ce-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -67,35 +67,64 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./cashier.html",
-  "./cashier.js?v=5560e3078642",
-  "./order-checkout.js?v=9c561c168e25",
-  "./order-checkout.css?v=52d404809a87",
+  "./cashier.js?v=f4fcdfa73b78",
+  "./order-checkout.js?v=ede76ee31ffa",
+  "./order-checkout.css?v=9ead86a924fa",
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=45c60435d829",
+  "./menu-order-ui.js?v=206dca9f16f0",
+  "./menu-family-ui.js?v=c6e39d14b3d5",
+  "./menu-family.css?v=e7dc86c94a4b",
+  "./order-storage.js?v=6908555cd79b",
+  "./src/products/family-sets-v1/milk-cookie.webp",
+  "./src/products/family-sets-v1/simit-break.webp",
+  "./src/products/family-sets-v1/milk-roll.webp",
+  "./src/products/family-sets-v1/kids-box.webp",
+  "./menu-runtime.css?v=110388cf57ce",
+  "./menu-combos-ui.js?v=68984827367e",
+  "./menu-combos.css?v=84f6a6f33e59",
+  "./combo-entry.css?v=da624d45b4d6",
+  "./choice-help.js?v=39b405586c5c",
+  "./choice-help.css?v=36b90bedc790",
+  "./src/products/occasion-sets-v1/student.webp",
+  "./src/products/occasion-sets-v1/cycle.webp",
+  "./src/products/occasion-sets-v1/rain.webp",
+  "./src/products/occasion-sets-v1/tea.webp",
+  "./src/products/occasion-sets-v1/refresh.webp",
+  "./src/products/occasion-sets-v1/together.webp",
+  "./src/products/occasion-sets-v1/family.webp",
+  "./src/products/occasion-sets-v1/local.webp",
+  "./src/products/occasion-sets-v1/go.webp",
+  "./src/products/occasion-sets-v1/morning.webp",
+  "./src/products/occasion-sets-v1/sweet.webp",
+  "./src/products/occasion-sets-v1/hearty.webp",
+  "./choice-help-entry.js?v=7fd832353634",
+  "./seasonal-theme.js?v=7e07ce1187f0",
+  "./seasonal.css?v=f2437d09532e",
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
-  "./smart-choice/catalog.js?v=ad31ffd8e249",
+  "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu.html",
   "./discover.html",
   "./404.html",
   "./offline.css",
   "./pwa-pairing-fix.js?v=web-only-20260923-1",
   "./pwa.js?v=web-only-20260923-1",
-  "./styles-v2.css?v=a4431b07fc04",
+  "./styles-v2.css?v=f003bf1a9feb",
   "./mobile.css",
   "./conversion.css",
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./social-offer.js?v=77cf212ed128",
-  "./menu-premium.css?v=35ec46062690",
-  "./pairing-posters.css?v=d1e9096d1ee4",
+  "./coffee-paths.css?v=e5dc41400cfe",
+  "./social-offer.js?v=cf339e8c8777",
+  "./menu-premium.css?v=86adefeda34f",
+  "./pairing-posters.css?v=882faab929d1",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
   "./menu-security-v2.css?v=c9ec36b38ff3",
   "./discover.css",
-  "./discover-deck.css?v=45ca8486a146",
+  "./discover-deck.css?v=14bb488e526a",
   "./discover-rotation.css?v=96b566c9731e",
   "./wordmark-responsive.css?v=20260704-1",
   "./brand-photo-logo.css?v=20260917-approved-v4-restore",
@@ -103,7 +132,7 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore",
-  "./bootstrap-v2.js?v=845efb76f384",
+  "./bootstrap-v2.js?v=d49f5541ba9c",
   "./morning-entry-v2.js?v=8a158515f4de",
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
@@ -111,13 +140,13 @@ const CORE_ASSETS = [
   "./app.js",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=799f0e9fcaa9",
-  "./menu-pairing.js?v=c0e800261c91",
-  "./menu-product-reveal.js?v=497fa714ac94",
-  "./menu-product-reveal-runtime.js?v=496a14490e84",
+  "./menu-app.js?v=74941e12c4d8",
+  "./menu-pairing.js?v=bd8dad93ebae",
+  "./menu-product-reveal.js?v=6ae2dd3ba2e7",
+  "./menu-product-reveal-runtime.js?v=fd2730c787d9",
   "./pairing-posters.js?v=024743e64919",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
-  "./menu-catalog.js?v=bc69a9e52fa4",
+  "./menu-catalog.js?v=05e7dac3c17b",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260923-web-only-v4",
   "./smart-choice/index.html",
@@ -138,21 +167,21 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=70ca8d782644",
+  "./smart-choice/style.css?v=c3664b917232",
   "./smart-choice/cart.css?v=42034af591c0",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=dde77da16738",
-  "./smart-choice/cart-v2.js?v=4e494bc9b17a",
-  "./smart-choice/experiments-v2.js?v=b490556c5d92",
-  "./smart-choice/analytics-v2.js?v=30d0c744a255",
-  "./smart-choice/decision-trace-v2.js?v=832120e21e45",
+  "./smart-choice/app-v2.js?v=adcdda14a5f7",
+  "./smart-choice/cart-v2.js?v=4c3a31839430",
+  "./smart-choice/experiments-v2.js?v=1ca034352c70",
+  "./smart-choice/analytics-v2.js?v=2d2d2ccd5fba",
+  "./smart-choice/decision-trace-v2.js?v=d8fe9d1ef4e8",
   "./discover.js",
-  "./discover-v2.js?v=48db52a5d59f",
-  "./discover-deck.js?v=7228be958854",
-  "./discover-copy.js",
+  "./discover-v2.js?v=7d1b6bc8f058",
+  "./discover-deck.js?v=16c7c7dc8590",
+  "./discover-copy.js?v=748cea1d06ec",
   "./discover-journeys.js",
   "./discover-journeys-v2.js",
   "./discover-rotation.js",
@@ -195,6 +224,19 @@ async function cachedResponse(request) {
     (url.pathname.endsWith(".js") || url.pathname.endsWith(".css"));
   const requiresExactRevision =
     isVersionedSmartChoiceAsset ||
+    url.pathname.endsWith("/seasonal-theme.js") ||
+    url.pathname.endsWith("/seasonal.css") ||
+    url.pathname.endsWith("/menu-runtime.css") ||
+    url.pathname.endsWith("/menu-family-ui.js") ||
+    url.pathname.endsWith("/menu-family.css") ||
+    url.pathname.endsWith("/kids-menu.css") ||
+    url.pathname.endsWith("/menu-combos-ui.js") ||
+    url.pathname.endsWith("/menu-combos.css") ||
+    url.pathname.endsWith("/combo-entry.css") ||
+    url.pathname.endsWith("/choice-help.js") ||
+    url.pathname.endsWith("/choice-help-entry.js") ||
+    url.pathname.endsWith("/choice-help.css") ||
+    url.pathname.endsWith("/discover-copy.js") ||
     url.pathname.endsWith("/pwa-pairing-fix.js") ||
     url.pathname.endsWith("/conversion.js") ||
     url.pathname.endsWith("/social-offer.js") ||
@@ -211,6 +253,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
+    url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
     url.pathname.endsWith("/order-checkout.css") ||
     url.pathname.endsWith("/cashier.js") ||
@@ -222,7 +265,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/pairing-posters.css") ||
     url.pathname.endsWith("/menu-catalog.js") ||
     url.pathname.endsWith("/menu-premium.css") ||
-    url.pathname.endsWith("/kids-menu.css") ||
+    url.pathname.endsWith("/coffee-paths.css") ||
     url.pathname.endsWith("/menu-interactions.js") ||
     url.pathname.endsWith("/discover-v2.js") ||
     url.pathname.endsWith("/discover-deck.css") ||

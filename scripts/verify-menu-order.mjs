@@ -1,3 +1,4 @@
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import { readVerifiedMenuSource, readVerifiedMenuOrderSource } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -12,7 +13,7 @@ const menuSource = readFileSync("menu-catalog.js", "utf8");
 const stabilitySource = readFileSync("menu-stability.css");
 assert.deepEqual(readFileSync("menu-stability-v2.css"), stabilitySource, "Delivered menu stability CSS must preserve the approved source bytes");
 const stabilityRevision = createHash("sha256").update(stabilitySource).digest("hex").slice(0, 12);
-assert(html.includes(`href="menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must bypass legacy pathname caches at its current revision");
+verifyMenuStylesBundle(readMenuStylesBundleInputs());
 assert(serviceWorker.includes(`"./menu-stability-v2.css?v=${stabilityRevision}"`), "Menu stability CSS must be precached at the delivered revision");
 assert(serviceWorker.includes('url.pathname.endsWith("/menu-stability-v2.css")'), "Current workers must match menu stability CSS at its exact revision");
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(menuSource).toString("base64")}`;
@@ -79,6 +80,7 @@ for (const [language, quantity, expected] of pluralCases) {
   const category = new Intl.PluralRules({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language]).select(quantity);
   assert((forms?.[category] ?? forms?.other) === expected, `Wrong ${language} cart noun for ${quantity}`);
 }
+await import("./test-menu-formatters.mjs");
 
 const visualItemCount = menuCategories.reduce((total, category) => {
   const items = category.items ?? category.groups.flatMap((group) => group.items);
@@ -89,20 +91,21 @@ assert.equal(visualItemCount, 63, "Every current menu item and pairing must rema
 for (const contract of [
   'const CART_STORAGE_KEY = "robys-menu-order.v1"',
   "readStoredOrderDraft(orderProductIds)",
-  "writeStoredOrderDraft(draft, orderProductIds)",
+  "transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN })",
   "media.addEventListener(\"click\", event => openProduct(id, event.currentTarget))",
   "total += product.item.price * lineQuantity",
-  "quoteMenuSelection(cart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
+  "quoteMenuSelection(quoteCart, products, selectedProductQuantity, MAX_ITEM_QUANTITY)",
   "formatPrice(total)",
   'const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }',
   "new Intl.NumberFormat(localeTag[language]",
-  "new Intl.PluralRules(localeTag[language]).select(count)",
+  "new Intl.PluralRules(localeTag[language])",
   "formatItemCount(summary.quantity)",
-  "addOrderGroup(orderDraft, products.map",
+  "addOrderGroup(current, items, quantity, orderProductIds)",
+  "replaceOrderGroup(current, original, items, quantity, orderProductIds)",
   "if (!selection.applied)",
   "orderDraft = selection.draft",
   "orderDraft.groups.forEach",
-  "updateOrderGroupQuantity(orderDraft, id, quantity, orderProductIds)",
+  "updateOrderGroupQuantity(current, id, quantity, orderProductIds)",
   'groupName(lastAddedSelection)',
   'openDialog(cartDialog, cartTitle, returnFocus)',
   'returnFocus: checkoutButton',
@@ -130,41 +133,108 @@ assert(!runtime.includes('new Intl.NumberFormat("tr-TR"'), "Menu totals must fol
 assert(!runtime.includes("innerHTML"), "Menu order runtime must use safe DOM construction");
 assert(!html.includes('src="menu-ready.js'), "Menu readiness must not require an extra render-blocking request");
 
+// An edit reuses the capacity occupied by its original selection; an ordinary
+// Add still quotes the entire latest basket. Execute the real allowance path.
+const quantityHandler = runtime.match(/function updateProductQuantity\(\) \{[\s\S]*?\n\}/)?.[0];
+const buttonLabelHandler = runtime.match(/function setAddButtonLabel\(label\) \{[\s\S]*?\n\}/)?.[0];
+assert(quantityHandler);
+assert(buttonLabelHandler, "The shipped Add label must preserve its text node during an active press");
+for (const editing of [false, true]) {
+  const fullCart = new Map([["drink", 99], ["sweet", 99], ["other", 7]]);
+  let quoted;
+  const boundary = new Error("quote captured");
+  const context = {
+    selectedProducts: () => [{ id: "drink" }, { id: "sweet" }],
+    cart: fullCart, selectedProductQuantity: 2, MAX_ITEM_QUANTITY: 99,
+    menuCopy: { en: {} }, language: "en",
+    editingGroup: editing ? { quantity: 2, items: [{ id: "drink", quantity: 1 }, { id: "sweet", quantity: 1 }] } : null,
+    quoteMenuSelection: cart => { quoted = JSON.parse(JSON.stringify(Array.from(cart))); throw boundary; }
+  };
+  assert.throws(() => runInNewContext(`${buttonLabelHandler}\n${quantityHandler}\nupdateProductQuantity();`, context), error => error === boundary);
+  assert.deepEqual(quoted, [["drink", editing ? 97 : 99], ["sweet", editing ? 97 : 99], ["other", 7]],
+    "Only an editor's original components release capacity in its quote");
+  assert.deepEqual(Array.from(fullCart), [["drink", 99], ["sweet", 99], ["other", 7]], "Quoting never mutates the real basket");
+}
+{
+  const text = { nodeType: 3, nodeValue: "Add" };
+  let replacements = 0;
+  const button = { firstChild: text, childNodes: [text],
+    get textContent() { return this.firstChild.nodeValue; },
+    set textContent(value) { replacements += 1; this.firstChild = { nodeType: 3, nodeValue: value }; this.childNodes = [this.firstChild]; }
+  };
+  const context = { addToCartButton: button };
+  runInNewContext(`${buttonLabelHandler}\nsetAddButtonLabel("Add"); setAddButtonLabel("Add more"); setAddButtonLabel("Add more");`, context);
+  assert.equal(button.firstChild, text, "Both unchanged and changed labels keep the active pointer target's text node");
+  assert.equal(button.textContent, "Add more");
+  assert.equal(replacements, 0, "Label refresh cannot replace the button subtree during a press");
+}
+
 // Exercise the real Add handler: a successful mutation confirms the selection,
 // while a rejected or disabled Add must never advance to cart or checkout.
-const addHandler = runtime.match(/function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
+const addHandler = runtime.match(/async function addSelectedProduct\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(addHandler, "The menu Add handler must be available for behavior verification");
-for (const mode of ["success", "rejected", "disabled"]) {
+for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-stale", "edit-cap"]) {
+  const editing = mode.startsWith("edit-");
+  const success = mode === "success" || mode === "edit-success";
   const events = [];
   const drink = { id: "test-drink", item: { name: { en: "Test drink" } } };
   const dessert = { id: "test-dessert", item: { name: { en: "Test dessert" } } };
-  const productDialog = {};
+  const productDialog = { hasAttribute: () => true };
   const cartDialog = {};
   const cartTitle = {};
   const origin = { name: "product photo" };
+  const cartOrigin = { name: "cart trigger" };
+  const originalGroup = { id: "original-pair", quantity: 2, items: [{ id: drink.id, quantity: 1 }, { id: dessert.id, quantity: 1 }] };
+  const latestDraft = { groups: [originalGroup, { id: "unrelated" }] };
   const context = {
     productIndex: new Map([[drink.id, drink]]), selectedProductId: drink.id,
     selectedProductQuantity: 2, selectedProductVariant: "vanilla", language: "en",
     menuCopy: { en: { maxQuantity: "Maximum" } }, addToCartButton: { disabled: mode === "disabled" },
-    cart: new Map(), readCart: () => new Map(), orderDraft: { groups: [] }, orderProductIds: new Set(),
-    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: mode === "success", draft: { groups: [] } }),
+    cart: new Map(), readCart: () => { context.orderDraft = latestDraft; return new Map(); }, orderDraft: { groups: [] }, orderProductIds: new Set(),
+    selectedProducts: () => [drink, dessert], addOrderGroup: () => ({ applied: success, draft: success ? { groups: [] } : latestDraft }),
+    replaceOrderGroup: (draft, original, items, quantity) => {
+      assert.equal(draft, latestDraft, "Save must replace against freshly read storage");
+      assert.equal(original, originalGroup, "Save keeps the original snapshot for the stale guard");
+      assert.equal(quantity, 2);
+      assert.deepEqual(JSON.parse(JSON.stringify(items)), [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }]);
+      return { applied: success, stale: mode === "edit-stale", draft: success ? { groups: [] } : latestDraft };
+    },
     announceCart: () => events.push("rejected"), clearCartNotice: () => events.push("cleared old notice"), updateProductQuantity: () => {}, localized: value => value.en,
-    rememberSelection: () => {}, saveCart: () => events.push("saved"), renderCart: () => events.push("rendered"),
-    lastAddedSelection: null, cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
+    rememberSelection: () => {}, saveCart: async updater => {
+      const result = updater(latestDraft);
+      context.orderDraft = result.draft;
+      if (result.applied) events.push("saved");
+      return result;
+    }, renderCart: () => events.push("rendered"), productSession: 1, productSaving: false,
+    lastAddedSelection: null, lastSelectionWasEdit: false, editingGroup: editing ? originalGroup : null,
+    editingCartReturnFocus: editing ? cartOrigin : null,
+    productEditError: { hidden: true, textContent: "", focus: () => events.push("edit error"),
+      scrollIntoView: options => {
+        assert.deepEqual(JSON.parse(JSON.stringify(options)), { block: "center", inline: "nearest" });
+        events.push("reveal edit error");
+      } },
+    editCopy: { en: { stale: "Changed elsewhere" } },
+    cartCheckoutError: { hidden: false }, cartLinesRoot: { scrollTop: 40 },
     productDialog, cartDialog, cartTitle, cartTrigger: {}, dialogReturnFocus: new Map([[productDialog, origin]]),
-    closeDialog: dialog => { assert.equal(dialog, productDialog); events.push("closed product"); },
+    closeDialog: dialog => { assert.equal(dialog, productDialog); assert.equal(context.editingGroup, null, "Committed edits must not run the Cancel path"); events.push("closed product"); },
     openDialog: (dialog, focus, returnFocus) => {
-      assert.equal(dialog, cartDialog); assert.equal(focus, cartTitle); assert.equal(returnFocus, origin);
+      assert.equal(dialog, cartDialog); assert.equal(focus, cartTitle); assert.equal(returnFocus, editing ? cartOrigin : origin);
       events.push("opened confirmation");
     }
   };
-  runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
-  assert.deepEqual(events, mode === "success" ? ["cleared old notice", "saved", "rendered", "closed product", "opened confirmation"] : mode === "rejected" ? ["rejected"] : []);
-  if (mode === "success") {
+  await runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
+  assert.deepEqual(events, success ? ["saved", "cleared old notice", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
+  if (editing && !success) {
+    assert.equal(context.productEditError.hidden, false);
+    assert.equal(context.productEditError.textContent, mode === "edit-stale" ? "Changed elsewhere" : "Maximum");
+    assert.equal(context.orderDraft, latestDraft, "A rejected Save leaves the latest basket untouched");
+  }
+  if (success) {
     assert.deepEqual(JSON.parse(JSON.stringify(context.lastAddedSelection)), {
       items: [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }], quantity: 2
     }, "Confirmation must preserve the actual variant, pair and quantity");
     assert.equal(context.cartLinesRoot.scrollTop, 0);
+    assert.equal(context.lastSelectionWasEdit, editing, "Confirmation distinguishes a replacement from an addition");
   }
 }
 
@@ -226,30 +296,44 @@ assert.equal(titleFocuses, 1, "The confirmation heading receives focus when it i
 
 const translateHandler = runtime.match(/function translateStaticPage\(\) \{[\s\S]*?\n\}/)?.[0];
 assert(translateHandler);
-const skipLinkMarkup = html.match(/<a\b(?=[^>]*class="skip-link")(?=[^>]*data-localized)[^>]*>([^<]*)<\/a>/);
-assert(skipLinkMarkup, "The menu skip link must expose its localized HTML data");
+const familyCopySource = runtime.match(/const familyCopy = \{[\s\S]*?\n\};/)?.[0];
+assert(familyCopySource, "The family route needs localized entry copy");
+const familyCopy = runInNewContext(`${familyCopySource}\nfamilyCopy`);
+const combosCopySource = runtime.match(/const combosCopy = \{[\s\S]*?\n\};/)?.[0];
+assert(combosCopySource, "The combo route needs localized entry copy");
+const combosCopy = runInNewContext(`${combosCopySource}\ncombosCopy`);
 for (const language of ["tr", "en", "ru"]) {
   const element = () => ({ attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } });
   const iconClose = element();
   const chooseMore = element();
-  const skipLink = { ...element(), textContent: skipLinkMarkup[1],
-    dataset: Object.fromEntries([...skipLinkMarkup[0].matchAll(/\bdata-(tr|en|ru)="([^"]*)"/g)].map(([, key, value]) => [key, value])) };
+  const familyTrigger = element();
+  const combosTrigger = element();
+  const takeawayTrigger = element();
+  let familyLanguage;
+  let combosLanguage;
   const document = {
     documentElement: {},
-    querySelector(selector) { return this.querySelectorAll(selector)[0] ?? null; },
+    querySelector: selector => selector === "#menu-combos-takeaway-trigger" ? takeawayTrigger : null,
     querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
       : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore]
       : selector === ".skip-link[data-localized]" ? [skipLink] : []
   };
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
+    storageNotice: undefined,
     menuCopy, language, document, searchInput: element(), categoryNav: element(),
     productDecrease: element(), productIncrease: element(), languageButtons: [],
-    orderUi: undefined, renderCart: () => {}
+    orderUi: undefined, renderCart: () => {}, familyTrigger, familyCopy,
+    familyUi: { refresh: nextLanguage => { familyLanguage = nextLanguage; } },
+    combosTrigger, combosCopy, combosUi: { refresh: nextLanguage => { combosLanguage = nextLanguage; } }
   });
   assert.equal(iconClose.attributes["aria-label"], menuCopy[language].close);
   assert.equal(chooseMore.attributes["aria-label"], undefined,
     "The Choose more text button must retain its visible action as its accessible name");
-  assert.equal(skipLink.textContent, skipLink.dataset[language], "The skip link's visible accessible name follows the selected page language");
+  assert.equal(familyTrigger.textContent, familyCopy[language].link, "Family entry follows the current language");
+  assert.equal(familyLanguage, language, "An already loaded family picker receives language changes");
+  assert.equal(combosTrigger.textContent, combosCopy[language].link);
+  assert.equal(takeawayTrigger.textContent, combosCopy[language].takeaway);
+  assert.equal(combosLanguage, language, "An already loaded combo picker receives language changes");
 }
 
 for (const contract of [
@@ -279,10 +363,6 @@ assert.match(productDialogMarkup, /<div class="menu-product-main">[\s\S]*<\/div>
   "The product action must stay outside the scrolling optional choices");
 assert.match(cartDialogMarkup, /id="menu-cart-title" tabindex="-1"/, "Add confirmation needs an accessible focus destination");
 assert.match(cartDialogMarkup, /id="menu-cart-added-summary"/, "Cart confirmation must expose the added composition, quantity and amount");
-assert(
-  /href="menu-security-v2\.css\?v=[a-f0-9]{12}"/.test(html),
-  "Menu must load the cache-new dialog fallback stylesheet at its content revision"
-);
 assert(
   serviceWorker.includes('"./menu-security-v2.css?v=') &&
     serviceWorker.includes('url.pathname.endsWith("/menu-security-v2.css")'),

@@ -136,7 +136,7 @@ test("unknown, duplicate and ineligible pairs are rejected before any cart chang
   const rejected = [[], [undefined], [index.get("unknown:product")], [drink, undefined], [drink, drink],
     [drink, { ...sweet, id: "unknown" }], [drink, { ...sweet, item: { price: NaN } }],
     [drink, index.get("desserts:savoury-cookie")], [drink, index.get("food:three-cheese-croissant")],
-    [other, sweet], [drink, index.get("brew-hot:black-tea")], [sweet, sweets[1]], [drink, sweet, sweets[1]]];
+    [index.get("refreshers:berry-hibiscus"), sweet], [drink, index.get("brew-hot:black-tea")], [sweet, sweets[1]], [drink, sweet, sweets[1]]];
   for (const products of rejected) {
     assert.deepEqual(quoteMenuSelection(cart, products, 1), zeroQuote);
     assertBlocked(cart, products, 1);

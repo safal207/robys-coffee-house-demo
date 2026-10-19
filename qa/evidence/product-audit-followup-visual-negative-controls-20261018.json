@@ -1,0 +1,221 @@
+{
+  "kind": "actual-shipped-verifier-isolated-fixtures",
+  "fixtureScope": "Positive uses the inspected actual CI summary and new record; negative cases are separately synthetic and never modify the repository.",
+  "observedRepositoryHead": "ba3fcea4da1dbbc975a7a27aa1e4ba56ab5cd7cf",
+  "capturedSourceHead": "ba3fcea4da1dbbc975a7a27aa1e4ba56ab5cd7cf",
+  "actualSummarySha256": "3aadbf9164f9b318716725d8128879b4b89bd0b82a6d120dea67bc0ed3928378",
+  "recordSha256": "4912d80533b52cf1465254be86eccf00b5c96daf119fd0a693ff5be968561e86",
+  "verifierSha256": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+  "passed": true,
+  "repositoryBoundBytesUnchanged": true,
+  "finishedAt": "2026-10-18T18:09:48.810Z",
+  "runner": "scripts/test-product-audit-followup-visual-controls.mjs",
+  "runnerSha256": "2c1c6a766ebfff9600d64a30ef37d228882479d1eb1a8079dc12abb1c1f01246",
+  "record": "qa/reviewed-visual-changes.d/product-audit-followup-20261018.json",
+  "command": "node scripts/test-product-audit-followup-visual-controls.mjs qa/reviewed-visual-changes.d/product-audit-followup-20261018.json .artifacts/pr438-head3-ci-visual/artifact/final/summary.json .artifacts/pr438-head3-ci-visual/negative-controls-script-path",
+  "cases": [
+    {
+      "id": "positive",
+      "kind": "actual-CI-summary-positive",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "a3f03fe1a4900f0cb2ef4cece813cc332b3ce2ff27ca55992554a6fab8b440c5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rejectionMatchedRequiredVerifierMessage": false
+    },
+    {
+      "id": "changed-bound-css",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "99b9ad226c4cee56713eb82c6c68547c7446e8cc7fd1a03afc20ef05eeeb7002",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-menu-bundle",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "90c7c6b6de0b9d44ce8e0e343c292025d7a9ee9f0de958c90e1d718ca07ba012",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-rendered-page",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "2dfec05eb82acf8a7a85465f881533756671d894be74d97c190f27b2581027ed",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-runtime",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "0a3fe6b8e905537734e816e4c2b1c09a08a0f4a800954fcdf3c09230ec7f3e01",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-public-manifest",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "75f509dd3ddfa949167699427b9266c56df6e1f26a1b642b089c9c4d6015c0ef",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "missing-expected-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "ededf3d19af4e6d32c1dd5a7014cd7ab6ee3aed6389531f2e117f4e11f6464ba",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "91e0a00dd511fc4c53b81075236ba9aa74364c84c94911b2b207d6c575cd2cd0",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "extra-actual-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "91d98f1ec0608cce122f1d20dd02bb50be3b22d66bb87e2d88b38260f135cd3b",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "8974cf28e46e036e844b43734be613760054109645ec5e3fa4edb4b2079b8382",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "duplicate-expected-entry",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "d4442da1d83350e1c79b12fe9034c4ed4bbdaba401cec19bb78a31e31cbf6325",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e1926c3dd31c22a40c5e0335f4de85f227b3bad18cb82111e9f6870ae32de823",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "duplicate-matching-record",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "fb674d7a5e6047cff48f9ec0ec42b678c2b61c8a114bd0e03db61471426837a8",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "d5a72acaf8f747ef07ca83c277cd97a42f8a36595d9c53cc76122ea31cbe2a95",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "empty-content-bindings",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "840651589db5eeb2a9f4f7d1648c86c9cc7433ad8d4046e7fa4fc6bc20c8c613",
+      "fixtureSummarySha256": "d53f6e7a14f1f7854f156394a26632bb179870610cebc2e34c5e5f716b54593d",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "d2ed12885430a0e696284a7ab6008af119dffec619a445497555a372a2d9d080",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-dimension-reason",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "578144c7292c38b9cb3ee7a6ee6758b3efe4e2c90b77af2f346d92d24009d72f",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "cdf17873bca982c96090c719584df5852ea88350ec3230ec080c3ffcf3402dd1",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "ratio-one-pixel-above-bound",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "df6f7081b56bba2f595a8a0afe56f5d22ec9e23ec6b5e1f1e253cec35cc3c4f8",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e434ffd9b5652bd10c15bd3b36d0ef4427c48ce3c4c97c8e87253931cee43aae",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-crop-pixel-total",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5d464eaa1c2ba5e8007bd0db6d421b0102650e0fcd5b38e0c959423cab3e58a4",
+      "fixtureSummarySha256": "cc986bc4abe0a7aed604d0758cee28f12aa13b4bbb84da7b2ef1fcd6767de1b6",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "b5d62555d21516519f1e79f757fff1d0c2a3ebea6215ae56dfa1061424f519e3",
+      "rejectionMatchedRequiredVerifierMessage": true
+    }
+  ],
+  "repositoryBoundFileCount": 342,
+  "repositorySourceIdentityBeforeSha256": "8eefc742a81a4abc6862c9b710b1bf988e78bd40d27fafc2cec41cdf5053fe43",
+  "repositorySourceIdentityAfterSha256": "8eefc742a81a4abc6862c9b710b1bf988e78bd40d27fafc2cec41cdf5053fe43",
+  "fullLocalReportSha256": "288b4d7db36ad427f0e2207a00b943d3312858951093db2c4dc6d7a6d0d8696d",
+  "actualAttemptSummaryPositives": {
+    "kind": "actual-shipped-verifier-current-local-bytes-positive-not-CI-job-status",
+    "checkedAt": "2026-10-18T18:10:05.821999+00:00",
+    "cases": [
+      {
+        "attempt": "screenshot-attempt-1",
+        "summarySha256": "3cd8cdde051d5b072bb71f19d1e4e30681e6299a4fa69e8f1dd942c9e6cb37a9",
+        "exitCode": 0,
+        "acceptedRecord": "product-audit-followup-20261018",
+        "logSha256": "a3f03fe1a4900f0cb2ef4cece813cc332b3ce2ff27ca55992554a6fab8b440c5"
+      },
+      {
+        "attempt": "screenshot-attempt-2",
+        "summarySha256": "3aadbf9164f9b318716725d8128879b4b89bd0b82a6d120dea67bc0ed3928378",
+        "exitCode": 0,
+        "acceptedRecord": "product-audit-followup-20261018",
+        "logSha256": "a3f03fe1a4900f0cb2ef4cece813cc332b3ce2ff27ca55992554a6fab8b440c5"
+      }
+    ]
+  },
+  "finalIdentity": {
+    "kind": "final-captured-head-and-bound-app-bytes-check-after-controls-runner-relocation-not-release",
+    "checkedAt": "2026-10-18T18:10:44.607303+00:00",
+    "head": "ba3fcea4da1dbbc975a7a27aa1e4ba56ab5cd7cf",
+    "tree": "d30f51986d5f188848ee32c623ec19e5674384f4",
+    "boundFiles": 332,
+    "allBoundFilesMatchCapturedHead": true,
+    "all329RawArchiveEntriesStillEqualZip": true,
+    "status": "A  qa/evidence/product-audit-followup-ci-visual-artifact-20261018.json\nA  qa/evidence/product-audit-followup-ci-visual-inspection-20261018.json\nAD qa/evidence/product-audit-followup-visual-controls-20261018.mjs\nA  qa/evidence/product-audit-followup-visual-negative-controls-20261018.json\nA  qa/reviewed-visual-changes.d/product-audit-followup-20261018.json\n?? scripts/test-product-audit-followup-visual-controls.mjs"
+  },
+  "scopeNote": "Positive actual-summary checks and synthetic rejection fixtures use the unchanged shipped verifier locally. They are not a successful CI-job status or human approval; metadata provenance is separately checked in the artifact evidence. The runner is a repository script, outside shipped runtime."
+}

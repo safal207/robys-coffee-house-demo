@@ -38,19 +38,18 @@
     }
   }
   </script>
-  <script src="bootstrap-v2.js?v=845efb76f384"></script>
+  <script src="bootstrap-v2.js?v=d49f5541ba9c"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" fetchpriority="high" />
-  <link rel="stylesheet" href="styles-v2.css?v=a4431b07fc04" />
-  <link rel="stylesheet" href="menu-premium.css?v=35ec46062690" />
-  <link rel="stylesheet" href="kids-menu.css?v=e2dec4adf195" />
-  <link rel="stylesheet" href="menu-product-reveal.css?v=80aa0282d851" />
-  <link rel="stylesheet" href="pairing-posters.css?v=d1e9096d1ee4" />
-  <link rel="stylesheet" href="menu-stability-v2.css?v=84e172cb281b" />
-  <link rel="stylesheet" href="menu-security-v2.css?v=c9ec36b38ff3" />
-  <link rel="stylesheet" href="brand-photo-logo.css?v=20260917-approved-v4-restore" />
+  <link rel="stylesheet" href="menu-runtime.css?v=110388cf57ce" />
+
+
+
+
+
+
+
   <script defer src="menu-pwa.js?v=pairing-video-fix-20260916-2"></script>
-<link rel="stylesheet" href="order-checkout.css?v=52d404809a87" />
 </head>
 <body class="menu-page">
   <a class="skip-link" href="#menu-root" data-localized data-tr="İçeriğe geç" data-en="Skip to content" data-ru="Перейти к содержанию">İçeriğe geç</a>
@@ -74,7 +73,7 @@
 <section class="menu-page-hero">
   <div class="container menu-page-hero-inner">
     <a class="brand menu-page-brand" href="./" aria-label="Roby's Coffee House">
-      
+
       <span class="brand-copy">
         <strong>ROBY'S</strong>
         <small>COFFEE HOUSE</small>
@@ -82,12 +81,35 @@
       </span>
     </a>
     <div class="menu-page-hero-copy">
+      <p class="robys-seasonal-mark"><span class="robys-seasonal-icon" aria-hidden="true"></span><span lang="tr">Cadılar Bayramı havası</span><span lang="en">A little Halloween magic</span><span lang="ru">Немного магии Хэллоуина</span></p>
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
+      <nav class="combo-entry-links" aria-label="Setler / Combos / Комбо">
+        <a class="menu-family-link" id="menu-combos-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
+        <a class="menu-family-link" id="menu-combos-takeaway-trigger" href="#menu-combos-fallback" aria-controls="menu-combos">Al götür · 4</a>
+        <a class="menu-family-link" id="menu-family-trigger" href="#menu-family-fallback" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
+      </nav>
+      <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
+      <noscript><p id="menu-combos-fallback">Set fikirleri / Combo ideas / Идеи комбо: Çay + simit / Tea + simit / Чай + симит · Kahve + cookie / Coffee + cookie / Кофе + печенье. İçerik ve fiyatları kasada sorun / Ask at the counter about contents and prices / Состав и цены уточните на кассе.</p></noscript>
+      <noscript><p class="menu-family-fallback" id="menu-family-fallback">Menüden ürün fotoğrafları:
+        <a href="src/products/menu-v1/brew-hot--milk.webp">Süt / Milk / Молоко</a> ·
+        <a href="src/products/menu-v1/desserts--cookie.webp">Cookie / Печенье</a> ·
+        <a href="src/products/menu-v1/food--sesame-simit.webp">Simit / Симит</a> ·
+        <a href="src/products/menu-v1/desserts--cake-roll.webp">Rulo pasta / Cake roll / Рулет</a>.
+        Fiyat ve içerikleri kasada sorun / Ask at the counter about prices and ingredients / Цены и состав уточните на кассе.</p></noscript>
     </div>
   </div>
 </section>
+
+    <section class="menu-combos-section" id="menu-combos" hidden>
+      <span id="menu-combos-takeaway" aria-hidden="true"></span>
+      <div class="container" id="menu-combos-content"></div>
+    </section>
+
+    <section class="menu-family-section" id="menu-family" hidden>
+      <div class="container" id="menu-family-content"></div>
+    </section>
 
     <section class="menu-controls" aria-label="Menu controls">
       <div class="container menu-controls-inner">
@@ -172,7 +194,7 @@
       <button class="menu-dialog-close" type="button" data-menu-dialog-close="product" aria-label="Kapat">×</button>
       <div class="menu-product-main">
       <div class="menu-product-visual">
-        <img id="menu-product-image" src="src/products/menu-v1/hot-coffee--espresso.webp" alt="" width="1024" height="1024" />
+        <img id="menu-product-image" src="src/products/menu-v1/hot-coffee--espresso.webp" alt="" width="1024" height="1024" loading="lazy" decoding="async" />
         <span class="menu-product-brand" aria-hidden="true">ROBY'S · COFFEE HOUSE</span>
       </div>
       <div class="menu-product-content">
@@ -224,8 +246,8 @@
     </div>
   </dialog>
 
-  <script type="module" src="menu-product-reveal.js?v=497fa714ac94"></script>
-  <script type="module" src="menu-app.js?v=799f0e9fcaa9"></script>
+  <script type="module" src="menu-product-reveal.js?v=6ae2dd3ba2e7"></script>
+  <script type="module" src="menu-app.js?v=74941e12c4d8"></script>
   <script type="module" src="pairing-posters.js?v=024743e64919"></script>
 </body>
 </html>

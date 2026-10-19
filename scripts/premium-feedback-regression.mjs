@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { chromium, devices } from "playwright";
 
 const output = ".artifacts/premium-feedback";
 mkdirSync(output, { recursive: true });
@@ -9,9 +9,9 @@ const base = "http://127.0.0.1:4192/";
 const server = spawn("python3", ["-m", "http.server", "4192", "--bind", "127.0.0.1"], { stdio: "ignore" });
 const report = { boundary: "Real Chromium navigation with original CSP, emulated viewport; no physical-device/FPS/payment claim", checks: [], failures: [] };
 const nextStepCopy = {
-  tr: { added: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
-  en: { added: "Added to your order", checkout: "All set · continue", more: "Choose something else", payment: "Payment is at the counter." },
-  ru: { added: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё", payment: "Оплата на кассе." }
+  tr: { added: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
+  en: { added: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else", payment: "Payment is at the counter." },
+  ru: { added: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё", payment: "Оплата на кассе." }
 };
 let browser;
 function check(id, passed, evidence = null) {
@@ -32,6 +32,40 @@ async function waitForFocus(locator) {
     await new Promise(resolve => setTimeout(resolve, 50));
   }
   return false;
+}
+async function warmCatalogImages(page) {
+  await page.locator('#menu-root[data-ready="true"]').waitFor();
+  await page.locator(".full-menu-item-media img").evaluateAll(async images => {
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const hasSource = image => image.currentSrc || image.getAttribute("src") || image.getAttribute("srcset")
+      || image.closest("picture")?.querySelector("source[srcset]");
+    const timeoutMs = 5000;
+    for (const image of images) {
+      const rendered = image.getClientRects().length > 0;
+      if (!hasSource(image) && !rendered) continue;
+      image.loading = "eager";
+      if (rendered) {
+        image.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+        await frame();
+        await frame();
+      }
+      const label = image.currentSrc || image.getAttribute("src") || image.dataset.menuLazySrc || image.alt || "unknown-image";
+      const deadline = performance.now() + timeoutMs;
+      while (!hasSource(image) && performance.now() < deadline) await frame();
+      if (!hasSource(image)) throw new Error(`Rendered catalog image has no source after viewport entry: ${label}`);
+      let timeout;
+      try {
+        await Promise.race([
+          image.decode(),
+          new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error(`Timed out decoding catalog image: ${label}`)), timeoutMs); })
+        ]);
+      } finally { clearTimeout(timeout); }
+      if (!image.complete || image.naturalWidth === 0) throw new Error(`Catalog image failed to load: ${label}`);
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await frame();
+    await frame();
+  });
 }
 try {
   await ready();
@@ -58,6 +92,7 @@ try {
     await page.locator("#menu-quantity-increase").click();
     check(`${lang}/quantity-preview`, (await page.locator("#menu-product-quantity").textContent()) === "2" && (await page.locator("#menu-add-to-cart").textContent()).includes(String(unit * 2)), { unit });
     await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
     check(`${lang}/cart-add-two`, (await page.locator("#menu-cart-count").textContent()) === "2", { id });
     check(`${lang}/selected-card`, await first.evaluate(row => row.classList.contains("is-in-cart")) && (await media.getAttribute("data-cart-quantity")) === "2", { id });
     await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
@@ -94,8 +129,10 @@ try {
     await page.waitForTimeout(400);
     if (lang === "ru") await page.screenshot({ path: `${output}/cart-390.png` });
     await page.locator(".menu-cart-step").nth(1).click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "3");
     check(`${lang}/increment`, (await page.locator("#menu-cart-count").textContent()) === "3" && (await media.getAttribute("data-cart-quantity")) === "3");
     await page.locator(".menu-cart-remove").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count")?.textContent === "0");
     check(`${lang}/remove-clears-state`, (await page.locator("#menu-cart-count").textContent()) === "0" && !(await first.evaluate(row => row.classList.contains("is-in-cart"))));
     await page.keyboard.press("Escape");
     const category = page.locator('[data-category="herbal-tea"]');
@@ -119,10 +156,50 @@ try {
     const animation = await page.locator(".menu-product-shell").evaluate(el => getComputedStyle(el).animationName);
     check(`${lang}/reduced-motion`, animation === "none", { animation });
     await page.keyboard.press("Escape");
-    await page.locator(".full-menu-item-media img").evaluateAll(images => Promise.all(images.map(async img => { img.loading = "eager"; await img.decode(); })));
+    await warmCatalogImages(page);
     if (lang === "ru") await page.screenshot({ path: `${output}/herbal-390.png`, fullPage: true });
     check(`${lang}/no-runtime-errors`, !errors.length, errors);
     await context.close();
+  }
+  // A mouse click cannot reproduce a touch target moving before compatibility
+  // mouse events. Exercise real trusted taps with mobile input and both motion
+  // preferences, then verify the search and its focus instead of CSS text.
+  for (const lang of ["tr", "en", "ru"]) for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ ...devices["Pixel 7"], serviceWorkers: "block", reducedMotion });
+    try {
+      const page = await context.newPage();
+      await page.goto(base + "menu.html?entry=off", { waitUntil: "domcontentloaded" });
+      await page.locator('#menu-root[data-ready="true"]').waitFor();
+      await page.locator(`.lang-button[data-lang="${lang}"]`).tap();
+      const search = page.locator("#menu-search");
+      const clear = page.locator(".menu-search-clear");
+      await search.fill("latte");
+      await clear.waitFor({ state: "visible" });
+      const filteredCount = await page.locator(".full-menu-item--product:visible").count();
+      const before = await clear.boundingBox();
+      assert(before, "The search clear control is rendered");
+      await page.evaluate(() => {
+        window.qaSearchClearEvents = [];
+        for (const type of ["touchstart", "touchend", "click"]) document.addEventListener(type, event => {
+          window.qaSearchClearEvents.push({ type, trusted: event.isTrusted, clear: event.target.closest(".menu-search-clear") !== null });
+        }, { capture: true });
+      });
+      await clear.tap();
+      const actual = await search.evaluate(node => ({ value: node.value, focused: document.activeElement === node }));
+      const events = await page.evaluate(() => window.qaSearchClearEvents);
+      const restoredCount = await page.locator(".full-menu-item--product:visible").count();
+      const evidence = { lang, reducedMotion, before, actual, filteredCount, restoredCount, events,
+        noHover: await page.evaluate(() => matchMedia("(hover: none)").matches) };
+      check(`${lang}/${reducedMotion}/touch-search-clear`, actual.value === "" && await clear.isHidden()
+        && actual.focused && restoredCount > filteredCount && filteredCount > 0
+        && events.some(event => event.type === "touchstart" && event.trusted && event.clear)
+        && events.some(event => event.type === "touchend" && event.trusted && event.clear)
+        && events.some(event => event.type === "click" && event.trusted && event.clear)
+        && evidence.noHover, evidence);
+      await page.screenshot({ path: `${output}/search-clear-${lang}-${reducedMotion}.png` });
+    } finally {
+      await context.close();
+    }
   }
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block", reducedMotion: "reduce" });
   const page = await context.newPage();

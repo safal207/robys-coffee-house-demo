@@ -69,7 +69,7 @@ class TestElement extends EventTarget {
   click() { if (!this.disabled) this.dispatchEvent(new Event("click")); }
 }
 
-const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame", "performance", "__robysCheckoutBoundary"].map(key => [key, globalThis[key]]));
+const previous = new Map(["window", "document", "localStorage", "sessionStorage", "requestAnimationFrame", "performance", "__robysCheckoutBoundary", "indexedDB", "MutationObserver"].map(key => [key, globalThis[key]]));
 const numberFormat = Intl.NumberFormat;
 let formatterCount = 0;
 const storage = () => {
@@ -77,24 +77,58 @@ const storage = () => {
   return { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) };
 };
 try {
-  globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body") };
+  globalThis.document = { createElement: tag => new TestElement(tag), activeElement: null, body: new TestElement("body"), documentElement: new TestElement("html") };
+  globalThis.MutationObserver = class { observe() {} disconnect() {} };
   document.querySelector = selector => document.body.querySelector(selector);
   globalThis.window = Object.assign(new EventTarget(), { matchMedia: () => ({ matches: true }) });
   globalThis.localStorage = storage(); globalThis.sessionStorage = storage();
   let clock = 1000;
   globalThis.performance = { now: () => clock };
+  // This fixture checks DOM transitions, not IndexedDB concurrency. Keep the
+  // real transaction updater asynchronous; real cross-tab locks are exercised
+  // by test-order-transactions-stress-browser.mjs in actual browser engines.
+  const records = new Map();
+  let transactionTail = Promise.resolve();
+  const database = { createObjectStore() {}, close() {}, transaction() {
+    const previousTransaction = transactionTail;
+    let release;
+    transactionTail = new Promise(resolve => { release = resolve; });
+    let aborted = false;
+    const changes = new Map();
+    const transaction = { abort() { aborted = true; },
+      objectStore: () => ({ get() {
+        const request = {};
+        previousTransaction.then(() => queueMicrotask(() => {
+          request.result = structuredClone(records.get("robys-menu-order.v1"));
+          request.onsuccess?.();
+          queueMicrotask(() => {
+            if (aborted) transaction.onabort?.();
+            else { changes.forEach((value, key) => records.set(key, value)); transaction.oncomplete?.(); }
+            release();
+          });
+        }));
+        return request;
+      }, put(value, key) { changes.set(key, structuredClone(value)); } }) };
+    return transaction;
+  } };
+  globalThis.indexedDB = { open() {
+    const request = { result: database };
+    queueMicrotask(() => { request.onupgradeneeded?.(); request.onsuccess?.(); });
+    return request;
+  } };
+  const settleWrites = () => new Promise(resolve => setImmediate(resolve));
   const animationFrames = [];
   globalThis.requestAnimationFrame = callback => animationFrames.push(callback);
   const flushAnimationFrames = () => animationFrames.splice(0).forEach(callback => callback());
   Intl.NumberFormat = function (...args) { formatterCount++; return new numberFormat(...args); };
-  const output = await build({ entryPoints: ["src/smart-choice/quick-builder.ts"], bundle: true,
+  const output = await build({ stdin: { contents: 'export * from "./src/smart-choice/quick-builder.ts"; export { transactStoredOrderDraft } from "./src/order-draft.js"; export { orderProductIds as testIds } from "./src/smart-choice/shared-order.ts";', resolveDir: process.cwd() }, bundle: true,
     platform: "node", format: "esm", target: "node20", write: false,
     plugins: [{ name: "controlled-checkout-boundary", setup(builder) {
       builder.onResolve({ filter: /checkout-link\.js$/ }, () => ({ path: "checkout", namespace: "test-checkout" }));
       builder.onLoad({ filter: /.*/, namespace: "test-checkout" }, () => ({ contents:
         "export async function openQuickCheckout(...args) { return globalThis.__robysCheckoutBoundary(...args); }" }));
     } }] });
-  const { createQuickBuilder } = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
+  const { createQuickBuilder, transactStoredOrderDraft, testIds } = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`);
   const photoOutput = await build({ entryPoints: ["src/smart-choice/product-photo.ts"], bundle: true,
     platform: "node", format: "esm", target: "node20", write: false });
   const { createProductPhoto } = await import(`data:text/javascript;base64,${Buffer.from(photoOutput.outputFiles[0].text).toString("base64")}`);
@@ -104,7 +138,12 @@ try {
   withoutPreview.querySelector("img").dispatchEvent(new Event("error"));
   assert.equal(withoutPreview.dataset.photoState, "error");
   assert.equal(withoutPreview.querySelector(".qb-photo-status").textContent, "Photo unavailable");
+  const replaceCanonical = async draft => {
+    await transactStoredOrderDraft(() => ({ draft, applied: true, blocked: false }), testIds, { origin: "fixture-other" });
+    await settleWrites();
+  };
   const root = createQuickBuilder("en", () => {}); document.body.append(root);
+  await settleWrites();
   const cards = root.querySelectorAll(".qb-product");
   assert.equal(cards.length, 63);
   const photos = cards.map(card => card.querySelector("img"));
@@ -222,13 +261,14 @@ try {
   let before = cart.replacements;
   const firstAdd = composer.querySelector(".qb-add");
   firstAdd.click();
+  await settleWrites();
   assert.equal(customizer.open, true, "Adding keeps a persistent next-step confirmation in view");
   assert.equal(composer.querySelector("h2").textContent, "Added to your order");
   assert.equal(document.activeElement, composer.querySelector("h2"), "Success moves focus to the confirmation");
   assert.equal(composer.querySelector(".qb-add"), null, "Confirmation cannot accidentally add the same selection again");
-  const addedDraft = localStorage.getItem("robys-menu-order.v1");
+  const addedDraft = localStorage.getItem("robys-menu-order.v2");
   firstAdd.click();
-  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "A second activation of the former Add button cannot duplicate the order");
+  assert.equal(localStorage.getItem("robys-menu-order.v2"), addedDraft, "A second activation of the former Add button cannot duplicate the order");
   assert(composer.querySelector(".qb-confirmation-checkout"));
   composer.querySelector(".qb-confirmation-more").click();
   assert.equal(customizer.open, false, "Choosing more explicitly returns to the catalog");
@@ -236,22 +276,25 @@ try {
   coffee.focus(); // Simulate native restoration finishing after our close callback.
   flushAnimationFrames();
   assert.equal(document.activeElement, root.querySelector("#qb-search"), "A late native focus restore cannot override Choose more");
-  assert.equal(localStorage.getItem("robys-menu-order.v1"), addedDraft, "Continuing to browse preserves the basket");
+  assert.equal(localStorage.getItem("robys-menu-order.v2"), addedDraft, "Continuing to browse preserves the basket");
   assert.equal(cart.replacements - before, 1, "Own add must render the cart once, not twice through its event echo");
   before = cart.replacements;
   const cartPhotosBeforeQuantity = cart.querySelectorAll("img");
   cart.querySelector('[data-step="up"]').click();
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "Own quantity step must render the cart once");
   assert.equal(cart.querySelector("output").textContent, "2");
   assert.deepEqual(cart.querySelectorAll("img"), cartPhotosBeforeQuantity, "Cart quantity changes preserve photo nodes");
   assert(cartPhotosBeforeQuantity.every(image => image.loading === "eager"));
   before = cart.replacements;
   window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "External order-change events must still refresh the cart");
   before = cart.replacements;
   window.dispatchEvent(Object.assign(new Event("storage"), { key: "robys-menu-order.v1" }));
+  await settleWrites();
   assert.equal(cart.replacements - before, 1, "Cross-tab storage updates must still refresh the cart");
-  const savedDraft = () => JSON.parse(localStorage.getItem("robys-menu-order.v1"));
+  const savedDraft = () => structuredClone(records.get("robys-menu-order.v1").draft);
   const beforeEdit = savedDraft();
   cart.querySelector(".qb-edit").click();
   assert.equal(customizer.open, true);
@@ -268,6 +311,7 @@ try {
   cart.querySelector(".qb-edit").click();
   composer.querySelector('[data-dessert-id="desserts:macaron"]').click();
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const pairedDraft = savedDraft();
   assert.equal(pairedDraft.groups.length, 1, "Saving an edit replaces the original instead of adding another copy");
   assert.equal(pairedDraft.groups[0].quantity, 2);
@@ -277,9 +321,9 @@ try {
   cart.querySelector(".qb-edit").click();
   composer.querySelector(".qb-no-sweet").click();
   const changedElsewhere = savedDraft(); changedElsewhere.groups[0].quantity = 3;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(changedElsewhere));
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await replaceCanonical(changedElsewhere);
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   assert.equal(customizer.open, true, "A stale edit must stay open with an actionable explanation");
   assert.equal(savedDraft().groups[0].quantity, 3, "A stale edit must preserve the latest quantity");
   assert.equal(savedDraft().groups[0].items.length, 2, "A stale edit must preserve the original pair atomically");
@@ -310,6 +354,7 @@ try {
   const money = value => new numberFormat("en-US", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(value);
   assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460), "Family price comes from the selected canonical drink plus dessert, times quantity");
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const cappuccinoPair = savedDraft().groups.find(group => group.items[0].id === "hot-coffee:caramel-cappuccino");
   assert.equal(cappuccinoPair.quantity, 2);
   assert.equal(cappuccinoPair.items[1].id, "desserts:macaron");
@@ -319,6 +364,7 @@ try {
   pairRow.querySelector(".qb-edit").click();
   composer.querySelector('[data-choice-id="hot-coffee:cappuccino/plain"]').click();
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   assert(!savedDraft().groups.some(group => group.items[0].id === "hot-coffee:caramel-cappuccino"), "Editing a drink option replaces the original canonical product");
   assert.equal(savedDraft().groups.find(group => group.items[0].id === "hot-coffee:cappuccino").quantity, 2);
   composer.querySelector(".qb-customizer-close").click();
@@ -330,6 +376,7 @@ try {
   assert.equal(composer.querySelector(".qb-add-total").querySelector("strong").textContent, money(460));
   assert.equal(composer.querySelector("output").textContent, "2");
   composer.querySelector(".qb-add").click();
+  await settleWrites();
   const icedPair = savedDraft().groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte");
   assert.equal(icedPair.items[0].variant, "vanilla", "A flavour option stores its canonical product and variant");
   assert.equal(icedPair.items[1].id, "desserts:macaron");
@@ -389,6 +436,7 @@ try {
   const toAdd = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 4 });
   document.body.replaceChildren(toAdd); flushAnimationFrames();
   toAdd.querySelector(".qb-add").click();
+  await settleWrites();
   const afterPrefill = savedDraft();
   assert.deepEqual(afterPrefill.groups.filter(group => group.items[0].id !== "brew-hot:black-tea"), beforePrefill.groups,
     "Adding a recommended selection must preserve every pre-existing basket group");
@@ -400,8 +448,7 @@ try {
     "Success shows the whole order, including earlier selections");
   const oldTotal = confirmation.querySelector(".qb-grand-total").textContent;
   newGroup.quantity = 5;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(afterPrefill));
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
+  await replaceCanonical(afterPrefill);
   assert.notEqual(confirmation.querySelector(".qb-grand-total").textContent, oldTotal,
     "A confirmation updates its full total after another order surface changes the basket");
   assert.equal(confirmation.querySelector("h2").textContent, "Order updated");
@@ -410,15 +457,17 @@ try {
   assert.equal(document.activeElement, toAdd.querySelector("#qb-cart").querySelector("h2"), "Edit order lands on the actual basket");
   const withMissingFlavour = savedDraft();
   delete withMissingFlavour.groups.find(group => group.items[0].id === "cold-coffee:flavoured-iced-caffe-latte").items[0].variant;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(withMissingFlavour));
+  await replaceCanonical(withMissingFlavour);
   const flavourHelp = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
   document.body.replaceChildren(flavourHelp); flushAnimationFrames();
   flavourHelp.querySelector(".qb-add").click();
+  await settleWrites();
   const flavourDialog = flavourHelp.querySelector(".qb-customizer");
   flavourDialog.deferCloseEvent = true;
   const next = flavourHelp.querySelector(".qb-confirmation-checkout");
   assert.equal(next.textContent, "Choose drink flavours");
   next.click();
+  await settleWrites();
   const requiredChoice = flavourHelp.querySelector('select[aria-invalid="true"]');
   assert(requiredChoice, "The unresolved drink exposes a flavour control");
   assert.equal(document.activeElement, requiredChoice);
@@ -443,7 +492,7 @@ try {
 
   // A product remains an invitation to customize after its last basket entry
   // was removed, including when a new builder restores a previous selection.
-  for (const remove of focusRoot.querySelectorAll(".qb-remove")) remove.click();
+  for (const remove of focusRoot.querySelectorAll(".qb-remove")) { remove.click(); await settleWrites(); }
   assert.equal(savedDraft().groups.length, 0);
   const emptiedBuilder = createQuickBuilder("en", () => {});
   for (const card of emptiedBuilder.querySelectorAll(".qb-product")) {
@@ -474,39 +523,39 @@ try {
   // Buyer-facing replacement is an explicit transaction, including pairs and
   // required flavours; opening a different product is never a second addition.
   {
-  localStorage.removeItem("robys-menu-order.v1"); sessionStorage.removeItem("robys-menu-order.v1");
+  await replaceCanonical({ version: 1, groups: [] });
   const replaceRoot = createQuickBuilder("en", () => {}); document.body.replaceChildren(replaceRoot);
   const replaceDialog = replaceRoot.querySelector(".qb-customizer");
   const replaceComposer = replaceRoot.querySelector("#qb-composer");
   const catalogCard = id => replaceRoot.querySelectorAll(".qb-product").find(card => card.dataset.productId === id);
-  catalogCard("hot-coffee:americano").click(); replaceComposer.querySelector(".qb-add").click();
-  replaceComposer.querySelector(".qb-confirmation-more").click();
-  catalogCard("hot-coffee:caffe-latte").click();
-  replaceComposer.querySelector('[data-dessert-id="desserts:macaron"]').click();
-  replaceComposer.querySelector('[data-step="up"]').click(); replaceComposer.querySelector(".qb-add").click();
+  catalogCard("hot-coffee:americano").click(); await settleWrites(); replaceComposer.querySelector(".qb-add").click(); await settleWrites();
+  replaceComposer.querySelector(".qb-confirmation-more").click(); await settleWrites();
+  catalogCard("hot-coffee:caffe-latte").click(); await settleWrites();
+  replaceComposer.querySelector('[data-dessert-id="desserts:macaron"]').click(); await settleWrites();
+  replaceComposer.querySelector('[data-step="up"]').click(); await settleWrites(); replaceComposer.querySelector(".qb-add").click(); await settleWrites();
   const originalBasket = savedDraft();
   const originalPair = originalBasket.groups.find(group => group.items.some(item => item.id === "hot-coffee:caffe-latte"));
   const untouched = originalBasket.groups.find(group => group !== originalPair);
   assert.equal(catalogCard("hot-coffee:caffe-latte").querySelector(".qb-in-cart").textContent, "✓ In your order: 2");
   assert.equal(catalogCard("desserts:macaron").querySelector(".qb-in-cart").textContent, "✓ In your order: 2");
   const confirmationRow = groupId => replaceComposer.querySelectorAll(".qb-confirmation-line").find(row => row.dataset.groupId === groupId);
-  confirmationRow(originalPair.id).querySelector(".qb-replace").click();
+  confirmationRow(originalPair.id).querySelector(".qb-replace").click(); await settleWrites();
   const alternativeSearch = replaceComposer.querySelector("#qb-alternative-search");
   alternativeSearch.value = "tea"; alternativeSearch.dispatchEvent(new Event("input"));
   assert(replaceComposer.querySelectorAll(".qb-alternative").length > 0);
   assert(!replaceComposer.querySelector('[data-alternative-id="desserts:macaron"]'), "A drink replacement preserves the accompanying dessert, instead of replacing it with a second dessert");
-  replaceComposer.querySelector('[data-alternative-id="brew-hot:black-tea"]').click();
+  replaceComposer.querySelector('[data-alternative-id="brew-hot:black-tea"]').click(); await settleWrites();
   assert.equal(replaceComposer.querySelector("output").textContent, "2");
   assert.match(replaceComposer.querySelector(".qb-choice-summary").textContent, /Black Tea.*Macaron/);
   assert.equal(replaceComposer.querySelector(".qb-add-total").querySelector("strong").textContent, money(160));
   assert.match(replaceComposer.querySelector(".qb-add").textContent, /^Save replacement/);
-  replaceComposer.querySelector(".qb-customizer-close").click();
+  replaceComposer.querySelector(".qb-customizer-close").click(); await settleWrites();
   assert.deepEqual(savedDraft(), originalBasket, "Cancelling a cross-category replacement preserves the entire original basket");
-  replaceRoot.querySelector(".qb-dock-review").click();
+  replaceRoot.querySelector(".qb-dock-review").click(); await settleWrites();
   assert(replaceDialog.open, "The always-visible order control opens editable order lines without scrolling past the catalog");
-  confirmationRow(originalPair.id).querySelector(".qb-replace").click();
-  replaceComposer.querySelector('[data-alternative-id="brew-hot:black-tea"]').click();
-  replaceComposer.querySelector(".qb-add").click();
+  confirmationRow(originalPair.id).querySelector(".qb-replace").click(); await settleWrites();
+  replaceComposer.querySelector('[data-alternative-id="brew-hot:black-tea"]').click(); await settleWrites();
+  replaceComposer.querySelector(".qb-add").click(); await settleWrites();
   const teaBasket = savedDraft();
   assert.equal(teaBasket.groups.length, 2);
   assert(teaBasket.groups.some(group => JSON.stringify(group) === JSON.stringify(untouched)), "Other selections stay unchanged");
@@ -515,29 +564,28 @@ try {
   assert.equal(teaPair.quantity, 2); assert(teaPair.items.some(item => item.id === "desserts:macaron"));
   assert.equal(catalogCard("hot-coffee:caffe-latte").querySelector(".qb-in-cart").hidden, true);
   assert.equal(catalogCard("brew-hot:black-tea").querySelector(".qb-in-cart").textContent, "✓ In your order: 2");
-  confirmationRow(teaPair.id).querySelector(".qb-replace").click();
-  replaceComposer.querySelector('[data-alternative-id="hot-coffee:cappuccino"]').click();
-  const changedPair = savedDraft(); changedPair.groups.find(group => group.id === teaPair.id).quantity = 3;
-  localStorage.setItem("robys-menu-order.v1", JSON.stringify(changedPair));
-  window.dispatchEvent(new CustomEvent("robys:order-change"));
-  replaceComposer.querySelector(".qb-add").click();
+  confirmationRow(teaPair.id).querySelector(".qb-replace").click(); await settleWrites();
+  replaceComposer.querySelector('[data-alternative-id="hot-coffee:cappuccino"]').click(); await settleWrites();
+  let changedPair = savedDraft(); changedPair.groups.find(group => group.id === teaPair.id).quantity = 3;
+  await replaceCanonical(changedPair); changedPair = savedDraft();
+  replaceComposer.querySelector(".qb-add").click(); await settleWrites();
   assert.deepEqual(savedDraft(), changedPair, "A stale replacement cannot overwrite changes from another tab");
   assert.match(replaceComposer.querySelector(".qb-notice").textContent, /order changed/);
-  replaceComposer.querySelector(".qb-remove").click();
+  replaceComposer.querySelector(".qb-remove").click(); await settleWrites();
   assert.deepEqual(savedDraft(), changedPair, "A stale editor must not remove a newer selection sharing the same group ID");
-  replaceComposer.querySelector(".qb-customizer-close").click(); replaceRoot.querySelector(".qb-dock-review").click();
-  confirmationRow(teaPair.id).querySelector(".qb-replace").click();
-  replaceComposer.querySelector('[data-alternative-id="cold-coffee:flavoured-iced-caffe-latte"]').click();
+  replaceComposer.querySelector(".qb-customizer-close").click(); await settleWrites(); replaceRoot.querySelector(".qb-dock-review").click(); await settleWrites();
+  confirmationRow(teaPair.id).querySelector(".qb-replace").click(); await settleWrites();
+  replaceComposer.querySelector('[data-alternative-id="cold-coffee:flavoured-iced-caffe-latte"]').click(); await settleWrites();
   assert(replaceComposer.querySelector(".qb-add").disabled, "A replacement must collect its own required flavour");
-  replaceComposer.querySelector('[data-variant-id="vanilla"]').click();
-  replaceComposer.querySelector(".qb-add").click();
+  replaceComposer.querySelector('[data-variant-id="vanilla"]').click(); await settleWrites();
+  replaceComposer.querySelector(".qb-add").click(); await settleWrites();
   const flavoured = savedDraft().groups.find(group => group.items.some(item => item.id === "cold-coffee:flavoured-iced-caffe-latte"));
   assert.equal(flavoured.quantity, 3); assert.equal(flavoured.items.find(item => item.id.includes("flavoured")).variant, "vanilla");
-  confirmationRow(flavoured.id).querySelector(".qb-remove").click();
+  confirmationRow(flavoured.id).querySelector(".qb-remove").click(); await settleWrites();
   assert.equal(savedDraft().groups.length, 1, "Remove works directly on the confirmation screen");
   assert.match(replaceComposer.querySelector(".qb-notice").textContent, /Removed.*Vanilla/);
   assert.equal(catalogCard("desserts:macaron").querySelector(".qb-in-cart").hidden, true);
-  confirmationRow(savedDraft().groups[0].id).querySelector(".qb-remove").click();
+  confirmationRow(savedDraft().groups[0].id).querySelector(".qb-remove").click(); await settleWrites();
   assert.equal(savedDraft().groups.length, 0);
   assert(replaceComposer.querySelector(".qb-confirmation-checkout").disabled);
   assert.equal(replaceComposer.querySelector(".qb-next-step").textContent, "Start with your first drink.");
@@ -547,12 +595,12 @@ try {
   {
     const bulk = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
     document.body.replaceChildren(bulk); flushAnimationFrames();
-    for (let count = 1; count < 98; count++) bulk.querySelector("#qb-composer").querySelector('[data-step="up"]').click();
-    bulk.querySelector(".qb-add").click();
+    for (let count = 1; count < 98; count++) bulk.querySelector("#qb-composer").querySelector('[data-step="up"]').click(); await settleWrites();
+    bulk.querySelector(".qb-add").click(); await settleWrites();
     const capped = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
     document.body.replaceChildren(capped); flushAnimationFrames();
     const detail = capped.querySelector("#qb-composer"), cart = capped.querySelector("#qb-cart");
-    detail.querySelector('[data-dessert-id="desserts:macaron"]').click(); detail.querySelector(".qb-add").click();
+    detail.querySelector('[data-dessert-id="desserts:macaron"]').click(); await settleWrites(); detail.querySelector(".qb-add").click(); await settleWrites();
     const rows = surface => surface.querySelectorAll("[data-group-id]");
     const allIncreasesDisabled = surface => rows(surface).every(row => row.querySelector('[data-step="up"]').disabled);
     const atLimit = savedDraft();
@@ -560,14 +608,14 @@ try {
     assert.equal(cart.querySelector(".qb-grand-total").querySelector("strong").textContent, money(4980));
     assert.equal(allIncreasesDisabled(cart), true, "Both cart increases respect tea's aggregate cap across groups");
     assert.equal(allIncreasesDisabled(detail), true, "Confirmation uses the same aggregate cap");
-    rows(detail).find(row => row.querySelector("output").textContent === "1").querySelector('[data-step="up"]').click();
+    rows(detail).find(row => row.querySelector("output").textContent === "1").querySelector('[data-step="up"]').click(); await settleWrites();
     assert.deepEqual(savedDraft(), atLimit, "A disabled pair increase cannot partially add a dessert");
-    detail.querySelector(".qb-customizer-close").click();
-    rows(cart).find(row => row.querySelector("output").textContent === "98").querySelector('[data-step="down"]').click();
+    detail.querySelector(".qb-customizer-close").click(); await settleWrites();
+    rows(cart).find(row => row.querySelector("output").textContent === "98").querySelector('[data-step="down"]').click(); await settleWrites();
     assert(rows(cart).every(row => !row.querySelector('[data-step="up"]').disabled), "Decreasing a standalone tea immediately re-enables each eligible cart increase");
-    capped.querySelector(".qb-dock-review").click();
+    capped.querySelector(".qb-dock-review").click(); await settleWrites();
     assert(rows(detail).every(row => !row.querySelector('[data-step="up"]').disabled), "Reopened confirmation reflects the recovered allowance");
-    rows(detail).find(row => row.querySelector("output").textContent === "1").querySelector('[data-step="up"]').click();
+    rows(detail).find(row => row.querySelector("output").textContent === "1").querySelector('[data-step="up"]').click(); await settleWrites();
     const recovered = savedDraft();
     assert.equal(recovered.lines.find(line => line.id === "brew-hot:black-tea").quantity, 99);
     assert.equal(recovered.lines.find(line => line.id === "desserts:macaron").quantity, 2);
@@ -575,7 +623,7 @@ try {
     assert.equal(detail.querySelector(".qb-grand-total").querySelector("strong").textContent, money(5010));
     assert.equal(allIncreasesDisabled(cart), true);
     assert.equal(allIncreasesDisabled(detail), true);
-    while (detail.querySelector(".qb-remove")) detail.querySelector(".qb-remove").click();
+    while (detail.querySelector(".qb-remove")) { detail.querySelector(".qb-remove").click(); await settleWrites(); }
     assert.equal(savedDraft().groups.length, 0);
   }
   // A carried-over second Add tap lands on the shorter confirmation's
@@ -584,9 +632,9 @@ try {
     const tapRoot = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 2 });
     document.body.replaceChildren(tapRoot); flushAnimationFrames();
     const detail = tapRoot.querySelector("#qb-composer"), dialog = tapRoot.querySelector(".qb-customizer");
-    detail.querySelector('[data-dessert-id="desserts:macaron"]').click();
-    const add = detail.querySelector(".qb-add"); add.click();
-    const afterAdd = savedDraft(); add.click();
+    detail.querySelector('[data-dessert-id="desserts:macaron"]').click(); await settleWrites();
+    const add = detail.querySelector(".qb-add"); add.click(); await settleWrites();
+    const afterAdd = savedDraft(); add.click(); await settleWrites();
     const backdrop = () => dialog.dispatchEvent(Object.assign(new Event("click"), { clientX: 50, clientY: 600 }));
     backdrop();
     assert.equal(dialog.open, true, "The second Add tap must leave next-step confirmation visible");
@@ -599,13 +647,13 @@ try {
   for (const mode of ["new-selection", "cart-change", "detached", "search", "clear-search", "reset-search", "category", "inspiration", "current"]) {
     const pendingRoot = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
     document.body.replaceChildren(pendingRoot); flushAnimationFrames();
-    pendingRoot.querySelector(".qb-add").click();
+    pendingRoot.querySelector(".qb-add").click(); await settleWrites();
     const pendingSearch = pendingRoot.querySelector("#qb-search");
     if (mode === "clear-search" || mode === "reset-search") {
-      pendingRoot.querySelector(".qb-customizer-close").click();
+      pendingRoot.querySelector(".qb-customizer-close").click(); await settleWrites();
       pendingSearch.value = mode === "clear-search" ? "tea" : "nothingmatchesxyz";
       pendingSearch.dispatchEvent(new Event("input"));
-      pendingRoot.querySelector(".qb-dock-review").click();
+      pendingRoot.querySelector(".qb-dock-review").click(); await settleWrites();
     }
     let release, calls = 0, opens = 0;
     globalThis.__robysCheckoutBoundary = async (_draft, _language, _button, shouldOpen) => {
@@ -613,18 +661,18 @@ try {
       await new Promise(resolve => { release = resolve; });
       if (shouldOpen()) opens += 1;
     };
-    pendingRoot.querySelector(".qb-confirmation-checkout").click();
+    pendingRoot.querySelector(".qb-confirmation-checkout").click(); await settleWrites();
     const pendingCart = pendingRoot.querySelector("#qb-cart");
-    pendingCart.querySelector(".qb-checkout").querySelector("button").click();
+    pendingCart.querySelector(".qb-checkout").querySelector("button").click(); await settleWrites();
     assert.equal(calls, 1, "Another order control must not start a second pending checkout");
-    if (mode === "new-selection") pendingRoot.querySelector('[data-product-id="hot-coffee:americano"]').click();
-    if (mode === "cart-change") pendingCart.querySelector('[data-step="up"]').click();
+    if (mode === "new-selection") pendingRoot.querySelector('[data-product-id="hot-coffee:americano"]').click(); await settleWrites();
+    if (mode === "cart-change") pendingCart.querySelector('[data-step="up"]').click(); await settleWrites();
     if (mode === "detached") document.body.replaceChildren();
     if (mode === "search") { pendingSearch.value = "latte"; pendingSearch.dispatchEvent(new Event("input")); }
-    if (mode === "clear-search") pendingRoot.querySelector(".qb-search-clear").click();
-    if (mode === "reset-search") pendingRoot.querySelector(".qb-no-results").querySelector("button").click();
-    if (mode === "category") pendingRoot.querySelector('[data-category="desserts"]').click();
-    if (mode === "inspiration") pendingRoot.querySelector(".qb-inspiration-card").click();
+    if (mode === "clear-search") pendingRoot.querySelector(".qb-search-clear").click(); await settleWrites();
+    if (mode === "reset-search") pendingRoot.querySelector(".qb-no-results").querySelector("button").click(); await settleWrites();
+    if (mode === "category") pendingRoot.querySelector('[data-category="desserts"]').click(); await settleWrites();
+    if (mode === "inspiration") pendingRoot.querySelector(".qb-inspiration-card").click(); await settleWrites();
     release();
     for (let tick = 0; tick < 6; tick++) await Promise.resolve();
     assert.equal(opens, mode === "current" ? 1 : 0, `Delayed quick checkout: ${mode}`);
@@ -634,14 +682,14 @@ try {
   {
     const retryRoot = createQuickBuilder("en", () => {}, { productId: "brew-hot:black-tea", quantity: 1 });
     document.body.replaceChildren(retryRoot); flushAnimationFrames();
-    retryRoot.querySelector(".qb-add").click();
+    retryRoot.querySelector(".qb-add").click(); await settleWrites();
     globalThis.__robysCheckoutBoundary = async () => { throw new Error("network unavailable"); };
-    retryRoot.querySelector(".qb-confirmation-checkout").click();
+    retryRoot.querySelector(".qb-confirmation-checkout").click(); await settleWrites();
     for (let tick = 0; tick < 8; tick++) await Promise.resolve();
     assert.match(retryRoot.querySelector(".qb-notice").textContent, /could not open/);
     let opens = 0;
     globalThis.__robysCheckoutBoundary = async (_draft, _language, _button, shouldOpen) => { if (shouldOpen()) opens += 1; };
-    retryRoot.querySelector(".qb-checkout").querySelector("button").click();
+    retryRoot.querySelector(".qb-checkout").querySelector("button").click(); await settleWrites();
     assert.equal(retryRoot.querySelector(".qb-notice").textContent, "", "Starting a valid retry clears the old error immediately");
     for (let tick = 0; tick < 8; tick++) await Promise.resolve();
     assert.equal(opens, 1);
@@ -658,17 +706,14 @@ try {
   const miniIds = [milkId, cookieId], bigIds = [milkId, croissantId, cookieId];
   const recipe = (draft, ids) => draft.groups.find(group => group.items.length === ids.length
     && group.items.every(item => ids.includes(item.id) && item.quantity === 1 && !item.variant));
-  const settleKids = async () => { for (let tick = 0; tick < 3; tick++) await Promise.resolve(); };
+  const settleKids = settleWrites;
   const comboCard = (surface, id) => surface.querySelector(`[data-kids-combo="${id}"]`);
   const groupRow = (surface, group) => surface.querySelectorAll("[data-group-id]").find(row => row.dataset.groupId === group.id);
-  const seedKids = lines => {
-    localStorage.setItem("robys-menu-order.v1", JSON.stringify({ version: 1, lines }));
-    sessionStorage.removeItem("robys-menu-order.v1");
-  };
+  const seedKids = lines => replaceCanonical({ version: 1, lines });
   for (const [language, expected] of Object.entries(kidsCopy)) {
     const locale = { tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language];
     const amount = value => new numberFormat(locale, { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(value);
-    seedKids([{ id: "brew-hot:black-tea", quantity: 2 }]);
+    await seedKids([{ id: "brew-hot:black-tea", quantity: 2 }]);
     const kidsRoot = createQuickBuilder(language, () => {}); document.body.replaceChildren(kidsRoot); flushAnimationFrames();
     const kidsCart = kidsRoot.querySelector("#qb-cart"), detail = kidsRoot.querySelector("#qb-composer");
     const dialog = kidsRoot.querySelector(".qb-customizer");
@@ -690,14 +735,14 @@ try {
       return row;
     };
     assert(kidsRoot.querySelector(".qb-kids-entry").textContent.includes(expected.title));
-    kidsRoot.querySelector(".qb-kids-entry").click();
+    kidsRoot.querySelector(".qb-kids-entry").click(); await settleWrites();
     assert.equal(kidsRoot.querySelectorAll(".qb-chip")[1].dataset.category, "kids-menu", `${language}: kids category follows All`);
     assert.equal(kidsRoot.querySelector('[data-category="kids-menu"]').getAttribute("aria-pressed"), "true");
     assert.equal(kidsRoot.querySelector(".kids-menu-title").textContent, expected.title);
     assert.equal(document.activeElement, kidsRoot.querySelector(".kids-menu-title"), `${language}: the dedicated entry focuses its heading`);
-    kidsRoot.querySelector('[data-category="all"]').click();
+    kidsRoot.querySelector('[data-category="all"]').click(); await settleWrites();
     assert.equal(kidsRoot.querySelectorAll(".kids-combo").length, 0);
-    kidsRoot.querySelector('[data-category="kids-menu"]').click();
+    kidsRoot.querySelector('[data-category="kids-menu"]').click(); await settleWrites();
     assert.equal(kidsRoot.querySelectorAll(".kids-combo").length, 2);
     assert.equal(kidsRoot.querySelectorAll(".qb-product").length, 0, `${language}: the kids chip opens the curated choices`);
     for (const [id, kind, cost, count] of [["kids-mini", "mini", 160, 2], ["kids-big", "big", 330, 3]]) {
@@ -712,23 +757,24 @@ try {
     kidsSearch.value = expected.ingredients[2]; kidsSearch.dispatchEvent(new Event("input"));
     assert.equal(kidsRoot.querySelectorAll(".kids-combo").length, 1, `${language}: ingredient search filters the kids category`);
     assert(comboCard(kidsRoot, "kids-big"));
-    kidsRoot.querySelector(".qb-search-clear").click();
+    kidsRoot.querySelector(".qb-search-clear").click(); await settleWrites();
     assert.equal(kidsRoot.querySelectorAll(".kids-combo").length, 2);
     const individual = kidsRoot.querySelectorAll(".kids-menu-product");
     assert.equal(individual.length, 3, `${language}: components remain individually selectable`);
     const beforeIndividual = savedDraft();
-    individual[0].click();
+    individual[0].click(); await settleWrites();
     assert.equal(dialog.open, true);
     assert.equal(detail.querySelector(".qb-selection-photos").querySelectorAll("figure").length, 1);
     assert(detail.querySelector(".qb-choice-summary").textContent.includes(expected.ingredients[0]));
-    detail.querySelector(".qb-customizer-close").click();
+    detail.querySelector(".qb-customizer-close").click(); await settleWrites();
     assert.deepEqual(savedDraft(), beforeIndividual, `${language}: reviewing milk alone does not add a combo`);
 
     const miniAdd = comboCard(kidsRoot, "kids-mini").querySelector(".kids-combo-add");
     miniAdd.click(); miniAdd.click();
+    assert.equal(miniAdd.disabled, true); await settleKids();
     let mini = recipe(savedDraft(), miniIds);
     assert.equal(mini.quantity, 1, `${language}: a carried-over double activation adds only one set`);
-    assert.equal(miniAdd.disabled, true); await settleKids(); assert.equal(miniAdd.disabled, false);
+    assert.equal(miniAdd.disabled, false);
     assert.equal(miniAdd.getAttribute("aria-busy"), null);
     assert.equal(dialog.open, true);
     assert.equal(detail.querySelector("h2").textContent, expected.added);
@@ -736,25 +782,25 @@ try {
     const other = savedDraft().groups.find(group => group.items[0].id === "brew-hot:black-tea");
     assert.equal(detail.querySelectorAll(".qb-confirmation-line").length, 2, `${language}: confirmation includes earlier choices`);
     checkRow(detail, mini, "mini"); checkRow(kidsCart, mini, "mini"); totalIs(260);
-    detail.querySelector(".qb-confirmation-more").click();
+    detail.querySelector(".qb-confirmation-more").click(); await settleWrites();
     miniAdd.click(); await settleKids();
     mini = recipe(savedDraft(), miniIds);
     assert.equal(savedDraft().groups.length, 2);
     assert.equal(mini.quantity, 2, `${language}: a later deliberate Mini addition merges its group`);
     assert.deepEqual(savedDraft().groups.find(group => group.id === other.id), other);
     totalIs(420);
-    groupRow(detail, mini).querySelector('[data-step="up"]').click();
+    groupRow(detail, mini).querySelector('[data-step="up"]').click(); await settleWrites();
     assert.equal(recipe(savedDraft(), miniIds).quantity, 3);
-    groupRow(detail, mini).querySelector('[data-step="down"]').click();
+    groupRow(detail, mini).querySelector('[data-step="down"]').click(); await settleWrites();
     assert.equal(recipe(savedDraft(), miniIds).quantity, 2); totalIs(420);
-    detail.querySelector(".qb-customizer-close").click();
-    groupRow(kidsCart, mini).querySelector('[data-step="up"]').click();
+    detail.querySelector(".qb-customizer-close").click(); await settleWrites();
+    groupRow(kidsCart, mini).querySelector('[data-step="up"]').click(); await settleWrites();
     assert.equal(recipe(savedDraft(), miniIds).quantity, 3);
-    groupRow(kidsCart, mini).querySelector('[data-step="down"]').click();
+    groupRow(kidsCart, mini).querySelector('[data-step="down"]').click(); await settleWrites();
     assert.equal(recipe(savedDraft(), miniIds).quantity, 2); totalIs(420);
 
     const beforeReplace = savedDraft();
-    groupRow(kidsCart, mini).querySelector(".qb-replace").click();
+    groupRow(kidsCart, mini).querySelector(".qb-replace").click(); await settleWrites();
     assert.deepEqual(savedDraft(), beforeReplace, `${language}: replacement is only a preview until a choice is saved`);
     assert.notEqual(detail.querySelector(".kids-menu-title").id, kidsRoot.querySelector(".kids-menu-title").id,
       `${language}: replacement and catalog headings have distinct IDs`);
@@ -769,56 +815,55 @@ try {
     assert.deepEqual(savedDraft().groups.find(group => group.id === other.id), other);
     assert.equal(detail.querySelector("h2").textContent, expected.updated);
     checkRow(detail, big, "big"); checkRow(kidsCart, big, "big"); totalIs(760);
-    groupRow(detail, big).querySelector(".qb-replace").click();
+    groupRow(detail, big).querySelector(".qb-replace").click(); await settleWrites();
     assert.equal(comboCard(detail, "kids-mini").querySelector(".kids-combo-total").textContent, amount(320));
     comboCard(detail, "kids-mini").querySelector(".kids-combo-add").click(); await settleKids();
     mini = recipe(savedDraft(), miniIds);
     assert.equal(mini.quantity, 2, `${language}: Big to Mini also preserves quantity`);
     assert.equal(recipe(savedDraft(), bigIds), undefined);
     assert.deepEqual(savedDraft().groups.find(group => group.id === other.id), other); totalIs(420);
-    detail.querySelector(".qb-confirmation-more").click();
+    detail.querySelector(".qb-confirmation-more").click(); await settleWrites();
     comboCard(kidsRoot, "kids-big").querySelector(".kids-combo-add").click(); await settleKids();
     big = recipe(savedDraft(), bigIds);
     assert.equal(big.quantity, 1);
     assert.deepEqual(big.items.map(item => item.id), bigIds, `${language}: Big persists all three real products`);
     assert(savedDraft().lines.every(line => !line.id.startsWith("kids-")), `${language}: no invented combo SKU enters the order`);
     assert.equal(savedDraft().groups.length, 3); totalIs(750);
-    checkRow(detail, big, "big").querySelector(".qb-remove").click();
+    checkRow(detail, big, "big").querySelector(".qb-remove").click(); await settleWrites();
     assert.equal(recipe(savedDraft(), bigIds), undefined);
     assert.equal(savedDraft().groups.length, 2); totalIs(420);
 
-    groupRow(detail, mini).querySelector(".qb-replace").click();
+    groupRow(detail, mini).querySelector(".qb-replace").click(); await settleWrites();
     const staleChoice = comboCard(detail, "kids-big").querySelector(".kids-combo-add");
     const newer = savedDraft(); recipe(newer, miniIds).quantity = 3;
     newer.lines.filter(line => miniIds.includes(line.id)).forEach(line => { line.quantity = 3; });
-    localStorage.setItem("robys-menu-order.v1", JSON.stringify(newer));
-    window.dispatchEvent(Object.assign(new Event("storage"), { key: "robys-menu-order.v1" }));
+    await replaceCanonical(newer);
     staleChoice.click(); await settleKids();
     assert.deepEqual(savedDraft(), newer, `${language}: stale replacement cannot overwrite the latest set or other choices`);
     assert(detail.querySelector(".qb-notice").textContent.includes(expected.stale));
     assert(detail.querySelector(".kids-menu-status").textContent.length > 0, `${language}: failed replacement has local feedback`);
     assert.equal(dialog.open, true); assert.equal(staleChoice.disabled, false);
-    detail.querySelector(".qb-customizer-close").click();
-    groupRow(kidsCart, recipe(savedDraft(), miniIds)).querySelector(".qb-remove").click();
+    detail.querySelector(".qb-customizer-close").click(); await settleWrites();
+    groupRow(kidsCart, recipe(savedDraft(), miniIds)).querySelector(".qb-remove").click(); await settleWrites();
     assert.deepEqual(savedDraft().groups, [other], `${language}: removing Mini preserves the earlier order`);
-    kidsCart.querySelector(".qb-remove").click();
+    kidsCart.querySelector(".qb-remove").click(); await settleWrites();
     assert.equal(savedDraft().groups.length, 0); totalIs(0);
 
     // Milk's 99-product allowance spans a standalone line and both sets. A
     // failed Big add cannot partially write its cookie or croissant.
-    seedKids([{ id: milkId, quantity: 98 }, { id: "brew-hot:black-tea", quantity: 2 }]);
+    await seedKids([{ id: milkId, quantity: 98 }, { id: "brew-hot:black-tea", quantity: 2 }]);
     const cappedRoot = createQuickBuilder(language, () => {}); document.body.replaceChildren(cappedRoot); flushAnimationFrames();
-    cappedRoot.querySelector(".qb-kids-entry").click();
+    cappedRoot.querySelector(".qb-kids-entry").click(); await settleWrites();
     comboCard(cappedRoot, "kids-mini").querySelector(".kids-combo-add").click(); await settleKids();
     const cappedDetail = cappedRoot.querySelector("#qb-composer"), cappedCart = cappedRoot.querySelector("#qb-cart");
     const atLimit = savedDraft(), limitedMini = recipe(atLimit, miniIds);
     assert.equal(atLimit.lines.find(line => line.id === milkId).quantity, 99);
     for (const surface of [cappedCart, cappedDetail]) {
       assert.equal(groupRow(surface, limitedMini).querySelector('[data-step="up"]').disabled, true);
-      groupRow(surface, limitedMini).querySelector('[data-step="up"]').click();
+      groupRow(surface, limitedMini).querySelector('[data-step="up"]').click(); await settleWrites();
       assert.deepEqual(savedDraft(), atLimit, `${language}: capped quantity cannot add another cookie`);
     }
-    cappedDetail.querySelector(".qb-customizer-close").click();
+    cappedDetail.querySelector(".qb-customizer-close").click(); await settleWrites();
     const bigAdd = comboCard(cappedRoot, "kids-big").querySelector(".kids-combo-add");
     bigAdd.click(); await settleKids();
     assert.deepEqual(savedDraft(), atLimit, `${language}: capped Big addition is atomic across every component`);
@@ -826,7 +871,7 @@ try {
     assert(cappedRoot.querySelector(".kids-menu-status").textContent.length > 0);
     assert.equal(cappedRoot.querySelector(".qb-customizer").open, false);
     const milkOnly = atLimit.groups.find(group => group.items.length === 1 && group.items[0].id === milkId);
-    groupRow(cappedCart, milkOnly).querySelector('[data-step="down"]').click();
+    groupRow(cappedCart, milkOnly).querySelector('[data-step="down"]').click(); await settleWrites();
     assert.equal(groupRow(cappedCart, limitedMini).querySelector('[data-step="up"]').disabled, false);
     bigAdd.click(); await settleKids();
     assert.equal(recipe(savedDraft(), bigIds).quantity, 1, `${language}: freed allowance permits a later complete set`);
@@ -838,6 +883,7 @@ try {
   }
   console.log("Quick builder UI PASS: responsive photo identity; visible order quantities; replacements, stale edits and required flavours; persistent double-tap confirmation; abandoned or changed delayed checkout cancels; complete totals and modal focus; TR/EN/RU kids navigation, recipes/prices/photos, repeat merges, quantity/removal, atomic replacement and shared 99-product cap.");
 } finally {
+  await new Promise(resolve => setImmediate(resolve));
   Intl.NumberFormat = numberFormat;
   for (const [key, value] of previous) {
     if (value === undefined) delete globalThis[key]; else globalThis[key] = value;

@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
+import { MENU_STYLE_INPUTS, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 
 const modulePath = fileURLToPath(import.meta.url);
 const root = resolve(dirname(modulePath), "..");
@@ -42,7 +43,14 @@ function verifyDiscoverWordmarkStylesheet(discoverGuard) {
 
 function verifyAccessibleBrandCopy(html, page) {
   assert.match(html, /class=["'][^"']*brand-copy[^"']*["'][^>]*>[\s\S]*?<strong>ROBY'S<\/strong>[\s\S]*?<small>COFFEE HOUSE<\/small>/i, `${page} must preserve accessible brand text`);
-  assert.match(html, new RegExp(`brand-photo-logo\\.css\\?v=${IDENTITY_REVISION}`), `${page} must statically link the owner-approved v4 identity stylesheet`);
+  if (page === "menu.html") {
+    assert.deepEqual(MENU_STYLE_INPUTS.slice(-3).map(({ source }) => source),
+      ["menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"],
+      "menu must preserve the approved brand layer after security and before checkout");
+    verifyMenuStylesBundle(readMenuStylesBundleInputs(root));
+  } else {
+    assert.match(html, new RegExp(`brand-photo-logo\\.css\\?v=${IDENTITY_REVISION}`), `${page} must statically link the owner-approved v4 identity stylesheet`);
+  }
   assert.doesNotMatch(html, /brand--inverse/, `${page} must use the approved black-on-white identity family`);
 }
 

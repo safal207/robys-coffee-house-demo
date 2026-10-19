@@ -1,0 +1,902 @@
+{
+  "startedAt": "2026-10-18T21:33:22.651Z",
+  "baseCommit": "fe3f90861eeaf89580b530ca5b6e3d21031cf8ac",
+  "assetHashesStart": {
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "index.html": "c86a4af5c1069cc7a59a54f3f299c4182e92913255b1a7c205d12f6c6a617e6c",
+    "sw-core-v64.js": "0cd1d4832941b1432983dcce4602f671fc5347fc04aa28f75b71e86edba7ac81",
+    "src/products/sets-v1/iced-san-sebastian.webp": "5375ec1c1ed730a8d829e971efb3fd04c1777e510570bcfac21c3050a59bae99"
+  },
+  "checks": [
+    {
+      "engine": "chromium",
+      "width": 320,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 208.515625
+      },
+      "card": {
+        "width": 302,
+        "height": 210.515625
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 515.6448107905583,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 180
+      },
+      "card": {
+        "width": 302,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 597.3333333333334,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 184.921875
+      },
+      "card": {
+        "width": 302,
+        "height": 186.921875
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 581.4347275031686,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 360,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 119,
+        "height": 208.515625
+      },
+      "card": {
+        "width": 342,
+        "height": 210.515625
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 584.3974522292993,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 360,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 119,
+        "height": 180
+      },
+      "card": {
+        "width": 342,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 676.9777777777778,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 360,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 119,
+        "height": 180
+      },
+      "card": {
+        "width": 342,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 676.9777777777778,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 218.203125
+      },
+      "card": {
+        "width": 372,
+        "height": 220.203125
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 694.5455066237021,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 196.953125
+      },
+      "card": {
+        "width": 372,
+        "height": 198.953125
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 769.4825862752875,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 180
+      },
+      "card": {
+        "width": 372,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 841.9555555555555,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 402.296875
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 379.25
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 379.25
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 460.921875
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 460.921875
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 460.921875
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 183
+      },
+      "card": {
+        "width": 302,
+        "height": 185
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 587.5409836065573,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 180
+      },
+      "card": {
+        "width": 302,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 597.3333333333334,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 105,
+        "height": 180
+      },
+      "card": {
+        "width": 302,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 597.3333333333334,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 360,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 118.984375,
+        "height": 180
+      },
+      "card": {
+        "width": 342,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 676.8888888888889,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 360,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 118.984375,
+        "height": 180
+      },
+      "card": {
+        "width": 342,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 676.8888888888889,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 360,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 118.984375,
+        "height": 180
+      },
+      "card": {
+        "width": 342,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 676.8888888888889,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 180
+      },
+      "card": {
+        "width": 372,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 841.9555555555555,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 180
+      },
+      "card": {
+        "width": 372,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 841.9555555555555,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "25% 50%",
+      "image": {
+        "width": 148,
+        "height": 180
+      },
+      "card": {
+        "width": 372,
+        "height": 182
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 841.9555555555555,
+        "height": 1024
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 400.328125
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 351.328125
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 230,
+        "height": 153.328125
+      },
+      "card": {
+        "width": 232,
+        "height": 351.328125
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6434782608695
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "language": "ru",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 459
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "language": "en",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 436
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "language": "tr",
+      "status": "PASS",
+      "fit": "cover",
+      "position": "50% 50%",
+      "image": {
+        "width": 378,
+        "height": 252
+      },
+      "card": {
+        "width": 380,
+        "height": 436
+      },
+      "natural": [
+        1024,
+        1024
+      ],
+      "visibleSource": {
+        "width": 1024,
+        "height": 682.6666666666666
+      },
+      "overflow": false,
+      "cardOverflow": false,
+      "link": "menu.html#pairing-offers",
+      "loaded": true,
+      "errors": []
+    }
+  ],
+  "method": "Unchanged emitted HTML/CSS over local HTTPS under original CSP; fresh Chromium and WebKit desktop-engine touch viewport contexts; not physical phones or forced-dark Samsung browser. No image alteration.",
+  "assetHashesEnd": {
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "index.html": "c86a4af5c1069cc7a59a54f3f299c4182e92913255b1a7c205d12f6c6a617e6c",
+    "sw-core-v64.js": "0cd1d4832941b1432983dcce4602f671fc5347fc04aa28f75b71e86edba7ac81",
+    "src/products/sets-v1/iced-san-sebastian.webp": "5375ec1c1ed730a8d829e971efb3fd04c1777e510570bcfac21c3050a59bae99"
+  },
+  "status": "PASS",
+  "finishedAt": "2026-10-18T21:33:53.876Z",
+  "retainedScreenshots": {
+    "pair-chromium-320-ru.png": "ab4e9901f583938c2fb1e34e9c931b238849c29102f63609c2aab0deeb99f8f2",
+    "pair-webkit-390-ru.png": "79aaf64d65db9a80331cefbe2ae4c7f9c4dc5547620c4c135e0b38074919900e",
+    "pair-chromium-1440-ru.png": "a95cbab760e217860755445a3abe3263d1775e67f735010e75a9e1d3b9c7f74d"
+  },
+  "visualReview": {
+    "reviewer": "assistant; not independent-human approval",
+    "scope": "Final mobile320/390 and desktop1440 RU screenshots; additional WebKit390 TR and768 EN viewed in scratch.",
+    "result": "No letterboxing. Original photo retains its proportions; full cup logo and recognizable cake remain visible in inspected mobile crops. Desktop retains drink and cake; narrow mobile crops the outer cake edge.",
+    "limitation": "Viewport emulation on desktop engines; no physical Samsung forced-dark browser claim."
+  }
+}

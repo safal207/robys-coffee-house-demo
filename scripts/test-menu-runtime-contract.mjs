@@ -11,12 +11,22 @@ assert.ok(Buffer.byteLength(emitted) < Buffer.byteLength(source), 'runtime must 
 assert.match(emitted, /from"\.\/menu-catalog\.js\?/, 'catalog must stay external');
 assert.match(emitted, /import\("\.\/menu-interactions\.js\?/, 'interaction actions must stay lazy');
 assert.match(emitted, /import\("\.\/menu-order-ui\.js\?/, 'ordering dialogs must load on intent');
+assert.match(emitted, /import\("\.\/order-storage\.js\?/, 'authoritative storage and recovery notice must load on intent');
+assert.doesNotMatch(source, /import[^\n]+from ["'][^"']*(?:order-draft|order-storage-notice)/,
+  'the initial catalog must not statically import the authoritative store or recovery notice');
+assert.doesNotMatch(emitted, /indexedDB|BroadcastChannel|order-storage-notice-title/,
+  'the initial catalog must not bundle the authoritative store or notice implementation');
 assert.doesNotMatch(emitted, /menu-product-title|menu-cart-lines/, 'initial catalog must not initialize hidden ordering dialogs');
 const orderSource = readVerifiedMenuOrderSource();
 const orderEmitted = readFileSync('menu-order-ui.js', 'utf8');
 assert.match(orderEmitted, /import\("\.\/menu-pairing\.js\?/, 'optional pair chooser must stay lazy');
 assert.match(orderEmitted, /import\("\.\/order-checkout\.js\?/, 'QR checkout must remain lazy and external');
-assert.ok(orderSource.includes('readDraft()') && orderSource.includes('writeDraft(orderDraft)'), 'dialogs must share the eager storage owner');
+assert.ok(orderSource.includes('readDraft()') && orderSource.includes('await mutateDraft(updater)'),
+  'dialogs must read and await the transaction owner');
+assert.ok(source.includes('await storage.transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN })') && source.includes('mutateDraft: mutateMenuDraft'),
+  'the catalog must inject the shared latest-draft transaction boundary into lazy dialogs');
+assert.doesNotMatch(orderSource, /writeDraft\(|writeStoredOrderDraft\(|localStorage\.setItem\([^\n]*robys-menu-order/,
+  'ordering dialogs must not bypass cross-tab serialization with a snapshot writer');
 assert.doesNotMatch(emitted, /from"\.\/src\/order-draft/, 'draft helpers must not add a separate network request');
 const cwd = process.cwd();
 const fixture = mkdtempSync(join(tmpdir(), 'robys-runtime-contract-'));

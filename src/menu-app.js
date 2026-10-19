@@ -1,7 +1,7 @@
-import { menuCategories, menuCopy } from "./menu-catalog.js?v=bc69a9e52fa4";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
-import { readStoredOrderDraft, writeStoredOrderDraft } from "./src/order-draft.js";
-import { createKidsMenuSection, kidsMenuCopy } from "./src/kids-menu.js";
+import "./src/choice-help-entry.js";
+import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -14,6 +14,7 @@ const cartTrigger = document.querySelector("#menu-cart-trigger");
 const cartCount = document.querySelector("#menu-cart-count");
 const cartTriggerTotal = document.querySelector("#menu-cart-total");
 const CART_STORAGE_KEY = "robys-menu-order.v1";
+const CART_PROJECTION_KEY = "robys-menu-order.v2";
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
 let language = readStoredLanguage();
@@ -30,7 +31,7 @@ function readStoredLanguage() {
 
 function readInitialCategory() {
   const requested = window.location.hash.slice(1);
-  return requested === "kids-menu" || menuCategories.some((category) => category.id === requested) ? requested : "all";
+  return menuCategories.some((category) => category.id === requested) ? requested : "all";
 }
 
 function storeLanguage(next) {
@@ -60,13 +61,26 @@ function localized(value) {
   return value?.[language] ?? value?.tr ?? "";
 }
 
+const priceFormatters = new Map();
+const itemCountRules = new Map();
+
 function formatPrice(price) {
-  return `${new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 }).format(price)} ₺`;
+  let formatter = priceFormatters.get(language);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(localeTag[language], { maximumFractionDigits: 0 });
+    priceFormatters.set(language, formatter);
+  }
+  return `${formatter.format(price)} ₺`;
 }
 
 function formatItemCount(count) {
   const copy = menuCopy[language].itemCount;
-  const category = new Intl.PluralRules(localeTag[language]).select(count);
+  let rules = itemCountRules.get(language);
+  if (!rules) {
+    rules = new Intl.PluralRules(localeTag[language]);
+    itemCountRules.set(language, rules);
+  }
+  const category = rules.select(count);
   return copy[category] ?? copy.other;
 }
 
@@ -105,18 +119,99 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
-const kidsProducts = new Map(Array.from(productIndex, ([id, product]) => [id, {
-  id, name: product.item.name, image: product.image, unitPriceMinor: Math.round(product.item.price * 100)
-}]));
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
+let cartReadGeneration = 0;
+let storageNotice;
+let orderStorage;
+let orderStoragePromise;
+let orderStorageRetry = 0;
+
+// The initial catalog only reads a disposable badge projection. It never
+// writes storage or starts the authoritative ordering system before intent.
+function readCartProjection() {
+  let raw;
+  try { raw = JSON.parse(sessionStorage.getItem("robys-menu-order.tab.v1") ?? "null")?.draft; } catch {}
+  if (!raw) try { raw = JSON.parse(localStorage.getItem(CART_PROJECTION_KEY) ?? localStorage.getItem(CART_STORAGE_KEY) ?? "null"); } catch {}
+  const counts = new Map();
+  const groups = [];
+  const valid = value => Number.isInteger(value) && value > 0 && value <= 99;
+  if (raw?.version !== 1) return { version: 1, groups, lines: [] };
+  if (Array.isArray(raw.groups)) {
+    for (const group of raw.groups) {
+      if (!valid(group?.quantity) || !Array.isArray(group.items) || !group.items.length) continue;
+      const next = new Map(counts);
+      let accepted = true;
+      for (const item of group.items) {
+        const quantity = item?.quantity ?? 1;
+        const total = (next.get(item?.id) ?? 0) + quantity * group.quantity;
+        if (!orderProductIds.has(item?.id) || !valid(quantity) || !valid(total)) { accepted = false; break; }
+        next.set(item.id, total);
+      }
+      if (!accepted) continue;
+      next.forEach((quantity, id) => counts.set(id, quantity));
+      groups.push({ quantity: group.quantity });
+    }
+  } else if (Array.isArray(raw.lines)) {
+    for (const line of raw.lines) if (orderProductIds.has(line?.id) && valid(line.quantity)) counts.set(line.id, line.quantity);
+    counts.forEach(quantity => groups.push({ quantity }));
+  }
+  return { version: 1, groups, lines: Array.from(counts, ([id, quantity]) => ({ id, quantity })) };
+}
+
+function loadOrderStorage() {
+  if (!orderStoragePromise) {
+    let loading;
+    if (orderStorageRetry) {
+      const retryUrl = new URL("./order-storage.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(orderStorageRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./order-storage.js?v=6908555cd79b");
+    orderStoragePromise = loading.then(storage => {
+      storageNotice = storage.createOrderStorageNotice({
+        getLanguage: () => language,
+        getProduct: id => productIndex.get(id)?.item,
+        validIds: orderProductIds,
+        onResolved: async () => {
+          await refreshLatestCart({ resetAdded: true });
+          orderUi?.refresh({ nextLanguage: language, clearStorageError: true });
+        }
+      });
+      orderStorage = storage;
+      return storage;
+    }).catch(error => { orderStoragePromise = null; orderStorageRetry += 1; throw error; });
+  }
+  return orderStoragePromise;
+}
 
 function readCart() {
-  orderDraft = readStoredOrderDraft(orderProductIds);
+  orderDraft = orderStorage ? orderStorage.readStoredOrderDraft(orderProductIds) : readCartProjection();
   return new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
 }
 
 let cart = readCart();
+
+async function refreshLatestCart({ refreshUi = true, resetAdded = false } = {}) {
+  const generation = ++cartReadGeneration;
+  const storage = await loadOrderStorage();
+  const draft = await storage.readLatestStoredOrderDraft(orderProductIds);
+  if (generation !== cartReadGeneration) return;
+  orderDraft = draft;
+  cart = new Map(draft.lines.map(line => [line.id, line.quantity]));
+  renderCart();
+  if (refreshUi) orderUi?.refresh({ nextLanguage: language, resetAdded });
+}
+
+async function mutateMenuDraft(updater) {
+  const generation = ++cartReadGeneration;
+  const storage = await loadOrderStorage();
+  const result = await storage.transactStoredOrderDraft(updater, orderProductIds, { origin: MENU_ORDER_ORIGIN });
+  if (generation === cartReadGeneration) {
+    orderDraft = result.draft;
+    cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
+  }
+  return result;
+}
 
 function cartSummary() {
   const quantity = orderDraft.groups.reduce((sum, group) => sum + group.quantity, 0);
@@ -152,10 +247,26 @@ function renderCart() {
 }
 
 let orderUi;
+const MENU_ORDER_ORIGIN = "menu-app";
 let orderUiPromise;
 let orderUiRetry = 0;
-let orderIntent = 0;
 const pendingKidsAdds = new Set();
+// Product, cart and family downloads belong to one navigation stream. A late
+// import may initialize its module, but only the latest user intent can reveal,
+// scroll or focus a view. Clear the previous trigger's busy state immediately.
+let menuIntent = 0;
+let busyTrigger;
+function beginMenuIntent(trigger) {
+  busyTrigger?.removeAttribute("aria-busy");
+  busyTrigger = trigger;
+  trigger?.setAttribute("aria-busy", "true");
+  return ++menuIntent;
+}
+function finishMenuIntent(intent) {
+  if (intent !== menuIntent) return;
+  busyTrigger?.removeAttribute("aria-busy");
+  busyTrigger = null;
+}
 function loadOrderUi() {
   if (!orderUiPromise) {
     let loading;
@@ -163,16 +274,17 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=45c60435d829");
-    orderUiPromise = loading.then(({ createMenuOrderUi }) => {
+    } else loading = import("./menu-order-ui.js?v=206dca9f16f0");
+    orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
         readDraft: () => { cart = readCart(); return orderDraft; },
-        writeDraft: draft => {
-          orderDraft = writeStoredOrderDraft(draft, orderProductIds);
-          cart = new Map(orderDraft.lines.map(line => [line.id, line.quantity]));
-          return orderDraft;
+        readLatestDraft: async () => {
+          await refreshLatestCart({ refreshUi: false });
+          return orderStorage.readStoredOrderDraft(orderProductIds);
         },
+        mutateDraft: mutateMenuDraft,
+        reopenCart: (trigger, groupId) => openOrderIntent("cart", groupId, trigger),
         onCartChange: renderCart
       });
       return orderUi;
@@ -181,24 +293,24 @@ function loadOrderUi() {
   return orderUiPromise;
 }
 async function openOrderIntent(kind, id, trigger = document.activeElement) {
-  const kidsId = kind === "kids" ? id.id : null;
+  const kidsId = kind === "kids" ? id?.id : null;
   if (kidsId && pendingKidsAdds.has(kidsId)) return false;
   if (kidsId) pendingKidsAdds.add(kidsId);
-  const intent = ++orderIntent;
-  trigger?.setAttribute("aria-busy", "true");
+  combosUi?.close({ restoreFocus: false });
+  const intent = beginMenuIntent(trigger);
   try {
-    const ui = await loadOrderUi();
-    if (intent !== orderIntent) return false;
+    const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+    if (intent !== menuIntent) return false;
     document.querySelector("#menu-cart-status").classList.remove("is-visible");
     ui.refresh({ nextLanguage: language });
     const returnFocus = trigger?.isConnected ? trigger : (kind === "product"
       ? Array.from(menuRoot.querySelectorAll("[data-product-id]")).find(row => row.dataset.productId === id)?.querySelector(".full-menu-item-media")
       : null) ?? cartTrigger;
-    if (kind === "kids") return await ui.addKidsCombo(id, returnFocus);
+    if (kind === "kids") return await ui.addKidsCombo(id, returnFocus, () => intent === menuIntent);
     if (kind === "product") ui.openProduct(id, returnFocus);
-    else ui.openCart(returnFocus);
+    else ui.openCart(returnFocus, id);
   } catch {
-    if (intent !== orderIntent) return false;
+    if (intent !== menuIntent) return false;
     const message = {
       tr: "Seçim açılamadı. Lütfen tekrar deneyin.",
       en: "Your selection could not open. Please try again.",
@@ -210,12 +322,176 @@ async function openOrderIntent(kind, id, trigger = document.activeElement) {
     return false;
   } finally {
     if (kidsId) pendingKidsAdds.delete(kidsId);
-    trigger?.removeAttribute("aria-busy");
+    finishMenuIntent(intent);
   }
 }
 function openProduct(id, trigger) { void openOrderIntent("product", id, trigger); }
+const familyTrigger = document.querySelector("#menu-family-trigger");
+let familyUi;
+let familyUiPromise;
+let familyRetry = 0;
+const familyCopy = {
+  tr: { link: "Çocuklarla · 3 fikir", error: "Öneriler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
+  en: { link: "With kids · 3 ideas", error: "Suggestions could not load. Choose from the menu or try again." },
+  ru: { link: "С ребёнком · 3 идеи", error: "Не удалось открыть подборку. Можно выбрать из меню или попробовать ещё раз." }
+};
+function loadFamilyUi() {
+  if (!familyUiPromise) {
+    let loading;
+    if (familyRetry) {
+      const url = new URL("./menu-family-ui.js", import.meta.url);
+      url.searchParams.set("retry", String(familyRetry));
+      loading = import(url.href);
+    } else loading = import("./menu-family-ui.js?v=c6e39d14b3d5");
+    familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
+      familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
+        productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
+        readDraft: () => { cart = readCart(); return orderDraft; }, mutateDraft: mutateMenuDraft,
+        addKidsCombo: (combo, trigger) => openOrderIntent("kids", combo, trigger),
+        openProduct,
+        onCartChange: renderCart,
+        onIntent: () => {
+          const intent = beginMenuIntent();
+          return () => intent === menuIntent;
+        },
+        openCart: async (trigger, isCurrent) => {
+          // This is feedback for the original Add action, not a fresh intent.
+          // A later product/cart click or dismissal wins even during storage.
+          if (!isCurrent()) return;
+          const intent = menuIntent;
+          try {
+            const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+            if (intent !== menuIntent || !isCurrent()) return;
+            ui.refresh({ nextLanguage: language });
+            ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+          } catch (error) {
+            if (intent !== menuIntent || !isCurrent()) return;
+            throw error;
+          }
+        }
+      });
+      return familyUi;
+    }).catch(error => { familyUiPromise = null; familyRetry += 1; throw error; });
+  }
+  return familyUiPromise;
+}
+async function openFamilySuggestions(event) {
+  event?.preventDefault();
+  if (!familyTrigger) return;
+  combosUi?.close({ restoreFocus: false });
+  const intent = beginMenuIntent(familyTrigger);
+  try {
+    const ui = await loadFamilyUi();
+    if (intent !== menuIntent) return;
+    document.querySelector("#menu-cart-status").classList.remove("is-visible");
+    ui.refresh(language);
+    document.querySelector("#menu-family").hidden = false;
+    ui.reveal();
+    familyTrigger.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-family").scrollIntoView({ block: "start" });
+  } catch {
+    if (intent !== menuIntent) return;
+    const notice = document.querySelector("#menu-cart-status");
+    notice.textContent = familyCopy[language].error;
+    notice.classList.add("is-visible");
+  } finally { finishMenuIntent(intent); }
+}
+familyTrigger?.addEventListener("click", openFamilySuggestions);
+
+const combosTrigger = document.querySelector("#menu-combos-trigger");
+let combosUi;
+let combosUiPromise;
+let combosRetry = 0;
+const combosCopy = {
+  tr: { link: "Setler · 12", takeaway: "Al götür · 4", error: "Setler açılamadı. Menüden seçim yapabilir veya tekrar deneyebilirsiniz." },
+  en: { link: "Combos · 12", takeaway: "To go · 4", error: "Combos could not load. Choose from the menu or try again." },
+  ru: { link: "Комбо · 12", takeaway: "С собой · 4", error: "Не удалось открыть комбо. Можно выбрать из меню или попробовать ещё раз." }
+};
+function loadCombosUi() {
+  if (!combosUiPromise) {
+    let loading;
+    if (combosRetry) {
+      const url = new URL("./menu-combos-ui.js", import.meta.url);
+      url.searchParams.set("retry", String(combosRetry));
+      loading = import(url.href);
+    } else loading = import("./menu-combos-ui.js?v=68984827367e");
+    combosUiPromise = loading.then(({ createMenuCombosUi }) => {
+      combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
+        productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
+        readDraft: () => { cart = readCart(); return orderDraft; }, mutateDraft: mutateMenuDraft,
+        onCartChange: renderCart,
+        onIntent: () => { const intent = beginMenuIntent(); return () => intent === menuIntent; },
+        openCart: async (trigger, isCurrent) => {
+          if (!isCurrent()) return;
+          const intent = menuIntent;
+          const [ui] = await Promise.all([loadOrderUi(), refreshLatestCart({ refreshUi: false })]);
+          if (intent !== menuIntent || !isCurrent()) return;
+          ui.refresh({ nextLanguage: language });
+          ui.openCart(trigger?.isConnected ? trigger : cartTrigger);
+        }
+      });
+      return combosUi;
+    }).catch(error => { combosUiPromise = null; combosRetry += 1; throw error; });
+  }
+  return combosUiPromise;
+}
+async function openComboSuggestions(event, filter = "all") {
+  event?.preventDefault();
+  const trigger = event?.target?.closest?.("a,button") ?? event?.currentTarget ?? combosTrigger;
+  const intent = beginMenuIntent(trigger);
+  try {
+    const ui = await loadCombosUi();
+    if (intent !== menuIntent) return;
+    document.querySelector("#menu-cart-status").classList.remove("is-visible");
+    ui.refresh(language);
+    document.querySelector("#menu-combos").hidden = false;
+    ui.reveal(filter);
+    combosTrigger?.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-combos").scrollIntoView({ block: "start" });
+  } catch {
+    if (intent !== menuIntent) return;
+    const notice = document.querySelector("#menu-cart-status");
+    notice.textContent = combosCopy[language].error;
+    notice.classList.add("is-visible");
+  } finally { finishMenuIntent(intent); }
+}
+combosTrigger?.addEventListener("click", event => { void openComboSuggestions(event); });
+document.querySelector("#menu-combos-takeaway-trigger")?.addEventListener("click", event => { void openComboSuggestions(event, "takeaway"); });
+document.addEventListener("click", event => {
+  const anchor = event.target.closest?.(".choice-help-actions a");
+  if (!anchor) return;
+  const url = new URL(anchor.href);
+  if (url.pathname === window.location.pathname && url.hash === "#menu-combos") void openComboSuggestions(event);
+});
 // Escape also cancels an intent whose optional code is still downloading.
-document.addEventListener("keydown", event => { if (event.key === "Escape") orderIntent += 1; });
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") beginMenuIntent();
+});
+document.addEventListener("click", event => {
+  if (event.target.closest?.("[data-menu-dialog-close]")) beginMenuIntent();
+}, true);
+
+// Native lazy loading can fetch several screens of large catalog photos on a
+// slow connection. Keep those requests close to the viewport so they do not
+// compete with the first visible photograph. Older browsers retain native loading.
+function createProductImageObserver() {
+  if (typeof IntersectionObserver !== "function") return null;
+  try {
+    return new IntersectionObserver((entries, observer) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const image = entry.target;
+        observer.unobserve(image);
+        const sourceUrl = image.dataset.menuLazySrc;
+        if (!image.isConnected || !sourceUrl) continue;
+        delete image.dataset.menuLazySrc;
+        image.src = sourceUrl;
+      }
+    }, { rootMargin: "150px 0px", threshold: 0 });
+  } catch { return null; }
+}
+
+const productImageObserver = createProductImageObserver();
 
 function createItem(item, { priority = false, categoryId } = {}) {
   const pairing = categoryId === "pairing-offers";
@@ -256,13 +532,17 @@ function createItem(item, { priority = false, categoryId } = {}) {
     media.addEventListener("click", event => openProduct(id, event.currentTarget));
 
     const image = document.createElement("img");
-    image.src = productImage(categoryId, item);
+    const sourceUrl = productImage(categoryId, item);
     image.alt = pairing ? localized(item.imageAlt ?? item.name) : "";
     image.loading = priority ? "eager" : "lazy";
     image.decoding = "async";
     if (priority) image.fetchPriority = "high";
     image.width = 1024;
     image.height = 1024;
+    if (!priority && productImageObserver) {
+      image.dataset.menuLazySrc = sourceUrl;
+      productImageObserver.observe(image);
+    } else image.src = sourceUrl;
     media.append(image);
 
     const details = document.createElement("div");
@@ -419,7 +699,6 @@ function renderCategoryNav(focusId = null) {
   let focusButton = null;
   const options = [
     { id: "all", label: menuCopy[language].all },
-    { id: "kids-menu", label: kidsMenuCopy[language].title },
     ...menuCategories.map((category) => ({ id: category.id, label: localized(category.name) }))
   ];
 
@@ -434,6 +713,8 @@ function renderCategoryNav(focusId = null) {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
     button.addEventListener("click", () => {
+      combosUi?.close({ restoreFocus: false });
+      beginMenuIntent();
       activeCategory = option.id;
       syncCategoryHash(option.id);
       renderCategoryNav(option.id);
@@ -448,6 +729,8 @@ function renderCategoryNav(focusId = null) {
 }
 
 function renderMenu() {
+  productImageObserver?.takeRecords();
+  productImageObserver?.disconnect();
   menuRoot.replaceChildren();
   const categories = menuCategories.filter((category) => {
     const matchesCategory = activeCategory === "all" || activeCategory === category.id;
@@ -455,14 +738,6 @@ function renderMenu() {
   });
 
   let rendered = 0;
-  if (activeCategory === "all" || activeCategory === "kids-menu") {
-    const section = createKidsMenuSection({ language, products: kidsProducts, query: searchTerm,
-      onAdd: (combo, trigger) => openOrderIntent("kids", combo, trigger), onProduct: openProduct });
-    if (section) {
-      menuRoot.append(section);
-      rendered += 1;
-    }
-  }
   categories.forEach((category) => {
     const section = createCategory(category);
     if (!section) return;
@@ -475,11 +750,20 @@ function renderMenu() {
   syncMenuCartState();
 }
 
-let menuActionsPromise;
-function loadMenuActions() {
-  menuActionsPromise ??= import("./menu-interactions.js?v=20260923-web-only-v4");
-  return menuActionsPromise;
-}
+const menuActions = createMenuActionsLoader({
+  loadModule(attempt) {
+    if (!attempt) return import("./menu-interactions.js?v=20260923-web-only-v4");
+    const retryUrl = new URL("./menu-interactions.js?v=20260923-web-only-v4", import.meta.url);
+    retryUrl.searchParams.set("retry", String(attempt));
+    return import(retryUrl.href);
+  },
+  getLanguage: () => language,
+  setStatus: text => {
+    const status = document.querySelector("#menu-share-status");
+    if (status) status.textContent = text;
+  }
+});
+function loadMenuActions() { return menuActions.prefetch(); }
 
 function translateStaticPage() {
   const copy = menuCopy[language];
@@ -508,6 +792,13 @@ function translateStaticPage() {
 
   renderCart();
   orderUi?.refresh({ nextLanguage: language });
+  if (familyTrigger) familyTrigger.textContent = familyCopy[language].link;
+  familyUi?.refresh(language);
+  if (combosTrigger) combosTrigger.textContent = combosCopy[language].link;
+  const takeawayTrigger = document.querySelector("#menu-combos-takeaway-trigger");
+  if (takeawayTrigger) takeawayTrigger.textContent = combosCopy[language].takeaway;
+  combosUi?.refresh(language);
+  storageNotice?.refresh();
 }
 
 function setLanguage(next) {
@@ -527,19 +818,23 @@ languageButtons.forEach((button) => {
 });
 
 searchInput.addEventListener("input", () => {
+  combosUi?.close({ restoreFocus: false });
+  beginMenuIntent();
   searchTerm = searchInput.value;
-  if (searchTerm.trim() && activeCategory !== "all" && activeCategory !== "kids-menu") {
+  if (searchTerm.trim() && activeCategory !== "all") {
     activeCategory = "all";
     syncCategoryHash("all");
     renderCategoryNav();
   }
   renderMenu();
 });
+searchInput.addEventListener("focus", () => document.body.classList.add("menu-text-input-active"));
+searchInput.addEventListener("blur", () => document.body.classList.remove("menu-text-input-active"));
 
 cartTrigger.addEventListener("click", () => { void openOrderIntent("cart", undefined, cartTrigger); });
 
 function runLazyShare(skipNative = false) {
-  void loadMenuActions().then(({ shareMenu }) => shareMenu(null, { skipNative }));
+  void menuActions.share(skipNative);
 }
 
 menuShareButton?.addEventListener("click", (event) => {
@@ -558,17 +853,17 @@ menuShareButton?.addEventListener("click", (event) => {
   try {
     const nativeShare = navigator.share(payload);
     void nativeShare
-      .then(() => loadMenuActions().then(({ completeNativeShare }) => completeNativeShare()))
+      .then(() => menuActions.completeNativeShare())
       .catch((error) => {
         if (error?.name !== "AbortError") runLazyShare(true);
       });
-  } catch {
-    runLazyShare(true);
+  } catch (error) {
+    if (error?.name !== "AbortError") runLazyShare(true);
   }
 });
 
 document.querySelector("[data-instagram-booking]")?.addEventListener("click", () => {
-  void loadMenuActions().then(({ track }) => track("instagram_booking_click"));
+  void menuActions.track("instagram_booking_click");
 });
 
 document.querySelector("#current-year").textContent = String(new Date().getFullYear());
@@ -576,29 +871,42 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
+function refreshObservedCart(resetAdded = false) {
+  if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
+  cart = readCart();
+  renderCart();
+}
 
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
-  cart = readCart();
-  orderIntent += 1;
-  orderUi?.refresh({ nextLanguage: language, resetAdded: true });
+  beginMenuIntent();
   language = readStoredLanguage();
   translateStaticPage();
   renderCategoryNav();
   renderMenu();
-  renderCart();
+  refreshObservedCart(true);
 });
 
 window.addEventListener("storage", event => {
-  if (event.key === CART_STORAGE_KEY || event.key === null) {
-    cart = readCart();
-    orderUi?.refresh({ nextLanguage: language, resetAdded: true });
-    renderCart();
-  }
+  if (event.key === CART_STORAGE_KEY || event.key === CART_PROJECTION_KEY || event.key === null) refreshObservedCart(true);
   if (event.key === "robys-language" || event.key === null) setLanguage(readStoredLanguage());
 });
+window.addEventListener("robys:order-change", event => {
+  if (event.detail?.origin !== MENU_ORDER_ORIGIN) refreshObservedCart(true);
+});
+window.addEventListener("focus", () => refreshObservedCart());
 
 window.addEventListener("hashchange", () => {
+  if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
+    void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
+    return;
+  }
+  if (["#menu-family", "#kids-menu"].includes(window.location.hash)) {
+    void openFamilySuggestions();
+    return;
+  }
+  combosUi?.close({ restoreFocus: false });
+  beginMenuIntent();
   activeCategory = readInitialCategory();
   searchInput.value = "";
   searchInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -606,6 +914,11 @@ window.addEventListener("hashchange", () => {
 });
 
 if (language !== "tr") void loadMenuActions();
+
+if (["#menu-family", "#kids-menu"].includes(window.location.hash)) void openFamilySuggestions();
+if (["#menu-combos", "#menu-combos-takeaway"].includes(window.location.hash)) {
+  void openComboSuggestions(undefined, window.location.hash.endsWith("-takeaway") ? "takeaway" : "all");
+}
 
 if (activeCategory !== "all") {
   window.requestAnimationFrame(() => {

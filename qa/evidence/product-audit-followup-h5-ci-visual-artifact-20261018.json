@@ -1,0 +1,3301 @@
+{
+  "kind": "actual-github-actions-artifact-provenance-and-byte-manifest-not-approval",
+  "sourceHead": "27806dd15cf2a149a6fde786584f403595045305",
+  "sourceTree": "619b881c4b9f9d7d436f1596fa5b871a3392dde4",
+  "baselineHead": "28a394998674a02afc720fd8c082e35320b02b90",
+  "run": {
+    "id": 39154298990,
+    "run_attempt": 1,
+    "head_sha": "27806dd15cf2a149a6fde786584f403595045305",
+    "status": "completed",
+    "conclusion": "failure",
+    "pull_requests": [
+      {
+        "url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/pulls/438",
+        "id": 4910526822,
+        "number": 438,
+        "head": {
+          "ref": "fix/product-audit-followup-20261018",
+          "sha": "27806dd15cf2a149a6fde786584f403595045305",
+          "repo": {
+            "id": 1273960756,
+            "url": "https://api.github.com/repos/safal207/robys-coffee-house-demo",
+            "name": "robys-coffee-house-demo"
+          }
+        },
+        "base": {
+          "ref": "main",
+          "sha": "28a394998674a02afc720fd8c082e35320b02b90",
+          "repo": {
+            "id": 1273960756,
+            "url": "https://api.github.com/repos/safal207/robys-coffee-house-demo",
+            "name": "robys-coffee-house-demo"
+          }
+        }
+      }
+    ],
+    "url": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39154298990"
+  },
+  "artifact": {
+    "id": 12146890335,
+    "name": "visual-ui-ux-39154298990",
+    "size_in_bytes": 230262755,
+    "url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/actions/artifacts/12146890335",
+    "archive_download_url": "https://api.github.com/repos/safal207/robys-coffee-house-demo/actions/artifacts/12146890335/zip",
+    "expired": false,
+    "created_at": "2026-10-18T18:32:49Z",
+    "expires_at": "2026-11-01T18:32:40Z",
+    "updated_at": "2026-10-18T18:32:49Z",
+    "digest": "sha256:9d4b867b757db5b21fd5b24804eb1be49d171f541779a9b831b6d066b4cfff9e",
+    "workflow_run": {
+      "id": 39154298990,
+      "repository_id": 1273960756,
+      "head_repository_id": 1273960756,
+      "head_branch": "fix/product-audit-followup-20261018",
+      "head_sha": "27806dd15cf2a149a6fde786584f403595045305"
+    }
+  },
+  "job": {
+    "id": 117754207633,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-18T18:28:24Z",
+        "completed_at": "2026-10-18T18:28:25Z"
+      },
+      {
+        "name": "Checkout current branch",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-18T18:28:25Z",
+        "completed_at": "2026-10-18T18:28:26Z"
+      },
+      {
+        "name": "Checkout pull request base",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-18T18:28:26Z",
+        "completed_at": "2026-10-18T18:28:28Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-18T18:28:28Z",
+        "completed_at": "2026-10-18T18:28:29Z"
+      },
+      {
+        "name": "Install current dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-18T18:28:29Z",
+        "completed_at": "2026-10-18T18:28:30Z"
+      },
+      {
+        "name": "Install baseline dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-18T18:28:30Z",
+        "completed_at": "2026-10-18T18:28:31Z"
+      },
+      {
+        "name": "Verify installed visual toolchain and negative controls",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-18T18:28:31Z",
+        "completed_at": "2026-10-18T18:28:32Z"
+      },
+      {
+        "name": "Audit the effective locked toolchain without applying fixes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-18T18:28:32Z",
+        "completed_at": "2026-10-18T18:28:32Z"
+      },
+      {
+        "name": "Build and verify current branch",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-18T18:28:32Z",
+        "completed_at": "2026-10-18T18:29:09Z"
+      },
+      {
+        "name": "Verify Instagram tools contract",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-18T18:29:09Z",
+        "completed_at": "2026-10-18T18:29:10Z"
+      },
+      {
+        "name": "Build base branch or preserve exact committed baseline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-18T18:29:10Z",
+        "completed_at": "2026-10-18T18:29:22Z"
+      },
+      {
+        "name": "Install deterministic Chromium from the locked Playwright package",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12,
+        "started_at": "2026-10-18T18:29:22Z",
+        "completed_at": "2026-10-18T18:29:41Z"
+      },
+      {
+        "name": "Verify launched browser against the installed Playwright manifest",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-18T18:29:41Z",
+        "completed_at": "2026-10-18T18:29:42Z"
+      },
+      {
+        "name": "Verify document capture and share-action reachability",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-18T18:29:42Z",
+        "completed_at": "2026-10-18T18:29:49Z"
+      },
+      {
+        "name": "Compare screenshots with base branch",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-18T18:29:49Z",
+        "completed_at": "2026-10-18T18:31:15Z"
+      },
+      {
+        "name": "Recheck failed screenshot comparison or toolchain migration",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16,
+        "started_at": "2026-10-18T18:31:15Z",
+        "completed_at": "2026-10-18T18:32:39Z"
+      },
+      {
+        "name": "Select final screenshot evidence",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-18T18:32:39Z",
+        "completed_at": "2026-10-18T18:32:39Z"
+      },
+      {
+        "name": "Reject reuse of old visual approvals during a toolchain migration",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-18T18:32:39Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Validate reviewed visual change",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 19,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Run expanded UI UX matrix with automatic scenario recheck",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 20,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Verify seven AI-style review lenses",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Recheck live social network destination",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 22,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Audit rapid mobile menu scrolling",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 23,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Recheck failed mobile scroll audit",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 24,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Enforce confirmed mobile scroll result",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 25,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Verify takeaway entry motion contract",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 26,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:40Z"
+      },
+      {
+        "name": "Upload visual and UI UX evidence",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 27,
+        "started_at": "2026-10-18T18:32:40Z",
+        "completed_at": "2026-10-18T18:32:49Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 52,
+        "started_at": "2026-10-18T18:32:49Z",
+        "completed_at": "2026-10-18T18:32:49Z"
+      },
+      {
+        "name": "Post Checkout pull request base",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 53,
+        "started_at": "2026-10-18T18:32:49Z",
+        "completed_at": "2026-10-18T18:32:49Z"
+      },
+      {
+        "name": "Post Checkout current branch",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 54,
+        "started_at": "2026-10-18T18:32:49Z",
+        "completed_at": "2026-10-18T18:32:49Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 55,
+        "started_at": "2026-10-18T18:32:49Z",
+        "completed_at": "2026-10-18T18:32:49Z"
+      }
+    ]
+  },
+  "validation": {
+    "kind": "actual-CI-artifact-integrity-and-completeness-verification-not-visual-approval",
+    "passed": true,
+    "sourceHead": "27806dd15cf2a149a6fde786584f403595045305",
+    "baselineHead": "28a394998674a02afc720fd8c082e35320b02b90",
+    "runId": 39154298990,
+    "artifactId": 12146890335,
+    "artifactZipSha256": "9d4b867b757db5b21fd5b24804eb1be49d171f541779a9b831b6d066b4cfff9e",
+    "artifactZipBytes": 230262755,
+    "archiveFilesVerified": 329,
+    "captureSetMatchesCommittedConfig": true,
+    "expectedComparisons": 43,
+    "perAttemptFailures": {
+      "screenshot-attempt-1": 23,
+      "screenshot-attempt-2": 23,
+      "final": 23
+    },
+    "failedMetricsExactlyRepeat": false,
+    "allResultsOrRawBytesNotClaimedIdentical": true,
+    "finalSummaryEqualsAttempt2": true,
+    "summarySha256": {
+      "screenshot-attempt-1": "adcc1510131fb0786b67202896ec07bd364cfeaaef7245fc93442fad506caba7",
+      "screenshot-attempt-2": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35",
+      "final": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35"
+    },
+    "toolchainMatchesCapturedAndBaselineLocks": true,
+    "toolchainChanged": false,
+    "lockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+    "baselineLockSha256": "3eea6b3b5007fe18da50067d51dea9a4013a21956b75ffccc7c083c4e8cb3d51",
+    "verifiedAt": "2026-10-18T18:34:47.995662+00:00"
+  },
+  "files": [
+    {
+      "path": "capture-reachability/1366-fine-document.png",
+      "bytes": 39609,
+      "sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "capture-reachability/1366-touch-document.png",
+      "bytes": 39609,
+      "sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "capture-reachability/1366-fine-locator.png",
+      "bytes": 39694,
+      "sha256": "a129edb94e7d3ad4f259178b8e5a8da6a549aa6034fab1dcaed46b1c242e6aaa",
+      "dimensions": [
+        1180,
+        314
+      ]
+    },
+    {
+      "path": "capture-reachability/1366-touch-locator.png",
+      "bytes": 39694,
+      "sha256": "a129edb94e7d3ad4f259178b8e5a8da6a549aa6034fab1dcaed46b1c242e6aaa",
+      "dimensions": [
+        1180,
+        314
+      ]
+    },
+    {
+      "path": "capture-reachability/1440-fine-document.png",
+      "bytes": 40282,
+      "sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "capture-reachability/1440-fine-locator.png",
+      "bytes": 40345,
+      "sha256": "17c91fcec32953396590fbd3f4b29b5f0c1ec2384c745254c78e336095ea2f90",
+      "dimensions": [
+        1180,
+        320
+      ]
+    },
+    {
+      "path": "capture-reachability/1440-touch-document.png",
+      "bytes": 40282,
+      "sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "capture-reachability/1440-touch-locator.png",
+      "bytes": 40345,
+      "sha256": "17c91fcec32953396590fbd3f4b29b5f0c1ec2384c745254c78e336095ea2f90",
+      "dimensions": [
+        1180,
+        320
+      ]
+    },
+    {
+      "path": "capture-reachability/320-fine-document.png",
+      "bytes": 30294,
+      "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "capture-reachability/320-fine-locator.png",
+      "bytes": 30354,
+      "sha256": "17bd6bd91d27c86e616df1a8a0a04e36cea12ac0b8c8e0275298da7958c9beb5",
+      "dimensions": [
+        280,
+        513
+      ]
+    },
+    {
+      "path": "capture-reachability/320-touch-document.png",
+      "bytes": 29002,
+      "sha256": "0c7688a1449225f3c483204c4629f211d07ef3e9a83ce8edf65f0f81eec87d78",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "capture-reachability/320-touch-locator.png",
+      "bytes": 30354,
+      "sha256": "17bd6bd91d27c86e616df1a8a0a04e36cea12ac0b8c8e0275298da7958c9beb5",
+      "dimensions": [
+        280,
+        513
+      ]
+    },
+    {
+      "path": "capture-reachability/360-fine-document.png",
+      "bytes": 32767,
+      "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "capture-reachability/360-fine-locator.png",
+      "bytes": 32423,
+      "sha256": "bc65699411c38b39017ee92473ad3bd8217de4077bb66895df1262c1484d50ea",
+      "dimensions": [
+        320,
+        498
+      ]
+    },
+    {
+      "path": "capture-reachability/360-touch-document.png",
+      "bytes": 31269,
+      "sha256": "a1380d1ca700ede5ed6d6aec0ac74da64c9ec5c50a9211177f721df1227b28e0",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "capture-reachability/360-touch-locator.png",
+      "bytes": 32851,
+      "sha256": "9134c4aff5cc9ee9a8aa918aa76bf03e2b3b16fc1b18052be0aaac1a99990a6a",
+      "dimensions": [
+        320,
+        498
+      ]
+    },
+    {
+      "path": "capture-reachability/390-fine-document.png",
+      "bytes": 33856,
+      "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "capture-reachability/390-fine-locator.png",
+      "bytes": 33899,
+      "sha256": "a3fb7577c25e75b9c3912b0295f01ee6700c6234b65b7afaab2310d18ce1802b",
+      "dimensions": [
+        350,
+        506
+      ]
+    },
+    {
+      "path": "capture-reachability/390-touch-document.png",
+      "bytes": 32386,
+      "sha256": "34e4d05a2904a3149472cc8d6d2b7ef591a276b3ae457f763c764c3a3bf541f0",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "capture-reachability/390-touch-locator.png",
+      "bytes": 33899,
+      "sha256": "a3fb7577c25e75b9c3912b0295f01ee6700c6234b65b7afaab2310d18ce1802b",
+      "dimensions": [
+        350,
+        506
+      ]
+    },
+    {
+      "path": "capture-reachability/768-fine-document.png",
+      "bytes": 34064,
+      "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "capture-reachability/768-fine-locator.png",
+      "bytes": 34144,
+      "sha256": "80cd8d91ab9a8690bef91ebb17dd6d8084f6d9d827df28a737fe664dfae7f704",
+      "dimensions": [
+        728,
+        431
+      ]
+    },
+    {
+      "path": "capture-reachability/768-touch-document.png",
+      "bytes": 32847,
+      "sha256": "2efd0d3f269c035601acb20cc87b1e5ec46eb9b2c31a55a5946acebbb54446a8",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "capture-reachability/768-touch-locator.png",
+      "bytes": 34144,
+      "sha256": "80cd8d91ab9a8690bef91ebb17dd6d8084f6d9d827df28a737fe664dfae7f704",
+      "dimensions": [
+        728,
+        431
+      ]
+    },
+    {
+      "path": "capture-reachability/summary.json",
+      "bytes": 4436,
+      "sha256": "100b2c51986a2e795ef62b5353c4db215e44906fc2e281de4415e08d7e6c8c54"
+    },
+    {
+      "path": "final/baseline/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "final/baseline/discover-full__phone-320.png",
+      "bytes": 371756,
+      "sha256": "a4aba9931ce8561e47a85813a2e6d25b95fdf653e9e5679a350c5a841c508a89",
+      "dimensions": [
+        320,
+        2961
+      ]
+    },
+    {
+      "path": "final/baseline/discover-full__phone-390.png",
+      "bytes": 452865,
+      "sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+      "dimensions": [
+        390,
+        2940
+      ]
+    },
+    {
+      "path": "final/baseline/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "3ea1897fd97b937110ad51410a07d95d3f875501b4017a7fb417126485bdb623",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__phone-320.png",
+      "bytes": 163173,
+      "sha256": "413efd5dd4efd691bac17ed31febe7432f1712045ca4babf9608f3a1c0e8e65b",
+      "dimensions": [
+        280,
+        830
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__phone-360-short.png",
+      "bytes": 171812,
+      "sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+      "dimensions": [
+        320,
+        805
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__phone-390.png",
+      "bytes": 244070,
+      "sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+      "dimensions": [
+        350,
+        774
+      ]
+    },
+    {
+      "path": "final/baseline/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "final/baseline/hero__desktop-1440.png",
+      "bytes": 1510802,
+      "sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "final/baseline/hero__laptop-1366.png",
+      "bytes": 1037697,
+      "sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+      "dimensions": [
+        1366,
+        768
+      ]
+    },
+    {
+      "path": "final/baseline/hero__phone-360-short.png",
+      "bytes": 282659,
+      "sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+      "dimensions": [
+        360,
+        640
+      ]
+    },
+    {
+      "path": "final/baseline/hero__phone-390.png",
+      "bytes": 448951,
+      "sha256": "5daa2e8df07e9f4d89472fe745914cba4977eba4df1e07328f308ed22c4f7259",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "final/baseline/landing-full__desktop-1440.png",
+      "bytes": 5198418,
+      "sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "final/baseline/landing-full__phone-320.png",
+      "bytes": 1798521,
+      "sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "final/baseline/landing-full__phone-390.png",
+      "bytes": 2354902,
+      "sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "final/baseline/landing-full__tablet-768.png",
+      "bytes": 3169242,
+      "sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "final/baseline/menu-full__desktop-1440.png",
+      "bytes": 2709079,
+      "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+      "dimensions": [
+        1440,
+        7628
+      ]
+    },
+    {
+      "path": "final/baseline/menu-full__phone-320.png",
+      "bytes": 1803579,
+      "sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+      "dimensions": [
+        320,
+        11719
+      ]
+    },
+    {
+      "path": "final/baseline/menu-full__tablet-768.png",
+      "bytes": 3208200,
+      "sha256": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5",
+      "dimensions": [
+        768,
+        13264
+      ]
+    },
+    {
+      "path": "final/baseline/menu-full__phone-390.png",
+      "bytes": 1939987,
+      "sha256": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311",
+      "dimensions": [
+        390,
+        11474
+      ]
+    },
+    {
+      "path": "final/baseline/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "final/baseline/menu-preview__phone-390.png",
+      "bytes": 185532,
+      "sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "final/baseline/menu-preview__laptop-1366.png",
+      "bytes": 398433,
+      "sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__desktop-1440.png",
+      "bytes": 40276,
+      "sha256": "e65b4e92643901788c82c553514a60ee06e737e83137d58e297c8dc2830377b0",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__laptop-1366.png",
+      "bytes": 39663,
+      "sha256": "7979fbb836c285087f84469a850d45500700a93dd3331b64fff9b6fe0cb167d2",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__phone-320.png",
+      "bytes": 30258,
+      "sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__phone-360-short.png",
+      "bytes": 32806,
+      "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__phone-390.png",
+      "bytes": 33948,
+      "sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "final/baseline/menu-share__tablet-768.png",
+      "bytes": 34072,
+      "sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "final/baseline/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "final/baseline/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "final/baseline/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__laptop-1366.png",
+      "bytes": 131184,
+      "sha256": "4de4105086072df7049f96a942fa10dad7423ff77bcc328f91c5c660f79d6713",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__phone-360-short.png",
+      "bytes": 59492,
+      "sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "final/baseline/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "final/baseline/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "final/baseline/visit-map__laptop-1366.png",
+      "bytes": 474207,
+      "sha256": "42230f58560d706178c8a0bffb80e1eef584a7c71e754aa3793c87829938bb56",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "final/baseline/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "final/current/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "final/current/discover-full__phone-320.png",
+      "bytes": 366889,
+      "sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+      "dimensions": [
+        320,
+        2886
+      ]
+    },
+    {
+      "path": "final/current/discover-full__phone-390.png",
+      "bytes": 449059,
+      "sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+      "dimensions": [
+        390,
+        2918
+      ]
+    },
+    {
+      "path": "final/current/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__phone-360-short.png",
+      "bytes": 175923,
+      "sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+      "dimensions": [
+        320,
+        742
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__phone-320.png",
+      "bytes": 175446,
+      "sha256": "efb4007864811792ee07eaee2b0eecef6ec0554437bf264d7ce05d54866e6091",
+      "dimensions": [
+        280,
+        754
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__phone-390.png",
+      "bytes": 247123,
+      "sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+      "dimensions": [
+        350,
+        751
+      ]
+    },
+    {
+      "path": "final/current/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "final/current/hero__desktop-1440.png",
+      "bytes": 1514242,
+      "sha256": "9e63d9fd3d2e61cf8a2a92a2543c5a97b954764f65bc5a515f041223d773d953",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "final/current/hero__laptop-1366.png",
+      "bytes": 1035795,
+      "sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+      "dimensions": [
+        1366,
+        770
+      ]
+    },
+    {
+      "path": "final/current/hero__phone-360-short.png",
+      "bytes": 296349,
+      "sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+      "dimensions": [
+        360,
+        679
+      ]
+    },
+    {
+      "path": "final/current/hero__phone-390.png",
+      "bytes": 448419,
+      "sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "final/current/landing-full__desktop-1440.png",
+      "bytes": 5201311,
+      "sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "final/current/landing-full__phone-320.png",
+      "bytes": 1799412,
+      "sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "final/current/landing-full__phone-390.png",
+      "bytes": 2354492,
+      "sha256": "c84b8247f6d3d2d49b54feae57082774bd6cef09ba83df48ecf9e72620d7cf14",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "final/current/landing-full__tablet-768.png",
+      "bytes": 3168795,
+      "sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "final/current/menu-full__desktop-1440.png",
+      "bytes": 2684042,
+      "sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+      "dimensions": [
+        1440,
+        7346
+      ]
+    },
+    {
+      "path": "final/current/menu-full__phone-320.png",
+      "bytes": 1790545,
+      "sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+      "dimensions": [
+        320,
+        11598
+      ]
+    },
+    {
+      "path": "final/current/menu-full__phone-390.png",
+      "bytes": 1922487,
+      "sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+      "dimensions": [
+        390,
+        11325
+      ]
+    },
+    {
+      "path": "final/current/menu-full__tablet-768.png",
+      "bytes": 3185834,
+      "sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+      "dimensions": [
+        768,
+        13002
+      ]
+    },
+    {
+      "path": "final/current/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "final/current/menu-preview__laptop-1366.png",
+      "bytes": 399473,
+      "sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "final/current/menu-preview__phone-390.png",
+      "bytes": 185532,
+      "sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "final/current/menu-share__desktop-1440.png",
+      "bytes": 40282,
+      "sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "final/current/menu-share__laptop-1366.png",
+      "bytes": 39609,
+      "sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "final/current/menu-share__phone-320.png",
+      "bytes": 30294,
+      "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "final/current/menu-share__phone-360-short.png",
+      "bytes": 32767,
+      "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "final/current/menu-share__phone-390.png",
+      "bytes": 33856,
+      "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "final/current/menu-share__tablet-768.png",
+      "bytes": 34064,
+      "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "final/current/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "final/current/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "final/current/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "final/current/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "final/current/social-offer__laptop-1366.png",
+      "bytes": 130841,
+      "sha256": "4a53f52a7c5f624b2aa415227914bb4b3f86f5411f53b13969c19e6dc4a2eb7a",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "final/current/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "final/current/social-offer__phone-360-short.png",
+      "bytes": 58435,
+      "sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "final/current/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "final/current/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "final/current/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "final/current/visit-map__laptop-1366.png",
+      "bytes": 474766,
+      "sha256": "a3e9760b28a38bb06d897cb981bdeb5fe75c7a4bae0823d1a808673d7588f589",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "final/current/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "final/diff/hero__desktop-1440.png",
+      "bytes": 1249056,
+      "sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "final/diff/hero__phone-390.png",
+      "bytes": 369258,
+      "sha256": "ee209b772efd1000d591fc8158df4cac908e6fb7bd06bdaa28c6d7724fc99509",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "final/diff/landing-full__desktop-1440.png",
+      "bytes": 5077119,
+      "sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "final/diff/landing-full__phone-320.png",
+      "bytes": 1773395,
+      "sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "final/diff/landing-full__phone-390.png",
+      "bytes": 2274522,
+      "sha256": "50470cf1a9a484efb3124a63cbd220c887baa28fb31480199ceb2b42d786a101",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "final/diff/landing-full__tablet-768.png",
+      "bytes": 3182392,
+      "sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "final/diff/menu-preview__laptop-1366.png",
+      "bytes": 502505,
+      "sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "final/diff/menu-share__phone-320.png",
+      "bytes": 38642,
+      "sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "final/diff/menu-share__phone-360-short.png",
+      "bytes": 38650,
+      "sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "final/diff/menu-share__phone-390.png",
+      "bytes": 40034,
+      "sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "final/diff/menu-share__tablet-768.png",
+      "bytes": 40113,
+      "sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "final/diff/social-offer__phone-360-short.png",
+      "bytes": 57568,
+      "sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "final/summary.json",
+      "bytes": 11569,
+      "sha256": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35"
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-full__phone-320.png",
+      "bytes": 371754,
+      "sha256": "39a7a391efcca5eb5d64d41598ed40260244366cc12f9bb19c06acd37b8a25c4",
+      "dimensions": [
+        320,
+        2961
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-full__phone-390.png",
+      "bytes": 452865,
+      "sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+      "dimensions": [
+        390,
+        2940
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__phone-320.png",
+      "bytes": 163172,
+      "sha256": "ee37a1e7fcf67c117fc54f76da9e94f7bad9774112df80dd0d6a660d5d51a6df",
+      "dimensions": [
+        280,
+        830
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__phone-360-short.png",
+      "bytes": 171812,
+      "sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+      "dimensions": [
+        320,
+        805
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__phone-390.png",
+      "bytes": 244070,
+      "sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+      "dimensions": [
+        350,
+        774
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/hero__desktop-1440.png",
+      "bytes": 1510802,
+      "sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/hero__laptop-1366.png",
+      "bytes": 1037697,
+      "sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+      "dimensions": [
+        1366,
+        768
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/hero__phone-360-short.png",
+      "bytes": 282659,
+      "sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+      "dimensions": [
+        360,
+        640
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/hero__phone-390.png",
+      "bytes": 448957,
+      "sha256": "252d157961e89599ba94fb2034fdc1741ab31daaf65ffd6ab9998342217b57c4",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/landing-full__desktop-1440.png",
+      "bytes": 5198418,
+      "sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/landing-full__phone-320.png",
+      "bytes": 1798521,
+      "sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/landing-full__phone-390.png",
+      "bytes": 2354902,
+      "sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/landing-full__tablet-768.png",
+      "bytes": 3169242,
+      "sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-full__desktop-1440.png",
+      "bytes": 2709079,
+      "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+      "dimensions": [
+        1440,
+        7628
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-full__phone-320.png",
+      "bytes": 1803579,
+      "sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+      "dimensions": [
+        320,
+        11719
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-full__phone-390.png",
+      "bytes": 1941176,
+      "sha256": "cfef83b5c11637712835113590b073018725b961941563284fe0681a351f55fc",
+      "dimensions": [
+        390,
+        11474
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-full__tablet-768.png",
+      "bytes": 3208204,
+      "sha256": "848cf2b074e69442dee9602fc766adbc97e3c805d3054f39b4da4920f5465fe6",
+      "dimensions": [
+        768,
+        13264
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-preview__laptop-1366.png",
+      "bytes": 398433,
+      "sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-preview__phone-390.png",
+      "bytes": 185524,
+      "sha256": "aa8bb8b31264c9a189e546e2447e7bc39bb5953c1dcdc15bea3425aa41a4f3c4",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__desktop-1440.png",
+      "bytes": 40276,
+      "sha256": "e65b4e92643901788c82c553514a60ee06e737e83137d58e297c8dc2830377b0",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__laptop-1366.png",
+      "bytes": 39663,
+      "sha256": "7979fbb836c285087f84469a850d45500700a93dd3331b64fff9b6fe0cb167d2",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__phone-320.png",
+      "bytes": 30258,
+      "sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__phone-360-short.png",
+      "bytes": 32806,
+      "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__phone-390.png",
+      "bytes": 33948,
+      "sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/menu-share__tablet-768.png",
+      "bytes": 34072,
+      "sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__laptop-1366.png",
+      "bytes": 131184,
+      "sha256": "4de4105086072df7049f96a942fa10dad7423ff77bcc328f91c5c660f79d6713",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__phone-360-short.png",
+      "bytes": 59492,
+      "sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/visit-map__laptop-1366.png",
+      "bytes": 474207,
+      "sha256": "42230f58560d706178c8a0bffb80e1eef584a7c71e754aa3793c87829938bb56",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/baseline/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-full__phone-320.png",
+      "bytes": 366889,
+      "sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+      "dimensions": [
+        320,
+        2886
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-full__phone-390.png",
+      "bytes": 449059,
+      "sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+      "dimensions": [
+        390,
+        2918
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "3ea1897fd97b937110ad51410a07d95d3f875501b4017a7fb417126485bdb623",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__phone-320.png",
+      "bytes": 175458,
+      "sha256": "64f5c04bed35e636251733e657237d4f5c734deeab56316bac4d4ac2d71fe66e",
+      "dimensions": [
+        280,
+        754
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__phone-360-short.png",
+      "bytes": 175923,
+      "sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+      "dimensions": [
+        320,
+        742
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__phone-390.png",
+      "bytes": 247123,
+      "sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+      "dimensions": [
+        350,
+        751
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/hero__desktop-1440.png",
+      "bytes": 1514254,
+      "sha256": "2a53328efe3f3a1ff12f174b89bc21f17d8799861d99626914c20708518f8879",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/hero__laptop-1366.png",
+      "bytes": 1035795,
+      "sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+      "dimensions": [
+        1366,
+        770
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/hero__phone-360-short.png",
+      "bytes": 296349,
+      "sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+      "dimensions": [
+        360,
+        679
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/hero__phone-390.png",
+      "bytes": 448419,
+      "sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/landing-full__desktop-1440.png",
+      "bytes": 5201311,
+      "sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/landing-full__phone-320.png",
+      "bytes": 1799412,
+      "sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/landing-full__phone-390.png",
+      "bytes": 2354489,
+      "sha256": "54b993539c31ac690fb1be00bcf261dfee232d5390d403c08bfc67d20f7b0cdf",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/landing-full__tablet-768.png",
+      "bytes": 3168795,
+      "sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-full__desktop-1440.png",
+      "bytes": 2684042,
+      "sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+      "dimensions": [
+        1440,
+        7346
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-full__phone-320.png",
+      "bytes": 1790545,
+      "sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+      "dimensions": [
+        320,
+        11598
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-full__phone-390.png",
+      "bytes": 1922487,
+      "sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+      "dimensions": [
+        390,
+        11325
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-full__tablet-768.png",
+      "bytes": 3185834,
+      "sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+      "dimensions": [
+        768,
+        13002
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-preview__laptop-1366.png",
+      "bytes": 399473,
+      "sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-preview__phone-390.png",
+      "bytes": 185524,
+      "sha256": "aa8bb8b31264c9a189e546e2447e7bc39bb5953c1dcdc15bea3425aa41a4f3c4",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__laptop-1366.png",
+      "bytes": 39609,
+      "sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__desktop-1440.png",
+      "bytes": 40282,
+      "sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__phone-320.png",
+      "bytes": 30294,
+      "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__phone-360-short.png",
+      "bytes": 32767,
+      "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__phone-390.png",
+      "bytes": 33856,
+      "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/menu-share__tablet-768.png",
+      "bytes": 34064,
+      "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__laptop-1366.png",
+      "bytes": 130841,
+      "sha256": "4a53f52a7c5f624b2aa415227914bb4b3f86f5411f53b13969c19e6dc4a2eb7a",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__phone-360-short.png",
+      "bytes": 58435,
+      "sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/visit-map__laptop-1366.png",
+      "bytes": 474766,
+      "sha256": "a3e9760b28a38bb06d897cb981bdeb5fe75c7a4bae0823d1a808673d7588f589",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/current/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/hero__desktop-1440.png",
+      "bytes": 1249056,
+      "sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/hero__phone-390.png",
+      "bytes": 369258,
+      "sha256": "28c5636eb2c4f6c29de58ba8ba0fcde7ca7af111d45d839765a4fcec8df5dc0c",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/landing-full__desktop-1440.png",
+      "bytes": 5077119,
+      "sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/landing-full__phone-320.png",
+      "bytes": 1773395,
+      "sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/landing-full__phone-390.png",
+      "bytes": 2274673,
+      "sha256": "612c72c1ec58b0d8776950136d1b1fa94a34a3c0ed303a213dfe5e82211fde04",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/landing-full__tablet-768.png",
+      "bytes": 3182392,
+      "sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/menu-preview__laptop-1366.png",
+      "bytes": 502505,
+      "sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/menu-share__phone-320.png",
+      "bytes": 38642,
+      "sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/menu-share__phone-360-short.png",
+      "bytes": 38650,
+      "sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/menu-share__phone-390.png",
+      "bytes": 40034,
+      "sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/menu-share__tablet-768.png",
+      "bytes": 40113,
+      "sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/diff/social-offer__phone-360-short.png",
+      "bytes": 57568,
+      "sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-1/summary.json",
+      "bytes": 11569,
+      "sha256": "adcc1510131fb0786b67202896ec07bd364cfeaaef7245fc93442fad506caba7"
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-full__phone-320.png",
+      "bytes": 371756,
+      "sha256": "a4aba9931ce8561e47a85813a2e6d25b95fdf653e9e5679a350c5a841c508a89",
+      "dimensions": [
+        320,
+        2961
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-full__phone-390.png",
+      "bytes": 452865,
+      "sha256": "c3556fb0931f620e3b751401e2441a8efacf8bd1795cd8f6174c160a166d0666",
+      "dimensions": [
+        390,
+        2940
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "3ea1897fd97b937110ad51410a07d95d3f875501b4017a7fb417126485bdb623",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__phone-320.png",
+      "bytes": 163173,
+      "sha256": "413efd5dd4efd691bac17ed31febe7432f1712045ca4babf9608f3a1c0e8e65b",
+      "dimensions": [
+        280,
+        830
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__phone-360-short.png",
+      "bytes": 171812,
+      "sha256": "2c68957d782b435476ac89f738c83443cbb4b050d7a43599bf2e91dd8e8f6e95",
+      "dimensions": [
+        320,
+        805
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__phone-390.png",
+      "bytes": 244070,
+      "sha256": "322f62418cdb321e3ceaac253a17601ff53f8be7d235c4bf5182418fa7b3633d",
+      "dimensions": [
+        350,
+        774
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/hero__desktop-1440.png",
+      "bytes": 1510802,
+      "sha256": "67b1aee0265ea8972e5409ba674360830d24ed3ba821b728939ca7a73162f977",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/hero__laptop-1366.png",
+      "bytes": 1037697,
+      "sha256": "be724596f9706563c21930007d9aec5a06224054d6886fbb6c7cfd66553e8919",
+      "dimensions": [
+        1366,
+        768
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/hero__phone-360-short.png",
+      "bytes": 282659,
+      "sha256": "b2b9e2da2ad4d14a8dea1f80f0d03f5b3e582b970dca098931a6a818e132280f",
+      "dimensions": [
+        360,
+        640
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/hero__phone-390.png",
+      "bytes": 448951,
+      "sha256": "5daa2e8df07e9f4d89472fe745914cba4977eba4df1e07328f308ed22c4f7259",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/landing-full__phone-320.png",
+      "bytes": 1798521,
+      "sha256": "c51dbcd0834e7e9cf3e0a5c1ce3a235aa02c01bcf86f2d03469dad1417b52629",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/landing-full__desktop-1440.png",
+      "bytes": 5198418,
+      "sha256": "329ea3bf47795c12ab89cc5089a3e226d5d6e23750f039ec6dcaad665b006bf5",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/landing-full__phone-390.png",
+      "bytes": 2354902,
+      "sha256": "aa3975fbd19bb3a2073f99a806c3119b79315aae22299701d01c1f03ec01875b",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/landing-full__tablet-768.png",
+      "bytes": 3169242,
+      "sha256": "3f3b443cb5d22e8692798a49e8fdf3f74b780d20a1e8416885d72e2945789f73",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-full__desktop-1440.png",
+      "bytes": 2709079,
+      "sha256": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb",
+      "dimensions": [
+        1440,
+        7628
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-full__phone-320.png",
+      "bytes": 1803579,
+      "sha256": "704c315d001dce8b9fd23b36e8c2715ace60590be3bb1fd79a9966fe2a463da2",
+      "dimensions": [
+        320,
+        11719
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-full__tablet-768.png",
+      "bytes": 3208200,
+      "sha256": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5",
+      "dimensions": [
+        768,
+        13264
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-full__phone-390.png",
+      "bytes": 1939987,
+      "sha256": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311",
+      "dimensions": [
+        390,
+        11474
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-preview__laptop-1366.png",
+      "bytes": 398433,
+      "sha256": "965b25af3b5af332bed1b6ce0ee5158174981749b94e3d7f053a90fb0fb1cba2",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-preview__phone-390.png",
+      "bytes": 185532,
+      "sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__desktop-1440.png",
+      "bytes": 40276,
+      "sha256": "e65b4e92643901788c82c553514a60ee06e737e83137d58e297c8dc2830377b0",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__laptop-1366.png",
+      "bytes": 39663,
+      "sha256": "7979fbb836c285087f84469a850d45500700a93dd3331b64fff9b6fe0cb167d2",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__phone-320.png",
+      "bytes": 30258,
+      "sha256": "fc03802095b18c512c6c20fdb0e815657f98d0475a1a711352019843c4e0b14c",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__phone-390.png",
+      "bytes": 33948,
+      "sha256": "9c5f2d38e8be62f3d2a1a5d3a895d93343d2a951cb8042b895bcdac4bf71db4c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__phone-360-short.png",
+      "bytes": 32806,
+      "sha256": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/menu-share__tablet-768.png",
+      "bytes": 34072,
+      "sha256": "95f318355d9623a512d951a8e3038842f577a60a5a5b0b8a8a17155c67642716",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__laptop-1366.png",
+      "bytes": 131184,
+      "sha256": "4de4105086072df7049f96a942fa10dad7423ff77bcc328f91c5c660f79d6713",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__phone-360-short.png",
+      "bytes": 59492,
+      "sha256": "9c4f2c6754ad2279a8eb1d290dffb3d55fb91aa6cdfc48ef430d3e610ba76dff",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/visit-map__laptop-1366.png",
+      "bytes": 474207,
+      "sha256": "42230f58560d706178c8a0bffb80e1eef584a7c71e754aa3793c87829938bb56",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/baseline/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-full__desktop-1440.png",
+      "bytes": 1101421,
+      "sha256": "140e4c0d3bf2f1ae86f7797a0c6f35a2083ccf5e3dd0b7c06f3a1c064f4df66d",
+      "dimensions": [
+        1440,
+        2741
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-full__phone-320.png",
+      "bytes": 366889,
+      "sha256": "81fade9ed635ef14ae3ab15d6f083afaf1d98511f61e4827fd36181d777450e6",
+      "dimensions": [
+        320,
+        2886
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-full__phone-390.png",
+      "bytes": 449059,
+      "sha256": "60f61ffb4cb7aa9a4cf9db35fbd0cd7fcd47dab132c49fcca2ab3326c6148f53",
+      "dimensions": [
+        390,
+        2918
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__desktop-1440.png",
+      "bytes": 702074,
+      "sha256": "3043005f3c64aa81eecd555db3aff8c00a61d993ecf64de0ef028cf68952ed39",
+      "dimensions": [
+        1180,
+        680
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-full__tablet-768.png",
+      "bytes": 1025907,
+      "sha256": "ab59e49f507811ed74f7fdafe996c25c28a8c2aed56e7cc402f6b22fd2a79b8d",
+      "dimensions": [
+        768,
+        2957
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__laptop-1366.png",
+      "bytes": 688736,
+      "sha256": "23d90b31b2b233e29554cf2c17621d3bb64ca2053129db1cc17f06de22d977f6",
+      "dimensions": [
+        1180,
+        681
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__phone-320.png",
+      "bytes": 175446,
+      "sha256": "efb4007864811792ee07eaee2b0eecef6ec0554437bf264d7ce05d54866e6091",
+      "dimensions": [
+        280,
+        754
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__phone-360-short.png",
+      "bytes": 175923,
+      "sha256": "8aeaa10a4c66bd4d4eb84a7c02865e9f76f232f47e20a494ef5d47311eb5ec6e",
+      "dimensions": [
+        320,
+        742
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__phone-390.png",
+      "bytes": 247123,
+      "sha256": "56c5d9624732d2c079f2caa429e7d606ec199a228b4a0ef6ceefef3ab81563d8",
+      "dimensions": [
+        350,
+        751
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/discover-pairing__tablet-768.png",
+      "bytes": 743910,
+      "sha256": "f92fdd5cc583c8ce1e01a957b8e1fb5852f0049cf333835b99e50418c8022e4e",
+      "dimensions": [
+        728,
+        1159
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/hero__desktop-1440.png",
+      "bytes": 1514242,
+      "sha256": "9e63d9fd3d2e61cf8a2a92a2543c5a97b954764f65bc5a515f041223d773d953",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/hero__laptop-1366.png",
+      "bytes": 1035795,
+      "sha256": "e3d7581fa3c0abd3d7988c2a067bc5358e898b15c9645f1e61e853af5ca4dc74",
+      "dimensions": [
+        1366,
+        770
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/hero__phone-360-short.png",
+      "bytes": 296349,
+      "sha256": "9880eadef3d357c7ec0ddd530ec0ad304637dedcf58d0c37c01b3571c2a9cdff",
+      "dimensions": [
+        360,
+        679
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/hero__phone-390.png",
+      "bytes": 448419,
+      "sha256": "1bf6d645790cf3fc6892f1ff8ff15b78135688dcbb15b17fa2e0bfaa6565ea3b",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/landing-full__desktop-1440.png",
+      "bytes": 5201311,
+      "sha256": "c041de280b80f4931d339a6456ee1b4559ace7a0af29668913503eb5721bba00",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/landing-full__phone-320.png",
+      "bytes": 1799412,
+      "sha256": "4b6b74fc0500eb57ae53cc58c4b4332c5ced6ebc3749b2ba6cea0bdbe4de8937",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/landing-full__phone-390.png",
+      "bytes": 2354492,
+      "sha256": "c84b8247f6d3d2d49b54feae57082774bd6cef09ba83df48ecf9e72620d7cf14",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/landing-full__tablet-768.png",
+      "bytes": 3168795,
+      "sha256": "f14aeff3e7e7f63ad13edcb2ba2c4bb77d14cf4d8369d53689f844d2e3908329",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-full__desktop-1440.png",
+      "bytes": 2684042,
+      "sha256": "dc64a7a7cdb0aaa811315e52a349c3d852f53ff1acbd92bd85b0a2653444db23",
+      "dimensions": [
+        1440,
+        7346
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-full__phone-320.png",
+      "bytes": 1790545,
+      "sha256": "bc1ad6ce63077ad28d89f7549159a239e1e413d31a46bb9594bd6e7abf649fc4",
+      "dimensions": [
+        320,
+        11598
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-full__phone-390.png",
+      "bytes": 1922487,
+      "sha256": "210a21dcd6ead467c34a9ff4eb0c9453126441cb28d47bab6e1673ee1c33c561",
+      "dimensions": [
+        390,
+        11325
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-full__tablet-768.png",
+      "bytes": 3185834,
+      "sha256": "90edf4c6cab8b58015048cdd8b0e2c8c68ef4f3378e2e5c8abbc805370957664",
+      "dimensions": [
+        768,
+        13002
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-preview__desktop-1440.png",
+      "bytes": 423930,
+      "sha256": "43934bb0816c0e215ae2f92f555e71779c523fa8efcf8b5d789cd65e7b74a15a",
+      "dimensions": [
+        1440,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-preview__laptop-1366.png",
+      "bytes": 399473,
+      "sha256": "47e939f1648b9daf93b311516c1b32fb873c35efa97e043c1f9ef42ce6e245f4",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-preview__phone-390.png",
+      "bytes": 185532,
+      "sha256": "122cc9afaee44fe863ed2f8a9ef790109220ce48e148cce26e6a4557e6414f61",
+      "dimensions": [
+        390,
+        924
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__desktop-1440.png",
+      "bytes": 40282,
+      "sha256": "f0361937e01c2b91b510c530559e92320e052d7d66a2308a2d86a5ef5b1dc013",
+      "dimensions": [
+        1180,
+        318
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__laptop-1366.png",
+      "bytes": 39609,
+      "sha256": "62b31753ab74ac9d908c6696df78de0554b369f9b458873571522c8f26ebaf09",
+      "dimensions": [
+        1180,
+        312
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__phone-320.png",
+      "bytes": 30294,
+      "sha256": "56890ccfd4dc4a5b60d701ff86682a58547c159e0def3c6ce9413e9ad4fa7bd0",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__phone-390.png",
+      "bytes": 33856,
+      "sha256": "340da9453e2576960a44baeafb671c7e58c7263a9b0ed4cec0ad264d5316fb54",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__phone-360-short.png",
+      "bytes": 32767,
+      "sha256": "e9a91f1c8be17d5782bcdf0dc59328dd1e128015c54505a3a665f68fd20b3395",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/menu-share__tablet-768.png",
+      "bytes": 34064,
+      "sha256": "b26bc14dc8680479949c8d2c270f3b7effcbbef71d3971345f1b45f86c0d1099",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/mobile-cta__phone-320.png",
+      "bytes": 257,
+      "sha256": "a91b970819343928c3548766948c2d439517d17fd5315c7547cc95fe947dcc3d",
+      "dimensions": [
+        300,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/mobile-cta__phone-360-short.png",
+      "bytes": 263,
+      "sha256": "57b293bdfd9eb7e22b7b692a9743a638bc3dc2b66956d7e5f7967c74f6fd59e5",
+      "dimensions": [
+        340,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/mobile-cta__phone-390.png",
+      "bytes": 278,
+      "sha256": "40fcac315d0faaf1b491a92de4bededd885da85ad5db066721b8317cbd9d38aa",
+      "dimensions": [
+        370,
+        58
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__desktop-1440.png",
+      "bytes": 141752,
+      "sha256": "b49e781108894c85e8d5def361bf33ce4da9c41dd383a9aa4d709926273ca914",
+      "dimensions": [
+        1440,
+        215
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__laptop-1366.png",
+      "bytes": 130841,
+      "sha256": "4a53f52a7c5f624b2aa415227914bb4b3f86f5411f53b13969c19e6dc4a2eb7a",
+      "dimensions": [
+        1366,
+        214
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__phone-320.png",
+      "bytes": 56102,
+      "sha256": "8796798eb593117799da5bb77bb0feffe67af525ae07de4bca4fc9f56615363b",
+      "dimensions": [
+        320,
+        270
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__phone-360-short.png",
+      "bytes": 58435,
+      "sha256": "f970cf32b4897a38355c10b29aacfd7eb7b8aba0b8de9c493d51d436f04a3855",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__phone-390.png",
+      "bytes": 61174,
+      "sha256": "7ec5fce86b045deb6eca4575f564354dfcb5f3d5960eeb712d6d859e5d083be0",
+      "dimensions": [
+        390,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/social-offer__tablet-768.png",
+      "bytes": 87490,
+      "sha256": "b4022b32ad4fd4050a86e0933ca2afafcba0dcfd9df8387dc402a438f2dcaf95",
+      "dimensions": [
+        768,
+        218
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/visit-map__desktop-1440.png",
+      "bytes": 519386,
+      "sha256": "9e9112b853d0f2a0e03f8fe995a49aa172f6b9a16af8d42e45191d2d067e1b99",
+      "dimensions": [
+        1440,
+        992
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/visit-map__laptop-1366.png",
+      "bytes": 474766,
+      "sha256": "a3e9760b28a38bb06d897cb981bdeb5fe75c7a4bae0823d1a808673d7588f589",
+      "dimensions": [
+        1366,
+        907
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/current/visit-map__phone-390.png",
+      "bytes": 228230,
+      "sha256": "73b6b488a2bd18114df7bd30eb099cd49e8703a3f34e2c3117840b765e8f6540",
+      "dimensions": [
+        390,
+        1316
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/hero__desktop-1440.png",
+      "bytes": 1249056,
+      "sha256": "6c582994cf684f5f78a1ac76992851395251367d86af7a4f9e17fffd2f22d481",
+      "dimensions": [
+        1440,
+        1100
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/hero__phone-390.png",
+      "bytes": 369258,
+      "sha256": "ee209b772efd1000d591fc8158df4cac908e6fb7bd06bdaa28c6d7724fc99509",
+      "dimensions": [
+        390,
+        1000
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/landing-full__desktop-1440.png",
+      "bytes": 5077119,
+      "sha256": "7ab38db11007f573f5db3ff9305ba9c0d14bd7fb33b01328fbb86b1698e28e37",
+      "dimensions": [
+        1440,
+        6877
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/landing-full__phone-320.png",
+      "bytes": 1773395,
+      "sha256": "6b726036d4b034cf97a153227a71199d9adc0b071f69714decaa1c25ba812dd3",
+      "dimensions": [
+        320,
+        8007
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/landing-full__phone-390.png",
+      "bytes": 2274522,
+      "sha256": "50470cf1a9a484efb3124a63cbd220c887baa28fb31480199ceb2b42d786a101",
+      "dimensions": [
+        390,
+        8349
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/landing-full__tablet-768.png",
+      "bytes": 3182392,
+      "sha256": "33aab1fbddbfdd68486836eff71af112e883693468acd0f60de336ef71441748",
+      "dimensions": [
+        768,
+        7135
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/menu-preview__laptop-1366.png",
+      "bytes": 502505,
+      "sha256": "50123c5965f93fe8302b9559faefc4678ea93d79ad6b90cf98686bd39f3ba8f5",
+      "dimensions": [
+        1366,
+        716
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/menu-share__phone-320.png",
+      "bytes": 38642,
+      "sha256": "fc193249b115b4383889cf799d31f1a6fbefc2e833f7e09f6dc033167d7bcca4",
+      "dimensions": [
+        280,
+        511
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/menu-share__phone-360-short.png",
+      "bytes": 38650,
+      "sha256": "7434de50280cf6d4d63871ef9a6e83462f405a21f419a6da4f54ed6bf6cf4830",
+      "dimensions": [
+        320,
+        496
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/menu-share__phone-390.png",
+      "bytes": 40034,
+      "sha256": "a9fdf6a10c09af8e25521c3c83484c6cf409198ecb606eba86224e1bb7801d0c",
+      "dimensions": [
+        350,
+        505
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/menu-share__tablet-768.png",
+      "bytes": 40113,
+      "sha256": "3b65431b00a713df363c15c249019c014a4ffe0231c4a05d694b0f22e4a3c87c",
+      "dimensions": [
+        728,
+        429
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/diff/social-offer__phone-360-short.png",
+      "bytes": 57568,
+      "sha256": "43d7ba4afbde7855c71b69dd6a954110faa52f83478f99e2c6514862542cf31f",
+      "dimensions": [
+        360,
+        246
+      ]
+    },
+    {
+      "path": "screenshot-attempt-2/summary.json",
+      "bytes": 11569,
+      "sha256": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35"
+    },
+    {
+      "path": "toolchain/browser.json",
+      "bytes": 1247,
+      "sha256": "a700137e074bd23cd74f1c38aa1ba6a587c91585eba60b63e616bb14bc2aae55"
+    },
+    {
+      "path": "toolchain/comparison.json",
+      "bytes": 1176,
+      "sha256": "fec000985f0d1669f0fc58029e6b7cf9ca26d5b41128df18538ebdf7edd97a9a"
+    },
+    {
+      "path": "toolchain/npm-audit.exit-code.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "toolchain/npm-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "toolchain/npm-audit.json",
+      "bytes": 361,
+      "sha256": "ebd128dc5ffd7f2d874223f88f12708015d703d9dde9dc9147cd662b8b4abd63"
+    },
+    {
+      "path": "toolchain/npm-ls.json",
+      "bytes": 8273,
+      "sha256": "78a5ba37837653860f11079cb44e75183f409c78268a22102560895a52fa9889"
+    },
+    {
+      "path": "toolchain/packages.json",
+      "bytes": 1031,
+      "sha256": "64488585ad92c04edaf8e4deec1003e47cf0df9794ab838695d539fc3143b260"
+    }
+  ],
+  "boundFileCount": 332,
+  "allCurrentBoundFilesMatchedCapturedHeadBeforeReview": true,
+  "localIdentityBefore": {
+    "kind": "local-identity-before-actual-ci-artifact-download-not-review",
+    "observedAt": "2026-10-18T18:29:57.663936+00:00",
+    "head": "27806dd15cf2a149a6fde786584f403595045305",
+    "tree": "619b881c4b9f9d7d436f1596fa5b871a3392dde4",
+    "status": "",
+    "boundFiles": 332
+  },
+  "jobCheckoutAndFailureLogExcerpts": {
+    "kind": "actual-H5-job-checkout-and-missing-current-record-failure-log-excerpts",
+    "runId": 39154298990,
+    "jobId": 117754207633,
+    "sourceHead": "27806dd15cf2a149a6fde786584f403595045305",
+    "baselineHead": "28a394998674a02afc720fd8c082e35320b02b90",
+    "checkoutLines": [
+      "2026-10-18T18:28:25.5733883Z   ref: 27806dd15cf2a149a6fde786584f403595045305",
+      "2026-10-18T18:28:25.8255133Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 27806dd15cf2a149a6fde786584f403595045305",
+      "2026-10-18T18:28:26.6428145Z  * branch            27806dd15cf2a149a6fde786584f403595045305 -> FETCH_HEAD",
+      "2026-10-18T18:28:26.6538600Z [command]/usr/bin/git checkout --progress --force 27806dd15cf2a149a6fde786584f403595045305",
+      "2026-10-18T18:28:26.7302570Z Note: switching to '27806dd15cf2a149a6fde786584f403595045305'.",
+      "2026-10-18T18:28:26.7395387Z 27806dd15cf2a149a6fde786584f403595045305",
+      "2026-10-18T18:28:26.8493127Z   ref: 28a394998674a02afc720fd8c082e35320b02b90",
+      "2026-10-18T18:28:27.0604771Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 28a394998674a02afc720fd8c082e35320b02b90",
+      "2026-10-18T18:28:27.8238338Z  * branch            28a394998674a02afc720fd8c082e35320b02b90 -> FETCH_HEAD",
+      "2026-10-18T18:28:27.8355023Z [command]/usr/bin/git checkout --progress --force 28a394998674a02afc720fd8c082e35320b02b90",
+      "2026-10-18T18:28:27.9079927Z Note: switching to '28a394998674a02afc720fd8c082e35320b02b90'.",
+      "2026-10-18T18:28:27.9169619Z 28a394998674a02afc720fd8c082e35320b02b90",
+      "2026-10-18T18:28:32.1800537Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\",",
+      "2026-10-18T18:29:42.0070971Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\",",
+      "2026-10-18T18:32:40.0463710Z   \"sourceSha\": \"27806dd15cf2a149a6fde786584f403595045305\","
+    ],
+    "failureLines": [
+      "2026-10-18T18:31:15.4737504Z Error: VISUAL-001 failed for 23 of 43 screenshot comparisons. Inspect the visual-regression artifact.",
+      "2026-10-18T18:32:39.9129646Z Error: VISUAL-001 failed for 23 of 43 screenshot comparisons. Inspect the visual-regression artifact.",
+      "2026-10-18T18:32:40.5205151Z Error: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 23 failure(s), found 0. Actual failures: landing-full/phone-320(diff=0.012750171724740852), menu-full/phone-320(diff=1), discover-full/phone-320(diff=1), menu-share/phone-320(diff=0.007198769918926475), discover-pairing/phone-320(diff=1), hero/phone-360-short(diff=1), social-offer/phone-360-short(diff=0.013075880758807588), menu-share/phone-360-short(diff=0.013098538306451612), discover-pairing/phone-360-short(diff=1), landing-full/phone-390(diff=0.011683573343652396), menu-full/phone-390(diff=1), discover-full/phone-390(diff=1), hero/phone-390(diff=0.09682820512820513), menu-share/phone-390(diff=0.007977369165487977), discover-pairing/phone-390(diff=1), landing-full/tablet-768(diff=0.00788659191777622), menu-full/tablet-768(diff=1), menu-share/tablet-768(diff=0.007380440072747765), hero/laptop-1366(diff=1), menu-preview/laptop-1366(diff=0.008352282486892366), landing-full/desktop-1440(diff=0.00762535747176579), menu-full/desktop-1440(diff=1), hero/desktop-1440(diff=0.047672348484848484). Bound approvals: manual-qa-polish-20260915-v1: hero/phone-360-short(pixels=230400), landing-full/desktop-1440(pixels=10075680), menu-full/tablet-768(reason=dimension mismatch 768x13217 vs 768x13215), menu-full/desktop-1440(reason=dimension mismatch 1440x9109 vs 1440x6970)."
+    ],
+    "scope": "Raw comparison failures and missing current-content record; no conclusion that skipped downstream checks passed."
+  }
+}

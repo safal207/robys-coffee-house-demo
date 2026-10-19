@@ -1,0 +1,226 @@
+{
+  "kind": "actual-shipped-verifier-isolated-fixtures",
+  "fixtureScope": "Positive uses the inspected actual CI summary and new record; negative cases are separately synthetic and never modify the repository.",
+  "observedRepositoryHead": "27806dd15cf2a149a6fde786584f403595045305",
+  "capturedSourceHead": "27806dd15cf2a149a6fde786584f403595045305",
+  "actualSummarySha256": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35",
+  "recordSha256": "4cd8140e4d1011afe98f2548966975d4db048bf7ecd4691af7d6d95bb4fe110b",
+  "verifierSha256": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+  "passed": true,
+  "repositoryBoundBytesUnchanged": true,
+  "finishedAt": "2026-10-18T18:45:59.557Z",
+  "runner": "scripts/test-product-audit-followup-visual-controls.mjs",
+  "runnerSha256": "2c1c6a766ebfff9600d64a30ef37d228882479d1eb1a8079dc12abb1c1f01246",
+  "record": "qa/reviewed-visual-changes.d/product-audit-followup-h5-20261018.json",
+  "command": "node scripts/test-product-audit-followup-visual-controls.mjs qa/reviewed-visual-changes.d/product-audit-followup-h5-20261018.json .artifacts/pr438-head5-ci-visual/artifact/final/summary.json .artifacts/pr438-head5-ci-visual/negative-controls",
+  "cases": [
+    {
+      "id": "positive",
+      "kind": "actual-CI-summary-positive",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "b7cb4380ec663e733243eaa4cd08d7f35852ba76449af3245942c46e98be7319",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rejectionMatchedRequiredVerifierMessage": false
+    },
+    {
+      "id": "changed-bound-css",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "4ec9afcb7f567f13c65cd7ef4429c362e8979d871ee740587caeaaa8427c20fe",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-menu-bundle",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "9468abcc5af48d5cc06cc683ea66394c3bf2de00436e578920a072aaf39411a6",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-rendered-page",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "4a1fd3f7228e3b25e885c6af3e245b865d399b6ab4a0648e38b8655c81ffe92b",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-bound-runtime",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "2a981c61effbf0077345ad61dfd72e82eee6b8734ddc2199d53e6dc0b614710c",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-public-manifest",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "98d8ce77803db0f08254378610297f12c6695e20df10bdcdc156682e0cd3d821",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "missing-expected-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "41dfce552f6ea39bc129e4d7d0083b05efa5607fbb04a8404cf4ec0717b81b22",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "56c0d80f73489249b728d57e21965b05a792ec1d482c470f7e32916a4c457554",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "extra-actual-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "a8d4f36bbd3f8533515fc199d1fe6781edcb63db98b6999df6a4cc04203b5aaa",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "dd02ac1e837b8b1376e1862ad927803017fcf1ee649b93de2c49174a78150689",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "duplicate-expected-entry",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "36b795468ce5e642c1a10203823a1ea690004b69b787230236db852718b2ed10",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "39e22e133af209754e307da41ff663c58803cab2befce985b6dd627462f7ae7c",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "duplicate-matching-record",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "ae531d1951d9318205999456459d93d180426fcf05805651b59f7c6a7966bec3",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "b7482531b67126cbec0518779d8e1f801c93501953d773704b302a2318091679",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "empty-content-bindings",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "9fd00e8bc180f9f0f5b7a5500dc144e86cf6249aa0476e2111dd1353a5435e00",
+      "fixtureSummarySha256": "8d1be0dfa058c88c680aac6ce1cd9912c3fea801dc3fa3cb8606f831a9490880",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "b1bab0830c9b3f57f7b3145da158069b48776c693ac7f1479ec85a9ffc8ead58",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-dimension-reason",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "b6d3ee4d0306b66327c5d789479ac6ce5c7c14ba0470e087df94e7125b2beb29",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "db5010b4d45e6d0998ce3906b3bb4d194b16ff10e0d6c43168248e78a6907342",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "ratio-one-pixel-above-bound",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "b9c9340238fb58e70b642e983e0e003fd90027286aad30a91a79952df3a1d71a",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "284dd87f706502e8884cb493200bd6bd755cfde7f8f2812c5c0172a4b60d19c2",
+      "rejectionMatchedRequiredVerifierMessage": true
+    },
+    {
+      "id": "changed-crop-pixel-total",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "6a86e851a20d10f245d4ccc77833cd3522692619ca4f707ca1dc90fabf8f5994",
+      "fixtureSummarySha256": "b0fcd33a920b23471fb3a564925477117a78413aec8ce009bcbedd79a049a882",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "7fd125b8775c371348394bd812a0564c4c9b03c4a97f4ed6f10f4e192deb94d3",
+      "rejectionMatchedRequiredVerifierMessage": true
+    }
+  ],
+  "repositoryBoundFileCount": 342,
+  "repositorySourceIdentityBeforeSha256": "64fb6922f085587da492d2fd8186e877d8a78db053ed5ae233f5c7551331d553",
+  "repositorySourceIdentityAfterSha256": "64fb6922f085587da492d2fd8186e877d8a78db053ed5ae233f5c7551331d553",
+  "fullLocalReportSha256": "6acc4c4a16e78e932a8d35ed96e3d37156571d6679741077696ea80110769848",
+  "actualAttemptSummaryPositives": {
+    "kind": "actual-shipped-verifier-current-local-bytes-positive-not-CI-job-status",
+    "checkedAt": "2026-10-18T18:46:06.376359+00:00",
+    "cases": [
+      {
+        "attempt": "screenshot-attempt-1",
+        "summarySha256": "adcc1510131fb0786b67202896ec07bd364cfeaaef7245fc93442fad506caba7",
+        "exitCode": 0,
+        "acceptedRecord": "product-audit-followup-h5-20261018",
+        "logSha256": "b7cb4380ec663e733243eaa4cd08d7f35852ba76449af3245942c46e98be7319"
+      },
+      {
+        "attempt": "screenshot-attempt-2",
+        "summarySha256": "0e605e442ee681b200d147fa534d36a96d32567d77212b021063fe7af8fb5f35",
+        "exitCode": 0,
+        "acceptedRecord": "product-audit-followup-h5-20261018",
+        "logSha256": "b7cb4380ec663e733243eaa4cd08d7f35852ba76449af3245942c46e98be7319"
+      }
+    ]
+  },
+  "finalIdentity": {
+    "kind": "final-H5-head-and-app-byte-stability-after-isolated-controls-not-release",
+    "checkedAt": "2026-10-18T18:47:07.637174+00:00",
+    "head": "27806dd15cf2a149a6fde786584f403595045305",
+    "tree": "619b881c4b9f9d7d436f1596fa5b871a3392dde4",
+    "boundFiles": 332,
+    "boundFileProof": "Both unchanged-verifier actual-summary positives verified all332 Git blob bindings; isolated controls also preserve the full342-file union hash map.",
+    "repositoryBoundBytesUnchanged": true,
+    "allowedNewPacketFiles": [
+      "qa/reviewed-visual-changes.d/product-audit-followup-h5-20261018.json",
+      "qa/evidence/product-audit-followup-h5-ci-visual-artifact-20261018.json",
+      "qa/evidence/product-audit-followup-h5-ci-visual-inspection-20261018.json",
+      "qa/evidence/product-audit-followup-h5-visual-negative-controls-20261018.json"
+    ]
+  },
+  "scopeNote": "Actual-summary positives and separately synthetic rejection fixtures use the unchanged shipped verifier locally. These are not a green CI-job status or human approval. Run/head/artifact provenance is independently checked in the separate artifact evidence. The existing parameterized controls runner is reused unchanged."
+}

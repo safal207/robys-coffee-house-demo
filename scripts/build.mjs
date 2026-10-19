@@ -2,9 +2,10 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
-import { compileMenuRuntime, compileMenuOrderRuntime } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
 import { sharedMenuCatalogPlugin, sharedSmartChoiceCatalogPlugin } from "./smart-choice-catalog-external.mjs";
 import { sharedPhotoPreviewsPlugin } from "./smart-choice-photos-external.mjs";
+import { MENU_STYLESHEET_FILE, MENU_STYLE_INPUTS, compileMenuStylesBundle, verifyMenuStylesBundle, readMenuStylesBundleInputs } from "./menu-styles-bundle.mjs";
 
 await import("./build-counter.mjs");
 
@@ -33,19 +34,44 @@ await build({
   format: "esm", target: "es2020", outfile: "menu-pairing.js", legalComments: "none"
 });
 const menuPairingRevision = revisionFor("menu-pairing.js");
+writeFileSync("order-storage.js", compileOrderStorageRuntime());
+const orderStorageRevision = revisionFor("order-storage.js");
 let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "order-checkout.js", orderCheckoutRevision);
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "menu-pairing.js", menuPairingRevision);
 writeFileSync("src/menu-order-ui.js", menuOrderSource);
 writeFileSync("menu-order-ui.js", compileMenuOrderRuntime());
 const menuOrderRevision = revisionFor("menu-order-ui.js");
+writeFileSync("menu-family-ui.js", compileMenuRuntime(readFileSync("src/menu-family-ui.js", "utf8")));
+const menuFamilyRevision = revisionFor("menu-family-ui.js");
+const menuFamilyCssRevision = revisionFor("menu-family.css");
+writeFileSync("menu-combos-ui.js", compileMenuRuntime(readFileSync("src/menu-combos-ui.js", "utf8")));
+const menuCombosRevision = revisionFor("menu-combos-ui.js");
+const menuCombosCssRevision = revisionFor("menu-combos.css");
+const comboEntryCssRevision = revisionFor("combo-entry.css");
+const choiceHelpCssRevision = revisionFor("choice-help.css");
+let choiceHelpSource = readFileSync("src/choice-help.js", "utf8");
+choiceHelpSource = synchronizeModuleImport(choiceHelpSource, "order-storage.js", orderStorageRevision);
+choiceHelpSource = synchronizeModuleImport(choiceHelpSource, "menu-catalog.js", menuCatalogRevision);
+writeFileSync("src/choice-help.js", choiceHelpSource);
+writeFileSync("choice-help.js", compileMenuRuntime(choiceHelpSource));
+const choiceHelpRevision = revisionFor("choice-help.js");
+let choiceHelpEntrySource = readFileSync("src/choice-help-entry.js", "utf8");
+choiceHelpEntrySource = synchronizeModuleImport(choiceHelpEntrySource, "choice-help.js", choiceHelpRevision);
+writeFileSync("src/choice-help-entry.js", choiceHelpEntrySource);
+writeFileSync("choice-help-entry.js", compileMenuRuntime(choiceHelpEntrySource));
+const choiceHelpEntryRevision = revisionFor("choice-help-entry.js");
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
+menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
+menuSource = synchronizeModuleImport(menuSource, "menu-combos-ui.js", menuCombosRevision);
+menuSource = synchronizeModuleImport(menuSource, "order-storage.js", orderStorageRevision);
 writeFileSync("src/menu-app.js", menuSource);
 writeFileSync("menu-app.js", compileMenuRuntime());
 
 await build({
   entryPoints: ["src/app.ts"],
+  external: ["./choice-help.js*"],
   bundle: true,
   minify: true,
   format: "iife",
@@ -70,7 +96,7 @@ const smartChoiceCatalogRevision = revisionFor("smart-choice/catalog.js");
 
 await build({
   entryPoints: ["src/smart-choice/page.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedPhotoPreviewsPlugin(photoPreviewsRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedPhotoPreviewsPlugin(photoPreviewsRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   external: ["../order-checkout.js*"],
   charset: "utf8",
   bundle: true,
@@ -84,7 +110,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/cart.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -97,7 +123,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/experiments.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -110,7 +136,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/analytics.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -123,7 +149,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/decision-trace.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -136,7 +162,7 @@ await build({
 
 await build({
   entryPoints: ["src/smart-choice/release-qa.ts"],
-  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
+  plugins: [sharedMenuCatalogPlugin(menuCatalogRevision, orderStorageRevision), sharedSmartChoiceCatalogPlugin(smartChoiceCatalogRevision)],
   charset: "utf8",
   bundle: true,
   minify: true,
@@ -171,6 +197,7 @@ function transpileClassicScript(sourcePath, outputPath) {
 
 transpileClassicScript("src/featured-gallery.ts", "featured-gallery.js");
 transpileClassicScript("src/social-offer.ts", "social-offer.js");
+transpileClassicScript("src/seasonal-theme.ts", "seasonal-theme.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v2.js");
 transpileClassicScript("src/discover-rotation.ts", "discover-rotation-v3.js");
@@ -275,23 +302,38 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 const qaRevision = revisionFor("qa.js");
-let bootstrapSource = readFileSync("bootstrap-v2.js", "utf8");
+let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
-writeFileSync("bootstrap-v2.js", bootstrapSource);
+writeFileSync("src/bootstrap-v2.js", bootstrapSource);
+// Reuse the existing blocking request and gzip stream on the three entry pages.
+// Preserve the entry handoff source verbatim, including its guarded recovery.
+const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
+  minify: true, target: "es2020", legalComments: "none"
+}).code;
+writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${bootstrapSource}`);
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
 let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
 menuProductRevealSource = synchronizeModuleImport(menuProductRevealSource, "menu-product-reveal-runtime.js", menuProductRevealRuntimeRevision);
 writeFileSync("menu-product-reveal.js", menuProductRevealSource);
 
+const discoverCopyRevision = revisionFor("discover-copy.js");
+for (const file of ["discover-v2.js", "discover-rotation.js"]) {
+  const source = readFileSync(file, "utf8").replace(/(from\s*["']\.\/discover-copy\.js)(?:\?[^"']*)?(["'])/g, `$1?v=${discoverCopyRevision}$2`);
+  writeFileSync(file, source);
+}
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
+const seasonalThemeRevision = revisionFor("seasonal-theme.js");
+const seasonalCssRevision = revisionFor("seasonal.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
 // Publish reviewed visual CSS under fresh pathnames so returning clients whose
 // old service worker ignores query strings cannot receive stale bytes.
 writeFileSync("menu-stability-v2.css", readFileSync("menu-stability.css"));
 const menuStabilityRevision = revisionFor("menu-stability-v2.css");
+writeFileSync(MENU_STYLESHEET_FILE, compileMenuStylesBundle());
+const menuStylesRevision = revisionFor(MENU_STYLESHEET_FILE);
 const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   const target = `${name}-v2.css`;
   writeFileSync(target, readFileSync(`${name}.css`));
@@ -312,6 +354,7 @@ writeFileSync("conversion.js", transformSync(conversionSource, {
 const conversionRevision = revisionFor("conversion.js");
 const galleryRevision = revisionFor("featured-gallery.js");
 const socialOfferRevision = revisionFor("social-offer.js");
+const coffeePathsRevision = revisionFor("coffee-paths.css");
 const discoverRuntimeRevision = revisionFor("discover-v2.js");
 const discoverRotationRevision = revisionFor("discover-rotation-v3.js");
 const discoverRotationCssRevision = revisionFor("discover-rotation.css");
@@ -359,6 +402,7 @@ for (const { name, target, revision } of landingCacheStyles) {
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeModuleScript(html, "qa.js", qaRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
+html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
@@ -378,15 +422,20 @@ writeFileSync("discover.html", discoverHtml);
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "styles-v2.css", baseStylesRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "menu-security-v2.css", menuSecurityRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "menu-stability-v2.css", menuStabilityRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "menu-premium.css", menuPremiumRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "kids-menu.css", kidsMenuCssRevision);
-if (!menuHtml.includes('href="order-checkout.css')) menuHtml = menuHtml.replace("</head>", '<link rel="stylesheet" href="order-checkout.css" />\n</head>');
-menuHtml = synchronizeStylesheet(menuHtml, "order-checkout.css", orderCheckoutCssRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "pairing-posters.css", pairingPostersCssRevision);
-menuHtml = synchronizeStylesheet(menuHtml, "menu-product-reveal.css", menuProductRevealCssRevision);
+const menuStyleLinks = [...menuHtml.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)];
+const linkedMenuStyles = menuStyleLinks.map(([tag]) => tag.match(/\bhref="([^"?]+)/)?.[1]);
+const originalMenuStyles = MENU_STYLE_INPUTS.map(({ delivered }) => delivered);
+if (JSON.stringify(linkedMenuStyles) !== JSON.stringify(originalMenuStyles)
+    && JSON.stringify(linkedMenuStyles) !== JSON.stringify([MENU_STYLESHEET_FILE])) {
+  throw new Error("Menu stylesheet inputs must retain their complete original cascade or the generated bundle");
+}
+let firstMenuStyle = true;
+menuHtml = menuHtml.replace(/<link\b[^>]*\brel="stylesheet"[^>]*>/g, () => {
+  if (!firstMenuStyle) return "";
+  firstMenuStyle = false;
+  return `<link rel="stylesheet" href="${MENU_STYLESHEET_FILE}?v=${menuStylesRevision}" />`;
+});
+menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
@@ -432,10 +481,50 @@ cashierHtml = synchronizeStylesheet(cashierHtml, "order-checkout.css", orderChec
 cashierHtml = synchronizeModuleScript(cashierHtml, "cashier.js", cashierRevision);
 writeFileSync("cashier.html", cashierHtml);
 
+// Keep all customer selection surfaces on the same helper and entry styles.
+// The menu retains one blocking stylesheet, including these authored layers.
+const choiceSurfaces = ["index.html", "menu.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html"];
+for (const file of choiceSurfaces) {
+  const prefix = file.includes("/") ? "../" : "";
+  let page = readFileSync(file, "utf8");
+  if (["index.html", "menu.html", "discover.html"].includes(file)) {
+    if (page.includes(`src="${prefix}seasonal-theme.js`)) {
+      throw new Error(`${file}: the shared bootstrap already initializes the season; remove the redundant authored script tag`);
+    }
+  } else {
+    if (!page.includes(`src="${prefix}seasonal-theme.js`)) {
+      page = page.replace("</head>", `  <script src="${prefix}seasonal-theme.js"></script>\n</head>`);
+    }
+    page = synchronizeBlockingScript(page, `${prefix}seasonal-theme.js`, seasonalThemeRevision);
+  }
+  if (file !== "menu.html") {
+    if (!page.includes(`href="${prefix}seasonal.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}seasonal.css" />\n</head>`);
+    page = synchronizeStylesheet(page, `${prefix}seasonal.css`, seasonalCssRevision);
+    if (!page.includes(`${prefix}choice-help.css`)) page = page.replace("</head>", `  <link rel="stylesheet" href="${prefix}choice-help.css" />\n</head>`);
+    page = synchronizeStylesheet(page, `${prefix}choice-help.css`, choiceHelpCssRevision);
+    page = synchronizeStylesheet(page, `${prefix}combo-entry.css`, comboEntryCssRevision);
+  }
+  if (["index.html", "menu.html"].includes(file)) {
+    page = page.replace(/\s*<script type="module" src="choice-help-entry\.js(?:\?[^\"]*)?"><\/script>/, "");
+  } else {
+    if (!page.includes(`src="${prefix}choice-help-entry.js`)) page = page.replace("</body>", `  <script type="module" src="${prefix}choice-help-entry.js"></script>\n</body>`);
+    page = synchronizeModuleScript(page, `${prefix}choice-help-entry.js`, choiceHelpEntryRevision);
+  }
+  writeFileSync(file, page);
+}
+
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
-for (const asset of ["cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "menu-order-ui.js",
-  "smart-choice/photo-previews.js", "smart-choice/catalog.js",
-  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp"]) {
+const familyPhotoAssets = [
+  "src/products/family-sets-v1/milk-cookie.webp",
+  "src/products/family-sets-v1/simit-break.webp",
+  "src/products/family-sets-v1/milk-roll.webp",
+  "src/products/family-sets-v1/kids-box.webp"
+];
+const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
+  .map(id => `src/products/occasion-sets-v1/${id}.webp`);
+for (const asset of ["kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+  "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
+  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
@@ -445,6 +534,11 @@ serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlo
 // Bind both the worker namespace and exact precache URL to the rendered offer.
 serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
+serviceWorker = serviceWorker.replace(/-coffee-paths-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeePathsRevision}-shared-order-`);
+const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-halloween-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-halloween-${seasonalCacheRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -455,10 +549,23 @@ serviceWorker = serviceWorker.replace(
   pairingCachePattern,
   `$1${pairingPostersRevision}-pairing-css-${pairingPostersCssRevision}-`
 );
+const familyCacheRevision = createHash("sha256")
+  .update([menuFamilyRevision, menuFamilyCssRevision, revisionFor("src/menu-family.js"), ...familyPhotoAssets.map(revisionFor)].join(":"))
+  .digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-family-menu-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-family-menu-${familyCacheRevision}-shared-order-`);
+const combosCacheRevision = createHash("sha256")
+  .update([menuCombosRevision, menuCombosCssRevision, comboEntryCssRevision, choiceHelpEntryRevision, choiceHelpRevision, choiceHelpCssRevision, discoverCopyRevision,
+    ...choiceSurfaces.map(revisionFor), ...comboPhotoAssets.map(revisionFor)].join(":"))
+  .digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-occasion-combos-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-occasion-combos-${combosCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")
   .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-custom-pair-${customPairingCacheRevision}-shared-order-`);
+serviceWorker = serviceWorker.replace(/-menu-css-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-menu-css-${menuStylesRevision}-shared-order-`);
 for (const { name, target, revision } of landingCacheStyles) {
   serviceWorker = serviceWorker.replace(`"./${name}.css`, `"./${target}`);
   serviceWorker = serviceWorker.replace(
@@ -474,15 +581,20 @@ serviceWorker = synchronizeServiceWorker(
   discoverRotationCssRevision
 );
 for (const [filePath, revision] of [
+  [MENU_STYLESHEET_FILE, menuStylesRevision],
   ["social-offer.js", socialOfferRevision],
+  ["coffee-paths.css", coffeePathsRevision],
   ["menu-catalog.js", menuCatalogRevision],
   ["order-checkout.js", orderCheckoutRevision],
+  ["order-storage.js", orderStorageRevision],
   ["cashier.js", cashierRevision],
   ["order-checkout.css", orderCheckoutCssRevision],
   ["bootstrap-v2.js", bootstrapRevision],
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
+  ["seasonal-theme.js", seasonalThemeRevision],
+  ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],
   ["menu-stability-v2.css", menuStabilityRevision],
   ["menu-premium.css", menuPremiumRevision],
@@ -491,6 +603,15 @@ for (const [filePath, revision] of [
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-order-ui.js", menuOrderRevision],
+  ["menu-family-ui.js", menuFamilyRevision],
+  ["menu-family.css", menuFamilyCssRevision],
+  ["menu-combos-ui.js", menuCombosRevision],
+  ["menu-combos.css", menuCombosCssRevision],
+  ["combo-entry.css", comboEntryCssRevision],
+  ["choice-help.js", choiceHelpRevision],
+  ["choice-help-entry.js", choiceHelpEntryRevision],
+  ["choice-help.css", choiceHelpCssRevision],
+  ["discover-copy.js", discoverCopyRevision],
   ["menu-pairing.js", menuPairingRevision],
   ["menu-product-reveal.css", menuProductRevealCssRevision],
   ["menu-product-reveal.js", menuProductRevealRevision],
@@ -521,6 +642,7 @@ for (const [filePath, revision] of [
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
 writeFileSync("sw-core-v64.js", serviceWorker);
+verifyMenuStylesBundle(readMenuStylesBundleInputs());
 
 console.log(
   `Built app.js (${appRevision}), bootstrap-v2.js (${bootstrapRevision}), morning-entry-v2.js (${morningEntryRevision}), styles-v2.css (${baseStylesRevision}), ` +

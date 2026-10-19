@@ -309,6 +309,10 @@ body.menu-dialog-open{overflow:hidden}
 .menu-pairing-options{display:flex;gap:10px;min-width:0;overflow-x:auto;padding:4px 4px 12px;scroll-padding:4px;overscroll-behavior-x:contain}
 .menu-pairing-option{position:relative;display:flex;flex:0 0 min(100%,max(164px,10rem));flex-direction:column;gap:9px;min-width:0;min-height:44px;padding:8px;color:var(--dark);background:#fffdf8;border:2px solid #e5d4bc;border-radius:16px;cursor:pointer;line-height:1.4}
 .menu-pairing-option.is-selected{border-color:var(--ruby);background:#fff5ec}
+.menu-pairing-option[hidden],.menu-pairing-expand[hidden]{display:none}
+.menu-pairing-expand{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;color:#8f2634;background:#fffaf3;border:1px solid #c8a98d;border-radius:999px;font:700 .85rem/1.4 var(--sans);cursor:pointer}
+.menu-pairing-expand:focus-visible{outline:3px solid #a35b27;outline-offset:3px}
+.menu-pairing-extra{color:#65574e;font-size:.76rem;line-height:1.4}
 .menu-pairing-option:focus-within{outline:3px solid #a35b27;outline-offset:2px}
 .menu-pairing-option input{position:absolute;top:12px;left:12px;z-index:1;width:20px;height:20px;margin:0;accent-color:var(--ruby);cursor:pointer}
 .menu-pairing-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;overflow:hidden;border-radius:10px;background:#eadfce}
@@ -350,7 +354,7 @@ body.menu-dialog-open{overflow:hidden}
   .menu-product-visual.has-selected-pair img{width:100%;height:auto;max-height:190px}
   .menu-product-brand{display:none}
   .menu-product-dialog.has-custom-pairing .menu-product-content{padding:24px 18px}
-  .menu-pairing-preview-images{grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Keep the rem-based auto-fit above: enlarged text needs a single column. */
   .menu-pairing-preview-images img{max-height:100px;object-fit:contain}
   .menu-pairing-option{flex-basis:136px}
   .menu-cart-group-images{width:60px}
@@ -380,7 +384,8 @@ body.menu-dialog-open{overflow:hidden}
   .menu-page .menu-cart-dialog[open]:not(.menu-dialog--fallback) .menu-cart-shell{max-height:calc(100dvh - 48px);overflow:hidden}
 }
 @media(max-width:760px){
-  .menu-product-main{grid-template-columns:minmax(0,1fr)}
+  /* Preserve each row's content height so the photo cannot cover product text. */
+  .menu-product-main{grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content}
   .menu-product-actions{grid-template-columns:minmax(0,1fr);padding:12px 18px max(12px,env(safe-area-inset-bottom));gap:10px}
   .menu-cart-shell{padding:24px 16px 16px}
   .menu-cart-header .eyebrow{margin-bottom:8px}
@@ -397,6 +402,43 @@ body.menu-dialog-open{overflow:hidden}
   .menu-cart-shell{padding:24px 16px 16px}
 }
 @media(prefers-reduced-motion:reduce){.menu-order-status{transition:none;transform:none}.menu-page :is(.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link):active,.menu-dialog-close:active:not(:disabled){transform:none}}
+
+/* Keep the approved wordmark while bringing the menu choices into view sooner. */
+.menu-page .menu-page-hero{padding:24px 0 28px}
+.menu-page .menu-page-hero-inner{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:32px}
+.menu-page .menu-page-brand{margin:0;align-self:center}
+.menu-page .menu-page-brand .brand-copy{width:270px!important;height:64px!important}
+.menu-page .menu-page-hero h1{font-size:clamp(2.5rem,5vw,4.8rem)}
+.menu-page .menu-page-hero-copy .eyebrow{margin:0 0 8px;font-size:.68rem}
+.menu-page .menu-page-hero-copy>p:not(.eyebrow){margin-top:10px;font-size:.92rem;line-height:1.5}
+.menu-page .menu-page-back{white-space:nowrap;overflow:visible;text-overflow:clip}
+@media(max-width:900px){
+  .menu-page .menu-page-hero-inner{gap:22px}
+  .menu-page .menu-page-brand .brand-copy{width:200px!important;height:48px!important}
+}
+@media(max-width:680px){
+  .menu-page .header-inner{display:flex;flex-wrap:wrap;justify-content:space-between}
+  .menu-page .language-switcher{margin-left:auto}
+  .menu-page .menu-page-hero{padding:18px 0 22px}
+  .menu-page .menu-page-hero-inner{grid-template-columns:minmax(0,1fr);gap:14px}
+  .menu-page .menu-page-brand{justify-self:start}
+  .menu-page .menu-page-brand .brand-copy{width:180px!important;height:44px!important}
+  .menu-page .menu-page-hero h1{font-size:clamp(2rem,9vw,3rem)}
+  .menu-page .menu-page-hero-copy .eyebrow{display:none}
+  .menu-page .menu-page-hero-copy>p:not(.eyebrow){font-size:.85rem}
+  .menu-page .menu-page-back{max-width:none;min-height:44px;padding:8px 10px;font-size:.7rem}
+}
+
+/* The same live cart control stays reachable after adding an item. */
+@media(max-width:760px),(hover:none) and (pointer:coarse){
+  .menu-page{padding-bottom:88px;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  .menu-tools-row{min-height:44px}
+  .menu-cart-trigger.has-items{position:fixed;z-index:120;right:16px;bottom:12px;left:16px;min-height:52px;max-width:540px;margin:0 auto;border-radius:18px;padding:12px 18px;gap:12px}
+  .menu-cart-trigger.has-items strong{display:block;margin-left:auto;font-size:.88rem}
+  .menu-cart-trigger.has-items{right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));left:max(16px,env(safe-area-inset-left,0px))}
+  .menu-page.menu-dialog-open .menu-cart-trigger.has-items,.menu-page.menu-text-input-active .menu-cart-trigger.has-items{visibility:hidden;pointer-events:none}
+  .menu-page .menu-order-status{bottom:80px;bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+}
 
 /* SCROLL-CLEARANCE-001: no hard-coded guess for sticky header + order tools. */
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}

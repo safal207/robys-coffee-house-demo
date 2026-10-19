@@ -1,7 +1,9 @@
 import { menuCategories } from "../../menu-catalog.js";
 import {
-  ORDER_DRAFT_KEY, readStoredOrderDraft, writeStoredOrderDraft, addOrderGroup, removeOrderGroup,
-  type OrderDraft
+  ORDER_DRAFT_KEY, readStoredOrderDraft, readLatestStoredOrderDraft, getOrderStorageState, transactStoredOrderDraft,
+  createOrderStorageNotice
+} from "../order-storage.js";
+import { addOrderGroup, removeOrderGroup, type OrderDraft, type OrderGroupResult
 } from "../order-draft.js";
 import type { SmartChoiceLanguage } from "./catalog.js";
 import { openQuickCheckout } from "./checkout-link.js";
@@ -20,7 +22,7 @@ const COPY = {
     reset: "Tüm ürünleri göster", choose: "Seç", selection: "Seçimini tamamla", selectHint: "Fotoğrafa dokun, seçimini burada tamamla.",
     sweet: "Yanına bir tatlı", noSweet: "Sadece içecek", flavour: "Lezzet seç", flavourRequired: "Bir lezzet seçin", completeFlavours: "İçecek lezzetlerini seç", quantity: "Adet", pairs: "Çift adedi",
     add: "Siparişe ekle", addPair: "Çifti ekle", added: "Siparişine eklendi", chooseMore: "Başka ürün seç", limit: "Bu miktar eklenemiyor. Sepetteki adedi kontrol edin.",
-    cart: "Siparişin", cartEmpty: "Henüz bir şey eklemedin.", cartHint: "İlk içeceğini seçerek başlayabilirsin.", total: "Toplam", checkout: "Tamam, devam et", nextStep: "Bu kadarı yeterli mi, başka bir şey ister misin?", editOrder: "Siparişi düzenle",
+    cart: "Siparişin", cartEmpty: "Henüz bir şey eklemedin.", cartHint: "İlk içeceğini seçerek başlayabilirsin.", total: "Toplam", checkout: "Kasa için QR oluştur", nextStep: "Bu kadarı yeterli mi, başka bir şey ister misin?", editOrder: "Siparişi düzenle",
     draftNote: "QR'ı kasaya göster. Ödeme ve son onay kafede yapılır.", remove: "Kaldır", increase: "Adedi artır", decrease: "Adedi azalt", pair: "Birlikte",
     updated: "Sipariş güncellendi", removed: "Siparişten kaldırıldı", checkoutError: "Sipariş ekranı açılamadı. Yeniden deneyin.", review: "Siparişi gör",
     coffee: "Kahve molası", tea: "Çay vakti", cold: "Serin bir seçim", catalog: "Menüden seç", itemPrice: "Birim fiyat", pairPrice: "Bir çift", selectedTotal: "Eklenecek tutar",
@@ -33,7 +35,7 @@ const COPY = {
     reset: "Show all products", choose: "Choose", selection: "Make it yours", selectHint: "Tap a photo to put your selection together here.",
     sweet: "Something sweet with it", noSweet: "Just the drink", flavour: "Choose a flavour", flavourRequired: "Please choose a flavour", completeFlavours: "Choose drink flavours", quantity: "Quantity", pairs: "Number of pairs",
     add: "Add to order", addPair: "Add pair", added: "Added to your order", chooseMore: "Choose more", limit: "That quantity cannot be added. Check the quantity already in your order.",
-    cart: "Your order", cartEmpty: "Nothing added yet.", cartHint: "Start with your first drink.", total: "Total", checkout: "All set · continue", nextStep: "All set, or would you like something else?", editOrder: "Edit order",
+    cart: "Your order", cartEmpty: "Nothing added yet.", cartHint: "Start with your first drink.", total: "Total", checkout: "Get QR for the counter", nextStep: "All set, or would you like something else?", editOrder: "Edit order",
     draftNote: "Show the QR at the counter. Payment and final confirmation happen at the café.", remove: "Remove", increase: "Increase quantity", decrease: "Decrease quantity", pair: "Together",
     updated: "Order updated", removed: "Removed from your order", checkoutError: "The order screen could not open. Please try again.", review: "Review order",
     coffee: "Coffee break", tea: "Time for tea", cold: "Something refreshing", catalog: "Choose from the menu", itemPrice: "Unit price", pairPrice: "One pair", selectedTotal: "Amount to add",
@@ -46,7 +48,7 @@ const COPY = {
     reset: "Показать все товары", choose: "Выбрать", selection: "Собери свой вариант", selectHint: "Нажми на фото и собери свой вариант здесь.",
     sweet: "Сладкое к напитку", noSweet: "Только напиток", flavour: "Выбери вкус", flavourRequired: "Сначала выбери вкус", completeFlavours: "Выбрать вкусы напитков", quantity: "Количество", pairs: "Количество пар",
     add: "Добавить в заказ", addPair: "Добавить пару", added: "Добавлено в заказ", chooseMore: "Выбрать ещё", limit: "Не получается добавить столько. Проверь количество в корзине.",
-    cart: "Твой заказ", cartEmpty: "Пока ничего не добавлено.", cartHint: "Начни с первого напитка.", total: "Итого", checkout: "Всё, к оформлению", nextStep: "На этом всё или хочется чего-нибудь ещё?", editOrder: "Изменить заказ",
+    cart: "Твой заказ", cartEmpty: "Пока ничего не добавлено.", cartHint: "Начни с первого напитка.", total: "Итого", checkout: "Получить QR для кассы", nextStep: "На этом всё или хочется чего-нибудь ещё?", editOrder: "Изменить заказ",
     draftNote: "Покажи QR на кассе. Оплата и окончательное подтверждение — в кафе.", remove: "Убрать", increase: "Увеличить количество", decrease: "Уменьшить количество", pair: "Вместе",
     updated: "Заказ обновлён", removed: "Убрано из заказа", checkoutError: "Не удалось открыть оформление. Попробуй ещё раз.", review: "Посмотреть заказ",
     coffee: "Кофейная пауза", tea: "Время для чая", cold: "Хочется прохлады", catalog: "Выбирай из меню", itemPrice: "Цена за штуку", pairPrice: "Одна пара", selectedTotal: "Добавится к заказу",
@@ -69,9 +71,8 @@ function readDraft(): OrderDraft {
   return readStoredOrderDraft(orderProductIds);
 }
 
-function saveDraft(draft: OrderDraft): void {
-  writeStoredOrderDraft(draft, orderProductIds);
-  window.dispatchEvent(new CustomEvent("robys:order-change", { detail: { origin: orderChangeOrigin } }));
+function saveDraft(updater: (draft: OrderDraft) => OrderGroupResult): Promise<OrderGroupResult> {
+  return transactStoredOrderDraft(updater, orderProductIds, { origin: orderChangeOrigin });
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text?: string): HTMLElementTagNameMap[K] {
@@ -117,6 +118,9 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     } else if (placement !== "catalog") retryProductPhoto(photo);
     return photo;
   }
+  const storageError = { tr: "Sipariş kaydedilemedi. Tarayıcı depolamasını kontrol edip tekrar deneyin.",
+    en: "Your order could not be saved. Check browser storage and try again.",
+    ru: "Не удалось сохранить заказ. Проверь доступ к памяти браузера и попробуй ещё раз." }[language];
   const price = (minor: number): string => {
     const digits = minor % 100 ? 2 : 0;
     const key = `${language}:${digits}`;
@@ -206,13 +210,14 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     // Native dialog focus restoration can finish after the close callback.
     requestAnimationFrame(restoreFocus);
   });
+  customizer.addEventListener("cancel", () => invalidatePendingCheckout());
   customizer.addEventListener("click", event => {
     // A second Add tap can hit the backdrop after confirmation becomes shorter.
     // Keep the completed action visible; explicit close stays available.
     if (event.target !== customizer || performance.now() - customizerChangedAt < 500) return;
     const bounds = customizer.getBoundingClientRect();
     const click = event as MouseEvent;
-    if (click.clientX < bounds.left || click.clientX > bounds.right || click.clientY < bounds.top || click.clientY > bounds.bottom) customizer.close();
+    if (click.clientX < bounds.left || click.clientX > bounds.right || click.clientY < bounds.top || click.clientY > bounds.bottom) closeCustomizer();
   });
   const cart = node("section", "qb-cart"); cart.id = "qb-cart";
   const notice = node("p", "qb-notice"); notice.setAttribute("role", "status"); notice.setAttribute("aria-live", "polite");
@@ -233,6 +238,10 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
 
   function announce(message: string): void { notice.textContent = modalNotice.textContent = message; }
   function invalidatePendingCheckout(): void { if (checkoutOpening) focusGeneration += 1; }
+  function closeCustomizer(): void { invalidatePendingCheckout(); customizer.close(); }
+  function canFocusCart(): boolean {
+    return root.isConnected && !customizer.open && !document.querySelector(".order-checkout-dialog[open]");
+  }
   function openCustomizer(trigger: HTMLElement): void {
     focusGeneration += 1;
     if (!customizer.open) returnFocus = trigger;
@@ -242,27 +251,41 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     customizer.scrollTop = 0;
     composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
   }
-  function requestCheckout(button: HTMLButtonElement): void {
+  async function requestCheckout(button: HTMLButtonElement): Promise<void> {
     if (checkoutOpening) return;
-    const draft = readDraft();
-    if (!draft.groups.length) { renderCart(); showCart(); return; }
-    if (needsOrderVariant(draft.groups)) {
-      renderCart(); announce(text.completeFlavours);
-      showCart(cart.querySelector<HTMLSelectElement>('select[aria-invalid="true"]') ?? undefined);
-      return;
-    }
-    announce("");
-    if (customizer.open) showCart();
     const generation = ++focusGeneration;
-    const signature = JSON.stringify(draft);
     checkoutOpening = true;
     button.disabled = dockCheckout.disabled = true;
-    void openQuickCheckout(draft, language, dockCheckout, () => root.isConnected && generation === focusGeneration
-      && JSON.stringify(readDraft()) === signature).catch(() => {
-      if (root.isConnected && generation === focusGeneration) announce(text.checkoutError);
-    }).finally(() => { checkoutOpening = false; if (root.isConnected) renderCart(); });
+    try {
+      const draft = await readLatestStoredOrderDraft(orderProductIds);
+      if (!root.isConnected || !button.isConnected || generation !== focusGeneration) return;
+      if (getOrderStorageState().legacyConflict) return;
+      if (!draft.groups.length) { renderCart(); showCart(); return; }
+      if (needsOrderVariant(draft.groups)) {
+        renderCart(); announce(text.completeFlavours);
+        showCart(cart.querySelector<HTMLSelectElement>('select[aria-invalid="true"]') ?? undefined);
+        return;
+      }
+      announce("");
+      if (customizer.open) showCart(undefined, true);
+      const signature = JSON.stringify(draft);
+      await openQuickCheckout(draft, language, dockCheckout, () => root.isConnected && generation === focusGeneration
+        && !getOrderStorageState().legacyConflict && JSON.stringify(readDraft()) === signature);
+    } catch { if (root.isConnected && generation === focusGeneration) announce(text.checkoutError); }
+    finally {
+      checkoutOpening = false;
+      if (root.isConnected) {
+        const empty = readDraft().groups.length === 0;
+        dockCheckout.disabled = empty;
+        const cartCheckout = cart.querySelector<HTMLButtonElement>(".primary-button");
+        const confirmationCheckout = composer.querySelector<HTMLButtonElement>(".qb-confirmation-checkout");
+        if (cartCheckout) cartCheckout.disabled = empty;
+        if (confirmationCheckout) confirmationCheckout.disabled = empty;
+      }
+    }
   }
-  function showCart(target?: HTMLElement): void {
+  function showCart(target?: HTMLElement, preserveCheckout = false): void {
+    if (!preserveCheckout) invalidatePendingCheckout();
     returnFocus = target ?? cart.querySelector<HTMLElement>("h2") ?? review;
     if (customizer.open) customizer.close();
     cart.scrollIntoView({ block: "start", behavior: "auto" });
@@ -270,7 +293,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   }
   function chooseMore(): void {
     returnFocus = search;
-    customizer.close();
+    closeCustomizer();
     catalog.scrollIntoView({ block: "start", behavior: "auto" });
     search.focus({ preventScroll: true });
     if (search.value) search.select();
@@ -282,7 +305,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     const title = node("h2", "qb-section-title", confirmationTitle);
     title.id = "qb-customizer-title"; title.tabIndex = -1;
     const header = node("div", "qb-customizer-header");
-    const close = action("×", "qb-customizer-close", () => customizer.close());
+    const close = action("×", "qb-customizer-close", () => closeCustomizer());
     close.setAttribute("aria-label", text.close);
     header.append(title, close);
     composer.append(header, node("p", "qb-next-step", draft.groups.length ? text.nextStep : text.cartHint));
@@ -302,12 +325,18 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
       row.append(photos, node("span", "", `${group.quantity} × ${orderGroupName(group, language)}`),
         node("strong", "", price(orderGroupTotal(group))));
       const maximum = stepQuickGroupQuantity(draft, group.id, 1).applied ? 99 : group.quantity;
-      const controls = quantityControl(group.quantity, maximum, next => {
+      const controls = quantityControl(group.quantity, maximum, async next => {
         const delta = next - group.quantity;
-        const result = stepQuickGroupQuantity(readDraft(), group.id, delta);
+        const generation = focusGeneration;
+        let result;
+        try { result = await saveDraft(current => stepQuickGroupQuantity(current, group.id, delta)); }
+        catch { renderCart(); announce(storageError); return; }
+        renderCart();
         if (!result.applied) { announce(text.limit); return; }
-        saveDraft(result.draft); renderCart(); renderConfirmation();
-        announce(`${text.updated}: ${orderGroupName(group, language)} × ${next}`);
+        const current = result.draft.groups.find(item => item.id === group.id);
+        announce(`${text.updated}: ${orderGroupName(group, language)} × ${current?.quantity ?? next}`);
+        if (!root.isConnected || !customizer.open || !confirmationTitle || generation !== focusGeneration) return;
+        renderConfirmation();
         const updated = [...composer.querySelectorAll<HTMLElement>("[data-group-id]")].find(item => item.dataset.groupId === group.id);
         const target = updated?.querySelector<HTMLButtonElement>(`[data-step="${delta > 0 ? "up" : "down"}"]`);
         (target && !target.disabled ? target : updated?.querySelector<HTMLButtonElement>("[data-step]:not(:disabled)"))?.focus({ preventScroll: true });
@@ -414,11 +443,16 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     customizer.scrollTop = 0; composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
   }
 
-  function addKidsCombo(combo: KidsCombo, trigger: HTMLButtonElement): boolean {
+  async function addKidsCombo(combo: KidsCombo, trigger: HTMLButtonElement): Promise<boolean> {
     invalidatePendingCheckout();
-    const result = addOrderGroup(readDraft(), combo.items, 1, orderProductIds);
+    const generation = focusGeneration;
+    let result;
+    try { result = await saveDraft(current => addOrderGroup(current, combo.items, 1, orderProductIds)); }
+    catch { announce(storageError); return false; }
     if (!result.applied) { announce(text.limit); return false; }
-    saveDraft(result.draft); finishKidsChange(trigger, text.added); return true;
+    renderCart();
+    if (root.isConnected && trigger.isConnected && generation === focusGeneration) finishKidsChange(trigger, text.added);
+    return true;
   }
 
   function replaceKidsCombo(groupId: string, trigger: HTMLElement): void {
@@ -430,21 +464,32 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     composer.replaceChildren();
     const header = node("div", "qb-customizer-header");
     const title = node("h2", "qb-section-title", text.alternative); title.id = "qb-customizer-title"; title.tabIndex = -1;
-    const close = action("×", "qb-customizer-close", () => customizer.close()); close.setAttribute("aria-label", text.close);
+    const close = action("×", "qb-customizer-close", () => closeCustomizer()); close.setAttribute("aria-label", text.close);
     header.append(title, close);
+    const cancel = action(text.cancel, "secondary-button", () => {
+      editingGroup = undefined; focusGeneration += 1;
+      confirmationTitle = text.cart; renderConfirmation(); composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+    });
     const section = createKidsMenuSection({ language, products: orderProducts, idPrefix: "kids-replacement", actionLabel: text.replace, quantity: original.quantity,
       photo: (product, key) => productPhoto(orderProducts.get(product.id)!, "selection", `kids-replace:${key}`),
-      onAdd: combo => {
-        const result = replaceQuickGroup(readDraft(), original, combo.items, original.quantity);
+      onAdd: async combo => {
+        const generation = focusGeneration;
+        const choices = [...(section?.querySelectorAll<HTMLButtonElement>(".kids-combo-add") ?? [])];
+        cancel.disabled = true;
+        choices.forEach(button => { button.disabled = true; });
+        let result;
+        try { result = await saveDraft(current => replaceQuickGroup(current, original, combo.items, original.quantity)); }
+        catch { announce(storageError); return false; }
+        finally { cancel.disabled = false; choices.forEach(button => { button.disabled = false; }); }
         if (!result.applied) { announce(text.editBlocked); return false; }
-        saveDraft(result.draft); finishKidsChange(trigger, text.updated); return true;
+        renderCart();
+        if (root.isConnected && customizer.open && editingGroup === original && generation === focusGeneration) finishKidsChange(trigger, text.updated);
+        return true;
       }
     });
     composer.append(header, node("p", "qb-choice-summary", `${original.quantity} × ${orderGroupName(original, language)}`));
     if (section) composer.append(section);
-    composer.append(modalNotice, action(text.cancel, "secondary-button", () => {
-      confirmationTitle = text.cart; renderConfirmation(); composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
-    }));
+    composer.append(modalNotice, cancel);
     if (!customizer.open) customizer.showModal();
     customizer.scrollTop = 0; title.focus({ preventScroll: true });
   }
@@ -473,18 +518,26 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     if (alternatives) renderAlternatives();
   }
 
-  function removeSelection(group: QuickOrderGroup): void {
-    const draft = readDraft();
-    const current = draft.groups.find(item => item.id === group.id);
-    if (!current || current.quantity !== group.quantity || JSON.stringify(current.items) !== JSON.stringify(group.items)) {
-      renderCart(); announce(text.editBlocked); return;
-    }
-    saveDraft(removeOrderGroup(draft, group.id, orderProductIds)); renderCart();
+  async function removeSelection(group: QuickOrderGroup): Promise<void> {
+    const generation = focusGeneration;
+    let result;
+    try {
+      result = await saveDraft(draft => {
+        const current = draft.groups.find(item => item.id === group.id);
+        if (!current || current.quantity !== group.quantity || JSON.stringify(current.items) !== JSON.stringify(group.items)) {
+          return { draft, applied: false, blocked: true };
+        }
+        return { draft: removeOrderGroup(draft, group.id, orderProductIds), applied: true, blocked: false };
+      });
+    } catch { renderCart(); announce(storageError); return; }
+    renderCart();
+    if (!result.applied) { announce(text.editBlocked); return; }
     announce(`${text.removed}: ${orderGroupName(group, language)}`);
+    if (generation !== focusGeneration || !root.isConnected || document.querySelector(".order-checkout-dialog[open]")) return;
     if (customizer.open) {
       confirmationTitle = text.removed; renderConfirmation();
       composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
-    } else cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+    } else if (canFocusCart()) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
   }
 
   function lineActions(group: QuickOrderGroup): HTMLElement {
@@ -513,7 +566,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     composer.replaceChildren();
     const header = node("div", "qb-customizer-header");
     const title = node("h2", "qb-section-title", text.alternative); title.id = "qb-customizer-title"; title.tabIndex = -1;
-    const close = action("×", "qb-customizer-close", () => customizer.close()); close.setAttribute("aria-label", text.close);
+    const close = action("×", "qb-customizer-close", () => closeCustomizer()); close.setAttribute("aria-label", text.close);
     header.append(title, close);
     composer.append(header, node("p", "qb-choice-summary", `${quantity} × ${current.name[language]}`), node("p", "qb-muted", text.replaceHint));
     const label = node("label", "qb-field", text.search);
@@ -542,7 +595,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
       if (!alternatives.length) options.append(node("p", "qb-muted", text.empty));
     };
     filter.addEventListener("input", renderOptions);
-    composer.append(label, options, action(text.cancel, "secondary-button qb-replacement-cancel", () => customizer.close()));
+    composer.append(label, options, action(text.cancel, "secondary-button qb-replacement-cancel", () => closeCustomizer()));
     renderOptions(); customizer.scrollTop = 0; title.focus({ preventScroll: true });
   }
 
@@ -554,7 +607,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     composer.replaceChildren();
     const composerTitle = node("h2", "qb-section-title", editingGroup ? text.edit : text.selection); composerTitle.tabIndex = -1; composerTitle.id = "qb-customizer-title";
     const header = node("div", "qb-customizer-header");
-    const close = action("×", "qb-customizer-close", () => customizer.close()); close.setAttribute("aria-label", text.close);
+    const close = action("×", "qb-customizer-close", () => closeCustomizer()); close.setAttribute("aria-label", text.close);
     header.append(composerTitle, close); composer.append(header);
     const product = orderProducts.get(selectedId);
     if (!product) { composer.append(node("p", "qb-muted", text.selectHint)); return; }
@@ -633,14 +686,22 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     const totalRow = node("p", "qb-add-total"); totalRow.append(node("span", "", editingGroup ? text.editTotal : text.selectedTotal), node("strong", "", price(total)));
     const needsVariant = variants.length > 0 && !variants.some(item => item.id === variantId);
     const isReplacement = editingGroup && selectedId !== orderGroupItems(editingGroup)[0].id;
-    const add = action(`${editingGroup ? isReplacement ? text.saveReplacement : text.save : sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", () => {
-      const result = editingGroup ? replaceQuickGroup(readDraft(), editingGroup, selectedItems, quantity) : addOrderGroup(readDraft(), selectedItems, quantity, orderProductIds);
-      if (!result.applied) { announce(editingGroup ? text.editBlocked : text.limit); return; }
+    const add = action(`${editingGroup ? isReplacement ? text.saveReplacement : text.save : sweet ? text.addPair : text.add} · ${price(total)}`, "primary-button qb-add", async () => {
+      if (add.disabled) return;
+      const items = selectedItems;
+      const original = editingGroup;
+      const selectedQuantity = quantity;
       add.disabled = true;
-      saveDraft(result.draft);
-      announce(`${editingGroup ? text.updated : text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${quantity}`);
+      let result;
+      try {
+        result = await saveDraft(current => original ? replaceQuickGroup(current, original, items, selectedQuantity)
+          : addOrderGroup(current, items, selectedQuantity, orderProductIds));
+      } catch { announce(storageError); add.disabled = false; return; }
+      if (!result.applied) { announce(original ? text.editBlocked : text.limit); add.disabled = false; return; }
+      announce(`${original ? text.updated : text.added}: ${product.name[language]}${sweet ? ` + ${sweet.name[language]}` : ""} × ${selectedQuantity}`);
       renderCart();
-      confirmationTitle = editingGroup ? text.updated : text.added;
+      if (!customizer.open || !add.isConnected) return;
+      confirmationTitle = original ? text.updated : text.added;
       renderConfirmation();
       customizer.scrollTop = 0;
       composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
@@ -701,15 +762,21 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         const valid = variantsFor(product).some(variant => variant.id === item.variant);
         select.value = valid ? item.variant! : "";
         select.setAttribute("aria-invalid", String(!valid));
-        select.addEventListener("change", () => {
+        select.addEventListener("change", async () => {
           const variant = select.value;
-          const current = readDraft();
-          const updated = updateQuickGroupVariant(current, group.id, itemIndex, variant);
+          let focusGroup: QuickOrderGroup | undefined;
           // Normalization may change or merge a menu group's ID. Derive that
           // same ID from the edited group so another matching drink cannot steal focus.
-          const focusGroup = updateQuickGroupVariant({ ...current,
-            groups: current.groups.filter(entry => entry.id === group.id) }, group.id, itemIndex, variant).groups[0];
-          saveDraft(updated); renderCart(); announce(text.updated);
+          try {
+            await saveDraft(current => {
+              const latest = current.groups.find(entry => entry.id === group.id);
+              if (!latest?.items[itemIndex] || latest.items[itemIndex].id !== item.id) return { draft: current, applied: false, blocked: true };
+              focusGroup = updateQuickGroupVariant({ ...current, groups: [latest] }, group.id, itemIndex, variant).groups[0];
+              return { draft: updateQuickGroupVariant(current, group.id, itemIndex, variant), applied: true, blocked: false };
+            });
+          } catch { renderCart(); announce(storageError); return; }
+          renderCart(); announce(text.updated);
+          if (!canFocusCart()) return;
           const focusRow = [...cart.querySelectorAll<HTMLElement>("[data-group-id]")]
             .find(entry => entry.dataset.groupId === focusGroup?.id);
           [...(focusRow?.querySelectorAll<HTMLSelectElement>("[data-variant-product]") ?? [])]
@@ -718,16 +785,18 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
         field.append(select); info.append(field);
       });
       const maximum = stepQuickGroupQuantity(draft, group.id, 1).applied ? 99 : group.quantity;
-      const controls = quantityControl(group.quantity, maximum, next => {
+      const controls = quantityControl(group.quantity, maximum, async next => {
         const delta = next - group.quantity;
-        const result = stepQuickGroupQuantity(readDraft(), group.id, delta);
+        let result;
+        try { result = await saveDraft(current => stepQuickGroupQuantity(current, group.id, delta)); }
+        catch { renderCart(); announce(storageError); return; }
         const stillExists = result.draft.groups.some(entry => entry.id === group.id);
         if (!result.applied) {
           renderCart(group.id, delta > 0 ? "up" : "down");
-          if (!stillExists) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+          if (!stillExists && canFocusCart()) cart.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
           announce(stillExists ? text.limit : text.updated); return;
         }
-        saveDraft(result.draft); renderCart(group.id, delta > 0 ? "up" : "down"); announce(text.updated);
+        renderCart(group.id, delta > 0 ? "up" : "down"); announce(text.updated);
       }, name);
       info.append(controls, lineActions(group)); row.append(photos, info); cart.append(row);
     }
@@ -741,7 +810,7 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
     const checkout = action(needsFlavour ? text.completeFlavours : text.checkout, "primary-button", () => requestCheckout(checkout));
     checkout.disabled = checkoutOpening || draft.groups.length === 0;
     footer.append(priceRow, checkout, node("p", "qb-checkout-note", text.draftNote)); cart.append(footer);
-    if (focusGroup) {
+    if (focusGroup && canFocusCart()) {
       const row = [...cart.querySelectorAll<HTMLElement>("[data-group-id]")].find(item => item.dataset.groupId === focusGroup);
       const target = row?.querySelector<HTMLButtonElement>(`[data-step="${focusStep}"]`);
       (target && !target.disabled ? target : row?.querySelector<HTMLButtonElement>("[data-step]:not(:disabled)"))?.focus({ preventScroll: true });
@@ -749,15 +818,24 @@ export function createQuickBuilder(language: SmartChoiceLanguage, onHelp: () => 
   }
 
   renderChips(); renderCatalog(); renderComposer(); renderCart();
-  refreshBuilder = () => {
-    if (!root.isConnected) return;
+  let refreshRevision = 0;
+  const refreshCanonical = async (): Promise<void> => {
+    const revision = ++refreshRevision;
+    try { await readLatestStoredOrderDraft(orderProductIds); }
+    catch { if (root.isConnected && revision === refreshRevision) announce(storageError); return; }
+    if (!root.isConnected || revision !== refreshRevision) return;
     renderCart();
     if (customizer.open && confirmationTitle) {
       confirmationTitle = text.updated;
       renderConfirmation();
-      composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
+      if (!document.querySelector(".order-checkout-dialog[open]")) composer.querySelector<HTMLElement>("h2")?.focus({ preventScroll: true });
     }
   };
+  refreshBuilder = () => { void refreshCanonical(); };
+  createOrderStorageNotice({ owner: root, getLanguage: () => language,
+    getProduct: (id: string) => orderProducts.get(id)?.item, validIds: orderProductIds,
+    onResolved: async () => { announce(""); await refreshCanonical(); } });
+  void refreshCanonical();
   if (prefill) requestAnimationFrame(() => {
     if (root.isConnected) openCustomizer(search);
   });
@@ -768,3 +846,5 @@ window.addEventListener("robys:order-change", event => {
   if ((event as CustomEvent<{ origin?: unknown }>).detail?.origin !== orderChangeOrigin) refreshBuilder?.();
 });
 window.addEventListener("storage", event => { if (event.key === ORDER_DRAFT_KEY || event.key === null) refreshBuilder?.(); });
+window.addEventListener("focus", () => refreshBuilder?.());
+window.addEventListener("pageshow", () => refreshBuilder?.());

@@ -1,3 +1,4 @@
+import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -49,11 +50,12 @@ assert(
     serviceWorker.includes(bootstrap.match(/takeaway-entry\.js\?v=[a-f0-9]{12}/)?.[0]),
   "Active takeaway runtime must match its bytes and its offline revision"
 );
-for (const page of entryPages) {
+for (const [index, page] of entryPages.entries()) {
   const bootstrapTag = page.match(/<script\b[^>]*src="bootstrap-v2\.js\?v=[a-f0-9]{12}"[^>]*><\/script>/)?.[0] ?? "";
   assert(/src="bootstrap-v2\.js\?v=[a-f0-9]{12}"/.test(page), "Entry pages must load the cache-new revisioned bootstrap");
   assert(bootstrapTag && !/\b(?:defer|async)\b/.test(bootstrapTag), "Entry bootstrap must block parsing long enough to establish prepaint state");
-  assert(/href="styles-v2\.css\?v=[a-f0-9]{12}"/.test(page), "Entry pages must load the cache-new revisioned base stylesheet");
+  if (index === 1) verifyMenuStylesBundle(readMenuStylesBundleInputs());
+  else assert(/href="styles-v2\.css\?v=[a-f0-9]{12}"/.test(page), "Landing and Discover must load the cache-new revisioned base stylesheet");
   assert(!page.includes('src="bootstrap.js') && !page.includes('href="styles.css'), "Entry pages must not request legacy cache-colliding assets");
 }
 assert(

@@ -120,7 +120,7 @@ assert.deepEqual(explicitlyRestored.recommendation.removedLines, [], "Explicitly
 assert(draft.applyOrderRecommendation(explicitlyRestored, { ...recommendationSelection, signature: "after-restore" }, ids).draft.lines.some(line => line.id === "desserts:macaron"),
   "A later advisor update must preserve an explicitly restored dessert");
 const builderSource = readFileSync("src/smart-choice/quick-builder.ts", "utf8");
-assert(builderSource.includes("stepQuickGroupQuantity(readDraft(), group.id, delta)"), "The UI must apply the step to freshly read storage");
+assert(builderSource.includes("saveDraft(current => stepQuickGroupQuantity(current, group.id, delta))"), "The UI must apply the gesture inside the shared transaction");
 assert(!builderSource.includes("updateOrderGroupQuantity(readDraft(), group.id, next"), "The UI must not write the stale rendered absolute quantity");
 
 result = draft.addOrderGroup(result.draft, [{ id: flavoured.id, variant: variant.id, quantity: 1 }], 1, ids);

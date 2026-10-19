@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "family-menu-product-review-20261018",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/435",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "sourceHead": "83fcc7baf0867a91042e0598c7e88a651c4290cf",
+      "baselineHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+      "evidenceKind": "github-actions-locked-toolchain-captures",
+      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39109699880",
+      "evidenceArtifactId": "12130201287",
+      "evidenceArtifactSha256": "38ee6fced9fe08ef2b2db69043c2056b293f570013562c59845255b8853f19bf",
+      "captureSummarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+      "summary": "Inspected all five failing comparisons from the actual locked-toolchain CI artifact, with a second assistant read-only inspection. The four full-menu captures add the requested visible family-selection entry, increasing page height by65px (66px after390px raster rounding); the approved logo, product photos, prices, order controls and footer remain present. The phone360 share crop retains its content and controls with an approximately1px vertical paint shift. Both CI attempts produced the same five failures and exact metrics;38othercomparisons passed. This record covers only the exact dimensions and observed rounded-up ratio with25content bindings (including the complete public integrity manifest). Global screenshot thresholds, scenarios, budgets and workflow permissions are unchanged. This is assistant visual inspection, not independent human approval.",
+      "contentBindings": {
+        "menu.html": "adb816f1ee00c1f3640e605c242401c897204ca8",
+        "menu-app.js": "119bfe9b30f2314cf673b832bee15b9ee04ff0bb",
+        "src/menu-app.js": "5d106a0853ec71ee7d95e05f2d99753ae8229457",
+        "menu-premium.css": "cf350a616e19288864a8a1b2ea181cf06ea57a18",
+        "menu-family.css": "d6ad20153a2998211836fe2a3d79a637b70fd459",
+        "menu-family-ui.js": "02b2e4cb0b5890fa148201ecdbf01d04bc53e382",
+        "src/menu-family-ui.js": "1c6334b96564ecdc5499f27a6c90e426ae3b7b1b",
+        "src/menu-family.js": "e69e40f2920b8f8bfa7078b56683b3a38c589a9e",
+        "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+        "src/order-draft.js": "f53da0481825a0d5f1b885aacc9131877e49b267",
+        "src/menu-order-ui.js": "7e1ca785c21006b9f2baa1afacc0192843f70d93",
+        "menu-order-ui.js": "3ecc2a1e8e5e68ed7dbfd87d7a121ff90b91e587",
+        "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+        "styles-v2.css": "f74df9b9b83ae9edf882f945e66a4072f350c1d1",
+        "menu-catalog.js": "1a71231eb768aef60d66f33d387b6bec1f259a15",
+        "pairing-posters.css": "daeb1cceeaf1a6d1f33bf704b8a29cf3d934fb85",
+        "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+        "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+        "menu-product-reveal.js": "b6806a837c487d0326aba198a0a9d94a41a5075d",
+        "menu-product-reveal-runtime.js": "dbb2b98526eb174641c42f60f4dec66f057af64d",
+        "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+        "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+        "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+        "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+        "integrity-manifest.json": "ee02e8eb91cc137417e6a8e6c89ebf7a4b11c862"
+      },
+      "expectedFailures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x11654 vs 320x11719"
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "totalPixels": 158720,
+          "maxDiffPixelRatio": 0.013099
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x11408 vs 390x11474"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x13199 vs 768x13264"
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7563 vs 1440x7628"
+        }
+      ],
+      "reviewedCaptures": [
+        {
+          "capture": "menu-full",
+          "viewport": "phone-320",
+          "file": "menu-full__phone-320.png",
+          "sha256": {
+            "baseline": "6ca56383fd3fcb24516ff6400f8f42911e6ab75efc713828a9769e487cdb0b3e",
+            "current": "f8a310cad7efd0774428e043d4e5f711493efd6516c1cfb732a22d25df9b4b46"
+          }
+        },
+        {
+          "capture": "menu-share",
+          "viewport": "phone-360-short",
+          "file": "menu-share__phone-360-short.png",
+          "sha256": {
+            "baseline": "7e3ac2bcb90434154e53e318813a42c7b3c3c5738065b74292a67ee18fc06c42",
+            "current": "a23acba1911b95a6d926a9b76af5acc1bb21963241090b6cf614a71c4efa1420",
+            "diff": "29f6f06fc6ec2e78c718f9fb786d5752895480d8647fa140fe03b428a1663708"
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "phone-390",
+          "file": "menu-full__phone-390.png",
+          "sha256": {
+            "baseline": "d23b1d40b1e8f5b2bb576709c19da9fee5b71dab1ca75d45265ad7fad12f5c57",
+            "current": "f5ebd28379b28a47c0b6870eb47231aa29768a1f6ecb9f2a010b2465d9b9c311"
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "tablet-768",
+          "file": "menu-full__tablet-768.png",
+          "sha256": {
+            "baseline": "ec6ad0242fc6191ce63d560b09590dfb13863ea92dec3f98fb2e2ff352b2a554",
+            "current": "4586eed89ce49fe402ac6ef5c906a9ce2ff25a722d0f9f0e2eac105ea6dbe0b5"
+          }
+        },
+        {
+          "capture": "menu-full",
+          "viewport": "desktop-1440",
+          "file": "menu-full__desktop-1440.png",
+          "sha256": {
+            "baseline": "889c5dcc34953f3587bf4436fac20cb9e012205a48d7567eeb60b467903098a6",
+            "current": "58d24ece638a0afde0b12cb298fcb5e87ccfea7d95ecabda5596dd2ff5d0eacb"
+          }
+        }
+      ],
+      "repeatEvidence": {
+        "attempt1SummarySha256": "f267e8f591291a3437bfdb250714b4bf078e1bfd79b28107873d84148c28d130",
+        "attempt2SummarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+        "sameFailureSetAndMetrics": true
+      },
+      "contentBindingHistory": [
+        {
+          "sourceHead": "83fcc7baf0867a91042e0598c7e88a651c4290cf",
+          "evidenceKind": "github-actions-locked-toolchain-captures",
+          "evidenceArtifactId": "12130201287",
+          "originalReviewFileSha256": "13e71028e009f0ffd688980304324a1a4c815b1e69a4ef829ce8e44ae524a6df",
+          "contentBindings": {
+            "menu.html": "bef8b6622dd407908980c539cbb28f810b701b3a",
+            "menu-app.js": "1a867a6bbc69fe9951dae03890bd5c3f9adc75cb",
+            "src/menu-app.js": "d326634d1b9e75af92a5ca0406cfc318d89fae44",
+            "menu-premium.css": "cf350a616e19288864a8a1b2ea181cf06ea57a18",
+            "menu-family.css": "d6ad20153a2998211836fe2a3d79a637b70fd459",
+            "menu-family-ui.js": "02b2e4cb0b5890fa148201ecdbf01d04bc53e382",
+            "src/menu-family-ui.js": "1c6334b96564ecdc5499f27a6c90e426ae3b7b1b",
+            "src/menu-family.js": "e69e40f2920b8f8bfa7078b56683b3a38c589a9e",
+            "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+            "src/order-draft.js": "f53da0481825a0d5f1b885aacc9131877e49b267",
+            "src/menu-order-ui.js": "2db832b850db77db5df74c511767d398d34ba776",
+            "menu-order-ui.js": "9908e605512b6f1a83d63fa1a20d9c9f35b0787d",
+            "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+            "styles-v2.css": "f74df9b9b83ae9edf882f945e66a4072f350c1d1",
+            "menu-catalog.js": "1a71231eb768aef60d66f33d387b6bec1f259a15",
+            "pairing-posters.css": "daeb1cceeaf1a6d1f33bf704b8a29cf3d934fb85",
+            "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+            "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+            "menu-product-reveal.js": "b6806a837c487d0326aba198a0a9d94a41a5075d",
+            "menu-product-reveal-runtime.js": "dbb2b98526eb174641c42f60f4dec66f057af64d",
+            "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+            "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+            "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+            "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+            "integrity-manifest.json": "c84d9bdd0406b6b5328787248a5fa98a8fb7c4cf"
+          },
+          "boundary": "Historical bindings attached to the original locked CI review; preserved before this local follow-up refresh."
+        }
+      ],
+      "followupReviews": [
+        {
+          "id": "formatter-cache-and-centered-stale-alert-working-tree-followup-20261018",
+          "reviewedAt": "2026-10-18T08:33:12.760466+00:00",
+          "reviewKind": "assistant-local-followup-not-new-locked-CI-captures",
+          "workingTree": {
+            "baseHead": "5d1ac6eadbe947df6d751ec57d2eadb7734eb88f",
+            "state": "uncommitted frozen working tree after Intl formatter caching and centered stale-save alert; exact identity is the 25 current content bindings",
+            "contentBindingsAlgorithm": "git-blob-sha1",
+            "contentBindings": {
+              "menu.html": "adb816f1ee00c1f3640e605c242401c897204ca8",
+              "menu-app.js": "119bfe9b30f2314cf673b832bee15b9ee04ff0bb",
+              "src/menu-app.js": "5d106a0853ec71ee7d95e05f2d99753ae8229457",
+              "menu-premium.css": "cf350a616e19288864a8a1b2ea181cf06ea57a18",
+              "menu-family.css": "d6ad20153a2998211836fe2a3d79a637b70fd459",
+              "menu-family-ui.js": "02b2e4cb0b5890fa148201ecdbf01d04bc53e382",
+              "src/menu-family-ui.js": "1c6334b96564ecdc5499f27a6c90e426ae3b7b1b",
+              "src/menu-family.js": "e69e40f2920b8f8bfa7078b56683b3a38c589a9e",
+              "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
+              "src/order-draft.js": "f53da0481825a0d5f1b885aacc9131877e49b267",
+              "src/menu-order-ui.js": "7e1ca785c21006b9f2baa1afacc0192843f70d93",
+              "menu-order-ui.js": "3ecc2a1e8e5e68ed7dbfd87d7a121ff90b91e587",
+              "brand-photo-logo.css": "63e134823a0eb6bcde591c102aaf5e16dc9ab9b6",
+              "styles-v2.css": "f74df9b9b83ae9edf882f945e66a4072f350c1d1",
+              "menu-catalog.js": "1a71231eb768aef60d66f33d387b6bec1f259a15",
+              "pairing-posters.css": "daeb1cceeaf1a6d1f33bf704b8a29cf3d934fb85",
+              "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
+              "menu-product-reveal.css": "58f08fee676411bb9614c1cbf97b12a4dab9aa7d",
+              "menu-product-reveal.js": "b6806a837c487d0326aba198a0a9d94a41a5075d",
+              "menu-product-reveal-runtime.js": "dbb2b98526eb174641c42f60f4dec66f057af64d",
+              "qa/visual-regression.json": "34ec71246200b80d00107353b981ad5ce10dd142",
+              "scripts/visual-regression.mjs": "1d75ce93ef81c8337c9eb0caeabe98f0d10be5fe",
+              "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
+              "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
+              "integrity-manifest.json": "ee02e8eb91cc137417e6a8e6c89ebf7a4b11c862"
+            }
+          },
+          "historicalCiBoundary": {
+            "originalSourceHead": "83fcc7baf0867a91042e0598c7e88a651c4290cf",
+            "originalBaselineHead": "4d614bbf0ef26a440d76d4490b227ffad5705895",
+            "originalArtifactId": "12130201287",
+            "originalSummarySha256": "2755d7dc41e6f4aa81e2da14bf0f081045a0f142db9f326ed52bd84fa2fc82a7",
+            "statement": "Original locked CI capture identity, raw failures and historical inspection remain unchanged. These local follow-ups are not a rerun of that CI artifact at the new working-tree bytes."
+          },
+          "formatterStageVisualEvidence": {
+            "scope": "Existing 43-capture runner comparing exact pre-formatter 5d baseline against Intl-cache candidate BEFORE centered stale-alert follow-up. Not a final-byte full-matrix capture.",
+            "baselineHead": "5d1ac6eadbe947df6d751ec57d2eadb7734eb88f",
+            "summaryPath": ".artifacts/formatter-visual-equivalence/summary.json",
+            "summarySha256": "351d896a6775de491d33a3022f326ee65804626badf32ae573fa037a36dc2b59",
+            "inspectionPath": ".artifacts/formatter-visual-equivalence/inspection-initial.json",
+            "inspectionSha256": "6a00e9e3ebcaffa2a42388431a86e08af50671944eb5510d3f57373df56b1631",
+            "comparisons": 43,
+            "passed": 42,
+            "failed": 1,
+            "pixelIdentical": 40,
+            "menuCapturesPixelIdentical": 10,
+            "menuResults": [
+              {
+                "id": "menu-full",
+                "viewport": "phone-320",
+                "file": "menu-full__phone-320.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 3802240,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.004
+              },
+              {
+                "id": "menu-share",
+                "viewport": "phone-320",
+                "file": "menu-share__phone-320.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 143080,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              },
+              {
+                "id": "menu-share",
+                "viewport": "phone-360-short",
+                "file": "menu-share__phone-360-short.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 167040,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              },
+              {
+                "id": "menu-full",
+                "viewport": "phone-390",
+                "file": "menu-full__phone-390.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 4515810,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.004
+              },
+              {
+                "id": "menu-share",
+                "viewport": "phone-390",
+                "file": "menu-share__phone-390.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 176750,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              },
+              {
+                "id": "menu-full",
+                "viewport": "tablet-768",
+                "file": "menu-full__tablet-768.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 10183680,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.004
+              },
+              {
+                "id": "menu-share",
+                "viewport": "tablet-768",
+                "file": "menu-share__tablet-768.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 312312,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              },
+              {
+                "id": "menu-share",
+                "viewport": "laptop-1366",
+                "file": "menu-share__laptop-1366.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 368160,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              },
+              {
+                "id": "menu-full",
+                "viewport": "desktop-1440",
+                "file": "menu-full__desktop-1440.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 11232000,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.004
+              },
+              {
+                "id": "menu-share",
+                "viewport": "desktop-1440",
+                "file": "menu-share__desktop-1440.png",
+                "passed": true,
+                "diffPixels": 0,
+                "totalPixels": 443680,
+                "diffPixelRatio": 0,
+                "maxDiffPixelRatio": 0.003
+              }
+            ],
+            "retainedOriginalFailure": [
+              {
+                "id": "discover-pairing",
+                "viewport": "phone-320",
+                "file": "discover-pairing__phone-320.png",
+                "passed": false,
+                "diffPixels": 1413,
+                "totalPixels": 240520,
+                "diffPixelRatio": 0.0058747713287876265,
+                "maxDiffPixelRatio": 0.003
+              }
+            ]
+          },
+          "discoverReadinessControls": {
+            "diagnosticPath": ".artifacts/formatter-discover-control/diagnostic.json",
+            "diagnosticSha256": "12f8553d358e8623d3b09d0b07c2b0aa9f9b4598117d9b110dafa11f1d4b7e24",
+            "freshOriginalReadiness": {
+              "summarySha256": "768f5b4f85c36b387f4b68f00c69b67c588c244a992702f4f892f585d105e73b",
+              "results": [
+                {
+                  "id": "discover-pairing",
+                  "viewport": "phone-320",
+                  "file": "discover-pairing__phone-320.png",
+                  "passed": true,
+                  "diffPixels": 0,
+                  "totalPixels": 240520,
+                  "diffPixelRatio": 0,
+                  "maxDiffPixelRatio": 0.003
+                }
+              ]
+            },
+            "explicitDecodeControl": {
+              "summarySha256": "e73c42283ecdb86ac46e3c7cea7498be31fe12a2cb409274c94d4a449acf743a",
+              "results": [
+                {
+                  "id": "discover-pairing",
+                  "viewport": "phone-320",
+                  "file": "discover-pairing__phone-320.png",
+                  "passed": true,
+                  "diffPixels": 0,
+                  "totalPixels": 240520,
+                  "diffPixelRatio": 0,
+                  "maxDiffPixelRatio": 0.003
+                }
+              ]
+            },
+            "interpretation": "Fresh original-readiness and explicit-decode controls are separately labeled 1/1 zero-diff observations. The original 43-capture result remains 42/43; its exact first-run paint/load phase was not proven. No additional reviewed exception or threshold change is introduced."
+          },
+          "finalCenteredAlertEvidence": {
+            "scope": "Actual final emitted modules; stale-save feedback path only. The centered alert is in lazy ordering UI; the catalog import revision also changed. Final default-menu screenshot equivalence was not recaptured.",
+            "reportPath": ".artifacts/stale-save-visibility/final-emitted-center/report.json",
+            "reportSha256": "9fbb7b5072b901d083fd80d3176daf0475c5e93e4c2cda91fd3560f039992d43",
+            "sourceHashesStart": {
+              "src/menu-order-ui.js": "0928115fcb6be371f4940feda28aeee32a51ee68cb9ad05e389483ed278fed02",
+              "menu-order-ui.js": "c1a2a9f558982a54b6d070540df7407ef5398d9a2ec672a8141eaaeab2a616c3",
+              "src/menu-app.js": "f658d6f5be8a5e969789b43fcd39490f16c32670513e192fb51902963f61cafa",
+              "menu-app.js": "23b7fa4f54951ca899d8c9f7c4f2714c8ada703c69dfa35924d246400b4de4a3",
+              "menu.html": "2895dba75e4b8f5956dca8d7e4f9c67a111d47b5ef92ec3c89f6048878ff1505",
+              "menu-premium.css": "f8b06ad3a6fe7f20d5f8bd368a75da67ada48ccb6adb7ee4a39e03e357092038",
+              "integrity-manifest.json": "8b84aa0c9296f974777ae1e20731550d08b791f08221747baefb2082304c5f6b"
+            },
+            "sourceHashesEnd": {
+              "src/menu-order-ui.js": "0928115fcb6be371f4940feda28aeee32a51ee68cb9ad05e389483ed278fed02",
+              "menu-order-ui.js": "c1a2a9f558982a54b6d070540df7407ef5398d9a2ec672a8141eaaeab2a616c3",
+              "src/menu-app.js": "f658d6f5be8a5e969789b43fcd39490f16c32670513e192fb51902963f61cafa",
+              "menu-app.js": "23b7fa4f54951ca899d8c9f7c4f2714c8ada703c69dfa35924d246400b4de4a3",
+              "menu.html": "2895dba75e4b8f5956dca8d7e4f9c67a111d47b5ef92ec3c89f6048878ff1505",
+              "menu-premium.css": "f8b06ad3a6fe7f20d5f8bd368a75da67ada48ccb6adb7ee4a39e03e357092038",
+              "integrity-manifest.json": "8b84aa0c9296f974777ae1e20731550d08b791f08221747baefb2082304c5f6b"
+            },
+            "sourceUnchanged": true,
+            "summary": {
+              "cases": 2,
+              "visible": 2,
+              "errors": 0
+            },
+            "regressionPath": ".artifacts/menu-cart-edit/report.json",
+            "regressionSha256": "7ab7d3c96a4243fd875221655c95a3af4bdbaaf035f48bc41bf6c53291cd19a1",
+            "regressionsPassed": 9,
+            "regressionsExecuted": 9
+          },
+          "bindingDecision": "Rebind the same five reviewed failure bounds to the frozen current bytes using this bounded evidence chain. The next locked CI must recapture final bytes. This is assistant inspection, not human approval or a claim that the original CI ran on this working tree.",
+          "unchangedGuards": {
+            "expectedFailuresUnchanged": true,
+            "failureCount": 5,
+            "thresholdsChanged": false,
+            "scenariosChanged": false,
+            "workflowPermissionsChanged": false,
+            "budgetsChanged": false
+          }
+        }
+      ]
+    }
+  ]
+}

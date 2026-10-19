@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { mkdirSync } from "node:fs";
 import { menuCategories, menuCopy } from "../menu-catalog.js";
 
-const cartKey = "robys-menu-order.v1";
 const sweetIds = [
   "desserts:san-sebastian-cheesecake", "desserts:lotus-cheesecake", "desserts:raspberry-cheesecake",
   "desserts:chocolate-cake", "desserts:almond-tart", "desserts:cake-roll", "desserts:mosaic-cake",
@@ -14,9 +13,9 @@ const copy = {
   ru: { legend: "Сладкое к напитку", drinkOnly: "Только напиток", addPair: "Добавить пару в заказ", quantity: "Количество пар" }
 };
 const confirmationCopy = {
-  tr: { title: "Siparişine eklendi", checkout: "Tamam, devam et", more: "Başka bir şey seç" },
-  en: { title: "Added to your order", checkout: "All set · continue", more: "Choose something else" },
-  ru: { title: "Добавлено в заказ", checkout: "Всё, к оформлению", more: "Выбрать ещё" }
+  tr: { title: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç" },
+  en: { title: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else" },
+  ru: { title: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё" }
 };
 
 // Expectations come from the catalog, independently of the pairing domain/view.
@@ -52,7 +51,10 @@ async function poll(read, accepts, message, timeout = 10_000) {
 }
 
 async function cart(page) {
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? '{"version":1,"groups":[],"lines":[]}'), cartKey);
+  return page.evaluate(async validIds => {
+    const orders = await import("./src/order-draft.js");
+    return orders.readLatestStoredOrderDraft(new Set(validIds));
+  }, [...products.keys()]);
 }
 
 async function prepare(page, base, { language = "tr", fallback = false, seed } = {}) {
@@ -63,15 +65,20 @@ async function prepare(page, base, { language = "tr", fallback = false, seed } =
       Object.defineProperty(HTMLDialogElement.prototype, "open", { configurable: true, get: () => undefined });
     });
   }
-  await page.addInitScript(({ key, draft }) => {
+  await page.addInitScript(() => {
     if (sessionStorage.getItem("qa-custom-pairing-seeded")) return;
     sessionStorage.setItem("qa-custom-pairing-seeded", "true");
-    sessionStorage.removeItem(key);
     localStorage.removeItem("robys-menu-preferences.v1");
-    localStorage.setItem(key, JSON.stringify(draft ?? { version: 1, lines: [] }));
-  }, { key: cartKey, draft: seed });
+  });
   await page.goto(new URL("menu.html?entry=off", base).href, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root[data-ready='true']").waitFor({ state: "visible" });
+  // These scenarios reuse one origin and IndexedDB across pages. Set each
+  // scenario's starting basket through its production transaction boundary;
+  // the read-only legacy v1 value is not a test reset API.
+  await page.evaluate(async ({ draft, validIds }) => {
+    const orders = await import("./src/order-draft.js");
+    await orders.transactStoredOrderDraft(() => ({ draft, applied: true, blocked: false }), new Set(validIds));
+  }, { draft: seed ?? { version: 1, groups: [], lines: [] }, validIds: [...products.keys()] });
   await page.locator(`.lang-button[data-lang="${language}"]`).click();
 }
 
@@ -89,6 +96,11 @@ async function open(page, product, eligible = true) {
   assert.equal(support.openAttribute, true, "dialog exposes its actual open state through the attribute");
   if (support.fallback) assert.equal(support.openPropertyMissing && support.methodsMissing, true, "legacy fallback is exercised without native dialog methods or open property");
   if (eligible) await poll(() => page.locator("#menu-pairing-picker").getAttribute("data-ready"), (value) => value === "true", `${product.id}: picker is ready`);
+  // Fallback focus is scheduled for the next animation frame. On reopening,
+  // picker readiness is synchronous and does not imply focus has moved yet.
+  // Verify the actual focus boundary before sending modal keyboard input.
+  await poll(() => dialog.evaluate((node) => node.contains(document.activeElement)), Boolean,
+    `${product.id}: opening moves focus inside the dialog`);
   return trigger;
 }
 
@@ -130,6 +142,7 @@ async function continueMenu(page, trigger) {
 
 async function choose(page, id) {
   const radio = page.locator(`#menu-pairing-picker input[name="menu-dessert"][value="${id}"]`);
+  if (!await radio.locator("..").isVisible()) await page.locator(".menu-pairing-expand").click();
   await radio.locator("..").click();
   assert.equal(await radio.isChecked(), true);
   return radio;
@@ -186,7 +199,7 @@ async function geometry(page, label) {
       photosSeparate: images.length === 2 && images.every((image) => image.loaded && image.width > 0 && image.height > 0) &&
         (images[0].right <= images[1].left + 1 || images[0].bottom <= images[1].top + 1),
       actionHeight: dialog.querySelector("#menu-add-to-cart").getBoundingClientRect().height,
-      optionsTouchable: [...dialog.querySelectorAll(".menu-pairing-option")].every((node) => node.getBoundingClientRect().height >= 43.5),
+      optionsTouchable: [...dialog.querySelectorAll(".menu-pairing-option:not([hidden])")].every((node) => node.getBoundingClientRect().height >= 43.5),
       clippedText
     };
   });
@@ -198,7 +211,7 @@ async function geometry(page, label) {
   // Scrollable dialogs must expose each caption/amount, including enlarged text;
   // a sticky purchase action cannot count as success when it paints over them.
   const reachability = [];
-  const readable = page.locator("#menu-product-dialog #menu-pairing-preview figcaption, #menu-product-dialog .menu-pairing-preview-total, #menu-product-dialog .menu-pairing-summary, #menu-quantity-label, #menu-product-dialog .menu-quantity-stepper");
+  const readable = page.locator("#menu-product-price, #menu-product-dialog #menu-pairing-preview figcaption, #menu-product-dialog .menu-pairing-preview-total, #menu-product-dialog .menu-pairing-summary, #menu-quantity-label, #menu-product-dialog .menu-quantity-stepper");
   for (let index = 0; index < await readable.count(); index++) {
     const node = readable.nth(index);
     await node.evaluate((element) => element.scrollIntoView({ block: "center", inline: "nearest" }));
@@ -213,11 +226,59 @@ async function geometry(page, label) {
       return { text: element.textContent, top: bounds.top, bottom: bounds.bottom,
         clipTop: Math.max(shell.top, region.top, 0), clipBottom: Math.min(shell.bottom, region.bottom, innerHeight), overlap };
     });
-    assert.equal(measured.top >= measured.clipTop - 1 && measured.bottom <= measured.clipBottom + 1, true, `${label}: ${measured.text} is reachable in the dialog scroll area`);
+    assert.equal(measured.top >= measured.clipTop - 1 && measured.bottom <= measured.clipBottom + 1, true, `${label}: ${measured.text} is reachable in the dialog scroll area: ${JSON.stringify(measured)}`);
     assert.equal(measured.overlap, false, `${label}: the purchase action does not cover ${measured.text}`);
     reachability.push(measured);
   }
   return { label, ...result, reachability };
+}
+
+async function headingVisibility(page, label) {
+  const title = page.locator("#menu-product-title");
+  await title.scrollIntoViewIfNeeded();
+  const initial = await title.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const photo = document.querySelector(".menu-product-visual").getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    return {
+      text: element.textContent,
+      photoOverlap: Math.min(bounds.right, photo.right) - Math.max(bounds.left, photo.left) > 1 &&
+        Math.min(bounds.bottom, photo.bottom) - Math.max(bounds.top, photo.top) > 1,
+      lineCount: [...range.getClientRects()].filter((line) => line.width > 0 && line.height > 0).length
+    };
+  });
+  assert.equal(initial.photoOverlap, false, `${label}: product photo does not overlap its title`);
+  assert.equal(initial.lineCount > 0, true, `${label}: product title has rendered text`);
+  const lines = [];
+  // Enlarged titles can be taller than the content viewport; each rendered line
+  // must remain readable through scrolling rather than fit all at once.
+  for (let index = 0; index < initial.lineCount; index++) {
+    await title.evaluate((element, lineIndex) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const line = [...range.getClientRects()].filter((part) => part.width > 0 && part.height > 0)[lineIndex];
+      const main = element.closest(".menu-product-main");
+      const region = main.getBoundingClientRect();
+      main.scrollTop += line.top + line.height / 2 - (region.top + region.height / 2);
+    }, index);
+    await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+    const measured = await title.evaluate((element, lineIndex) => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const bounds = [...range.getClientRects()].filter((part) => part.width > 0 && part.height > 0)[lineIndex];
+      const region = element.closest(".menu-product-main").getBoundingClientRect();
+      const hit = document.elementFromPoint(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+      return {
+        top: bounds.top, bottom: bounds.bottom, regionTop: region.top, regionBottom: region.bottom,
+        paintedAtCenter: hit === element || element.contains(hit)
+      };
+    }, index);
+    assert.equal(measured.top >= Math.max(measured.regionTop, 0) - 1 && measured.bottom <= Math.min(measured.regionBottom, await page.evaluate(() => innerHeight)) + 1, true, `${label}: title line ${index + 1} is reachable: ${JSON.stringify(measured)}`);
+    assert.equal(measured.paintedAtCenter, true, `${label}: title line ${index + 1} is not obscured: ${JSON.stringify(measured)}`);
+    lines.push(measured);
+  }
+  return { ...initial, lines };
 }
 
 export async function verifyMenuCustomPairing(context, base, check) {
@@ -236,20 +297,20 @@ export async function verifyMenuCustomPairing(context, base, check) {
     finally { await page.close().catch(() => {}); }
   };
 
-  await run("CUSTOM-PAIRING-CATALOG-001", "all27 hot drinks are eligible; cold and dessert products remain ordinary", async (page, requests) => {
+  await run("CUSTOM-PAIRING-CATALOG-001", "all27 hot drinks and the two verified cold-pair drinks are eligible; other cold products and desserts remain ordinary", async (page, requests) => {
     assert.equal(hot.length, 27);
     assert.equal(sweetIds.length, 12);
     await prepare(page, base);
     assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "pairing view is absent from initial menu requests");
-    for (const product of [products.get("cold-coffee:iced-caffe-latte"), dessert]) {
+    for (const product of [products.get("cold-coffee:iced-americano"), dessert]) {
       const trigger = await open(page, product, false);
       assert.equal(await page.locator("#menu-pairing-picker").isHidden(), true);
       assert.equal(await page.locator("#menu-pairing-preview").isHidden(), true);
       await close(page, trigger);
     }
-    assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "cold and dessert dialogs do not request pairing code");
+    assert.equal(requests.some((path) => path.endsWith("/menu-pairing.js")), false, "ordinary cold and dessert dialogs do not request pairing code");
     const eligible = [];
-    for (const drink of hot) {
+    for (const drink of [...hot, products.get("cold-coffee:iced-caffe-latte"), products.get("refreshers:cool-lime")]) {
       const trigger = await open(page, drink);
       const values = await page.locator('#menu-pairing-picker input[name="menu-dessert"]').evaluateAll((nodes) => nodes.map((node) => node.value));
       assert.deepEqual(values, ["", ...sweetIds], `${drink.id}: all12 sweets plus the optional drink-only choice`);
@@ -390,12 +451,20 @@ export async function verifyMenuCustomPairing(context, base, check) {
     assert.equal(await page.locator(".menu-cart-line").count(), 2);
     const teaRow = page.locator(".menu-cart-line").filter({ hasText: tea.item.name.ru });
     await teaRow.locator(".menu-cart-step").last().click();
-    assert.deepEqual(entries(await cart(page)), sortedEntries([[tea.id, 2], [espresso.id, 1], [dessert.id, 3]]));
-    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), (tea.item.price + dessert.item.price) * 2 + espresso.item.price + dessert.item.price);
+    const incremented = sortedEntries([[tea.id, 2], [espresso.id, 1], [dessert.id, 3]]);
+    await poll(() => cart(page).then(entries), value => JSON.stringify(value) === JSON.stringify(incremented),
+      "incrementing the tea pair commits its matching dessert quantity");
+    const incrementedTotal = (tea.item.price + dessert.item.price) * 2 + espresso.item.price + dessert.item.price;
+    await poll(() => page.locator("#menu-cart-dialog-total").textContent().then(money), value => value === incrementedTotal,
+      "the visible cart converges to the committed incremented total");
     await teaRow.locator(".menu-cart-remove").click();
-    assert.equal(await page.locator(".menu-cart-line").count(), 1);
-    assert.deepEqual(entries(await cart(page)), sortedEntries([[espresso.id, 1], [dessert.id, 1]]), "removing the tea pair removes only its matching dessert quantities");
-    assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), espresso.item.price + dessert.item.price);
+    const remaining = sortedEntries([[espresso.id, 1], [dessert.id, 1]]);
+    await poll(() => cart(page).then(entries), value => JSON.stringify(value) === JSON.stringify(remaining),
+      "removing the tea pair removes only its matching dessert quantities");
+    await poll(() => page.locator(".menu-cart-line").count(), value => value === 1,
+      "the visible cart removes only the committed tea pair");
+    await poll(() => page.locator("#menu-cart-dialog-total").textContent().then(money), value => value === espresso.item.price + dessert.item.price,
+      "the visible remaining pair total matches the committed cart");
     return { groups: (await cart(page)).groups };
   });
 
@@ -431,7 +500,10 @@ export async function verifyMenuCustomPairing(context, base, check) {
     const selector = page.locator("#menu-cart-lines select");
     assert.equal(await selector.inputValue(), "");
     await selector.selectOption(flavor.id);
-    assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), true);
+    await poll(() => cart(page), draft => draft.groups.length === 1 && draft.groups[0].quantity === 2 &&
+      draft.groups[0].items[0].variant === flavor.id, "the restored cart commits its exact chosen flavor and quantity");
+    await poll(() => page.locator("#menu-checkout-trigger").isEnabled(), Boolean,
+      "checkout becomes available after the chosen flavor commits");
     const draft = await cart(page);
     assert.equal(draft.groups.length, 1);
     assert.equal(draft.groups[0].quantity, 2);
@@ -490,7 +562,15 @@ export async function verifyMenuCustomPairing(context, base, check) {
     return { remainingPairCapacity: 0, drinkOnlyStillAvailable: true, draft };
   });
 
-  await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the actual checked radio and close when all order controls are disabled", async (page) => {
+  await run("CUSTOM-PAIRING-FALLBACK-FOCUS-001", "fallback Tab cycles the checked radio, disclosure and close when order controls are disabled", async (page) => {
+    // Reproduce the slow-frame ordering that formerly let the reopened-dialog
+    // test send Escape to its outside opener before fallback focus was ready.
+    await page.addInitScript(() => {
+      const requestFrame = window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame = (callback) => requestFrame((time) => {
+        window.setTimeout(() => callback(time), 100);
+      });
+    });
     const seed = { version: 1, lines: [{ id: espresso.id, quantity: 99 }] };
     await prepare(page, base, { seed, fallback: true });
     const trigger = await open(page, espresso);
@@ -499,14 +579,21 @@ export async function verifyMenuCustomPairing(context, base, check) {
     }
     const checked = page.locator('input[name="menu-dessert"][value=""]');
     const dismiss = page.locator('#menu-product-dialog [data-menu-dialog-close="product"]');
+    const disclosure = page.locator(".menu-pairing-expand");
     await checked.focus();
     await page.keyboard.press("Tab");
-    assert.equal(await dismiss.evaluate((node) => document.activeElement === node), true, "Tab from the last actual radio tab stop wraps to close");
+    assert.equal(await disclosure.evaluate(node => document.activeElement === node), true, "Tab reaches the dessert disclosure");
+    await page.keyboard.press("Tab");
+    assert.equal(await dismiss.evaluate((node) => document.activeElement === node), true, "Tab from the final control wraps to close");
+    await page.keyboard.press("Shift+Tab");
+    assert.equal(await disclosure.evaluate(node => document.activeElement === node), true, "reverse Tab wraps to disclosure");
     await page.keyboard.press("Shift+Tab");
     assert.equal(await checked.evaluate((node) => document.activeElement === node), true, "reverse Tab wraps to the checked radio rather than an unchecked option");
     await close(page, trigger, true);
+    const reopened = await open(page, espresso);
+    await close(page, reopened, true);
     assert.deepEqual(entries(await cart(page)), entries(seed));
-    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio"] };
+    return { fallback: true, drinkCapacity: 0, actualTabStops: ["close", "checked drink-only radio", "dessert disclosure"], delayedFocusFrameMs: 100, reopenedEscapeCloses: true };
   });
 
   await run("CUSTOM-PAIRING-GEOMETRY-001", "representative long names fit320/390/768/1440 at100/200% text", async (page) => {
@@ -514,6 +601,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
     const drink = hot.reduce((longest, product) => product.item.name.ru.length > longest.item.name.ru.length ? product : longest);
     await page.setViewportSize({ width: 320, height: 844 });
     await open(page, drink);
+    const drinkOnlyHeading = await headingVisibility(page, "ru/320px/100%/drink-only");
     mkdirSync(".artifacts/custom-pairing", { recursive: true });
     await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
     const defaultScreenshot = ".artifacts/custom-pairing/ru-320-100-drink-only.png";
@@ -525,7 +613,8 @@ export async function verifyMenuCustomPairing(context, base, check) {
       await page.setViewportSize({ width, height: 844 });
       await page.evaluate((size) => { document.documentElement.style.fontSize = `${size}px`; }, fontSize);
       const label = `ru/${width}px/${fontSize === 32 ? "200" : "100"}%`;
-      states.push(await geometry(page, label));
+      const heading = await headingVisibility(page, label);
+      states.push({ ...await geometry(page, label), heading });
       if ((width === 390 && fontSize === 16) || width === 320 || (width === 1440 && fontSize === 16)) {
         await page.locator("#menu-add-to-cart").scrollIntoViewIfNeeded();
         const path = `.artifacts/custom-pairing/ru-${width}-${fontSize === 32 ? "200" : "100"}.png`;
@@ -533,7 +622,7 @@ export async function verifyMenuCustomPairing(context, base, check) {
         screenshots.push({ path, width, textScale: fontSize === 32 ? 200 : 100, selection: dessert.id });
       }
     }
-    return { drink: drink.id, dessert: dessert.id, states, screenshots, textScaleMethod: "document root font16/32px; text enlargement, not browser zoom" };
+    return { drink: drink.id, dessert: dessert.id, drinkOnlyHeading, states, screenshots, textScaleMethod: "document root font16/32px; text enlargement, not browser zoom" };
   });
 
   await run("CUSTOM-PAIRING-LAZY-FAILURE-001", "blocked optional view reports failure and retains drink-only ordering", async (page) => {

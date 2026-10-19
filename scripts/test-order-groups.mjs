@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { addOrderGroup, updateOrderGroupQuantity, removeOrderGroup, normalizeOrderDraft,
-  updateOrderGroupVariant,
+  updateOrderGroupVariant, replaceOrderGroup,
   applyOrderRecommendation, updateOrderLines, readStoredOrderDraft, writeStoredOrderDraft,
   ORDER_DRAFT_KEY } from "../src/order-draft.js";
 
@@ -41,6 +41,64 @@ test("the global product cap spans groups and flavors and rejects entire pairs",
   assert.equal(addOrderGroup(flavored, [{ id: "flavored", variant: "caramel" }], 1, ids).blocked, true);
 });
 
+test("replacing a pair changes its composition once and preserves unrelated latest selections", () => {
+  const original = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const latest = addOrderGroup(original, [line("coffee")], 3, ids).draft;
+  const replacement = replaceOrderGroup(latest, original.groups[0], [line("tea"), line("hot")], 2, ids);
+  assert.equal(replacement.applied, true);
+  assert.deepEqual(replacement.draft.lines, [line("coffee", 3), line("hot", 2), line("tea", 2)]);
+  assert.equal(replacement.draft.groups.length, 2, "the old pair is replaced, not appended");
+  assert.deepEqual(latest.lines, [line("cake", 2), line("coffee", 3), line("tea", 2)], "input basket is immutable");
+});
+
+test("pair editing can keep just its drink and merge an identical selection without duplication", () => {
+  let draft = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }, line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  draft = addOrderGroup(draft, [{ id: "flavored", variant: "vanilla" }], 3, ids).draft;
+  const replacement = replaceOrderGroup(draft, original, [{ id: "flavored", variant: "vanilla" }], 2, ids);
+  assert.equal(replacement.applied, true);
+  assert.equal(replacement.draft.groups.length, 1);
+  assert.equal(replacement.draft.groups[0].quantity, 5);
+  assert.deepEqual(replacement.draft.groups[0].items, [{ id: "flavored", variant: "vanilla", quantity: 1 }]);
+  assert.deepEqual(replacement.draft.lines, [line("flavored", 5)]);
+});
+
+test("pair replacements reject product-cap overflow atomically without dropping the original", () => {
+  let draft = addOrderGroup(null, [line("tea"), line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  draft = addOrderGroup(draft, [line("hot")], 98, ids).draft;
+  const replacement = replaceOrderGroup(draft, original, [line("tea"), line("hot")], 2, ids);
+  assert.equal(replacement.applied, false);
+  assert.equal(replacement.blocked, true);
+  assert.deepEqual(replacement.draft, draft);
+  const invalid = replaceOrderGroup(draft, original, [line("unknown")], 2, ids);
+  assert.equal(invalid.applied, false);
+  assert.deepEqual(invalid.draft, draft);
+});
+
+test("a stale composition editor cannot overwrite a changed quantity, flavor, or removal", () => {
+  const draft = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }, line("cake")], 2, ids).draft;
+  const original = draft.groups[0];
+  const updates = [
+    updateOrderGroupQuantity(draft, original.id, 3, ids).draft,
+    updateOrderGroupVariant(draft, original.id, 0, "caramel", ids).draft,
+    removeOrderGroup(draft, original.id, ids)
+  ];
+  for (const latest of updates) {
+    const replacement = replaceOrderGroup(latest, original, [{ id: "flavored", variant: "vanilla" }], 2, ids);
+    assert.equal(replacement.applied, false);
+    assert.equal(replacement.stale, true);
+    assert.deepEqual(replacement.draft, latest);
+  }
+});
+
+test("an unchanged edit at the product cap remains saveable without adding another pair", () => {
+  const draft = addOrderGroup(null, [line("tea"), line("cake")], 99, ids).draft;
+  const replacement = replaceOrderGroup(draft, draft.groups[0], [line("tea"), line("cake")], 99, ids);
+  assert.equal(replacement.applied, true);
+  assert.deepEqual(replacement.draft, draft);
+});
+
 test("changing a flavor preserves components when their identities collide inside or between groups", () => {
   let draft = addOrderGroup(null, [{ id: "flavored", variant: "vanilla" }, { id: "flavored", variant: "caramel" }, line("cake")], 2, ids).draft;
   const originalLines = draft.lines;
@@ -58,28 +116,29 @@ test("changing a flavor preserves components when their identities collide insid
   assert.equal(updateOrderGroupVariant(draft, draft.groups[0].id, 0, "", ids).blocked, true);
 });
 
-test("full-menu +/- gestures use the current shared draft rather than a stale visible row", () => {
+test("full-menu +/- gestures use the current transaction draft rather than a stale visible row", async () => {
   const source = readFileSync(new URL("../src/menu-order-ui.js", import.meta.url), "utf8");
-  const start = source.indexOf("function setCartQuantity(");
+  const start = source.indexOf("async function setCartQuantity(");
   const end = source.indexOf("\nfunction variantsFor(", start);
   assert.ok(start >= 0 && end > start, "execute the real menu mutation handler");
-  const run = (currentQuantity, displayedTarget, control, expected) => {
+  const run = async (currentQuantity, displayedTarget, control, expected) => {
     const latest = addOrderGroup(null, [line("tea"), line("cake")], currentQuantity, ids).draft;
     let saved;
     const context = {
-      orderDraft: null, cart: null, orderProductIds: ids, updateOrderGroupQuantity,
+      orderDraft: null, cart: null, cartWrites: 0, cartSession: 1, cartDialog: { hasAttribute: () => true },
+      document: { querySelector: () => null }, orderProductIds: ids, updateOrderGroupQuantity,
       lastAddedSelection: { quantity: 1 }, cartCheckoutError: { hidden: false },
       readCart: () => { context.orderDraft = latest; return new Map(latest.lines.map(item => [item.id, item.quantity])); },
-      saveCart: () => { saved = context.orderDraft; }, renderCart: () => {}
+      saveCart: async updater => { const result = updater(latest); saved = context.orderDraft = result.draft; return result; }, renderCart: () => {}
     };
-    vm.runInNewContext(`${source.slice(start, end)}\nsetCartQuantity(${JSON.stringify(latest.groups[0].id)}, ${displayedTarget}, ${JSON.stringify(control)}, false);`, context);
+    await vm.runInNewContext(`${source.slice(start, end)}\nsetCartQuantity(${JSON.stringify(latest.groups[0].id)}, ${displayedTarget}, ${JSON.stringify(control)}, false);`, context);
     assert.equal(saved.groups[0].quantity, expected);
     assert.deepEqual(saved.lines, [line("cake", expected), line("tea", expected)]);
     assert.equal(context.lastAddedSelection, null, "Editing the basket clears the previous Add confirmation");
     assert.equal(context.cartCheckoutError.hidden, true, "Editing the basket clears a previous checkout error");
   };
-  run(2, 2, "increase", 3); // The old row still showed one when another tab added one.
-  run(3, 1, "decrease", 2); // The old row still showed two when another tab added one.
+  await run(2, 2, "increase", 3); // The old row still showed one when another tab added one.
+  await run(3, 1, "decrease", 2); // The old row still showed two when another tab added one.
 });
 
 function menuReplacement() {
@@ -240,18 +299,19 @@ test("removing an extra copy does not suppress the base recommendation", () => {
   assert.deepEqual(draft.lines, [line("cake"), line("hot")]);
 });
 
-test("shared storage migrates the session once and an empty shared cart never restores old items", () => {
+test("an absent canonical basket never resurrects a stale session mirror or writes on read", () => {
   const memory = () => { const values = new Map(); return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }; };
   globalThis.localStorage = memory(); globalThis.sessionStorage = memory();
   sessionStorage.setItem(ORDER_DRAFT_KEY, JSON.stringify({ version: 1, lines: [line("tea")] }));
-  assert.deepEqual(readStoredOrderDraft(ids).lines, [line("tea")]);
+  assert.deepEqual(readStoredOrderDraft(ids).lines, []);
+  assert.equal(localStorage.getItem(ORDER_DRAFT_KEY), null, "Reading must never race an in-flight transaction by writing");
   writeStoredOrderDraft(null, ids);
   sessionStorage.setItem(ORDER_DRAFT_KEY, JSON.stringify({ version: 1, lines: [line("cake")] }));
   assert.deepEqual(readStoredOrderDraft(ids).lines, []);
   delete globalThis.localStorage; delete globalThis.sessionStorage;
 });
 
-test("ordering remains usable when both browser storage APIs are unavailable", () => {
+test("legacy draft snapshots remain readable when both browser storage APIs are unavailable", () => {
   const broken = { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); } };
   globalThis.localStorage = broken; globalThis.sessionStorage = broken;
   const draft = addOrderGroup(null, [line("tea"), line("cake")], 1, ids).draft;
@@ -281,7 +341,8 @@ test("readable storage cannot roll back an edit after quota errors, and persiste
   assert.deepEqual(JSON.parse(value), original, "the test genuinely retained stale local storage");
   quota = false;
   assert.deepEqual(readStoredOrderDraft(ids), edited);
-  assert.deepEqual(JSON.parse(value), edited, "the pending edit persists when writes recover");
+  assert.deepEqual(JSON.parse(value), original, "Reading a recovered legacy pending edit does not mutate canonical storage");
+  writeStoredOrderDraft(edited, ids);
   value = JSON.stringify(original);
   assert.deepEqual(readStoredOrderDraft(ids), original, "normal cross-tab reads resume after recovery");
   delete globalThis.localStorage; delete globalThis.sessionStorage;
@@ -330,6 +391,8 @@ test("failed local writes survive a fresh module reload and commit after quota r
     assert.deepEqual(JSON.parse(canonical.getItem(ORDER_DRAFT_KEY)), original, "reads do not magically bypass the quota error");
     quota = false;
     assert.deepEqual(reloaded.readStoredOrderDraft(ids), edited);
+    assert.deepEqual(JSON.parse(canonical.getItem(ORDER_DRAFT_KEY)), original, "Quota recovery cannot make a reader an unlocked writer");
+    reloaded.writeStoredOrderDraft(edited, ids);
     assert.deepEqual(JSON.parse(canonical.getItem(ORDER_DRAFT_KEY)), edited);
     assert.equal(sessionStorage.getItem(`${ORDER_DRAFT_KEY}.pending`), null);
   } finally { delete globalThis.localStorage; delete globalThis.sessionStorage; }

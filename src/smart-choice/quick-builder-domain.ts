@@ -1,5 +1,5 @@
 import type { SmartChoiceLanguage } from "./catalog.js";
-import { normalizeOrderDraft, updateOrderGroupQuantity, addOrderGroup, removeOrderGroup, type OrderDraft, type OrderGroupResult } from "../order-draft.js";
+import { normalizeOrderDraft, updateOrderGroupQuantity, replaceOrderGroup, type OrderDraft, type OrderGroupResult } from "../order-draft.js";
 import { orderProducts, orderProductIds } from "./shared-order.js";
 import { kidsComboForItems } from "../kids-menu.js";
 
@@ -70,32 +70,7 @@ export function stepQuickGroupQuantity(raw: unknown, groupId: string, delta: num
 // Replace against the latest basket in one write. A stale editor must not
 // overwrite a quantity/flavour change from another tab or resurrect a removal.
 export function replaceQuickGroup(raw: unknown, original: QuickOrderGroup, items: QuickOrderItem[], quantity: number): OrderGroupResult {
-  const draft = normalizeOrderDraft(raw, orderProductIds);
-  const current = draft.groups.find(group => group.id === original.id);
-  if (!current || current.quantity !== original.quantity || JSON.stringify(current.items) !== JSON.stringify(original.items)) {
-    return { draft, applied: false, blocked: true };
-  }
-  const result = addOrderGroup(removeOrderGroup(draft, original.id, orderProductIds), items, quantity, orderProductIds);
-  if (!result.applied) return { draft, applied: false, blocked: true };
-  if (current.source !== "recommendation" || !draft.recommendation) return result;
-  // A cart edit remains owned by the advisor. Record explicit removals so a
-  // later same-selection option change cannot silently put a dessert back.
-  const remaining = new Map<string, number>();
-  for (const item of items) remaining.set(item.id, (remaining.get(item.id) ?? 0) + item.quantity * quantity);
-  const removed = new Map((draft.recommendation.removedLines ?? []).map(line => [line.id, line.quantity]));
-  for (const line of draft.recommendation.selectedLines ?? draft.recommendation.lines) {
-    const before = current.items.filter(item => item.id === line.id).reduce((sum, item) => sum + item.quantity * current.quantity, 0);
-    if (before === (remaining.get(line.id) ?? 0)) continue;
-    const difference = line.quantity - (remaining.get(line.id) ?? 0);
-    if (difference > 0) removed.set(line.id, difference);
-    else removed.delete(line.id);
-  }
-  const replacement = normalizeOrderDraft({ ...draft,
-    groups: draft.groups.map(group => group.id === original.id ? { ...group, items, quantity } : group),
-    recommendation: { ...draft.recommendation,
-      removedLines: [...removed].map(([id, quantity]) => ({ id, quantity })).sort((a, b) => a.id.localeCompare(b.id, "en")) }
-  }, orderProductIds);
-  return { draft: replacement, applied: true, blocked: false };
+  return replaceOrderGroup(raw, original, items, quantity, orderProductIds);
 }
 
 // Preserve the pair, its quantity, and recommendation ownership while editing a flavour.

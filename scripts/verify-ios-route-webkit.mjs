@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { webkit, devices } from "playwright";
+import { MENU_STYLESHEET_FILE, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 
 const baseUrl = process.env.BASE_URL ?? "https://127.0.0.1:4173";
 const baseOrigin = new URL(baseUrl);
@@ -8,6 +9,9 @@ assert.equal(baseOrigin.protocol, "https:", "WebKit route evidence requires HTTP
 const routePrefix = "https://www.google.com/maps/dir/";
 const expectedDestination = "Roby's Coffee House Gazipasa";
 const evidenceDir = "qa-artifacts";
+const menuStylesInputs = readMenuStylesBundleInputs();
+const { revision: menuStylesRevision } = verifyMenuStylesBundle(menuStylesInputs);
+const menuStylesUrl = `${MENU_STYLESHEET_FILE}?v=${menuStylesRevision}`;
 
 const expectedRouteSelectors = {
   "index.html": [
@@ -52,10 +56,19 @@ async function verifyPage(pathname) {
   // These authored, blocking styles must be loaded by DOMContentLoaded.
   // Use direct DOM inspection: waitForFunction internally compiles a string,
   // which conflicts with the page's enforced Trusted Types policy.
-  for (const stylesheet of ["styles-v2.css", pathname === "index.html" ? "map-live.css" : "menu-premium.css"]) {
+  const stylesheets = pathname === "index.html" ? ["styles-v2.css", "map-live.css"] : [MENU_STYLESHEET_FILE];
+  for (const stylesheet of stylesheets) {
     const loaded = await page.locator(`link[rel="stylesheet"][href^="${stylesheet}"]`)
       .evaluate(link => Boolean(link.sheet && link.sheet.cssRules.length));
     assert(loaded, `${pathname}: required stylesheet did not load: ${stylesheet}`);
+  }
+  if (pathname === "menu.html") {
+    assert.equal(await page.locator('link[rel="stylesheet"]').count(), 1, "menu must load its sole reviewed blocking CSS bundle");
+    assert.equal(await page.locator('link[rel="stylesheet"]').getAttribute("href"), menuStylesUrl,
+      "menu must load the exact revision of all nine ordered source stylesheets");
+    const delivered = await page.request.get(new URL(menuStylesUrl, localUrl).href);
+    assert.equal(delivered.status(), 200, "menu stylesheet response must succeed");
+    assert.deepEqual(await delivered.body(), menuStylesInputs.bundleBytes, "WebKit must receive the byte-identical reviewed menu cascade");
   }
 
   if (pathname === "index.html") {
@@ -80,7 +93,7 @@ async function verifyPage(pathname) {
   const count = await routeLinks.count();
   assert.equal(count, selectors.length, `${pathname}: expected exactly ${selectors.length} intended route CTAs, found ${count}`);
 
-  const pageEvidence = { pathname, routeLinks: [] };
+  const pageEvidence = { pathname, stylesheets, routeLinks: [] };
 
   for (let index = 0; index < count; index += 1) {
     const link = routeLinks.nth(index);
