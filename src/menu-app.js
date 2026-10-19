@@ -414,7 +414,7 @@ function loadCombosUi() {
       const url = new URL("./menu-combos-ui.js", import.meta.url);
       url.searchParams.set("retry", String(combosRetry));
       loading = import(url.href);
-    } else loading = import("./menu-combos-ui.js?v=b9d8b40529d5");
+    } else loading = import("./menu-combos-ui.js?v=1fcd69d71112");
     combosUiPromise = loading.then(({ createMenuCombosUi }) => {
       combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
