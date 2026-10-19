@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import test from "node:test";
 
@@ -77,9 +77,11 @@ test("the family clip stays small and is never part of offline installation down
   assert.ok(!precache.includes("family-motion-v1.mp4"));
   assert.ok(!precache.includes("family-motion-v1.webm"));
   const asset = new URL("../src/products/occasion-sets-v1/family-motion-v1.mp4", import.meta.url);
-  assert.ok(statSync(asset).size <= 350_000, "keep the three-second on-demand clip within its transfer budget");
-  assert.equal(readFileSync(asset).subarray(4, 8).toString(), "ftyp");
+  const mp4Bytes = readFileSync(asset);
+  assert.ok(mp4Bytes.length <= 350_000, "keep the three-second on-demand clip within its transfer budget");
+  assert.equal(mp4Bytes.subarray(4, 8).toString(), "ftyp");
   const webm = new URL("../src/products/occasion-sets-v1/family-motion-v1.webm", import.meta.url);
-  assert.ok(statSync(webm).size <= 350_000, "the compatible fallback also stays within the transfer budget");
-  assert.equal(readFileSync(webm).subarray(0, 4).toString("hex"), "1a45dfa3");
+  const webmBytes = readFileSync(webm);
+  assert.ok(webmBytes.length <= 350_000, "the compatible fallback also stays within the transfer budget");
+  assert.equal(webmBytes.subarray(0, 4).toString("hex"), "1a45dfa3");
 });
