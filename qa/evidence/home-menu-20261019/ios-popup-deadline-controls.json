@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "actual-ios-route-popup-helper-controls",
+  "verifiedAt": "2026-10-19T11:24:54.196Z",
+  "headAtRun": "161215e3f4a4f818700c770090eb8590c72ecd1d",
+  "revisionState": "Uncommitted H4 harness candidate; exact tested files and helper bytes are bound below.",
+  "method": "TypeScript AST locates the actual clickForRoutePopup declaration. Its unmodified function text executes in a VM with the actual imported withDeadline. Fake Page events and click operations inject delays/failures; no timer budget or implementation text is rewritten.",
+  "sources": {
+    "script": {
+      "path": "scripts/verify-ios-route-webkit.mjs",
+      "sha256": "af819bea433b2b43e0f98a0aa16aea57f069aedec221b92151bc96e842c72b02"
+    },
+    "helperSha256": "d333e7cb4624d459df3e1cbfb02015d366b724c081bad903b3b8704ddfa0324e",
+    "deadline": {
+      "path": "scripts/live-smoke-deadlines.mjs",
+      "sha256": "0c679efcc76fae9b82fe30b23b97551998550bef6c3312cf44c30a22fab4dba2"
+    }
+  },
+  "actualBudgets": {
+    "clickTimeoutMs": 30000,
+    "postClickPopupDeadlineMs": 5000
+  },
+  "cases": [
+    {
+      "id": "immediate_popup_during_click",
+      "status": "PASS",
+      "elapsedMs": 6,
+      "observed": "passed",
+      "timing": {
+        "clickActionMs": 6,
+        "popupWaitAfterClickMs": 0,
+        "popupObservedDuringClick": true,
+        "clickTimeoutMs": 30000,
+        "postClickPopupDeadlineMs": 5000
+      },
+      "remainingPopupListeners": 0
+    },
+    {
+      "id": "actionability_5100ms_then_popup_200ms_after_click",
+      "status": "PASS",
+      "elapsedMs": 5309,
+      "observed": "passed despite action exceeding five seconds",
+      "timing": {
+        "clickActionMs": 5107,
+        "popupWaitAfterClickMs": 202,
+        "popupObservedDuringClick": false,
+        "clickTimeoutMs": 30000,
+        "postClickPopupDeadlineMs": 5000
+      },
+      "remainingPopupListeners": 0
+    },
+    {
+      "id": "absent_popup_rejected_at_real_5000ms_post_click_deadline",
+      "status": "PASS",
+      "elapsedMs": 5033,
+      "observed": "rejected",
+      "errorCode": "LIVE_SMOKE_TIMEOUT",
+      "errorTimeoutMs": 5000,
+      "measuredPostClickMs": 5032,
+      "remainingPopupListeners": 0
+    },
+    {
+      "id": "click_failure_propagates_and_removes_observer",
+      "status": "PASS",
+      "elapsedMs": 22,
+      "observed": "original click error propagated",
+      "remainingPopupListeners": 0,
+      "laterPopupIgnored": true
+    },
+    {
+      "id": "popup_after_5200ms_is_rejected_and_late_event_has_no_observer",
+      "status": "PASS",
+      "elapsedMs": 5267,
+      "observed": "rejected before late popup",
+      "errorCode": "LIVE_SMOKE_TIMEOUT",
+      "errorTimeoutMs": 5000,
+      "rejectedAfterMs": 5005,
+      "latePopupAfterMs": 5205,
+      "lateEmissionHadListener": false,
+      "remainingPopupListeners": 0
+    }
+  ],
+  "unhandledRejections": [],
+  "inputsUnchanged": true,
+  "boundary": "Assistant-produced focused harness verification; not real browser integration or independent human approval.",
+  "status": "PASS"
+}

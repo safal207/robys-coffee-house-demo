@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { webkit, devices } from "playwright";
 import { MENU_STYLESHEET_FILE, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
+import { withDeadline } from "./live-smoke-deadlines.mjs";
 
 const baseUrl = process.env.BASE_URL ?? "https://127.0.0.1:4173";
 const baseOrigin = new URL(baseUrl);
@@ -48,6 +49,35 @@ await context.route(`${routePrefix}**`, async (route) => {
 });
 
 const evidence = [];
+
+async function clickForRoutePopup(page, link, label) {
+  let resolvePopup;
+  let observedAt;
+  // A resolve-only observer captures even a popup emitted during the click;
+  // abandoning it after a failed click cannot leave an unhandled rejection.
+  const observed = new Promise(resolve => { resolvePopup = resolve; });
+  const onPopup = popup => {
+    observedAt = performance.now();
+    resolvePopup(popup);
+  };
+  page.once("popup", onPopup);
+  const actionStartedAt = performance.now();
+  try {
+    // Actionability has its own unchanged 30-second bound. Its wait must not
+    // consume the separate five seconds allowed for the resulting handoff.
+    await link.click({ timeout: 30000 });
+    const actionCompletedAt = performance.now();
+    const popup = await withDeadline(observed, 5000, `${label}: route popup after completed click`);
+    return { popup, timing: {
+      clickActionMs: Math.round(actionCompletedAt - actionStartedAt),
+      popupWaitAfterClickMs: Math.round(performance.now() - actionCompletedAt),
+      popupObservedDuringClick: observedAt <= actionCompletedAt,
+      clickTimeoutMs: 30000, postClickPopupDeadlineMs: 5000
+    } };
+  } finally {
+    page.off("popup", onPopup);
+  }
+}
 
 async function verifyPage(pathname) {
   const page = await context.newPage();
@@ -118,17 +148,14 @@ async function verifyPage(pathname) {
       await link.scrollIntoViewIfNeeded();
     }
     await link.click({ trial: true });
-    const [popup] = await Promise.all([
-      page.waitForEvent("popup", { timeout: 5000 }),
-      link.click()
-    ]);
+    const { popup, timing } = await clickForRoutePopup(page, link, `${pathname} route ${index + 1}`);
     await popup.waitForLoadState("domcontentloaded");
 
     assert.notEqual(popup.url(), "about:blank", `${pathname}: route link opened a blank iOS tab`);
     assert.ok(popup.url().startsWith(routePrefix), `${pathname}: route popup opened an unexpected URL: ${popup.url()}`);
     assert.equal(page.url(), localUrl, `${pathname}: source page was unexpectedly replaced`);
 
-    pageEvidence.routeLinks.push({ index, href, popupUrl: popup.url(), passed: true });
+    pageEvidence.routeLinks.push({ index, href, popupUrl: popup.url(), passed: true, timing });
     await popup.close();
   }
 

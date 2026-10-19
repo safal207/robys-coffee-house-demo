@@ -593,7 +593,7 @@ try {
           });
           await page.goto(`${origin}/${path}`, { waitUntil: "domcontentloaded" });
           const toggle = page.locator(".menu-toggle");
-          const navigationFocus = view === "home" ? page.locator("#main-navigation a").first() : toggle;
+          const navigationFocus = page.locator("#main-navigation a").first();
           await toggle.click();
           assert.equal(await toggle.getAttribute("aria-expanded"), "true");
           assert.equal(await navigationFocus.evaluate(node => document.activeElement === node), true,
@@ -623,7 +623,7 @@ try {
           await page.locator(".choice-help-panel:not([hidden])").waitFor();
           return { view, viewport: { width: 390, height: 844 }, navigationOpenSuppressesAutomaticOffer: true,
             navigationOpenBasketRequests: 0, closeThenIdleAllowsOffer: true, openingNavigationHidesVisibleOfferWithinMs: 20,
-            navigationFocusPreserved: true, navigationFocusTarget: view === "home" ? "first-navigation-link" : "navigation-toggle",
+            navigationFocusPreserved: true, navigationFocusTarget: "first-navigation-link",
             explicitHelpAfterNavigationClose: true };
         });
       }

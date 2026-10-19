@@ -167,7 +167,7 @@
       </section>
     </div>
 
-    <section class="section about" id="location" aria-labelledby="location-title">
+    <section class="section about" id="location" tabindex="-1" aria-labelledby="location-title">
       <div class="container">
         <div class="section-heading">
           <p class="eyebrow">КОФЕ · ДЕСЕРТЫ · ГАЗИПАША</p>
@@ -200,7 +200,7 @@
       </div>
     </section>
 
-    <section class="section menu-section" id="faq" aria-labelledby="faq-title">
+    <section class="section menu-section" id="faq" tabindex="-1" aria-labelledby="faq-title">
       <div class="container menu-layout">
         <div class="menu-intro">
           <p class="eyebrow">FAQ</p>
@@ -257,19 +257,40 @@
       const nav = document.getElementById('main-navigation');
       if (!button || !nav) return;
 
-      const setOpen = (open) => {
+      const setOpen = (open, restoreFocus = false) => {
         document.body.classList.toggle('menu-open', open);
         button.setAttribute('aria-expanded', String(open));
         button.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+        if (open) nav.querySelector('a')?.focus();
+        else if (restoreFocus) button.focus();
       };
 
       button.addEventListener('click', () => setOpen(!document.body.classList.contains('menu-open')));
       nav.addEventListener('click', (event) => {
-        if (event.target.closest('a')) setOpen(false);
+        if (document.body.classList.contains('menu-open') && event.target.closest('a')) setOpen(false, true);
       });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') setOpen(false);
+        if (!document.body.classList.contains('menu-open')) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setOpen(false, true);
+        } else if (event.key === 'Tab') {
+          const controls = [...document.querySelectorAll('#main-navigation a, .header-actions button')]
+            .filter((control) => control.getClientRects().length > 0);
+          const first = controls[0];
+          const last = controls[controls.length - 1];
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }
       });
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 980) setOpen(false);
+      }, { passive: true });
     })();
   </script>
   <script type="module" src="../choice-help-entry.js?v=23ec0e1f0add"></script>

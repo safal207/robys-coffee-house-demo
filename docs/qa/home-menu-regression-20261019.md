@@ -58,6 +58,25 @@ head CI binds the committed release candidate.
    added “Познакомиться со вкусом дня” link. Its flex box now fits the menu intro
    and its label can shrink and wrap while retaining the arrow and destination.
 
+8. The shared hidden-navigation CSS also exposed missing focus recovery in the
+   standalone Russian landing page. Its own handler now focuses the first open
+   link, cycles Tab, restores the toggle on Escape, and leaves native Location/
+   FAQ navigation focused on the visible section. Six standalone cases passed
+   across three engines at 390/900px; pre-fix BODY/hidden-link counterexamples and
+   post-fix SECTION focus are retained in `ru-standalone-focus.json`.
+9. The iPhone-profile WebKit route harness started its five-second popup timer
+   before a real click spent 4.807 seconds waiting for actionability. The failed
+   trace left only 128ms after click completion; an unchanged-head repeat passed.
+   This identifies an inadequate observation window without proving the sole
+   cause of that failed handoff. The harness now arms its observer before the
+   separately bounded click and retains the same 5000ms window after the click.
+   Actual-helper controls accepted a 5.1s action followed by a 0.2s popup and
+   rejected absent/late popups, with listener cleanup; all five controls passed.
+   The corrected harness then passed all five actual route links in local HTTPS
+   WebKit with unchanged file hashes. Google Maps responses were controlled: this
+   verifies native popup URLs and the site’s source-page preservation, not the
+   external service or a physical iPhone app handoff; see `ios-route-followup.json`.
+
 ## Reproducible checks
 
 `scripts/test-home-menu-responsive-browser.mjs` serves actual emitted files over
@@ -69,9 +88,10 @@ Failures and representative Russian successes have screenshots and JSON geometry
 
 `scripts/test-home-navigation-browser.mjs` checks 18 keyboard and native-link
 standard journeys across three engines, three languages and 390/900px initial widths,
-(36 total cases with the enlargement checks), including 900→901→980→981px transitions and persisted language in the catalog.
+(42 total cases with enlargement and standalone-RU checks), including 900→901→980→981px transitions and persisted language in the catalog.
 Additional cases exercise 200% root-font text at 320×568 and 568×320, checking
-real glyph bounds and access to every navigation link.
+real glyph bounds and access to every navigation link. Six further cases cover
+the standalone Russian landing page, including Escape and native fragment focus.
 `scripts/test-home-navigation-cache.mjs` checks actual emitted URL/cache identity
 and exercises the shipped worker against stale cached responses and fault injection.
 
@@ -86,6 +106,8 @@ flowchart TD
   A["Главная · TR / EN / RU"] --> B["Категория или полное меню"]
   A --> C["Комбо / с ребёнком"]
   A --> D["Умный подбор"]
+  R["Русская страница города"] --> B
+  R --> K["Адрес / FAQ"]
   B --> E["Товар и количество"]
   C --> E
   D --> E
@@ -130,10 +152,24 @@ visibility-transition focus issue; changing the transition to opacity/transform
 only corrected it. Its clean Russian smoke then passed. Earlier interrupted or
 timed-out harness runs are retained as incomplete runs, not counted as passes.
 
+The final enlarged-text follow-up passed all 36 navigation cases (18 standard
+plus 18 enlarged) across all three engines/languages with unchanged input hashes;
+see `enlarged-navigation-results.json`. The final card follow-up passed 6/6:
+RU1121 and RU981 with 200% root-font text in all three engines; see
+`responsive-stable-followup.json`.
+
 Historical H2 CI evidence is retained in `h2-journey-ci.json`: all six Home/Order
 jobs and both Lighthouse profiles passed at `b0efc5b3`. That packet explicitly
 excludes the subsequently discovered narrow/enlarged navigation and page-text
-states. `text200-before.json` preserves the pre-fix measured geometry.
+states. Its gap label “skip-link contrast” is a metadata wording error: the
+observed issue was an unfocused skip-link strip remaining onscreen, and no
+color-contrast measurement was performed. `text200-before.json` and
+`skip-link-before-fix.json` preserve the pre-fix measured geometry.
+
+Historical H3 CI is retained in `h3-journey-ci.json`: 180 responsive and 36
+navigation cases passed, as did all six Home/Order jobs, both Lighthouse profiles
+and native security. Both route attempts are preserved. This predates the
+standalone-RU fix and the route-harness correction.
 
 Final release evidence must be read from the current-head CI artifacts and native
 checks. Engine tests and viewport/text emulation do not establish physical iOS,

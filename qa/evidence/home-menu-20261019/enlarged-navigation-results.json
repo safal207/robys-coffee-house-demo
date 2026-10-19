@@ -1,0 +1,891 @@
+{
+  "schemaVersion": 1,
+  "kind": "final-home-navigation-regression",
+  "startedAt": "2026-10-19T11:08:09.797Z",
+  "finishedAt": "2026-10-19T11:14:46.625Z",
+  "headAtRun": "b0efc5b3fa59f3242b252ffb8093acb2da5b5200",
+  "revisionBinding": "The run observed an uncommitted follow-up to headAtRun. SHA-256 hashes below bind the actual tested production and test files; this is not a claim that the uncommitted bytes already existed at that head.",
+  "boundary": "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
+  "textEnlargement": "32px root font (200% of the default 16px), not native browser zoom",
+  "browserVersions": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0",
+    "webkit": "26.0"
+  },
+  "sourceHashesStart": {
+    "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "scripts/test-home-navigation-browser.mjs": "cf79a98d7a4cf757af17ec3e7b5713b2705eaf0cad0314433631dfc5871a3767"
+  },
+  "sourceHashesEnd": {
+    "index.html": "2edfd70e7bdadf48ccb157f0b8e6ab6f7064585edb0ceb67e0fd85e591790e82",
+    "app.js": "b7ccd8d120a0d53a6cda0d8ebd803394681ca64c9d75d156d894c9414ca48df1",
+    "styles-v2.css": "a7ac2a056f26df50e38c0d2a04d491750617cfa19447c722c9c54fc1b7c66a3c",
+    "mobile.css": "5b32c08631ed878eb39607353d4410486ca3fe746577d8c1987dfb3c652af20b",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8974f92e5f9e223c5d5ff0d2c2e20c99c5628be35cd6b9a4ea7bea48fab871fd",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "scripts/test-home-navigation-browser.mjs": "cf79a98d7a4cf757af17ec3e7b5713b2705eaf0cad0314433631dfc5871a3767"
+  },
+  "assetsUnchanged": true,
+  "summary": {
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "standardJourneys": 18,
+    "enlargedJourneys": 18,
+    "languages": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "standardWidths": [
+      390,
+      900
+    ],
+    "enlargedViewports": [
+      {
+        "width": 320,
+        "height": 568
+      },
+      {
+        "width": 568,
+        "height": 320
+      }
+    ]
+  },
+  "fullReport": {
+    "localPath": ".artifacts/home-navigation-all36-final/report.json",
+    "sha256": "9ebd60a6cbe3b67f89c12b860d1e9ef434b8439e7d10326995b55df42ce3de5d"
+  },
+  "standardCases": [
+    {
+      "id": "chromium-tr-390",
+      "status": "PASS"
+    },
+    {
+      "id": "chromium-en-390",
+      "status": "PASS"
+    },
+    {
+      "id": "chromium-ru-390",
+      "status": "PASS"
+    },
+    {
+      "id": "chromium-tr-900",
+      "status": "PASS"
+    },
+    {
+      "id": "chromium-en-900",
+      "status": "PASS"
+    },
+    {
+      "id": "chromium-ru-900",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-tr-390",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-en-390",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-ru-390",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-tr-900",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-en-900",
+      "status": "PASS"
+    },
+    {
+      "id": "firefox-ru-900",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-tr-390",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-en-390",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-ru-390",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-tr-900",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-en-900",
+      "status": "PASS"
+    },
+    {
+      "id": "webkit-ru-900",
+      "status": "PASS"
+    }
+  ],
+  "enlargedCases": [
+    {
+      "id": "chromium-tr-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 204.53125,
+        "height": 71.1875,
+        "top": 16,
+        "right": 220.53125,
+        "bottom": 87.1875,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 568,
+      "wheelDown": null,
+      "wheelBack": null,
+      "measuredHomeCopyMaxRight": 311,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 280.875,
+        "minTop": 110,
+        "maxBottom": 518
+      }
+    },
+    {
+      "id": "chromium-en-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 271.03125,
+        "height": 71.1875,
+        "top": 16,
+        "right": 287.03125,
+        "bottom": 87.1875,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 568,
+      "wheelDown": null,
+      "wheelBack": null,
+      "measuredHomeCopyMaxRight": 311,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 238.125,
+        "minTop": 151,
+        "maxBottom": 477
+      }
+    },
+    {
+      "id": "chromium-ru-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 304,
+        "height": 122.375,
+        "top": 16,
+        "right": 320,
+        "bottom": 138.375,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 568,
+      "wheelDown": null,
+      "wheelBack": null,
+      "measuredHomeCopyMaxRight": 311,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 253.203125,
+        "minTop": 110,
+        "maxBottom": 518
+      }
+    },
+    {
+      "id": "chromium-tr-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 204.53125,
+        "height": 71.1875,
+        "top": 16,
+        "right": 220.53125,
+        "bottom": 87.1875,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 486,
+      "wheelDown": 166,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 531.421875,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 440.046875,
+        "minTop": 110,
+        "maxBottom": 310
+      }
+    },
+    {
+      "id": "chromium-en-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 271.03125,
+        "height": 71.1875,
+        "top": 16,
+        "right": 287.03125,
+        "bottom": 87.1875,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 486,
+      "wheelDown": 166,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 515.046875,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 238.125,
+        "minTop": 110,
+        "maxBottom": 310
+      }
+    },
+    {
+      "id": "chromium-ru-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 428.046875,
+        "height": 71.1875,
+        "top": 16,
+        "right": 444.046875,
+        "bottom": 87.1875,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 486,
+      "wheelDown": 166,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 556,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 392.3125,
+        "minTop": 110,
+        "maxBottom": 310
+      }
+    },
+    {
+      "id": "firefox-tr-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 204.51666259765625,
+        "height": 71.19999694824219,
+        "top": 16,
+        "right": 220.51666259765625,
+        "bottom": 87.19999694824219,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 580,
+      "wheelDown": 12,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 311.00001525878906,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 280.93333435058594,
+        "minTop": 111,
+        "maxBottom": 529
+      }
+    },
+    {
+      "id": "firefox-en-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 271.04998779296875,
+        "height": 71.19999694824219,
+        "top": 16,
+        "right": 287.04998779296875,
+        "bottom": 87.19999694824219,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 568,
+      "wheelDown": null,
+      "wheelBack": null,
+      "measuredHomeCopyMaxRight": 311.00001525878906,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 238.14999389648438,
+        "minTop": 147.5,
+        "maxBottom": 480.5
+      }
+    },
+    {
+      "id": "firefox-ru-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 304,
+        "height": 122.39999389648438,
+        "top": 16,
+        "right": 320,
+        "bottom": 138.39999389648438,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 580,
+      "wheelDown": 12,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 311.00001525878906,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 253.26666259765625,
+        "minTop": 111,
+        "maxBottom": 529
+      }
+    },
+    {
+      "id": "firefox-tr-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 204.51666259765625,
+        "height": 71.19999694824219,
+        "top": 16,
+        "right": 220.51666259765625,
+        "bottom": 87.19999694824219,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 495,
+      "wheelDown": 175,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 531.3499755859375,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 440.1333312988281,
+        "minTop": 111,
+        "maxBottom": 319
+      }
+    },
+    {
+      "id": "firefox-en-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 271.04998779296875,
+        "height": 71.19999694824219,
+        "top": 16,
+        "right": 287.04998779296875,
+        "bottom": 87.19999694824219,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 495,
+      "wheelDown": 175,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 515.0333251953125,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 238.14999389648438,
+        "minTop": 111,
+        "maxBottom": 319
+      }
+    },
+    {
+      "id": "firefox-ru-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 428.066650390625,
+        "height": 71.19999694824219,
+        "top": 16,
+        "right": 444.066650390625,
+        "bottom": 87.19999694824219,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 495,
+      "wheelDown": 175,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 556.0000152587891,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 392.3999938964844,
+        "minTop": 111,
+        "maxBottom": 319
+      }
+    },
+    {
+      "id": "webkit-tr-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 184.390625,
+        "height": 71,
+        "top": 16,
+        "right": 200.390625,
+        "bottom": 87,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 576,
+      "wheelDown": 8,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 305.28778076171875,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 288.4043273925781,
+        "minTop": 117,
+        "maxBottom": 519
+      }
+    },
+    {
+      "id": "webkit-en-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 239.296875,
+        "height": 71,
+        "top": 16,
+        "right": 255.296875,
+        "bottom": 87,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 568,
+      "wheelDown": null,
+      "wheelBack": null,
+      "measuredHomeCopyMaxRight": 296.1358642578125,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 214.2125244140625,
+        "minTop": 155,
+        "maxBottom": 473
+      }
+    },
+    {
+      "id": "webkit-ru-320x568-text200",
+      "status": "PASS",
+      "width": 320,
+      "height": 568,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 320,
+      "documentWidthAfterOpen": 320,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 304,
+        "height": 122,
+        "top": 16,
+        "right": 320,
+        "bottom": 138,
+        "left": 16
+      },
+      "navWidth": 320,
+      "navScrollWidth": 320,
+      "navHeight": 568,
+      "navScrollHeight": 576,
+      "wheelDown": 8,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 308.423828125,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 279.5345458984375,
+        "minTop": 117,
+        "maxBottom": 519
+      }
+    },
+    {
+      "id": "webkit-tr-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 184.390625,
+        "height": 71,
+        "top": 16,
+        "right": 200.390625,
+        "bottom": 87,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 492,
+      "wheelDown": 5,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 529.4404907226562,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "Hakkımızda",
+        "Menü",
+        "Ziyaret"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 401.5925598144531,
+        "minTop": 117,
+        "maxBottom": 303
+      }
+    },
+    {
+      "id": "webkit-en-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 239.296875,
+        "height": 71,
+        "top": 16,
+        "right": 255.296875,
+        "bottom": 87,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 492,
+      "wheelDown": 9,
+      "wheelBack": 0,
+      "measuredHomeCopyMaxRight": 527.7368774414062,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "About",
+        "Menu",
+        "Visit"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 214.2125244140625,
+        "minTop": 117,
+        "maxBottom": 303
+      }
+    },
+    {
+      "id": "webkit-ru-568x320-text200",
+      "status": "PASS",
+      "width": 568,
+      "height": 320,
+      "rootFontPixels": 32,
+      "documentWidthBeforeOpen": 568,
+      "documentWidthAfterOpen": 568,
+      "skipUnfocusedBottom": 0,
+      "skipFocused": true,
+      "skipFocusedBounds": {
+        "x": 16,
+        "y": 16,
+        "width": 373.453125,
+        "height": 71,
+        "top": 16,
+        "right": 389.453125,
+        "bottom": 87,
+        "left": 16
+      },
+      "navWidth": 568,
+      "navScrollWidth": 568,
+      "navHeight": 320,
+      "navScrollHeight": 492,
+      "wheelDown": 42,
+      "wheelBack": 1,
+      "measuredHomeCopyMaxRight": 519.5128784179688,
+      "allLinksVisibleAndFocused": true,
+      "allFocusedTextUncovered": true,
+      "focusedLinkLabels": [
+        "О нас",
+        "Меню",
+        "Контакты"
+      ],
+      "focusedTextBounds": {
+        "minLeft": 30,
+        "maxRight": 330.14544677734375,
+        "minTop": 117,
+        "maxBottom": 303
+      }
+    }
+  ],
+  "limits": "Assistant-produced browser evidence, not independent human approval. Does not certify physical phones, OEM browsers, native browser zoom or complete accessibility conformance.",
+  "standardAssertions": [
+    "closed navigation skipped by natural Tab",
+    "open navigation contains Tab focus",
+    "Escape restores the menu-control focus and localized label",
+    "900/901/980/981 breakpoint behavior",
+    "native About/Visit destinations receive visible meaningful focus",
+    "native catalog navigation preserves the selected language"
+  ]
+}

@@ -28,10 +28,12 @@ const standardMatrix = selected.flatMap(engine => [390, 900].flatMap(width => ["
 const enlargedMatrix = selected.flatMap(engine => [{ width: 320, height: 568 }, { width: 568, height: 320 }]
   .flatMap(viewport => ["tr", "en", "ru"].map(language => ({ engine, ...viewport, language, mode: "text200",
     id: `${engine}-${language}-${viewport.width}x${viewport.height}-text200` }))));
-const matrix = [...standardMatrix, ...enlargedMatrix].filter(entry => entry.id.includes(filter));
+const standaloneMatrix = selected.flatMap(engine => [390, 900].map(width => ({ engine, width, language: "ru",
+  mode: "standalone", id: `${engine}-ru-standalone-${width}` })));
+const matrix = [...standardMatrix, ...enlargedMatrix, ...standaloneMatrix].filter(entry => entry.id.includes(filter));
 assert.ok(matrix.length > 0, "The selected browser and optional filter must exercise at least one case");
 const assets = ["index.html", "app.js", "styles-v2.css", "mobile.css", "brand-photo-logo.css", "conversion.css",
-  "src/app.ts", "src/i18n.ts", "scripts/test-home-navigation-browser.mjs"];
+  "src/app.ts", "src/i18n.ts", "ru/coffee-gazipasa.html", "scripts/test-home-navigation-browser.mjs"];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = {
   startedAt: new Date().toISOString(),
@@ -212,6 +214,116 @@ async function verifyCase(browser, engine, width, language) {
   } finally { await context.close(); persist(); }
 }
 
+async function verifyStandaloneCase(browser, { engine, width, id }) {
+  const directory = join(output, engine);
+  mkdirSync(directory, { recursive: true });
+  const context = await browser.newContext({ viewport: { width, height: 900 }, hasTouch: true, reducedMotion: "reduce",
+    serviceWorkers: "block", ignoreHTTPSErrors: true, bypassCSP: false });
+  await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort("blockedbyclient"));
+  const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const facts = { path: "/ru/coffee-gazipasa.html", destinations: [] };
+  try {
+    await page.goto(`${origin}${facts.path}`, { waitUntil: "domcontentloaded" });
+    const toggle = page.locator(".menu-toggle");
+    const nav = page.locator("#main-navigation");
+    const first = nav.locator("a").first();
+    await toggle.waitFor({ state: "visible" });
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.open);
+    await page.locator(".site-header .brand").focus();
+    await page.keyboard.press("Tab");
+    await expectFocus(toggle, "Closed standalone navigation links do not capture natural Tab focus");
+
+    await toggle.click();
+    await expectFocus(first, "Opening standalone navigation focuses its first link");
+    assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+    assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.close);
+    await page.keyboard.press("Shift+Tab");
+    await expectFocus(toggle, "Standalone Shift+Tab reaches the close control");
+    await page.keyboard.press("Tab");
+    await expectFocus(first, "Standalone Tab loops from the close control to its first link");
+    facts.openTabSequence = [];
+    for (let step = 0; step < 8; step++) {
+      await page.keyboard.press("Tab");
+      const current = await page.locator(":focus").evaluate(node => ({ tag: node.tagName, text: node.textContent.trim(),
+        inNavigation: Boolean(node.closest("#main-navigation")), toggle: node.matches(".menu-toggle") }));
+      facts.openTabSequence.push(current);
+      assert.ok(current.inNavigation || current.toggle, "Standalone open navigation contains natural keyboard focus");
+    }
+    await nav.locator('a[href="#location"]').focus();
+    await page.keyboard.press("Escape");
+    await expectFocus(toggle, "Standalone Escape restores focus from a navigation link to the visible control");
+    assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+    assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.open);
+    facts.escapeClosesAndRestoresFocus = true;
+
+    for (const hash of ["#location", "#faq"]) {
+      await toggle.click();
+      await expectFocus(first, "Reopening standalone navigation restores its first link");
+      await nav.locator(`a[href="${hash}"]`).focus();
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(expected => location.hash === expected, hash);
+      assert.equal(await toggle.getAttribute("aria-expanded"), "false", "Native standalone fragment links close navigation");
+      assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.open);
+      const focus = await page.evaluate(hash => {
+        const target = document.querySelector(hash), node = document.activeElement;
+        const bounds = node.getBoundingClientRect(), targetBounds = target.getBoundingClientRect();
+        let visible = node.getClientRects().length > 0;
+        for (let ancestor = node; ancestor; ancestor = ancestor.parentElement) {
+          const style = getComputedStyle(ancestor);
+          if (style.display === "none" || style.visibility !== "visible" || Number(style.opacity) === 0) visible = false;
+        }
+        return { tag: node.tagName, id: node.id, insideClosedNavigation: Boolean(node.closest("#main-navigation")), visible,
+          meaningful: node.matches(".menu-toggle") || node === target || target.contains(node),
+          onScreen: bounds.bottom > 0 && bounds.right > 0 && bounds.top < innerHeight && bounds.left < innerWidth,
+          targetTop: targetBounds.top, viewportHeight: innerHeight };
+      }, hash);
+      facts.destinations.push({ hash, focus });
+      assert.equal(focus.insideClosedNavigation, false, `Standalone ${hash} cannot leave focus in the hidden menu: ${JSON.stringify(focus)}`);
+      assert.equal(focus.visible, true, `Standalone ${hash} leaves focus visible: ${JSON.stringify(focus)}`);
+      assert.equal(focus.meaningful, true, `Standalone ${hash} leaves meaningful focus, not BODY/HTML: ${JSON.stringify(focus)}`);
+      assert.equal(focus.onScreen, true, `Standalone ${hash} focused element is onscreen: ${JSON.stringify(focus)}`);
+      assert.ok(focus.targetTop >= -1 && focus.targetTop < focus.viewportHeight, `Native standalone ${hash} navigation scrolls to its actual section`);
+    }
+
+    await page.setViewportSize({ width: 900, height: 900 });
+    await toggle.click();
+    await expectFocus(first, "Standalone navigation opens at 900 pixels");
+    await page.setViewportSize({ width: 901, height: 900 });
+    await afterLayout(page);
+    assert.equal(await toggle.getAttribute("aria-expanded"), "true", "Standalone navigation stays open at 901 pixels");
+    await page.setViewportSize({ width: 980, height: 900 });
+    await afterLayout(page);
+    assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+    await page.setViewportSize({ width: 981, height: 900 });
+    await page.waitForFunction(() => document.querySelector(".menu-toggle")?.getAttribute("aria-expanded") === "false");
+    assert.equal(await toggle.isVisible(), false);
+    assert.equal(await first.isVisible(), true);
+    assert.equal(await toggle.getAttribute("aria-label"), navigationLabels.ru.open);
+    facts.resizeKeepsMobileAndClosesAtDesktop = true;
+    await page.setViewportSize({ width, height: 900 });
+    await afterLayout(page);
+    await toggle.click();
+    await expectFocus(first, "Standalone full-menu navigation begins at its first link");
+    await page.keyboard.press("Enter");
+    await page.locator('#menu-root[data-ready="true"]').waitFor();
+    assert.equal(new URL(page.url()).pathname, "/menu.html", "Standalone menu link reaches the emitted catalog");
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru", "Standalone menu link preserves Russian");
+    facts.destinations.push({ path: "/menu.html", preservedLanguage: "ru" });
+    assert.deepEqual(errors, [], "Standalone navigation produces no uncaught runtime errors");
+    await page.screenshot({ path: join(directory, `${id}-catalog.png`) });
+    report.cases.push({ id, status: "PASS", facts });
+    console.log(`PASS ${id}`);
+  } catch (error) {
+    await page.screenshot({ path: join(directory, `${id}-failure.png`) }).catch(() => {});
+    report.cases.push({ id, status: "FAIL", error: error.stack, facts, errors });
+    console.error(`FAIL ${id}: ${error.message}`);
+  } finally { await context.close(); persist(); }
+}
+
 function textGeometry(element) {
   const range = document.createRange();
   range.selectNodeContents(element);
@@ -349,6 +461,7 @@ try {
     try {
       for (const entry of cases) {
         if (entry.mode === "text200") await verifyEnlargedCase(browser, entry);
+        else if (entry.mode === "standalone") await verifyStandaloneCase(browser, entry);
         else await verifyCase(browser, engine, entry.width, entry.language);
       }
     } finally { await browser.close(); }
