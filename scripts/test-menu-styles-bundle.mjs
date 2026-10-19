@@ -8,7 +8,7 @@ import { MENU_STYLE_INPUTS, compileMenuStylesBundle, menuStylesRevision, menuSty
 // expected cascade or silently move approved branding across other layers.
 const expectedInputs = [
   ["styles-v2.css", "styles-v2.css"], ["menu-premium.css", "menu-premium.css"],
-  ["menu-family.css", "menu-family.css"], ["menu-product-reveal.css", "menu-product-reveal.css"],
+  ["menu-family.css", "menu-family.css"], ["kids-menu.css", "kids-menu.css"], ["menu-product-reveal.css", "menu-product-reveal.css"],
   ["pairing-posters.css", "pairing-posters.css"], ["menu-stability.css", "menu-stability-v2.css"],
   ["menu-combos.css", "menu-combos.css"], ["combo-entry.css", "combo-entry.css"], ["choice-help.css", "choice-help.css"],
   ["seasonal.css", "seasonal.css"],

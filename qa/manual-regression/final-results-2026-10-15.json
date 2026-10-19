@@ -1,0 +1,26 @@
+[
+  {
+    "script": "build",
+    "startedAt": "2026-10-15T11:52:22.885Z",
+    "finishedAt": "2026-10-15T11:52:47.782Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-build-2026-10-15.log"
+  },
+  {
+    "script": "integrity",
+    "startedAt": "2026-10-15T11:52:47.789Z",
+    "finishedAt": "2026-10-15T11:52:50.340Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-integrity-2026-10-15.log"
+  },
+  {
+    "script": "check",
+    "startedAt": "2026-10-15T11:52:50.344Z",
+    "finishedAt": "2026-10-15T11:58:57.877Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-check-2026-10-15.log"
+  }
+]

@@ -1,0 +1,125 @@
+{
+  "verifiedDate": "2026-10-19",
+  "scope": "Accepted main integrated into working branch; local verification, not live deployment",
+  "localParent": "904dd23ab52aa2b795bb9e4a6db551ea766a3c2c",
+  "acceptedMain": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+  "preserved": [
+    "transactional shared storage and legacy recovery",
+    "three editable family ideas and coming-soon Kids Box",
+    "twelve editable occasion combos and quiet helper",
+    "Halloween theme and automatic sunset",
+    "Mini160 and Big330 ready sets",
+    "local cashier/barista queues and automatic guest status"
+  ],
+  "decisions": [
+    "one family entrance, kids-menu URL aliases the family hub",
+    "ready grouped sets and individually editable family suggestions share the same canonical products",
+    "counter checkout reads current authoritative draft and rejects unresolved legacy conflicts",
+    "pending replacement disables competing choices and Keep original"
+  ],
+  "checks": {
+    "quickRecipes": 760,
+    "counterTests": 72,
+    "fullCheck": "PASS",
+    "sourceRuntimeParity": "PASS",
+    "quickQuantityCases": 75240,
+    "conflictMarkers": 0,
+    "qrDomainRoundtrips": 4560,
+    "stylesheetBundleTests": 26,
+    "securityChecks": 354
+  },
+  "browser": {
+    "mobileWidths": [
+      390,
+      320
+    ],
+    "scenarios": [
+      "direct kids-menu link opens family hub",
+      "Mini160 plus edited milk/simit95 total255",
+      "Big330 from second tab synchronizes total585",
+      "simultaneous milk increase and simit removal yields610 in both tabs",
+      "Mini-to-Big merges ready sets and yields780",
+      "counter guest QR retains actual groups and total780",
+      "accepted Study Break removes simit and adds tea50, total830",
+      "full basket removals converge to0",
+      "visible family product photos loaded and layouts did not overflow"
+    ],
+    "physicalPhone": false,
+    "desktopWidth": 1280,
+    "networkFaults": "not rerun in this integration pass",
+    "physicalCameraScan": "not performed"
+  },
+  "screenshots": [
+    "family-desktop.png",
+    "family-mobile-390.png",
+    "quick-mobile-390.png",
+    "shared-cart-desktop.png",
+    "shared-cart-mobile-320.png"
+  ],
+  "sourceHashes": [
+    {
+      "path": "src/menu-app.js",
+      "sha256": "e9f3fa733d60636e4b9002ad50ebf5771fd1836ac67e0e4c7785cad19781791e"
+    },
+    {
+      "path": "src/menu-order-ui.js",
+      "sha256": "3cd363e8a139aadc9778af134af547b767543b31d994fc0d79ed4542dfe828dc"
+    },
+    {
+      "path": "src/menu-family-ui.js",
+      "sha256": "9929711bfede5f72b1929f1a430054bf8355793dcfe0c5e69f37b05e0e0ae662"
+    },
+    {
+      "path": "src/kids-menu.js",
+      "sha256": "5651560a000956a7f06740c191e87a33bf8827ec716546ac9d0ae90fc5b62b5c"
+    },
+    {
+      "path": "src/order-checkout.js",
+      "sha256": "4fb1a7bcca862bf2682e1b346def504a0d16f4e8b1f193bb48652825cca7bbec"
+    },
+    {
+      "path": "src/counter-checkout.js",
+      "sha256": "d6a9c2c12ef2f2057a3073c3c2c57aa5c7d20144d61c82f2e3bf04188543b347"
+    },
+    {
+      "path": "src/order-draft.js",
+      "sha256": "dd822d58ca8ab6f88aed8c8a6c67ba8430da06f7f185346b3bb9076aa900b522"
+    },
+    {
+      "path": "src/order-storage.js",
+      "sha256": "5012de1894f473e7a3568a8ce0b8c0bf05d685d4c775a842e7f8af433e6c00f4"
+    },
+    {
+      "path": "src/smart-choice/quick-builder.ts",
+      "sha256": "11982bb60f9ef135a61a9c9f2df0a73626e8640549dd39a24d8b5ec5ed69ddae"
+    },
+    {
+      "path": "src/smart-choice/checkout-link.ts",
+      "sha256": "3a7b2cb0fcb0f7a99ed3467d70185bf15746c448d438060a8c8d362dc428ea38"
+    },
+    {
+      "path": "scripts/build.mjs",
+      "sha256": "5340d6cb76e368263c4e9115b0ba8d34af35649e8e7b283b549cd315655c7833"
+    },
+    {
+      "path": "scripts/menu-styles-bundle.mjs",
+      "sha256": "380a4320031e6edc0c630da32da275aab3c0991b2804ef0203ff618e51d9e46a"
+    },
+    {
+      "path": "kids-menu.css",
+      "sha256": "e2dec4adf195c4b8ea976930bcd78d52dc4fb48f2430cd190f8111d46294d611"
+    },
+    {
+      "path": "menu-runtime.css",
+      "sha256": "110388cf57ce819583f7385f3fa8b6934b7cea04fba51f9f157e0cdf6437b6ba"
+    },
+    {
+      "path": "sw-core-v64.js",
+      "sha256": "2a706974e215178149b42dcca718967f46304469ecb2be154adbbf3c415cee83"
+    },
+    {
+      "path": "integrity-manifest.json",
+      "sha256": "e067a0cccd1a47452beca5cff617d4dabb606e5ede6ea2ed0625737c9b90de91"
+    }
+  ]
+}

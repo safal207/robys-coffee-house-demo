@@ -1,0 +1,102 @@
+Dependency graph roots: 404.html, cashier.html, counter/public/guest.html, counter/public/staff.html, discover.html, docs/instagram-tools.html, docs/owner-pitch.html, experience/index.html, index.html, menu.html, qa/manual-regression/report.html, qa/takeaway-preview.html, qa/takeaway-scene.html, refresh.html, ru/coffee-gazipasa.html, smart-choice/index.html, smart-choice/simulator.html, src/app.ts, counter/server.mjs, counter/provision.mjs
+Runtime CSS/JS: 115
+Reachable runtime: 115
+Suspicious runtime: 0
+Proven orphan runtime: 0
+SUSPICIOUS_REFERENCES
+counter/test/server.test.mjs: ${f.origin}/script.js -> no current matches
+scripts/verify-menu-order.mjs: ${readFileSync("menu-premium.css", "utf8")}\n${readFileSync("menu-security-v2.css", "utf8")} -> no current matches
+scripts/verify-menu-order.mjs: href="menu-stability-v2.css?v=${stabilityRevision}" -> no current matches
+scripts/verify-menu-order.mjs: "./menu-stability-v2.css?v=${stabilityRevision}" -> no current matches
+scripts/test-menu-order-loader.mjs: import("./menu-order-ui.js?v=${revision}") -> no current matches
+scripts/test-menu-order-loader.mjs: "./menu-order-ui.js?v=${revision}" -> no current matches
+UNRESOLVED_LITERAL_REFERENCES
+counter/public/staff.html: ../src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore
+qa/manual-regression/report.html: Перейти на /menu.html#brew-hot.
+qa/manual-regression/report.html: Закрыть карточку и перейти на /menu.html#hot-coffee.
+qa/manual-regression/report.html: robys-qa-results.json
+counter/server.mjs: guest.html
+counter/server.mjs: guest.js
+counter/server.mjs: guest.css
+counter/server.mjs: staff.html
+counter/server.mjs: staff.js
+counter/server.mjs: staff.css
+counter/server.mjs: /counter/guest.html
+counter/server.mjs: /counter/staff.html
+counter/public/staff.js: ../src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore
+qa/manual-regression/customer-cases.json: Перейти на /menu.html#brew-hot.
+qa/manual-regression/customer-cases.json: Закрыть карточку и перейти на /menu.html#hot-coffee.
+qa/manual-regression/customer-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Static410 receipt/composition/cashier link only; static QR optical decode and exact510 fixture/locales remain.
+qa/manual-regression/customer-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Config503→honest static410 on desktop; attempted QR-module failure was cached and is NOT covered.
+qa/manual-regression/counter-cases.json: QR содержит только QA_BASE/counter/staff.html#order=<opaqueId>; в нём нет guestKey, ticketPayload, цен или состава.
+qa/manual-regression/counter-cases.json: Повторить с относительной /counter/staff.html#order=<ID A>.
+qa/manual-regression/counter-cases.json: /counter/guest.html вместо staff.html
+qa/manual-regression/counter-cases.json: Не подтверждено полное прохождение варианта: /counter/guest.html вместо staff.html
+qa/manual-regression/site-cases.json: Маршрут menu.html?product=...#category соответствует нажатой карточке.
+qa/manual-regression/site-cases.json: Открыть /menu.html#brew-hot, затем /menu.html#hot-coffee.
+qa/manual-regression/site-cases.json: В статической среде открыть cashier.html#<payload> из сформированного QR.
+qa/manual-regression/site-cases.json: Локальный экран создаёт один заказ awaiting_payment и даёт QR staff.html#order=....
+qa/manual-regression/site-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Static410 receipt/composition/cashier link only; static QR optical decode and exact510 fixture/locales remain.
+qa/manual-regression/site-cases.json: Ссылка counter/staff.html#order=<id> без query; ID взят из тестового QR.
+qa/manual-regression/site-cases.json: RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Config503→honest static410 on desktop; attempted QR-module failure was cached and is NOT covered.
+qa/manual-regression/causal-graph.json: QR указывает на staff.html#order=...
+sw.js: /android-app.css
+sw.js: /mobile-install.js
+sw.js: /mobile-install.css
+sw.js: /mobile-install-copy.json
+sw.js: /android-handoff.js
+sw.js: /manifest.webmanifest
+sw.js: /icon-maskable.svg
+sw.js: /apple-touch-icon.png
+qa/manual-regression/counter-analysis.json: node --test counter/test/staff-runtime.test.mjs counter/test/guest.test.mjs counter/test/staff-model.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/guest.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/staff-runtime.test.mjs
+qa/manual-regression/counter-analysis.json: node --test counter/test/server.test.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-quick-builder-ui.mjs
+qa/manual-regression/guest-analysis.json: node --test scripts/test-order-groups.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-quick-builder.mjs
+qa/manual-regression/guest-analysis.json: node --test scripts/test-order-ticket.mjs
+qa/manual-regression/guest-analysis.json: node scripts/test-checkout-loader.mjs
+qa/manual-regression/qr-optical.json: /counter/staff.html
+counter/src/guest.js: /counter/staff.html
+counter/src/staff.js: ../src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore
+data/featured-products.json: src/products/cards/iced-latte-poster.v1.avif?v=20260625-3
+src/counter-checkout.js: counter/guest.html
+src/menu-app.js: ./menu-catalog.js?v=bc69a9e52fa4
+src/menu-app.js: ./menu-search-clear.js
+src/menu-app.js: ./src/order-draft.js
+src/menu-app.js: ./menu-interactions.js?v=20260923-web-only-v4
+src/menu-order-ui.js: ./src/order-draft.js
+src/menu-order-ui.js: ./src/menu-pairing.js
+counter/test/staff-runtime.test.mjs: \/icon\.svg
+counter/test/staff-runtime.test.mjs: /counter/staff.html
+counter/test/server.test.mjs: script.js
+counter/test/server.test.mjs: counter/data/secret.json
+counter/test/server.test.mjs: guest.html
+counter/test/server.test.mjs: guest.js
+counter/test/server.test.mjs: guest.css
+counter/test/server.test.mjs: staff.html
+counter/test/server.test.mjs: staff.js
+counter/test/server.test.mjs: staff.css
+counter/test/server.test.mjs: /script.js
+counter/test/server.test.mjs: /counter/guest.html
+counter/test/server.test.mjs: /counter/staff.js
+counter/test/server.test.mjs: /counter/guest.css
+counter/test/server.test.mjs: /counter/data/secret.json
+src/smart-choice/checkout-link.ts: ./catalog.js
+scripts/test-checkout-loader.mjs: /cafe/order-checkout.js
+scripts/verify-menu-order.mjs: ./menu-stability-v2.css?v=${stabilityRevision}
+scripts/verify-menu-order.mjs: ./menu-security-v2.css?v=
+scripts/test-menu-runtime-contract.mjs: ./src/order-draft.js
+src/smart-choice/quick-builder.ts: ./catalog.js
+src/smart-choice/quick-builder.ts: ./checkout-link.js
+src/smart-choice/quick-builder.ts: ./shared-order.js
+src/smart-choice/quick-builder.ts: ./product-photo.js
+src/smart-choice/quick-builder.ts: ./quick-builder-domain.js
+scripts/test-quick-builder-ui.mjs: src/products/unlisted-photo.webp
+counter/src/staff-model.mjs: staff.html
+scripts/menu-runtime-source.mjs: ./menu-search-clear.js
+scripts/test-menu-order-loader.mjs: ./menu-order-ui.js?v=${revision}
+src/smart-choice/product-photo.ts: ./catalog.js
+src/smart-choice/product-photo.ts: ./photo-previews.js
+Report: .artifacts/dependency-graph.json

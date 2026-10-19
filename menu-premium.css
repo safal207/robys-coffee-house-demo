@@ -214,7 +214,15 @@ body.menu-dialog-open{overflow:hidden}
 .menu-cart-step{display:grid;width:34px;height:34px;place-items:center;padding:0;color:var(--dark);background:#fff;border:1px solid rgba(47,39,37,.16);border-radius:50%;cursor:pointer}
 .menu-cart-step:disabled{cursor:not-allowed;opacity:.35}
 .menu-cart-line-controls>span{min-width:24px;text-align:center;font-size:.78rem;font-weight:900}
-.menu-cart-remove{min-height:34px;margin-left:4px;padding:6px 10px;color:#a11824;background:transparent;border:0;border-radius:999px;cursor:pointer;font-size:.68rem;font-weight:800}
+.menu-cart-remove{min-width:44px;min-height:44px;margin-left:4px;padding:10px 12px;color:#922b2b;background:#fff8f5;border:1px solid #bd8a82;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:800;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.menu-cart-replace{min-width:44px;min-height:44px;padding:10px 12px;color:var(--dark);background:#fff;border:1px solid rgba(47,39,37,.3);border-radius:10px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:800;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.menu-cart-replacement{grid-column:1/-1;min-width:0;width:100%;padding:14px;background:#fff8f0;border:1px solid rgba(47,39,37,.2);border-radius:12px;overflow-wrap:anywhere}
+.menu-cart-replacement>p{margin:0 0 12px;font-size:.85rem;line-height:1.45}
+.menu-cart-replacement .menu-variant-field{min-width:0;width:100%;margin:12px 0;font-size:.85rem}
+.menu-cart-replacement select{width:100%;min-width:0;max-width:100%;min-height:48px;font-size:.9rem}
+.menu-cart-replacement .menu-cart-replacement-total{margin:14px 0;font-weight:800;color:var(--dark)}
+.menu-cart-replacement-actions{display:flex;flex-wrap:wrap;gap:10px}
+.menu-cart-replacement-actions>.button{flex:1 1 160px;min-width:0;min-height:44px;white-space:normal;overflow-wrap:anywhere;line-height:1.35}
 .menu-cart-line-total{grid-column:3;grid-row:1/3;align-self:center;color:var(--ruby);font:700 1.1rem/1 var(--display);white-space:nowrap}
 .menu-cart-footer{margin-top:26px;padding-top:24px;border-top:1px solid rgba(47,39,37,.14)}
 .menu-cart-grand-total{display:flex;align-items:end;justify-content:space-between;gap:20px}
@@ -246,7 +254,7 @@ body.menu-dialog-open{overflow:hidden}
   .menu-dialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
   .menu-dialog-shell{max-height:calc(100dvh - 12px);border-radius:20px}
   .menu-product-visual{aspect-ratio:1.12/1}
-  .menu-dialog-close{top:10px;right:10px;width:42px;height:42px}
+  .menu-dialog-close{top:10px;right:10px;width:44px;height:44px}
   .menu-product-content{padding:26px 18px 22px}
 }
 @media(prefers-reduced-motion:reduce){
@@ -382,6 +390,16 @@ body.menu-dialog-open{overflow:hidden}
   .menu-cart-shell{padding:24px 16px 16px}
   .menu-cart-header .eyebrow{margin-bottom:8px}
   .menu-cart-footer .menu-order-draft-note{margin-top:10px}
+}
+/* Short screens and browser zoom must not collapse the order list between
+   inflexible headers and footers. Let the complete dialog scroll together. */
+@media(max-height:700px){
+  .menu-page .menu-dialog[open] :is(.menu-product-shell,.menu-cart-shell),
+  .menu-page .menu-dialog.menu-dialog--fallback[open] :is(.menu-product-shell,.menu-cart-shell),
+  .menu-page .menu-cart-dialog[open]:not(.menu-dialog--fallback) .menu-cart-shell{display:block;max-height:calc(100dvh - 32px);overflow:auto}
+  .menu-product-main,.menu-cart-lines{overflow:visible;min-height:auto}
+  .menu-product-actions,.menu-cart-footer{position:static}
+  .menu-cart-shell{padding:24px 16px 16px}
 }
 @media(prefers-reduced-motion:reduce){.menu-order-status{transition:none;transform:none}.menu-page :is(.menu-category-chip,.menu-cart-trigger,.menu-smart-choice-link):active,.menu-dialog-close:active:not(:disabled){transform:none}}
 

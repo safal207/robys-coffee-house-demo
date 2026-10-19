@@ -1,0 +1,69 @@
+
+> robys-coffee-house@2.0.0 test:ordering
+> node --test scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs
+
+(node:7032) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/src/order-draft.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ different pairs remain independently editable and removable; repeats merge the same pair (18.0617ms)
+✔ flavors retain separate identities through serialization and reload (0.582ms)
+✔ the global product cap spans groups and flavors and rejects entire pairs (0.4118ms)
+✔ changing a flavor preserves components when their identities collide inside or between groups (2.2321ms)
+✔ full-menu +/- gestures use the current shared draft rather than a stale visible row (29.2681ms)
+✔ full-menu replacement retains pair component counts and unrelated fresh edits (2.6846ms)
+✔ full-menu replacement merges matching components and groups without losing quantities (1.9239ms)
+✔ full-menu replacement rejects stale removals, quantity changes and recommendation changes (2.2847ms)
+✔ full-menu replacement validates mandatory flavors and refuses overflow atomically (2.7044ms)
+✔ full-menu replacement preserves recommendation ownership and explicit dessert substitution (2.5448ms)
+✔ flat legacy drafts migrate without repricing or losing recommendation ownership (0.3077ms)
+✔ a substitution cannot resurrect a component removed from the current recommendation (0.791ms)
+✔ same-selection substitutions retain pair quantity and chosen flavors; a new selection starts once (0.6651ms)
+✔ retaining recommendation quantity makes substitutions respect the product cap atomically (0.4622ms)
+✔ legacy quantity edits preserve manual ownership before changing a recommendation (0.3644ms)
+✔ legacy flat quantity edits share one allowance across flavors inside the same group (0.3449ms)
+✔ removing an extra copy does not suppress the base recommendation (0.3897ms)
+✔ shared storage migrates the session once and an empty shared cart never restores old items (0.6731ms)
+✔ ordering remains usable when both browser storage APIs are unavailable (0.5281ms)
+✔ readable storage cannot roll back an edit after quota errors, and persistence recovers (0.6621ms)
+✔ a later local read failure cannot restore stale session quantities (0.3362ms)
+✔ failed local writes survive a fresh module reload and commit after quota recovery (5.5308ms)
+✔ a pending session write never rolls back a newer canonical draft from another tab (24.8584ms)
+(node:34620) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ every drink/dessert/flavor × quantity1/2 retains composition and prices through checkout, edits and removal (2701.824ms)
+ℹ 1368 combinations; 57 drink/flavor choices × 12 desserts × 2 quantities × 3 languages; source + built cashier prices agree
+✔ ticket preserves pairs, reprices catalog and never encodes paid/preparing or prices (1.2131ms)
+✔ unchanged checkout is idempotent across reload; edited composition makes a fresh ticket (2.275ms)
+✔ ticket survives session migration when persistent storage rejects writes (1.0059ms)
+✔ failed ticket writes keep the latest ticket instead of restoring stale persistent data (0.6953ms)
+✔ quota failure followed by reload preserves the pending ticket and recovers persistence (0.9248ms)
+✔ a pending session write cannot replace a newer ticket saved by another tab (0.7537ms)
+✔ invalid cached ticket cannot replace validated composition (0.5531ms)
+✔ empty, unknown, duplicate and noninteger/overflowing groups are rejected (1.0321ms)
+✔ flavor survives QR and missing/unknown flavor is rejected (1.0507ms)
+✔ bounded decoder rejects malformed/oversized/version/catalog/product/status injection (6.1047ms)
+✔ binary QR rejects truncated bytes, invalid header/counts/variants and trailing status data (5.0026ms)
+✔ earlier v1 QR remains readable while v2 significantly reduces the full catalog payload (2.8813ms)
+✔ full catalog fits; excessively large valid composition reports a bounded QR error (4.12ms)
+✔ actual SVG QR independently decodes both a pair and full63-item cart (548.6728ms)
+✔ independent QR scanner reads every flavor and drink category paired with dessert (376.5794ms)
+ℹ 21 rendered flavor/category QR samples independently decoded
+✔ full catalog QR reads at desktop and narrow mobile display pixel sizes (183.67ms)
+✔ cashier navigation uses its cached page offline, at root and repository subpaths (59.9566ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4204.2422
+(node:50396) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/menu-catalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Quick builder PASS: 760 complete recipes, 75240 quantity cases (1–99), 4560 TR/EN/RU QR round trips, atomic limits, removal, multilingual search and product photos.
+Quick builder UI PASS: responsive photo identity; visible order quantities; direct confirmation removal; searched cross-category replacement with pair/quantity preservation, cancel, stale edits and required flavours; modal focus, next actions and complete basket totals.

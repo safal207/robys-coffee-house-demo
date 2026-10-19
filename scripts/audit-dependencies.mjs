@@ -125,7 +125,12 @@ function templateMatches(source, template) {
 
 const htmlRoots = allFiles.filter((path) => /\.html?$/i.test(path));
 const buildRoots = ["src/app.ts"].filter((path) => fileSet.has(path));
-const roots = [...new Set([...htmlRoots, ...buildRoots])];
+// Backend entry points are reachable through their actual npm start commands,
+// not through browser HTML. Detached server files remain detectable as orphans.
+const packageScripts = fileSet.has("package.json") ? JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).scripts ?? {} : {};
+const serviceRoots = ["counter/server.mjs", "counter/provision.mjs"].filter((path) =>
+  fileSet.has(path) && Object.values(packageScripts).includes(`node ${path}`));
+const roots = [...new Set([...htmlRoots, ...buildRoots, ...serviceRoots])];
 const reachable = new Set();
 const edges = [];
 const unresolved = [];
@@ -204,8 +209,13 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["order-checkout.js", "src/order-checkout.js"],
   ["order-checkout.js", "src/order-ticket.js", "src/order-checkout.js", "src/order-checkout.js"],
   ["order-checkout.js", "src/order-ticket-storage.js", "src/order-checkout.js", "src/order-checkout.js"],
+  ["order-checkout.js", "src/counter-checkout.js", "src/order-checkout.js", "src/order-checkout.js"],
   ["cashier.js", "src/cashier.js"],
   ["cashier.js", "src/order-ticket.js", "src/cashier.js", "src/cashier.js"],
+  ["counter/public/guest.js", "counter/src/guest.js"],
+  ["counter/public/guest.js", "counter/src/guest-model.mjs", "counter/src/guest.js", "counter/src/guest.js"],
+  ["counter/public/staff.js", "counter/src/staff.js"],
+  ["counter/public/staff.js", "counter/src/staff-model.mjs", "counter/src/staff.js", "counter/src/staff.js"],
   ["menu-stability-v2.css", "menu-stability.css"],
   ["final-qa-v2.css", "final-qa.css"],
   ["community-reel-v2.css", "community-reel.css"]
@@ -226,6 +236,7 @@ for (const [runtime, input, importer, importBase = runtime] of [
 function isRuntimeCandidate(path) {
   if (!RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) return false;
   if (path.startsWith("scripts/") || path.startsWith(".github/") || path.startsWith("lighthouse/") || path.startsWith("tests/") || path.startsWith("test/") || path.startsWith("e2e/")) return false;
+  if (/^counter\/test\/[^/]+\.test\.mjs$/.test(path)) return false;
   if (/(?:^|\/)[^/]+\.config\.(?:js|mjs|cjs)$/i.test(path)) return false;
   return true;
 }

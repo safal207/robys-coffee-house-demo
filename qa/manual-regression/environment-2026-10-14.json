@@ -1,0 +1,82 @@
+{
+  "clientDate": "2026-10-15",
+  "executionDates": [
+    "2026-10-14",
+    "2026-10-15"
+  ],
+  "timezone": "Europe/Moscow",
+  "branch": "codex/counter-live-orders",
+  "baseCommit": "d368897b8185cbf120f051398fb2dc2a5cc9663b",
+  "workingTreeDirty": true,
+  "observedViewports": [
+    {
+      "width": 2560,
+      "height": 1440
+    },
+    {
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "width": 480,
+      "height": 844
+    },
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 320,
+      "height": 640
+    }
+  ],
+  "isolatedOrigins": [
+    "http://127.0.0.1:8790",
+    "http://localhost:8790",
+    "http://127.0.0.1:8792",
+    "http://localhost:8792",
+    "http://127.0.0.1:8793",
+    "http://localhost:8793",
+    "http://127.0.0.1:8794",
+    "http://localhost:8794",
+    "http://127.0.0.1:8795",
+    "http://localhost:8795"
+  ],
+  "userServiceMutations": false,
+  "realPaymentPerformed": false,
+  "cookieIsolation": "roby-qa-session",
+  "faults": [
+    "HTTP503polling/config/module/images",
+    "8-secondimage/configdelay",
+    "response disconnected after database commit"
+  ],
+  "limitations": [
+    "Responsive browser checks do not certify a physical phone,touch keyboard,screen lock,screenreader or camera.",
+    "HTTP faults do not reproduce operating-system airplane mode or a cold first browser offline visit.",
+    "Case statuses remain partial unless all original preconditions,steps and declared variants are executed.",
+    "Historical failed/blocked RUNs remain visible; later passing retests are separate records.",
+    "Two transient menu-close attempts required a second ordinary click; tool/timing cause remains uncertain."
+  ],
+  "sourceSha256": {
+    "src/smart-choice/quick-builder.ts": "348a6843c36e374ede9931bc328c83337cc1b6a7d5278461c18bf986dee6f9ad",
+    "src/smart-choice/checkout-link.ts": "ed65aa1123bf35a71f6bc60471d433bbdcdcb8af0867cbf0b305acb78f28fc1a",
+    "src/menu-order-ui.js": "2323bb0d5b7dc5f423a55bc73acdf11df688726c8fc075ecc928898035d57f37",
+    "src/order-checkout.js": "c057025c61cd8cce695362d17659bca5b7870f27416bc955d58863dbac410fbc",
+    "src/menu-app.js": "c1f5ca4cc7fb0934e9d0198326183a3fb39a8881f034c8977bbc25f825959691",
+    "menu.html": "0ba293a2ab9b350194833ad5630241e9af2faac72d2a1738171a6dd524ef26c2",
+    "discover.html": "6b8abbda01fa461a3ffb2e6d61a4417904921e31f667eb2338f518eaf14889c0",
+    "discover-v2.js": "48db52a5d59f60646025141d0f7e63990d279e97f117dce25caeeaa6d39da4d8",
+    "counter/src/guest.js": "735df155a2ae08c49be656ac9e14df1370e19851d595e544a5b80ac71029b390",
+    "counter/src/staff.js": "68ac8bd2b56a08891a3c2deafefe34d7e807ffac6663284ace58bc5578da42cc",
+    "smart-choice/app-v2.js": "ce43ffdb4829c3b708898b7e36b971a0e529daf20f996b2285b537590b7391e1",
+    "order-checkout.js": "9c561c168e257225ff97ec52b307af74f2418fcb752b6df9289d86993c41d9db",
+    "menu-order-ui.js": "f9b611d97d1125d2c32863a7d7b8ca9ac7ce191e43b3f5fe66874204e7c90eb9",
+    "counter/public/guest.js": "cc3f127edde00727285d85a260cd84deb6cb8c6bb7821c97b3bc28e3d560e0b9",
+    "counter/public/staff.js": "4c2ddcdb1c66c45147274734e89ab762e4d7b93eaece138db6e3457d543d3327",
+    "integrity-manifest.json": "0a7be37fca90b69028a5ade770ffef79d517e2815864de1cbb525597dae08a70"
+  }
+}

@@ -215,4 +215,22 @@ for (const [name, helpers] of [
     [input]: helpers.map(helper => `const unused${helper.replaceAll("-", "")} = "./${helper}.js";`).join("\n")
   }, helpers.map(helper => `src/${helper}.js`), [[runtime, input]]);
 }
+check("configured server command traverses its real imports", {
+  "package.json": JSON.stringify({ scripts: { "counter:start": "node counter/server.mjs" } }),
+  "counter/server.mjs": 'import "./auth.mjs";', "counter/auth.mjs": "export {};"
+}, []);
+check("server files without an actual start command stay orphaned", {
+  "package.json": JSON.stringify({ scripts: {} }),
+  "counter/server.mjs": 'import "./auth.mjs";', "counter/auth.mjs": "export {};"
+}, ["counter/auth.mjs", "counter/server.mjs"]);
+for (const name of ["guest", "staff"]) {
+  const runtime = `counter/public/${name}.js`;
+  const source = `counter/src/${name}.js`;
+  const helper = `counter/src/${name}-model.mjs`;
+  const files = { [runtime]: "export {};", [source]: `import "./${name}-model.mjs";`, [helper]: "export {};" };
+  check(`${name} counter bundle retains only its reached source and imported helper`, {
+    [`counter/public/${name}.html`]: `<script type="module" src="./${name}.js"></script>`, ...files
+  }, [], [[runtime, source], [runtime, helper]]);
+  check(`${name} detached counter bundle remains an orphan`, files, [runtime, source, helper]);
+}
 console.log(`Dependency build-edge regression: ${checks}/${checks} PASS`);

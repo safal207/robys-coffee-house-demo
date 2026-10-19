@@ -1,8 +1,9 @@
 import { familyRecipes, quoteFamilySelection, stageFamilySelection } from "./src/menu-family.js";
+import { createKidsMenuSection } from "./src/kids-menu.js";
 
 const copy = {
   tr: {
-    title: "Çocuklarla", lead: "Menüden üç başlangıç fikri. Nelerin uygun olduğuna ebeveyn karar verir.",
+    title: "Çocuklarla", lead: "Menüden üç başlangıç fikri. Nelerin uygun olduğuna ebeveyn karar verir.", ideas: "İçeriğini seçebileceğiniz fikirler",
     note: "Normal menü ürünleri ve fiyatları. Porsiyon, içerik ve alerjenleri kasada sorun.",
     choose: "İçeriği seç", edit: "İstemediklerinin işaretini kaldır. Ürünler siparişe ayrı ayrı eklenir.",
     add: "Seçilenleri ekle", total: "Seçilenlerin toplamı", empty: "En az bir ürün seçin.",
@@ -13,7 +14,7 @@ const copy = {
     boxAlt: "Roby’s Kids Box ambalaj konsepti"
   },
   en: {
-    title: "With kids", lead: "Three starting ideas from the menu. Parents decide what is suitable.",
+    title: "With kids", lead: "Three starting ideas from the menu. Parents decide what is suitable.", ideas: "Ideas with editable contents",
     note: "Regular menu products and prices. Ask at the counter about portions, ingredients and allergens.",
     choose: "Choose contents", edit: "Uncheck anything you do not want. Products are added as separate order lines.",
     add: "Add selected items", total: "Selected total", empty: "Choose at least one item.",
@@ -24,7 +25,7 @@ const copy = {
     boxAlt: "Roby’s Kids Box packaging concept"
   },
   ru: {
-    title: "С ребёнком", lead: "Три идеи из обычного меню. Что подойдёт ребёнку, решает родитель.",
+    title: "С ребёнком", lead: "Три идеи из обычного меню. Что подойдёт ребёнку, решает родитель.", ideas: "Идеи с выбором состава",
     note: "Обычные позиции и цены меню. Порции, состав и аллергены уточните на кассе.",
     choose: "Выбрать состав", edit: "Убери галочку у лишнего. Продукты добавятся отдельными строками — каждый можно убрать или изменить количество.",
     add: "Добавить выбранное", total: "Сумма выбранного", empty: "Выбери хотя бы одну позицию.",
@@ -37,7 +38,7 @@ const copy = {
 };
 
 export function createMenuFamilyUi({ root, productIndex, orderProductIds, initialLanguage,
-  localized, formatPrice, readDraft, mutateDraft, onCartChange, openCart, onIntent }) {
+  localized, formatPrice, readDraft, mutateDraft, onCartChange, openCart, onIntent, addKidsCombo, openProduct }) {
   let language = initialLanguage;
   let activeRecipe;
   let selectedIds = [];
@@ -71,6 +72,16 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   const heading = element("div", "menu-family-heading");
   heading.append(title, hide);
   const cards = element("div", "menu-family-cards");
+  const ready = element("div", "menu-family-ready");
+  const ideas = element("h3", "menu-family-ideas-title", text("ideas"));
+  const kidsProducts = new Map(Array.from(productIndex, ([id, product]) => [id, {
+    id, name: product.item.name, image: product.image, unitPriceMinor: Math.round(product.item.price * 100)
+  }]));
+  function renderReady() {
+    const section = createKidsMenuSection({ language, products: kidsProducts, idPrefix: "kids-menu",
+      onAdd: (combo, trigger) => addKidsCombo?.(combo, trigger) ?? false, onProduct: openProduct });
+    ready.replaceChildren(...(section ? [section] : []));
+  }
   const regular = element("a", "menu-family-regular", text("regular"));
   regular.href = "#brew-hot";
   const comingSoon = element("article", "menu-family-coming-soon");
@@ -88,7 +99,8 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   const boxStatus = element("p", "menu-family-box-status", text("boxSoon"));
   boxCopy.append(boxTitle, boxStatus);
   comingSoon.append(boxFigure, boxCopy);
-  root.replaceChildren(heading, lead, cards, note, regular, comingSoon);
+  root.replaceChildren(heading, lead, ready, ideas, cards, note, regular, comingSoon);
+  renderReady();
 
   const dialog = element("dialog", "menu-family-dialog");
   dialog.setAttribute("role", "dialog");
@@ -287,12 +299,14 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     language = nextLanguage;
     title.textContent = text("title");
     lead.textContent = text("lead");
+    ideas.textContent = text("ideas");
     note.textContent = text("note");
     hide.textContent = text("fewer");
     regular.textContent = text("regular");
     boxImage.alt = text("boxAlt");
     boxCaption.textContent = text("boxConcept");
     boxStatus.textContent = text("boxSoon");
+    renderReady();
     renderCards();
     if (dialog.hasAttribute("open")) renderPreview();
   }

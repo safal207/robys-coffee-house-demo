@@ -1,0 +1,34 @@
+[
+  {
+    "script": "check",
+    "startedAt": "2026-10-14T15:15:05.220Z",
+    "finishedAt": "2026-10-14T15:21:02.741Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-check.log"
+  },
+  {
+    "script": "build:counter",
+    "startedAt": "2026-10-14T15:21:02.751Z",
+    "finishedAt": "2026-10-14T15:21:06.263Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-build-counter.log"
+  },
+  {
+    "script": "test:counter",
+    "startedAt": "2026-10-14T15:21:06.269Z",
+    "finishedAt": "2026-10-14T15:21:44.160Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-test-counter.log"
+  },
+  {
+    "script": "verify:security",
+    "startedAt": "2026-10-14T15:21:44.182Z",
+    "finishedAt": "2026-10-14T15:22:07.882Z",
+    "exitCode": 0,
+    "error": null,
+    "log": "final-verify-security.log"
+  }
+]

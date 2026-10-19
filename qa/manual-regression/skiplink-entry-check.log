@@ -1,0 +1,5 @@
+
+> robys-coffee-house@2.0.0 verify:entry-handoff
+> node scripts/verify-entry-handoff.mjs
+
+✅ ENTRY-HANDOFF-001 passed: paintable branded pre-paint, synchronized hero reveal, failure recovery and cache revision are wired.

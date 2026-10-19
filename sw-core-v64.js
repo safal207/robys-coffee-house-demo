@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-dbe20afcddc0-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-a4e82dc8099e-family-menu-696c2d6971a7-occasion-combos-7f35daf318d0-custom-pair-1349da07aafd-menu-css-9cbd23b8ee67-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7b9e7a630fd1-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-0fb4903b1cf7-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-4d99ef892af0-family-menu-6295cf334f91-occasion-combos-d055dd217389-custom-pair-87e2085358bf-menu-css-462c645c6f00-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -63,28 +63,29 @@ const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/refreshers--yuzu-popcorn.webp"
 ];
 const CORE_ASSETS = [
+  "./kids-menu.css?v=e2dec4adf195",
   "./",
   "./index.html",
   "./cashier.html",
-  "./cashier.js?v=da2e9cde6859",
-  "./order-checkout.js?v=5f9a05cab988",
+  "./cashier.js?v=f4fcdfa73b78",
+  "./order-checkout.js?v=ede76ee31ffa",
   "./order-checkout.css?v=9ead86a924fa",
   "./src/products/quick-choice-v1/coffee.webp",
   "./src/products/quick-choice-v1/tea.webp",
   "./src/products/quick-choice-v1/cold.webp",
-  "./menu-order-ui.js?v=0c4db7b85f2d",
-  "./menu-family-ui.js?v=f6778abdbe89",
+  "./menu-order-ui.js?v=206dca9f16f0",
+  "./menu-family-ui.js?v=c6e39d14b3d5",
   "./menu-family.css?v=e7dc86c94a4b",
   "./order-storage.js?v=6908555cd79b",
   "./src/products/family-sets-v1/milk-cookie.webp",
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=9cbd23b8ee67",
-  "./menu-combos-ui.js?v=a679972ee3b5",
+  "./menu-runtime.css?v=462c645c6f00",
+  "./menu-combos-ui.js?v=68984827367e",
   "./menu-combos.css?v=84f6a6f33e59",
   "./combo-entry.css?v=da624d45b4d6",
-  "./choice-help.js?v=4897eacb8db8",
+  "./choice-help.js?v=39b405586c5c",
   "./choice-help.css?v=36b90bedc790",
   "./src/products/occasion-sets-v1/student.webp",
   "./src/products/occasion-sets-v1/cycle.webp",
@@ -98,16 +99,18 @@ const CORE_ASSETS = [
   "./src/products/occasion-sets-v1/morning.webp",
   "./src/products/occasion-sets-v1/sweet.webp",
   "./src/products/occasion-sets-v1/hearty.webp",
-  "./choice-help-entry.js?v=23ec0e1f0add",
+  "./choice-help-entry.js?v=7fd832353634",
   "./seasonal-theme.js?v=7e07ce1187f0",
   "./seasonal.css?v=f2437d09532e",
+  "./smart-choice/photo-previews.js?v=a8f51a54c367",
+  "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu.html",
   "./discover.html",
   "./404.html",
   "./offline.css",
   "./pwa-pairing-fix.js?v=web-only-20260923-1",
   "./pwa.js?v=web-only-20260923-1",
-  "./styles-v2.css?v=a7ac2a056f26",
+  "./styles-v2.css?v=26e28dbd2846",
   "./mobile.css?v=5b32c08631ed",
   "./menu-preview.css?v=4ef1398382fa",
   "./conversion.css",
@@ -116,7 +119,7 @@ const CORE_ASSETS = [
   "./social-offer.css",
   "./coffee-paths.css?v=e5dc41400cfe",
   "./social-offer.js?v=cf339e8c8777",
-  "./menu-premium.css?v=335c05ace22a",
+  "./menu-premium.css?v=86adefeda34f",
   "./pairing-posters.css?v=882faab929d1",
   "./menu-product-reveal.css?v=80aa0282d851",
   "./menu-stability-v2.css?v=84e172cb281b",
@@ -135,11 +138,11 @@ const CORE_ASSETS = [
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
-  "./app.js?v=b7ccd8d120a0",
+  "./app.js?v=696430fd3924",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=5f6321d28329",
-  "./menu-pairing.js?v=6b033c91bf9a",
+  "./menu-app.js?v=74941e12c4d8",
+  "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
   "./pairing-posters.js?v=024743e64919",
@@ -165,19 +168,19 @@ const CORE_ASSETS = [
   "./src/products/gallery-v5/croissant-828.webp",
   "./src/products/gallery-v5/san-sebastian-828.webp",
   "./smart-choice/pwa.js?v=pairing-video-fix-20260916-2",
-  "./smart-choice/style.css?v=f13f6d7611af",
+  "./smart-choice/style.css?v=c3664b917232",
   "./smart-choice/cart.css?v=42034af591c0",
   "./smart-choice/decision-trace.css?v=caa831d49b1f",
   "./smart-choice/release-qa.css?v=382f68926f7d",
   "./smart-choice/brand-v4.css?v=20260917-approved-v4-restore",
   "./smart-choice/release-qa.js?v=2811759ef7b2",
-  "./smart-choice/app-v2.js?v=78d63233b7d3",
-  "./smart-choice/cart-v2.js?v=847fee89f1da",
-  "./smart-choice/experiments-v2.js?v=7392addbe349",
-  "./smart-choice/analytics-v2.js?v=535cf3f27418",
-  "./smart-choice/decision-trace-v2.js?v=1b7d1934cf2e",
+  "./smart-choice/app-v2.js?v=adcdda14a5f7",
+  "./smart-choice/cart-v2.js?v=4c3a31839430",
+  "./smart-choice/experiments-v2.js?v=1ca034352c70",
+  "./smart-choice/analytics-v2.js?v=2d2d2ccd5fba",
+  "./smart-choice/decision-trace-v2.js?v=d8fe9d1ef4e8",
   "./discover.js",
-  "./discover-v2.js?v=7b9e7a630fd1",
+  "./discover-v2.js?v=7d1b6bc8f058",
   "./discover-deck.js?v=16c7c7dc8590",
   "./discover-copy.js?v=748cea1d06ec",
   "./discover-journeys.js",
@@ -227,6 +230,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-runtime.css") ||
     url.pathname.endsWith("/menu-family-ui.js") ||
     url.pathname.endsWith("/menu-family.css") ||
+    url.pathname.endsWith("/kids-menu.css") ||
     url.pathname.endsWith("/menu-combos-ui.js") ||
     url.pathname.endsWith("/menu-combos.css") ||
     url.pathname.endsWith("/combo-entry.css") ||
@@ -348,6 +352,13 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Live staff sessions and order status must never pass through offline caches,
+  // even when a previously installed menu worker controls the counter pages.
+  const scopePath = new URL(self.registration.scope).pathname;
+  const relativePath = url.pathname.startsWith(scopePath) ? url.pathname.slice(scopePath.length) : "";
+  if (relativePath === "counter-config.json" || relativePath.startsWith("api/counter/") ||
+      relativePath.startsWith("counter/")) return;
 
   if (event.request.mode === "navigate") {
     event.respondWith(navigationResponse(event.request));

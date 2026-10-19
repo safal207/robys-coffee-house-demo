@@ -1,0 +1,20 @@
+(node:25092) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/safal/Documents/Codex/2026-10-10/new-chat/work/robys-audit/counter/src/guest.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\safal\Documents\Codex\2026-10-10\new-chat\work\robys-audit\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ guest capability uses 32 secure random bytes and survives same-ticket reload/retry (15.182ms)
+✔ a private pending fragment preserves the retry key even with blocked browser storage (6.9607ms)
+✔ cashier QR contains only same-origin order identity, never guest capability or composition (2.1339ms)
+✔ receipt metadata is restored only for the matching guest capability (5.198ms)
+✔ new-order cleanup removes only the completed identity, preserving cart, receipts and newer tickets (2.5514ms)
+✔ guest accepts only documented server statuses and a bounded order shape (1.1479ms)
+✔ RU to EN to TR updates same-version receipt items after each localized GET (467.5968ms)
+✔ guest retries lost creation response without a new identity, polls server transitions and preserves QR on loss (47.252ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1664.1838

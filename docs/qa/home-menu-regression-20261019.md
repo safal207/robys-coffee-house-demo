@@ -8,6 +8,20 @@ above; the enlarged-text follow-up was based on `b0efc5b3`. A local packet’s H
 field is not a claim that its dirty working tree was already committed. Current-
 head CI binds the committed release candidate.
 
+## Integration with concurrent main changes
+
+During validation, PR #445 advanced `main` to
+`585135e07d08bb2680d4893b5bfc5ee89ca286f6`. The candidate integrates that revision:
+the counter workflow, two ready kids sets, three editable family ideas, localized
+menu skip link, new photos, counter cache bypass and current catalog/build logic
+are retained. The upstream skip-link variant adds a one-pixel offscreen clearance
+while preserving the same focus behavior. Its document-region screenshot capture
+also fixes the two locator-crop artifacts observed against the old baseline.
+
+The integrated manifest has 457 public files. Old-baseline evidence below remains
+historical; H4 received no CI execution while the PR was conflicted. All release
+conclusions require fresh CI and screenshots against the new main revision.
+
 ## Confirmed findings and fixes
 
 1. At 1121 CSS pixels, the homepage category preview switches to two columns.

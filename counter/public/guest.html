@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; require-trusted-types-for 'script'" />
+  <meta name="theme-color" content="#29382f" />
+  <title>Siparişin · Roby's</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="guest.css" />
+</head>
+<body>
+  <div class="guest-shell">
+    <header class="guest-header">
+      <a class="brand" href="/" aria-label="Roby's Coffee House"><span>ROBY’S</span><small>COFFEE HOUSE</small></a>
+      <nav class="languages" data-guest="languages" aria-label="Dil">
+        <button type="button" data-language="tr" aria-pressed="true">TR</button>
+        <button type="button" data-language="en" aria-pressed="false">EN</button>
+        <button type="button" data-language="ru" aria-pressed="false">RU</button>
+      </nav>
+    </header>
+    <main>
+      <section class="status-card" data-guest="status" data-status="loading">
+        <p class="eyebrow" data-guest="heading">Senin için hazırlanacak</p>
+        <div class="order-identity"><span data-guest="numberLabel">Sipariş numaran</span><strong data-guest="number">—</strong></div>
+        <div class="status-message" role="status" aria-live="polite" aria-atomic="true">
+          <h1 data-guest="statusTitle">Siparişin açılıyor…</h1>
+          <p data-guest="statusHelp">Birazdan QR kodunu burada göreceksin.</p>
+        </div>
+        <ol class="progress" data-guest="progress" hidden></ol>
+      </section>
+      <div class="receipt-layout" data-guest="receipt" hidden>
+        <section class="qr-card" aria-labelledby="qr-title">
+          <h2 id="qr-title" data-guest="qr">Kasiyere göster</h2>
+          <div class="qr-code" data-guest="qrCode"></div>
+          <p data-guest="qrHelp">Kasiyer bu QR kodla siparişini açabilir.</p>
+          <p class="payment-note" data-guest="paymentNote" hidden></p>
+        </section>
+        <section class="receipt-card" aria-labelledby="items-title">
+          <h2 id="items-title" data-guest="items">Siparişin</h2>
+          <ul class="composition" data-guest="composition"></ul>
+          <p class="total"><span data-guest="total">Toplam</span><strong data-guest="amount"></strong></p>
+        </section>
+      </div>
+      <section class="connection-card" aria-live="polite">
+        <p data-guest="connection">Kontrol ediliyor…</p>
+        <time data-guest="updated"></time>
+        <p data-guest="reconnect"></p>
+        <button class="button button-secondary" type="button" data-guest="retry" hidden>Tekrar dene</button>
+      </section>
+      <div class="guest-actions">
+        <button class="button button-primary" type="button" data-guest="newOrder" hidden>Yeni sipariş oluştur</button>
+        <a class="button button-secondary" href="/smart-choice/#quick" data-guest="back">Menüye dön</a>
+      </div>
+      <noscript><p class="noscript">Sipariş durumunu görmek için JavaScript'i etkinleştirin. / Enable JavaScript to follow your order. / Включи JavaScript, чтобы видеть статус заказа.</p></noscript>
+    </main>
+    <footer><p data-guest="pageHelp">Bu ekranı açık tutabilirsin. Durum, ekibin güncellemeleriyle otomatik değişir.</p><span>ROBY’S · COFFEE &amp; YOUR MOMENT</span></footer>
+  </div>
+  <script type="module" src="guest.js"></script>
+</body>
+</html>

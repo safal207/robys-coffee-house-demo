@@ -1,0 +1,1713 @@
+[
+  {
+    "id": "SITE-001",
+    "title": "Главная даёт понятный вход в меню и умный выбор",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Отдельный гостевой профиль; пустая тестовая корзина; онлайн.",
+      "Используется локальная версия либо явно зафиксированная опубликованная сборка."
+    ],
+    "steps": [
+      "Открыть / и /index.html.",
+      "Перейти в полное меню, вернуться назад и открыть умный выбор.",
+      "Открыть карточку напитка или сочетание дня с главной."
+    ],
+    "expected": [
+      "Нет пустого промежуточного экрана, ошибочного пути или потери основного действия.",
+      "Ссылка категории приводит в соответствующий раздел; навигация сама не добавляет товар."
+    ],
+    "causes": [
+      "GUEST_ENTER",
+      "ENTRY_ROUTE"
+    ],
+    "effects": [
+      "MENU_READY"
+    ],
+    "variants": [
+      "TR / EN / RU",
+      "1280×800",
+      "390×844",
+      "Начальная загрузка / возврат назад"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-2000",
+      "RUN-2001",
+      "RUN-2017",
+      "RUN-2018"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-001",
+      "manualRunIds": [
+        "RUN-2000",
+        "RUN-2001",
+        "RUN-2017",
+        "RUN-2018"
+      ],
+      "verifiedSubvariants": [
+        "RUN-2000: At /, visible Menü opened /menu.html with 0 items/0₺; browser Back returned home; Seçmeme yardım et opened /smart-choice/#quick with empty cart and catalog. No auto-add. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2001: Explicit /index.html loaded. Featured Latte180₺ link navigated /menu.html#hot-coffee; Sıcak Kahveler visible, Siparişim0/0₺ unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2017: Actual innerWidth390/innerHeight844; main home actions visible, document scrollWidth375 (no horizontal overflow). CSS emulation only. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2018: 390×844 home Menüyü Gör→menu cart1/110₺; browserBack→Seçmeme yardım et→quick sameespresso1/110₺. TR preserved; noautoadd. Menu document375wide within390 viewport. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: 1280×800",
+        "Не подтверждено полное прохождение варианта: 390×844",
+        "Не подтверждено полное прохождение варианта: Начальная загрузка / возврат назад"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-002",
+    "title": "Discover передаёт выбранный товар в полное меню",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Discover открыт в отдельной тестовой сессии; корзина не меняется другим тестером."
+    ],
+    "steps": [
+      "Открыть /discover.html.",
+      "Посмотреть текущую пару, затем следующую.",
+      "Нажать «В меню»; зафиксировать фактический href и открытый товар/раздел.",
+      "Вернуться назад и выбрать другую пару."
+    ],
+    "expected": [
+      "Маршрут menu.html?product=...#category соответствует нажатой карточке.",
+      "Переход открывает доступный каталог без автоматического добавления и подмены цены."
+    ],
+    "causes": [
+      "ENTRY_ROUTE",
+      "PRODUCT_OPEN"
+    ],
+    "effects": [
+      "MENU_READY"
+    ],
+    "variants": [
+      "Десертная и кофейная пары",
+      "Desktop / mobile",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-2002",
+      "RUN-2003",
+      "RUN-2019",
+      "RUN-2020"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-002",
+      "manualRunIds": [
+        "RUN-2002",
+        "RUN-2003",
+        "RUN-2019",
+        "RUN-2020"
+      ],
+      "verifiedSubvariants": [
+        "RUN-2002: TR1280: Cool Lime+Makaron220 initial; Next selected Buzlu Latte+San Sebastian370. Visible Menüde gör href menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts; destination dialog San Sebastian190₺, pairing370₺, cart0. Correct dessert handoff, no auto-add. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2003: Browser Back returned Discover. Next selected Cool Lime+Makaron220. Menüde gör href menu.html?product=pairing-offers%3Acool-lime-macaron-pairing#pairing-offers opened exact Cool Lime+Makaron220 dialog; cart remains empty. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2019: Actual 390×844: visible Cool Lime + Makaron 220 ₺ menu link opened the same 220 ₺ pair modal; espresso 110 ₺ unchanged; Discover document width 375. The preceding Next action was not independently observed after its transition, so this record proves the current visible pair handoff. A settled second-pair transition is recorded separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2020: After Back, clicked visible upcoming BuzluLatte+SanSebastian370 card and waited AX settled. Href desserts:san-sebastian-cheesecake#desserts opened SanSebastian190₺ with pairing370; espresso110 unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Десертная и кофейная пары",
+        "Не подтверждено полное прохождение варианта: Desktop / mobile",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-003",
+    "title": "Прямые ссылки полного меню, история и неизвестный раздел",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Известны реальные категории текущего menu-catalog.js; нет открытого диалога."
+    ],
+    "steps": [
+      "Открыть /menu.html#brew-hot, затем /menu.html#hot-coffee.",
+      "Переключить ещё две категории и пройти назад/вперёд браузером.",
+      "Открыть menu.html с неизвестным hash и неизвестным product."
+    ],
+    "expected": [
+      "Известные ссылки отображают правильный раздел.",
+      "Неизвестный параметр не ломает меню и не открывает другой товар как точное совпадение.",
+      "История не добавляет товары и не сбрасывает уже собранную корзину."
+    ],
+    "causes": [
+      "ENTRY_ROUTE"
+    ],
+    "effects": [
+      "MENU_READY"
+    ],
+    "variants": [
+      "brew-hot / hot-coffee / desserts / herbal-tea",
+      "Неизвестный hash / неизвестный product",
+      "320×740 / 1440×900"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-1020",
+      "RUN-1021",
+      "RUN-2004",
+      "RUN-2041"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-003",
+      "manualRunIds": [
+        "RUN-1020",
+        "RUN-1021",
+        "RUN-2004",
+        "RUN-2041"
+      ],
+      "verifiedSubvariants": [
+        "RUN-1020: Пройдены 9 переключателей, включая «Все», при 390×844. Выбранная категория и соответствующие заголовки видны; горизонтального переполнения нет. Подробные состояния каждого переключения сохранены. Это не физический телефон и не полный проход покупки каждого товара. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-1021: Пройдены 9 переключателей, включая «Все», при 320×640. Выбранная категория и соответствующие заголовки видны; горизонтального переполнения нет. Подробные состояния каждого переключения сохранены. Это не физический телефон и не полный проход покупки каждого товара. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2004: At1280×800 RU: /menu.html#brew-hot showed Чёрный чай dialog50₺; Escape closed; /menu.html#hot-coffee showed Кафе латте180₺. Cart0/0 remained. 1440×900 and mobile repeated separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2041: Knownbrew-hot/hot-coffee loaded;UI Desserts→HerbalTea;Back returnedbrew-hot (UIcategorychangesreplacecurrententry),ForwardHerbalTea, eachhash/displayconsistent. Unknownhash/product workingallmenu,no wrongdialog;espresso1/110₺preserved. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: brew-hot / hot-coffee / desserts / herbal-tea",
+        "Не подтверждено полное прохождение варианта: Неизвестный hash / неизвестный product",
+        "Не подтверждено полное прохождение варианта: 320×740 / 1440×900"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-004",
+    "title": "Прямой вход в умный выбор и восстановление после обновления",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Отдельный профиль; зафиксировано состояние корзины до сценария."
+    ],
+    "steps": [
+      "Открыть /smart-choice/#quick и /smart-choice/index.html#quick.",
+      "Добавить тестовый товар, обновить страницу.",
+      "Перейти в полное меню и обратно через видимые ссылки."
+    ],
+    "expected": [
+      "Оба маршрута открывают сборку заказа.",
+      "После обновления отображается тот же сохранённый состав и итог без дубликата.",
+      "В полном меню и умном выборе читается один гостевой черновик на этом origin."
+    ],
+    "causes": [
+      "ENTRY_ROUTE",
+      "CART_ADD"
+    ],
+    "effects": [
+      "MENU_READY",
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "Пустая / непустая корзина",
+      "TR / EN / RU",
+      "Обычное обновление / переход между страницами"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-2000",
+      "RUN-2010",
+      "RUN-2011",
+      "RUN-2018"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-004",
+      "manualRunIds": [
+        "RUN-2000",
+        "RUN-2010",
+        "RUN-2011",
+        "RUN-2018"
+      ],
+      "verifiedSubvariants": [
+        "RUN-2000: At /, visible Menü opened /menu.html with 0 items/0₺; browser Back returned home; Seçmeme yardım et opened /smart-choice/#quick with empty cart and catalog. No auto-add. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2010: Main headings/actions English on all4 guest surfaces; shared espresso1/110₺ retained menu and quick. Skip-link exception separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2011: EN /smart-choice/#quick ordinary reload and /smart-choice/index.html#quick both showed exactly Espresso1 TotalTRY110 with no duplicate. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2018: 390×844 home Menüyü Gör→menu cart1/110₺; browserBack→Seçmeme yardım et→quick sameespresso1/110₺. TR preserved; noautoadd. Menu document375wide within390 viewport. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Пустая / непустая корзина",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Обычное обновление / переход между страницами"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-005",
+    "title": "Назад и обновление во время ответов помощнику не заводят в тупик",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Умный выбор открыт; серверный заказ ещё не создан."
+    ],
+    "steps": [
+      "Открыть помощь с выбором, ответить на несколько вопросов.",
+      "Пройти назад/вперёд браузером; изменить ответ.",
+      "Обновить страницу вопроса и результатов.",
+      "Открыть ссылку #step-3 в чистой сессии без сохранённых ответов."
+    ],
+    "expected": [
+      "Существующие ответы восстанавливаются или предлагается понятное безопасное начало.",
+      "Свежая ссылка без контекста не показывает выдуманный результат.",
+      "Вернуться в сборку заказа можно без потери ранее добавленных товаров."
+    ],
+    "causes": [
+      "SMART_PREFERENCES"
+    ],
+    "effects": [
+      "SMART_OPTIONS",
+      "MENU_READY"
+    ],
+    "variants": [
+      "Сохранённая / чистая sessionStorage",
+      "TR / EN / RU",
+      "Desktop / mobile"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-2042"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-005",
+      "manualRunIds": [
+        "RUN-2042"
+      ],
+      "verifiedSubvariants": [
+        "RUN-2042: Newtab2 no wizard answers, sharedespresso110. Direct/smart-choice/#step-3 showed quickcatalog and Help me choose, no inventedwizardresult. Actual320×740. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Сохранённая / чистая sessionStorage",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Desktop / mobile"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-006",
+    "title": "Статический QR и серверное оформление не смешиваются",
+    "area": "entry",
+    "priority": "P0",
+    "preconditions": [
+      "Использовать только отдельные тестовые среды: статическую с disabled config и локальную с enabled config.",
+      "Для локальной среды подготовлена временная БД заказов; реальные оплаты не проводятся."
+    ],
+    "steps": [
+      "Собрать одинаковый допустимый заказ в обеих средах.",
+      "Оформить и сравнить следующий экран.",
+      "В статической среде открыть cashier.html#<payload> из сформированного QR.",
+      "В локальной среде дождаться номера на counter/guest.html."
+    ],
+    "expected": [
+      "Статический экран показывает состав для кассы и не объявляет серверную оплату или приготовление.",
+      "Локальный экран создаёт один заказ awaiting_payment и даёт QR staff.html#order=....",
+      "Состав и сумма соответствуют корзине в обеих ветвях."
+    ],
+    "causes": [
+      "CHECKOUT_ENOUGH",
+      "CHECKOUT_ROUTE"
+    ],
+    "effects": [
+      "STATIC_TICKET",
+      "STATIC_CASHIER_VIEW",
+      "ORDER_AWAITING_PAYMENT"
+    ],
+    "variants": [
+      "Static config disabled",
+      "Local service enabled",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-057"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-006",
+      "manualRunIds": [
+        "RUN-057"
+      ],
+      "verifiedSubvariants": [
+        "RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Static410 receipt/composition/cashier link only; static QR optical decode and exact510 fixture/locales remain."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Static config disabled",
+        "Не подтверждено полное прохождение варианта: Local service enabled",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-007",
+    "title": "Канонический QR кассы открывает заказ после входа и при готовой сессии",
+    "area": "entry",
+    "priority": "P0",
+    "preconditions": [
+      "Тестовый заказ и отдельный профиль кассира на том же origin.",
+      "Ссылка counter/staff.html#order=<id> без query; ID взят из тестового QR."
+    ],
+    "steps": [
+      "Открыть каноническую ссылку без сессии; войти тестовым кассиром.",
+      "Повторить в уже авторизованном профиле.",
+      "Отдельно вставить ссылку с чужим origin и ссылку с ?x=1 в поле QR."
+    ],
+    "expected": [
+      "После входа правильный заказ открывается без дополнительного поиска в очереди.",
+      "Недопустимые входящие QR отклоняются понятным сообщением.",
+      "Проверочная ссылка для демонстрации не содержит ?v=: строгий parser такие QR намеренно не принимает."
+    ],
+    "causes": [
+      "GUEST_QR",
+      "STAFF_LOGIN",
+      "QR_OPEN"
+    ],
+    "effects": [
+      "ORDER_REVIEW",
+      "INVALID_QR"
+    ],
+    "variants": [
+      "Нет сессии / есть сессия",
+      "Вставка QR / системное открытие QR",
+      "RU / EN"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-014",
+      "RUN-016"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-007",
+      "manualRunIds": [
+        "RUN-014",
+        "RUN-016"
+      ],
+      "verifiedSubvariants": [
+        "RUN-014: До входа ссылка сотрудника показывает форму авторизации. Состав заказа скрыт. Граница покрытия: Unauthenticated staff deep link only; camera and optical read not done in this RUN.",
+        "RUN-016: После входа кассира ссылка открыла R-000001: два чая и два макарона за 160 TRY, ожидает оплаты. Граница покрытия: Logged-out→login→correct staff order only; camera/paper and QR-content inspection remain."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Нет сессии / есть сессия",
+        "Не подтверждено полное прохождение варианта: Вставка QR / системное открытие QR",
+        "Не подтверждено полное прохождение варианта: RU / EN"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-008",
+    "title": "Повреждённая ссылка заказа показывает безопасный выход",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Отдельный гостевой профиль без настоящих ссылок-capability в истории или отчёте."
+    ],
+    "steps": [
+      "Открыть cashier.html без фрагмента и с повреждённым payload.",
+      "Открыть counter/guest.html без допустимых параметров.",
+      "Попробовать ссылку на недоступный тестовый заказ кассира."
+    ],
+    "expected": [
+      "Ошибка понятна и не показывает чужой состав или придуманную сумму.",
+      "Доступен возврат к меню или исправление ввода по фактическому экрану.",
+      "Нет активной печати/подтверждения оплаты для неразобранного заказа."
+    ],
+    "causes": [
+      "ENTRY_ROUTE",
+      "QR_OPEN"
+    ],
+    "effects": [
+      "INVALID_QR",
+      "MENU_READY"
+    ],
+    "variants": [
+      "Пустой hash / битый payload / неизвестный ID",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-065"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-008",
+      "manualRunIds": [
+        "RUN-065"
+      ],
+      "verifiedSubvariants": [
+        "RUN-065: Выбрана карточка R-000002 на410 ₺. Непонятный текст через Enter и корректная по форме ссылка с чужим origin дали понятное сообщение об ID/QR этого кафе; карточка R-000002, сумма410 и следующий шаг сохранились. На посторонний сайт перехода не было. Граница: Пройден только описанный вариант; полный кейс со всеми вариантами учитывается отдельно."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Пустой hash / битый payload / неизвестный ID",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-009",
+    "title": "Язык гостевого сайта сохраняется при переходах без изменения суммы",
+    "area": "language",
+    "priority": "P1",
+    "preconditions": [
+      "Одна тестовая корзина на одном origin; стоимость записана до смены языка."
+    ],
+    "steps": [
+      "На главной выбрать RU, открыть меню и Discover.",
+      "Переключить EN и TR, пройти в умный выбор.",
+      "Сравнить названия, подписи, цены и существующую корзину."
+    ],
+    "expected": [
+      "Видимые основные действия локализованы; нет смеси текстов предыдущего языка в открытой поверхности.",
+      "Товарные ID, количество и числовая стоимость не меняются; формат TRY может отличаться.",
+      "Смена языка не создаёт добавление или серверный заказ."
+    ],
+    "causes": [
+      "LANGUAGE_CHANGE"
+    ],
+    "effects": [
+      "MENU_READY",
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "TR→EN→RU→TR",
+      "index / discover / menu / smart-choice",
+      "Товар с длинным названием"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-001",
+      "RUN-063",
+      "RUN-2008",
+      "RUN-2010",
+      "RUN-2012",
+      "RUN-2013",
+      "RUN-2018",
+      "RUN-2021",
+      "RUN-2022",
+      "RUN-2023",
+      "RUN-2024",
+      "RUN-2025",
+      "RUN-2026",
+      "RUN-2027",
+      "RUN-2028",
+      "RUN-2029",
+      "RUN-2030",
+      "RUN-2031",
+      "RUN-2032",
+      "RUN-2033",
+      "RUN-2034"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-009",
+      "manualRunIds": [
+        "RUN-001",
+        "RUN-063",
+        "RUN-2008",
+        "RUN-2010",
+        "RUN-2012",
+        "RUN-2013",
+        "RUN-2018",
+        "RUN-2021",
+        "RUN-2022",
+        "RUN-2023",
+        "RUN-2024",
+        "RUN-2025",
+        "RUN-2026",
+        "RUN-2027",
+        "RUN-2028",
+        "RUN-2029",
+        "RUN-2030",
+        "RUN-2031",
+        "RUN-2032",
+        "RUN-2033",
+        "RUN-2034"
+      ],
+      "verifiedSubvariants": [
+        "RUN-001: Каталог содержит 63 позиции. Пустая корзина показывает 0 TRY, оформление недоступно. После TR → RU интерфейс переведён. Граница покрытия: Quick empty order and TR→RU only; no complete cross-page language path.",
+        "RUN-063: Предусловие: R-000003 за110 ₺ заранее подготовлен как выданный в тестовой базе; эти переходы не засчитываются ручной оплатой. В браузере RU→EN сохранил номер, сумму и выданный статус. Start a new order открыл English Smart Choice и сохранил более новую корзину на410 ₺. После перезапуска изолированного сервера заказ тоже сохранился. Viewport 1280×720. Граница: Пройден только описанный вариант; полный кейс со всеми вариантами учитывается отдельно.",
+        "RUN-2008: EN Black Tea query opened Black Tea50₺; Escape and Clear search restored menu; My order1 item110₺ unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2010: Main headings/actions English on all4 guest surfaces; shared espresso1/110₺ retained menu and quick. Skip-link exception separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2012: Russian main UI persisted across4 pages; Эспрессо1 and110₺ unchanged. Skip-link exception separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2013: RU menu keyboard Shift+Tab from Back to café revealed focused skip-link İçeriğe geç at top-left while remaining main UI is Russian. EN menu and RU/EN Discover DOM also expose same Turkish skip-link. index/quick correctly translate it. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: failed; это не успешное подтверждение сценария.",
+        "RUN-2018: 390×844 home Menüyü Gör→menu cart1/110₺; browserBack→Seçmeme yardım et→quick sameespresso1/110₺. TR preserved; noautoadd. Menu document375wide within390 viewport. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2021: English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2022: English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2023: English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2024: English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2025: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2026: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2027: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2028: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2029: New runtime reload; Tab focused visible Перейти к содержанию at320×740. Original Turkish label corrected; espresso1/110₺ retained. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2030: Fresh Discover navigation after build; Tab focused visible Перейти к содержанию, Russian main content consistent. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2031: EN Discover DOM skip-link localized to Skip to content after reload; first immediate Tab focus was not captured, visible focus retested separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2032: EN menu DOM skip-link localized to Skip to content after fresh navigation; first immediate Tab focus was not captured, visible focus retested separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2033: Keyboard Shift+Tab from Back to café focused visible Skip to content atx16,y16. English text correct, cart1/110₺ unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2034: Ordinary keyboard Shift+Tab from Robys home link focused visible Skip to content atx16,y16. English main content and link consistent. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: TR→EN→RU→TR",
+        "Не подтверждено полное прохождение варианта: index / discover / menu / smart-choice",
+        "Не подтверждено полное прохождение варианта: Товар с длинным названием"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-010",
+    "title": "Смена языка в корзине и диалоге умного выбора сохраняет смысл действий",
+    "area": "language",
+    "priority": "P1",
+    "preconditions": [
+      "Есть тестовая группа напиток+десерт; исходные состав, количество и итог записаны."
+    ],
+    "steps": [
+      "Открыть редактирование группы, сделать неподтверждённое изменение и закрыть/отменить диалог без сохранения.",
+      "На основной странице сменить язык, затем снова открыть ту же группу; сравнить исходный подтверждённый состав и итог с локализованным представлением.",
+      "Повторить путь закрыть диалог → сменить язык → открыть ту же группу после подтверждённого добавления и из обзора заказа.",
+      "Отдельно при открытом модальном окне проверить обычным Tab и обычным нажатием, что переключатель языка на фоне недоступен. Не использовать force-click, вызов обработчика или изменение DOM.",
+      "Проверить подписи добавления, удаления, замены и оформления."
+    ],
+    "expected": [
+      "Показаны актуальные локализованные названия и сумма.",
+      "Смена языка не применяет неподтверждённую замену и не дублирует группу.",
+      "Закрытие диалога отменяет несохранённое изменение; после смены языка повторно открывается та же подтверждённая группа, следующий шаг понятен.",
+      "При открытом модальном окне фон inert: фокус остаётся в диалоге, недоступный переключатель языка не меняет язык или заказ."
+    ],
+    "causes": [
+      "LANGUAGE_CHANGE",
+      "CART_TOTAL"
+    ],
+    "effects": [
+      "CART_TOTAL",
+      "NEXT_STEP"
+    ],
+    "variants": [
+      "RU / EN / TR",
+      "Вкус напитка / парный десерт",
+      "Открытый dialog: inert фон без принудительных кликов",
+      "Desktop / 320px"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-010",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: RU / EN / TR",
+        "Не подтверждено полное прохождение варианта: Вкус напитка / парный десерт",
+        "Не подтверждено полное прохождение варианта: Открытый dialog: inert фон без принудительных кликов",
+        "Не подтверждено полное прохождение варианта: Desktop / 320px"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-011",
+    "title": "Язык серверного гостевого статуса меняется без создания нового заказа",
+    "area": "language",
+    "priority": "P0",
+    "preconditions": [
+      "Создан один заказ во временной БД; гостевой экран открыт с действующей capability.",
+      "Чувствительный hash не сохраняется в публичные доказательства."
+    ],
+    "steps": [
+      "Записать номер, статус, количество и сумму.",
+      "Сменить язык RU→EN→TR.",
+      "Обновить страницу и проверить тот же заказ."
+    ],
+    "expected": [
+      "Номер и состояние заказа сохраняются; меняются только локализованные представления.",
+      "Состав не исчезает и не удваивается.",
+      "Автоматическое обновление продолжается на выбранном языке."
+    ],
+    "causes": [
+      "LANGUAGE_CHANGE",
+      "GUEST_STATUS"
+    ],
+    "effects": [
+      "GUEST_STATUS"
+    ],
+    "variants": [
+      "awaiting_payment / preparing / ready",
+      "390×844 / desktop"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-063"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-011",
+      "manualRunIds": [
+        "RUN-063"
+      ],
+      "verifiedSubvariants": [
+        "RUN-063: Предусловие: R-000003 за110 ₺ заранее подготовлен как выданный в тестовой базе; эти переходы не засчитываются ручной оплатой. В браузере RU→EN сохранил номер, сумму и выданный статус. Start a new order открыл English Smart Choice и сохранил более новую корзину на410 ₺. После перезапуска изолированного сервера заказ тоже сохранился. Viewport 1280×720. Граница: Пройден только описанный вариант; полный кейс со всеми вариантами учитывается отдельно."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: awaiting_payment / preparing / ready",
+        "Не подтверждено полное прохождение варианта: 390×844 / desktop"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-012",
+    "title": "Смена языка рабочего места не оставляет опасное подтверждение оплаты",
+    "area": "language",
+    "priority": "P0",
+    "preconditions": [
+      "Кассир вошёл в отдельном профиле; неоплаченный тестовый заказ во временной БД."
+    ],
+    "steps": [
+      "Открыть состав и окно проверки оплаты.",
+      "Не подтверждая оплату, отменить окно и сменить язык.",
+      "Повторно открыть проверку; отдельно проверить управление языком при незавершённом действии, если такой момент доступен."
+    ],
+    "expected": [
+      "Отмена или локализация не меняют статус заказа.",
+      "Новая проверка показывает верные номер, сумму и текущие подписи; отметка оплаты не переносится молча.",
+      "Во время серверного действия смена языка не запускает вторую операцию."
+    ],
+    "causes": [
+      "LANGUAGE_CHANGE",
+      "PAYMENT_DIALOG",
+      "PAYMENT_CANCEL"
+    ],
+    "effects": [
+      "ORDER_REVIEW",
+      "ORDER_AWAITING_PAYMENT"
+    ],
+    "variants": [
+      "TR / EN / RU",
+      "Cashier",
+      "Отмена мышью / клавиатурой"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-012",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Cashier",
+        "Не подтверждено полное прохождение варианта: Отмена мышью / клавиатурой"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-013",
+    "title": "Масштаб 200% сохраняет покупку и кнопки управления",
+    "area": "responsive",
+    "priority": "P1",
+    "preconditions": [
+      "Браузерный zoom изначально 100%; записан фактический CSS viewport, а не только размер окна.",
+      "Тестовая корзина содержит две разные группы."
+    ],
+    "steps": [
+      "На desktop увеличить масштаб до 200%.",
+      "Пройти меню → карточка → корзина → умный выбор.",
+      "Проверить удаление/замену, длинный состав и подтверждение добавления.",
+      "Вернуть масштаб 100% после сценария."
+    ],
+    "expected": [
+      "Ключевые действия доступны без горизонтальной прокрутки всей страницы.",
+      "Текст, фото и сумма не перекрывают кнопки; диалоги прокручиваются.",
+      "Числа и состав не меняются от масштаба."
+    ],
+    "causes": [
+      "PRODUCT_OPEN",
+      "CART_TOTAL"
+    ],
+    "effects": [
+      "NEXT_STEP",
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "1280×800 at100/200%",
+      "Длинные RU/TR названия",
+      "menu / smart-choice / cashier / counter"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-013",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: 1280×800 at100/200%",
+        "Не подтверждено полное прохождение варианта: Длинные RU/TR названия",
+        "Не подтверждено полное прохождение варианта: menu / smart-choice / cashier / counter"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-014",
+    "title": "Ширина 320–390 px не прячет продолжение покупки",
+    "area": "responsive",
+    "priority": "P1",
+    "preconditions": [
+      "Отдельная тестовая вкладка; фактическая CSS ширина проверена.",
+      "При эмуляции результат не записывается как проверка физического телефона."
+    ],
+    "steps": [
+      "На 320 и390px пройти главную, меню, Discover и умный выбор.",
+      "Открыть карточку, добавить пару, показать корзину и изменить её.",
+      "Проверить гостевой counter и шапку staff без раскрытия реальных данных."
+    ],
+    "expected": [
+      "Фото не искажаются, сумма и подписи помещаются либо корректно переносятся.",
+      "Нет горизонтального переполнения документа.",
+      "Нижняя панель заказа и sticky элементы не закрывают последнюю кнопку/строку."
+    ],
+    "causes": [
+      "MENU_READY",
+      "PRODUCT_OPEN",
+      "CART_TOTAL"
+    ],
+    "effects": [
+      "NEXT_STEP"
+    ],
+    "variants": [
+      "320×740 / 390×844",
+      "DPR1 / DPR2 если доступно",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-054",
+      "RUN-055",
+      "RUN-062",
+      "RUN-1020",
+      "RUN-1021",
+      "RUN-1030",
+      "RUN-1040",
+      "RUN-2017",
+      "RUN-2018",
+      "RUN-2019",
+      "RUN-2021",
+      "RUN-2022",
+      "RUN-2023",
+      "RUN-2024",
+      "RUN-2025",
+      "RUN-2026",
+      "RUN-2027",
+      "RUN-2028",
+      "RUN-2036"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-014",
+      "manualRunIds": [
+        "RUN-054",
+        "RUN-055",
+        "RUN-062",
+        "RUN-1020",
+        "RUN-1021",
+        "RUN-1030",
+        "RUN-1040",
+        "RUN-2017",
+        "RUN-2018",
+        "RUN-2019",
+        "RUN-2021",
+        "RUN-2022",
+        "RUN-2023",
+        "RUN-2024",
+        "RUN-2025",
+        "RUN-2026",
+        "RUN-2027",
+        "RUN-2028",
+        "RUN-2036"
+      ],
+      "verifiedSubvariants": [
+        "RUN-054: Бариста actual390×844: R1preparing→ready→issued, обаPOSTответа разорваны послеcommit. Очередь после сверки пустая; гостевой экранactual390×844 и320×640 показывает Приятного аппетита, новыйзаказ, тотже160. На320 нетгоризонтальногоoverflow. Это responsive browser, физическийтелефон/камера отдельно. Граница покрытия: Guest390/320 issued layout/no horizontal overflow and barista390 ready/issued only; staff320 login/QR/pay/keyboard remain.",
+        "RUN-055: После rebuild наactual320×640: милкшейк безвкуса не добавляется; выбран Шоколад+Lotus=410. Dblclick Добавитьпару оставил открытое подтверждение, одинgroupqty1,total410, явные изменить/заменить/убрать/оформить/ещё. Ранее обнаруженное закрытие подтверждения больше не воспроизводится. Граница покрытия: Fixed quick double-click at320 keeps confirmation with one group410. Different milkshake fixture; physical double-tap and full-menu path remain. It does not test all milkshake variants in GUEST-008.",
+        "RUN-062: ПоследовательноUIоткрыты/закрытывсе63товараquickна390×844, каждыйдиалогс DOMнаблюдением. Всеосновныефотоидесертныеpreviewcomplete/naturalWidth>0, отсутствуетгоризонтальныйoverflow, тексттовара/цены/действиявDOM. Для3flavouredcategoriesбезвкусаДобавитьdisabledожидаемо. Составкорзинынеизменилсяототкрытий; rawall-card-ui-390.jsonприложен. Граница покрытия: Quick на390×844:63диалога открыты/закрыты, цены/действия доступны, нет overflow. Остальные страницы,320,языки,DPR2 и sticky-overlap остаются.",
+        "RUN-1020: Пройдены 9 переключателей, включая «Все», при 390×844. Выбранная категория и соответствующие заголовки видны; горизонтального переполнения нет. Подробные состояния каждого переключения сохранены. Это не физический телефон и не полный проход покупки каждого товара. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-1021: Пройдены 9 переключателей, включая «Все», при 320×640. Выбранная категория и соответствующие заголовки видны; горизонтального переполнения нет. Подробные состояния каждого переключения сохранены. Это не физический телефон и не полный проход покупки каждого товара. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-1030: На390 чай50+макарон30 количеством2 дал160 ₺; отдельный чай50 сохранён, общий итог210 ₺. Предпросмотр замены макарона на брауни150 дал пару400 ₺; сохранение — общий450 ₺. На320 количество пары уменьшено до1: общий250 ₺. Удаление пары оставило отдельный чай50; затем удалён последний чай, итог0 и оформление disabled. Способ последнего удаления не объявляется проверкой минуса при1 без отдельной записи. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-1040: На320×640 проверены списки: айс-латте5 вкусов, фраппе7, милкшейк4; до выбора добавление disabled. Отдельно выбраны карамель/белыйшоколад/клубника: добавление стало доступно, цена200/220/220 ₺. Все отдельные вкусы не добавлялись и не оформлялись; это проверка списков и трёх представительных выборов. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2017: Actual innerWidth390/innerHeight844; main home actions visible, document scrollWidth375 (no horizontal overflow). CSS emulation only. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2018: 390×844 home Menüyü Gör→menu cart1/110₺; browserBack→Seçmeme yardım et→quick sameespresso1/110₺. TR preserved; noautoadd. Menu document375wide within390 viewport. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2019: Actual 390×844: visible Cool Lime + Makaron 220 ₺ menu link opened the same 220 ₺ pair modal; espresso 110 ₺ unchanged; Discover document width 375. The preceding Next action was not independently observed after its transition, so this record proves the current visible pair handoff. A settled second-pair transition is recorded separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2021: English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2022: English persisted; actual390×844, document width375; main target readable.  Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2023: English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2024: English persisted; actual390×844, document width375; main target readable. Sharedespresso110₺ retained. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2025: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2026: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2027: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2028: Russian persisted; actual390×844; document width375; main content readable. Espresso110₺ retained on menu/quick. Interaction variants separately recorded. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2036: Exactemptycartprecondition; queryнеттовараxyz showed По вашему запросу ничего не найдено and0productbuttons. Clear restoredmenu; Чёрныйчай50₺ modalopened. Cart0/0 unchanged; actual320×640document320wide. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: 320×740 / 390×844",
+        "Не подтверждено полное прохождение варианта: DPR1 / DPR2 если доступно",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-015",
+    "title": "Низкий экран и экранная клавиатура не блокируют диалоги",
+    "area": "responsive",
+    "priority": "P1",
+    "preconditions": [
+      "Мобильный браузер/эмулятор с доступной ориентацией; изменения только в тестовой вкладке."
+    ],
+    "steps": [
+      "Открыть поиск умного выбора и экранную клавиатуру.",
+      "Открыть диалог длинного состава, изменить ориентацию.",
+      "Прокрутить к подтверждению и закрытию.",
+      "На staff проверить форму входа и поле QR без отправки реальных учётных данных."
+    ],
+    "expected": [
+      "Фокусируемое поле и кнопка следующего действия достижимы.",
+      "Диалог прокручивается внутри доступной высоты, фон не уводит покупателя от него.",
+      "После закрытия клавиатуры и диалога интерфейс не остаётся с обрезанной областью."
+    ],
+    "causes": [
+      "PRODUCT_OPEN",
+      "CUSTOMIZE"
+    ],
+    "effects": [
+      "NEXT_STEP",
+      "SELECTION_CANCEL"
+    ],
+    "variants": [
+      "390×360 landscape / portrait",
+      "Экранная клавиатура",
+      "Menu / smart-choice / staff"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-015",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: 390×360 landscape / portrait",
+        "Не подтверждено полное прохождение варианта: Экранная клавиатура",
+        "Не подтверждено полное прохождение варианта: Menu / smart-choice / staff"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-016",
+    "title": "Полное меню можно пройти клавиатурой с возвратом фокуса",
+    "area": "accessibility",
+    "priority": "P1",
+    "preconditions": [
+      "Используется только клавиатура; профиль содержит отдельную тестовую корзину."
+    ],
+    "steps": [
+      "С Tab открыть skip-link, категории и поиск.",
+      "Открыть карточку Enter/Space, пройти доступные параметры.",
+      "Закрыть Escape, затем добавить товар и перейти к корзине.",
+      "Удалить позицию клавиатурой."
+    ],
+    "expected": [
+      "Фокус виден и находится в рабочем диалоге, не проваливается под него.",
+      "Escape без подтверждения сохраняет корзину.",
+      "После добавления/удаления фокус остаётся на осмысленном следующем действии, сумма доступна для чтения."
+    ],
+    "causes": [
+      "PRODUCT_OPEN",
+      "SELECTION_CANCEL",
+      "CART_REMOVE"
+    ],
+    "effects": [
+      "MENU_READY",
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "TR / EN / RU",
+      "Первый / последний товар категории",
+      "100% / 200% zoom"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-2013",
+      "RUN-2014",
+      "RUN-2029",
+      "RUN-2032",
+      "RUN-2033",
+      "RUN-2035"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-016",
+      "manualRunIds": [
+        "RUN-2013",
+        "RUN-2014",
+        "RUN-2029",
+        "RUN-2032",
+        "RUN-2033",
+        "RUN-2035"
+      ],
+      "verifiedSubvariants": [
+        "RUN-2013: RU menu keyboard Shift+Tab from Back to café revealed focused skip-link İçeriğe geç at top-left while remaining main UI is Russian. EN menu and RU/EN Discover DOM also expose same Turkish skip-link. index/quick correctly translate it. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным. Результат наблюдения: failed; это не успешное подтверждение сценария.",
+        "RUN-2014: From focused skip-link keyboard Enter→Tab traversed product buttons; Enter on Кафе латте opened180₺.20Tabs cycled only checked dessert radio,plus,add,close in native dialog. Keyboard plus made quantity2/360₺; Escape cancelled, closed dialog, restored focus to latte trigger and vertical scroll auto; espresso1/110₺ unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2029: New runtime reload; Tab focused visible Перейти к содержанию at320×740. Original Turkish label corrected; espresso1/110₺ retained. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2032: EN menu DOM skip-link localized to Skip to content after fresh navigation; first immediate Tab focus was not captured, visible focus retested separately. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2033: Keyboard Shift+Tab from Back to café focused visible Skip to content atx16,y16. English text correct, cart1/110₺ unchanged. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным.",
+        "RUN-2035: Keyboard only from headerShift+Tab→skip→8Tabs search; typedBlackTea; Tab traversed Clear+9categories to tea; Enter opened50₺, Escape keptespresso110. Enter reopened,3Tabs→Add,Enter created total160; Tab→RemoveBlackTea,Enter returned110. All modal focus remained in native dialog; removal focused Espresso decrease, useful next action. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Первый / последний товар категории",
+        "Не подтверждено полное прохождение варианта: 100% / 200% zoom"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-017",
+    "title": "Клавиатурная покупка в умном выборе объясняет следующий шаг",
+    "area": "accessibility",
+    "priority": "P1",
+    "preconditions": [
+      "Пустая тестовая корзина; управлять Tab/Shift+Tab/Enter/Space/Escape."
+    ],
+    "steps": [
+      "Найти товар и открыть его.",
+      "Выбрать вкус/пару и добавить.",
+      "В подтверждении выбрать продолжение, затем обзор заказа.",
+      "Открыть замену, отменить её и удалить позицию."
+    ],
+    "expected": [
+      "Кнопки имеют различимые названия, фокус виден и не теряется при перерисовке.",
+      "Отмена замены не применяет её; удаление действительно отражено в составе.",
+      "Оформление и продолжение выбора различимы по тексту, а не только цвету."
+    ],
+    "causes": [
+      "CUSTOMIZE",
+      "CART_ADD",
+      "CART_REPLACE",
+      "CART_REMOVE"
+    ],
+    "effects": [
+      "CART_TOTAL",
+      "NEXT_STEP"
+    ],
+    "variants": [
+      "Напиток с вкусами",
+      "Напиток+десерт",
+      "320px / desktop"
+    ],
+    "status": "passed",
+    "evidence": [
+      "RUN-076",
+      "RUN-077"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-017",
+      "manualRunIds": [
+        "RUN-076",
+        "RUN-077"
+      ],
+      "verifiedSubvariants": [
+        "RUN-076: На фактическом 1280×800 с пустой корзиной введён поиск «Милкшейк». Обычный Tab довёл фокус до результата; Enter открыл карточку. Tab/Space выбрали ваниль и макарон, Tab/Enter добавили одну пару250 ₺. В подтверждении Tab/Enter выбрали «Выбрать ещё», далее Tab/Enter открыли обзор и замену. Escape отменил замену без изменения250 ₺ и вернул фокус обзору. Shift+Tab довёл до «Убрать», Enter удалил группу:0 ₺, оформление недоступно. Заголовки и активные кнопки имели видимый контур фокуса. Мобильный320 вариант отдельно не заявлен. Граница: Пройден только описанный вариант; полный кейс со всеми вариантами учитывается отдельно.",
+        "RUN-077: На фактическом320×640 пустая корзина. От поля поиска «Милкшейк» обычный Tab довёл до товара, Enter открыл карточку. Tab/Space выбрали манго и макарон; Tab/Enter добавили одну пару250 ₺. Из подтверждения Tab/Enter выполнено «Выбрать ещё», далее Tab/Enter открыт обзор и замена. Escape отменил замену без изменения состава250 ₺ и вернул фокус обзору. Два Shift+Tab довели до «Убрать» с видимым контуром, Enter удалил группу:0 ₺, оформление недоступно. Переполнения по горизонтали нет. Граница: Пройден только описанный вариант; полный кейс со всеми вариантами учитывается отдельно."
+      ],
+      "remainingVariants": [],
+      "fullyCovered": true,
+      "completionEvidence": [
+        "RUN-076",
+        "RUN-077"
+      ]
+    }
+  },
+  {
+    "id": "SITE-018",
+    "title": "Подтверждение оплаты доступно с клавиатуры и требует явного решения",
+    "area": "accessibility",
+    "priority": "P0",
+    "preconditions": [
+      "Только тестовый заказ и тестовая БД; кассир авторизован.",
+      "Реальное получение денег не имитируется как состоявшаяся оплата клиента."
+    ],
+    "steps": [
+      "Клавиатурой выбрать заказ и открыть проверку оплаты.",
+      "Попробовать подтвердить без отметки; затем отменить.",
+      "Открыть снова, пройти обязательную отметку и доступные действия.",
+      "На этапе планового теста подтверждать только специально выделенную тестовую оплату."
+    ],
+    "expected": [
+      "До отметки подтверждение недоступно; отмена сохраняет awaiting_payment.",
+      "Номер, сумма и объяснение ручной оплаты доступны в диалоге.",
+      "После серверного ответа виден соответствующий статус, фокус не теряется."
+    ],
+    "causes": [
+      "ORDER_REVIEW",
+      "PAYMENT_DIALOG",
+      "PAYMENT_CANCEL"
+    ],
+    "effects": [
+      "ORDER_AWAITING_PAYMENT",
+      "CASHIER_CONFIRM"
+    ],
+    "variants": [
+      "RU / EN / TR",
+      "Tab / Shift+Tab / Escape",
+      "Desktop / 200%"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-018",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: RU / EN / TR",
+        "Не подтверждено полное прохождение варианта: Tab / Shift+Tab / Escape",
+        "Не подтверждено полное прохождение варианта: Desktop / 200%"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-019",
+    "title": "Сообщения о корзине и статусе доступны скринридеру без устаревших объявлений",
+    "area": "accessibility",
+    "priority": "P1",
+    "preconditions": [
+      "Выбран доступный скринридер; тестовый заказ изолирован.",
+      "Записать браузер и средство чтения, не отмечать результат без фактического запуска."
+    ],
+    "steps": [
+      "Добавить, изменить и удалить товар; после удаления добавить другой.",
+      "Пройти подтверждение добавления и состояние пустой корзины.",
+      "На гостевом counter дождаться тестового обновления статуса."
+    ],
+    "expected": [
+      "Название кнопки описывает действие, новые суммы и важные статусы объявляются.",
+      "Старое «удалено» не выдаётся за результат нового добавления.",
+      "Декоративные фото/логотипы не дублируют каждый товар в чтении; live-области не повторяют без изменения весь экран."
+    ],
+    "causes": [
+      "CART_ADD",
+      "CART_REMOVE",
+      "GUEST_STATUS"
+    ],
+    "effects": [
+      "CART_TOTAL",
+      "GUEST_STATUS"
+    ],
+    "variants": [
+      "Screen reader + keyboard",
+      "TR / EN / RU",
+      "Успех / ошибка / пустая корзина"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-019",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Screen reader + keyboard",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Успех / ошибка / пустая корзина"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-020",
+    "title": "Медленная первая загрузка фото не оставляет покупателя в неопределённости",
+    "area": "performance",
+    "priority": "P1",
+    "preconditions": [
+      "Чистый отдельный профиль и пустой HTTP/SW кеш; включено контролируемое ограничение сети.",
+      "Не очищать пользовательский профиль или кеш другого тестера."
+    ],
+    "steps": [
+      "Открыть smart-choice/#quick.",
+      "Сразу изучить первую строку, открыть товар, затем быстро прокрутить каталог.",
+      "Зафиксировать момент текста/превью и момент детального фото."
+    ],
+    "expected": [
+      "Название, цена и действия доступны до полной фотографии.",
+      "Есть превью того же товара или явная загрузка; размеры карточки не скачут.",
+      "Покупатель может продолжать выбор; результат измерений записывается фактически, без обещания мгновенности."
+    ],
+    "causes": [
+      "PRODUCT_OPEN",
+      "PHOTO_LOADING"
+    ],
+    "effects": [
+      "PHOTO_READY",
+      "NEXT_STEP"
+    ],
+    "variants": [
+      "Cold cache",
+      "Медленная сеть / обычная сеть",
+      "320×740 / 1280×800"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-058",
+      "RUN-062"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-020",
+      "manualRunIds": [
+        "RUN-058",
+        "RUN-062"
+      ],
+      "verifiedSubvariants": [
+        "RUN-058: Новыйorigin8792 безкэша, actual390×844. Искусственно задержаныresponsiveWebP8сек: первые6frames loading, укаждогоinlinepreview complete/naturalWidth>0; квадратныеframes110/151px, overflowнет. Названия,цены,выборкнопкидоступныдоосновныхфото. Граница покрытия: Cold responsive photo delay8s at390 with6visible previews/actions; no two-group photo test GUEST-054, no purchase-before-load or completed before/after shift timing.",
+        "RUN-062: ПоследовательноUIоткрыты/закрытывсе63товараquickна390×844, каждыйдиалогс DOMнаблюдением. Всеосновныефотоидесертныеpreviewcomplete/naturalWidth>0, отсутствуетгоризонтальныйoverflow, тексттовара/цены/действиявDOM. Для3flavouredcategoriesбезвкусаДобавитьdisabledожидаемо. Составкорзинынеизменилсяототкрытий; rawall-card-ui-390.jsonприложен. Граница покрытия: Обычная загрузка уже доступных фото всех63quick-карточек на390 подтверждена. Этот RUN не является новым cold/slow-network измерением, не фиксирует time-to-preview или layout shift."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Cold cache",
+        "Не подтверждено полное прохождение варианта: Медленная сеть / обычная сеть",
+        "Не подтверждено полное прохождение варианта: 320×740 / 1280×800"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-021",
+    "title": "Сбой фото имеет ограниченный fallback и осмысленный повтор",
+    "area": "performance",
+    "priority": "P1",
+    "preconditions": [
+      "Использовать локальную тестовую среду и временную блокировку запросов только в своём профиле.",
+      "Для каждого варианта — отдельный холодный прогон без HTTP/SW-кеша и ранее загруженного DOM-фото выбранной позиции. URL responsive-вариантов и оригинала известны; блокировки настроены ДО первого запроса фото, ответы из service worker исключены. Производственные файлы и пользовательский кеш не изменять."
+    ],
+    "steps": [
+      "В первом холодном прогоне заранее заблокировать responsive-фото, оставить оригинал доступным, открыть карточку; в Network проверить отказ уменьшенного варианта и успешный оригинал.",
+      "Начать ВТОРОЙ холодный прогон: заранее заблокировать responsive-фото И оригинал, затем открыть карточку и подтвердить оба отказа в Network. Не пытаться вызвать отказ блокировкой уже загруженного изображения.",
+      "Во втором прогоне восстановить запросы и явно повторно открыть/выбрать позицию; проверить новый успешный запрос. После кейса вернуть настройки только QA-профиля."
+    ],
+    "expected": [
+      "При первой ошибке пробуется оригинал; при второй видна недоступность и сохранено превью если есть.",
+      "Название, цена, корзина и оформление не блокируются из-за фото.",
+      "Нет бесконечных повторов; явное действие после восстановления позволяет загрузить фото."
+    ],
+    "causes": [
+      "PHOTO_LOADING",
+      "PHOTO_ERROR",
+      "RETRY"
+    ],
+    "effects": [
+      "PHOTO_ERROR",
+      "PHOTO_READY"
+    ],
+    "variants": [
+      "Только thumbnail недоступен",
+      "Thumbnail+original недоступны",
+      "RU / EN / TR"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-061"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-021",
+      "manualRunIds": [
+        "RUN-061"
+      ],
+      "verifiedSubvariants": [
+        "RUN-061: Свежийorigin8793: 503дляresponsiveWebP иoriginal доначальнойзагрузки. actual390×844: frames error, битыйmainскрыт, inlinepreviewвиден, локализованноеФотонедоступно; productчай50 иДобавитьдоступны. Добавление далооднугруппу50. После снятия503, Выбратьещё→явнооткрытьчай: mainloaded/naturalWidth>0, previewскрыт, цена50неизменна. Граница покрытия: Cold thumbnail+original503 and explicit recovery on catalog→customizer at390; cart/confirmation/alternatives and thumbnail-only fallback remain."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Только thumbnail недоступен",
+        "Не подтверждено полное прохождение варианта: Thumbnail+original недоступны",
+        "Не подтверждено полное прохождение варианта: RU / EN / TR"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-022",
+    "title": "Поиск, фильтры и быстрое изменение количества не вызывают повторного исчезновения фото",
+    "area": "performance",
+    "priority": "P1",
+    "preconditions": [
+      "Умный выбор прогрет; выбран товар с загруженным фото и существующей парой."
+    ],
+    "steps": [
+      "Быстро вводить и стирать поисковую фразу; переключать категории.",
+      "Повторно открывать один товар.",
+      "Менять количество, доступный вкус и десерт.",
+      "Сравнить фото, подписи и итог после окончания действий."
+    ],
+    "expected": [
+      "Загруженные фото повторно используемых карточек не заменяются пустыми блоками.",
+      "Фото и название относятся к фактически выбранному товару/десерту.",
+      "Последнее действие определяет состояние; сумма не отстаёт от количества."
+    ],
+    "causes": [
+      "CUSTOMIZE",
+      "PHOTO_READY",
+      "CART_REPLACE"
+    ],
+    "effects": [
+      "PHOTO_READY",
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "Чай / кофе / холодный напиток",
+      "Быстрые последовательные нажатия",
+      "Mobile / desktop"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-022",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Чай / кофе / холодный напиток",
+        "Не подтверждено полное прохождение варианта: Быстрые последовательные нажатия",
+        "Не подтверждено полное прохождение варианта: Mobile / desktop"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-023",
+    "title": "Повторный визит использует правильный кеш без старых модулей",
+    "area": "performance",
+    "priority": "P1",
+    "preconditions": [
+      "Изолированный профиль; тестовая версия после штатной сборки.",
+      "Для сценария обновления — отдельная копия/сервер, не менять рабочие файлы сайта."
+    ],
+    "steps": [
+      "Открыть умный выбор дважды, проверить сетевую загрузку статических файлов.",
+      "Проверить одинаковую статику с текущим ETag на локальном counter-сервере.",
+      "В подготовленной новой сборке открыть новую ревизию модулей через ранее прогретый профиль."
+    ],
+    "expected": [
+      "Неизменённая публичная статика может отвечать 304 без тела; текущий интерфейс работает.",
+      "Новые revisioned app/catalog/photo-previews не подменяются старым кешем.",
+      "API и counter-страницы сохраняют no-store, текущий статус заказа не берётся из статического кеша."
+    ],
+    "causes": [
+      "ENTRY_ROUTE",
+      "RETRY"
+    ],
+    "effects": [
+      "MENU_READY",
+      "PHOTO_READY",
+      "GUEST_STATUS"
+    ],
+    "variants": [
+      "Повторный визит",
+      "Старый service worker / новая сборка",
+      "Local conditional GET / public SW"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-023",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Повторный визит",
+        "Не подтверждено полное прохождение варианта: Старый service worker / новая сборка",
+        "Не подтверждено полное прохождение варианта: Local conditional GET / public SW"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-024",
+    "title": "Предварительно сохранённые публичные страницы работают офлайн",
+    "area": "offline",
+    "priority": "P1",
+    "preconditions": [
+      "Отдельный профиль; онлайн полностью открыты index, discover, menu, smart-choice и нужные фотографии.",
+      "Дождаться готовности офлайн-кеша; отключение сети ограничено тестовым окружением."
+    ],
+    "steps": [
+      "Перейти офлайн и повторно открыть сохранённые публичные маршруты.",
+      "Прочитать меню, изменить локальную корзину и вернуться назад.",
+      "Восстановить сеть и обновить."
+    ],
+    "expected": [
+      "Сохранённые маршруты открываются с понятным доступным содержимым.",
+      "Локальные изменения корзины сохраняют арифметику.",
+      "Доступность офлайн-меню не объявляется действующей оплатой или общей очередью."
+    ],
+    "causes": [
+      "MENU_READY",
+      "OFFLINE_MENU"
+    ],
+    "effects": [
+      "OFFLINE_MENU",
+      "CART_TOTAL",
+      "MENU_READY"
+    ],
+    "variants": [
+      "index / discover / menu / smart-choice",
+      "Полностью прогретые ресурсы",
+      "Desktop / mobile"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-024",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: index / discover / menu / smart-choice",
+        "Не подтверждено полное прохождение варианта: Полностью прогретые ресурсы",
+        "Не подтверждено полное прохождение варианта: Desktop / mobile"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-025",
+    "title": "Первый офлайн-визит не обещает доступность несохранённого сайта",
+    "area": "offline",
+    "priority": "P2",
+    "preconditions": [
+      "Чистый отдельный профиль без service worker и кеша; сеть выключена до первого открытия."
+    ],
+    "steps": [
+      "Открыть основной маршрут и затем умный выбор.",
+      "Зафиксировать фактическое поведение браузера.",
+      "Восстановить сеть и повторно открыть страницу."
+    ],
+    "expected": [
+      "Недоступный сайт не выдаётся за принятый заказ или успешное оформление.",
+      "После восстановления страница загружается и позволяет начать выбор.",
+      "Браузерная офлайн-ошибка при холодном кеше фиксируется как ограничение, а не как поломка ранее обещанного офлайн-кеша."
+    ],
+    "causes": [
+      "GUEST_ENTER",
+      "REQUEST_ERROR"
+    ],
+    "effects": [
+      "REQUEST_ERROR",
+      "MENU_READY"
+    ],
+    "variants": [
+      "Без HTTP-кеша и SW",
+      "Chrome/другой поддерживаемый браузер",
+      "Desktop / mobile"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-025",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Без HTTP-кеша и SW",
+        "Не подтверждено полное прохождение варианта: Chrome/другой поддерживаемый браузер",
+        "Не подтверждено полное прохождение варианта: Desktop / mobile"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-026",
+    "title": "Недоступность конфигурации оформления не выдаёт статический QR за серверный заказ",
+    "area": "offline",
+    "priority": "P0",
+    "preconditions": [
+      "Отдельная тестовая среда; валидная непустая корзина.",
+      "Подготовлена временная недоступность counter-config.json ДО первого оформления. Для этого выбора ещё не выполнялся POST /api/counter/orders и серверный заказ не создан; тест не затрагивает реальные заказы.",
+      "Потеря ответа после уже принятого POST /orders не входит в этот кейс: это восстановление того же live-заказа в COUNTER-024/GUEST-060, а не переход на новый статический талон."
+    ],
+    "steps": [
+      "При недоступной конфигурации впервые открыть оформление непустой QA-корзины и дождаться завершения чтения/таймаута конфигурации.",
+      "Сравнить экран с обычным static-disabled сценарием.",
+      "Вернуть доступность сервиса и начать отдельный новый тестовый сценарий."
+    ],
+    "expected": [
+      "После ошибки/404/таймаута конфигурации открывается штатный статический QR-талон с исходными составом и суммой; оформление не зависает и не заменяется неопределённым сообщением об ошибке.",
+      "До статического талона не отправляется POST /api/counter/orders: в QA_DB нет новой записи для этого выбора, нет перехода на чужой origin.",
+      "Статический QR не отображает подтверждение оплаты/готовки или фиктивный номер общей очереди.",
+      "Повтор не дублирует состав корзины."
+    ],
+    "causes": [
+      "CHECKOUT_ROUTE",
+      "REQUEST_ERROR"
+    ],
+    "effects": [
+      "STATIC_TICKET",
+      "NEXT_STEP"
+    ],
+    "variants": [
+      "Config timeout / 404 / offline",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-057",
+      "RUN-059",
+      "RUN-060"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-026",
+      "manualRunIds": [
+        "RUN-057",
+        "RUN-059",
+        "RUN-060"
+      ],
+      "verifiedSubvariants": [
+        "RUN-057: Вебactual1280×800, fullmenu общаякорзина410. GETcounter-config503: статический чек R-SHBQ9C5F, составmilkshake chocolate+Lotus410, Ожидаетоплатынакассе/QRнеподтверждаетоплату; ссылкаcashier.html#ticket. Нового серверного preparing нет. QRchunk попытку503 не считать выполненной: модуль оказался вHTTPcache. Граница покрытия: Config503→honest static410 on desktop; attempted QR-module failure was cached and is NOT covered.",
+        "RUN-059: Чистыйorigin8792, actual390×844. ПервыйGETorder-checkout503: явное Неудалосьоткрытьоформление, чай50сохранён, кнопкипослеошибкисноваenabled. После снятия503 явныйповтор безreload открылQRна50. Импорт с новымretryURL восстановился; конфиг503→честныйstaticQR, статуснеоплачен. Граница покрытия: Config503 fallback confirmed on quick390 after explicit failed-module retry. Module-import recovery is supplemental, not POST/orders failure from GUEST-060.",
+        "RUN-060: Холодный127origin8792, actual1280×800. ПервыйGETorder-checkout503 дал НеудалосьоткрытьQR/выборсохранён. После снятия503 явныйповтор безreload открыл QR на тотже чай50; ошибкаочищена, составнеизменен. Конфиг503 даёт ожидаетоплатынакассе. Граница покрытия: Config503 fallback confirmed on full-menu1280 after explicit failed-module retry. No POST/orders failure demonstrated."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Config timeout / 404 / offline",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-027",
+    "title": "Гость видит потерю связи и возвращается к тому же заказу",
+    "area": "offline",
+    "priority": "P0",
+    "preconditions": [
+      "Во временной БД создан серверный заказ; гостевой экран уже получил его номер и QR.",
+      "Изолированные профиль гостя и профиль сотрудника на одном origin."
+    ],
+    "steps": [
+      "Отключить сеть только гостевому профилю.",
+      "В другом профиле выполнить заранее разрешённый тестовый переход статуса.",
+      "Вернуть связь гостю и при необходимости выбрать повтор.",
+      "Обновить страницу заказа."
+    ],
+    "expected": [
+      "Во время сбоя показан последний известный статус с явным индикатором отсутствия связи.",
+      "Номер и QR сохраняются; после восстановления приходит фактическая новая версия.",
+      "Не создаётся новый заказ и не откатывается статус."
+    ],
+    "causes": [
+      "GUEST_STATUS",
+      "REQUEST_ERROR",
+      "RETRY"
+    ],
+    "effects": [
+      "GUEST_STATUS"
+    ],
+    "variants": [
+      "awaiting_payment→preparing",
+      "preparing→ready",
+      "Обновление / возврат вкладки"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-050",
+      "RUN-051"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-027",
+      "manualRunIds": [
+        "RUN-050",
+        "RUN-051"
+      ],
+      "verifiedSubvariants": [
+        "RUN-050: HTTP503 дляGETorder: сохранены R-000001, состав160 и прежний awaiting_payment, видна потеря связи/последняяпроверка. navigator online не менялся; это сбой сервера, не авиарежим. Граница покрытия: Controlled HTTP503 after a known receipt; not OS offline, not a changed server status during the outage.",
+        "RUN-051: После снятия HTTP503 polling сам восстановился до нажатия Повторить: R-000001, состав2tea+2mac и160 сохранены; снова Статус обновляется, повторная кнопка скрыта. Граница покрытия: Automatic HTTP503 recovery to the same order/status only; changed-status recovery and offline reload remain."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: awaiting_payment→preparing",
+        "Не подтверждено полное прохождение варианта: preparing→ready",
+        "Не подтверждено полное прохождение варианта: Обновление / возврат вкладки"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-028",
+    "title": "Рабочее место при потере связи или сессии не позволяет действовать вслепую",
+    "area": "offline",
+    "priority": "P0",
+    "preconditions": [
+      "Временная БД и отдельные профили кассира/бариста; открытый тестовый состав.",
+      "Сетевые ограничения применяются только к тестовому профилю."
+    ],
+    "steps": [
+      "Отключить связь, дождаться признака устаревших данных.",
+      "Проверить доступность следующего действия и обновления.",
+      "Восстановить связь; отдельно повторить после выхода/истечения тестовой сессии."
+    ],
+    "expected": [
+      "При неподтверждённой связи действие не изображается успешным.",
+      "После обновления доступно только допустимое действие текущей версии.",
+      "При утрате сессии состав скрывается и требуется вход; старый интерфейс не даёт полномочий."
+    ],
+    "causes": [
+      "ORDER_REVIEW",
+      "REQUEST_ERROR",
+      "AUTH_REQUIRED"
+    ],
+    "effects": [
+      "RETRY",
+      "ORDER_REVIEW",
+      "STAFF_LOGIN"
+    ],
+    "variants": [
+      "Cashier / barista",
+      "Network error / session expiry",
+      "TR / EN / RU"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-052"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-028",
+      "manualRunIds": [
+        "RUN-052"
+      ],
+      "verifiedSubvariants": [
+        "RUN-052: 480×844, QR оптически прочитан в5размерах192–528. Кассир вошёл по actual QR, R1=160. При GETdetail503 иqueue503 старый состав остаётся, показана ошибка связи, Подтвердить оплату disabled. Исправление первого найденногоstaffbug подтверждено UI. Граница покрытия: Detail+queue503 disabled stale payment for cashier at480px; not two guest tabs COUNTER-025."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Cashier / barista",
+        "Не подтверждено полное прохождение варианта: Network error / session expiry",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-029",
+    "title": "Две гостевые вкладки согласуют корзину и не смешиваются с другими тестерами",
+    "area": "entry",
+    "priority": "P1",
+    "preconditions": [
+      "Обе вкладки намеренно используют один origin и один тестовый профиль; остальные тестеры работают в других профилях."
+    ],
+    "steps": [
+      "Открыть menu.html и smart-choice/#quick.",
+      "В одной вкладке добавить тестовый товар, во второй проверить состав.",
+      "Изменить количество/удалить и переключиться обратно.",
+      "Повторить после обычной навигации назад."
+    ],
+    "expected": [
+      "Общая корзина отражает подтверждённые изменения согласно событиям storage/возврата страницы.",
+      "Количество и итог не расходятся между поверхностями после обновления состояния.",
+      "Другой отдельный профиль не получает эту корзину или staff-сессию."
+    ],
+    "causes": [
+      "CART_ADD",
+      "CART_REMOVE",
+      "CART_TOTAL"
+    ],
+    "effects": [
+      "CART_TOTAL"
+    ],
+    "variants": [
+      "menu→smart-choice / smart-choice→menu",
+      "Новая вкладка / возврат history",
+      "Один origin; отдельный профиль-контроль"
+    ],
+    "status": "partial",
+    "evidence": [
+      "RUN-5003"
+    ],
+    "executionEvidence": {
+      "caseId": "SITE-029",
+      "manualRunIds": [
+        "RUN-5003"
+      ],
+      "verifiedSubvariants": [
+        "RUN-5003: Menu+quick tabs same8794 origin: menu added1pair, quick read it; quick added2pairs and menu read3/240; quick minus to2/160 reflected in open menu cart; menu removed group and quick reflected empty0. History-return and separate-profile control not executed. Граница: Только явно описанные действия и ширины; полный кейс со всеми вариантами не считается пройденным."
+      ],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: menu→smart-choice / smart-choice→menu",
+        "Не подтверждено полное прохождение варианта: Новая вкладка / возврат history",
+        "Не подтверждено полное прохождение варианта: Один origin; отдельный профиль-контроль"
+      ],
+      "fullyCovered": false
+    }
+  },
+  {
+    "id": "SITE-030",
+    "title": "Сбой погоды в Discover не уводит гостя от уже выбранной пары",
+    "area": "performance",
+    "priority": "P2",
+    "preconditions": [
+      "Открыт Discover; внешняя погода управляется только через тестовый профиль/сетевой инструмент."
+    ],
+    "steps": [
+      "Замедлить или временно заблокировать запрос погоды.",
+      "Выбрать следующую пару до прихода ответа.",
+      "Дождаться ответа/ошибки и нажать переход в меню."
+    ],
+    "expected": [
+      "Пара, которую уже выбрал гость, не меняется внезапно из-за позднего ответа.",
+      "При недоступной погоде остаются каталог, выбор и переход в меню.",
+      "Внешний сбой не меняет корзину и сумму."
+    ],
+    "causes": [
+      "ENTRY_ROUTE",
+      "PRODUCT_OPEN",
+      "REQUEST_ERROR"
+    ],
+    "effects": [
+      "MENU_READY",
+      "PRODUCT_OPEN"
+    ],
+    "variants": [
+      "Timeout / ошибка / поздний успех",
+      "TR / EN / RU",
+      "Desktop / mobile"
+    ],
+    "status": "planned",
+    "evidence": [],
+    "executionEvidence": {
+      "caseId": "SITE-030",
+      "manualRunIds": [],
+      "verifiedSubvariants": [],
+      "remainingVariants": [
+        "Полный сценарий с точными исходными предусловиями и всеми шагами пока не подтверждён указанными наблюдениями.",
+        "Не подтверждено полное прохождение варианта: Timeout / ошибка / поздний успех",
+        "Не подтверждено полное прохождение варианта: TR / EN / RU",
+        "Не подтверждено полное прохождение варианта: Desktop / mobile"
+      ],
+      "fullyCovered": false
+    }
+  }
+]

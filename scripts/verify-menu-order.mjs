@@ -199,7 +199,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
       assert.deepEqual(JSON.parse(JSON.stringify(items)), [{ id: drink.id, quantity: 1, variant: "vanilla" }, { id: dessert.id, quantity: 1 }]);
       return { applied: success, stale: mode === "edit-stale", draft: success ? { groups: [] } : latestDraft };
     },
-    announceCart: () => events.push("rejected"), updateProductQuantity: () => {}, localized: value => value.en,
+    announceCart: () => events.push("rejected"), clearCartNotice: () => events.push("cleared old notice"), updateProductQuantity: () => {}, localized: value => value.en,
     rememberSelection: () => {}, saveCart: async updater => {
       const result = updater(latestDraft);
       context.orderDraft = result.draft;
@@ -223,7 +223,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
     }
   };
   await runInNewContext(`${addHandler}\naddSelectedProduct();`, context);
-  assert.deepEqual(events, success ? ["saved", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
+  assert.deepEqual(events, success ? ["saved", "cleared old notice", "rendered", "closed product", "opened confirmation"] : editing ? ["edit error", "reveal edit error"] : mode === "rejected" ? ["rejected"] : []);
   if (editing && !success) {
     assert.equal(context.productEditError.hidden, false);
     assert.equal(context.productEditError.textContent, mode === "edit-stale" ? "Changed elsewhere" : "Maximum");
@@ -241,7 +241,7 @@ for (const mode of ["success", "rejected", "disabled", "edit-success", "edit-sta
 // A delayed optional module must not pull a guest back into checkout after
 // they have continued browsing, or move focus out of an already open QR.
 const checkoutHandler = runtime.match(/checkoutButton\.addEventListener\("click", (async \(\) => \{[\s\S]*?\n\})\);/)?.[1]
-  ?.replace(/await import\("\.\/order-checkout\.js\?v=[a-f0-9]+"\)/, "await loadCheckout()");
+  ?.replace("await loadCheckoutModule()", "await loadCheckout()");
 assert(checkoutHandler?.includes("await loadCheckout()"), "Execute the real checkout callback with a controlled module load");
 for (const mode of ["open", "closed", "reopened", "empty", "missing-variant", "load-error"]) {
   let resolveLoad, rejectLoad, loadCount = 0, opens = 0, focuses = 0;
@@ -282,6 +282,7 @@ const fakeCartDialog = {
 };
 const dialogContext = {
   cartDialog: fakeCartDialog, cartSession: 0, dialogReturnFocus: new WeakMap(),
+  dialogOpenedAt: new WeakMap(), performance: { now: () => 1000 },
   document: { activeElement: {}, querySelector: () => qrOpen ? {} : null, body: { classList: { add() {} } } },
   window: { requestAnimationFrame: callback => { scheduledFocus = callback; } }
 };
@@ -314,7 +315,8 @@ for (const language of ["tr", "en", "ru"]) {
     documentElement: {},
     querySelector: selector => selector === "#menu-combos-takeaway-trigger" ? takeawayTrigger : null,
     querySelectorAll: selector => selector === ".menu-dialog-close[data-menu-dialog-close]" ? [iconClose]
-      : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore] : []
+      : selector === "[data-menu-dialog-close]" ? [iconClose, chooseMore]
+      : selector === ".skip-link[data-localized]" ? [skipLink] : []
   };
   runInNewContext(`${translateHandler}\ntranslateStaticPage();`, {
     storageNotice: undefined,

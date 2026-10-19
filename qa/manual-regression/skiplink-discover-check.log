@@ -1,0 +1,5 @@
+
+> robys-coffee-house@2.0.0 test:discover-rotation
+> node scripts/test-discover-pairing-rotation.mjs
+
+✅ DISCOVER-ROTATION-001 verified that unseen pairings stay first while discovered pairings remain reachable through the another-pairing action.

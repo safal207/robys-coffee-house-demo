@@ -31,7 +31,7 @@ const dimension = change.expectedFailures.find(row => typeof row.reason === 'str
 const ratio = change.expectedFailures.find(row => Number.isFinite(row.maxDiffPixelRatio));
 const css = ['discover-deck.css','menu-premium.css'].find(file => change.contentBindings[file]) ?? Object.keys(change.contentBindings).find(file => file.endsWith('.css') && !file.startsWith('qa/'));
 const runtime = ['menu-app.js','order-storage.js'].find(file => change.contentBindings[file]);
-const rendered = ['menu.html','index.html'].find(file => change.contentBindings[file]) ?? Object.keys(change.contentBindings).find(file => file.endsWith('.html') && !file.startsWith('src/')); 
+const rendered = ['menu.html','index.html'].find(file => change.contentBindings[file]) ?? Object.keys(change.contentBindings).find(file => file.endsWith('.html') && !file.startsWith('src/'));
 assert(css && rendered && change.contentBindings['integrity-manifest.json'], 'New packet must bind actual rendered files, CSS and public manifest');
 
 function runCase(id, expectedExit, mutate = () => {}) {

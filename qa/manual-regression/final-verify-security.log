@@ -1,0 +1,33 @@
+
+> robys-coffee-house@2.0.0 verify:security
+> node --test scripts/test-menu-catalog-revision.mjs && node scripts/verify-security-contracts.mjs && node scripts/scan-secrets.mjs
+
+✔ shipped source, compiled runtime and service worker share the current catalog digest (30.4096ms)
+✔ all Smart Choice consumers share the canonical revisioned catalog and offline entry (1167.2439ms)
+✔ shared Smart Choice catalog rejects stale, missing and merely mentioned imports (3745.0602ms)
+✔ shared catalog consumers reject changed data and stale offline cache references (1329.0333ms)
+✔ shared derived catalog and remaining direct consumers reject stale ordering catalog edges (826.9189ms)
+✔ lazy pairing source, emitted bytes, loader, precache and cache namespace share their content revisions (708.0396ms)
+✔ reject stale lazy pairing loaders, precache, source/output bytes and cache namespaces (96.2383ms)
+✔ reject a rollback to a previously cached catalog URL in each delivery layer (7.0825ms)
+✔ reject stale Discover page or precache script revisions after its catalog import changes (6.7652ms)
+✔ reject a stale lazy reveal loader or service-worker reveal revision (6.6356ms)
+✔ reject catalog byte changes without a corresponding import and precache revision (2.203ms)
+✔ reject query-insensitive caching of the catalog (3.1797ms)
+✔ returning service-worker cache does not reuse old catalog or lazy pairing bytes at new content URLs (28.1348ms)
+✔ actual-worker negative control rejects removal of the pairing exact-query cache rule (10.1252ms)
+✔ home offer runtime, page, precache and cache namespace share their content revision (7.1958ms)
+✔ reject stale home offer loaders, precache and cache namespaces after offer byte changes (8.4561ms)
+✔ returning worker fetches the current home offer instead of reusing its old query (14.2605ms)
+✔ actual worker installation precaches the new offer and activation retires the previous home cache (16.5792ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9877.4638
+✅ CSP-001 AST contract passed: Trusted Types offline registration, no install pointer dependency and unregister prohibition verified.
+✅ Security contracts passed: 353 checks.
+✅ SECRET-001 passed: no secrets found in the current tree.
