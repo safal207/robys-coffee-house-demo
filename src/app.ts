@@ -85,28 +85,54 @@ function setLanguage(next: Lang) {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  const toggle = q<HTMLButtonElement>(".menu-toggle");
+  toggle?.setAttribute("aria-label", dictionaries[language][toggle.getAttribute("aria-expanded") === "true" ? "closeMenu" : "openMenu"]);
 }
 
 function setupNavigation() {
   const toggle = q<HTMLButtonElement>(".menu-toggle");
   const navigation = q<HTMLElement>("#main-navigation");
 
-  const close = () => {
+  const close = (restoreFocus = false) => {
     document.body.classList.remove("menu-open");
     toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", dictionaries[language].openMenu);
+    if (restoreFocus) toggle?.focus();
   };
 
   toggle?.addEventListener("click", () => {
     const open = document.body.classList.toggle("menu-open");
     toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", dictionaries[language][open ? "closeMenu" : "openMenu"]);
+    if (open) navigation?.querySelector<HTMLAnchorElement>("a")?.focus();
   });
 
   navigation?.addEventListener("click", (event) => {
     if ((event.target as Element).closest("a")) close();
   });
 
+  document.addEventListener("keydown", (event) => {
+    if (!document.body.classList.contains("menu-open")) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close(true);
+    } else if (event.key === "Tab") {
+      const controls = qa<HTMLElement>("#main-navigation a, .header-actions button")
+        .filter((control) => control.getClientRects().length > 0);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+  });
+
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 860) close();
+    if (window.innerWidth > 980) close();
   }, { passive: true });
 }
 

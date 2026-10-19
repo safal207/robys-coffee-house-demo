@@ -1,0 +1,428 @@
+{
+  "startedAt": "2026-10-19T10:12:42.486Z",
+  "completedAt": "2026-10-19T10:17:33.594Z",
+  "head": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+  "mode": "Unchanged emitted files over local HTTPS; desktop engines and CSS-pixel viewports; not physical phones or native browser zoom",
+  "environment": {
+    "bypassCSP": false,
+    "externalRequests": "blocked",
+    "serviceWorkers": "blocked",
+    "reducedMotion": "reduce"
+  },
+  "matrix": {
+    "engines": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "languages": [
+      "tr",
+      "en",
+      "ru"
+    ],
+    "widths": [
+      320,
+      1121,
+      1440
+    ],
+    "textWidths": [
+      981
+    ],
+    "textScale": "200% root font size (32px); CSS text enlargement, not browser zoom"
+  },
+  "sourceHashesStart": {
+    "index.html": "74c50619eff859adcc56df4fe597109375cc4f0f39bff4895c762462264e5e92",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "8d46b1858325b6bdcb623dcab8ae86bc6c2bf77b7b2c1067cf912d411c518542",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "f5daa86017eb583db284610c1efd855a3f8439e6cf0ef3d6df99786199866c1f",
+    "src/app.ts": "8ee0d2c6d0afbdf438b332d17956727ef21e6296224495d6ce7ccc1c53443ae7",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "sourceHashesEnd": {
+    "index.html": "74c50619eff859adcc56df4fe597109375cc4f0f39bff4895c762462264e5e92",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "8d46b1858325b6bdcb623dcab8ae86bc6c2bf77b7b2c1067cf912d411c518542",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "f5daa86017eb583db284610c1efd855a3f8439e6cf0ef3d6df99786199866c1f",
+    "src/app.ts": "8ee0d2c6d0afbdf438b332d17956727ef21e6296224495d6ce7ccc1c53443ae7",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "sourceChangedDuringRun": [],
+  "browserVersions": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0",
+    "webkit": "26.0"
+  },
+  "summary": {
+    "passed": 36,
+    "failed": 0
+  },
+  "cases": [
+    {
+      "id": "chromium-320-tr",
+      "status": "PASS",
+      "width": 320,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-320-en",
+      "status": "PASS",
+      "width": 320,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-320-ru",
+      "status": "PASS",
+      "width": 320,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "chromium-320-ru-menu.png",
+        "chromium-320-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "chromium-1121-tr",
+      "status": "PASS",
+      "width": 1121,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-1121-en",
+      "status": "PASS",
+      "width": 1121,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-1121-ru",
+      "status": "PASS",
+      "width": 1121,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "chromium-1121-ru-menu.png",
+        "chromium-1121-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "chromium-1440-tr",
+      "status": "PASS",
+      "width": 1440,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-1440-en",
+      "status": "PASS",
+      "width": 1440,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-1440-ru",
+      "status": "PASS",
+      "width": 1440,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "chromium-1440-ru-menu.png",
+        "chromium-1440-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "chromium-981-tr-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "tr",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-981-en-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "en",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "chromium-981-ru-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "ru",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-320-tr",
+      "status": "PASS",
+      "width": 320,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-320-en",
+      "status": "PASS",
+      "width": 320,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-320-ru",
+      "status": "PASS",
+      "width": 320,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "firefox-320-ru-menu.png",
+        "firefox-320-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "firefox-1121-tr",
+      "status": "PASS",
+      "width": 1121,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-1121-en",
+      "status": "PASS",
+      "width": 1121,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-1121-ru",
+      "status": "PASS",
+      "width": 1121,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "firefox-1121-ru-menu.png",
+        "firefox-1121-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "firefox-1440-tr",
+      "status": "PASS",
+      "width": 1440,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-1440-en",
+      "status": "PASS",
+      "width": 1440,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-1440-ru",
+      "status": "PASS",
+      "width": 1440,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "firefox-1440-ru-menu.png",
+        "firefox-1440-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "firefox-981-tr-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "tr",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-981-en-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "en",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "firefox-981-ru-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "ru",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-320-tr",
+      "status": "PASS",
+      "width": 320,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-320-en",
+      "status": "PASS",
+      "width": 320,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-320-ru",
+      "status": "PASS",
+      "width": 320,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "webkit-320-ru-menu.png",
+        "webkit-320-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "webkit-1121-tr",
+      "status": "PASS",
+      "width": 1121,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-1121-en",
+      "status": "PASS",
+      "width": 1121,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-1121-ru",
+      "status": "PASS",
+      "width": 1121,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "webkit-1121-ru-menu.png",
+        "webkit-1121-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "webkit-1440-tr",
+      "status": "PASS",
+      "width": 1440,
+      "language": "tr",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-1440-en",
+      "status": "PASS",
+      "width": 1440,
+      "language": "en",
+      "textScale": 1,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-1440-ru",
+      "status": "PASS",
+      "width": 1440,
+      "language": "ru",
+      "textScale": 1,
+      "screenshots": [
+        "webkit-1440-ru-menu.png",
+        "webkit-1440-ru-header.png"
+      ],
+      "errors": []
+    },
+    {
+      "id": "webkit-981-tr-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "tr",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-981-en-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "en",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    },
+    {
+      "id": "webkit-981-ru-text200",
+      "status": "PASS",
+      "width": 981,
+      "language": "ru",
+      "textScale": 2,
+      "screenshots": [],
+      "errors": []
+    }
+  ]
+}

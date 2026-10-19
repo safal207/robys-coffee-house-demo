@@ -308,6 +308,8 @@ for (const file of ["discover-v2.js", "discover-rotation.js"]) {
 const appRevision = revisionFor("app.js");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
+const mobileStylesRevision = revisionFor("mobile.css");
+const menuPreviewRevision = revisionFor("menu-preview.css");
 const seasonalThemeRevision = revisionFor("seasonal-theme.js");
 const seasonalCssRevision = revisionFor("seasonal.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
@@ -384,6 +386,8 @@ for (const { name, target, revision } of landingCacheStyles) {
 html = synchronizeBlockingScript(html, "bootstrap-v2.js", bootstrapRevision);
 html = synchronizeModuleScript(html, "qa.js", qaRevision);
 html = synchronizeStylesheet(html, "styles-v2.css", baseStylesRevision);
+html = synchronizeStylesheet(html, "mobile.css", mobileStylesRevision);
+html = synchronizeStylesheet(html, "menu-preview.css", menuPreviewRevision);
 html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
@@ -434,6 +438,7 @@ writeFileSync("experience/index.html", experienceHtml);
 
 let russianLandingHtml = readFileSync("ru/coffee-gazipasa.html", "utf8");
 russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../styles-v2.css", baseStylesRevision);
+russianLandingHtml = synchronizeStylesheet(russianLandingHtml, "../mobile.css", mobileStylesRevision);
 writeFileSync("ru/coffee-gazipasa.html", russianLandingHtml);
 
 let smartChoiceHtml = readFileSync("smart-choice/index.html", "utf8");
@@ -513,6 +518,10 @@ serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeeP
 const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-halloween-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-halloween-${seasonalCacheRevision}-shared-order-`);
+const homeNavigationRevision = createHash("sha256")
+  .update(`${appRevision}:${mobileStylesRevision}:${menuPreviewRevision}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-home-navigation-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-home-navigation-${homeNavigationRevision}-shared-order-`);
 // Include both pairing assets in the cache namespace, not only the precache URLs.
 // Otherwise a CSS-only repair can leave returning visitors in the old namespace.
 const pairingCachePattern = /(const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-)[a-f0-9]{12}-(?:pairing-css-[a-f0-9]{12}-)?/;
@@ -567,6 +576,9 @@ for (const [filePath, revision] of [
   ["morning-entry-v2.js", morningEntryRevision],
   ["takeaway-entry.js", takeawayEntryRevision],
   ["styles-v2.css", baseStylesRevision],
+  ["mobile.css", mobileStylesRevision],
+  ["menu-preview.css", menuPreviewRevision],
+  ["app.js", appRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],

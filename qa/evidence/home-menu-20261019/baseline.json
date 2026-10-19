@@ -1,0 +1,219 @@
+{
+  "startedAt": "2026-10-19T10:05:27.064Z",
+  "head": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+  "dirtyFilesAtStart": [
+    "M mobile.css",
+    " M scripts/build.mjs",
+    " M src/app.ts",
+    " M sw-core-v64.js",
+    "?? scripts/test-home-menu-responsive-browser.mjs"
+  ],
+  "mode": "Unchanged emitted files over local HTTPS; desktop engines and CSS-pixel viewports; not physical phones or native browser zoom",
+  "baseline": true,
+  "environment": {
+    "bypassCSP": false,
+    "externalRequests": "blocked",
+    "serviceWorkers": "blocked",
+    "reducedMotion": "reduce"
+  },
+  "matrix": {
+    "engines": [
+      "chromium"
+    ],
+    "languages": [
+      "ru"
+    ],
+    "widths": [
+      981,
+      1121
+    ],
+    "textWidths": [],
+    "textScale": "200% root font size (32px); CSS text enlargement, not browser zoom"
+  },
+  "screenshotPolicy": "Every failed case plus successful RU cases at 320, 1121 and 1440 CSS pixels, including 200% text",
+  "sourceHashesStart": {
+    "index.html": "94f585e10fd750b69fcff6c63153fa83f92e9d221743b3675a195aeb6040742c",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "4580511dca252da61f4f644aa7006d57144e8150f03b0ac3d8192b4e0ebb16a4",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
+    "src/app.ts": "da8cf9bd944a08bcc28f88247cdd21a5e3ab01f304dadc42ecd7dec773511b81",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "browserVersions": {
+    "chromium": "140.0.7339.186"
+  },
+  "cases": [
+    {
+      "id": "chromium-981-ru",
+      "engine": "chromium",
+      "width": 981,
+      "height": 900,
+      "language": "ru",
+      "textScale": 1,
+      "status": "PASS",
+      "screenshots": [],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "id": "chromium-1121-ru",
+      "engine": "chromium",
+      "width": 1121,
+      "height": 900,
+      "language": "ru",
+      "textScale": 1,
+      "status": "FAIL",
+      "screenshots": [
+        "chromium-1121-ru-menu.png",
+        "chromium-1121-ru-header.png"
+      ],
+      "errors": [],
+      "violations": [
+        {
+          "scope": "card-2",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Холодный кофе",
+          "rect": {
+            "left": 939.703,
+            "right": 1060.859,
+            "top": 220.063,
+            "bottom": 246.063,
+            "width": 121.156,
+            "height": 26
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 194.063,
+            "bottom": 362.219
+          }
+        },
+        {
+          "scope": "card-2",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Iced Latte · Mocha · Frappe · Milkshake",
+          "rect": {
+            "left": 939.703,
+            "right": 1054.5,
+            "top": 281.063,
+            "bottom": 296.063,
+            "width": 114.797,
+            "height": 15
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 194.063,
+            "bottom": 362.219
+          }
+        },
+        {
+          "scope": "card-4",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Лимонады и фрозены",
+          "rect": {
+            "left": 939.703,
+            "right": 1065.016,
+            "top": 413.578,
+            "bottom": 439.578,
+            "width": 125.313,
+            "height": 26
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 378.219,
+            "bottom": 591.094
+          }
+        },
+        {
+          "scope": "card-4",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Cool Lime · Mango Passionfruit · Yuzu Popcorn",
+          "rect": {
+            "left": 939.703,
+            "right": 1055.063,
+            "top": 500.578,
+            "bottom": 515.578,
+            "width": 115.359,
+            "height": 15
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 378.219,
+            "bottom": 591.094
+          }
+        },
+        {
+          "scope": "card-6",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Круассаны и сэндвичи",
+          "rect": {
+            "left": 939.703,
+            "right": 1069.328,
+            "top": 633.094,
+            "bottom": 659.094,
+            "width": 129.625,
+            "height": 26
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 607.094,
+            "bottom": 801.25
+          }
+        },
+        {
+          "scope": "card-6",
+          "reason": "text exceeds content/arrow gutter",
+          "text": "Три сыра · Nutella · Сэндвичи на багете",
+          "rect": {
+            "left": 939.703,
+            "right": 1063.734,
+            "top": 720.094,
+            "bottom": 735.094,
+            "width": 124.031,
+            "height": 15
+          },
+          "boundary": {
+            "left": 839.703,
+            "right": 1052,
+            "top": 607.094,
+            "bottom": 801.25
+          }
+        }
+      ]
+    }
+  ],
+  "sourceHashesEnd": {
+    "index.html": "94f585e10fd750b69fcff6c63153fa83f92e9d221743b3675a195aeb6040742c",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "4580511dca252da61f4f644aa7006d57144e8150f03b0ac3d8192b4e0ebb16a4",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "menu-preview.css": "3797778542c7dc8e3fc4f0f1f7cbdb9a175f2323edb71b583efcbbad672dc545",
+    "final-qa-v2.css": "daa1b27c54f2a83071fdaa338c7196cc63db326563fe3b94e20c6860d4fe83d3",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "coffee-paths.css": "e5dc41400cfe9a90853c37bffc7b786684b35ba9c167f0e0348851f1fb2ea879",
+    "seasonal.css": "f2437d09532ec994e7742ff1bd56315643e65b0d33114364f21e6aa264434da1",
+    "app.js": "bab4800c40cea55668171804ac0381ea6c4c204ae7a500ecc6c8d3b4b365934b",
+    "src/app.ts": "da8cf9bd944a08bcc28f88247cdd21a5e3ab01f304dadc42ecd7dec773511b81",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "bootstrap-v2.js": "d49f5541ba9c97059bd75be3f8d52bf25b711a7a16a3553296475ca7c55c54f5",
+    "scripts/test-home-menu-responsive-browser.mjs": "3d278d5e5c5558037136f42035963d1af68c699953a5dca52cdf5946faeb9f86"
+  },
+  "sourceChangedDuringRun": [],
+  "completedAt": "2026-10-19T10:05:48.387Z",
+  "summary": {
+    "passed": 1,
+    "failed": 1
+  }
+}

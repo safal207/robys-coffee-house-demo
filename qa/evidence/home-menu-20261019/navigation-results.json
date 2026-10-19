@@ -1,0 +1,460 @@
+{
+  "startedAt": "2026-10-19T10:15:00.686Z",
+  "finishedAt": "2026-10-19T10:20:06.076Z",
+  "head": "f9e23daf1dc5fac69e093a4ed33eaab03b9ada8c",
+  "boundary": "Emitted page/runtime over local HTTPS, original CSP; desktop browser engines with mobile-sized viewports, not physical handsets",
+  "selection": {
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "filter": "",
+    "caseIds": [
+      "chromium-tr-390",
+      "chromium-en-390",
+      "chromium-ru-390",
+      "chromium-tr-900",
+      "chromium-en-900",
+      "chromium-ru-900",
+      "firefox-tr-390",
+      "firefox-en-390",
+      "firefox-ru-390",
+      "firefox-tr-900",
+      "firefox-en-900",
+      "firefox-ru-900",
+      "webkit-tr-390",
+      "webkit-en-390",
+      "webkit-ru-390",
+      "webkit-tr-900",
+      "webkit-en-900",
+      "webkit-ru-900"
+    ]
+  },
+  "assetHashesStart": {
+    "index.html": "74c50619eff859adcc56df4fe597109375cc4f0f39bff4895c762462264e5e92",
+    "app.js": "f5daa86017eb583db284610c1efd855a3f8439e6cf0ef3d6df99786199866c1f",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8ee0d2c6d0afbdf438b332d17956727ef21e6296224495d6ce7ccc1c53443ae7",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "scripts/test-home-navigation-browser.mjs": "b0ad082b37768e9c5be03777bab4a2a394a3042927197facc86fbff61262a1c0"
+  },
+  "assetHashesEnd": {
+    "index.html": "74c50619eff859adcc56df4fe597109375cc4f0f39bff4895c762462264e5e92",
+    "app.js": "f5daa86017eb583db284610c1efd855a3f8439e6cf0ef3d6df99786199866c1f",
+    "styles-v2.css": "f003bf1a9febe6359eaaa8a7f94ae1d74b91d47eb2943f7de1864aa5719faf68",
+    "mobile.css": "90d997c2ab7d38afbd7ffbe051cf9ab624f803709dcb23cb1d021f9d8582641e",
+    "brand-photo-logo.css": "5065229245a79ee098e0c6f7a4ec1f792aa2f431f462e5d57fa4dd94994feb9a",
+    "conversion.css": "16f2cefbf02d94fd1462a3012662146e21336957f667d976f64874cc2b3c1faf",
+    "src/app.ts": "8ee0d2c6d0afbdf438b332d17956727ef21e6296224495d6ce7ccc1c53443ae7",
+    "src/i18n.ts": "48e024ae1b6bdc6d9e4bd567d1c6d76b893382c93a79e45e730975d8ca27a9cc",
+    "scripts/test-home-navigation-browser.mjs": "b0ad082b37768e9c5be03777bab4a2a394a3042927197facc86fbff61262a1c0"
+  },
+  "assetsUnchanged": true,
+  "browsers": {
+    "chromium": "140.0.7339.186",
+    "firefox": "141.0",
+    "webkit": "26.0"
+  },
+  "cases": [
+    {
+      "id": "chromium-tr-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96.390625,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.78125,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "chromium-en-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 95.890625,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96.109375,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "chromium-ru-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96.046875,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96.03125,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    },
+    {
+      "id": "chromium-tr-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 95.671875,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96.328125,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "chromium-en-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96.25,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.5,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "chromium-ru-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96.296875,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.546875,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    },
+    {
+      "id": "firefox-tr-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "firefox-en-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "firefox-ru-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    },
+    {
+      "id": "firefox-tr-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "firefox-en-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "firefox-ru-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    },
+    {
+      "id": "webkit-tr-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "webkit-en-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "webkit-ru-390",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 96,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    },
+    {
+      "id": "webkit-tr-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "tr"
+        }
+      ]
+    },
+    {
+      "id": "webkit-en-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "en"
+        }
+      ]
+    },
+    {
+      "id": "webkit-ru-900",
+      "status": "PASS",
+      "escapeClosesAndRestoresFocus": true,
+      "resizeKeepsMobileAndClosesAtDesktop": true,
+      "destinations": [
+        {
+          "hash": "#about",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "hash": "#visit",
+          "top": 95.65625,
+          "viewport": 900
+        },
+        {
+          "path": "/menu.html",
+          "preservedLanguage": "ru"
+        }
+      ]
+    }
+  ]
+}
