@@ -190,3 +190,92 @@ checks. Engine tests and viewport/text emulation do not establish physical iOS,
 Safari, Xiaomi, Huawei, OPPO, vivo or their built-in-browser compatibility. No
 real order/payment was submitted. This is representative regression coverage,
 not proof that every possible device and product state is defect-free.
+
+## Integrated local checks after main sync
+
+The resolved integration commit is `4bed909a7860a00654085f4bf7c345b864b1b80b` (tree
+`f4dda9f1e1916de72cfd03dfa228086e3410c5a1`), combining PR head
+`58e4cd77139ca4ba1a8f9c17fdb913ef14c19a72` with main
+`585135e07d08bb2680d4893b5bfc5ee89ca286f6`. Local tests began before that merge
+commit existed, so their original HEAD markers identify the older checkout.
+`integration-source-equivalence.json` independently compares every captured
+SHA-256 with actual committed H5 bytes and the working tree: 62 unique files
+(10 navigation, 17 kids-source, 4 emitted kids-runtime and
+33 counter/config bindings; groups overlap). This is byte equivalence, not
+a claim that these local runs were committed-head CI.
+
+| Local suite | Observed result | Preserved limitation |
+| --- | --- | --- |
+| Native home / enlarged / RU standalone navigation | 42 unique cases have successful executions in Chromium 140.0.7339.186, Firefox 141.0 and WebKit 26.0 | The full command was 41/42, exit 1: the last WebKit RU standalone 900px case timed out only on its final catalog screenshot at 15 seconds, after all behavioral assertions. Its exact unchanged-case retry passed 1/1. This is not one clean 42-case command. |
+| Two ready-made kids sets × TR/EN/RU × three engines | 18 unique cases have observed passes; initially 17/18, then the single-case retry passed | WebKit big/RU initially exceeded the unchanged 7000ms page-load timeout before scenario assertions. Earlier incorrect group-identity test-oracle failures are retained separately. |
+| Counter service Node suite | 74/74 tests, exit 0 | This count includes nested Node subtests, not browser journeys or a production counter transaction. |
+
+Navigation checks used emitted documents over local HTTPS without replacing the
+production handlers or bypassing CSP. They cover native fragment focus/scroll,
+Escape and natural Tab, localized labels, 900→901→980→981 transitions, catalog
+language persistence, and 200% root-font text at 320×568 and 568×320. The measured
+10-file navigation envelope stayed equal across both runs; emitted `app.js`
+explicitly retained SHA-256
+`696430fd392491371367f0d45082f88f6cc7b145d8dc20f9f30bf937459b35e9`
+and matches H5. The upstream height-relative skip-link variant was retained and
+passed the enlarged geometry/focus assertions. Screenshot-timeout cause remains
+unconfirmed; no timeout was increased to obtain the retry pass.
+
+The kids checks exercised both existing native cards through the ordinary add
+flow: visible busy state, one add despite a second pending activation, canonical
+items/prices, quantity changes, component replacement, removal, unrelated order
+preservation and restored focus. Their four source-fixture modules were
+independently byte-equal to emitted `menu-app.js`, `menu-family-ui.js`,
+`menu-order-ui.js` and `order-storage.js`; the captured runtime hashes match H5.
+The counter suite kept all 33 guarded files unchanged before/after its run and
+those hashes also match H5.
+
+Compact packets retain useful facts, original report hashes, source identity,
+failures and retries without screenshot bulk:
+
+- `qa/evidence/home-menu-20261019/integration-navigation-results.json`
+- `qa/evidence/home-menu-20261019/integration-kids-results.json`
+- `qa/evidence/home-menu-20261019/integration-counter-results.json`
+- `qa/evidence/home-menu-20261019/integration-source-equivalence.json`
+
+These are bounded local integration checks. Current-head CI, security, visual,
+integrity/performance checks and published-site verification still determine
+release readiness. Physical Safari/iOS and Xiaomi/Huawei/OPPO/vivo browser gaps
+remain; root-font enlargement is not native browser zoom.
+
+## H5 CI and visual disposition
+
+At `4bed909a7860a00654085f4bf7c345b864b1b80b`, all six Home/Order CI jobs
+passed. Home covers 180 responsive and 42 navigation cases. Each Order engine
+passed Family 31, combos 48, transactions 116, storage 25, checkout staleness 6,
+built QR/cashier 23, lazy entry 10, pairing 6 and promo 9. Counter passed 74/74.
+Both Lighthouse profiles, CodeQL, SAST, passive DAST, security foundation and the
+five iOS-profile WebKit route links passed. The derived merge used by some jobs
+has exactly the H5 source tree. `h5-journey-ci.json` preserves the actual jobs,
+attempts, identities and limits; `h5-review-security.json` records fresh Codex
+no-findings, the resolved RU thread, and unanswered Jules without inventing an
+approval. H2/H3 Lighthouse wording is corrected in the H5 packet: summary values
+are medians across six homepage/menu LHRs, not homepage-only measurements.
+
+H5 Visual run `39247387929` failed six of 43 comparisons, identically in both
+attempts and final. Its original failure remains evidence. Root inspected all
+six pairs, including every region of both full landings; a second assistant
+independently inspected both full pages. All six category labels, descriptions,
+arrows and links remain; smaller icons and gaps give copy more room. The desktop
+menu and full landing are exactly 53px shorter. Tablet height stays unchanged;
+its changes are within category icon/text rows. The social and Visit pairs
+retain their wording and controls with minor raster/alignment changes. No new
+clipping, collision or lost content was observed in these pairs.
+
+The supplemental `ru-home-menu-20261019.json` records assistant inspection,
+not human approval. It binds all 457 public files and 338 additional tracked
+source/build/counter/workflow inputs, and accepts only the six observed failure
+rows with exact dimensions/pixel totals and no increased observed ratio. The
+shipped verifier accepted the real summary. All 14 isolated controls passed,
+including rejection of changed bytes, missing/extra/duplicate failures, duplicate
+records, empty bindings, changed crop/dimensions and a one-pixel ratio excess;
+repository input bytes remained unchanged. Thresholds and capture scenarios
+were not changed. See `h5-visual-*` packets for provenance, summary, independent
+observations and controls. The evidence-only successor must pass fresh CI;
+the original H5 red visual job is not relabelled as a green run. Publication and
+live UI/integrity verification are subsequent release steps.

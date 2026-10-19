@@ -1,0 +1,17 @@
+{
+  "repository": "safal207/robys-coffee-house-demo",
+  "pullRequest": 446,
+  "headSHA": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "baselineHead": "585135e07d08bb2680d4893b5bfc5ee89ca286f6",
+  "runId": 39247387929,
+  "runAttempt": 1,
+  "workflowURL": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39247387929",
+  "artifactId": 12183882541,
+  "artifactName": "visual-ui-ux-39247387929",
+  "artifactBytes": 212726122,
+  "archiveSHA256": "733bc1740e1f3defebc66a5574fb0bd28851a22b39d59bd0dee69616660eeb22",
+  "archiveDigestVerified": true,
+  "archiveZIPCRCVerified": true,
+  "reviewState": "UNREVIEWED_NEW_BASELINE_EVIDENCE",
+  "downloadMechanism": "Actual GitHub connector provider reference; signed URL omitted"
+}

@@ -1,0 +1,195 @@
+{
+  "reviewState": "UNREVIEWED_FRESH_CAPTURE_VALIDATION",
+  "comparisonCount": 43,
+  "availableAttempts": [
+    "screenshot-attempt-1",
+    "screenshot-attempt-2",
+    "final"
+  ],
+  "bothAttemptsPresent": true,
+  "actualFailuresByAttempt": {
+    "screenshot-attempt-1": [
+      {
+        "id": "landing-full",
+        "viewport": "desktop-1440",
+        "file": "landing-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7217 vs 1440x7164",
+        "diffPixels": 10392480,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "landing-full",
+        "viewport": "tablet-768",
+        "file": "landing-full__tablet-768.png",
+        "passed": false,
+        "diffPixels": 30045,
+        "totalPixels": 5844480,
+        "diffPixelRatio": 0.005140748193166886,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "desktop-1440",
+        "file": "menu-preview__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x716 vs 1440x663",
+        "diffPixels": 1031040,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "laptop-1366",
+        "file": "menu-preview__laptop-1366.png",
+        "passed": false,
+        "reason": "dimension mismatch 1366x716 vs 1366x663",
+        "diffPixels": 978056,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "social-offer",
+        "viewport": "desktop-1440",
+        "file": "social-offer__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 1585,
+        "totalPixels": 308160,
+        "diffPixelRatio": 0.005143431983385255,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "laptop-1366",
+        "file": "visit-map__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 12602,
+        "totalPixels": 1237596,
+        "diffPixelRatio": 0.010182644417079565,
+        "maxDiffPixelRatio": 0.003
+      }
+    ],
+    "screenshot-attempt-2": [
+      {
+        "id": "landing-full",
+        "viewport": "desktop-1440",
+        "file": "landing-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7217 vs 1440x7164",
+        "diffPixels": 10392480,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "landing-full",
+        "viewport": "tablet-768",
+        "file": "landing-full__tablet-768.png",
+        "passed": false,
+        "diffPixels": 30045,
+        "totalPixels": 5844480,
+        "diffPixelRatio": 0.005140748193166886,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "desktop-1440",
+        "file": "menu-preview__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x716 vs 1440x663",
+        "diffPixels": 1031040,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "laptop-1366",
+        "file": "menu-preview__laptop-1366.png",
+        "passed": false,
+        "reason": "dimension mismatch 1366x716 vs 1366x663",
+        "diffPixels": 978056,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "social-offer",
+        "viewport": "desktop-1440",
+        "file": "social-offer__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 1585,
+        "totalPixels": 308160,
+        "diffPixelRatio": 0.005143431983385255,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "laptop-1366",
+        "file": "visit-map__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 12602,
+        "totalPixels": 1237596,
+        "diffPixelRatio": 0.010182644417079565,
+        "maxDiffPixelRatio": 0.003
+      }
+    ],
+    "final": [
+      {
+        "id": "landing-full",
+        "viewport": "desktop-1440",
+        "file": "landing-full__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x7217 vs 1440x7164",
+        "diffPixels": 10392480,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "landing-full",
+        "viewport": "tablet-768",
+        "file": "landing-full__tablet-768.png",
+        "passed": false,
+        "diffPixels": 30045,
+        "totalPixels": 5844480,
+        "diffPixelRatio": 0.005140748193166886,
+        "maxDiffPixelRatio": 0.004
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "desktop-1440",
+        "file": "menu-preview__desktop-1440.png",
+        "passed": false,
+        "reason": "dimension mismatch 1440x716 vs 1440x663",
+        "diffPixels": 1031040,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "menu-preview",
+        "viewport": "laptop-1366",
+        "file": "menu-preview__laptop-1366.png",
+        "passed": false,
+        "reason": "dimension mismatch 1366x716 vs 1366x663",
+        "diffPixels": 978056,
+        "diffPixelRatio": 1
+      },
+      {
+        "id": "social-offer",
+        "viewport": "desktop-1440",
+        "file": "social-offer__desktop-1440.png",
+        "passed": false,
+        "diffPixels": 1585,
+        "totalPixels": 308160,
+        "diffPixelRatio": 0.005143431983385255,
+        "maxDiffPixelRatio": 0.003
+      },
+      {
+        "id": "visit-map",
+        "viewport": "laptop-1366",
+        "file": "visit-map__laptop-1366.png",
+        "passed": false,
+        "diffPixels": 12602,
+        "totalPixels": 1237596,
+        "diffPixelRatio": 0.010182644417079565,
+        "maxDiffPixelRatio": 0.003
+      }
+    ]
+  },
+  "sameObservedFailureRowsAndMetricsAcrossFreshAttempts": true,
+  "requiredAttemptsComplete": true,
+  "failureCount": 6,
+  "eligibleForUnreviewedDraft": true,
+  "historicalFailureEqualityRequired": false,
+  "approval": false
+}

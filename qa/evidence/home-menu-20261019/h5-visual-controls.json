@@ -1,0 +1,157 @@
+{
+  "kind": "actual-shipped-verifier-isolated-fixtures",
+  "fixtureScope": "Positive uses the inspected actual CI summary and new record; negative cases are separately synthetic and never modify the repository.",
+  "observedRepositoryHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "capturedSourceHead": "4bed909a7860a00654085f4bf7c345b864b1b80b",
+  "actualSummarySha256": "9a161fb9437c50de9ec2e9366ae61c097497b278d7d347011f04f3bb604b127d",
+  "recordSha256": "049af670e57ec0237065ce8616cc31aad9c76aed486f67f7edc1c2b1969da376",
+  "verifierSha256": "eb46dec1a1ef3e1e9be54f975d0e51b3510b2b7a052d7259db7b75509d333f7d",
+  "passed": true,
+  "repositoryBoundBytesUnchanged": true,
+  "finishedAt": "2026-10-19T12:23:01.508Z",
+  "originalReportSha256": "256c435a443bb407910e21a6a13fed92011e9ea4b89a79a3ab5ff4db04b293c3",
+  "boundSourceIdentityBeforeSha256": "bd5cb7dcb29917dc01668c61345fbd08fc9fcad01f2ea46263b7e843ad568b32",
+  "boundSourceIdentityAfterSha256": "bd5cb7dcb29917dc01668c61345fbd08fc9fcad01f2ea46263b7e843ad568b32",
+  "cases": [
+    {
+      "id": "positive",
+      "kind": "actual-CI-summary-positive",
+      "expected": "accept",
+      "exitCode": 0,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "\u2705 VISUAL-001 reviewed change accepted: ru-home-menu-20261019-h5\n   Evidence: https://github.com/safal207/robys-coffee-house-demo/pull/446\n   Exact content bindings verified: .gitattributes, .github/workflows/adversarial-browser.yml, .github/workflows/asset-compatibility.yml, .github/workflows/brand-candidate.yml, .github/workflows/browser-image-canary.yml, .github/workflows/build-product-images.yml, .github/workflows/codeql.yml, .github/workflows/contextual-entry-certification.yml, .github/workflows/counter-service.yml, .github/workflows/deepseek-review-contract.yml, .github/workflows/deepseek"
+    },
+    {
+      "id": "changed-bound-css",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-bound-css/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-20260915-v1: h"
+    },
+    {
+      "id": "changed-bound-menu-bundle",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-bound-menu-bundle/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-202609"
+    },
+    {
+      "id": "changed-bound-rendered-page",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-bound-rendered-page/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-2026"
+    },
+    {
+      "id": "changed-bound-runtime",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-bound-runtime/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-20260915-v"
+    },
+    {
+      "id": "changed-public-manifest",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-public-manifest/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-20260915"
+    },
+    {
+      "id": "missing-expected-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "5df19b5d72966902893bcc2e4b5ea02cb07df5a8239719ea4f908a88b2ddff68",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/missing-expected-failure/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-20261019-h5"
+    },
+    {
+      "id": "extra-actual-failure",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "3cab58c7df434ce26a2488c9900dbb45eecdc2ff9d9f68b68cf9c3c6e4055fbf",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/extra-actual-failure/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 7 failure(s), found 0. Actual failures: landing-full/phone-320(diff=0.5), landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound appro"
+    },
+    {
+      "id": "duplicate-expected-entry",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "960a6b23ff40cc6953b3796bd1a35bcfabb3e0f819a8b6c3d5d5910488a49667",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/duplicate-expected-entry/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-20261019-h5"
+    },
+    {
+      "id": "duplicate-matching-record",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "98c777f1806dcc7c1addd1e9ec344f51b0d013c66b60702dffc16a231d1c91a6",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/duplicate-matching-record/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 2. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-20261019-h"
+    },
+    {
+      "id": "empty-content-bindings",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "0d378bb778e49f493edcc9688da331d055a251ee0ca49414db5434ef5f9abf14",
+      "fixtureSummarySha256": "96dcf190939bdafa48b0ad17a4559dbbc2116c57ed60eebb09968934feed53a4",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/empty-content-bindings/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: manual-qa-polish-20260915-"
+    },
+    {
+      "id": "changed-dimension-reason",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "29b0d55399b3fbcbee8642b3b1590dc172e704fb3294b85d21d4dbfdea1c4ee5",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-dimension-reason/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-20261019-h5"
+    },
+    {
+      "id": "ratio-one-pixel-above-bound",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "77563c67435288f32b9ead0a74ed7fc3ab131fa6e731e0df47fc9fc095e89f6f",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/ratio-one-pixel-above-bound/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.0051409192947875606), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-2026101"
+    },
+    {
+      "id": "changed-crop-pixel-total",
+      "kind": "synthetic-negative-control",
+      "expected": "reject",
+      "exitCode": 1,
+      "passed": true,
+      "fixtureRecordSha256": "a29f5bfd8afc70a2540db13f29af9ac1ac364145bb7ecccae202dbd8f410df4a",
+      "fixtureSummarySha256": "7be0a06d73cc181a526f635b538e7040ad2d48fce14ef7101cf761fc30de0c7c",
+      "diagnostic": "file:///tmp/robys-visual-review-controls-kuh07P/changed-crop-pixel-total/scripts/verify-reviewed-visual-change.mjs:11\n  throw new Error(`[VISUAL-001] ${message}`);\n        ^\n\nError: [VISUAL-001] Expected exactly one content-bound reviewed change matching all 6 failure(s), found 0. Actual failures: landing-full/tablet-768(diff=0.005140748193166886), menu-preview/laptop-1366(diff=1), visit-map/laptop-1366(diff=0.010182644417079565), landing-full/desktop-1440(diff=1), menu-preview/desktop-1440(diff=1), social-offer/desktop-1440(diff=0.005143431983385255). Bound approvals: ru-home-menu-20261019-h5"
+    }
+  ]
+}
