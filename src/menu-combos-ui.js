@@ -486,6 +486,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       }, { once: true });
       video.append(source);
     });
+    video.load();
     const playback = video.play();
     playback?.catch(() => { if (video.error) videoFailed(video); });
   });
