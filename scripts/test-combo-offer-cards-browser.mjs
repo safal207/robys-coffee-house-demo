@@ -25,20 +25,40 @@ const certificate = mkdtempSync(join(tmpdir(), "robys-offer-qa-"));
 execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1",
   "-keyout", join(certificate, "key.pem"), "-out", join(certificate, "cert.pem"), "-subj", "/CN=localhost"], { stdio: "ignore" });
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json",
-  ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".mp4": "video/mp4" };
+  ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2", ".mp4": "video/mp4", ".webm": "video/webm" };
 const server = createServer({ key: readFileSync(join(certificate, "key.pem")), cert: readFileSync(join(certificate, "cert.pem")) }, (request, response) => {
   try {
     let file = resolve(repo, "." + decodeURIComponent(new URL(request.url, "https://127.0.0.1").pathname));
     if (file !== repo && !file.startsWith(repo + sep)) { response.writeHead(403).end(); return; }
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
     if (!existsSync(file) || !statSync(file).isFile()) { response.writeHead(404).end(); return; }
-    response.writeHead(200, { "content-type": mime[extname(file)] ?? "application/octet-stream", "cache-control": "no-store" });
+    const headers = { "content-type": mime[extname(file)] ?? "application/octet-stream", "cache-control": "no-store" };
+    if ([".mp4", ".webm"].includes(extname(file))) {
+      const size = statSync(file).size;
+      headers["accept-ranges"] = "bytes";
+      const range = request.headers.range;
+      if (range) {
+        const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+        let start = match?.[1] ? Number(match[1]) : 0;
+        let end = match?.[2] ? Number(match[2]) : size - 1;
+        if (match && !match[1] && match[2]) { start = Math.max(0, size - Number(match[2])); end = size - 1; }
+        if (!match || !match[1] && !match[2] || start >= size || start > end) {
+          response.writeHead(416, { ...headers, "content-range": `bytes */${size}` }).end(); return;
+        }
+        end = Math.min(end, size - 1);
+        response.writeHead(206, { ...headers, "content-range": `bytes ${start}-${end}/${size}`, "content-length": end - start + 1 });
+        createReadStream(file, { start, end }).pipe(response); return;
+      }
+      headers["content-length"] = size;
+    }
+    response.writeHead(200, headers);
     createReadStream(file).pipe(response);
   } catch { response.writeHead(400).end(); }
 });
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
 const assets = ["menu.html", "menu-runtime.css", "menu-combos.css", "choice-help.css", "src/menu-combos.js",
+  "src/products/occasion-sets-v1/family-motion-v1.mp4", "src/products/occasion-sets-v1/family-motion-v1.webm",
   ...emitted.flatMap(name => [`${name}.js`, `src/${name}.js`])];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
@@ -56,6 +76,9 @@ const sweetLines = sort([{ id: "hot-coffee:caffe-latte", quantity: 1 }, { id: "d
 const preview = page => page.locator(".menu-combos-dialog[open]");
 const panel = page => page.locator(".choice-help-panel:not([hidden])");
 const choose = (page, id) => page.locator(`[data-combo-recipe="${id}"] .menu-combos-choose`);
+const mediaPaths = ["/src/products/occasion-sets-v1/family-motion-v1.mp4", "/src/products/occasion-sets-v1/family-motion-v1.webm"];
+const mediaToggle = page => preview(page).locator("[data-combo-media-toggle]");
+const video = page => preview(page).locator("video[data-combo-video]");
 async function screenshot(browser, target, filename) {
   // WebKit's screenshot preparation itself inserts a forbidden inline style.
   // Avoid that tool action while retaining the same strict application checks.
@@ -71,6 +94,12 @@ async function run(browser, id, callback, { width = 390, height = 844, language 
   await context.addInitScript(({ language, origin }) => {
     if (location.origin === origin) localStorage.setItem("robys-language", language);
     window.__offerCspViolations = [];
+    window.__offerMediaErrors = [];
+    document.addEventListener("error", event => {
+      const media = event.target;
+      if (media.tagName === "VIDEO") window.__offerMediaErrors.push({ src: media.currentSrc || media.src,
+        code: media.error?.code, message: media.error?.message, readyState: media.readyState, networkState: media.networkState });
+    }, true);
     document.addEventListener("securitypolicyviolation", event => window.__offerCspViolations.push({
       directive: event.effectiveDirective, blockedURI: event.blockedURI }));
   }, { language, origin });
@@ -91,7 +120,7 @@ async function run(browser, id, callback, { width = 390, height = 844, language 
       await screenshot(browser, page, `${id}-failure-${index}.png`).catch(() => {});
       diagnostics.push(await page.evaluate(() => ({ url: location.href, active: document.activeElement?.outerHTML.slice(0, 250),
         openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
-        text: document.body.innerText.slice(-2500), cspViolations: window.__offerCspViolations })).catch(() => ({})));
+        text: document.body.innerText.slice(-2500), cspViolations: window.__offerCspViolations, mediaErrors: window.__offerMediaErrors })).catch(() => ({})));
     }
     report.cases.push({ id, status: "FAIL", error: error.stack, errors, diagnostics });
     console.error(`FAIL ${id}: ${error.stack}`);
@@ -134,6 +163,81 @@ async function assertOrder(page, expected) {
   assert.deepEqual(record.draft.lines, sort(expected));
   assert.ok(record.revision > 0);
   return record.revision;
+}
+async function orderSnapshot(page) {
+  return page.evaluate(async () => {
+    const projection = Object.fromEntries(Object.keys(localStorage).filter(key => key.startsWith("robys-menu-order")).sort()
+      .map(key => [key, localStorage.getItem(key)]));
+    if (!(await indexedDB.databases()).some(database => database.name === "robys-order-transactions.v1")) return { projection, canonical: null };
+    const canonical = await new Promise((resolve, reject) => {
+      const opening = indexedDB.open("robys-order-transactions.v1");
+      opening.onerror = () => reject(opening.error);
+      opening.onsuccess = () => {
+        const database = opening.result;
+        const transaction = database.transaction("shared-order", "readonly");
+        const request = transaction.objectStore("shared-order").get("robys-menu-order.v1");
+        let record;
+        request.onsuccess = () => { record = request.result ?? null; };
+        transaction.oncomplete = () => { database.close(); resolve(record); };
+        transaction.onabort = () => { database.close(); reject(transaction.error); };
+      };
+    });
+    return { projection, canonical };
+  });
+}
+async function editorSnapshot(page) {
+  return { total: money(await preview(page).locator(".menu-combos-total").textContent()),
+    lines: sort(await preview(page).locator("[data-combo-quantity]").evaluateAll(nodes => nodes.map(node => ({
+      id: node.dataset.comboQuantity, quantity: Number(node.value) })))) };
+}
+async function startVideo(page) {
+  assert.equal(await mediaToggle(page).getAttribute("data-combo-media"), "photo");
+  await mediaToggle(page).click();
+  await page.waitForFunction(() => document.querySelector(".menu-combos-dialog[open] video[data-combo-video]")
+    || document.querySelector(".menu-combos-dialog[open] [data-combo-media-status]:not([hidden])"));
+  assert.equal(await video(page).count(), 1, `The local clip is playable: ${JSON.stringify(await page.evaluate(() => window.__offerMediaErrors))}`);
+  await video(page).evaluate((media, deadlineMs) => new Promise((resolve, reject) => {
+    const deadline = setTimeout(() => reject(new Error(`Video did not decode and advance: readyState=${media.readyState}, error=${media.error?.code}`)), deadlineMs);
+    const check = () => {
+      if (media.currentTime > 0.05 && media.readyState >= 2 && !media.paused && media.videoWidth > 0) {
+        clearTimeout(deadline); media.removeEventListener("timeupdate", check); resolve();
+      }
+    };
+    const failure = () => {
+      if (!media.isConnected || media.error) {
+        clearTimeout(deadline); reject(new Error(`Video failed during playback: ${JSON.stringify(window.__offerMediaErrors)}`));
+      }
+    };
+    media.addEventListener("error", failure); media.addEventListener("emptied", failure);
+    media.addEventListener("timeupdate", check); check();
+  }), timeout);
+  const facts = await video(page).evaluate(media => ({ path: new URL(media.currentSrc).pathname, currentTime: media.currentTime,
+    readyState: media.readyState, width: media.videoWidth, height: media.videoHeight, muted: media.muted,
+    controls: media.controls, playsInline: media.playsInline, autoplayAttribute: media.hasAttribute("autoplay"), preload: media.preload,
+    sources: [...media.querySelectorAll("source")].map(source => ({ path: new URL(source.src).pathname, type: source.type })) }));
+  assert.ok(mediaPaths.includes(facts.path), "Playback uses a reviewed corresponding local family clip");
+  assert.equal(facts.muted, true); assert.equal(facts.controls, true); assert.equal(facts.playsInline, true);
+  assert.equal(facts.autoplayAttribute, false); assert.equal(facts.preload, "none");
+  assert.deepEqual(facts.sources, mediaPaths.map((path, index) => ({ path, type: index ? "video/webm" : "video/mp4" })),
+    "Both format choices are reviewed versions of the same family clip");
+  assert.equal(await mediaToggle(page).getAttribute("data-combo-media"), "video");
+  return { handle: await video(page).elementHandle(), sources: await video(page).locator("source").elementHandles(), facts };
+}
+async function assertReleased({ handle, sources }, reason) {
+  const state = await handle.evaluate(media => ({ paused: media.paused, src: media.getAttribute("src"), sourceCount: media.querySelectorAll("source[src]").length }));
+  assert.deepEqual(state, { paused: true, src: null, sourceCount: 0 }, `${reason} pauses playback and releases its media resource`);
+  for (const source of sources) {
+    assert.deepEqual(await source.evaluate(node => ({ connected: node.isConnected, src: node.getAttribute("src") })),
+      { connected: false, src: null }, `${reason} detaches and clears each media source`);
+    await source.dispose();
+  }
+  await handle.dispose();
+}
+async function assertFamilyPhoto(page) {
+  assert.equal(await video(page).count(), 0);
+  assert.equal(await mediaToggle(page).getAttribute("data-combo-media"), "photo");
+  assert.equal(await preview(page).locator(".menu-combos-preview-hero > img").evaluate(async image => { await image.decode(); return new URL(image.currentSrc).pathname; }),
+    "/src/products/occasion-sets-v1/family.webp");
 }
 async function geometry(page, selector) {
   return page.locator(selector).evaluate(root => {
@@ -193,7 +297,9 @@ try {
           assert.deepEqual(await preview(page).locator("[data-combo-quantity]").evaluateAll(nodes => nodes.map(node => ({
             id: node.dataset.comboQuantity, quantity: Number(node.value) })).sort((a, b) => a.id.localeCompare(b.id, "en"))), familyLines);
           assert.equal(await preview(page).locator("video, [data-combo-video], .menu-combos-video").count(), 0,
-            "No invented video control or media when the catalog has no valid video source");
+            "The family offer remains a photo until an explicit video action");
+          assert.equal(await mediaToggle(page).count(), 1, "The family offer exposes its reviewed local video action");
+          assert.equal(await mediaToggle(page).getAttribute("data-combo-media"), "photo");
           const layout = await geometry(page, ".menu-combos-dialog[open]");
           assert.deepEqual(layout, { pageOverflow: false, contained: true, dialogFits: true, clippedControls: [] });
           await screenshot(browser, preview(page), `family-dialog-${width}-${language}.png`);
@@ -207,6 +313,112 @@ try {
           return { viewport: { width, height }, language, familyTotal: 750, sweetTotal: 280, photo, layout, escapeRestoresFocus: true };
         }, { width, height, language });
       }
+
+      await run(browser, `${name}-family-video-explicit-playback-and-close`, async context => {
+        const requests = [];
+        context.on("request", request => { if (/\.(?:mp4|webm)$/.test(new URL(request.url()).pathname)) requests.push(request.url()); });
+        const page = await context.newPage(); await openMenu(page, "menu-combo-family"); await preview(page).waitFor();
+        await page.waitForLoadState("networkidle");
+        assert.deepEqual(requests, [], "Opening the family photo does not preload video bytes");
+        await assertFamilyPhoto(page);
+        await preview(page).locator('[data-combo-increase="desserts:cookie"]').click();
+        const editor = await editorSnapshot(page), order = await orderSnapshot(page);
+        assert.equal(editor.total, 850, "The video is tested against an edited selection");
+        const first = await startVideo(page);
+        assert.ok(requests.length > 0, "The explicit video action requests the local clip");
+        assert.ok(requests.every(url => mediaPaths.includes(new URL(url).pathname)), "The offer requests only its corresponding family clip");
+        assert.deepEqual(await editorSnapshot(page), editor, "Playback preserves edited quantities and total");
+        assert.deepEqual(await orderSnapshot(page), order, "Playback does not mutate either order store");
+        await video(page).focus();
+        for (let step = 0; step < 4; step += 1) {
+          await page.keyboard.press("Tab");
+          assert.equal(await preview(page).evaluate(dialog => dialog.contains(document.activeElement)), true,
+            "Keyboard traversal from native video controls keeps focus in the offer dialog");
+        }
+        await screenshot(browser, preview(page), `${name}-family-video-playback-390-ru.png`);
+        await mediaToggle(page).click(); await assertFamilyPhoto(page); await assertReleased(first, "Returning to the photo");
+        const second = await startVideo(page);
+        await page.keyboard.press("Escape");
+        assert.equal(await preview(page).count(), 0); await assertReleased(second, "Closing the offer");
+        assert.equal(await choose(page, "family").evaluate(button => document.activeElement === button), true);
+        const countAtClose = requests.length;
+        await choose(page, "family").click(); await preview(page).waitFor(); await assertFamilyPhoto(page);
+        await page.waitForLoadState("networkidle");
+        assert.equal(requests.length, countAtClose, "Reopening starts with a photo and makes no media request");
+        assert.deepEqual(await orderSnapshot(page), order);
+        return { zeroMediaRequestsBeforeIntent: true, playback: first.facts, secondPlayback: second.facts,
+          photoAndCloseReleaseSource: true, nativeControlKeyboardFocusContained: true, editorPreserved: editor, orderUnchanged: true, escapeRestoresFocus: true };
+      });
+
+      await run(browser, `${name}-family-video-language-and-hidden-cleanup`, async context => {
+        const page = await context.newPage(); await openMenu(page, "menu-combo-sweet"); await preview(page).waitFor();
+        await preview(page).locator(".menu-combos-add").click(); await page.locator("#menu-cart-dialog[open]").waitFor();
+        await assertOrder(page, sweetLines); await page.keyboard.press("Escape");
+        await choose(page, "family").click(); await preview(page).waitFor();
+        await preview(page).locator('[data-combo-increase="desserts:cookie"]').click();
+        const editor = await editorSnapshot(page), order = await orderSnapshot(page);
+        const languageVideo = await startVideo(page);
+        // Native modal dialogs block pointer access to page-level language buttons.
+        // Invoke that existing control's click handler to exercise translation while open.
+        await page.locator('.lang-button[data-lang="en"]').evaluate(button => button.click());
+        assert.equal(await page.locator("html").getAttribute("lang"), "en");
+        await assertFamilyPhoto(page); await assertReleased(languageVideo, "Changing the language");
+        assert.deepEqual(await editorSnapshot(page), editor);
+        const hiddenVideo = await startVideo(page);
+        // Deterministic browser visibility boundary; does not pretend to be a physical-device background test.
+        await page.evaluate(() => {
+          Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+          document.dispatchEvent(new Event("visibilitychange"));
+        });
+        await assertFamilyPhoto(page); await assertReleased(hiddenVideo, "Hiding the page");
+        await page.evaluate(() => {
+          Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
+          document.dispatchEvent(new Event("visibilitychange"));
+        });
+        await assertFamilyPhoto(page);
+        assert.deepEqual(await editorSnapshot(page), editor, "Language and visibility changes preserve the edited recipe");
+        assert.deepEqual(await orderSnapshot(page), order, "Media lifecycle leaves the existing canonical order unchanged");
+        return { languageHandler: "Existing DOM language button click", visibleAgainNoAutoplay: true,
+          visibilityBoundary: "Simulated document.hidden change with real emitted handler", editedTotal: editor.total,
+          canonicalOrderUnchanged: true, languageAndHiddenReleaseSource: true };
+      });
+
+      await run(browser, `${name}-family-video-error-falls-back-and-retries`, async context => {
+        const pattern = "**/family-motion-v1.*";
+        const page = await context.newPage(); await openMenu(page, "menu-combo-family"); await preview(page).waitFor();
+        const editor = await editorSnapshot(page), order = await orderSnapshot(page);
+        for (const kind of ["network", "unsupported-bytes"]) {
+          await context.route(pattern, kind === "network" ? route => route.abort("failed")
+            : route => route.fulfill({ status: 200, contentType: route.request().url().includes(".webm") ? "video/webm" : "video/mp4", body: "This is deliberately not a supported video stream." }));
+          await mediaToggle(page).click();
+          const status = preview(page).locator('[data-combo-media-status][role="status"]');
+          await status.waitFor({ state: "visible" });
+          assert.ok((await status.textContent()).trim().length > 10, `${kind} failure gives a useful localized fallback notice`);
+          await assertFamilyPhoto(page);
+          assert.deepEqual(await editorSnapshot(page), editor); assert.deepEqual(await orderSnapshot(page), order);
+          await context.unroute(pattern);
+        }
+        const layout = await geometry(page, ".menu-combos-dialog[open]");
+        assert.deepEqual(layout, { pageOverflow: false, contained: true, dialogFits: true, clippedControls: [] });
+        await screenshot(browser, preview(page), `${name}-family-video-error-390-ru.png`);
+        const retry = await startVideo(page);
+        await mediaToggle(page).click(); await assertReleased(retry, "Returning from a successful retry");
+        await preview(page).locator(".menu-combos-add").click(); await page.locator("#menu-cart-dialog[open]").waitFor();
+        await assertOrder(page, familyLines);
+        assert.equal(money(await page.locator("#menu-cart-dialog-total").textContent()), 750);
+        return { failedLoadReturnsPhoto: true, failureKinds: ["network", "unsupported-bytes"], failureNotice: true, retryPlayback: retry.facts, orderStillEditableAndAddable: true, layout };
+      });
+
+      await run(browser, `${name}-other-recipes-have-no-family-video`, async context => {
+        const requests = [];
+        context.on("request", request => { if (/\.(?:mp4|webm)$/.test(new URL(request.url()).pathname)) requests.push(request.url()); });
+        const page = await context.newPage(); await openMenu(page, "menu-combo-sweet"); await preview(page).waitFor();
+        assert.equal(await mediaToggle(page).count(), 0, "A different recipe never offers the family clip");
+        assert.equal(await preview(page).locator("video,[data-combo-video]").count(), 0);
+        assert.equal(money(await preview(page).locator(".menu-combos-total").textContent()), 280);
+        await page.waitForLoadState("networkidle"); assert.deepEqual(requests, []);
+        return { recipe: "sweet", originalTotal: 280, noVideoControlOrRequest: true };
+      });
 
       await run(browser, `${name}-deep-link-and-edit-persist`, async context => {
         const page = await context.newPage(); await openMenu(page);

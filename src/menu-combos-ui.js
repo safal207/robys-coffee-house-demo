@@ -15,6 +15,9 @@ const copy = {
     maximum: "Bu seçimde ürün başına en fazla 20 adet.",
     ready: "Hazır bir seçim", contents: "İçindekiler", editContents: "İçeriği değiştir",
     photoNote: "Fotoğraf başlangıçtaki seçimi gösterir. Güncel içeriği aşağıda düzenleyebilirsin.",
+    watchVideo: "Videoyu izle", showPhoto: "Fotoğrafa dön", videoLabel: "Çocuklarla seçiminin videosu",
+    mediaNote: "Fotoğraf ve video başlangıçtaki seçimi gösterir. Güncel içeriği aşağıda düzenleyebilirsin.",
+    videoError: "Video açılamadı. Fotoğrafı inceleyebilir veya yeniden deneyebilirsin.",
     footerNote: "Ön hesaplama. İçerik ve alerjenleri kasada sorun."
   },
   en: {
@@ -31,6 +34,9 @@ const copy = {
     maximum: "Up to 20 of each item in this selection.",
     ready: "A ready-made selection", contents: "What’s included", editContents: "Edit contents",
     photoNote: "The photo shows the original selection. You can change the current contents below.",
+    watchVideo: "Watch video", showPhoto: "Back to photo", videoLabel: "With kids selection video",
+    mediaNote: "The photo and video show the original selection. You can change the current contents below.",
+    videoError: "The video could not load. You can view the photo or try again.",
     footerNote: "Preliminary total. Ask at the counter about ingredients and allergens."
   },
   ru: {
@@ -47,6 +53,9 @@ const copy = {
     maximum: "До 20 штук каждой позиции в этой подборке.",
     ready: "Готовая подборка", contents: "Что входит", editContents: "Изменить состав",
     photoNote: "На фото — исходная подборка. Текущий состав можно изменить ниже.",
+    watchVideo: "Смотреть видео", showPhoto: "Вернуться к фото", videoLabel: "Видео подборки «С детьми»",
+    mediaNote: "Фото и видео показывают исходную подборку. Текущий состав можно изменить ниже.",
+    videoError: "Видео не загрузилось. Можно посмотреть фото или попробовать ещё раз.",
     footerNote: "Предварительный расчёт. Состав и аллергены уточните на кассе."
   }
 };
@@ -61,6 +70,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   let returnFocus;
   let confirming = false;
   let session = 0;
+  let activeVideo;
   const text = key => copy[language][key];
   const element = (tag, className, content) => {
     const node = document.createElement(tag);
@@ -136,7 +146,16 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   dialogTitle.tabIndex = -1;
   const audience = element("p", "menu-combos-preview-audience");
   const previewMedia = element("figure", "menu-combos-preview-media");
+  const previewStage = element("div", "menu-combos-preview-stage");
+  previewStage.id = "menu-combos-preview-stage";
+  const mediaToggle = button("menu-combos-media-toggle");
+  mediaToggle.dataset.comboMediaToggle = "";
+  mediaToggle.setAttribute("aria-controls", previewStage.id);
   const photoCaption = element("figcaption", "menu-combos-photo-note");
+  const mediaStatus = element("p", "menu-combos-media-status");
+  mediaStatus.dataset.comboMediaStatus = "";
+  mediaStatus.setAttribute("role", "status");
+  mediaStatus.hidden = true;
   const editorHeading = element("div", "menu-combos-editor-heading");
   const contentsTitle = element("h3");
   contentsTitle.id = "menu-combos-contents-title";
@@ -169,9 +188,38 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     status.hidden = !key;
     status.textContent = key ? text(key) : "";
   }
+  function releaseVideo() {
+    const video = activeVideo;
+    activeVideo = undefined;
+    if (!video) return;
+    video.pause();
+    video.removeAttribute("src");
+    video.querySelectorAll("source").forEach(source => source.removeAttribute("src"));
+    video.replaceChildren();
+    video.load();
+  }
+  function showPreviewPhoto() {
+    releaseVideo();
+    if (!activeRecipe) return;
+    const original = quoteComboSelection(activeRecipe.id, activeRecipe.items, productIndex);
+    previewStage.replaceChildren(recipePhoto(activeRecipe, original.products, "menu-combos-preview-hero"));
+    mediaToggle.dataset.comboMedia = "photo";
+    mediaToggle.textContent = text("watchVideo");
+    mediaStatus.hidden = true;
+    mediaStatus.textContent = "";
+  }
+  function videoFailed(video) {
+    if (video !== activeVideo) return;
+    const restoreFocus = document.activeElement === video;
+    showPreviewPhoto();
+    mediaStatus.textContent = text("videoError");
+    mediaStatus.hidden = false;
+    if (restoreFocus && dialog.hasAttribute("open")) mediaToggle.focus({ preventScroll: true });
+  }
   function closePreview(restore = true, preserveIntent = false) {
     if (!preserveIntent) onIntent?.();
     session += 1;
+    showPreviewPhoto();
     if (dialog.open && typeof dialog.close === "function") dialog.close();
     dialog.removeAttribute("open");
     dialog.classList.remove("is-fallback");
@@ -295,9 +343,9 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     dialogTitle.textContent = localized(activeRecipe.name);
     previewBadge.textContent = text("ready");
     audience.textContent = `${localized(activeRecipe.eyebrow)} · ${text("guests")[activeRecipe.guests]}`;
-    photoCaption.textContent = text("photoNote");
-    const original = quoteComboSelection(activeRecipe.id, activeRecipe.items, productIndex);
-    previewMedia.replaceChildren(recipePhoto(activeRecipe, original.products, "menu-combos-preview-hero"), photoCaption);
+    showPreviewPhoto();
+    photoCaption.textContent = text(activeRecipe.id === "family" ? "mediaNote" : "photoNote");
+    previewMedia.replaceChildren(previewStage, ...(activeRecipe.id === "family" ? [mediaToggle] : []), mediaStatus, photoCaption);
     contentsTitle.textContent = text("contents");
     editContents.textContent = text("editContents");
     footerNote.textContent = text("footerNote");
@@ -401,6 +449,49 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     target.focus();
     target.scrollIntoView({ block: "nearest" });
   });
+  mediaToggle.addEventListener("click", () => {
+    if (!dialog.hasAttribute("open") || activeRecipe?.id !== "family") return;
+    if (activeVideo) { showPreviewPhoto(); return; }
+    const video = element("video", "menu-combos-preview-video");
+    video.dataset.comboVideo = "";
+    video.controls = true;
+    video.playsInline = true;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.preload = "none";
+    video.poster = activeRecipe.image;
+    video.setAttribute("aria-label", text("videoLabel"));
+    video.addEventListener("error", () => videoFailed(video), { once: true });
+    activeVideo = video;
+    mediaStatus.hidden = true;
+    mediaStatus.textContent = "";
+    mediaToggle.dataset.comboMedia = "video";
+    mediaToggle.textContent = text("showPhoto");
+    previewStage.replaceChildren(video);
+    // Offer both formats only in this explicit user action. The browser selects
+    // a supported local source; some Chromium builds have no H.264 decoder.
+    const formats = [
+      ["src/products/occasion-sets-v1/family-motion-v1.mp4", "video/mp4"],
+      ["src/products/occasion-sets-v1/family-motion-v1.webm", "video/webm"]
+    ];
+    let failedSources = 0;
+    formats.forEach(([src, type]) => {
+      const source = element("source");
+      source.src = src;
+      source.type = type;
+      source.addEventListener("error", () => {
+        if (video !== activeVideo) return;
+        failedSources += 1;
+        if (failedSources === formats.length) videoFailed(video);
+      }, { once: true });
+      video.append(source);
+    });
+    video.load();
+    const playback = video.play();
+    playback?.catch(() => { if (video.error) videoFailed(video); });
+  });
+  document.addEventListener("visibilitychange", () => { if (document.hidden && activeVideo) showPreviewPhoto(); });
+  window.addEventListener("pagehide", () => { if (activeVideo) showPreviewPhoto(); });
   closeButton.addEventListener("click", () => closePreview());
   backdrop.addEventListener("click", () => closePreview());
   dialog.addEventListener("cancel", event => { event.preventDefault(); closePreview(); });
@@ -413,7 +504,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     if (!dialog.hasAttribute("open")) return;
     if (event.key === "Escape") { event.preventDefault(); closePreview(); return; }
     if (event.key !== "Tab") return;
-    const controls = Array.from(dialog.querySelectorAll("button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]"));
+    const controls = Array.from(dialog.querySelectorAll("button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href],video[controls]"));
     const first = controls[0];
     const last = controls[controls.length - 1];
     if (!first) return;

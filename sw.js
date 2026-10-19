@@ -1,6 +1,8 @@
 "use strict";
 
 const PAIRING_PREVIEW_PATH = "/src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
+const COMBO_PREVIEW_PATH = "/src/products/occasion-sets-v1/family-motion-v1.mp4";
+const COMBO_WEBM_PATH = "/src/products/occasion-sets-v1/family-motion-v1.webm";
 
 // Activate this repair immediately so returning visitors do not keep serving
 // previous gallery media or retired installer assets from runtime caches.
@@ -31,7 +33,9 @@ self.addEventListener("activate", (event) => {
                     path.endsWith("/apple-touch-icon.png") ||
                     /\/downloads\/android-v1\.2\/part-\d+\.b64$/.test(path) ||
                     /\/downloads\/robys-coffee-house(?:-v[\d.]+)?\.apk$/.test(path) ||
-                    path.endsWith(PAIRING_PREVIEW_PATH);
+                    path.endsWith(PAIRING_PREVIEW_PATH) ||
+                    path.endsWith(COMBO_PREVIEW_PATH) ||
+                    path.endsWith(COMBO_WEBM_PATH);
                 })
                 .map((request) => cache.delete(request))
             );
@@ -44,11 +48,13 @@ self.addEventListener("activate", (event) => {
 });
 
 // HTML5 video players use byte-range requests on mobile browsers. Let the browser fetch this
-// media directly instead of routing those requests through the legacy cache-first layer.
+// on-demand media directly instead of routing requests through the legacy cache-first layer.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin || !url.pathname.endsWith(PAIRING_PREVIEW_PATH)) return;
+  if (url.origin !== self.location.origin ||
+      (!url.pathname.endsWith(PAIRING_PREVIEW_PATH) && !url.pathname.endsWith(COMBO_PREVIEW_PATH) &&
+        !url.pathname.endsWith(COMBO_WEBM_PATH))) return;
 
   event.stopImmediatePropagation();
   event.respondWith(fetch(event.request, { cache: "no-store" }));

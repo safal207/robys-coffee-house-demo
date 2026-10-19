@@ -40,8 +40,26 @@ selection is 280 TRY. All totals are calculated from catalog products rather
 than duplicated in the offer UI. Turkish, English and Russian remain supported.
 
 The existing local set photos and approved compact SVG wordmark are reused.
-No matching family video exists in the repository, so there is no video tab,
-empty player or unrelated promotional clip.
+The owner supplied a matching family video on 19 October. The family preview
+offers an explicit localized video button and a return to the original photo.
+Other recipes keep their photographs. No video element, source or download is
+created until that button is pressed, including with reduced motion enabled.
+Native controls remain available. Returning to the photo, closing, changing the
+language or hiding the page pauses and unloads the clip. Failure returns to the
+photo with a localized retry notice; recipe quantities and ordering are unchanged.
+
+The delivery files are `src/products/occasion-sets-v1/family-motion-v1.mp4`
+(H.264/yuv420p, 240,522 bytes) and `family-motion-v1.webm` (VP9, 195,186 bytes).
+Both are 3.042 seconds and 688 × 464. Audio and upload metadata are removed;
+the complete frame is preserved. Native source selection supports browsers
+without an H.264 decoder. Both use same-origin network-only delivery, preserving
+byte-range requests, and are excluded from offline precache. Both are protected
+by the integrity manifest.
+After appending the sources, the player explicitly calls `load()` before `play()`.
+An HTTPS diagnostic on Ubuntu and macOS WebKit isolated this requirement: the
+same sources stayed at readyState 0 without `load()` and decoded with it.
+The original uploaded file is preserved separately. Source SHA-256:
+`eff9886753b3985b33b148f0d1b16bdaabb33eb7602040c5832cd7971310f0a0`.
 
 ## Verification entry points
 
@@ -52,6 +70,10 @@ empty player or unrelated promotional clip.
   concurrency, recovery and assistance coverage.
 - `node scripts/test-combo-offline.mjs` for source/runtime parity, revisioned
   assets, actual service-worker cache bytes and first offline reveal.
+- `node --test scripts/test-combo-video-cache.mjs` for actual worker range
+  forwarding, activation cleanup, precache exclusion and video transfer budget.
+  The offer-card browser harness also exercises first playback, source release,
+  language/visibility transitions, failure/retry, and unchanged recipe/order data.
 
 Browser harnesses serve emitted files over local HTTPS under the production
 CSP, record source/artifact hashes and use read-only canonical order checks.

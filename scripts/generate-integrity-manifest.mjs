@@ -36,6 +36,7 @@ const publicExtensions = new Set([
   ".js",
   ".json",
   ".mp4",
+  ".webm",
   ".png",
   ".svg",
   ".txt",
