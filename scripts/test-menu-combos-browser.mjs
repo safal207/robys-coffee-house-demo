@@ -39,6 +39,10 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
 const storageKey = "robys-menu-order.v2";
+// Shared local runners can take longer to schedule browser work. This only
+// adjusts harness waits; the virtual 45-second product threshold is unchanged.
+const timeoutMs = Number(process.env.ROBYS_QA_TIMEOUT_MS ?? 10_000);
+assert.ok(Number.isFinite(timeoutMs) && timeoutMs > 0, "Browser harness timeout must be a positive finite number");
 const assets = ["app.js", "src/app.ts", "menu.html", "menu-app.js", "menu-runtime.css", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
   "index.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html",
   "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "sw.js", "sw-core-v64.js", "scripts/test-menu-combos-browser.mjs",
@@ -51,7 +55,7 @@ const report = {
   startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   dirtyFilesAtStart: execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim().split("\n").filter(Boolean),
   mode: "Unchanged emitted runtime over local HTTPS; original CSP; desktop browser engines with touch-sized viewports, not physical phones",
-  environment: { bypassCSP: false, selfSignedLocalHttps: true, externalRequests: "blocked", authoritativeStore: "readonly IDB verification" },
+  environment: { bypassCSP: false, selfSignedLocalHttps: true, externalRequests: "blocked", authoritativeStore: "readonly IDB verification", timeoutMs },
   assetHashesStart: hashes(), browsers: {}, cases: []
 };
 const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
@@ -89,7 +93,7 @@ async function run(browser, id, callback, options = {}) {
   const context = await newContext(browser, options);
   const errors = [];
   context.on("page", page => {
-    page.setDefaultTimeout(10000);
+    page.setDefaultTimeout(timeoutMs);
     page.on("pageerror", error => errors.push(error.message));
   });
   const startedAt = new Date().toISOString();
@@ -121,7 +125,7 @@ async function openMenu(page, hash = "menu-combos") {
 async function installClock(page) {
   await page.clock.install({ time: new Date("2026-10-18T12:00:00Z") });
   // Freeze while still on about:blank, before the app creates any timers. CI
-  // asset-loading latency must not consume part of the35second threshold.
+  // asset-loading latency must not consume part of the45second threshold.
   await page.clock.pauseAt(new Date("2026-10-18T12:01:00Z"));
 }
 
@@ -394,7 +398,9 @@ try {
       });
 
       await run(browser, `${name}-same-hash-helper-reopens-hidden-combos`, async context => {
-        const page = await context.newPage(); await openMenu(page);
+        const page = await context.newPage(); await openMenu(page, "menu-combo-sweet");
+        await preview(page).waitFor();
+        await page.keyboard.press("Escape");
         // The helper's target has no entry query. Match it exactly so this
         // cannot pass by reloading the document instead of reopening in place.
         await page.evaluate(() => {
@@ -403,13 +409,22 @@ try {
         });
         await page.locator(".menu-combos-hide").click();
         assert.equal(await page.locator(".menu-combos-section").isHidden(), true);
-        assert.equal(new URL(page.url()).hash, "#menu-combos");
+        assert.equal(new URL(page.url()).hash, "#menu-combo-sweet");
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        assert.equal(new URL(await page.locator(".choice-help-actions a").first().getAttribute("href")).hash, "#menu-combo-sweet");
         await page.locator(".choice-help-actions a").first().click();
         await page.locator(".menu-combos-section").waitFor();
+        await preview(page).waitFor();
         assert.equal(await page.evaluate(() => window.__comboSameDocument), true, "The same document handles an identical hash target");
         assert.equal(await page.locator(".menu-combos-card").count(), 12);
-        return { sameHash: "#menu-combos", hiddenThenReopened: true, explicitHelperNavigationWorks: true };
+        assert.equal(money(await preview(page).locator(".menu-combos-total").textContent()), comboTotal(await catalogPrices(page), "sweet"));
+        assert.equal(await page.locator("#menu-cart-count").textContent(), "0", "The contextual route only previews its recipe");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
+        await page.keyboard.press("Escape");
+        assert.equal(await choose(page, "sweet").evaluate(button => document.activeElement === button), true,
+          "Closing a contextual preview restores focus to its visible grid card");
+        return { sameHash: "#menu-combo-sweet", hiddenThenReopened: true, explicitHelperNavigationWorks: true,
+          matchingRecipePreviewed: "sweet", cartUnchanged: true, visibleGridFocusRestored: true };
       });
 
       for (const language of ["tr", "en", "ru"]) await run(browser, `${name}-all-view-entry-points-${language}`, async context => {
@@ -451,8 +466,8 @@ try {
         });
         await page.waitForLoadState("networkidle");
         assert.deepEqual(storageRequests, [], "Projection, order-change and focus notifications do not download authoritative storage");
-        await page.clock.runFor(34_000);
-        assert.deepEqual(storageRequests, [], "The35second offer threshold remains a lazy boundary after notifications");
+        await page.clock.runFor(44_000);
+        assert.deepEqual(storageRequests, [], "The45second offer threshold remains a lazy boundary after notifications");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
 
         const peer = await context.newPage(); await openMenu(peer); await openRecipe(peer, "student");
@@ -472,7 +487,7 @@ try {
         assert.equal(storageRequests.length, 1, "An eligible idle offer must read the actual basket even when its mirror is absent");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "The nonempty canonical basket suppresses the automatic offer");
         assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"), "Assistance cannot mutate the peer's order");
-        return { notificationTypes: ["storage projection", "robys:order-change", "focus"], before34sStorageRequests: 0,
+        return { notificationTypes: ["storage projection", "robys:order-change", "focus"], before44sStorageRequests: 0,
           eligibleStorageRequests: storageRequests.length, authoritativePeerOrder: linesFor("student"), canonicalRevision: revision,
           missingDisposableMirror: true, nonemptyCanonicalOrderSuppressesOffer: true };
       });
@@ -489,8 +504,8 @@ try {
           }, { capture: true });
         });
         await page.locator("#menu-search").focus();
-        await page.clock.runFor(40_000);
-        // At35seconds the small entry driver imports the suggestion module.
+        await page.clock.runFor(50_000);
+        // At45seconds the small entry driver imports the suggestion module.
         // Let that real network work settle before measuring a new idle window
         // with frozen virtual time; otherwise its initialization can straddle
         // the focus change and require a subsequent timer tick to revalidate.
@@ -509,7 +524,12 @@ try {
         assert.equal(await page.locator("#menu-share-button").evaluate(button => document.activeElement === button), true, "Automatic hint never moves focus");
         assert.equal(await page.locator(".choice-help-panel").getAttribute("aria-modal"), null);
         const actions = await page.locator(".choice-help-actions a").evaluateAll(nodes => nodes.map(node => ({ text: node.textContent, href: new URL(node.href).pathname + new URL(node.href).hash })));
-        assert.deepEqual(actions.map(action => action.href), ["/menu.html#menu-combos", "/smart-choice/"]);
+        assert.deepEqual(actions.map(action => action.href), ["/menu.html#menu-combo-sweet", "/smart-choice/"]);
+        assert.equal(await page.locator(".choice-help-actions a:visible").count(), 1, "A successful suggestion has one contextual action");
+        assert.equal(await page.locator(".choice-help-actions a").nth(1).isHidden(), true, "Smart Choice remains available only in the generic fallback");
+        assert.equal(await page.locator(".choice-help-panel").getAttribute("data-combo-recipe"), "sweet");
+        assert.equal(money(await page.locator(".choice-help-price").textContent()), comboTotal(await catalogPrices(page), "sweet"),
+          "The compact suggestion uses the current catalog price");
         if (language !== "ru") assert.doesNotMatch(await page.locator(".choice-help-panel").innerText(), /[А-Яа-яЁё]/);
         if (language === "ru") await page.locator(".choice-help-panel").screenshot({ path: join(output, "quiet-helper-390-ru.png") });
         await page.locator(".choice-help-close").click();
@@ -523,7 +543,7 @@ try {
         assert.equal(await page.locator(".choice-help-entry").evaluate(button => document.activeElement === button), true, "Manual offer leaves keyboard focus on its entry");
         await page.keyboard.press("Escape");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
-        return { language, virtualVisibleTimeBeforeOffer: 49_000, editingSuppressed: true, idleThresholdRespected: true,
+        return { language, virtualVisibleTimeBeforeOffer: 59_000, editingSuppressed: true, idleThresholdRespected: true,
           noFocusSteal: true, nonmodal: true, oncePerSessionAcrossViews: true, manualStillAvailable: true, idleActivity, actions };
       }, { language });
 
@@ -531,26 +551,26 @@ try {
         const page = await context.newPage(); await installClock(page);
         await openMenu(page, ""); await page.locator(".choice-help-entry").waitFor();
         await page.locator("#menu-share-button").focus();
-        await page.clock.runFor(34_000);
-        assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Offer is not immediate or before35seconds");
+        await page.clock.runFor(44_000);
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Offer is not immediate or before45seconds");
         await page.clock.runFor(2_000); await page.locator(".choice-help-panel:not([hidden])").waitFor();
         await page.locator("#menu-search").focus();
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Focusing search immediately hides an existing hint");
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
         await page.locator("#menu-cart-trigger").click(); await page.locator("#menu-cart-dialog[open]").waitFor();
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Opening a cart immediately hides an existing hint");
-        return { before34s: "hidden", after36s: "visible", activeSearchImmediatelyHides: true, openCartImmediatelyHides: true };
+        return { before44s: "hidden", after46s: "visible", activeSearchImmediatelyHides: true, openCartImmediatelyHides: true };
       });
 
       await run(browser, `${name}-helper-suppressed-by-order-and-dialog`, async context => {
         const page = await context.newPage(); await installClock(page);
         await openMenu(page); await openRecipe(page, "student");
-        await page.clock.runFor(40_000);
+        await page.clock.runFor(50_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "No automatic offer over an open selection dialog");
         await preview(page).locator(".menu-combos-add").click(); await page.locator("#menu-cart-dialog[open]").waitFor();
-        await page.clock.runFor(40_000);
+        await page.clock.runFor(50_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "No automatic offer over the cart");
-        await page.keyboard.press("Escape"); await page.clock.runFor(40_000);
+        await page.keyboard.press("Escape"); await page.clock.runFor(50_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "An existing order suppresses later upselling even after its cart closes");
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
         return { selectionDialogSuppressed: true, cartSuppressed: true, nonemptyOrderAutomaticallySuppressed: true,
@@ -568,7 +588,7 @@ try {
         }
         await page.keyboard.press("Escape");
         assert.equal(await page.locator("dialog[open]").count(), 0);
-        await page.locator("#menu-share-button").focus(); await page.clock.runFor(36_000);
+        await page.locator("#menu-share-button").focus(); await page.clock.runFor(46_000);
         await page.locator(".choice-help-panel:not([hidden])").waitFor();
         await page.locator(".choice-help-close").click();
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
@@ -580,9 +600,47 @@ try {
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
         const links = page.locator(".choice-help-actions a:visible");
         assert.equal(await links.count(), 1, "Smart Choice never links the visitor back to the screen already open");
-        assert.equal(new URL(await links.first().getAttribute("href")).hash, "#menu-combos");
-        return { language, usefulExit: "menu.html#menu-combos", selfLinkHidden: true };
+        assert.equal(new URL(await links.first().getAttribute("href")).hash, "#menu-combo-sweet");
+        return { language, usefulExit: "menu.html#menu-combo-sweet", selfLinkHidden: true };
       }, { language });
+
+      for (const selection of ["family-section", "family-filter"]) await run(browser, `${name}-helper-follows-${selection}`, async context => {
+        const page = await context.newPage();
+        if (selection === "family-section") {
+          await openMenu(page, "menu-family");
+          await page.locator(".menu-family-card").first().waitFor();
+        } else {
+          await openMenu(page);
+          await page.locator('[data-combo-filter="family"]').click();
+          assert.equal(await page.locator(".menu-combos-card").count(), 1);
+        }
+        await page.locator(".choice-help-entry").click();
+        await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        assert.equal(await page.locator(".choice-help-panel").getAttribute("data-combo-recipe"), "family");
+        assert.equal(await page.locator(".choice-help-actions a:visible").count(), 1);
+        assert.equal(new URL(await page.locator(".choice-help-actions a").first().getAttribute("href")).hash, "#menu-combo-family");
+        const expected = comboTotal(await catalogPrices(page), "family");
+        assert.equal(money(await page.locator(".choice-help-price").textContent()), expected);
+        assert.equal(await page.locator("#menu-cart-count").textContent(), "0", "Contextual help never adds its suggested recipe");
+        return { selection, suggestedRecipe: "family", total: expected, singleAction: true, cartUnchanged: true };
+      });
+
+      await run(browser, `${name}-helper-data-failure-keeps-generic-navigation`, async context => {
+        await context.route("**/menu-catalog.js*", route => route.abort("failed"));
+        const page = await context.newPage();
+        await page.goto(`${origin}/index.html?entry=off`, { waitUntil: "domcontentloaded" });
+        await page.locator(".choice-help-entry").click();
+        await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        assert.equal(await page.locator(".choice-help-panel").getAttribute("data-combo-recipe"), null);
+        const links = await page.locator(".choice-help-actions a:visible").evaluateAll(nodes =>
+          nodes.map(node => new URL(node.href).pathname + new URL(node.href).hash));
+        assert.deepEqual(links, ["/menu.html#menu-combos", "/smart-choice/"]);
+        assert.equal(await page.locator(".choice-help-price").isHidden(), true, "Unavailable data cannot produce an invented price");
+        assert.equal(await page.locator(".choice-help-photo").isHidden(), true);
+        await page.keyboard.press("Escape");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
+        return { failure: "catalog module request", usefulFallbackLinks: links, noInventedPrice: true, dismissible: true };
+      });
 
       for (const [view, path] of [["home", "index.html?entry=off"], ["ru-local", "ru/coffee-gazipasa.html"]]) {
         await run(browser, `${name}-mobile-navigation-suppresses-helper-${view}`, async context => {
@@ -599,7 +657,7 @@ try {
           assert.equal(await navigationFocus.evaluate(node => document.activeElement === node), true,
             "Opening navigation focuses its intended entry point");
           assert.equal(await page.locator("body").evaluate(body => body.classList.contains("menu-open")), true);
-          await page.clock.runFor(40_000); await page.waitForLoadState("networkidle");
+          await page.clock.runFor(50_000); await page.waitForLoadState("networkidle");
           assert.equal(await page.locator(".choice-help-panel").isHidden(), true,
             "The full mobile navigation suppresses an automatic suggestion beyond both timing thresholds");
           assert.deepEqual(storageRequests, [], "An open navigation does not trigger an unnecessary basket read");
@@ -630,7 +688,7 @@ try {
 
       await run(browser, `${name}-helper-short-viewport-remains-quiet`, async context => {
         const page = await context.newPage(); await installClock(page);
-        await openMenu(page, ""); await page.clock.runFor(40_000);
+        await openMenu(page, ""); await page.clock.runFor(50_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
         await page.locator(".choice-help-entry").click(); await page.locator(".choice-help-panel:not([hidden])").waitFor();
         assert.deepEqual(await geometry(page, ".choice-help-panel"), { pageOverflow: false, contained: true, clippedControls: [], dialogFits: true });
