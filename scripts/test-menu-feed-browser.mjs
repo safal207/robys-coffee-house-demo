@@ -75,6 +75,7 @@ try {
     assert.match(await page.locator("#feed-cart-sum").textContent(), /200/);
     await page.locator("#feed-checkout").click();
     await page.locator(".order-checkout-dialog[open]").waitFor();
+    await page.locator(".order-ticket-qr").waitFor();
     assert.equal(await page.locator(".order-ticket-qr").count(), 1);
     assert.match(await page.locator(".order-ticket-total").textContent(), /200/);
     await page.keyboard.press("Escape");
@@ -123,6 +124,7 @@ try {
       await page.locator("#feed-checkout").click();
     }
     await page.locator(".order-checkout-dialog[open]").waitFor();
+    await page.locator(".order-ticket-qr").waitFor();
     assert.equal(await page.locator(".order-ticket-qr").count(), 1);
     assert.match(await page.locator(".order-ticket-total").textContent(), /110/);
     assert.equal(await page.locator("#feed-cart-count").textContent(), "1");
