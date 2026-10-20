@@ -5,16 +5,16 @@
       "id": "swipe-menu-entry-and-view-switch-20261020",
       "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/454",
       "reviewKind": "assistant-visual-inspection-not-human-attestation",
-      "sourceHead": "5b0beb2b9eb3dd14c66f36932cf80c16bf6bacab",
-      "sourceTree": "c997b9d5fa670c1183f360844d3f89b84e9b586e",
+      "sourceHead": "d5abd2084f7f5a223dfdac3c6754dcb6fab044d3",
+      "sourceTree": "0976671568bbcb43c924c9b1a8f647c934f0f158",
       "baselineHead": "33f0baca8c4f64bcc66d1a5b8b2b6917a8f1dfdc",
       "evidenceKind": "github-actions-locked-toolchain-captures",
-      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39407610941",
-      "evidenceArtifactId": "12257533556",
-      "evidenceArtifactSha256": "4f2ef63131ff728472444cf63914bad2c3c19d65e3f1775cbe75eb24f2864ece",
-      "captureSummarySha256": "bd725c5634d5c99ba443237db64d830d243f2d855a7006be8dda5e7813a0bb98",
-      "summary": "Inspected every failing baseline/current comparison: four full-home, four full-menu, three home-menu previews, three visit/map regions, five social offers and one menu-share region. The new square-photo entry and separate List/Feed switch are visible without lost content or overlapping controls. Full-home heights grow 95/107/148/148px at 320/390/768/1440px; full-menu heights change by -12/-14/+9/+62px. The regional differences preserve content and wrapping and appear to be downstream pixel-scale placement/rasterization. Both attempts report the same 20 failures and 23 passes with identical result rows. Exact observed ratio caps and dimension reasons apply only to the bound bytes; no extra tolerance is added. This is assistant visual inspection, not independent-human approval or release attestation.",
-      "scope": "This record covers only the 20 listed HOME/full-menu comparisons. It does not approve the feed page or its interaction behavior. After the captured commit, the feed action rail was widened to 64px, with feed HTML revision, service-worker revision and integrity-manifest updates, and a nonpublic browser fixture was adjusted to focus its close control before Escape. None changes the captured home/full-menu HTML, CSS or visible assets; visual captures block service workers. Content bindings below include those later bytes solely to prevent reuse after further changes, not to claim they were in the captured source. Fresh current-head CI remains required.",
+      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39437708175",
+      "evidenceArtifactId": "12272817759",
+      "evidenceArtifactSha256": "6cd0bbf9e8b18fa0334641dfa3b78d68d32d15f1254cb8b221ee716d8f564215",
+      "captureSummarySha256": "a27ee0c1715381ddfbe58f219725b4740051eda878e017901715c9e8022ad483",
+      "summary": "Fresh assistant inspection of all 20 failing baseline/current comparisons from the captured commit: eight full-page pairs (each overview and changed top/entry region), three menu previews, three visit/map regions, five social offers and one menu-share region; native 320px landing/menu footer crops also inspected. The new square-photo entry and separate List/Feed switch fit without observed text/control overlap or lost downstream sections. Full-home heights grow 95/107/148/148px at 320/390/768/1440px; full-menu heights change by -12/-14/+9/+62px. Regional pairs preserve content, wrapping and actions; small positioning/rasterization differences are an inference from paired screenshots. Both attempts contain the same 20 failure rows and 23 passing comparisons. Exact observed ratio caps and dimension reasons below add no extra tolerance. This is assistant visual inspection, not independent-human approval or release attestation.",
+      "scope": "Only the 20 listed home/full-menu comparisons in the captured default Turkish/static list views are covered. The feed page, other locales and interactive mode-switch behavior are outside this visual record. All captured public bytes, including menu-view-mode.js and menu hooks, belong to sourceHead d5abd208. After capture, only the nonpublic browser fixture scripts/test-menu-feed-browser.mjs changed: explicit category selection after search, restored-search/deep-link assertions, and narrowly counted WebKit screenshot-tool CSP diagnostics. Its later blob is bound below to prevent stale reuse, not represented as captured code. Fresh current-head browser/CI verification remains required; no thresholds, baselines, workflows or production CSP are changed by this record.",
       "contentBindings": {
         ".github/workflows/order-reliability.yml": "94077db95bc875d5f93a8e59ae73de1b67b31617",
         ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
@@ -81,18 +81,18 @@
         "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
         "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
         "index.html": "1ce693805ad546433103e2bbffdd0adc95e9fab2",
-        "integrity-manifest.json": "01c207d707b19332a22e4c95d7dfacec30465ad6",
+        "integrity-manifest.json": "c6b9e9a198c6a59caf9ce8d838af0c6b4289258a",
         "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
         "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
-        "menu-app.js": "534d064bad136dcfbb89a7ac139a528429229f04",
+        "menu-app.js": "e7133aba4f503d631dafb23d5eef0aad630a97ae",
         "menu-catalog.js": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
         "menu-combos-ui.js": "2d38d4948041c6feba9195a2ff6760b68a38a483",
         "menu-combos.css": "cda13e98428780fe11d2eb07b93ca526431c3135",
         "menu-family-ui.js": "4c4cbd2650d0575e885592c375eecf977f53906a",
         "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
-        "menu-feed.css": "9f10acdd0e40689da38abe4d4fb15e38e14e3c99",
-        "menu-feed.html": "838ff9573f0915196c047d9da9d17299265ac578",
-        "menu-feed.js": "fd35a439fd2d474db9a76d5c8e711e0c9edc21b0",
+        "menu-feed.css": "aa9655d5f30f23bf6355fc5d308c7f63e828134c",
+        "menu-feed.html": "9616a7f44712dcb95a34b0ed28448ada3f3109cd",
+        "menu-feed.js": "ea1db49c959480fc331dd1d64f172013a9bd6034",
         "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
         "menu-order-ui.js": "417aa5765699fe39b6502ea1432be91641ceea7c",
         "menu-pairing.js": "0b5466374699a34e235dfcb6b4cc216de987d2c6",
@@ -104,11 +104,12 @@
         "menu-pwa.js": "1415bd00f34c3c2fe2d52007da28b2a74b036627",
         "menu-ready.js": "07d7bdef30e9742a2eb3038ff4cea425fe67295d",
         "menu-runtime.css": "96da6bbbd2642f92a5ce4aac67ba186a167568de",
-        "menu-search-clear.js": "b6ada733cd40c68ee74d2eb37b53efbda1afac9a",
+        "menu-search-clear.js": "681c7d367eac1b4a64a48ee419277a868d428ad5",
         "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
         "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
         "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
-        "menu.html": "976779fa152bdfe826cdd714c89eae4454e0232a",
+        "menu-view-mode.js": "b3de565c93eb9e8519bdc30a4a46765a85a6eaa4",
+        "menu.html": "eea4b8e10f43ffbc0ecd3b177fd5682499b20dec",
         "mobile.css": "7aed337581ea5cde7585349b950a88d5813a27ca",
         "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
         "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
@@ -116,7 +117,7 @@
         "order-checkout.js": "06e5fcdfb55a661edf7079f5a2b265d5021dae29",
         "order-storage.js": "5adb7bb57a1b841ec1cf576f8fd8945ede4e2cc5",
         "package-lock.json": "c7183d9bd1cc461045d19dff433ca074e9542af2",
-        "package.json": "e9d0df5cdd3a52057fdda95cd86b276c1d6d7bfc",
+        "package.json": "6920cb3c90a1c685353cfcc2e0b9be8defc70448",
         "pairing-posters.css": "4b27164c15f2f28b6773cda0b15db720ff60e467",
         "pairing-posters.js": "cf6b0b74880b64e47bb15c59255b1ba7d78b7da3",
         "pairing-preview.css": "be0768a2cbc2e34f21627f359b8522bb59a36c9d",
@@ -127,14 +128,15 @@
         "refresh.html": "54b746a5436e17831faa10b773d890752afe5854",
         "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
         "ru/coffee-gazipasa.html": "90b7c751db76d9a59f1727e42d290763dbf24d15",
-        "scripts/build.mjs": "170cf030e6a98c1fdd3698e47f6f0cbae1cbad88",
+        "scripts/build.mjs": "4e0ae56119a3d7aa21b00ae5cab6639e8e9659ca",
         "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
         "scripts/menu-runtime-source.mjs": "d2098014faab819d37f024980c623b616ee96d09",
         "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
-        "scripts/test-menu-combos-browser.mjs": "eb9646ef0a76f215be217b7af846d9ed2fa7b4ff",
-        "scripts/test-menu-feed-browser.mjs": "1ab7306a3d455582721f053fd736637e43bde361",
+        "scripts/test-menu-combos-browser.mjs": "39d5f8c5a2070e11962516c84f14c84af99e4f46",
+        "scripts/test-menu-feed-browser.mjs": "946c1c436a0772bb1140d15f92e659ab13006706",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "1c64266574668f744ecaa65838e3f3325fbe1d47",
+        "scripts/test-menu-view-mode.mjs": "b2d2def8aab4375bf8e5754003caa9d1cb4b1afe",
         "scripts/test-visual-toolchain.mjs": "95982b9806d10ebf4ccadf730cb69f372ee0a500",
         "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
         "scripts/verify-visual-toolchain.mjs": "b64d143d3c810d60f5c432545c3ee483ccd1fbaf",
@@ -177,7 +179,7 @@
         "src/counter-checkout.js": "848d82d53ccb2d5ce66176a490bd661b9e9f2d79",
         "src/kids-menu.js": "699c900fbf38987a587146638a7845459746289c",
         "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
-        "src/menu-app.js": "b333e7bf29f67208f909eaa0e0730f1c0b91ebdc",
+        "src/menu-app.js": "3e345e3cead14bcd3e8d94bc2c0a0fac3e27070b",
         "src/menu-combos-ui.js": "08a4b69da72e65387cd0853d9c4909753a1a0e5e",
         "src/menu-combos.js": "b8740172a380b6c897d8153bf39549ed11a25de9",
         "src/menu-family-ui.js": "1d0e733fa4cd2694753c79edd8b3ad5c936e65ec",
@@ -185,7 +187,7 @@
         "src/menu-feed-engagement.js": "d5dcaaf17abcc694e03da8f128b47fcc2226ebd1",
         "src/menu-feed-model.js": "991627f4f3394bb30b1dbfc0cd8181f6e8ef0f75",
         "src/menu-feed-navigation.js": "bbce8fd162ef592d8bc3b27c806c8d44a29fba26",
-        "src/menu-feed.js": "42c0796467e9e765f746f91be4d65b3f37ae5977",
+        "src/menu-feed.js": "0c8dfbf6415012272dea0ca9c337aaeb0382f2c9",
         "src/menu-icons/cold.svg": "5d1e35e02796b57d3f60a6dd6c3d7c402ae5f3df",
         "src/menu-icons/dessert.svg": "6f51819e2613bf98668ed99937048bcc3b64b93e",
         "src/menu-icons/food.svg": "44d1a9d16940870c0445781fcf597d4e14516c26",
@@ -496,7 +498,7 @@
         "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
         "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
         "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
-        "sw-core-v64.js": "d2b01167e880ffa6a69632f1ab683da04ea9fe1d",
+        "sw-core-v64.js": "af99c137e20cf38f002a3d8ef58055beae696d57",
         "sw.js": "8573779a19f070745184c0628a5832c1ea857d28",
         "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
         "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
@@ -617,140 +619,140 @@
           "viewport": "phone-320",
           "baseline": "final/baseline/landing-full__phone-320.png",
           "current": "final/current/landing-full__phone-320.png",
-          "observation": "The plain photo-menu link becomes a contained square-photo card before category choices. The title, browse/add hint, category routes and ordering steps fit; the full-page overview retains the downstream gallery, menu preview, visit/social blocks and footer. The added card changes page height."
+          "observation": "The new square-photo menu entry fits its title, hint and arrow before the original stacked category cards. All downstream sections remain in the full-page overview. Native footer crop retains the baseline content/layout. Height increases by 95px."
         },
         {
           "capture": "menu-full",
           "viewport": "phone-320",
           "baseline": "final/baseline/menu-full__phone-320.png",
           "current": "final/current/menu-full__phone-320.png",
-          "observation": "A separate List/Feed switch precedes three combo routes. Brand, supporting copy, helper, cart/search, category navigation, product groups, share panel and footer remain visible. Mobile hero spacing is compacted; there is no observed text or control overlap."
+          "observation": "The separate Liste/Akış switch fits above the three combo routes; the children route wraps inside its chip. Cart, search, categories, products and footer remain intact. Native footer crop retains baseline content/layout. Height decreases by 12px."
         },
         {
           "capture": "social-offer",
           "viewport": "phone-320",
           "baseline": "final/baseline/social-offer__phone-320.png",
           "current": "final/current/social-offer__phone-320.png",
-          "observation": "The same Lotus Cheesecake plus Latte photo, 370-lira offer, heading, Instagram text and CTA remain visible. No observed crop, distortion or overlap. Differences are pixel-scale vertical placement/rasterization and, for some viewports, a one-pixel screenshot-height change."
+          "observation": "Paired images retain the Lotus Cheesecake + Latte image, 370-lira offer, heading, Instagram text and CTA. No observed new crop, distortion or control overlap. Some viewports have a one-pixel crop-height difference."
         },
         {
           "capture": "menu-share",
           "viewport": "phone-320",
           "baseline": "final/baseline/menu-share__phone-320.png",
           "current": "final/current/menu-share__phone-320.png",
-          "observation": "The 280x511px pair preserves heading/paragraph wrapping, red share CTA, Instagram button and Google Maps link. Only pixel-scale text/border positioning differs; no observed clipping or overlap. Both baseline and current PNGs are byte-identical across attempts."
+          "observation": "The 280x511px pair retains identical heading/paragraph wrapping, red share CTA, Instagram button and Google Maps link. No observed clipping or overlap; small text/border positioning differences remain."
         },
         {
           "capture": "social-offer",
           "viewport": "phone-360-short",
           "baseline": "final/baseline/social-offer__phone-360-short.png",
           "current": "final/current/social-offer__phone-360-short.png",
-          "observation": "The same Lotus Cheesecake plus Latte photo, 370-lira offer, heading, Instagram text and CTA remain visible. No observed crop, distortion or overlap. Differences are pixel-scale vertical placement/rasterization and, for some viewports, a one-pixel screenshot-height change."
+          "observation": "Paired images retain the Lotus Cheesecake + Latte image, 370-lira offer, heading, Instagram text and CTA. No observed new crop, distortion or control overlap. Some viewports have a one-pixel crop-height difference."
         },
         {
           "capture": "landing-full",
           "viewport": "phone-390",
           "baseline": "final/baseline/landing-full__phone-390.png",
           "current": "final/current/landing-full__phone-390.png",
-          "observation": "The plain photo-menu link becomes a contained square-photo card before category choices. The title, browse/add hint, category routes and ordering steps fit; the full-page overview retains the downstream gallery, menu preview, visit/social blocks and footer. The added card changes page height."
+          "observation": "The new square-photo menu entry fits its text and arrow; original stacked category cards, ordering steps and downstream sections remain visible in the full-page overview. Height increases by 107px."
         },
         {
           "capture": "menu-full",
           "viewport": "phone-390",
           "baseline": "final/baseline/menu-full__phone-390.png",
           "current": "final/current/menu-full__phone-390.png",
-          "observation": "A separate List/Feed switch precedes three combo routes. Brand, supporting copy, helper, cart/search, category navigation, product groups, share panel and footer remain visible. Mobile hero spacing is compacted; there is no observed text or control overlap."
+          "observation": "The separate Liste/Akış switch and three route chips fit without observed overlap; cart/search, categories and all product sections remain in the full-page overview. Height decreases by 14px."
         },
         {
           "capture": "menu-preview",
           "viewport": "phone-390",
           "baseline": "final/baseline/menu-preview__phone-390.png",
           "current": "final/current/menu-preview__phone-390.png",
-          "observation": "The same six category cards, heading, supporting copy and two menu links remain visible with unchanged wrapping. The mobile bottom CTA is present in both images. Observed differences are pixel-scale placement/rasterization, including a one-pixel crop-height change at 390px."
+          "observation": "Paired images retain the same six category cards, heading, supporting text and two menu links with the same wrapping. The 390px mobile bottom controls remain visible. Small positioning/rasterization differences and the one-pixel 390px crop-height change do not visibly clip text or controls."
         },
         {
           "capture": "visit-map",
           "viewport": "phone-390",
           "baseline": "final/baseline/visit-map__phone-390.png",
           "current": "final/current/visit-map__phone-390.png",
-          "observation": "Address, hours, Instagram handle, map pin and all direction/Instagram controls remain visible with the same layout and wrapping. Differences appear limited to pixel-scale placement/rasterization; this is an inference from paired images, not proof of byte identity."
+          "observation": "Paired images retain address, hours, Instagram handle, map marker, direction and Instagram controls with the same wrapping/layout. No observed content loss or overlap; small positioning/rasterization differences are inferred from the paired rendered regions."
         },
         {
           "capture": "social-offer",
           "viewport": "phone-390",
           "baseline": "final/baseline/social-offer__phone-390.png",
           "current": "final/current/social-offer__phone-390.png",
-          "observation": "The same Lotus Cheesecake plus Latte photo, 370-lira offer, heading, Instagram text and CTA remain visible. No observed crop, distortion or overlap. Differences are pixel-scale vertical placement/rasterization and, for some viewports, a one-pixel screenshot-height change."
+          "observation": "Paired images retain the Lotus Cheesecake + Latte image, 370-lira offer, heading, Instagram text and CTA. No observed new crop, distortion or control overlap. Some viewports have a one-pixel crop-height difference."
         },
         {
           "capture": "landing-full",
           "viewport": "tablet-768",
           "baseline": "final/baseline/landing-full__tablet-768.png",
           "current": "final/current/landing-full__tablet-768.png",
-          "observation": "The plain photo-menu link becomes a contained square-photo card before category choices. The title, browse/add hint, category routes and ordering steps fit; the full-page overview retains the downstream gallery, menu preview, visit/social blocks and footer. The added card changes page height."
+          "observation": "The full-width photo entry and right arrow fit above the original three-column category cards. All downstream sections remain in the full-page overview. Height increases by 148px."
         },
         {
           "capture": "menu-full",
           "viewport": "tablet-768",
           "baseline": "final/baseline/menu-full__tablet-768.png",
           "current": "final/current/menu-full__tablet-768.png",
-          "observation": "A separate List/Feed switch precedes three combo routes. Brand, supporting copy, helper, cart/search, category navigation, product groups, share panel and footer remain visible. Mobile hero spacing is compacted; there is no observed text or control overlap."
+          "observation": "The separate switch row and three route chips fit; all body/product sections remain in the full-page overview. No observed clipping or overlap. Height increases by 9px."
         },
         {
           "capture": "social-offer",
           "viewport": "tablet-768",
           "baseline": "final/baseline/social-offer__tablet-768.png",
           "current": "final/current/social-offer__tablet-768.png",
-          "observation": "The same Lotus Cheesecake plus Latte photo, 370-lira offer, heading, Instagram text and CTA remain visible. No observed crop, distortion or overlap. Differences are pixel-scale vertical placement/rasterization and, for some viewports, a one-pixel screenshot-height change."
+          "observation": "Paired images retain the Lotus Cheesecake + Latte image, 370-lira offer, heading, Instagram text and CTA. No observed new crop, distortion or control overlap. Some viewports have a one-pixel crop-height difference."
         },
         {
           "capture": "menu-preview",
           "viewport": "laptop-1366",
           "baseline": "final/baseline/menu-preview__laptop-1366.png",
           "current": "final/current/menu-preview__laptop-1366.png",
-          "observation": "The same six category cards, heading, supporting copy and two menu links remain visible with unchanged wrapping. The mobile bottom CTA is present in both images. Observed differences are pixel-scale placement/rasterization, including a one-pixel crop-height change at 390px."
+          "observation": "Paired images retain the same six category cards, heading, supporting text and two menu links with the same wrapping. The 390px mobile bottom controls remain visible. Small positioning/rasterization differences and the one-pixel 390px crop-height change do not visibly clip text or controls."
         },
         {
           "capture": "visit-map",
           "viewport": "laptop-1366",
           "baseline": "final/baseline/visit-map__laptop-1366.png",
           "current": "final/current/visit-map__laptop-1366.png",
-          "observation": "Address, hours, Instagram handle, map pin and all direction/Instagram controls remain visible with the same layout and wrapping. Differences appear limited to pixel-scale placement/rasterization; this is an inference from paired images, not proof of byte identity."
+          "observation": "Paired images retain address, hours, Instagram handle, map marker, direction and Instagram controls with the same wrapping/layout. No observed content loss or overlap; small positioning/rasterization differences are inferred from the paired rendered regions."
         },
         {
           "capture": "social-offer",
           "viewport": "laptop-1366",
           "baseline": "final/baseline/social-offer__laptop-1366.png",
           "current": "final/current/social-offer__laptop-1366.png",
-          "observation": "The same Lotus Cheesecake plus Latte photo, 370-lira offer, heading, Instagram text and CTA remain visible. No observed crop, distortion or overlap. Differences are pixel-scale vertical placement/rasterization and, for some viewports, a one-pixel screenshot-height change."
+          "observation": "Paired images retain the Lotus Cheesecake + Latte image, 370-lira offer, heading, Instagram text and CTA. No observed new crop, distortion or control overlap. Some viewports have a one-pixel crop-height difference."
         },
         {
           "capture": "landing-full",
           "viewport": "desktop-1440",
           "baseline": "final/baseline/landing-full__desktop-1440.png",
           "current": "final/current/landing-full__desktop-1440.png",
-          "observation": "The plain photo-menu link becomes a contained square-photo card before category choices. The title, browse/add hint, category routes and ordering steps fit; the full-page overview retains the downstream gallery, menu preview, visit/social blocks and footer. The added card changes page height."
+          "observation": "The full-width photo entry and right arrow fit above the original three-column category cards; no observed overlap or content loss in the overview or changed-entry crop. Downstream sections remain. Height increases by 148px."
         },
         {
           "capture": "menu-full",
           "viewport": "desktop-1440",
           "baseline": "final/baseline/menu-full__desktop-1440.png",
           "current": "final/current/menu-full__desktop-1440.png",
-          "observation": "A separate List/Feed switch precedes three combo routes. Brand, supporting copy, helper, cart/search, category navigation, product groups, share panel and footer remain visible. Mobile hero spacing is compacted; there is no observed text or control overlap."
+          "observation": "The added switch row makes the intro taller; sidebar, pairing/product grid and footer remain intact in the full-page overview. No observed control overlap. Height increases by 62px."
         },
         {
           "capture": "menu-preview",
           "viewport": "desktop-1440",
           "baseline": "final/baseline/menu-preview__desktop-1440.png",
           "current": "final/current/menu-preview__desktop-1440.png",
-          "observation": "The same six category cards, heading, supporting copy and two menu links remain visible with unchanged wrapping. The mobile bottom CTA is present in both images. Observed differences are pixel-scale placement/rasterization, including a one-pixel crop-height change at 390px."
+          "observation": "Paired images retain the same six category cards, heading, supporting text and two menu links with the same wrapping. The 390px mobile bottom controls remain visible. Small positioning/rasterization differences and the one-pixel 390px crop-height change do not visibly clip text or controls."
         },
         {
           "capture": "visit-map",
           "viewport": "desktop-1440",
           "baseline": "final/baseline/visit-map__desktop-1440.png",
           "current": "final/current/visit-map__desktop-1440.png",
-          "observation": "Address, hours, Instagram handle, map pin and all direction/Instagram controls remain visible with the same layout and wrapping. Differences appear limited to pixel-scale placement/rasterization; this is an inference from paired images, not proof of byte identity."
+          "observation": "Paired images retain address, hours, Instagram handle, map marker, direction and Instagram controls with the same wrapping/layout. No observed content loss or overlap; small positioning/rasterization differences are inferred from the paired rendered regions."
         }
       ],
       "attemptRepeatability": {
@@ -758,35 +760,23 @@
         "identicalResultRows": true,
         "failuresPerAttempt": 20,
         "passesPerAttempt": 23,
-        "pngByteVariation": "The two attempts are not wholly byte-identical. At the unchanged CI pixel threshold, menu-preview 390 differs by 2 pixels in each baseline/current pair and current landing-full 1440 by 501 pixels around the map/Instagram area; those paired regions retain their content. Four further PNG byte variations have zero differing pixels at that threshold. Current desktop landing exactly matches the already inspected first attempt of run 39405825713.",
-        "priorHomeReviewRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39405825713",
-        "homeFailureRowsUnchangedFromPriorRun": true
+        "pngFilesCompared": 86,
+        "pngByteIdentical": 81,
+        "pngByteVariation": [
+          "baseline/discover-full__phone-320.png",
+          "current/hero__desktop-1440.png",
+          "current/landing-full__desktop-1440.png",
+          "current/hero__phone-390.png",
+          "current/discover-full__phone-320.png"
+        ],
+        "limitation": "Identical result rows do not imply byte-identical PNGs. The final attempt images were inspected; no additional tolerance is granted for these byte variations."
       },
       "postCaptureBoundByteChanges": [
         {
-          "path": "integrity-manifest.json",
-          "capturedBlob": "fb95cbb2f9586609b746ae5723960e4bd498edcb",
-          "boundBlob": "01c207d707b19332a22e4c95d7dfacec30465ad6"
-        },
-        {
-          "path": "menu-feed.css",
-          "capturedBlob": "e0291f501c34180fccb10983cd44bc050cb9b013",
-          "boundBlob": "9f10acdd0e40689da38abe4d4fb15e38e14e3c99"
-        },
-        {
-          "path": "menu-feed.html",
-          "capturedBlob": "08e5b3de23155b20ff217a5f0656b2cfecc24b99",
-          "boundBlob": "838ff9573f0915196c047d9da9d17299265ac578"
-        },
-        {
           "path": "scripts/test-menu-feed-browser.mjs",
-          "capturedBlob": "d6b4e35e785bf4b94164e7b4681eb67c33258f14",
-          "boundBlob": "1ab7306a3d455582721f053fd736637e43bde361"
-        },
-        {
-          "path": "sw-core-v64.js",
-          "capturedBlob": "e64e054f7d92e5e780034c068ed36321f77de6d5",
-          "boundBlob": "d2b01167e880ffa6a69632f1ab683da04ea9fe1d"
+          "capturedBlob": "afb44ec41ae043a7f06bd62a13c273c663fa6227",
+          "boundBlob": "946c1c436a0772bb1140d15f92e659ab13006706",
+          "reason": "Nonpublic browser fixture corrections only; captured public assets are unchanged."
         }
       ]
     }

@@ -33,13 +33,31 @@ const origin = `https://127.0.0.1:${server.address().port}`;
 const engine = process.env.CHECKOUT_BROWSERS ?? "chromium";
 assert.ok(["chromium", "firefox", "webkit"].includes(engine));
 const report = { head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), engine,
-  runtimeSha256: createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex"), cases: [] };
+  runtimeSha256: createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex"),
+  expectedWebKitScreenshotCspRejections: 0, cases: [] };
 const catalog = feedProducts(menuCategories);
+const screenshotCspBudget = new WeakMap();
+const webkitScreenshotCspMessage = "Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy.";
 function observeErrors(page, errors) {
   page.on("pageerror", error => errors.push(`pageerror: ${error.message}`));
   page.on("console", message => {
-    if (message.type() === "error") errors.push(`console.error: ${message.text()}`);
+    if (message.type() !== "error") return;
+    // Playwright's WebKit screenshot preparation appends one inline `body {}`
+    // stylesheet to sync animations (server/screenshotter.js). Our real CSP
+    // rejects that test-only style. Permit exactly that one message during the
+    // awaited capture; application CSP errors and additional errors still fail.
+    if (engine === "webkit" && screenshotCspBudget.get(page) === 1 && message.text() === webkitScreenshotCspMessage) {
+      screenshotCspBudget.set(page, 0);
+      report.expectedWebKitScreenshotCspRejections++;
+      return;
+    }
+    errors.push(`console.error: ${message.text()}`);
   });
+}
+async function captureScreenshot(page, options) {
+  if (engine === "webkit") screenshotCspBudget.set(page, 1);
+  try { await page.screenshot(options); }
+  finally { screenshotCspBudget.delete(page); }
 }
 async function waitForMenuMode(page, mode) {
   await page.locator('html[data-menu-view-ready="true"]').waitFor();
@@ -143,13 +161,13 @@ try {
       assert.ok(photo.width >= width - 2, `Mobile photograph must fill the ${width}px feed column, received ${photo.width}px`);
       await assertLandingPhotoFits(page);
     }
-    await page.screenshot({ path: `${output}/${engine}-${width}-${language}.png` });
+    await captureScreenshot(page, { path: `${output}/${engine}-${width}-${language}.png` });
     if (width <= 760) await assertPurchaseControlsReachable(page);
     await page.locator(".feed-like").first().click();
     await page.locator('.feed-like[aria-pressed="true"]').first().waitFor();
     await page.locator(".feed-card").first().evaluate(card => card.scrollIntoView({ block: "start", behavior: "instant" }));
     await page.locator(".feed-avatar").first().evaluate(image => image.decode());
-    await page.screenshot({ path: `${output}/${engine}-${width}-${language}-liked-card.png` });
+    await captureScreenshot(page, { path: `${output}/${engine}-${width}-${language}-liked-card.png` });
     // Filtering, atomic add, repeat add and removal use the actual user controls.
     await chooseCategory(page, "hot-coffee");
     const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
@@ -826,7 +844,7 @@ try {
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-cart-open"));
     await card.locator("select").scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${output}/${engine}-320-short-text${textScale * 100}.png` });
+    await captureScreenshot(page, { path: `${output}/${engine}-320-short-text${textScale * 100}.png` });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     assert.deepEqual(errors, []);
     report.cases.push({ case: `short-viewport-text${textScale * 100}`, result: "PASS", width: 320, height: 568,
@@ -843,6 +861,10 @@ try {
     await page.goto(`${origin}/menu.html?view=list&lang=ru#hot-coffee`);
     await waitForMenuMode(page, "list");
     await page.locator("#menu-search").fill(query);
+    // Typing intentionally searches all categories in the list. Select the
+    // category afterwards so this journey carries both real user choices.
+    await page.locator('#menu-category-nav [data-category="hot-coffee"]').click();
+    assert.equal(await page.locator("#menu-search").inputValue(), query);
     await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media').click();
     await page.locator("#menu-add-to-cart").click();
     await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
@@ -863,6 +885,7 @@ try {
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator("html").getAttribute("lang"), "ru");
     assert.equal(await page.locator("#menu-search").inputValue(), query);
+    assert.equal(await page.locator(".menu-search-clear").isVisible(), true, "A restored query keeps its clear button available");
     assert.equal(await page.locator('#menu-category-nav [data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#menu-cart-count").textContent(), "2");
     assert.match(await page.locator("#menu-cart-total").textContent(), /220/);
@@ -871,7 +894,7 @@ try {
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "list");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-roundtrip", result: "PASS", language: "ru", category: "hot-coffee",
-      searchPreservedBothWays: true, sharedCartAfterBothAdds: 2, total: 220, explicitModeUrls: true, consoleErrors: false });
+      searchPreservedBothWays: true, restoredSearchCanBeCleared: true, sharedCartAfterBothAdds: 2, total: 220, explicitModeUrls: true, consoleErrors: false });
     await context.close();
   }
   {
@@ -923,10 +946,20 @@ try {
     await page.goto(`${origin}/menu.html#cold-coffee`);
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="cold-coffee"]').getAttribute("aria-pressed"), "true");
-    await page.goto(`${origin}/menu.html?product=${encodeURIComponent("hot-coffee:espresso")}`);
+    await page.goto(`${origin}/menu.html?product=${encodeURIComponent("hot-coffee:espresso")}&lang=en#hot-coffee`);
     await waitForMenuMode(page, "list");
     await page.locator("#menu-product-dialog[open]").waitFor();
     assert.match(await page.locator("#menu-product-title").textContent(), /Espresso/);
+    await page.keyboard.press("Escape");
+    await page.locator('#menu-category-nav [data-category="desserts"]').click();
+    const changedCategoryUrl = new URL(page.url());
+    assert.equal(changedCategoryUrl.hash, "#desserts");
+    assert.equal(changedCategoryUrl.searchParams.has("product"), false, "A new category replaces the shared product intent");
+    assert.equal(changedCategoryUrl.searchParams.has("item"), false);
+    await page.reload();
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator('#menu-category-nav [data-category="desserts"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#menu-product-dialog[open]").count(), 0, "Reload must not reopen a superseded product");
     await page.goto(`${origin}/menu.html#menu-combos`);
     await waitForMenuMode(page, "list");
     await page.locator(".menu-combos-card").first().waitFor();
@@ -938,7 +971,7 @@ try {
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
-      productDialogOpens: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
+      productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
     await context.close();
   }
   {
