@@ -114,8 +114,8 @@
         {
           "path": "scripts/test-menu-feed-browser.mjs",
           "capturedBlob": "eadab1a3122c1e0857164daefa33ea3db5905041",
-          "currentBlob": "376e7e157dbcadccf5c35a86e965c5da3e08ffcb",
-          "reason": "Nonpublic browser fixture: sticky-header hit-testing or bounded waits for exact computed text/focus state; customized combo expectation matches canonical independently editable product groups. Production behavior assertions retained."
+          "currentBlob": "6b14de9f86ca30eb156161bba1e13dc45543fbb4",
+          "reason": "Nonpublic browser fixture: sticky-header hit-testing or bounded waits for exact computed text/focus state; customized combo expectation matches canonical independently editable product groups. Production behavior assertions retained. Deep-link roundtrip helper asserts the preserved product ID and closes its expected canonical preview before opening cart; exact order equality retained."
         },
         {
           "path": "sw-core-v64.js",
@@ -244,7 +244,7 @@
         "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
         "scripts/test-menu-cart-edit-browser.mjs": "6acc24d47db2fc957a0b6f05afd3290583cb9e83",
         "scripts/test-menu-combos-browser.mjs": "39d5f8c5a2070e11962516c84f14c84af99e4f46",
-        "scripts/test-menu-feed-browser.mjs": "376e7e157dbcadccf5c35a86e965c5da3e08ffcb",
+        "scripts/test-menu-feed-browser.mjs": "6b14de9f86ca30eb156161bba1e13dc45543fbb4",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "285135354aceb1023ebdbe22158ad831cd65ca07",
         "scripts/test-menu-view-mode.mjs": "88cb092a3f9e2952bfb689116aa5c96ceaa2c431",
@@ -726,7 +726,16 @@
           "totalPixels": 1425600,
           "maxDiffPixelRatio": 0.0038994107744107745
         }
-      ]
+      ],
+      "supplementalScrollEvidence": {
+        "sourceHead": "49ce04653a3d1175cf00cab1a11b07abf3d1c73a",
+        "sourceTree": "267cb48a2c6b75f60c83720f553e85090aa4280c",
+        "run": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39468845740",
+        "artifactId": "12286910544",
+        "artifactSha256": "93816b536d7edb019f9d01bebb8f51643e1226df63d5eb34d65f384757a0b4fd",
+        "captureSummarySha256": "0ec1f15bfd29dfc10ad21ba8d916160ef77d2ee3e8bf60b902e0f088d520c18e",
+        "observation": "Root actually inspected phone320/390 after-scroll captures. Both mode controls remain above product photos without observed occlusion; automated center hit-tests passed at all rapid-scroll steps, no horizontal overflow, stable height, repaint diff0.0000%. This source head contains the corrected z-index100. Later changes update only nonpublic test fixtures and this record."
+      }
     }
   ]
 }

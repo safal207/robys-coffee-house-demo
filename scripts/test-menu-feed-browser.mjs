@@ -80,10 +80,19 @@ async function assertSharedOrder(page, expected) {
   assert.deepEqual(await storedOrder(page), expected, "Switching presentation preserves every item, flavor and group quantity");
 }
 async function roundTripOrder(page, expected, language = "en") {
+  const productId = new URL(page.url()).searchParams.get("item");
   await page.locator('.feed-view-switch [data-menu-view="list"]').click();
   await waitForMenuMode(page, "list");
   assert.equal(await page.locator("html").getAttribute("lang"), language);
+  assert.equal(new URL(page.url()).searchParams.get("product"), productId, "The list preserves the feed's product deep link");
   await assertSharedOrder(page, expected);
+  if (productId) {
+    // The canonical list opens an explicit product link as a preview.
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    await page.keyboard.press("Escape");
+    await page.locator("#menu-product-dialog[open]").waitFor({ state: "hidden" });
+    assert.deepEqual(await storedOrder(page), expected, "Closing the linked preview leaves the order unchanged");
+  }
   await page.locator("#menu-cart-trigger").click();
   await page.locator("#menu-cart-dialog[open]").waitFor();
   assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), expectedTotal(expected));
