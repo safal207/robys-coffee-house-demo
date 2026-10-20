@@ -516,6 +516,67 @@ try {
     await context.close();
   }
   {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    await page.locator(".feed-photo>img").first().evaluate(image => image.decode());
+    assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), false);
+    const snapType = await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType);
+    assert.match(snapType, /^y(?: proximity)?$/, "This journey must exercise mobile proximity snapping with normal motion");
+    const settled = async index => {
+      // Poll the actual scroll result on animation frames. A matching counter
+      // alone is insufficient because next/previous update it before motion.
+      await page.waitForFunction(({ index, count }) => {
+        const card = document.querySelectorAll(".feed-card")[index];
+        const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+          document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+        const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+        const rect = card.getBoundingClientRect();
+        const fits = Math.abs(rect.top - top) <= 1 && rect.bottom <= bottom + 1
+          && document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`
+          && [".feed-photo>img", "h3", ".feed-add"].every(selector => {
+            const node = card.querySelector(selector), box = node.getBoundingClientRect();
+            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit))
+              && (selector !== ".feed-photo>img" || (node.complete && node.naturalWidth > 0));
+          });
+        const previous = window.__feedTestSnapState;
+        const stable = fits && previous?.index === index && Math.abs(previous.scrollY - scrollY) < .1 ? previous.stable + 1 : 0;
+        window.__feedTestSnapState = { index, scrollY, stable };
+        return fits && stable >= 4;
+      }, { index, count: catalog.length }, { polling: "raf" });
+      return page.locator(".feed-card").nth(index).evaluate(card => {
+        const rect = card.getBoundingClientRect();
+        return { product: card.dataset.productId, top: rect.top, bottom: rect.bottom, scrollY };
+      });
+    };
+    await settled(0);
+    const distance = await page.locator(".feed-card").evaluateAll(cards => cards[1].getBoundingClientRect().top - cards[0].getBoundingClientRect().top);
+    assert.ok(distance > 32);
+    await page.mouse.move(185, 400);
+    // Deliberately undershoot the next card so the geometry assertion proves
+    // the browser corrected the position through the enabled snap behavior.
+    await page.mouse.wheel(0, distance - 32);
+    const afterWheel = await settled(1);
+    await page.locator(".feed-card").nth(1).locator(".feed-photo-next").click();
+    const afterNext = await settled(2);
+    assert.equal(await page.locator(".feed-card").nth(2).evaluate(node => node === document.activeElement), true);
+    await page.locator(".feed-card").nth(2).locator(".feed-photo-prev").click();
+    const afterPrevious = await settled(1);
+    assert.equal(await page.locator(".feed-card").nth(1).evaluate(node => node === document.activeElement), true);
+    assert.equal(await page.locator("#feed-cart-count").textContent(), "0");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "normal-motion-scroll-snap", result: "PASS", width: 390, height: 844, snapType,
+      wheelUndershootPixels: 32, geometrySettledBelowStickyControls: true, photoTitleAndAddUnobscured: true,
+      nextAndPreviousRestoreCardFocus: true, settledCards: [afterWheel, afterNext, afterPrevious] });
+    await context.close();
+  }
+  {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
