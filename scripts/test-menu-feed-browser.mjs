@@ -7,7 +7,8 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
 
-// Repository CI browser test: unchanged public bytes over HTTPS and the real CSP.
+// Repository CI browser test: public bytes over HTTPS and the real CSP.
+// Recovery cases explicitly replace one module response with a failed module.
 const repo = resolve(new URL("..", import.meta.url).pathname);
 process.chdir(repo);
 const output = resolve(".artifacts/menu-feed"); mkdirSync(output, { recursive: true });
@@ -94,6 +95,42 @@ try {
     assert.match(await page.locator("#feed-cart-total").textContent(), /310/);
     assert.deepEqual(errors, []);
     report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true, focus: true, overflow: false });
+    await context.close();
+  }
+  for (const moduleName of ["storage", "checkout"]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const requests = [];
+    await context.route(`**/order-${moduleName}.js*`, route => {
+      requests.push(route.request().url());
+      return requests.length === 1
+        ? route.fulfill({ status: 200, contentType: "application/javascript", body: 'throw new Error("Injected first-load failure");' })
+        : route.continue();
+    });
+    await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    if (moduleName === "storage") await page.locator("#feed-status").filter({ hasText: /try again/i }).waitFor();
+    await page.locator('[data-category="hot-coffee"]').click();
+    await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
+    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
+    await page.locator("#feed-cart-open").click();
+    await page.locator("#feed-checkout").click();
+    if (moduleName === "checkout") {
+      await page.locator("#feed-cart-error").filter({ hasText: /try again/i }).waitFor();
+      assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0);
+      await page.locator("#feed-checkout").click();
+    }
+    await page.locator(".order-checkout-dialog[open]").waitFor();
+    assert.equal(await page.locator(".order-ticket-qr").count(), 1);
+    assert.match(await page.locator(".order-ticket-total").textContent(), /110/);
+    assert.equal(await page.locator("#feed-cart-count").textContent(), "1");
+    assert.equal(requests.length, 2);
+    assert.notEqual(requests[0], requests[1]);
+    assert.equal(new URL(requests[1]).origin, origin);
+    assert.equal(new URL(requests[1]).searchParams.get("retry"), "1");
+    report.cases.push({ case: `${moduleName}-module-recovery`, result: "PASS", injectedFirstLoadFailure: true, freshRetryUrl: true, quantity: 1, total: 110, qr: true });
     await context.close();
   }
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });

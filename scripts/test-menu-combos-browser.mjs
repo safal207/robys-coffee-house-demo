@@ -304,11 +304,12 @@ try {
               firstCategoryTop: document.querySelector(".full-menu-panel").getBoundingClientRect().top,
               heroLinks: [...document.querySelectorAll(".menu-page-hero-copy > .combo-entry-links a")].map(link => {
                 const box = link.getBoundingClientRect();
-                return { id: link.id, width: box.width, height: box.height };
+                return { id: link.id, href: link.getAttribute("href"), width: box.width, height: box.height };
               })
             }));
-            assert.equal(initialMenu.heroLinks.length, 3);
-            assert.ok(initialMenu.heroLinks.every(link => link.width >= 44 && link.height >= 44), "All three hero routes retain44pixel touch targets");
+            assert.deepEqual(initialMenu.heroLinks.map(link => link.href), ["menu-feed.html", "#menu-combos-fallback", "#menu-combos-fallback", "#menu-family-fallback"],
+              "The feed and three existing combo routes remain available");
+            assert.ok(initialMenu.heroLinks.every(link => link.width >= 44 && link.height >= 44), "All four hero routes retain 44-pixel touch targets");
             assert.ok(initialMenu.firstCategoryTop < 600, "Hero routes preserve the first menu category within600pixels on narrow screens");
             if (width === 320 && language === "ru") await page.screenshot({ path: join(output, "menu-hero-320-ru.png") });
           }

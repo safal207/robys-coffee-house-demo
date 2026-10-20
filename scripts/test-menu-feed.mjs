@@ -67,6 +67,49 @@ test("shipped feed matches authored source and content-derived cache revisions",
   assert.match(html, /<noscript>/);
 });
 
+for (const name of ["Storage", "Checkout"]) test(`${name} retries escape a cached module failure and share successful initialization`, async () => {
+  // Execute the real loader, substituting only the import boundary. The module
+  // map retains rejected URLs just as a browser does after evaluation fails.
+  const source = readFileSync("src/menu-feed.js", "utf8");
+  const start = source.indexOf("async function loadStorage()");
+  const end = source.indexOf("async function refreshOrder()", start);
+  assert.ok(start >= 0 && end > start);
+  const loaders = source.slice(start, end)
+    .replace(/import\(("\.\/order-(?:storage|checkout)\.js\?v=[a-f0-9]+")\)/g, "loadModule($1)")
+    .replaceAll("import(retryUrl.href)", "loadModule(retryUrl.href)")
+    .replaceAll("import.meta.url", '"https://example.test/cafe/menu-feed.js"');
+  assert.ok(!loaders.includes("import("));
+  const requests = [], moduleMap = new Map();
+  let notices = 0, release;
+  const loaded = { createOrderStorageNotice() { notices++; return {}; } };
+  const api = vm.runInNewContext(`let storage, storagePromise, storageNotice, storageRetry = 0, checkoutPromise, checkoutRetry = 0;
+    ${loaders}\n({ loadStorage, loadCheckout });`, {
+    URL, root: {}, validIds: ids, productIndex: index, language: "en", refreshOrder() {},
+    loadModule(url) {
+      const absolute = new URL(url, "https://example.test/cafe/menu-feed.js").href;
+      requests.push(absolute);
+      if (!moduleMap.has(absolute)) moduleMap.set(absolute, requests.length === 1
+        ? Promise.reject(new Error("cached module evaluation failure"))
+        : new Promise(resolve => { release = () => resolve(loaded); }));
+      return moduleMap.get(absolute);
+    }
+  });
+  const load = api[`load${name}`];
+  const first = load(), concurrent = load();
+  const failed = await Promise.allSettled([first, concurrent]);
+  assert.ok(failed.every(result => result.status === "rejected"));
+  assert.equal(requests.length, 1, "Concurrent intents share one failed request");
+  const retry = load(), sharedRetry = load();
+  assert.equal(requests.length, 2);
+  assert.equal(requests[1], `https://example.test/cafe/order-${name.toLowerCase()}.js?retry=1`);
+  release();
+  assert.deepEqual(await Promise.all([retry, sharedRetry]), [loaded, loaded]);
+  assert.equal(await load(), loaded);
+  assert.equal(requests.length, 2, "Successful retries are reused");
+  assert.equal(notices, name === "Storage" ? 1 : 0);
+  await assert.rejects(moduleMap.get(requests[0]), /cached module evaluation failure/);
+});
+
 test("offline navigation opens the feed and never substitutes another asset revision", async () => {
   for (const scope of ["https://example.test/", "https://example.test/cafe/"]) {
     const cached = new Map([[scope + "menu-feed.html", "FEED"], [scope + "404.html", "NOT_FOUND"],

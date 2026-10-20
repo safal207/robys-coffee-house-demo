@@ -57,6 +57,7 @@ try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(c
 const readCategory = () => menuCategories.some(category => category.id === location.hash.slice(1)) ? location.hash.slice(1) : "all";
 let category = readCategory(), filtered = [], rendered = 0, currentIndex = 0;
 let draft = { version: 1, groups: [], lines: [] }, storage, storagePromise, storageNotice;
+let storageRetry = 0, checkoutPromise, checkoutRetry = 0;
 let busy = false, checkoutBusy = false, statusTimer, readVersion = 0, cartSession = 0;
 const text = () => copy[language];
 const localized = value => value?.[language] ?? value?.tr ?? "";
@@ -64,13 +65,34 @@ const money = value => `${new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: 
 const say = message => { clearTimeout(statusTimer); $("#feed-status").textContent = message; statusTimer = setTimeout(() => { $("#feed-status").textContent = ""; }, 4500); };
 
 async function loadStorage() {
-  if (!storagePromise) storagePromise = import("./order-storage.js?v=6908555cd79b").then(module => {
-    storage = module;
-    storageNotice = module.createOrderStorageNotice({ owner: root, validIds, getLanguage: () => language,
-      getProduct: id => productIndex.get(id)?.item, onResolved: refreshOrder });
-    return module;
-  }).catch(error => { storagePromise = null; throw error; });
+  if (!storagePromise) {
+    let loading;
+    if (storageRetry) {
+      const retryUrl = new URL("./order-storage.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(storageRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./order-storage.js?v=6908555cd79b");
+    storagePromise = loading.then(module => {
+      storage = module;
+      storageNotice = module.createOrderStorageNotice({ owner: root, validIds, getLanguage: () => language,
+        getProduct: id => productIndex.get(id)?.item, onResolved: refreshOrder });
+      return module;
+    }).catch(error => { storagePromise = null; storageRetry += 1; throw error; });
+  }
   return storagePromise;
+}
+
+function loadCheckout() {
+  if (!checkoutPromise) {
+    let loading;
+    if (checkoutRetry) {
+      const retryUrl = new URL("./order-checkout.js", import.meta.url);
+      retryUrl.searchParams.set("retry", String(checkoutRetry));
+      loading = import(retryUrl.href);
+    } else loading = import("./order-checkout.js?v=ede76ee31ffa");
+    checkoutPromise = loading.catch(error => { checkoutPromise = null; checkoutRetry += 1; throw error; });
+  }
+  return checkoutPromise;
 }
 
 async function refreshOrder() {
@@ -299,7 +321,7 @@ $("#feed-checkout").addEventListener("click", async () => {
     const module = await loadStorage();
     const current = await module.readLatestStoredOrderDraft(validIds);
     if (!shouldOpen()) return;
-    const checkout = await import("./order-checkout.js?v=ede76ee31ffa");
+    const checkout = await loadCheckout();
     await checkout.openOrderCheckout({ draft: current, language: lang, returnFocus: $("#feed-checkout"), shouldOpen });
   } catch { if (shouldOpen()) $("#feed-cart-error").textContent = text().error; }
   finally { checkoutBusy = false; updateBadges(); }
