@@ -10,7 +10,10 @@ export function parseFeedEntry(href, products) {
 }
 
 export function feedProductUrl(href, id, language) {
-  const url = new URL("menu-feed.html", href);
+  const current = new URL(href);
+  const url = /\/menu-feed(?:\.html)?\/?$/.test(current.pathname) ? current : new URL("menu-feed.html", current);
+  url.search = "";
+  url.hash = "";
   url.searchParams.set("item", id);
   if (["tr", "en", "ru"].includes(language)) url.searchParams.set("lang", language);
   return url.href;

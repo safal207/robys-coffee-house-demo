@@ -6,6 +6,8 @@ import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "../src/me
 
 const products = feedProducts(menuCategories);
 const base = "https://example.test/cafe/menu-feed.html";
+const feedPaths = ["/", "/cafe/"].flatMap(directory =>
+  ["menu-feed", "menu-feed/", "menu-feed.html", "menu-feed.html/"].map(route => `${directory}${route}`));
 
 test("a shared product opens its own category and explicit supported language", () => {
   const id = "cold-coffee:flavoured-iced-caffe-latte";
@@ -43,28 +45,65 @@ test("a product beyond the first batch resolves without relying on rendered card
   });
 });
 
-test("product links retain the app directory but exclude old filters and tracking", () => {
+test("product links preserve each recognized feed path and replace old query and hash state", () => {
   const id = "hot-coffee:espresso";
-  for (const prefix of ["https://example.test/", "https://example.test/cafe/"]) {
-    const href = `${prefix}menu-feed.html?item=desserts%3Acookie&lang=tr&utm_source=table&search=tea#desserts`;
-    const url = new URL(feedProductUrl(href, id, "en"));
-    assert.equal(url.origin, "https://example.test");
-    assert.equal(url.pathname, new URL("menu-feed.html", prefix).pathname);
+  for (const pathname of feedPaths) {
+    for (const language of ["tr", "en", "ru"]) {
+      const href = `https://example.test${pathname}?item=desserts%3Acookie&lang=tr&view=feed&q=tea&utm_source=table&url=https%3A%2F%2Fother.test%2F#desserts`;
+      const url = new URL(feedProductUrl(href, id, language));
+      assert.equal(url.origin, "https://example.test");
+      assert.equal(url.pathname, pathname);
+      assert.equal(url.hash, "");
+      assert.deepEqual([...url.searchParams.entries()].sort(), [["item", id], ["lang", language]]);
+      assert.deepEqual(parseFeedEntry(url.href, products), {
+        language, category: "hot-coffee", productId: id,
+      });
+    }
+  }
+});
+
+test("other pages fall back to the feed in their app directory", () => {
+  const cases = [
+    ["/", "/menu-feed.html"],
+    ["/menu.html", "/menu-feed.html"],
+    ["/cafe/", "/cafe/menu-feed.html"],
+    ["/cafe/menu", "/cafe/menu-feed.html"],
+    ["/cafe/menu.html", "/cafe/menu-feed.html"],
+    ["/cafe/discover.html", "/cafe/menu-feed.html"],
+    ["/cafe/not-menu-feed.html", "/cafe/menu-feed.html"],
+    ["/cafe/menu-feeder", "/cafe/menu-feed.html"],
+  ];
+  for (const [pathname, expectedPath] of cases) {
+    const url = new URL(feedProductUrl(`https://example.test:8443${pathname}?q=tea&lang=ru#desserts`, "desserts:cookie", "en"));
+    assert.equal(url.origin, "https://example.test:8443");
+    assert.equal(url.pathname, expectedPath);
     assert.equal(url.hash, "");
-    assert.deepEqual([...url.searchParams.entries()].sort(), [["item", id], ["lang", "en"]]);
-    assert.deepEqual(parseFeedEntry(url.href, products), {
-      language: "en", category: "hot-coffee", productId: id,
-    });
+    assert.deepEqual([...url.searchParams.entries()].sort(), [["item", "desserts:cookie"], ["lang", "en"]]);
+  }
+});
+
+test("share values remain query data and unsupported languages do not carry over", () => {
+  const id = "//other.test/menu-feed.html?item=changed#redirect";
+  for (const language of [undefined, null, "de", "RU", "https://other.test/"]) {
+    const url = new URL(feedProductUrl(`${base}/?lang=ru&redirect=https://other.test/#desserts`, id, language));
+    assert.equal(url.origin, "https://example.test");
+    assert.equal(url.pathname, "/cafe/menu-feed.html/");
+    assert.equal(url.hash, "");
+    assert.deepEqual([...url.searchParams.entries()], [["item", id]]);
   }
 });
 
 test("each real product survives sharing and parsing without changing its identity", () => {
-  for (const product of products) {
-    const url = feedProductUrl(base, product.id, "ru");
-    const entry = parseFeedEntry(url, products);
-    assert.equal(entry.productId, product.id);
-    assert.equal(entry.category, product.category.id);
-    assert.equal(entry.language, "ru");
+  for (const pathname of feedPaths) {
+    for (const product of products) {
+      for (const language of ["tr", "en", "ru"]) {
+        const url = feedProductUrl(`https://example.test${pathname}`, product.id, language);
+        const entry = parseFeedEntry(url, products);
+        assert.equal(entry.productId, product.id);
+        assert.equal(entry.category, product.category.id);
+        assert.equal(entry.language, language);
+      }
+    }
   }
 });
 

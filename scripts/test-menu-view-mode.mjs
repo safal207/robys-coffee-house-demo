@@ -1,12 +1,69 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 import { MENU_VIEW_STORAGE_KEY, normalizeMenuSearch, readMenuViewContext, menuViewUrl,
   readMenuViewPreference, storeMenuViewPreference, readMenuNavigationType, shouldOpenPreferredFeed } from "../menu-view-mode.js";
 
 const base = "https://example.test/cafe/menu.html";
 const categories = ["all", "hot-coffee", "cold-coffee", "desserts", "food"];
+
+// Execute the actual list entry body, stopping at its first DOM operation.
+// Static search/help helpers are excluded; browser journeys cover their wiring.
+const listEntrySource = readFileSync(new URL("../src/menu-app.js", import.meta.url), "utf8")
+  .replace(/^import .*;\r?\n/gm, "")
+  .replaceAll("import.meta.url", JSON.stringify(base));
+function observeListStartup({ suffix = "", preference = "feed", state = null,
+  timing = { getEntriesByType: () => [{ type: "navigate" }] }, deniedStorage = false } = {}) {
+  const url = new URL(base + suffix);
+  const boundary = new Error("List DOM initialization reached");
+  const redirects = [], historyWrites = [];
+  let startupReads = 0;
+  const context = {
+    location: { href: url.href, search: url.search, hash: url.hash,
+      replace: destination => redirects.push(destination) },
+    history: { state, replaceState: next => historyWrites.push(JSON.parse(JSON.stringify(next))) },
+    performance: timing,
+    localStorage: { getItem() { if (deniedStorage) throw new Error("Storage unavailable"); return preference; } },
+    document: new Proxy({}, { get() { startupReads++; throw boundary; } })
+  };
+  try { runInNewContext(listEntrySource, context); }
+  catch (error) { if (error !== boundary) throw error; }
+  return { redirects, historyWrites, startupReads };
+}
+
+test("preferred generic feed entry skips the list's DOM, render and eager startup", () => {
+  for (const timing of [{ getEntriesByType: () => [{ type: "navigate" }] },
+    { getEntriesByType: () => [], navigation: { type: 0 } }]) {
+    assert.deepEqual(observeListStartup({ timing }), {
+      redirects: ["menu-feed.html?view=feed"], historyWrites: [], startupReads: 0
+    });
+  }
+});
+
+test("explicit entries and navigation safeguards still enter list initialization", () => {
+  const cases = [
+    ...["?view=list", "?view=feed", "?lang=ru", "?q=latte", "?product=hot-coffee:espresso", "?utm_source=qr",
+      "#desserts", "#menu-family", "#kids-menu", "#menu-combos", "#menu-combos-takeaway"].map(suffix => ({ suffix })),
+    ...["list", null, "invalid"].map(preference => ({ preference })),
+    ...["reload", "back_forward", "prerender"].map(type => ({
+      timing: { getEntriesByType: () => [{ type }], navigation: { type: 0 } }
+    })),
+    ...[1, 2].map(type => ({ timing: { getEntriesByType: () => [{ type: "navigate" }], navigation: { type } } })),
+    { timing: {} }, { timing: { getEntriesByType: () => [] } },
+    { timing: { getEntriesByType: () => [{ type: "unknown" }] } },
+    { timing: { getEntriesByType() { throw new Error("Timing unavailable"); } } },
+    { state: { robysMenuViewEntry: "list" } }, { deniedStorage: true }
+  ];
+  for (const options of cases) {
+    const result = observeListStartup(options);
+    assert.deepEqual(result.redirects, [], JSON.stringify(options));
+    assert.equal(result.startupReads, 1, "A nonredirected entry must reach normal list startup");
+  }
+  assert.deepEqual(observeListStartup({ preference: "list", state: { unrelated: "kept" } }).historyWrites,
+    [{ unrelated: "kept", robysMenuViewEntry: "list" }]);
+});
 
 test("shipped menu view runtime matches its authored source", () => {
   const source = readFileSync(new URL("../src/menu-view-mode.js", import.meta.url), "utf8");

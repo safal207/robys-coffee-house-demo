@@ -179,6 +179,101 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  {
+    const context = await browser.newContext({ viewport: { width: 320, height: 568 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(ids => {
+      localStorage.setItem("robys-language", "ru");
+      ids.forEach(id => localStorage.setItem(`robys-feed-like-v1:${id}`, "1"));
+    }, catalog.slice(0, 10).map(product => product.id));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru`);
+    await waitForMenuMode(page, "feed");
+    await page.evaluate(() => document.fonts.ready);
+    const textSelector = ".feed-view-switch a,.feed-tool-button,.feed-languages button";
+    // Controlled text-only stress for every toolbar/header control, not native
+    // browser zoom. Card-only scaling does not exercise this fixed-width row.
+    const expectedSizes = await page.locator(textSelector).evaluateAll(nodes => nodes.map(node => {
+      const size = parseFloat(getComputedStyle(node).fontSize) * 2;
+      node.style.fontSize = `${size}px`;
+      return size;
+    }));
+    await page.waitForFunction(({ selector, sizes }) => [...document.querySelectorAll(selector)]
+      .every((node, index) => parseFloat(getComputedStyle(node).fontSize) === sizes[index]),
+    { selector: textSelector, sizes: expectedSizes });
+    const toolbarGeometry = async () => {
+      await page.waitForFunction(() => {
+        const nodes = [...document.querySelectorAll(".feed-view-switch a,.feed-tool-actions button,.feed-languages button")];
+        const boxes = nodes.map(node => node.getBoundingClientRect());
+        return document.documentElement.scrollWidth <= innerWidth + 1 && nodes.every((node, index) => {
+          const box = boxes[index], hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return box.width >= 44 && box.height >= 44 && box.left >= 0 && box.right <= innerWidth + 1
+            && box.top >= 0 && box.bottom <= innerHeight && (node === hit || node.contains(hit))
+            && boxes.every((other, otherIndex) => index === otherIndex
+              || Math.min(box.right, other.right) - Math.max(box.left, other.left) <= 1
+              || Math.min(box.bottom, other.bottom) - Math.max(box.top, other.top) <= 1);
+        });
+      });
+      assert.equal(await page.locator(".feed-view-switch").evaluate(node => node.scrollWidth > node.clientWidth + 1), false,
+        "Enlarged mode labels fit inside their own control");
+    };
+    await toolbarGeometry();
+    assert.equal(await page.locator("#feed-liked-count").textContent(), "10");
+    await page.locator("#feed-liked-filter").click();
+    assert.equal(await page.locator("#feed-liked-filter").getAttribute("aria-pressed"), "true");
+    await openDiscovery(page);
+    await closeDiscovery(page);
+    await page.locator('.feed-languages [data-lang="en"]').click();
+    assert.equal(await page.locator("html").getAttribute("lang"), "en");
+    await page.locator('.feed-languages [data-lang="ru"]').click();
+    await page.evaluate(() => window.scrollTo({ top: 900, behavior: "instant" }));
+    await page.waitForFunction(() => scrollY > 0);
+    await toolbarGeometry();
+    await captureScreenshot(page, { path: `${output}/${engine}-320-toolbar-text200.png` });
+    await page.locator('.feed-view-switch [data-menu-view="list"]').click();
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "toolbar-text200-reflow", result: "PASS", width: 320, height: 568,
+      textScale: 2, textScaleMethod: "computed toolbar/header text size; not browser zoom", twoDigitLikeCount: true,
+      noOverlapOrClipping: true, allTargetsAtLeast44px: true, centerHitTests: true, stickyAfterScroll: true,
+      likesSearchLanguageAndListActionsWork: true, consoleErrors: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-menu-view", "feed");
+      if (!/\/menu\.html$/.test(location.pathname)) return;
+      const observer = new MutationObserver(() => {
+        const root = document.querySelector("#menu-root");
+        if (!root || root.dataset.ready !== "true") return;
+        console.debug("robys-list-render-probe");
+        observer.disconnect();
+      });
+      observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-ready"] });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const listRenders = [];
+    page.on("console", message => { if (message.text() === "robys-list-render-probe") listRenders.push(message.text()); });
+    await page.goto(`${origin}/menu.html`);
+    await waitForMenuMode(page, "feed");
+    assert.deepEqual(listRenders, [], "A preferred-feed entry redirects before constructing the list");
+    const probe = page.waitForEvent("console", { predicate: message => message.text() === "robys-list-render-probe" });
+    await page.goto(`${origin}/menu.html?view=list&lang=ru`);
+    await waitForMenuMode(page, "list");
+    await probe;
+    assert.equal(listRenders.length, 1, "The same probe observes a real explicit list render");
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "preferred-feed-skips-list-render", result: "PASS", genericEntrySkipsListRender: true,
+      explicitListStillRenders: true, mutationProbeVerified: true, preferenceUnchanged: true, consoleErrors: false });
+    await context.close();
+  }
   for (const [width, language] of [[320, "ru"], [390, "tr"], [390, "en"], [390, "ru"], [1440, "en"], [1440, "ru"]]) {
     const context = await browser.newContext({ viewport: { width, height: width > 800 ? 1000 : 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());

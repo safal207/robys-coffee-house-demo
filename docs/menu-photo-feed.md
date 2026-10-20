@@ -7,7 +7,7 @@ photograph. The list remains the fast route for a known item. Both views use the
 same catalog, prices, variants, order draft and counter QR.
 
 The homepage entry is a photo preview labelled “Swipe to choose” at the start of
-“What would feel good today?”, before the category choices. The full menu and
+“What sounds good today?”, before the category choices. The full menu and
 feed share a List / Feed view switch. Switching preserves the language, category,
 search and shared order. A stored view preference applies only to a generic menu
 entry; explicit view links, product and special-purpose links, reloads and Back

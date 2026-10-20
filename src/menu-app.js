@@ -3,6 +3,20 @@ import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
+// Decide the generic entry before rendering cards or starting optional modules.
+function initializeMenu() {
+  try {
+    if (!location.search && !location.hash) {
+      const type = performance.getEntriesByType?.("navigation")?.[0]?.type, legacy = performance.navigation?.type;
+      if (history.state?.robysMenuViewEntry !== "list" && !["reload", "back_forward", "prerender"].includes(type)
+        && legacy !== 1 && legacy !== 2 && (type === "navigate" || legacy === 0) && localStorage.getItem("robys-menu-view") === "feed") {
+        location.replace("menu-feed.html?view=feed");
+        return;
+      }
+      history.replaceState({ ...history.state, robysMenuViewEntry: "list" }, "", location.href);
+    }
+  } catch { /* Unavailable preferences or timing keep the list usable. */ }
+
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
 const categoryNav = document.querySelector("#menu-category-nav");
@@ -939,18 +953,7 @@ menuViewLinks.forEach(link => {
   link.addEventListener("click", choose, true);
   link.addEventListener("auxclick", choose, true);
 });
-let menuViewRedirect = false;
-try {
-  if (!location.search && !location.hash) {
-    const type = performance.getEntriesByType?.("navigation")?.[0]?.type, legacy = performance.navigation?.type;
-    if (history.state?.robysMenuViewEntry !== "list" && !["reload", "back_forward", "prerender"].includes(type)
-      && legacy !== 1 && legacy !== 2 && (type === "navigate" || legacy === 0) && localStorage.getItem("robys-menu-view") === "feed") {
-      location.replace("menu-feed.html?view=feed");
-      menuViewRedirect = true;
-    } else history.replaceState({ ...history.state, robysMenuViewEntry: "list" }, "", location.href);
-  }
-} catch {}
-if (!menuViewRedirect) document.documentElement.dataset.menuViewReady = "true";
+document.documentElement.dataset.menuViewReady = "true";
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();
@@ -1012,3 +1015,7 @@ if (activeCategory !== "all") {
     document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
   });
 }
+
+}
+
+initializeMenu();
