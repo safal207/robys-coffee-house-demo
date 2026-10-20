@@ -910,6 +910,12 @@ try {
         const sizes = targets.map(target => parseFloat(getComputedStyle(target).fontSize) * 2);
         targets.forEach((target, index) => { target.style.fontSize = `${sizes[index]}px`; });
       });
+      // The canonical reduced-motion stylesheet still has a .01ms transition.
+      // Wait for the computed size to settle before checking the exact scale.
+      await page.waitForFunction(({ id, expected }) => {
+        const title = document.querySelector(`[data-product-id="${id}"] h3`);
+        return title && parseFloat(getComputedStyle(title).fontSize) === expected;
+      }, { id, expected: titleSize * textScale });
     }
     assert.equal(await card.locator("h3").evaluate(node => parseFloat(getComputedStyle(node).fontSize)), titleSize * textScale);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
