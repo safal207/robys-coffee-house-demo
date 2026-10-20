@@ -133,7 +133,7 @@
         "scripts/menu-runtime-source.mjs": "d2098014faab819d37f024980c623b616ee96d09",
         "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
         "scripts/test-menu-combos-browser.mjs": "39d5f8c5a2070e11962516c84f14c84af99e4f46",
-        "scripts/test-menu-feed-browser.mjs": "946c1c436a0772bb1140d15f92e659ab13006706",
+        "scripts/test-menu-feed-browser.mjs": "e7da64881a871cd6c6acbb09017a9899f5a70f1c",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "1c64266574668f744ecaa65838e3f3325fbe1d47",
         "scripts/test-menu-view-mode.mjs": "4fbee555a55f4f4054437a274cd633918d2eb68c",
@@ -799,8 +799,8 @@
         {
           "path": "scripts/test-menu-feed-browser.mjs",
           "capturedBlob": "afb44ec41ae043a7f06bd62a13c273c663fa6227",
-          "boundBlob": "946c1c436a0772bb1140d15f92e659ab13006706",
-          "reason": "Nonpublic browser fixture corrections after capture: explicit category selection after search, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Not represented as captured code."
+          "boundBlob": "e7da64881a871cd6c6acbb09017a9899f5a70f1c",
+          "reason": "Nonpublic browser fixture corrections after capture: explicit category selection after search, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Later diagnostic-only additions record history/navigation observations and run a native-reload comparison in an independent context only after protocol reload leaves the expected list path; the original list assertion remains mandatory. These later test bytes are not represented as captured code and do not prove the navigation fix."
         },
         {
           "path": "scripts/test-menu-view-mode.mjs",

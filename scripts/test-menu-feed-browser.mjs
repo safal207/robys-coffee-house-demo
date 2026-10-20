@@ -902,15 +902,77 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    // Record the history/reload boundary without changing the page's APIs or
+    // navigation. Keep this evidence even when the original assertion fails.
+    const historyTrace = report.menuModeHistory = { requests: [], snapshots: [] };
+    let historyPhase = "initial-list";
+    page.on("request", request => {
+      if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+        historyTrace.requests.push({ phase: historyPhase, url: request.url() });
+      }
+    });
+    const recordHistory = async (target, phase, trace = historyTrace) => {
+      const snapshot = { phase, pageUrl: target.url() };
+      try {
+        Object.assign(snapshot, await target.evaluate(() => ({ location: location.href, documentUrl: document.URL,
+          historyState: history.state, ready: document.documentElement.dataset.menuViewReady,
+          hasListRoot: Boolean(document.querySelector("#menu-root")), hasFeedRoot: Boolean(document.querySelector("#feed")),
+          navigationEntries: performance.getEntriesByType("navigation").map(entry => ({ type: entry.type, name: entry.name })),
+          legacyNavigationType: performance.navigation?.type })));
+      } catch (error) { snapshot.readError = error.message; }
+      trace.snapshots.push(snapshot);
+    };
     await page.goto(`${origin}/menu.html`);
     await waitForMenuMode(page, "list");
+    historyPhase = "switch-to-feed";
     await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
     await waitForMenuMode(page, "feed");
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+    await recordHistory(page, "before-back");
+    historyPhase = "back";
     await page.goBack();
+    await recordHistory(page, "after-back");
     await waitForMenuMode(page, "list");
     assert.equal(new URL(page.url()).search, "", "Back returns to the original generic list entry");
-    await page.reload();
+    await recordHistory(page, "before-reload");
+    historyPhase = "protocol-reload";
+    const reloadResponse = await page.reload();
+    historyTrace.reloadResponseUrl = reloadResponse?.url() ?? null;
+    await recordHistory(page, "after-reload");
+    if (new URL(page.url()).pathname !== "/menu.html") {
+      // A failing protocol reload gets one independent comparison using the
+      // current document's native reload. The original assertion below stays
+      // mandatory: this diagnostic cannot turn its failure into a pass.
+      const nativeTrace = historyTrace.nativeReloadComparison = { requests: [], snapshots: [] };
+      const nativeContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+      try {
+        await nativeContext.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+        const nativePage = await nativeContext.newPage(); nativePage.setDefaultTimeout(15000);
+        const nativeErrors = []; observeErrors(nativePage, nativeErrors);
+        nativePage.on("request", request => {
+          if (request.isNavigationRequest() && request.frame() === nativePage.mainFrame()) nativeTrace.requests.push(request.url());
+        });
+        await nativePage.goto(`${origin}/menu.html`);
+        await waitForMenuMode(nativePage, "list");
+        await nativePage.locator('.menu-view-switch [data-menu-view="feed"]').click();
+        await waitForMenuMode(nativePage, "feed");
+        await recordHistory(nativePage, "before-back", nativeTrace);
+        await nativePage.goBack();
+        await waitForMenuMode(nativePage, "list");
+        await recordHistory(nativePage, "before-native-reload", nativeTrace);
+        const [nativeResponse] = await Promise.all([
+          nativePage.waitForNavigation(), nativePage.evaluate(() => { setTimeout(() => location.reload(), 0); })
+        ]);
+        nativeTrace.reloadResponseUrl = nativeResponse?.url() ?? null;
+        await recordHistory(nativePage, "after-native-reload", nativeTrace);
+        await waitForMenuMode(nativePage, "list");
+        assert.equal(await nativePage.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+        assert.deepEqual(nativeErrors, []);
+        nativeTrace.result = "PASS";
+      } catch (error) { nativeTrace.result = "FAIL"; nativeTrace.error = error.message; }
+      finally { await nativeContext.close(); }
+      console.log(`Menu mode history diagnostic: ${JSON.stringify(historyTrace)}`);
+    }
     await waitForMenuMode(page, "list");
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed", "Back and reload do not rewrite the saved choice");
     const fresh = await context.newPage(); fresh.setDefaultTimeout(15000); observeErrors(fresh, errors);
