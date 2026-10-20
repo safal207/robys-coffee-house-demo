@@ -14,7 +14,7 @@
       "evidenceArtifactSha256": "716a3ca77f950862094067f5880fec44a9cc5eacedafe775411ad4a4d4dd16f4",
       "captureSummarySha256": "a24843f3fc05bc73ac3748994fe1380d8eb09badef784c710eb203b58313a442",
       "summary": "Fresh assistant inspection of all 20 failing comparisons from ad4844b: four full-menu top crops and overviews, four full-home overviews plus entry/footer crops, and all 12 failing regional pairs. The List/Feed switch occupies a compact row inside the menu header, replacing the former one-way photo-menu entry. No new text/control overlap, lost sections or obstructed actions observed in inspected regions. Menu full-page height changes are -9/-11/+2/+55px at 320/390/768/1440px. Home full-page height changes remain +95/+107/+148/+148px. Exact observed caps below add no tolerance. This is assistant inspection, not independent-human approval or release attestation.",
-      "scope": "Covers captured default Turkish list/home screenshots only. Full-page reviews use overviews and native top/entry/footer crops, not exhaustive native-size inspection of every body pixel. Regional images viewed completely. Root additionally inspected menu-share at all six widths. Does not establish feed visual quality, other locales, interactions, persisted state, history or ordering parity; those require the separate browser journeys. Historical records are preserved. No baseline, global tolerance, workflow or CSP changes.",
+      "scope": "Covers captured default Turkish list/home screenshots only. Full-page reviews use overviews and native top/entry/footer crops, not exhaustive native-size inspection of every body pixel. Regional images viewed completely. Root additionally inspected menu-share at all six widths. Does not establish feed visual quality, other locales, interactions, persisted state, history or ordering parity; those require the separate browser journeys. Historical records are preserved. No baseline, global tolerance, workflow or CSP changes. After capture, the list header z-index100 is restored on coarse pointers to fix photo occlusion observed in 917e2f2 scroll screenshots. This is a bounded CSS/source basis for initial-layout evidence reuse, not a claim that ad4844b captured the corrected scroll state. Fresh scroll hit-testing remains required.",
       "inspectedRegions": [
         {
           "reviewer": "root",
@@ -70,22 +70,58 @@
       },
       "postCaptureBoundByteChanges": [
         {
+          "path": "integrity-manifest.json",
+          "capturedBlob": "2a49dcd210b1ec3a6f956b04a05e5fcf6b3916f2",
+          "currentBlob": "4d98adb7583c04d084ad4d9a00a8566ae1192a83",
+          "reason": "Generated CSS revision reference or integrity digest for the explicitly documented stacking fix; no markup/content change."
+        },
+        {
+          "path": "menu-combos.css",
+          "capturedBlob": "180a991cf07f8b004d07b4c22e41a2df2ed3b578",
+          "currentBlob": "0e374d3c19bd5d85c659f519876eea62dab0ce5c",
+          "reason": "Restores existing desktop z-index100 when re-enabling sticky coarse-pointer header; affects overlapping content while scrolled. Initial-page screenshots are reused only for initial layout. Fresh browser hit-testing and scroll screenshots must establish the fix."
+        },
+        {
+          "path": "menu-feed.html",
+          "capturedBlob": "d82d3f358694e66daef568d08a0909fbb5ad783e",
+          "currentBlob": "8f4a9af99251871cce25aa83ad713c9cd81a96c6",
+          "reason": "Generated CSS revision reference or integrity digest for the explicitly documented stacking fix; no markup/content change."
+        },
+        {
+          "path": "menu-runtime.css",
+          "capturedBlob": "4c9db9c5613157ba961c2b7aef533edd34afc896",
+          "currentBlob": "56af38f044062f0c559262a4a2e7e1cbf385f233",
+          "reason": "Restores existing desktop z-index100 when re-enabling sticky coarse-pointer header; affects overlapping content while scrolled. Initial-page screenshots are reused only for initial layout. Fresh browser hit-testing and scroll screenshots must establish the fix."
+        },
+        {
+          "path": "menu.html",
+          "capturedBlob": "0229da29b9d8cf18ce1d7a474c41f6498790ba2b",
+          "currentBlob": "f550d8f1badf519141e026b890ad5567c377c088",
+          "reason": "Generated CSS revision reference or integrity digest for the explicitly documented stacking fix; no markup/content change."
+        },
+        {
           "path": "scripts/menu-scroll-regression.mjs",
           "capturedBlob": "64caf5e3ea38a65344f1f41c7f8e9a918cf862e6",
           "currentBlob": "844997e9cff3b8f043f849809c5107af79ceebfa",
-          "reason": "Nonpublic browser fixture: align sticky-header requirement or await exact browser state before unchanged strict assertions; no production bytes changed."
+          "reason": "Nonpublic browser fixture: sticky-header hit-testing or bounded waits for exact computed text/focus state; customized combo expectation matches canonical independently editable product groups. Production behavior assertions retained."
         },
         {
           "path": "scripts/test-menu-cart-edit-browser.mjs",
           "capturedBlob": "3b50ee2f62bfb9559c1d0c9ef0ba6447e5a10011",
           "currentBlob": "6acc24d47db2fc957a0b6f05afd3290583cb9e83",
-          "reason": "Nonpublic browser fixture: align sticky-header requirement or await exact browser state before unchanged strict assertions; no production bytes changed."
+          "reason": "Nonpublic browser fixture: sticky-header hit-testing or bounded waits for exact computed text/focus state; customized combo expectation matches canonical independently editable product groups. Production behavior assertions retained."
         },
         {
           "path": "scripts/test-menu-feed-browser.mjs",
           "capturedBlob": "eadab1a3122c1e0857164daefa33ea3db5905041",
-          "currentBlob": "71441661298fa281cd6988e023b3c0fa56818471",
-          "reason": "Nonpublic browser fixture: align sticky-header requirement or await exact browser state before unchanged strict assertions; no production bytes changed."
+          "currentBlob": "376e7e157dbcadccf5c35a86e965c5da3e08ffcb",
+          "reason": "Nonpublic browser fixture: sticky-header hit-testing or bounded waits for exact computed text/focus state; customized combo expectation matches canonical independently editable product groups. Production behavior assertions retained."
+        },
+        {
+          "path": "sw-core-v64.js",
+          "capturedBlob": "13f8f5c2f51a5a1394bd66cfe65c144454c45cfe",
+          "currentBlob": "fcacf03914d6ea39c12225f003c0e638d5882274",
+          "reason": "Generated service-worker asset revision for the explicitly documented CSS stacking fix; cache logic unchanged."
         }
       ],
       "contentBindings": {
@@ -154,17 +190,17 @@
         "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
         "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
         "index.html": "3d46d052350d57192d69be6ea0752c254822ad77",
-        "integrity-manifest.json": "2a49dcd210b1ec3a6f956b04a05e5fcf6b3916f2",
+        "integrity-manifest.json": "4d98adb7583c04d084ad4d9a00a8566ae1192a83",
         "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
         "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
         "menu-app.js": "b78c499cd6d64cbb21c4d0b1eabe323757131a43",
         "menu-catalog.js": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
         "menu-combos-ui.js": "2d38d4948041c6feba9195a2ff6760b68a38a483",
-        "menu-combos.css": "180a991cf07f8b004d07b4c22e41a2df2ed3b578",
+        "menu-combos.css": "0e374d3c19bd5d85c659f519876eea62dab0ce5c",
         "menu-family-ui.js": "4c4cbd2650d0575e885592c375eecf977f53906a",
         "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
         "menu-feed.css": "91c119ff594070c75d4c21a28eb2df6b0ba54a76",
-        "menu-feed.html": "d82d3f358694e66daef568d08a0909fbb5ad783e",
+        "menu-feed.html": "8f4a9af99251871cce25aa83ad713c9cd81a96c6",
         "menu-feed.js": "a85d066db1837d3ab7fc74d59efa8edcaa4989a8",
         "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
         "menu-order-ui.js": "417aa5765699fe39b6502ea1432be91641ceea7c",
@@ -176,13 +212,13 @@
         "menu-product-reveal.js": "4c7ab586cdfcfd66a832aa5e3120873c0e41189e",
         "menu-pwa.js": "1415bd00f34c3c2fe2d52007da28b2a74b036627",
         "menu-ready.js": "07d7bdef30e9742a2eb3038ff4cea425fe67295d",
-        "menu-runtime.css": "4c9db9c5613157ba961c2b7aef533edd34afc896",
+        "menu-runtime.css": "56af38f044062f0c559262a4a2e7e1cbf385f233",
         "menu-search-clear.js": "681c7d367eac1b4a64a48ee419277a868d428ad5",
         "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
         "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
         "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
         "menu-view-mode.js": "ec3857d8e47b88659c88536555fff635a21d2f80",
-        "menu.html": "0229da29b9d8cf18ce1d7a474c41f6498790ba2b",
+        "menu.html": "f550d8f1badf519141e026b890ad5567c377c088",
         "mobile.css": "7aed337581ea5cde7585349b950a88d5813a27ca",
         "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
         "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
@@ -208,7 +244,7 @@
         "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
         "scripts/test-menu-cart-edit-browser.mjs": "6acc24d47db2fc957a0b6f05afd3290583cb9e83",
         "scripts/test-menu-combos-browser.mjs": "39d5f8c5a2070e11962516c84f14c84af99e4f46",
-        "scripts/test-menu-feed-browser.mjs": "71441661298fa281cd6988e023b3c0fa56818471",
+        "scripts/test-menu-feed-browser.mjs": "376e7e157dbcadccf5c35a86e965c5da3e08ffcb",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "285135354aceb1023ebdbe22158ad831cd65ca07",
         "scripts/test-menu-view-mode.mjs": "88cb092a3f9e2952bfb689116aa5c96ceaa2c431",
@@ -576,7 +612,7 @@
         "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
         "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
         "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
-        "sw-core-v64.js": "13f8f5c2f51a5a1394bd66cfe65c144454c45cfe",
+        "sw-core-v64.js": "fcacf03914d6ea39c12225f003c0e638d5882274",
         "sw.js": "8573779a19f070745184c0628a5832c1ea857d28",
         "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
         "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"

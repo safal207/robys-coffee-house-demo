@@ -969,8 +969,10 @@ try {
     await page.locator("#menu-cart-dialog[open]").waitFor();
     const expected = await storedOrder(page);
     assert.deepEqual(expected.lines, [{ id: "brew-hot:black-tea", quantity: 3 }, { id: "desserts:cookie", quantity: 1 }]);
-    assert.equal(expected.groups.length, 1);
-    assert.equal(expected.groups[0].quantity, 1);
+    assert.deepEqual(expected.groups.map(({ source, items, quantity }) => ({ source, items, quantity })), [
+      { source: "menu", items: [{ id: "brew-hot:black-tea", quantity: 1 }], quantity: 3 },
+      { source: "menu", items: [{ id: "desserts:cookie", quantity: 1 }], quantity: 1 }
+    ], "Customized combo components remain independently editable, as in the list");
     assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), 250);
     await captureScreenshot(page, { path: `${output}/${engine}-feed-custom-combo.png` });
     await page.keyboard.press("Escape");

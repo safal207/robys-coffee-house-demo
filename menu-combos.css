@@ -107,7 +107,7 @@ body.menu-combos-open{overflow:hidden}
 @media(forced-colors:active){.menu-view-switch a[aria-current=page]{outline:2px solid Highlight}}
 
 /* The mode switch stays available while either menu is being browsed. */
-.menu-page .site-header{position:sticky;top:0}
+.menu-page .site-header{position:sticky;top:0;z-index:100}
 .menu-view-bar{background:var(--cream);border-bottom:1px solid var(--line);padding:2px 0}
 .menu-view-bar .menu-view-switch{margin:0;padding:3px;gap:2px}
 .menu-view-bar .menu-view-switch a{padding:7px 18px;font-size:13px}
