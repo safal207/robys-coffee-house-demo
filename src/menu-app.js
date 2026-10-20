@@ -3,6 +3,20 @@ import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
+// Decide the generic entry before rendering cards or starting optional modules.
+function initializeMenu() {
+  try {
+    if (!location.search && !location.hash) {
+      const type = performance.getEntriesByType?.("navigation")?.[0]?.type, legacy = performance.navigation?.type;
+      if (history.state?.robysMenuViewEntry !== "list" && !["reload", "back_forward", "prerender"].includes(type)
+        && legacy !== 1 && legacy !== 2 && (type === "navigate" || legacy === 0) && localStorage.getItem("robys-menu-view") === "feed") {
+        location.replace("menu-feed.html?view=feed");
+        return;
+      }
+      history.replaceState({ ...history.state, robysMenuViewEntry: "list" }, "", location.href);
+    }
+  } catch { /* Unavailable preferences or timing keep the list usable. */ }
+
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
 const categoryNav = document.querySelector("#menu-category-nav");
@@ -17,9 +31,16 @@ const CART_STORAGE_KEY = "robys-menu-order.v1";
 const CART_PROJECTION_KEY = "robys-menu-order.v2";
 const localeTag = { tr: "tr-TR", en: "en-US", ru: "ru-RU" };
 
-let language = readStoredLanguage();
+let language = readEntryLanguage();
+storeLanguage(language);
 let activeCategory = readInitialCategory();
-let searchTerm = "";
+let searchTerm = menuSearch();
+searchInput.value = searchTerm;
+searchInput.dispatchEvent(new Event("change", { bubbles: true }));
+function readEntryLanguage() {
+  const requested = new URL(location.href).searchParams.get("lang");
+  return supportedLanguages.includes(requested) ? requested : readStoredLanguage();
+}
 function readStoredLanguage() {
   try {
     const stored = localStorage.getItem("robys-language");
@@ -42,10 +63,36 @@ function storeLanguage(next) {
   }
 }
 
+function menuSearch(value = new URL(location.href).searchParams.get("q") ?? "") {
+  return Array.from(value.replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
+}
+
 function syncCategoryHash(categoryId) {
-  const url = new URL(window.location.href);
-  url.hash = categoryId === "all" ? "" : categoryId;
-  window.history.replaceState(null, "", url);
+  const url = new URL(location.href);
+  url.searchParams.set("lang", language);
+  const query = menuSearch(searchTerm);
+  if (query) url.searchParams.set("q", query); else url.searchParams.delete("q");
+  if (categoryId !== undefined) {
+    url.hash = categoryId === "all" ? "" : categoryId;
+    url.searchParams.delete("product"); url.searchParams.delete("item");
+  }
+  history.replaceState(history.state, "", url);
+}
+
+const menuViewLinks = document.querySelectorAll("[data-menu-view]");
+function updateMenuViews() {
+  const query = menuSearch(searchTerm), product = new URL(location.href).searchParams.get("product");
+  menuViewLinks.forEach(link => {
+    const view = link.dataset.menuView;
+    const url = new URL(view === "feed" ? "menu-feed.html" : "menu.html", location.href);
+    url.searchParams.set("view", view); url.searchParams.set("lang", language);
+    if (query) url.searchParams.set("q", query);
+    if (activeCategory !== "all") url.hash = activeCategory;
+    if (!query && productIndex.has(product) && (activeCategory === "all" || product.startsWith(activeCategory + ":"))) {
+      url.searchParams.set(view === "feed" ? "item" : "product", product);
+    }
+    link.href = url;
+  });
 }
 
 function normalize(value) {
@@ -119,6 +166,12 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
+const linkedProduct = productIndex.get(new URL(location.href).searchParams.get("product"));
+if (linkedProduct) {
+  activeCategory = linkedProduct.category.id;
+  searchInput.value = searchTerm = "";
+  searchInput.dispatchEvent(new Event("change", { bubbles: true }));
+}
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
 let cartReadGeneration = 0;
@@ -765,6 +818,7 @@ function renderMenu() {
   emptyState.hidden = rendered > 0;
   menuRoot.dataset.ready = "true";
   syncMenuCartState();
+  updateMenuViews();
 }
 
 const menuActions = createMenuActionsLoader({
@@ -831,6 +885,7 @@ function setLanguage(next) {
 languageButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setLanguage(button.dataset.lang);
+    syncCategoryHash();
     void loadMenuActions();
   });
 });
@@ -843,7 +898,7 @@ searchInput.addEventListener("input", () => {
     activeCategory = "all";
     syncCategoryHash("all");
     renderCategoryNav();
-  }
+  } else syncCategoryHash(activeCategory);
   renderMenu();
 });
 searchInput.addEventListener("focus", () => document.body.classList.add("menu-text-input-active"));
@@ -889,6 +944,16 @@ translateStaticPage();
 renderCategoryNav();
 renderMenu();
 initializeMenuScrollMetrics();
+menuViewLinks.forEach(link => {
+  const choose = event => {
+    if (event.defaultPrevented || (event.button !== 0 && event.button !== 1)) return;
+    updateMenuViews();
+    try { localStorage.setItem("robys-menu-view", link.dataset.menuView); } catch {}
+  };
+  link.addEventListener("click", choose, true);
+  link.addEventListener("auxclick", choose, true);
+});
+document.documentElement.dataset.menuViewReady = "true";
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();
@@ -898,7 +963,7 @@ function refreshObservedCart(resetAdded = false) {
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   beginMenuIntent();
-  language = readStoredLanguage();
+  language = readEntryLanguage();
   translateStaticPage();
   renderCategoryNav();
   renderMenu();
@@ -931,9 +996,10 @@ window.addEventListener("hashchange", () => {
   combosUi?.close({ restoreFocus: false });
   beginMenuIntent();
   activeCategory = readInitialCategory();
-  searchInput.value = "";
-  searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+  searchInput.value = searchTerm = menuSearch();
+  searchInput.dispatchEvent(new Event("change", { bubbles: true }));
   renderCategoryNav();
+  renderMenu();
 });
 
 if (language !== "tr") void loadMenuActions();
@@ -949,3 +1015,7 @@ if (activeCategory !== "all") {
     document.querySelector(".full-menu-wrap")?.scrollIntoView({ block: "start" });
   });
 }
+
+}
+
+initializeMenu();

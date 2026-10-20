@@ -52,6 +52,16 @@ export function choiceHelpRecipeId({ family = false, filter = "", category = "" 
   return "sweet";
 }
 
+// A suggestion opened from the feed stays in that view, including clean Sites
+// routes. Other entry pages keep their existing canonical list destination.
+export function choiceHelpMenuUrl(currentHref, fallbackHref, recipeId = "") {
+  const current = new URL(currentHref);
+  const target = /\/menu-feed(?:\.html)?\/?$/.test(current.pathname) ? current : new URL(fallbackHref);
+  target.searchParams.delete("item");
+  target.hash = recipeId ? `menu-combo-${recipeId}` : "menu-combos";
+  return target.href;
+}
+
 const productSlug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
   .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -150,7 +160,8 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   actions.className = "choice-help-actions";
   const combos = document.createElement("a");
   const smart = document.createElement("a");
-  combos.href = new URL("./menu.html#menu-combos", import.meta.url).href;
+  const menuFallback = new URL("./menu.html", import.meta.url).href;
+  combos.href = choiceHelpMenuUrl(window.location.href, menuFallback);
   smart.href = new URL("./smart-choice/", import.meta.url).href;
   const smartPath = new URL(smart.href).pathname;
   const onSmartChoice = window.location.pathname === smartPath || window.location.pathname === `${smartPath}index.html`;
@@ -191,7 +202,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
       delete panel.dataset.comboRecipe;
       image.removeAttribute("src");
     }
-    combos.href = new URL(recipe ? `./menu.html#menu-combo-${recipe.id}` : "./menu.html#menu-combos", import.meta.url).href;
+    combos.href = choiceHelpMenuUrl(window.location.href, menuFallback, recipe?.id);
     combos.textContent = recipe ? text.view : text.combos;
     smart.hidden = Boolean(recipe) || onSmartChoice;
     smart.textContent = text.smart;
@@ -233,7 +244,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
   }
 
   function menuContext() {
-    if (!window.location.pathname.endsWith("/menu.html")) return {};
+    if (!/\/menu(?:-feed)?(?:\.html)?\/?$/.test(window.location.pathname)) return {};
     const inView = selector => {
       const node = document.querySelector(selector);
       if (!node || node.hidden || !node.getClientRects().length) return false;
@@ -241,7 +252,7 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
       return bounds.bottom > 0 && bounds.top < window.innerHeight;
     };
     return {
-      category: document.querySelector('#menu-category-nav [data-category][aria-pressed="true"]')?.dataset.category,
+      category: document.querySelector('#menu-category-nav [data-category][aria-pressed="true"], #feed-categories [data-category][aria-pressed="true"]')?.dataset.category,
       filter: inView("#menu-combos")
         ? document.querySelector('#menu-combos [data-combo-filter][aria-pressed="true"]')?.dataset.comboFilter : "",
       family: window.location.hash === "#menu-family" || inView("#menu-family")

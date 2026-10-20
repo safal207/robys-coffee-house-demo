@@ -44,7 +44,7 @@ const storageKey = "robys-menu-order.v2";
 const timeoutMs = Number(process.env.ROBYS_QA_TIMEOUT_MS ?? 10_000);
 assert.ok(Number.isFinite(timeoutMs) && timeoutMs > 0, "Browser harness timeout must be a positive finite number");
 const assets = ["app.js", "src/app.ts", "menu.html", "menu-app.js", "menu-runtime.css", "menu-combos-ui.js", "menu-combos.css", "menu-order-ui.js", "menu-catalog.js",
-  "index.html", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html",
+  "index.html", "coffee-paths.css", "src/products/sets-v1/cool-lime-macaron.webp", "discover.html", "experience/index.html", "smart-choice/index.html", "ru/coffee-gazipasa.html",
   "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "sw.js", "sw-core-v64.js", "scripts/test-menu-combos-browser.mjs",
   "src/menu-app.js", "src/menu-combos-ui.js", "src/menu-combos.js", "src/choice-help-entry.js", "src/choice-help.js", "order-storage.js",
   "src/brand/robys-compact-master-v1.svg", "src/brand/robys-takeaway-cup-v1.webp",
@@ -302,14 +302,29 @@ try {
             await openMenu(page, "");
             initialMenu = await page.evaluate(() => ({
               firstCategoryTop: document.querySelector(".full-menu-panel").getBoundingClientRect().top,
+              pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+              viewBeforeCombos: document.querySelector(".menu-view-switch").getBoundingClientRect().bottom
+                <= document.querySelector(".combo-entry-links").getBoundingClientRect().top,
+              viewLinks: [...document.querySelectorAll(".menu-view-switch a")].map(link => {
+                const box = link.getBoundingClientRect();
+                return { href: link.getAttribute("href"), text: link.innerText.trim(), current: link.getAttribute("aria-current"), width: box.width, height: box.height };
+              }),
               heroLinks: [...document.querySelectorAll(".menu-page-hero-copy > .combo-entry-links a")].map(link => {
                 const box = link.getBoundingClientRect();
                 return { id: link.id, href: link.getAttribute("href"), width: box.width, height: box.height };
               })
             }));
-            assert.deepEqual(initialMenu.heroLinks.map(link => link.href), ["menu-feed.html", "#menu-combos-fallback", "#menu-combos-fallback", "#menu-family-fallback"],
-              "The feed and three existing combo routes remain available");
-            assert.ok(initialMenu.heroLinks.every(link => link.width >= 44 && link.height >= 44), "All four hero routes retain 44-pixel touch targets");
+            const viewUrls = initialMenu.viewLinks.map(link => new URL(link.href, page.url()));
+            assert.deepEqual(viewUrls.map(url => url.pathname.split("/").pop()), ["menu.html", "menu-feed.html"], "Both menu views remain available");
+            assert.deepEqual(viewUrls.map(url => url.searchParams.get("view")), ["list", "feed"], "View links explicitly select their destination");
+            assert.deepEqual(initialMenu.viewLinks.map(link => link.text), { tr: ["Liste", "Akış"], en: ["List", "Feed"], ru: ["Список", "Лента"] }[language],
+              "Menu view labels follow the selected language");
+            assert.deepEqual(initialMenu.viewLinks.map(link => link.current), ["page", null], "The list view is identified as the current page");
+            assert.equal(initialMenu.viewBeforeCombos, true, "View choice appears before the separate combo choices");
+            assert.equal(initialMenu.pageOverflow, false, "Menu view and combo routes fit the narrow viewport");
+            assert.deepEqual(initialMenu.heroLinks.map(link => link.href), ["#menu-combos-fallback", "#menu-combos-fallback", "#menu-family-fallback"],
+              "All three existing combo routes remain available without a duplicate feed entry");
+            assert.ok([...initialMenu.heroLinks, ...initialMenu.viewLinks].every(link => link.width >= 44 && link.height >= 44), "Every menu view and combo route retains a 44-pixel touch target");
             assert.ok(initialMenu.firstCategoryTop < 600, "Hero routes preserve the first menu category within600pixels on narrow screens");
             if (width === 320 && language === "ru") await page.screenshot({ path: join(output, "menu-hero-320-ru.png") });
           }

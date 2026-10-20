@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-290d4ec6e634-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-fe25f1511bb2-custom-pair-123ef0fff187-menu-css-eb5ac53f8bd2-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-007dff69571d-quick-order-23cfea19e573-coffee-paths-e0e89349a2f4-halloween-f6e6682a4f72-home-navigation-f5ed7645d93c-family-menu-6295cf334f91-occasion-combos-166685166575-custom-pair-7b78c19cb880-menu-css-5c3205d7c5f8-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -81,11 +81,11 @@ const CORE_ASSETS = [
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=eb5ac53f8bd2",
+  "./menu-runtime.css?v=5c3205d7c5f8",
   "./menu-combos-ui.js?v=0aad157af9c2",
-  "./menu-combos.css?v=475b029937b0",
+  "./menu-combos.css?v=abeb6c64bcda",
   "./combo-entry.css?v=da624d45b4d6",
-  "./choice-help.js?v=5dd77e1acead",
+  "./choice-help.js?v=2705363f1499",
   "./choice-help.css?v=6b3dac7b0da1",
   "./src/products/occasion-sets-v1/student.webp",
   "./src/products/occasion-sets-v1/cycle.webp",
@@ -99,14 +99,15 @@ const CORE_ASSETS = [
   "./src/products/occasion-sets-v1/morning.webp",
   "./src/products/occasion-sets-v1/sweet.webp",
   "./src/products/occasion-sets-v1/hearty.webp",
-  "./choice-help-entry.js?v=9e23e4241447",
+  "./choice-help-entry.js?v=3a8ef2483a6f",
   "./seasonal-theme.js?v=7e07ce1187f0",
   "./seasonal.css?v=f2437d09532e",
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu-feed.html",
-  "./menu-feed.js?v=7a24ff8ae9c5",
-  "./menu-feed.css?v=953c5b3eccdf",
+  "./menu-feed.js?v=43f2c58e2945",
+  "./menu-feed.css?v=b5e1d1a01208",
+  "./menu-view-mode.js?v=ecb26aa393f0",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -120,7 +121,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./coffee-paths.css?v=e5dc41400cfe",
+  "./coffee-paths.css?v=e0e89349a2f4",
   "./social-offer.js?v=cf339e8c8777",
   "./menu-premium.css?v=86adefeda34f",
   "./pairing-posters.css?v=882faab929d1",
@@ -141,10 +142,10 @@ const CORE_ASSETS = [
   "./takeaway-entry.js?v=e42f8fe96069",
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
-  "./app.js?v=1cd220e6b7d9",
+  "./app.js?v=dd0c0333bc64",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=664ba2602b53",
+  "./menu-app.js?v=904879662915",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
@@ -260,6 +261,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/menu-view-mode.js") ||
     url.pathname.endsWith("/menu-feed.css") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
     url.pathname.endsWith("/order-storage.js") ||

@@ -129,6 +129,11 @@ export async function verifyMenuCartEditing(context, base, check) {
       await page.locator("#menu-cart-dialog[open]").waitFor();
       assert.deepEqual(await stored(page), saved, "Escape cancels all uncommitted composition and quantity changes");
       await assertVisibleCart(page, saved);
+      // The shared dialog schedules restored focus on the next animation frame.
+      // Wait for that observable result; keep the exact target assertion below.
+      await page.waitForFunction(() => document.querySelector(
+        '.menu-cart-line[aria-label^="Caffè Latte"] .menu-cart-edit, .menu-cart-line[aria-label^="Кафе латте"] .menu-cart-edit'
+      ) === document.activeElement);
       assert.equal(await manualEditor(page).evaluate(node => node === document.activeElement), true);
       await openEditor(page);
       await choose(page, "");

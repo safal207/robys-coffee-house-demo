@@ -14,6 +14,8 @@ const RUNTIME_FILES = [
   "qa.js",
   "menu-app.js",
   "src/menu-app.js",
+  "menu-view-mode.js",
+  "src/menu-view-mode.js",
   "menu-interactions.js",
   "menu-search-clear.js",
   "menu-ready.js",
@@ -24,6 +26,13 @@ const RUNTIME_FILES = [
   "src/app.ts"
 ];
 const HTML_FILES = ["index.html", "menu.html", "experience/index.html"];
+// The owner's remembered list/feed choice is a local display preference.
+// Permit its literal key only in the menu runtime and its authored source;
+// this does not approve another storage key or another runtime's use of it.
+const MENU_VIEW_STORAGE_FILES = new Set(["menu-app.js", "src/menu-app.js"]);
+function approvedLocalStorageKey(file, key) {
+  return key === "robys-language" || (key === "robys-menu-view" && MENU_VIEW_STORAGE_FILES.has(file));
+}
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const report = { generatedAt: new Date().toISOString(), checks: [], failures: [] };
@@ -164,7 +173,7 @@ must("SEC-001", /loading=["']lazy["']/i.test(iframe), "Map iframe must remain la
 
 for (const { file, content } of runtime) {
   for (const match of content.matchAll(/localStorage\.(?:getItem|setItem|removeItem)\(\s*["']([^"']+)["']/g)) {
-    must("PRIVACY-001", match[1] === "robys-language", `${file} accesses an unapproved storage key: ${match[1]}`);
+    must("PRIVACY-001", approvedLocalStorageKey(file, match[1]), `${file} accesses an unapproved storage key: ${match[1]}`);
   }
 }
 

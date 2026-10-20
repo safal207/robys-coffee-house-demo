@@ -9,16 +9,16 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="menu-feed.css?v=953c5b3eccdf" />
-  <link rel="stylesheet" href="order-checkout.css?v=9ead86a924fa" />
+  <link rel="stylesheet" href="menu-runtime.css?v=5c3205d7c5f8" />
+  <link rel="stylesheet" href="menu-feed.css?v=b5e1d1a01208" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
-<body>
+<body class="feed-page">
   <a class="feed-skip" href="#feed" data-copy="skip">Menüye geç</a>
   <header class="feed-header">
     <a class="feed-brand" href="./" aria-label="Roby's Coffee House"><picture><source media="(max-width: 760px)" srcset="src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore" /><img src="src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore" width="286" height="58" alt="Roby's Coffee House" /></picture></a>
     <nav class="feed-header-actions" aria-label="Menu / Меню">
-      <a href="menu.html" class="feed-classic" data-copy="classic">Klasik menü</a>
+      <a href="menu.html?view=list" class="feed-classic" data-menu-view="list" data-copy="classic">Klasik menü</a>
       <div class="feed-languages" aria-label="Language / Dil / Язык">
         <button type="button" data-lang="tr" aria-pressed="true">TR</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -31,41 +31,123 @@
       <p class="feed-eyebrow">GAZİPAŞA · FRESH COFFEE POINT</p>
       <h1 data-copy="title">Gözünle seç.<br />Tadını çıkar.</h1>
       <p class="feed-lead" data-copy="lead">Bir kahve, bir tatlı, belki de ikisi. Bir sonraki seçimin bu akışta.</p>
-      <a class="feed-intro-link" href="menu.html" data-copy="allMenu">Tüm menüyü liste olarak gör ↗</a>
+      <a class="feed-intro-link" href="menu.html?view=list" data-menu-view="list" data-copy="allMenu">Tüm menüyü liste olarak gör ↗</a>
       <div class="feed-intro-note"><span aria-hidden="true">↓</span><p data-copy="hint">Kaydır, beğendiğini siparişine ekle.</p></div>
     </aside>
     <section class="feed-column" aria-labelledby="feed-title">
       <div class="feed-tools">
-        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html" data-copy="listView">Liste</a><a href="menu-feed.html" aria-current="page" data-copy="photoView">Fotoğraflar</a></nav>
+        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html?view=list" data-menu-view="list" data-copy="listView">Liste</a><a href="menu-feed.html?view=feed" data-menu-view="feed" aria-current="page" data-copy="photoView">Akış</a></nav>
         <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Fotoğraflı menü</h2><span id="feed-counter"></span></div>
-        <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
-        <div class="feed-personal"><button type="button" id="feed-liked-filter" aria-pressed="false" aria-controls="feed"><span aria-hidden="true">♡</span> <span id="feed-liked-label">Beğendiklerim</span></button><span id="feed-seen-summary"></span></div>
-        <p class="feed-personal-note" id="feed-personal-note">Beğeniler ve görülenler bu cihazda saklanır.</p>
-        <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
+        <div class="feed-tool-actions">
+          <button type="button" id="feed-liked-filter" class="feed-tool-button" aria-pressed="false" aria-controls="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span id="feed-liked-count" aria-hidden="true">0</span><span id="feed-liked-label" class="sr-only">Beğendiklerim</span></button>
+          <button type="button" id="feed-discover-open" class="feed-tool-button" aria-haspopup="dialog" aria-controls="feed-discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><span class="sr-only" data-copy="discover">Ara ve keşfet</span></button>
+        </div>
+        <p class="feed-swipe-hint"><span aria-hidden="true">↑</span><span data-copy="swipeHint">Sonraki ürün için yukarı kaydır</span></p>
       </div>
+      <nav class="feed-collections" aria-label="Setler / Collections / Подборки">
+        <a id="menu-combos-trigger" href="#menu-combos" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
+        <a id="menu-combos-takeaway-trigger" href="#menu-combos-takeaway" aria-controls="menu-combos">Al götür · 4</a>
+        <a id="menu-family-trigger" href="#menu-family" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
+      </nav>
+      <div class="feed-choice-links">
+        <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
+        <a href="smart-choice/" class="feed-smart-choice" data-menu-copy="smartChoice">Akıllı seçim</a>
+      </div>
+      <section class="menu-combos-section" id="menu-combos" hidden><span id="menu-combos-takeaway" aria-hidden="true"></span><div id="menu-combos-content"></div></section>
+      <section class="menu-family-section" id="menu-family" hidden><div id="menu-family-content"></div></section>
       <p id="feed-results" class="sr-only" role="status" aria-live="polite"></p>
       <div id="feed" class="feed-cards" tabindex="-1"></div>
       <div class="feed-empty" id="feed-empty" hidden><p data-copy="empty">Aradığın burada yok.</p><button type="button" id="feed-reset" data-copy="reset">Tümünü göster</button></div>
       <div id="feed-more-wrap" class="feed-more-wrap"><button type="button" id="feed-more" data-copy="more" hidden>Daha fazla göster</button></div>
       <p class="feed-end" id="feed-end" hidden data-copy="end">Menünün sonuna geldin. Seçim senin.</p>
       <p class="feed-price-note" data-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+      <nav class="feed-cafe-links" aria-label="Roby's Coffee House">
+        <a href="https://www.instagram.com/robyscoffeehouse/" target="_blank" rel="noopener noreferrer"><span lang="tr">Instagram · Masa ayırt</span><span lang="en">Instagram · Book a table</span><span lang="ru">Instagram · Забронировать стол</span></a>
+        <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Roby%27s+Coffee+House+Gazipasa&amp;travelmode=driving" target="_blank" rel="noopener noreferrer" data-menu-copy="route">Yol tarifi al</a>
+      </nav>
       <noscript><p class="feed-fallback">Akış için JavaScript gerekir / Enable JavaScript for the feed / Для ленты нужен JavaScript. <a href="menu.html">Menü / Menu / Меню</a> · <a href="src/products/sets-v1/iced-san-sebastian.webp">Latte + cheesecake</a></p></noscript>
     </section>
     <aside class="feed-guide"><span class="feed-guide-line"></span><p data-copy="guide">Beğen.<br />Sonra karar ver.</p><span class="feed-guide-index">ROBY'S · COFFEE HOUSE</span></aside>
   </main>
-  <button class="feed-cart-bar" id="feed-cart-open" type="button" aria-haspopup="dialog" aria-controls="feed-cart" hidden><span class="feed-cart-count" id="feed-cart-count">0</span><span data-copy="order">Siparişim</span><strong id="feed-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
+  <button class="feed-cart-bar" id="menu-cart-trigger" type="button" aria-haspopup="dialog" aria-controls="menu-cart-dialog" hidden><span class="feed-cart-count" id="menu-cart-count">0</span><span data-copy="order">Siparişim</span><strong id="menu-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
   <p id="feed-status" class="feed-status" role="status" aria-live="polite" aria-atomic="true"></p>
-  <dialog class="feed-cart" id="feed-cart" aria-labelledby="feed-cart-title">
+  <dialog class="feed-cart feed-discover" id="feed-discover" aria-labelledby="feed-discover-title">
     <div class="feed-cart-shell">
-      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-cart-title" data-copy="order">Siparişim</h2></div><button type="button" id="feed-cart-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
-      <div id="feed-cart-lines"></div>
-      <p class="feed-cart-sum"><span data-copy="total">Toplam</span><strong id="feed-cart-sum">0 ₺</strong></p>
-      <p class="feed-draft-note" data-copy="draft">Bu bir sipariş taslağıdır. Ödeme kasada yapılır.</p>
-      <button class="feed-primary" id="feed-checkout" type="button" data-copy="checkout">Kasa için QR oluştur</button>
-      <p id="feed-cart-error" role="alert"></p>
-      <button class="feed-continue" type="button" id="feed-continue" data-copy="continue">Keşfetmeye devam et</button>
+      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-discover-title" data-copy="discoverTitle">Ne istersin?</h2></div><button type="button" id="feed-discover-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
+      <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
+      <div class="feed-personal"><span id="feed-seen-summary"></span><p class="feed-personal-note" id="feed-personal-note">Beğeniler ve görülenler bu cihazda saklanır.</p></div>
+      <button type="button" id="feed-discover-done" class="feed-primary" data-copy="discoverDone">Akışa dön</button>
     </div>
   </dialog>
-  <script type="module" src="menu-feed.js?v=7a24ff8ae9c5"></script>
+  <dialog class="feed-cart feed-share-dialog" id="feed-share" aria-labelledby="feed-share-title">
+    <div class="feed-cart-shell">
+      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-share-title" data-copy="shareTitle">Bu seçimi paylaş</h2></div><button type="button" id="feed-share-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <label class="feed-share-link"><span data-copy="shareLink">Ürün bağlantısı</span><input id="feed-share-url" type="url" readonly /></label>
+      <p id="feed-share-help" class="feed-draft-note" data-copy="copyHelp" role="status" aria-live="polite">Bağlantıyı kopyalayıp arkadaşına gönderebilirsin.</p>
+      <button type="button" id="feed-share-copy" class="feed-primary" data-copy="copyLink">Bağlantıyı kopyala</button>
+    </div>
+  </dialog>
+  <p class="menu-order-status" id="menu-cart-status" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+
+  <dialog class="menu-dialog menu-product-dialog" id="menu-product-dialog" aria-labelledby="menu-product-title" aria-describedby="menu-product-draft-note">
+    <div class="menu-dialog-shell menu-product-shell">
+      <button class="menu-dialog-close" type="button" data-menu-dialog-close="product" aria-label="Kapat">×</button>
+      <div class="menu-product-main">
+      <div class="menu-product-visual">
+        <img id="menu-product-image" src="src/products/menu-v1/hot-coffee--espresso.webp" alt="" width="1024" height="1024" loading="lazy" decoding="async" />
+        <span class="menu-product-brand" aria-hidden="true">ROBY'S · COFFEE HOUSE</span>
+      </div>
+      <div class="menu-product-content">
+        <p class="eyebrow" id="menu-product-category"></p>
+        <h2 id="menu-product-title"></h2>
+        <p class="menu-product-description" id="menu-product-description" hidden></p>
+        <strong class="menu-product-price" id="menu-product-price"></strong>
+        <section class="menu-pairing-picker" id="menu-pairing-picker" hidden></section>
+        <section class="menu-pairing-preview" id="menu-pairing-preview" hidden></section>
+      </div>
+      </div>
+      <footer class="menu-product-actions">
+        <div class="menu-quantity-control" role="group" aria-labelledby="menu-quantity-label">
+          <span id="menu-quantity-label" data-menu-copy="quantity">Adet</span>
+          <div class="menu-quantity-stepper">
+            <button id="menu-quantity-decrease" type="button" aria-label="Adedi azalt">−</button>
+            <output id="menu-product-quantity" aria-live="polite">1</output>
+            <button id="menu-quantity-increase" type="button" aria-label="Adedi artır">+</button>
+          </div>
+        </div>
+        <button class="button button-primary menu-add-button" id="menu-add-to-cart" type="button" data-menu-copy="addToCart">Siparişe ekle</button>
+        <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+        <p class="menu-order-draft-note" id="menu-product-draft-note" data-menu-copy="orderDraft">Bu bir sipariş taslağıdır; kafeye veya ödeme sistemine otomatik gönderilmez.</p>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="menu-dialog menu-cart-dialog" id="menu-cart-dialog" aria-labelledby="menu-cart-title" aria-describedby="menu-cart-draft-note">
+    <div class="menu-dialog-shell menu-cart-shell">
+      <button class="menu-dialog-close" type="button" data-menu-dialog-close="cart" aria-label="Kapat">×</button>
+      <header class="menu-cart-header">
+        <p class="eyebrow">ROBY'S · COFFEE HOUSE</p>
+        <h2 id="menu-cart-title" tabindex="-1">Sipariş özeti</h2>
+        <p class="menu-cart-added-summary" id="menu-cart-added-summary" hidden></p>
+        <p class="menu-cart-next-step" id="menu-cart-next-step" hidden></p>
+      </header>
+      <p class="menu-cart-empty" id="menu-cart-empty" data-menu-copy="cartEmpty">Henüz bir seçim eklemediniz.</p>
+      <div class="menu-cart-lines" id="menu-cart-lines"></div>
+      <p class="visually-hidden" data-menu-cart-status role="status" aria-live="polite" aria-atomic="true"></p>
+      <footer class="menu-cart-footer">
+        <div class="menu-cart-grand-total">
+          <span data-menu-copy="total">Toplam</span>
+          <strong id="menu-cart-dialog-total">0 ₺</strong>
+        </div>
+        <p class="menu-cart-checkout-error" id="menu-cart-checkout-error" role="alert" tabindex="-1" hidden></p>
+        <button class="button menu-cart-continue" type="button" data-menu-dialog-close="cart">Başka bir şey seç</button>
+        <p class="menu-order-draft-note" id="menu-cart-draft-note">Sonraki adımda kasa için QR kodunu al. Ödeme kasada yapılır.</p>
+      </footer>
+    </div>
+  </dialog>
+
+  <script type="module" src="menu-feed.js?v=43f2c58e2945"></script>
+  <script type="module" src="menu-view-mode.js?v=ecb26aa393f0"></script>
 </body>
 </html>

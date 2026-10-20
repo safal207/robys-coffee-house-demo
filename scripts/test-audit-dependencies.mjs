@@ -42,6 +42,20 @@ for (const name of ["conversion", "menu-app"]) {
     "index.html": "<main>Menu</main>", [`src/${name}.js`]: "export {};"
   }, [`src/${name}.js`]);
 }
+for (const helper of ["order", "collections"]) {
+  const files = { "menu-feed.js": "export {};", "src/menu-feed.js": `import "./src/menu-feed-${helper}.js";`,
+    [`src/menu-feed-${helper}.js`]: "export {};" };
+  check(`feed ${helper}: actual bundled import remains reachable`, {
+    "index.html": '<script type="module" src="menu-feed.js"></script>', ...files
+  }, [], [["menu-feed.js", "src/menu-feed.js"], ["menu-feed.js", `src/menu-feed-${helper}.js`]]);
+  check(`feed ${helper}: detached source is still orphaned`, {
+    "index.html": "<main>Menu</main>", ...files
+  }, ["menu-feed.js", "src/menu-feed.js", `src/menu-feed-${helper}.js`]);
+  check(`feed ${helper}: mention without import is still orphaned`, {
+    "index.html": '<script type="module" src="menu-feed.js"></script>', ...files,
+    "src/menu-feed.js": `console.log("./src/menu-feed-${helper}.js");`
+  }, [`src/menu-feed-${helper}.js`], [["menu-feed.js", "src/menu-feed.js"]]);
+}
 check("lazy pairing output links its readable view only when reached", {
   "index.html": '<script type="module" src="menu-app.js"></script>',
   "menu-app.js": 'import("./menu-pairing.js?v=fixture");', "src/menu-app.js": 'import("./menu-pairing.js?v=fixture");',

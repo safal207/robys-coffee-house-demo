@@ -11,7 +11,7 @@ Roby's is a static multilingual café website deployed through GitHub Pages. It 
 - public HTML, CSS, JavaScript and media integrity;
 - GitHub repository, workflows and deployment permissions;
 - maintainer credentials and repository secrets;
-- visitor language preference stored locally.
+- visitor language and menu-view preferences stored locally.
 
 ## Trust boundaries
 
@@ -46,6 +46,25 @@ The public site differs from the reviewed commit or serves an obsolete build. Co
 ### Privacy expansion
 
 A future feature begins collecting visitor data without explicit review. Controls: a storage-key allowlist, no current server transmission, external-origin review and a dedicated privacy contract.
+
+#### Remembered menu view
+
+The owner-requested list/feed switch may store one display preference under
+`robys-menu-view` in same-origin `localStorage`. Its only supported values are
+`list` and `feed`; unrecognized stored values do not select the feed. This key
+contains no visitor identifier, search history, product history or order data.
+It stays in this browser and is not sent to a server or shared across devices.
+Choosing another view replaces it; clearing site data removes it. If storage is
+unavailable, explicit list/feed links still work without remembering the choice.
+
+`PRIVACY-001` permits direct literal access to this exact key only in
+`menu-app.js` and its authored source `src/menu-app.js`. The existing
+`robys-language` allowance is unchanged; other keys and other files receive no
+new permission. The standalone view-mode source and generated runtime
+(`src/menu-view-mode.js` and `menu-view-mode.js`) are also included in the common
+runtime security scan; their preference reader/writer accepts the same enum.
+The scanner's literal-key detection remains intact. This preference does not
+change CSP, network-origin permissions or the handling of order data.
 
 ## Assumptions
 

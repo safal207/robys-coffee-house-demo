@@ -95,6 +95,13 @@ async function readMetrics(page) {
       touchSafe: matchMedia("(hover:none) and (pointer:coarse)").matches,
       headerPosition: getComputedStyle(document.querySelector(".menu-page .site-header")).position,
       controlsPosition: getComputedStyle(document.querySelector(".menu-controls")).position,
+      viewSwitchReachable: document.querySelectorAll(".menu-view-switch a").length === 2
+        && [...document.querySelectorAll(".menu-view-switch a")].every(link => {
+        const box = link.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return box.width >= 44 && box.height >= 44 && box.top >= 0 && box.bottom <= innerHeight
+          && (hit === link || link.contains(hit));
+      }),
       htmlBackground: getComputedStyle(document.documentElement).backgroundColor,
       bodyBackground: getComputedStyle(document.body).backgroundColor,
       panels
@@ -208,7 +215,7 @@ try {
 
     const initial = await readMetrics(page);
     assert(initial.touchSafe, viewport.id, "coarse-pointer safe mode did not activate");
-    assert(initial.headerPosition === "static", viewport.id, `header position is ${initial.headerPosition}, expected static`);
+    assert(initial.headerPosition === "sticky", viewport.id, `header position is ${initial.headerPosition}, expected the persistent menu view switch`);
     assert(initial.controlsPosition === "static", viewport.id, `menu controls position is ${initial.controlsPosition}, expected static`);
     assert(initial.scrollWidth <= initial.clientWidth + 1, viewport.id, `horizontal overflow: ${initial.scrollWidth}px > ${initial.clientWidth}px`);
     assert(initial.scrollHeight > initial.innerHeight * 3, viewport.id, "menu is unexpectedly short or failed to render");
@@ -232,6 +239,7 @@ try {
       const scroll = await scrollToRatio(page, ratio);
       assert(Math.abs(scroll.actual - scroll.target) <= 2, viewport.id, `scroll target drift at ratio ${ratio}: ${scroll.actual}px vs ${scroll.target}px`);
       const metrics = await readMetrics(page);
+      assert(metrics.viewSwitchReachable, viewport.id, "both menu view controls remain reachable during scrolling");
       assert(Math.abs(metrics.scrollHeight - initial.scrollHeight) <= 2, viewport.id, `document height changed during scrolling: ${initial.scrollHeight}px → ${metrics.scrollHeight}px`);
       assert(metrics.scrollWidth <= metrics.clientWidth + 1, viewport.id, `horizontal overflow appeared during scrolling: ${metrics.scrollWidth}px > ${metrics.clientWidth}px`);
       await page.waitForTimeout(35);

@@ -6,10 +6,50 @@ The feed is a second view of the existing menu for guests who want to choose by
 photograph. The list remains the fast route for a known item. Both views use the
 same catalog, prices, variants, order draft and counter QR.
 
-The homepage entry belongs at the start of “What would feel good today?”, before
-the category choices. The full menu also links to the photo view. The feed has a
-List / Photos switch; returning to the list preserves the selected category.
-No additional primary hero CTA is needed.
+The homepage entry is a photo preview labelled “Swipe to choose” at the start of
+“What sounds good today?”, before the category choices. The full menu and
+feed share a List / Feed view switch. Switching preserves the language, category,
+search and shared order. A stored view preference applies only to a generic menu
+entry; explicit view links, product and special-purpose links, reloads and Back
+keep their requested destination. Storage failure leaves both modes usable. No additional primary hero CTA or timed feed popup is needed.
+
+The switch stays available while scrolling in both views. Feed entry controls
+open the same 12 editable combos, four takeaway selections, three family ideas
+and kids choices as the list. The choice helper stays in the current menu view;
+Smart Choice opens the same separate builder in either mode.
+
+Product details and the cart use the list's shared editor, including drink and
+dessert pairings, flavor changes, component replacement and quantity editing.
+Simple products still support quick Add from a post. Promotional pairs open the
+shared composition editor so the stored order contains the canonical components.
+Optional editors load on intent; a later navigation cancels an older pending
+reveal without cancelling an order transaction already in progress.
+
+## Entry and browsing flow
+
+The intended journey is entry → browse → shortlist or add → shared cart → counter
+QR. The first product is visible immediately on mobile. Search, categories and
+the personal viewing summary live in a separate accessible discovery dialog.
+
+Cards follow familiar photo-post browsing: a light header, full-width square
+photograph, then a horizontal heart/share row and the product details with price
+and Add. Double-tapping a photograph likes the product without undoing a like.
+The feed scrolls continuously without fullscreen snapping; previous/next controls
+and arrow keys remain alternatives. Photos keep their complete square composition
+and intrinsic aspect ratio, including on short screens. Long content remains
+reachable with ordinary scrolling above the shared-cart bar.
+
+Share opens the device share sheet where supported, or a link dialog with Copy
+and manual selection when clipboard permission is unavailable. A product link
+uses `menu-feed.html?item=<catalog-id>&lang=<tr|en|ru>` and opens that product,
+including products beyond the first rendered batch. It contains no order data.
+Unknown IDs fall back to normal browsing. Cancelling a share keeps the guest on
+the card without an error.
+
+The same feed URL is suitable for a table QR or the cafe's social profile link;
+these are proposed distribution channels, not placements made by this change.
+The interface does not imply a video exists for a static product photograph or
+claim a personalized recommendation algorithm.
 
 ## Reference and corrections
 
@@ -34,8 +74,9 @@ this device and synchronize between tabs. Each product has separate keys, so
 changes to different products cannot overwrite each other.
 
 “Viewed by you” means that a loaded photograph was at least 50% visible for one
-continuous second while the document was visible and no dialog covered the
-feed. A product is counted once, including across reloads and language changes.
+continuous second while the document was visible, no dialog covered the feed
+and no native share sheet was active. A product is counted once, including
+across reloads and language changes.
 This is a browsing aid, not proof of attention or an audience metric.
 
 If storage fails, interactions continue in memory and the page explicitly says
@@ -52,6 +93,8 @@ definition; local preferences must not be relabeled as global popularity.
 Repository tests cover storage failure, malformed values, cross-tab changes,
 uncropped images, responsive brand assets, personal likes and dwell guards,
 as well as the existing search, flavor, shared-cart and QR journeys in TR/EN/RU.
+Additional cases exercise discovery focus, product links, native-share outcomes,
+clipboard recovery, keyboard navigation and short screens with enlarged text.
 Screenshots and browser reports are produced by the Order reliability workflow.
 
 The product hypothesis is that choosing visually and saving a shortlist helps
