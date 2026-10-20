@@ -1539,6 +1539,8 @@ body.menu-combos-open{overflow:hidden}
   .menu-page-hero-copy>.combo-entry-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:6px}
   .menu-page-hero-copy>.combo-entry-links .menu-family-link{box-sizing:border-box;justify-content:center;min-width:0;min-height:44px;padding:6px 4px;font-size:.72rem;line-height:1.3;text-align:center;overflow-wrap:anywhere}
   .menu-page-hero-copy>[data-choice-help]{margin-top:4px}
+  .menu-page .menu-controls{padding-block:8px}
+  .menu-page .menu-controls-inner{gap:8px}
 }
 @media(forced-colors:active){.menu-view-switch a[aria-current=page]{outline:2px solid Highlight}}
 
