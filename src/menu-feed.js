@@ -1,12 +1,15 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
+import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "./src/menu-feed-navigation.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
     classic: "Klasik menü", allMenu: "Tüm menüyü liste olarak gör ↗", feedTitle: "Fotoğraflı menü", skip: "Menüye geç",
     hint: "Seç, QR'ı kasaya göster, kafede öde.", guide: "Beğen.\nSonra karar ver.", search: "Kahve, tatlı…",
-    listView: "Liste", photoView: "Fotoğraflar", like: "Beğen", liked: "Beğendin", unlike: "Beğeniyi kaldır", likedFilter: "Beğendiklerim", seen: "Sen gördün", seenSummary: "Gördüklerin", personal: "Beğeniler ve görülenler bu cihazda saklanır.", memoryOnly: "Beğeniler ve görülenler yalnızca bu sayfa açıkken saklanır.", likedEmpty: "Burada henüz beğendiğin bir ürün yok. Kalbe dokunarak kaydet.",
+    listView: "Liste", photoView: "Akış", like: "Beğen", liked: "Beğendin", unlike: "Beğeniyi kaldır", likedFilter: "Beğendiklerim", seen: "Sen gördün", seenSummary: "Gördüklerin", personal: "Beğeniler ve görülenler bu cihazda saklanır.", memoryOnly: "Beğeniler ve görülenler yalnızca bu sayfa açıkken saklanır.", likedEmpty: "Burada henüz beğendiğin bir ürün yok. Kalbe dokunarak kaydet.",
+    discover: "Ara", discoverTitle: "Ne istersin?", discoverDone: "Akışa dön", swipeHint: "Sonraki ürün için yukarı kaydır", previous: "Önceki ürün",
+    share: "Paylaş", shareTitle: "Bu seçimi paylaş", shareLink: "Ürün bağlantısı", copyLink: "Bağlantıyı kopyala", copyHelp: "Bu bağlantıyı kopyalayıp paylaşabilirsin.", copied: "Bağlantı kopyalandı", saved: "Beğendiklerine kaydedildi",
     searchLabel: "Menüde ara", clear: "Aramayı temizle", empty: "Aradığın burada yok.", reset: "Tümünü göster",
     more: "Daha fazla göster", end: "Menünün sonuna geldin. Seçim senin.", order: "Siparişim", total: "Toplam",
     draft: "Bu bir sipariş taslağıdır; kafeye otomatik gönderilmez. Ödeme kasada yapılır.", checkout: "Kasa için QR oluştur",
@@ -17,7 +20,9 @@ const copy = {
   en: { title: "Find your taste.\nOne photo at a time.", lead: "A coffee, a dessert, or a little of both. Save what you like, then add it when you're ready.",
     classic: "Classic menu", allMenu: "See the menu as a list ↗", feedTitle: "Menu in photos", skip: "Skip to menu",
     hint: "Choose, show your QR at the counter, pay at the café.", guide: "Like it.\nCome back to it.", search: "Coffee, dessert…",
-    listView: "List", photoView: "Photos", like: "Like", liked: "Liked", unlike: "Unlike", likedFilter: "Liked", seen: "Viewed by you", seenSummary: "Viewed by you", personal: "Likes and viewed items are saved on this device.", memoryOnly: "Likes and viewed items are saved on this page only.", likedEmpty: "No liked items here yet. Tap a heart to save a favorite.",
+    listView: "List", photoView: "Feed", like: "Like", liked: "Liked", unlike: "Unlike", likedFilter: "Liked", seen: "Viewed by you", seenSummary: "Viewed by you", personal: "Likes and viewed items are saved on this device.", memoryOnly: "Likes and viewed items are saved on this page only.", likedEmpty: "No liked items here yet. Tap a heart to save a favorite.",
+    discover: "Search", discoverTitle: "What sounds good?", discoverDone: "Back to the feed", swipeHint: "Swipe up for the next item", previous: "Previous item",
+    share: "Share", shareTitle: "Share this choice", shareLink: "Item link", copyLink: "Copy link", copyHelp: "Copy this link to share the item.", copied: "Link copied", saved: "Saved to your liked items",
     searchLabel: "Search the menu", clear: "Clear search", empty: "Nothing matches this search.", reset: "Show everything",
     more: "Show more", end: "You've reached the end. The choice is yours.", order: "My order", total: "Total",
     draft: "This is an order draft; it is not sent to the café automatically. Pay at the counter.", checkout: "Get QR for the counter",
@@ -28,7 +33,9 @@ const copy = {
   ru: { title: "Выбирай глазами.\nНаслаждайся вкусом.", lead: "Кофе, десерт, а может, всё вместе. Сохраняй понравившееся и добавляй в заказ, когда решишь.",
     classic: "Меню списком", allMenu: "Открыть всё меню списком ↗", feedTitle: "Меню по фото", skip: "Перейти к меню",
     hint: "Выбери, покажи QR на кассе и оплати в кафе.", guide: "Нравится?\nСохрани на потом.", search: "Кофе, десерт…",
-    listView: "Список", photoView: "Фото", like: "Нравится", liked: "Тебе нравится", unlike: "Убрать лайк", likedFilter: "Понравилось", seen: "Ты посмотрел", seenSummary: "Просмотрено тобой", personal: "Лайки и просмотренное сохраняются на этом устройстве.", memoryOnly: "Лайки и просмотренное сохраняются только до закрытия страницы.", likedEmpty: "Здесь пока нет понравившихся позиций. Нажми на сердечко, чтобы сохранить.",
+    listView: "Список", photoView: "Лента", like: "Нравится", liked: "Тебе нравится", unlike: "Убрать лайк", likedFilter: "Понравилось", seen: "Ты посмотрел", seenSummary: "Просмотрено тобой", personal: "Лайки и просмотренное сохраняются на этом устройстве.", memoryOnly: "Лайки и просмотренное сохраняются только до закрытия страницы.", likedEmpty: "Здесь пока нет понравившихся позиций. Нажми на сердечко, чтобы сохранить.",
+    discover: "Поиск", discoverTitle: "Чего хочется?", discoverDone: "Вернуться в ленту", swipeHint: "Свайп вверх — следующая позиция", previous: "Предыдущая позиция",
+    share: "Поделиться", shareTitle: "Поделиться выбором", shareLink: "Ссылка на позицию", copyLink: "Скопировать ссылку", copyHelp: "Скопируй эту ссылку и отправь её другу.", copied: "Ссылка скопирована", saved: "Сохранено в понравившемся",
     searchLabel: "Поиск по меню", clear: "Очистить поиск", empty: "По этому запросу ничего не нашлось.", reset: "Показать всё",
     more: "Показать ещё", end: "Ты долистал меню. Выбор за тобой.", order: "Мой заказ", total: "Итого",
     draft: "Это черновик: заказ не отправляется в кафе автоматически. Оплата — на кассе.", checkout: "Получить QR для кассы",
@@ -56,14 +63,17 @@ const productIndex = new Map(products.map(product => [product.id, product]));
 const validIds = new Set(productIndex.keys());
 const selectedVariants = new Map();
 const root = $("#feed"), dialog = $("#feed-cart"), searchInput = $("#feed-search");
+const discoverDialog = $("#feed-discover"), shareDialog = $("#feed-share");
 let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
-const readCategory = () => menuCategories.some(category => category.id === location.hash.slice(1)) ? location.hash.slice(1) : "all";
-let category = readCategory(), filtered = [], rendered = 0, currentIndex = 0;
+const entry = parseFeedEntry(location.href, products);
+if (entry.language) language = entry.language;
+let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
 let draft = { version: 1, groups: [], lines: [] }, storage, storagePromise, storageNotice;
 let storageRetry = 0, checkoutPromise, checkoutRetry = 0;
 let busy = false, checkoutBusy = false, statusTimer, readVersion = 0, cartSession = 0;
+let layoutFrame = 0, activeFrame = 0, shareReturnFocus = null, discoveryChanged = false, sharing = false;
 const text = () => copy[language];
 const localized = value => value?.[language] ?? value?.tr ?? "";
 const money = value => `${new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language], { maximumFractionDigits: 0 }).format(value)} ₺`;
@@ -72,6 +82,7 @@ const engagement = createFeedEngagement({ validIds, onChange: updateEngagement }
 
 function updateEngagement() {
   $("#feed-liked-label").textContent = `${text().likedFilter} · ${engagement.likes()}`;
+  $("#feed-liked-count").textContent = engagement.likes();
   $("#feed-liked-filter").setAttribute("aria-pressed", String(likedOnly));
   $("#feed-seen-summary").textContent = `${text().seenSummary}: ${engagement.seen()} / ${products.length}`;
   $("#feed-personal-note").textContent = engagement.persistent ? text().personal : text().memoryOnly;
@@ -102,11 +113,18 @@ function stopViews() {
   for (const timer of viewTimers.values()) clearTimeout(timer);
   viewTimers.clear();
 }
+function feedViewBounds() {
+  return {
+    top: Math.max(0, $(".feed-header").getBoundingClientRect().bottom, $(".feed-tools").getBoundingClientRect().bottom),
+    bottom: Math.min(innerHeight, $("#feed-cart-open").getBoundingClientRect().top || innerHeight)
+  };
+}
 function canView(photo) {
-  if (document.hidden || document.querySelector("dialog[open]") || !photo.isConnected || !photo.complete || !photo.naturalWidth) return false;
+  if (document.hidden || sharing || document.querySelector("dialog[open]") || !photo.isConnected || !photo.complete || !photo.naturalWidth) return false;
   const rect = photo.getBoundingClientRect();
   const width = Math.max(0, Math.min(rect.right, innerWidth) - Math.max(rect.left, 0));
-  const height = Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0));
+  const bounds = feedViewBounds();
+  const height = Math.max(0, Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top));
   return rect.width > 0 && rect.height > 0 && width * height >= rect.width * rect.height * .5;
 }
 function scheduleView(photo) {
@@ -184,6 +202,67 @@ async function mutate(updater) {
 
 function updateCounter() { $("#feed-counter").textContent = filtered.length ? `${currentIndex + 1} / ${filtered.length}` : `0 / 0`; }
 
+function updateActiveCard() {
+  activeFrame = 0;
+  for (const photo of viewCandidates) {
+    if (canView(photo)) scheduleView(photo);
+    else { clearTimeout(viewTimers.get(photo)); viewTimers.delete(photo); }
+  }
+  if (document.querySelector("dialog[open]")) return;
+  const { top, bottom } = feedViewBounds();
+  const index = selectActiveFeedIndex([...root.children].map(card => {
+    const rect = card.getBoundingClientRect(); return { index: Number(card.dataset.index), top: rect.top, bottom: rect.bottom };
+  }), top, bottom);
+  if (index !== null && index !== currentIndex) { currentIndex = index; updateCounter(); }
+}
+function scheduleActiveCard() { if (!activeFrame) activeFrame = requestAnimationFrame(updateActiveCard); }
+function updateFeedLayout() {
+  layoutFrame = 0;
+  const headerHeight = $(".feed-header").getBoundingClientRect().height;
+  const toolsHeight = $(".feed-tools").getBoundingClientRect().height;
+  const cart = $("#feed-cart-open").getBoundingClientRect();
+  const reserve = cart.height ? innerHeight - cart.top : 80;
+  const style = document.documentElement.style;
+  style.setProperty("--feed-header-height", `${headerHeight}px`);
+  style.setProperty("--feed-top-offset", `${headerHeight + toolsHeight}px`);
+  style.setProperty("--feed-stage", `${Math.max(240, innerHeight - headerHeight - toolsHeight - reserve - 8)}px`);
+  scheduleActiveCard();
+}
+function scheduleLayout() { if (!layoutFrame) layoutFrame = requestAnimationFrame(updateFeedLayout); }
+function moveToCard(index, { focus = false, instant = false } = {}) {
+  if (index < 0 || index >= filtered.length) return;
+  while (rendered <= index) appendPage();
+  const card = root.children[index];
+  card.scrollIntoView({ block: "start", behavior: instant || matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  if (focus) card.focus({ preventScroll: true });
+  currentIndex = index; updateCounter();
+}
+function clearItemLink(nextCategory = category, replace = false) {
+  const url = new URL(location.href); url.searchParams.delete("item");
+  url.hash = nextCategory === "all" ? "" : nextCategory;
+  history[replace ? "replaceState" : "pushState"](null, "", url);
+}
+function openShareFallback(product, trigger) {
+  shareReturnFocus = trigger;
+  $("#feed-share-url").value = feedProductUrl(location.href, product.id, language);
+  $("#feed-share-help").textContent = text().copyHelp;
+  shareDialog.showModal(); stopViews();
+}
+async function shareProduct(product, trigger) {
+  if (sharing) return;
+  sharing = true; trigger.disabled = true; stopViews();
+  try {
+    if (typeof navigator.share === "function") {
+      try { await navigator.share({ title: `${localized(product.item.name)} · Roby's Coffee House`, url: feedProductUrl(location.href, product.id, language) }); }
+      catch (error) { if (error?.name !== "AbortError") openShareFallback(product, trigger); }
+    } else openShareFallback(product, trigger);
+  } finally {
+    sharing = false; trigger.disabled = false;
+    if (!document.querySelector("dialog[open]") && trigger.isConnected) trigger.focus({ preventScroll: true });
+    viewCandidates.forEach(scheduleView);
+  }
+}
+
 function updateBadges() {
   const quote = quoteFeedOrder(draft, productIndex);
   $("#feed-cart-count").textContent = quote.count;
@@ -212,8 +291,7 @@ function renderCategories() {
   entries.forEach(entry => {
     const node = button("feed-category", undefined, () => {
       category = entry.id;
-      const url = new URL(location.href); url.hash = category === "all" ? "" : category;
-      history.pushState(null, "", url);
+      clearItemLink(); discoveryChanged = true;
       renderCategories(); renderFeed();
       [...nav.children].find(child => child.dataset.category === category)?.focus({ preventScroll: true });
     });
@@ -228,13 +306,10 @@ function renderCategories() {
   });
 }
 
-const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
-  const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-  if (visible) { currentIndex = Number(visible.target.dataset.index); updateCounter(); }
-}, { threshold: [.3, .6] }) : null;
+const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(scheduleActiveCard, { threshold: [0, .3, .6, 1] }) : null;
 
 function renderCard(product, index) {
-  const card = element("article", "feed-card"); card.dataset.productId = product.id; card.dataset.index = index;
+  const card = element("article", "feed-card"); card.dataset.productId = product.id; card.dataset.index = index; card.tabIndex = -1;
   const titleId = `feed-product-${index}`; card.setAttribute("aria-labelledby", titleId);
   const header = element("header", "feed-card-header");
   const avatar = element("img", "feed-avatar"); avatar.src = "src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore"; avatar.alt = ""; avatar.width = 32; avatar.height = 32;
@@ -246,13 +321,18 @@ function renderCard(product, index) {
   photo.addEventListener("load", () => scheduleView(photo));
   if (index === 0) photo.setAttribute("fetchpriority", "high");
   visual.append(photo, element("span", "feed-photo-tag", localized(product.category.name)));
+  const burst = element("span", "feed-heart-burst", "♥"); burst.setAttribute("aria-hidden", "true"); visual.append(burst);
+  photo.addEventListener("dblclick", () => {
+    engagement.setLiked(product.id, true); say(text().saved);
+    burst.dataset.active = "true";
+    setTimeout(() => { delete burst.dataset.active; }, 650);
+  });
+  if (index > 0) {
+    const previous = button("feed-photo-prev", "↑", () => moveToCard(index - 1, { focus: true }));
+    previous.setAttribute("aria-label", text().previous); visual.append(previous);
+  }
   if (index < filtered.length - 1) {
-    const next = button("feed-photo-next", "↓", () => {
-      if (index + 1 >= rendered) appendPage();
-      const target = [...root.children].find(node => Number(node.dataset.index) === index + 1);
-      target?.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-      target?.querySelector(".feed-add")?.focus({ preventScroll: true });
-    });
+    const next = button("feed-photo-next", "↓", () => moveToCard(index + 1, { focus: true }));
     next.setAttribute("aria-label", text().next); visual.append(next);
   }
   const content = element("div", "feed-card-content"), heading = element("div", "feed-product-heading");
@@ -264,7 +344,10 @@ function renderCard(product, index) {
   like.append(icon("M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"), element("span", "", text().like));
   const seen = element("span", "feed-seen"); seen.dataset.seen = "false";
   seen.append(icon("M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"), element("span", "", text().seen));
-  social.append(like, seen);
+  const share = button("feed-share", undefined, event => { void shareProduct(product, event.currentTarget); });
+  share.setAttribute("aria-label", `${text().share}: ${localized(product.item.name)}`);
+  share.append(icon("M18 8a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM6 15a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM18 22a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM8.6 10.5l6.8-4M8.6 13.5l6.8 4"), element("span", "", text().share));
+  social.append(like, share, seen);
   const title = element("h3", "", localized(product.item.name)); title.id = titleId;
   heading.append(title, element("span", "feed-price", money(product.item.price))); content.append(heading);
   if (product.item.description) content.append(element("p", "feed-description", localized(product.item.description)));
@@ -312,6 +395,7 @@ function renderFeed() {
   $("#feed-empty p").textContent = likedOnly && !searchInput.value ? text().likedEmpty : text().empty;
   $("#feed-search-clear").hidden = !searchInput.value;
   $("#feed-results").textContent = `${filtered.length} ${text().results}`;
+  scheduleActiveCard();
 }
 
 function renderCart() {
@@ -361,26 +445,69 @@ function applyLanguage() {
   document.querySelectorAll("[data-copy]").forEach(node => { node.textContent = text()[node.dataset.copy] ?? menuCopy[language][node.dataset.copy] ?? ""; });
   document.querySelectorAll("[data-lang]").forEach(node => node.setAttribute("aria-pressed", String(node.dataset.lang === language)));
   searchInput.placeholder = text().search; $("#feed-search-clear").setAttribute("aria-label", text().clear);
-  $("#feed-cart-close").setAttribute("aria-label", text().close);
+  for (const id of ["feed-cart-close", "feed-discover-close", "feed-share-close"]) $(`#${id}`).setAttribute("aria-label", text().close);
   renderCategories(); renderFeed(); if (dialog.open) renderCart(); storageNotice?.refresh();
+  scheduleLayout();
 }
 
 document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("click", () => {
   const anchor = filtered[currentIndex]?.id;
   language = node.dataset.lang;
   try { localStorage.setItem("robys-language", language); } catch {}
+  const url = new URL(location.href);
+  if (url.searchParams.has("lang")) { url.searchParams.set("lang", language); history.replaceState(null, "", url); }
   applyLanguage();
   const index = filtered.findIndex(product => product.id === anchor);
-  if (index >= 0) { while (rendered <= index) appendPage(); currentIndex = index; updateCounter(); }
+  if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
 }));
-searchInput.addEventListener("input", renderFeed);
-$("#feed-search-clear").addEventListener("click", () => { searchInput.value = ""; renderFeed(); searchInput.focus(); });
-$("#feed-reset").addEventListener("click", () => { likedOnly = false; category = "all"; searchInput.value = ""; history.pushState(null, "", location.pathname + location.search); renderCategories(); renderFeed(); searchInput.focus(); });
+searchInput.addEventListener("input", () => { clearItemLink(category, true); discoveryChanged = true; renderFeed(); });
+$("#feed-search-clear").addEventListener("click", () => { searchInput.value = ""; discoveryChanged = true; renderFeed(); searchInput.focus(); });
+$("#feed-reset").addEventListener("click", () => { likedOnly = false; category = "all"; searchInput.value = ""; clearItemLink(); renderCategories(); renderFeed(); moveToCard(0, { focus: true, instant: true }); });
 $("#feed-liked-filter").addEventListener("click", () => {
   likedOnly = !likedOnly; category = "all"; searchInput.value = "";
-  history.pushState(null, "", location.pathname + location.search);
+  clearItemLink();
   renderCategories(); renderFeed();
+  if (filtered.length) moveToCard(0, { instant: true });
 });
+$("#feed-discover-open").addEventListener("click", () => {
+  discoveryChanged = false; discoverDialog.showModal(); stopViews(); searchInput.focus();
+});
+for (const id of ["feed-discover-close", "feed-discover-done"]) $(`#${id}`).addEventListener("click", () => discoverDialog.close());
+discoverDialog.addEventListener("close", () => {
+  $("#feed-discover-open").focus({ preventScroll: true });
+  updateFeedLayout();
+  if (discoveryChanged && filtered.length) moveToCard(0, { instant: true });
+  scheduleActiveCard(); viewCandidates.forEach(scheduleView);
+});
+$("#feed-share-close").addEventListener("click", () => shareDialog.close());
+shareDialog.addEventListener("close", () => {
+  (shareReturnFocus?.isConnected ? shareReturnFocus : $("#feed-discover-open")).focus({ preventScroll: true });
+  viewCandidates.forEach(scheduleView);
+});
+$("#feed-share-copy").addEventListener("click", async () => {
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+    await navigator.clipboard.writeText($("#feed-share-url").value);
+    $("#feed-share-help").textContent = text().copied;
+  } catch {
+    $("#feed-share-help").textContent = text().copyHelp;
+    if (shareDialog.open) { $("#feed-share-url").focus(); $("#feed-share-url").select(); }
+  }
+});
+document.addEventListener("keydown", event => {
+  if (!["ArrowDown", "ArrowUp"].includes(event.key) || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || document.querySelector("dialog[open]")) return;
+  const active = document.activeElement;
+  if (active?.matches("input,textarea,select,[contenteditable=true]") || (active !== document.body && active !== root && !active?.closest(".feed-card"))) return;
+  event.preventDefault();
+  updateActiveCard(); moveToCard(currentIndex + (event.key === "ArrowDown" ? 1 : -1), { focus: true });
+});
+window.addEventListener("scroll", scheduleActiveCard, { passive: true });
+window.addEventListener("resize", scheduleLayout);
+if ("ResizeObserver" in window) {
+  const layout = new ResizeObserver(scheduleLayout);
+  for (const selector of [".feed-header", ".feed-tools", "#feed-cart-open"]) layout.observe($(selector));
+}
+void document.fonts?.ready.then(scheduleLayout);
 $("#feed-more").addEventListener("click", () => { const nextIndex = rendered; appendPage(); root.children[nextIndex]?.querySelector(".feed-add")?.focus({ preventScroll: true }); });
 if ("IntersectionObserver" in window) {
   const more = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting) && rendered < filtered.length) appendPage(); }, { rootMargin: "400px" });
@@ -407,7 +534,17 @@ $("#feed-checkout").addEventListener("click", async () => {
   } catch { if (shouldOpen()) $("#feed-cart-error").textContent = text().error; }
   finally { checkoutBusy = false; updateBadges(); }
 });
-const navigateCategory = () => { category = readCategory(); renderCategories(); renderFeed(); };
+function followEntry() {
+  const next = parseFeedEntry(location.href, products);
+  if (next.productId) {
+    const index = filtered.findIndex(product => product.id === next.productId);
+    if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
+  }
+}
+const navigateCategory = () => {
+  category = parseFeedEntry(location.href, products).category; likedOnly = false; searchInput.value = "";
+  renderCategories(); renderFeed(); followEntry();
+};
 window.addEventListener("popstate", navigateCategory);
 window.addEventListener("hashchange", navigateCategory);
 window.addEventListener("robys:order-change", () => { if (!busy) void refreshOrder(); });
@@ -443,4 +580,5 @@ window.addEventListener("storage", event => {
 applyLanguage();
 $("#feed-cart-open").hidden = false;
 root.dataset.ready = "true";
+updateFeedLayout(); followEntry();
 void refreshOrder();

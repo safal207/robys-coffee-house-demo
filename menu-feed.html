@@ -9,7 +9,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="menu-feed.css?v=953c5b3eccdf" />
+  <link rel="stylesheet" href="menu-feed.css?v=67a755752ed0" />
   <link rel="stylesheet" href="order-checkout.css?v=9ead86a924fa" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
@@ -36,12 +36,11 @@
     </aside>
     <section class="feed-column" aria-labelledby="feed-title">
       <div class="feed-tools">
-        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html" data-copy="listView">Liste</a><a href="menu-feed.html" aria-current="page" data-copy="photoView">Fotoğraflar</a></nav>
+        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html" data-copy="listView">Liste</a><a href="menu-feed.html" aria-current="page" data-copy="photoView">Akış</a></nav>
         <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Fotoğraflı menü</h2><span id="feed-counter"></span></div>
-        <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
-        <div class="feed-personal"><button type="button" id="feed-liked-filter" aria-pressed="false" aria-controls="feed"><span aria-hidden="true">♡</span> <span id="feed-liked-label">Beğendiklerim</span></button><span id="feed-seen-summary"></span></div>
-        <p class="feed-personal-note" id="feed-personal-note">Beğeniler ve görülenler bu cihazda saklanır.</p>
-        <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
+        <button type="button" id="feed-liked-filter" class="feed-tool-button" aria-pressed="false" aria-controls="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span id="feed-liked-count" aria-hidden="true">0</span><span id="feed-liked-label" class="sr-only">Beğendiklerim</span></button>
+        <button type="button" id="feed-discover-open" class="feed-tool-button" aria-haspopup="dialog" aria-controls="feed-discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><span class="sr-only" data-copy="discover">Ara ve keşfet</span></button>
+        <p class="feed-swipe-hint"><span aria-hidden="true">↑</span><span data-copy="swipeHint">Sonraki ürün için yukarı kaydır</span></p>
       </div>
       <p id="feed-results" class="sr-only" role="status" aria-live="polite"></p>
       <div id="feed" class="feed-cards" tabindex="-1"></div>
@@ -55,6 +54,23 @@
   </main>
   <button class="feed-cart-bar" id="feed-cart-open" type="button" aria-haspopup="dialog" aria-controls="feed-cart" hidden><span class="feed-cart-count" id="feed-cart-count">0</span><span data-copy="order">Siparişim</span><strong id="feed-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
   <p id="feed-status" class="feed-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <dialog class="feed-cart feed-discover" id="feed-discover" aria-labelledby="feed-discover-title">
+    <div class="feed-cart-shell">
+      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-discover-title" data-copy="discoverTitle">Ne istersin?</h2></div><button type="button" id="feed-discover-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
+      <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
+      <div class="feed-personal"><span id="feed-seen-summary"></span><p class="feed-personal-note" id="feed-personal-note">Beğeniler ve görülenler bu cihazda saklanır.</p></div>
+      <button type="button" id="feed-discover-done" class="feed-primary" data-copy="discoverDone">Akışa dön</button>
+    </div>
+  </dialog>
+  <dialog class="feed-cart feed-share-dialog" id="feed-share" aria-labelledby="feed-share-title">
+    <div class="feed-cart-shell">
+      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-share-title" data-copy="shareTitle">Bu seçimi paylaş</h2></div><button type="button" id="feed-share-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <label class="feed-share-link"><span data-copy="shareLink">Ürün bağlantısı</span><input id="feed-share-url" type="url" readonly /></label>
+      <p id="feed-share-help" class="feed-draft-note" data-copy="copyHelp" role="status" aria-live="polite">Bağlantıyı kopyalayıp arkadaşına gönderebilirsin.</p>
+      <button type="button" id="feed-share-copy" class="feed-primary" data-copy="copyLink">Bağlantıyı kopyala</button>
+    </div>
+  </dialog>
   <dialog class="feed-cart" id="feed-cart" aria-labelledby="feed-cart-title">
     <div class="feed-cart-shell">
       <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-cart-title" data-copy="order">Siparişim</h2></div><button type="button" id="feed-cart-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
@@ -66,6 +82,6 @@
       <button class="feed-continue" type="button" id="feed-continue" data-copy="continue">Keşfetmeye devam et</button>
     </div>
   </dialog>
-  <script type="module" src="menu-feed.js?v=7a24ff8ae9c5"></script>
+  <script type="module" src="menu-feed.js?v=6e826da93759"></script>
 </body>
 </html>

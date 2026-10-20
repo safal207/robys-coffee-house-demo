@@ -6,6 +6,8 @@ import { extname, join, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
+import { menuCategories } from "../menu-catalog.js";
+import { feedProducts } from "../src/menu-feed-model.js";
 
 // Repository CI browser test: public bytes over HTTPS and the real CSP.
 // Recovery cases explicitly replace one module response with a failed module.
@@ -32,6 +34,39 @@ const engine = process.env.CHECKOUT_BROWSERS ?? "chromium";
 assert.ok(["chromium", "firefox", "webkit"].includes(engine));
 const report = { head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), engine,
   runtimeSha256: createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex"), cases: [] };
+const catalog = feedProducts(menuCategories);
+async function openDiscovery(page) {
+  await page.locator("#feed-discover-open").click();
+  await page.locator("#feed-discover[open]").waitFor();
+  assert.equal(await page.locator("#feed-search").evaluate(node => node === document.activeElement), true);
+}
+async function closeDiscovery(page) {
+  await page.locator("#feed-discover-done").click();
+  await page.locator("#feed-discover[open]").waitFor({ state: "hidden" });
+  await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-discover-open"));
+}
+async function chooseCategory(page, id) {
+  await openDiscovery(page);
+  await page.locator(`[data-category="${id}"]`).click();
+  assert.equal(await page.locator("#feed-discover").evaluate(node => node.open), true, "Category selection keeps discovery open until Done");
+  await closeDiscovery(page);
+}
+async function waitForCounter(page, index, count = catalog.length) {
+  await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
+}
+async function assertLandingFits(page) {
+  await page.waitForFunction(() => {
+    const card = document.querySelector(".feed-card");
+    const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+      document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    return [".feed-photo>img", "h3", ".feed-add"].every(selector => {
+      const node = card.querySelector(selector), box = node.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit));
+    });
+  });
+}
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
@@ -61,6 +96,7 @@ try {
     const brand = await page.locator(".feed-brand img").evaluate(image => image.currentSrc);
     assert.match(brand, width <= 760 ? /robys-compact-master-v1\.svg/ : /robys-header-master-v1\.svg/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+    if (width <= 760) await assertLandingFits(page);
     await page.screenshot({ path: `${output}/${engine}-${width}-${language}.png` });
     await page.locator(".feed-like").first().click();
     await page.locator('.feed-like[aria-pressed="true"]').first().waitFor();
@@ -68,17 +104,22 @@ try {
     await page.locator(".feed-avatar").first().evaluate(image => image.decode());
     await page.screenshot({ path: `${output}/${engine}-${width}-${language}-liked-card.png` });
     // Filtering, atomic add, repeat add and removal use the actual user controls.
-    await page.locator('[data-category="hot-coffee"]').click();
+    await chooseCategory(page, "hot-coffee");
     const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
     await espresso.locator(".feed-add").click();
     await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
     await espresso.locator(".feed-add").click();
     await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
     assert.match(await page.locator("#feed-cart-total").textContent(), /220/);
+    await openDiscovery(page);
     await page.locator("#feed-search").fill("missing-zx984");
+    assert.equal(await page.locator("#feed-discover").evaluate(node => node.open), true);
+    await closeDiscovery(page);
     assert.equal(await page.locator("#feed-empty").isVisible(), true);
+    await openDiscovery(page);
     await page.locator("#feed-search-clear").click();
     await page.locator('[data-category="cold-coffee"]').click();
+    await closeDiscovery(page);
     const flavoured = page.locator('[data-product-id="cold-coffee:flavoured-iced-caffe-latte"]');
     await flavoured.locator(".feed-add").click();
     assert.equal(await flavoured.locator("select").evaluate(node => node === document.activeElement), true);
@@ -116,7 +157,8 @@ try {
     assert.match(await page.locator("#feed-cart-total").textContent(), /310/);
     assert.deepEqual(errors, []);
     report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true,
-      focus: true, overflow: false, photoUncropped: true, photoWidth: photo.width, canonicalResponsiveBrand: true });
+      focus: true, overflow: false, photoUncropped: true, photoWidth: photo.width, canonicalResponsiveBrand: true,
+      discoveryFocus: true, firstMobileProductVisibleWithoutScrolling: width <= 760 });
     await context.close();
   }
   {
@@ -294,6 +336,69 @@ try {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => {
+      localStorage.setItem("robys-language", "en");
+      window.__feedTestHidden = true;
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => window.__feedTestHidden });
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => window.__feedTestHidden ? "hidden" : "visible" });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    const card = page.locator(".feed-card").first(), photo = card.locator(".feed-photo>img");
+    const id = await card.getAttribute("data-product-id");
+    await photo.evaluate(image => image.decode());
+    await assertLandingFits(page);
+    const exposure = () => photo.evaluate(image => {
+      const rect = image.getBoundingClientRect();
+      const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+        document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+      const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+      return { browser: Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0)) / rect.height,
+        unobscured: Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top)) / rect.height };
+    });
+    assert.ok((await exposure()).unobscured >= .5);
+    // Keep the entire interruption in one browser task so tool latency cannot
+    // accidentally complete the first dwell before the photo is occluded.
+    await photo.evaluate(async image => {
+      window.__feedTestHidden = false; document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise(resolve => setTimeout(resolve, 250));
+      const rect = image.getBoundingClientRect();
+      const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+        document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+      window.scrollTo({ top: scrollY + rect.top - (top - rect.height * .6), behavior: "instant" });
+    });
+    const obscured = await exposure();
+    assert.ok(obscured.browser >= .5 && obscured.unobscured < .5,
+      `The same photograph must remain an observer candidate while sticky controls cover it: ${JSON.stringify(obscured)}`);
+    await page.waitForTimeout(1200);
+    assert.equal(await card.locator(".feed-seen").getAttribute("data-seen"), "false", "Sticky chrome interrupts a continuous product view");
+    assert.notEqual(await page.evaluate(productId => localStorage.getItem(`robys-feed-seen-v1:${productId}`), id), "1");
+    await photo.evaluate(image => {
+      const rect = image.getBoundingClientRect();
+      const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+        document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+      window.scrollTo({ top: scrollY + rect.top - top - 10, behavior: "instant" });
+    });
+    const revealed = await exposure();
+    assert.ok(revealed.browser >= .5 && revealed.unobscured >= .5,
+      `Revealing must stay above the observer threshold: ${JSON.stringify(revealed)}`);
+    await page.waitForTimeout(250);
+    assert.equal(await card.locator(".feed-seen").getAttribute("data-seen"), "false", "Revealing the photograph starts a fresh full dwell");
+    await page.waitForFunction(productId => [...document.querySelectorAll(".feed-card")].find(node => node.dataset.productId === productId)
+      ?.querySelector(".feed-seen")?.dataset.seen === "true", id);
+    assert.equal(await page.evaluate(productId => localStorage.getItem(`robys-feed-seen-v1:${productId}`), id), "1");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "view-dwell-sticky-occlusion", result: "PASS", product: id,
+      interruptedDwellExcluded: true, observerThresholdPreserved: true, revealStartsFreshDwell: true,
+      obscuredBrowserFraction: obscured.browser, obscuredUsableFraction: obscured.unobscured });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
       for (const method of ["getItem", "setItem", "removeItem"]) Object.defineProperty(Storage.prototype, method, {
         configurable: true, value() { throw new DOMException("Injected unavailable browser storage", "SecurityError"); }
       });
@@ -335,7 +440,7 @@ try {
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     if (moduleName === "storage") await page.locator("#feed-status").filter({ hasText: /try again/i }).waitFor();
-    await page.locator('[data-category="hot-coffee"]').click();
+    await chooseCategory(page, "hot-coffee");
     await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
     await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
     await page.locator("#feed-cart-open").click();
@@ -355,6 +460,235 @@ try {
     assert.equal(new URL(requests[1]).origin, origin);
     assert.equal(new URL(requests[1]).searchParams.get("retry"), "1");
     report.cases.push({ case: `${moduleName}-module-recovery`, result: "PASS", injectedFirstLoadFailure: true, freshRetryUrl: true, quantity: 1, total: 110, qr: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    await assertLandingFits(page);
+    const first = page.locator(".feed-card").nth(0), second = page.locator(".feed-card").nth(1);
+    await first.locator(".feed-photo>img").evaluate(image => image.decode());
+    await first.locator(".feed-photo>img").dblclick();
+    assert.equal(await first.locator(".feed-like").getAttribute("aria-pressed"), "true");
+    await first.locator(".feed-photo>img").dblclick();
+    assert.equal(await first.locator(".feed-like").getAttribute("aria-pressed"), "true", "Repeated double taps save, rather than toggle, a like");
+    assert.equal(await page.locator("#feed-liked-count").textContent(), "1");
+    assert.equal(await page.locator("#feed-cart-count").textContent(), "0", "Photo interactions never add an order item");
+    assert.equal(await first.locator(".feed-heart-burst").evaluate(node => getComputedStyle(node).display), "none", "Reduced motion disables the decorative heart burst");
+    await first.locator(".feed-photo-next").click();
+    await waitForCounter(page, 1);
+    assert.equal(await second.evaluate(node => node === document.activeElement), true);
+    await second.locator(".feed-photo-prev").click();
+    await waitForCounter(page, 0);
+    await page.keyboard.press("ArrowDown");
+    await waitForCounter(page, 1);
+    assert.equal(await second.evaluate(node => node === document.activeElement), true);
+    await page.keyboard.press("ArrowUp");
+    await waitForCounter(page, 0);
+    const firstHeight = await first.evaluate(node => node.getBoundingClientRect().height);
+    await page.mouse.move(185, 400);
+    await page.mouse.wheel(0, firstHeight + 12);
+    await waitForCounter(page, 1);
+    assert.ok(await page.evaluate(() => scrollY) > 0, "Native document scrolling advances the active product");
+    await openDiscovery(page);
+    const counterBeforeTyping = await page.locator("#feed-counter").textContent();
+    await page.keyboard.press("ArrowDown");
+    assert.equal(await page.locator("#feed-search").evaluate(node => node === document.activeElement), true);
+    assert.equal(await page.locator("#feed-counter").textContent(), counterBeforeTyping, "Arrow keys in discovery must not navigate the background feed");
+    await page.locator("#feed-search").fill("Espresso");
+    await page.keyboard.press("Escape");
+    await page.locator("#feed-discover[open]").waitFor({ state: "hidden" });
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-discover-open"));
+    await openDiscovery(page);
+    await page.locator("#feed-search-clear").click();
+    await page.locator("#feed-discover-close").click();
+    await page.waitForFunction(() => !document.querySelector("#feed-discover").open && document.activeElement === document.querySelector("#feed-discover-open"));
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "social-navigation", result: "PASS", doubleTapSavesOnce: true, photoDoesNotAddToOrder: true,
+      previousNextControls: true, arrowKeyboardNavigation: true, nativeWheelNavigation: true, discoveryKeepsTypingFocus: true,
+      discoveryEscapeAndCloseRestoreFocus: true, reducedMotion: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
+    assert.ok(lane.length > 8, "Deep-link fixture must require rendering beyond the first batch");
+    const linkedUrl = `${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`;
+    await page.goto(linkedUrl);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    const card = page.locator(`[data-product-id="${target.id}"]`);
+    await card.waitFor();
+    await card.locator(".feed-photo>img").evaluate(image => image.decode());
+    await waitForCounter(page, lane.length - 1, lane.length);
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru", "Explicit link language wins over stored language");
+    assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await card.locator("h3").textContent(), target.item.name.ru);
+    assert.equal(await card.locator(".feed-photo>img").evaluate(node => {
+      const rect = node.getBoundingClientRect(); return rect.top < innerHeight && rect.bottom > 0;
+    }), true, "A later shared product must enter the viewport without manual paging");
+    await page.reload();
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    await chooseCategory(page, "cold-coffee");
+    assert.equal(new URL(page.url()).searchParams.has("item"), false);
+    await page.goBack();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    assert.equal(new URL(page.url()).searchParams.get("item"), target.id);
+    await page.goto(`${origin}/menu-feed.html?item=missing-product&lang=de#hot-coffee`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(await page.locator("html").getAttribute("lang"), "en");
+    assert.equal(await page.locator(".feed-card").first().getAttribute("data-product-id"), "hot-coffee:espresso");
+    assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "shared-product-entry", result: "PASS", product: target.id, categoryIndex: lane.length - 1,
+      laterBatchLoadedAndVisible: true, explicitLanguage: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-language", "en");
+      // Controlled native API outcomes exercise our integration; no OS share
+      // sheet or external message is opened by the test.
+      window.__feedShares = []; window.__feedShareOutcome = "success";
+      Object.defineProperty(navigator, "share", { configurable: true, value: async payload => {
+        window.__feedShares.push(payload);
+        if (window.__feedShareOutcome === "cancel") throw new DOMException("User cancelled sharing", "AbortError");
+        if (window.__feedShareOutcome === "failure") throw new Error("Injected unavailable native sharing");
+      } });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html?campaign=summer#hot-coffee`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    const share = page.locator(".feed-share").first();
+    await share.click();
+    await page.waitForFunction(() => window.__feedShares.length === 1 && !document.querySelector(".feed-share").disabled);
+    assert.equal(await share.evaluate(node => node === document.activeElement), true, "Native share success restores the triggering button's focus");
+    const payload = await page.evaluate(() => window.__feedShares[0]);
+    const url = new URL(payload.url);
+    assert.equal(url.origin, origin); assert.equal(url.pathname, "/menu-feed.html");
+    assert.deepEqual([...url.searchParams], [["item", "hot-coffee:espresso"], ["lang", "en"]]);
+    assert.equal(url.hash, ""); assert.match(payload.title, /Espresso/);
+    assert.equal(await page.locator("#feed-share").evaluate(node => node.open), false);
+    await page.evaluate(() => { window.__feedShareOutcome = "cancel"; });
+    await share.click();
+    await page.waitForFunction(() => window.__feedShares.length === 2 && !document.querySelector(".feed-share").disabled);
+    assert.equal(await share.evaluate(node => node === document.activeElement), true, "Native share cancellation restores the triggering button's focus");
+    assert.equal(await page.locator("#feed-share").evaluate(node => node.open), false, "Native cancellation should not force a copy dialog");
+    assert.equal(await page.locator("#feed-status").textContent(), "");
+    await page.evaluate(() => { window.__feedShareOutcome = "failure"; });
+    await share.click();
+    await page.locator("#feed-share[open]").waitFor();
+    assert.equal(await page.locator("#feed-share-url").inputValue(), payload.url);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => document.activeElement === document.querySelector(".feed-share"));
+    assert.equal(await page.locator("#feed-cart-count").textContent(), "0");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "native-share-boundary", result: "PASS", scopedProductAndLanguageUrl: true,
+      controlledSuccessAndCancellation: true, successAndCancelRestoreFocus: true, nativeFailureOffersCopy: true, noOrderMutation: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-language", "en");
+      window.__feedClipboardDenied = true; window.__feedCopied = [];
+      Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async value => {
+        if (window.__feedClipboardDenied) throw new DOMException("Injected clipboard denial", "NotAllowedError");
+        window.__feedCopied.push(value);
+      } } });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html?campaign=summer#hot-coffee`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.locator(".feed-share").first().click();
+    await page.locator("#feed-share[open]").waitFor();
+    const value = await page.locator("#feed-share-url").inputValue(), url = new URL(value);
+    assert.deepEqual([...url.searchParams], [["item", "hot-coffee:espresso"], ["lang", "en"]]);
+    assert.equal(url.origin, origin); assert.equal(url.hash, "");
+    assert.equal(await page.locator("#feed-share-url").evaluate(node => node.readOnly), true);
+    await page.locator("#feed-share-copy").click();
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-share-url"));
+    assert.deepEqual(await page.locator("#feed-share-url").evaluate(node => [node.selectionStart, node.selectionEnd]), [0, value.length]);
+    assert.match(await page.locator("#feed-share-help").textContent(), /copy this link/i);
+    assert.doesNotMatch(await page.locator("#feed-share-help").textContent(), /copied/i);
+    assert.deepEqual(await page.evaluate(() => window.__feedCopied), []);
+    await page.locator("#feed-share-close").click();
+    await page.waitForFunction(() => document.activeElement === document.querySelector(".feed-share"));
+    await page.evaluate(() => { window.__feedClipboardDenied = false; });
+    await page.locator(".feed-share").first().click();
+    await page.locator("#feed-share-copy").click();
+    await page.waitForFunction(() => window.__feedCopied.length === 1);
+    assert.deepEqual(await page.evaluate(() => window.__feedCopied), [value]);
+    assert.match(await page.locator("#feed-share-help").textContent(), /link copied/i);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => document.activeElement === document.querySelector(".feed-share"));
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "copy-link-fallback", result: "PASS", controlledClipboardDenial: true, selectedManualRecovery: true,
+      noFalseSuccess: true, controlledClipboardSuccess: true, closeAndEscapeRestoreFocus: true });
+    await context.close();
+  }
+  for (const textScale of [1, 2]) {
+    const context = await browser.newContext({ viewport: { width: 320, height: 568 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const id = "cold-coffee:flavoured-iced-caffe-latte";
+    await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(id)}&lang=ru`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    const card = page.locator(`[data-product-id="${id}"]`);
+    await card.waitFor();
+    await card.locator(".feed-photo>img").evaluate(image => image.decode());
+    await page.evaluate(() => document.fonts.ready);
+    const titleSize = await card.locator("h3").evaluate(node => parseFloat(getComputedStyle(node).fontSize));
+    if (textScale === 2) {
+      // Fixed-pixel product typography is enlarged explicitly. This is a
+      // controlled text-size stress case, not native browser zoom.
+      await card.evaluate(node => {
+        const targets = [...node.querySelectorAll("h3,.feed-price,.feed-description,.feed-variant,.feed-variant select,.feed-add,.feed-selected,.feed-like,.feed-share,.feed-seen")];
+        const sizes = targets.map(target => parseFloat(getComputedStyle(target).fontSize) * 2);
+        targets.forEach((target, index) => { target.style.fontSize = `${sizes[index]}px`; });
+      });
+    }
+    assert.equal(await card.locator("h3").evaluate(node => parseFloat(getComputedStyle(node).fontSize)), titleSize * textScale);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType), "none", "Short screens permit natural scrolling through tall products");
+    await card.locator("h3").scrollIntoViewIfNeeded();
+    const titleBounds = await card.locator("h3").boundingBox();
+    assert.ok(titleBounds.x >= -1 && titleBounds.x + titleBounds.width <= 321, "The long product name wraps within the mobile column");
+    await card.locator("select").selectOption("vanilla");
+    await card.locator(".feed-add").click();
+    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
+    assert.match(await page.locator("#feed-cart-total").textContent(), /200/);
+    await page.locator("#feed-cart-open").click();
+    await page.locator("#feed-cart[open]").waitFor();
+    assert.match(await page.locator(".feed-cart-item h3").textContent(), /Ваниль/i);
+    await page.locator("#feed-checkout").scrollIntoViewIfNeeded();
+    assert.equal(await page.locator("#feed-checkout").isVisible(), true);
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-cart-open"));
+    await card.locator("select").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${output}/${engine}-320-short-text${textScale * 100}.png` });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: `short-viewport-text${textScale * 100}`, result: "PASS", width: 320, height: 568,
+      textScale, textScaleMethod: "computed product text size; not browser zoom", longNameWraps: true, variantAndAddReachable: true,
+      nativeDocumentScroll: true, noHorizontalOverflow: true, cartFocusRestored: true });
     await context.close();
   }
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });

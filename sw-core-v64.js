@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-290d4ec6e634-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-fe25f1511bb2-custom-pair-123ef0fff187-menu-css-eb5ac53f8bd2-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-4aff978fd1ed-quick-order-23cfea19e573-coffee-paths-e0e89349a2f4-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-de56410a4de0-custom-pair-123ef0fff187-menu-css-e17398f4279f-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -81,9 +81,9 @@ const CORE_ASSETS = [
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=eb5ac53f8bd2",
+  "./menu-runtime.css?v=e17398f4279f",
   "./menu-combos-ui.js?v=0aad157af9c2",
-  "./menu-combos.css?v=475b029937b0",
+  "./menu-combos.css?v=adc635207323",
   "./combo-entry.css?v=da624d45b4d6",
   "./choice-help.js?v=5dd77e1acead",
   "./choice-help.css?v=6b3dac7b0da1",
@@ -105,8 +105,8 @@ const CORE_ASSETS = [
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu-feed.html",
-  "./menu-feed.js?v=7a24ff8ae9c5",
-  "./menu-feed.css?v=953c5b3eccdf",
+  "./menu-feed.js?v=6e826da93759",
+  "./menu-feed.css?v=67a755752ed0",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -120,7 +120,7 @@ const CORE_ASSETS = [
   "./final-qa-v2.css?v=daa1b27c54f2",
   "./community-reel-v2.css?v=fd0051060777",
   "./social-offer.css",
-  "./coffee-paths.css?v=e5dc41400cfe",
+  "./coffee-paths.css?v=e0e89349a2f4",
   "./social-offer.js?v=cf339e8c8777",
   "./menu-premium.css?v=86adefeda34f",
   "./pairing-posters.css?v=882faab929d1",
