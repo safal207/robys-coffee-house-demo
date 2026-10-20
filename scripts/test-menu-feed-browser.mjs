@@ -35,6 +35,17 @@ assert.ok(["chromium", "firefox", "webkit"].includes(engine));
 const report = { head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), engine,
   runtimeSha256: createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex"), cases: [] };
 const catalog = feedProducts(menuCategories);
+function observeErrors(page, errors) {
+  page.on("pageerror", error => errors.push(`pageerror: ${error.message}`));
+  page.on("console", message => {
+    if (message.type() === "error") errors.push(`console.error: ${message.text()}`);
+  });
+}
+async function waitForMenuMode(page, mode) {
+  await page.locator('html[data-menu-view-ready="true"]').waitFor();
+  assert.equal(new URL(page.url()).pathname, mode === "feed" ? "/menu-feed.html" : "/menu.html");
+  await page.locator(mode === "feed" ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
+}
 async function openDiscovery(page) {
   await page.locator("#feed-discover-open").click();
   await page.locator("#feed-discover[open]").waitFor();
@@ -54,18 +65,50 @@ async function chooseCategory(page, id) {
 async function waitForCounter(page, index, count = catalog.length) {
   await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
 }
-async function assertLandingFits(page) {
+async function secondCardPosition(page) {
+  return page.locator(".feed-card").nth(1).evaluate(card => {
+    const rect = card.getBoundingClientRect();
+    const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+      document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+    return { product: card.dataset.productId, top: rect.top, gapBelowTools: rect.top - top, scrollY };
+  });
+}
+async function assertLandingPhotoFits(page) {
+  // Instagram posts are continuous content: the full-width photograph leads
+  // the first screen, while the purchase controls may follow below it.
   await page.waitForFunction(() => {
     const card = document.querySelector(".feed-card");
     const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
       document.querySelector(".feed-tools").getBoundingClientRect().bottom);
     const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
-    return [".feed-photo>img", "h3", ".feed-add"].every(selector => {
+    return [".feed-card-header", ".feed-photo>img"].every(selector => {
       const node = card.querySelector(selector), box = node.getBoundingClientRect();
       const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
       return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit));
     });
   });
+}
+async function assertPurchaseControlsReachable(page, index = 0) {
+  const card = page.locator(".feed-card").nth(index);
+  const delta = await card.locator(".feed-card-content").evaluate(node => {
+    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    return Math.max(0, node.getBoundingClientRect().bottom - bottom + 12);
+  });
+  if (delta) {
+    await page.mouse.move(185, 400);
+    await page.mouse.wheel(0, delta);
+  }
+  await page.waitForFunction(index => {
+    const card = document.querySelectorAll(".feed-card")[index];
+    const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+      document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    return ["h3", ".feed-price", ".feed-add"].every(selector => {
+      const node = card.querySelector(selector), box = node.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit));
+    });
+  }, index);
 }
 let browser;
 try {
@@ -75,7 +118,7 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(lang => localStorage.setItem("robys-language", lang), language);
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     assert.equal(await page.locator("html").getAttribute("lang"), language);
@@ -96,8 +139,12 @@ try {
     const brand = await page.locator(".feed-brand img").evaluate(image => image.currentSrc);
     assert.match(brand, width <= 760 ? /robys-compact-master-v1\.svg/ : /robys-header-master-v1\.svg/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
-    if (width <= 760) await assertLandingFits(page);
+    if (width <= 760) {
+      assert.ok(photo.width >= width - 2, `Mobile photograph must fill the ${width}px feed column, received ${photo.width}px`);
+      await assertLandingPhotoFits(page);
+    }
     await page.screenshot({ path: `${output}/${engine}-${width}-${language}.png` });
+    if (width <= 760) await assertPurchaseControlsReachable(page);
     await page.locator(".feed-like").first().click();
     await page.locator('.feed-like[aria-pressed="true"]').first().waitFor();
     await page.locator(".feed-card").first().evaluate(card => card.scrollIntoView({ block: "start", behavior: "instant" }));
@@ -145,7 +192,7 @@ try {
     assert.equal(await page.locator("#feed-cart-open").evaluate(node => node === document.activeElement), true);
     await page.reload();
     await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
-    const other = await context.newPage();
+    const other = await context.newPage(); observeErrors(other, errors);
     await other.goto(`${origin}/menu.html#hot-coffee`);
     await other.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
     assert.match(await other.locator("#menu-cart-total").textContent(), /200/);
@@ -158,7 +205,7 @@ try {
     assert.deepEqual(errors, []);
     report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true,
       focus: true, overflow: false, photoUncropped: true, photoWidth: photo.width, canonicalResponsiveBrand: true,
-      discoveryFocus: true, firstMobileProductVisibleWithoutScrolling: width <= 760 });
+      discoveryFocus: true, firstMobilePhotoVisibleWithoutScrolling: width <= 760, purchaseControlsReachableByNaturalScroll: width <= 760, consoleErrors: false });
     await context.close();
   }
   {
@@ -166,7 +213,7 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
@@ -186,7 +233,7 @@ try {
     // The view filter need not persist; ensure both tabs show the whole feed.
     if (await page.locator("#feed-liked-filter").getAttribute("aria-pressed") === "true") await page.locator("#feed-liked-filter").click();
     const other = await context.newPage(); other.setDefaultTimeout(15000);
-    other.on("pageerror", error => errors.push(error.message));
+    observeErrors(other, errors);
     await other.goto(`${origin}/menu-feed.html`);
     await other.locator('#feed[data-ready="true"]').waitFor();
     const otherChoice = other.locator(".feed-card").first();
@@ -254,6 +301,9 @@ try {
       Object.defineProperty(document, "visibilityState", { configurable: true, get: () => window.__feedTestHidden ? "hidden" : "visible" });
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
+    // This journey deliberately aborts one image response. Keep the existing
+    // uncaught-exception check without treating its expected network console
+    // error as a happy-path failure; normal image loading is covered above.
     const errors = []; page.on("pageerror", error => errors.push(error.message));
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
@@ -342,14 +392,14 @@ try {
       Object.defineProperty(document, "visibilityState", { configurable: true, get: () => window.__feedTestHidden ? "hidden" : "visible" });
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.evaluate(() => document.fonts.ready);
     const card = page.locator(".feed-card").first(), photo = card.locator(".feed-photo>img");
     const id = await card.getAttribute("data-product-id");
     await photo.evaluate(image => image.decode());
-    await assertLandingFits(page);
+    await assertLandingPhotoFits(page);
     const exposure = () => photo.evaluate(image => {
       const rect = image.getBoundingClientRect();
       const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
@@ -404,7 +454,7 @@ try {
       });
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.locator('[data-lang="en"]').click();
@@ -467,13 +517,29 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.evaluate(() => document.fonts.ready);
-    await assertLandingFits(page);
+    await assertLandingPhotoFits(page);
     const first = page.locator(".feed-card").nth(0), second = page.locator(".feed-card").nth(1);
     await first.locator(".feed-photo>img").evaluate(image => image.decode());
+    const social = await first.evaluate(card => {
+      const photo = card.querySelector(".feed-photo").getBoundingClientRect();
+      const row = card.querySelector(".feed-social").getBoundingClientRect();
+      const like = card.querySelector(".feed-like").getBoundingClientRect();
+      const share = card.querySelector(".feed-share").getBoundingClientRect();
+      const heading = card.querySelector(".feed-product-heading").getBoundingClientRect();
+      return { belowPhoto: row.top >= photo.bottom - 1, beforeDetails: row.bottom <= heading.top + 1,
+        horizontal: Math.abs(like.top - share.top) <= 1 && like.right <= share.left + 1,
+        touchTargets: [like, share].every(box => box.width >= 44 && box.height >= 44),
+        iconOnly: [...card.querySelectorAll(".feed-like span,.feed-share span")].every(node => {
+          const box = node.getBoundingClientRect(); return box.width <= 1 && box.height <= 1;
+        }) };
+    });
+    assert.deepEqual(social, { belowPhoto: true, beforeDetails: true, horizontal: true, touchTargets: true, iconOnly: true },
+      "Like and share must be accessible icon buttons in one row below the photograph");
+    assert.match(await first.locator(".feed-share").getAttribute("aria-label"), /share/i);
     await first.locator(".feed-photo>img").dblclick();
     assert.equal(await first.locator(".feed-like").getAttribute("aria-pressed"), "true");
     await first.locator(".feed-photo>img").dblclick();
@@ -516,7 +582,8 @@ try {
     assert.deepEqual(errors, []);
     report.cases.push({ case: "social-navigation", result: "PASS", doubleTapSavesOnce: true, photoDoesNotAddToOrder: true,
       previousNextControls: true, arrowKeyboardNavigation: true, nativeWheelNavigation: true, discoveryKeepsTypingFocus: true,
-      discoveryEscapeAndCloseRestoreFocus: true, reducedMotion: true });
+      discoveryEscapeAndCloseRestoreFocus: true, reducedMotion: true, horizontalSocialRowBelowPhoto: true,
+      accessibleIconButtons: true, minimum44pxTouchTargets: true });
     await context.close();
   }
   {
@@ -524,14 +591,14 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.evaluate(() => document.fonts.ready);
     await page.locator(".feed-photo>img").first().evaluate(image => image.decode());
     assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), false);
     const snapType = await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType);
-    assert.match(snapType, /^y(?: proximity)?$/, "This journey must exercise mobile proximity snapping with normal motion");
+    assert.equal(snapType, "none", "The Instagram post feed uses continuous scrolling even when motion is enabled");
     const settled = async index => {
       // Poll the actual scroll result on animation frames. A matching counter
       // alone is insufficient because next/previous update it before motion.
@@ -539,19 +606,17 @@ try {
         const card = document.querySelectorAll(".feed-card")[index];
         const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
           document.querySelector(".feed-tools").getBoundingClientRect().bottom);
-        const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
         const rect = card.getBoundingClientRect();
-        const fits = Math.abs(rect.top - top) <= 1 && rect.bottom <= bottom + 1
+        const photo = card.querySelector(".feed-photo>img"), box = photo.getBoundingClientRect();
+        const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        const fits = Math.abs(rect.top - top) <= 1
           && document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`
-          && [".feed-photo>img", "h3", ".feed-add"].every(selector => {
-            const node = card.querySelector(selector), box = node.getBoundingClientRect();
-            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-            return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit))
-              && (selector !== ".feed-photo>img" || (node.complete && node.naturalWidth > 0));
-          });
-        const previous = window.__feedTestSnapState;
+          && box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && photo === hit
+          && photo.complete && photo.naturalWidth > 0;
+        const previous = window.__feedTestScrollState;
         const stable = fits && previous?.index === index && Math.abs(previous.scrollY - scrollY) < .1 ? previous.stable + 1 : 0;
-        window.__feedTestSnapState = { index, scrollY, stable };
+        window.__feedTestScrollState = { index, scrollY, stable };
         return fits && stable >= 4;
       }, { index, count: catalog.length }, { polling: "raf" });
       return page.locator(".feed-card").nth(index).evaluate(card => {
@@ -563,20 +628,33 @@ try {
     const distance = await page.locator(".feed-card").evaluateAll(cards => cards[1].getBoundingClientRect().top - cards[0].getBoundingClientRect().top);
     assert.ok(distance > 32);
     await page.mouse.move(185, 400);
-    // Deliberately undershoot the next card so the geometry assertion proves
-    // the browser corrected the position through the enabled snap behavior.
+    const initialScrollY = await page.evaluate(() => scrollY);
+    // Deliberately stop between posts. Neither browser snapping nor JavaScript
+    // may pull the reader to the next product after an ordinary wheel gesture.
     await page.mouse.wheel(0, distance - 32);
-    const afterWheel = await settled(1);
+    await page.waitForFunction(({ initialScrollY, distance }) => {
+      const previous = window.__feedTestWheelState;
+      const moved = Math.abs(scrollY - initialScrollY - (distance - 32)) <= 2;
+      const stable = moved && previous && Math.abs(previous.scrollY - scrollY) < .1 ? previous.stable + 1 : 0;
+      window.__feedTestWheelState = { scrollY, stable };
+      return moved && stable >= 8;
+    }, { initialScrollY, distance }, { polling: "raf" });
+    await waitForCounter(page, 1);
+    const afterWheel = await secondCardPosition(page);
+    assert.ok(afterWheel.gapBelowTools >= 30 && afterWheel.gapBelowTools <= 34,
+      `The wheel must stop at the requested intermediate position: ${JSON.stringify(afterWheel)}`);
     await page.locator(".feed-card").nth(1).locator(".feed-photo-next").click();
     const afterNext = await settled(2);
     assert.equal(await page.locator(".feed-card").nth(2).evaluate(node => node === document.activeElement), true);
     await page.locator(".feed-card").nth(2).locator(".feed-photo-prev").click();
     const afterPrevious = await settled(1);
     assert.equal(await page.locator(".feed-card").nth(1).evaluate(node => node === document.activeElement), true);
+    await assertPurchaseControlsReachable(page, 1);
     assert.equal(await page.locator("#feed-cart-count").textContent(), "0");
     assert.deepEqual(errors, []);
-    report.cases.push({ case: "normal-motion-scroll-snap", result: "PASS", width: 390, height: 844, snapType,
-      wheelUndershootPixels: 32, geometrySettledBelowStickyControls: true, photoTitleAndAddUnobscured: true,
+    report.cases.push({ case: "normal-motion-continuous-scroll", result: "PASS", width: 390, height: 844, snapType,
+      wheelStopsBetweenPosts: true, wheelUndershootPixels: 32, explicitNavigationSettlesBelowStickyControls: true,
+      fullPhotoVisibleAfterNavigation: true, purchaseControlsReachableByNaturalScroll: true,
       nextAndPreviousRestoreCardFocus: true, settledCards: [afterWheel, afterNext, afterPrevious] });
     await context.close();
   }
@@ -585,7 +663,7 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
     assert.ok(lane.length > 8, "Deep-link fixture must require rendering beyond the first batch");
     const linkedUrl = `${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`;
@@ -634,7 +712,7 @@ try {
       } });
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html?campaign=summer#hot-coffee`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     const share = page.locator(".feed-share").first();
@@ -678,7 +756,7 @@ try {
       } } });
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     await page.goto(`${origin}/menu-feed.html?campaign=summer#hot-coffee`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.locator(".feed-share").first().click();
@@ -712,7 +790,7 @@ try {
     const context = await browser.newContext({ viewport: { width: 320, height: 568 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    const errors = []; observeErrors(page, errors);
     const id = "cold-coffee:flavoured-iced-caffe-latte";
     await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(id)}&lang=ru`);
     await page.locator('#feed[data-ready="true"]').waitFor();
@@ -754,6 +832,145 @@ try {
     report.cases.push({ case: `short-viewport-text${textScale * 100}`, result: "PASS", width: 320, height: 568,
       textScale, textScaleMethod: "computed product text size; not browser zoom", longNameWraps: true, variantAndAddReachable: true,
       nativeDocumentScroll: true, noHorizontalOverflow: true, cartFocusRestored: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const query = "Эспрессо";
+    await page.goto(`${origin}/menu.html?view=list&lang=ru#hot-coffee`);
+    await waitForMenuMode(page, "list");
+    await page.locator("#menu-search").fill(query);
+    await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media').click();
+    await page.locator("#menu-add-to-cart").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    await page.keyboard.press("Escape");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await page.locator("#feed-search").inputValue(), query);
+    assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator('[data-product-id="hot-coffee:espresso"]').count(), 1);
+    assert.equal(await page.locator("#feed-cart-count").textContent(), "1");
+    assert.match(await page.locator("#feed-cart-total").textContent(), /110/);
+    assert.equal(new URL(page.url()).searchParams.get("view"), "feed");
+    assert.equal(new URL(page.url()).searchParams.get("q"), query);
+    await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
+    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
+    await page.locator('.feed-view-switch [data-menu-view="list"]').click();
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await page.locator("#menu-search").inputValue(), query);
+    assert.equal(await page.locator('#menu-category-nav [data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "2");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /220/);
+    assert.equal(new URL(page.url()).searchParams.get("view"), "list");
+    assert.equal(new URL(page.url()).searchParams.get("q"), query);
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "list");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "menu-mode-roundtrip", result: "PASS", language: "ru", category: "hot-coffee",
+      searchPreservedBothWays: true, sharedCartAfterBothAdds: 2, total: 220, explicitModeUrls: true, consoleErrors: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu.html`);
+    await waitForMenuMode(page, "list");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+    await page.goBack();
+    await waitForMenuMode(page, "list");
+    assert.equal(new URL(page.url()).search, "", "Back returns to the original generic list entry");
+    await page.reload();
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed", "Back and reload do not rewrite the saved choice");
+    const fresh = await context.newPage(); fresh.setDefaultTimeout(15000); observeErrors(fresh, errors);
+    await fresh.goto(`${origin}/menu.html`);
+    await waitForMenuMode(fresh, "feed");
+    await fresh.goto(`${origin}/menu.html?view=list&lang=en`);
+    await waitForMenuMode(fresh, "list");
+    assert.equal(await fresh.evaluate(() => localStorage.getItem("robys-menu-view")), "feed", "An explicit list URL takes precedence without rewriting preference");
+    await fresh.goto(`${origin}/menu-feed.html`);
+    await waitForMenuMode(fresh, "feed");
+    await fresh.locator('.feed-view-switch [data-menu-view="list"]').click();
+    await waitForMenuMode(fresh, "list");
+    assert.equal(await fresh.evaluate(() => localStorage.getItem("robys-menu-view")), "list");
+    await fresh.goto(`${origin}/menu.html`);
+    await waitForMenuMode(fresh, "list");
+    await fresh.goto(`${origin}/menu-feed.html`);
+    await waitForMenuMode(fresh, "feed");
+    assert.equal(await fresh.evaluate(() => localStorage.getItem("robys-menu-view")), "list", "The dedicated feed remains accessible with list preferred");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "menu-mode-preference-and-history", result: "PASS", genericEntryUsesChoice: true,
+      backAndReloadDoNotRedirect: true, explicitListWins: true, savedChoiceCanChange: true, dedicatedFeedWins: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-menu-view", "feed");
+      localStorage.setItem("robys-language", "en");
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu.html#cold-coffee`);
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator('#menu-category-nav [data-category="cold-coffee"]').getAttribute("aria-pressed"), "true");
+    await page.goto(`${origin}/menu.html?product=${encodeURIComponent("hot-coffee:espresso")}`);
+    await waitForMenuMode(page, "list");
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    assert.match(await page.locator("#menu-product-title").textContent(), /Espresso/);
+    await page.goto(`${origin}/menu.html#menu-combos`);
+    await waitForMenuMode(page, "list");
+    await page.locator(".menu-combos-card").first().waitFor();
+    assert.equal(await page.locator("#menu-combos").isVisible(), true);
+    await page.goto(`${origin}/menu.html#menu-family`);
+    await waitForMenuMode(page, "list");
+    await page.locator(".menu-family-card").first().waitFor();
+    assert.equal(await page.locator("#menu-family").isVisible(), true);
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
+      productDialogOpens: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      for (const method of ["getItem", "setItem", "removeItem"]) Object.defineProperty(Storage.prototype, method, {
+        configurable: true, value() { throw new DOMException("Injected unavailable browser storage", "SecurityError"); }
+      });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const query = "Эспрессо";
+    await page.goto(`${origin}/menu.html?view=list&lang=ru&q=${encodeURIComponent(query)}#hot-coffee`);
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator("#menu-search").inputValue(), query);
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await page.locator("#feed-search").inputValue(), query);
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    await page.locator('.feed-view-switch [data-menu-view="list"]').click();
+    await waitForMenuMode(page, "list");
+    assert.equal(await page.locator("#menu-search").inputValue(), query);
+    assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+    assert.equal(await page.locator('#menu-category-nav [data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
+    await page.goto(`${origin}/menu.html`);
+    await waitForMenuMode(page, "list");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "menu-mode-storage-unavailable", result: "PASS", switchesWorkBothWays: true,
+      languageCategoryAndSearchTravelInUrl: true, genericEntryStillUsable: true, consoleErrors: false });
     await context.close();
   }
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });

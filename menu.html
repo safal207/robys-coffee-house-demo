@@ -86,8 +86,8 @@
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
       <nav class="menu-view-switch" aria-label="Menü görünümü / Menu view / Вид меню">
-        <a href="menu.html" aria-current="page"><span lang="tr">Liste</span><span lang="en">List</span><span lang="ru">Список</span></a>
-        <a href="menu-feed.html" data-menu-feed data-localized data-tr="Akış" data-en="Feed" data-ru="Лента">Akış</a>
+        <a href="menu.html?view=list" data-menu-view="list" aria-current="page"><span lang="tr">Liste</span><span lang="en">List</span><span lang="ru">Список</span></a>
+        <a href="menu-feed.html?view=feed" data-menu-view="feed" data-menu-feed data-localized data-tr="Akış" data-en="Feed" data-ru="Лента">Akış</a>
       </nav>
       <nav class="combo-entry-links" aria-label="Setler / Combos / Комбо">
         <a class="menu-family-link" id="menu-combos-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
@@ -251,7 +251,8 @@
   </dialog>
 
   <script type="module" src="menu-product-reveal.js?v=6ae2dd3ba2e7"></script>
-  <script type="module" src="menu-app.js?v=664ba2602b53"></script>
+  <script type="module" src="menu-app.js?v=fd965d03e161"></script>
   <script type="module" src="pairing-posters.js?v=024743e64919"></script>
+  <script type="module" src="menu-view-mode.js?v=187eb9f30f6d"></script>
 </body>
 </html>

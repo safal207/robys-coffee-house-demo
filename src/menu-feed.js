@@ -8,7 +8,7 @@ const copy = {
     classic: "Klasik menü", allMenu: "Tüm menüyü liste olarak gör ↗", feedTitle: "Fotoğraflı menü", skip: "Menüye geç",
     hint: "Seç, QR'ı kasaya göster, kafede öde.", guide: "Beğen.\nSonra karar ver.", search: "Kahve, tatlı…",
     listView: "Liste", photoView: "Akış", like: "Beğen", liked: "Beğendin", unlike: "Beğeniyi kaldır", likedFilter: "Beğendiklerim", seen: "Sen gördün", seenSummary: "Gördüklerin", personal: "Beğeniler ve görülenler bu cihazda saklanır.", memoryOnly: "Beğeniler ve görülenler yalnızca bu sayfa açıkken saklanır.", likedEmpty: "Burada henüz beğendiğin bir ürün yok. Kalbe dokunarak kaydet.",
-    discover: "Ara", discoverTitle: "Ne istersin?", discoverDone: "Akışa dön", swipeHint: "Sonraki ürün için yukarı kaydır", previous: "Önceki ürün",
+    discover: "Ara", discoverTitle: "Ne istersin?", discoverDone: "Akışa dön", swipeHint: "Menüyü keşfetmek için kaydır", previous: "Önceki ürün",
     share: "Paylaş", shareTitle: "Bu seçimi paylaş", shareLink: "Ürün bağlantısı", copyLink: "Bağlantıyı kopyala", copyHelp: "Bu bağlantıyı kopyalayıp paylaşabilirsin.", copied: "Bağlantı kopyalandı", saved: "Beğendiklerine kaydedildi",
     searchLabel: "Menüde ara", clear: "Aramayı temizle", empty: "Aradığın burada yok.", reset: "Tümünü göster",
     more: "Daha fazla göster", end: "Menünün sonuna geldin. Seçim senin.", order: "Siparişim", total: "Toplam",
@@ -21,7 +21,7 @@ const copy = {
     classic: "Classic menu", allMenu: "See the menu as a list ↗", feedTitle: "Menu in photos", skip: "Skip to menu",
     hint: "Choose, show your QR at the counter, pay at the café.", guide: "Like it.\nCome back to it.", search: "Coffee, dessert…",
     listView: "List", photoView: "Feed", like: "Like", liked: "Liked", unlike: "Unlike", likedFilter: "Liked", seen: "Viewed by you", seenSummary: "Viewed by you", personal: "Likes and viewed items are saved on this device.", memoryOnly: "Likes and viewed items are saved on this page only.", likedEmpty: "No liked items here yet. Tap a heart to save a favorite.",
-    discover: "Search", discoverTitle: "What sounds good?", discoverDone: "Back to the feed", swipeHint: "Swipe up for the next item", previous: "Previous item",
+    discover: "Search", discoverTitle: "What sounds good?", discoverDone: "Back to the feed", swipeHint: "Scroll to explore the menu", previous: "Previous item",
     share: "Share", shareTitle: "Share this choice", shareLink: "Item link", copyLink: "Copy link", copyHelp: "Copy this link to share the item.", copied: "Link copied", saved: "Saved to your liked items",
     searchLabel: "Search the menu", clear: "Clear search", empty: "Nothing matches this search.", reset: "Show everything",
     more: "Show more", end: "You've reached the end. The choice is yours.", order: "My order", total: "Total",
@@ -34,7 +34,7 @@ const copy = {
     classic: "Меню списком", allMenu: "Открыть всё меню списком ↗", feedTitle: "Меню по фото", skip: "Перейти к меню",
     hint: "Выбери, покажи QR на кассе и оплати в кафе.", guide: "Нравится?\nСохрани на потом.", search: "Кофе, десерт…",
     listView: "Список", photoView: "Лента", like: "Нравится", liked: "Тебе нравится", unlike: "Убрать лайк", likedFilter: "Понравилось", seen: "Ты посмотрел", seenSummary: "Просмотрено тобой", personal: "Лайки и просмотренное сохраняются на этом устройстве.", memoryOnly: "Лайки и просмотренное сохраняются только до закрытия страницы.", likedEmpty: "Здесь пока нет понравившихся позиций. Нажми на сердечко, чтобы сохранить.",
-    discover: "Поиск", discoverTitle: "Чего хочется?", discoverDone: "Вернуться в ленту", swipeHint: "Свайп вверх — следующая позиция", previous: "Предыдущая позиция",
+    discover: "Поиск", discoverTitle: "Чего хочется?", discoverDone: "Вернуться в ленту", swipeHint: "Листай и выбирай из меню", previous: "Предыдущая позиция",
     share: "Поделиться", shareTitle: "Поделиться выбором", shareLink: "Ссылка на позицию", copyLink: "Скопировать ссылку", copyHelp: "Скопируй эту ссылку и отправь её другу.", copied: "Ссылка скопирована", saved: "Сохранено в понравившемся",
     searchLabel: "Поиск по меню", clear: "Очистить поиск", empty: "По этому запросу ничего не нашлось.", reset: "Показать всё",
     more: "Показать ещё", end: "Ты долистал меню. Выбор за тобой.", order: "Мой заказ", total: "Итого",
@@ -220,12 +220,9 @@ function updateFeedLayout() {
   layoutFrame = 0;
   const headerHeight = $(".feed-header").getBoundingClientRect().height;
   const toolsHeight = $(".feed-tools").getBoundingClientRect().height;
-  const cart = $("#feed-cart-open").getBoundingClientRect();
-  const reserve = cart.height ? innerHeight - cart.top : 80;
   const style = document.documentElement.style;
   style.setProperty("--feed-header-height", `${headerHeight}px`);
   style.setProperty("--feed-top-offset", `${headerHeight + toolsHeight}px`);
-  style.setProperty("--feed-stage", `${Math.max(240, innerHeight - headerHeight - toolsHeight - reserve - 8)}px`);
   scheduleActiveCard();
 }
 function scheduleLayout() { if (!layoutFrame) layoutFrame = requestAnimationFrame(updateFeedLayout); }
@@ -283,8 +280,6 @@ function updateBadges() {
 function renderCategories() {
   const nav = $("#feed-categories");
   nav.setAttribute("aria-label", menuCopy[language].categories);
-  document.querySelectorAll('.feed-classic, .feed-intro-link, .feed-view-switch a:not([aria-current])')
-    .forEach(link => { link.href = `menu.html${category === "all" ? "" : `#${category}`}`; });
   nav.replaceChildren();
   const entries = [{ id: "all", name: text().all }, ...menuCategories.map(entry => ({ id: entry.id, name: localized(entry.name),
     image: products.find(product => product.category.id === entry.id)?.image }))];
@@ -304,6 +299,7 @@ function renderCategories() {
     node.append(portrait, element("span", "feed-category-label", entry.name));
     nav.append(node);
   });
+  document.dispatchEvent(new CustomEvent("robys:menu-view-change"));
 }
 
 const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(scheduleActiveCard, { threshold: [0, .3, .6, 1] }) : null;
@@ -341,12 +337,12 @@ function renderCard(product, index) {
     engagement.setLiked(product.id, !engagement.hasLiked(product.id));
     if (likedOnly) reconcileLiked();
   });
-  like.append(icon("M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"), element("span", "", text().like));
+  like.append(icon("M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"), element("span", "sr-only", text().like));
   const seen = element("span", "feed-seen"); seen.dataset.seen = "false";
-  seen.append(icon("M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"), element("span", "", text().seen));
+  seen.append(element("span", "", text().seen));
   const share = button("feed-share", undefined, event => { void shareProduct(product, event.currentTarget); });
   share.setAttribute("aria-label", `${text().share}: ${localized(product.item.name)}`);
-  share.append(icon("M18 8a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM6 15a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM18 22a3 3 0 1 0-3-3 3 3 0 0 0 3 3ZM8.6 10.5l6.8-4M8.6 13.5l6.8 4"), element("span", "", text().share));
+  share.append(icon("m22 2-7 20-4-9-9-4L22 2Zm0 0L11 13"), element("span", "sr-only", text().share));
   social.append(like, share, seen);
   const title = element("h3", "", localized(product.item.name)); title.id = titleId;
   heading.append(title, element("span", "feed-price", money(product.item.price))); content.append(heading);

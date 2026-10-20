@@ -8,8 +8,10 @@ same catalog, prices, variants, order draft and counter QR.
 
 The homepage entry is a photo preview labelled “Swipe to choose” at the start of
 “What would feel good today?”, before the category choices. The full menu and
-feed share a List / Feed view switch; returning to the list preserves the selected
-category. No additional primary hero CTA or timed feed popup is needed.
+feed share a List / Feed view switch. Switching preserves the language, category,
+search and shared order. A stored view preference applies only to a generic menu
+entry; explicit view links, product and special-purpose links, reloads and Back
+keep their requested destination. Storage failure leaves both modes usable. No additional primary hero CTA or timed feed popup is needed.
 
 ## Entry and browsing flow
 
@@ -17,11 +19,13 @@ The intended journey is entry → browse → shortlist or add → shared cart �
 QR. The first product is visible immediately on mobile. Search, categories and
 the personal viewing summary live in a separate accessible discovery dialog.
 
-Cards use familiar vertical browsing, a right-hand action rail, a double-tap
-like and a visible price/Add action. Previous/next buttons and arrow keys provide
-alternatives to scrolling. Native proximity snapping is limited to sufficiently
-tall mobile viewports and disabled for reduced motion; short screens and long
-translated content remain scrollable. Square catalog photographs stay complete.
+Cards follow familiar photo-post browsing: a light header, full-width square
+photograph, then a horizontal heart/share row and the product details with price
+and Add. Double-tapping a photograph likes the product without undoing a like.
+The feed scrolls continuously without fullscreen snapping; previous/next controls
+and arrow keys remain alternatives. Photos keep their complete square composition
+and intrinsic aspect ratio, including on short screens. Long content remains
+reachable with ordinary scrolling above the shared-cart bar.
 
 Share opens the device share sheet where supported, or a link dialog with Copy
 and manual selection when clipboard permission is unavailable. A product link

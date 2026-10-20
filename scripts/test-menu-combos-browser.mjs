@@ -314,7 +314,9 @@ try {
                 return { id: link.id, href: link.getAttribute("href"), width: box.width, height: box.height };
               })
             }));
-            assert.deepEqual(initialMenu.viewLinks.map(link => link.href), ["menu.html", "menu-feed.html"], "Both menu views remain available");
+            const viewUrls = initialMenu.viewLinks.map(link => new URL(link.href, page.url()));
+            assert.deepEqual(viewUrls.map(url => url.pathname.split("/").pop()), ["menu.html", "menu-feed.html"], "Both menu views remain available");
+            assert.deepEqual(viewUrls.map(url => url.searchParams.get("view")), ["list", "feed"], "View links explicitly select their destination");
             assert.deepEqual(initialMenu.viewLinks.map(link => link.text), { tr: ["Liste", "Akış"], en: ["List", "Feed"], ru: ["Список", "Лента"] }[language],
               "Menu view labels follow the selected language");
             assert.deepEqual(initialMenu.viewLinks.map(link => link.current), ["page", null], "The list view is identified as the current page");

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-b8d8252af2cb-quick-order-23cfea19e573-coffee-paths-e0e89349a2f4-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-7e8f8d8c7cf4-custom-pair-123ef0fff187-menu-css-76e5ad8f92a4-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-31e04e9d1fa1-quick-order-23cfea19e573-coffee-paths-e0e89349a2f4-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-1b9d51b2b7f1-custom-pair-733e74abbade-menu-css-76e5ad8f92a4-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -105,8 +105,9 @@ const CORE_ASSETS = [
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu-feed.html",
-  "./menu-feed.js?v=6e826da93759",
-  "./menu-feed.css?v=eed61a92508d",
+  "./menu-feed.js?v=548e2bbbbfac",
+  "./menu-feed.css?v=663e4d8777e4",
+  "./menu-view-mode.js?v=187eb9f30f6d",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -144,7 +145,7 @@ const CORE_ASSETS = [
   "./app.js?v=1cd220e6b7d9",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=664ba2602b53",
+  "./menu-app.js?v=fd965d03e161",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
@@ -260,6 +261,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/menu-view-mode.js") ||
     url.pathname.endsWith("/menu-feed.css") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
     url.pathname.endsWith("/order-storage.js") ||

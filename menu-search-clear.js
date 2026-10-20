@@ -33,6 +33,7 @@ if (searchInput) {
 
   clearButton.addEventListener("click", clearSearch);
   searchInput.addEventListener("input", updateVisibility);
+  searchInput.addEventListener("change", updateVisibility);
   searchInput.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || !searchInput.value) return;
     event.preventDefault();

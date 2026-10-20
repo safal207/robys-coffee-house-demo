@@ -828,6 +828,26 @@ function setLanguage(next) {
   renderMenu();
 }
 
+document.addEventListener("robys:menu-view-context", (event) => {
+  const context = event.detail;
+  if (!context || typeof context !== "object") return;
+  if (supportedLanguages.includes(context.language)) {
+    language = context.language;
+    storeLanguage(language);
+  }
+  if (typeof context.search === "string") {
+    searchTerm = Array.from(context.search).slice(0, 120).join("");
+    searchInput.value = searchTerm;
+    searchInput.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  if (context.category === "all" || menuCategories.some((category) => category.id === context.category)) {
+    activeCategory = context.category;
+  }
+  translateStaticPage();
+  renderCategoryNav();
+  renderMenu();
+});
+
 languageButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setLanguage(button.dataset.lang);
