@@ -13,8 +13,8 @@
       "evidenceArtifactId": "12272817759",
       "evidenceArtifactSha256": "6cd0bbf9e8b18fa0334641dfa3b78d68d32d15f1254cb8b221ee716d8f564215",
       "captureSummarySha256": "a27ee0c1715381ddfbe58f219725b4740051eda878e017901715c9e8022ad483",
-      "summary": "Fresh assistant inspection of all 20 failing baseline/current comparisons from the captured commit: eight full-page pairs (each overview and changed top/entry region), three menu previews, three visit/map regions, five social offers and one menu-share region; native 320px landing/menu footer crops also inspected. The new square-photo entry and separate List/Feed switch fit without observed text/control overlap or lost downstream sections. Full-home heights grow 95/107/148/148px at 320/390/768/1440px; full-menu heights change by -12/-14/+9/+62px. Regional pairs preserve content, wrapping and actions; small positioning/rasterization differences are an inference from paired screenshots. Both attempts contain the same 20 failure rows and 23 passing comparisons. Exact observed ratio caps and dimension reasons below add no extra tolerance. This is assistant visual inspection, not independent-human approval or release attestation.",
-      "scope": "Only the 20 listed home/full-menu comparisons in the captured default Turkish/static list views are covered. The feed page, other locales and interactive mode-switch behavior are outside this visual record. The actual inspected capture remains sourceHead d5abd208; later bound bytes are not claimed to have been captured. After capture, the nonpublic browser fixture was corrected, and a navigation-only public fix added timing fallback, fail-closed unknown timing and a list-entry history marker, with unit tests and generated script revisions, service-worker revisions and integrity metadata. Every changed bound path is enumerated below with captured and current blobs. CSS, page markup and copy are unchanged; menu HTML differences are script revision strings only. The capture setup clears localStorage, so remembered-feed restoration and Back/reload behavior are outside these inspected default views. Reuse of the existing visual evidence is based on this bounded source-diff assessment, not a fresh visual inspection of the later bytes. Fresh current-head navigation journeys and visual/technical CI remain required. No thresholds, baselines, workflows or production CSP are changed by this record.",
+      "summary": "Fresh assistant inspection of all 20 failing baseline/current comparisons from the captured commit: eight full-page pairs (each overview and changed top/entry region), three menu previews, three visit/map regions, five social offers and one menu-share region; native 320px landing/menu footer crops also inspected. The new square-photo entry and separate List/Feed switch fit without observed text/control overlap or lost downstream sections. Full-home heights grow 95/107/148/148px at 320/390/768/1440px; full-menu heights change by -12/-14/+9/+62px. Regional pairs preserve content, wrapping and actions; small positioning/rasterization differences are an inference from paired screenshots. Both attempts contain the same 20 failure rows and 23 passing comparisons. Exact observed ratio caps and dimension reasons below add no extra tolerance; the separately documented later inspection replaces only visit-map/laptop-1366 with its measured ratio. This is assistant visual inspection, not independent-human approval or release attestation.",
+      "scope": "Only the 20 listed home/full-menu comparisons in captured default Turkish/static list views are covered. The feed page, other locales, mode switching, restored search/product context, cross-tab language and preference/history behavior are outside this visual record. The primary full inspection remains sourceHead d5abd208; one separate visit-map/laptop-1366 inspection uses sourceHead 7dbcc4e0. Later bound bytes are not claimed to have been captured. Final list behavior now reuses state inside src/menu-app.js; the list HTML removes the external mode script and updates its runtime revision. The feed retains a compiled/minified mode module with new authored source. Navigation timing/history safeguards, language handling, source-parity coverage, native-reload browser fixture, build/cache revisions and integrity metadata are explicitly listed below. Static card/category markup, copy and CSS are unchanged; this is a bounded source-diff basis for reuse, not fresh visual proof of the final runtime. The capture setup clears localStorage and does not exercise remembered preferences or Back/reload. Fresh current-head navigation journeys, visual CI and other required technical checks remain necessary. No baseline, global threshold, workflow or production CSP changes are made by this record.",
       "contentBindings": {
         ".github/workflows/order-reliability.yml": "94077db95bc875d5f93a8e59ae73de1b67b31617",
         ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
@@ -81,17 +81,17 @@
         "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
         "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
         "index.html": "1ce693805ad546433103e2bbffdd0adc95e9fab2",
-        "integrity-manifest.json": "6287fc06efa8467310df2ea7cb32210f8466fb17",
+        "integrity-manifest.json": "9f9383d9933fe4902012cd34b80ae5d181df7ee3",
         "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
         "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
-        "menu-app.js": "e7133aba4f503d631dafb23d5eef0aad630a97ae",
+        "menu-app.js": "1dd1172d82b3ecff634e195ec17d9b376dbdcf96",
         "menu-catalog.js": "88580dcf5a8f6e15ee6a57fbf4691ef1e27c1185",
         "menu-combos-ui.js": "2d38d4948041c6feba9195a2ff6760b68a38a483",
         "menu-combos.css": "cda13e98428780fe11d2eb07b93ca526431c3135",
         "menu-family-ui.js": "4c4cbd2650d0575e885592c375eecf977f53906a",
         "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
         "menu-feed.css": "aa9655d5f30f23bf6355fc5d308c7f63e828134c",
-        "menu-feed.html": "8971dee3af0627cc4bbb38d10eb71449722208ac",
+        "menu-feed.html": "cd2c05d405b8ab08d0d918c16ccdecc19f6b9e0d",
         "menu-feed.js": "ea1db49c959480fc331dd1d64f172013a9bd6034",
         "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
         "menu-order-ui.js": "417aa5765699fe39b6502ea1432be91641ceea7c",
@@ -108,8 +108,8 @@
         "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
         "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
         "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
-        "menu-view-mode.js": "82822f84751c89bd7f5ece0ce50527f8fd904701",
-        "menu.html": "4276cda2cb183b487d95fd202cc24b192af13207",
+        "menu-view-mode.js": "ec3857d8e47b88659c88536555fff635a21d2f80",
+        "menu.html": "c9516cf769ed221dbc97c45a132ef8be58ea3036",
         "mobile.css": "7aed337581ea5cde7585349b950a88d5813a27ca",
         "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
         "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
@@ -128,15 +128,15 @@
         "refresh.html": "54b746a5436e17831faa10b773d890752afe5854",
         "robots.txt": "70ea3df3a88574e0dcfbeeb8319b10cf2d43c0c5",
         "ru/coffee-gazipasa.html": "90b7c751db76d9a59f1727e42d290763dbf24d15",
-        "scripts/build.mjs": "4e0ae56119a3d7aa21b00ae5cab6639e8e9659ca",
+        "scripts/build.mjs": "6430e1a26401ad9cab80386cbefea2b5f5954ab2",
         "scripts/capture-document-region.mjs": "4bad6abbf0ad70bf3fb3414b8bd9f45c72493c57",
         "scripts/menu-runtime-source.mjs": "d2098014faab819d37f024980c623b616ee96d09",
         "scripts/menu-styles-bundle.mjs": "148a3635009a766ab2ddaf10377364154fd9e05a",
         "scripts/test-menu-combos-browser.mjs": "39d5f8c5a2070e11962516c84f14c84af99e4f46",
-        "scripts/test-menu-feed-browser.mjs": "e7da64881a871cd6c6acbb09017a9899f5a70f1c",
+        "scripts/test-menu-feed-browser.mjs": "6698e8833458ae9881a705c462896842f2a9738b",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "1c64266574668f744ecaa65838e3f3325fbe1d47",
-        "scripts/test-menu-view-mode.mjs": "4fbee555a55f4f4054437a274cd633918d2eb68c",
+        "scripts/test-menu-view-mode.mjs": "88cb092a3f9e2952bfb689116aa5c96ceaa2c431",
         "scripts/test-visual-toolchain.mjs": "95982b9806d10ebf4ccadf730cb69f372ee0a500",
         "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
         "scripts/verify-visual-toolchain.mjs": "b64d143d3c810d60f5c432545c3ee483ccd1fbaf",
@@ -179,7 +179,7 @@
         "src/counter-checkout.js": "848d82d53ccb2d5ce66176a490bd661b9e9f2d79",
         "src/kids-menu.js": "699c900fbf38987a587146638a7845459746289c",
         "src/menu-actions-loader.js": "f2390184e2f2fc1fb067ee0d07a228aff973c480",
-        "src/menu-app.js": "3e345e3cead14bcd3e8d94bc2c0a0fac3e27070b",
+        "src/menu-app.js": "5cf3c0f2aafd57aafcaa57cccb449445339c1d0b",
         "src/menu-combos-ui.js": "08a4b69da72e65387cd0853d9c4909753a1a0e5e",
         "src/menu-combos.js": "b8740172a380b6c897d8153bf39549ed11a25de9",
         "src/menu-family-ui.js": "1d0e733fa4cd2694753c79edd8b3ad5c936e65ec",
@@ -198,6 +198,7 @@
         "src/menu-pairing-view.js": "4b3942440f67525520101ec78552dcfecccd044c",
         "src/menu-pairing.js": "65a6f79dd24138ba5b51d9c513f47ddcf05c9693",
         "src/menu-promo-pair.js": "c9212ce95370739cfbac7d28aa39a954879874cf",
+        "src/menu-view-mode.js": "82822f84751c89bd7f5ece0ce50527f8fd904701",
         "src/order-checkout.js": "53635c51b55b7d3e9eb0be49d92b0b2904b7e69c",
         "src/order-draft.js": "35c4afebe0f9fffdd01a4c57f41af0e29dc51f66",
         "src/order-storage-notice.js": "100fc3c021b099514bf03c9c3be10303f85fe9a0",
@@ -498,7 +499,7 @@
         "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
         "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
         "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
-        "sw-core-v64.js": "5599988ecb370d9f48dd45fda3e1106193092223",
+        "sw-core-v64.js": "bd66f4679e51d61666a3dcdd31794d704b3451c9",
         "sw.js": "8573779a19f070745184c0628a5832c1ea857d28",
         "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
         "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
@@ -583,7 +584,7 @@
           "capture": "visit-map",
           "viewport": "laptop-1366",
           "totalPixels": 1237596,
-          "maxDiffPixelRatio": 0.005397561078090103
+          "maxDiffPixelRatio": 0.005399177114341029
         },
         {
           "capture": "social-offer",
@@ -775,44 +776,184 @@
         {
           "path": "integrity-manifest.json",
           "capturedBlob": "c6b9e9a198c6a59caf9ce8d838af0c6b4289258a",
-          "boundBlob": "6287fc06efa8467310df2ea7cb32210f8466fb17",
-          "reason": "Regenerated byte sizes and digests for the later public files; this integrity evidence was not part of the captured source."
+          "boundBlob": "9f9383d9933fe4902012cd34b80ae5d181df7ee3",
+          "reason": "Regenerated integrity metadata for the final public files and new authored source. These later bytes are not represented as captured."
+        },
+        {
+          "path": "menu-app.js",
+          "capturedBlob": "e7133aba4f503d631dafb23d5eef0aad630a97ae",
+          "boundBlob": "1dd1172d82b3ecff634e195ec17d9b376dbdcf96",
+          "reason": "Rebuilt list runtime now owns list view links, URL context, language selection, preference and history handling through its existing state. This later behavioral implementation was not captured; current-head browser and visual CI must verify it. The search-input handler synchronizes the all-category URL before rendering category navigation, preserving the established contract order without relaxing tests."
         },
         {
           "path": "menu-feed.html",
           "capturedBlob": "9616a7f44712dcb95a34b0ed28448ada3f3109cd",
-          "boundBlob": "8971dee3af0627cc4bbb38d10eb71449722208ac",
-          "reason": "Generated script revision for the later menu-view-mode.js bytes only; page markup, copy and CSS references are otherwise unchanged from capture."
+          "boundBlob": "cd2c05d405b8ab08d0d918c16ccdecc19f6b9e0d",
+          "reason": "Generated script revision for the final compiled menu-view-mode.js. Static card markup, copy and CSS references are unchanged from the captured page."
         },
         {
           "path": "menu-view-mode.js",
           "capturedBlob": "b3de565c93eb9e8519bdc30a4a46765a85a6eaa4",
-          "boundBlob": "82822f84751c89bd7f5ece0ce50527f8fd904701",
-          "reason": "Public navigation behavior fix after capture: classify delayed/legacy navigation timing, fail closed when timing is unknown, and preserve an actual generic list history entry on Back/reload. No CSS, DOM or copy change. Captures clear localStorage and do not exercise remembered-feed restoration; fresh current-head browser journeys must verify this behavior."
+          "boundBlob": "ec3857d8e47b88659c88536555fff635a21d2f80",
+          "reason": "Final runtime is compiled/minified from the new src/menu-view-mode.js and loaded by the feed page. It retains navigation timing fallback and list-history safeguards introduced after the primary capture. These final generated bytes were not captured."
         },
         {
           "path": "menu.html",
           "capturedBlob": "eea4b8e10f43ffbc0ecd3b177fd5682499b20dec",
-          "boundBlob": "4276cda2cb183b487d95fd202cc24b192af13207",
-          "reason": "Generated script revision for the later menu-view-mode.js bytes only; page markup, copy and CSS references are otherwise unchanged from capture."
+          "boundBlob": "c9516cf769ed221dbc97c45a132ef8be58ea3036",
+          "reason": "The standalone menu-view-mode.js script is removed because the list uses its existing menu-app state; menu-app.js revision is regenerated. Static card/category markup, copy and CSS references are unchanged. The final script arrangement was not captured."
+        },
+        {
+          "path": "scripts/build.mjs",
+          "capturedBlob": "4e0ae56119a3d7aa21b00ae5cab6639e8e9659ca",
+          "boundBlob": "6430e1a26401ad9cab80386cbefea2b5f5954ab2",
+          "reason": "Build now compiles src/menu-view-mode.js into the runtime and no longer adds its external script to the list page. This later build implementation was not used for the inspected captures."
         },
         {
           "path": "scripts/test-menu-feed-browser.mjs",
           "capturedBlob": "afb44ec41ae043a7f06bd62a13c273c663fa6227",
-          "boundBlob": "e7da64881a871cd6c6acbb09017a9899f5a70f1c",
-          "reason": "Nonpublic browser fixture corrections after capture: explicit category selection after search, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Later diagnostic-only additions record history/navigation observations and run a native-reload comparison in an independent context only after protocol reload leaves the expected list path; the original list assertion remains mandatory. These later test bytes are not represented as captured code and do not prove the navigation fix."
+          "boundBlob": "6698e8833458ae9881a705c462896842f2a9738b",
+          "reason": "Nonpublic fixture includes corrected category selection, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Final preference/history journey uses native location.reload() on every engine with URL, navigation-type, history-marker, saved-preference and console assertions, retaining history traces. The earlier duplicate comparison context is removed. These final fixture bytes were not captured and do not themselves establish a passing browser result."
         },
         {
           "path": "scripts/test-menu-view-mode.mjs",
           "capturedBlob": "b2d2def8aab4375bf8e5754003caa9d1cb4b1afe",
-          "boundBlob": "4fbee555a55f4f4054437a274cd633918d2eb68c",
-          "reason": "Nonpublic unit coverage added after capture for navigation timing fallback, unknown timing and list history markers. These tests were not part of the captured source."
+          "boundBlob": "88cb092a3f9e2952bfb689116aa5c96ceaa2c431",
+          "reason": "Nonpublic tests cover navigation timing fallback, unknown timing and list history markers, plus final authored-source/generated-runtime parity. These later test bytes were not captured."
+        },
+        {
+          "path": "src/menu-app.js",
+          "capturedBlob": "3e345e3cead14bcd3e8d94bc2c0a0fac3e27070b",
+          "boundBlob": "5cf3c0f2aafd57aafcaa57cccb449445339c1d0b",
+          "reason": "List view behavior is integrated into existing list state: initial URL language is distinct from stored-language reads; category/search/product context and view links are synchronized; preference/history behavior moves here. No stylesheet or static card markup change. Final interactive and cross-tab behavior is outside the inspected default views and requires current-head verification. The search-input handler synchronizes the all-category URL before rendering category navigation, preserving the established contract order without relaxing tests."
+        },
+        {
+          "path": "src/menu-view-mode.js",
+          "capturedBlob": null,
+          "boundBlob": "82822f84751c89bd7f5ece0ce50527f8fd904701",
+          "reason": "New authored source for the compiled feed-side mode runtime, copied from the previously authored standalone module. This path was absent from both inspected capture commits and is explicitly bound without a captured blob."
         },
         {
           "path": "sw-core-v64.js",
           "capturedBlob": "af99c137e20cf38f002a3d8ef58055beae696d57",
-          "boundBlob": "5599988ecb370d9f48dd45fda3e1106193092223",
-          "reason": "Generated cache version and menu-view-mode.js revision refresh for the later public bytes; these service-worker bytes were not captured."
+          "boundBlob": "bd66f4679e51d61666a3dcdd31794d704b3451c9",
+          "reason": "Generated cache keys and runtime revisions reflect the final menu scripts. These later service-worker bytes were not captured."
+        }
+      ],
+      "supplementalCaptureReviews": [
+        {
+          "id": "visit-map-laptop-1366-navigation-build-20261020",
+          "reviewKind": "assistant-visual-inspection-not-human-attestation",
+          "sourceHead": "7dbcc4e02b2a2c5df02cc0dc2098f0360b79702f",
+          "sourceTree": "3675c3826da5cf055a352ec6a35e90c5dfdf2690",
+          "baselineHead": "33f0baca8c4f64bcc66d1a5b8b2b6917a8f1dfdc",
+          "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/39441072112",
+          "evidenceArtifactId": "12273801714",
+          "evidenceArtifactSha256": "6ddaa45934516ad94c3550f741c8b861e503d602db5ab39b2c077aa69d470ad8",
+          "captureSummarySha256": "6645faaff5948c7767d6de57c8470a75fbbdf6325e0972afd66ad967886a2811",
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "images": {
+            "baseline": {
+              "path": "final/baseline/visit-map__laptop-1366.png",
+              "sha256": "ec25c6e9511c4d0d669c386fc656d71333291c46dfab8dfa98c40335e5923f16"
+            },
+            "current": {
+              "path": "final/current/visit-map__laptop-1366.png",
+              "sha256": "e69855241826a2a017231ef31f0356edb3b75b23d0c80dcee9737d6dbf1d92f0"
+            },
+            "diff": {
+              "path": "final/diff/visit-map__laptop-1366.png",
+              "sha256": "106509f83d5aca861f9d1c7ca8b0e525b3dffbb2631022954ee7b646560f71cf"
+            }
+          },
+          "observation": "Actually inspected this later baseline/current/diff region and the earlier d5 current image. Address, hours, Instagram handle, map marker, buttons and wrapping are retained without observed clipping, overlap or content loss. Baseline PNG is byte-identical to d5; current versus d5 has RGB changes confined to the map bounds, at most 2/255 per channel. Small rasterization/color variation is an inference; no specific rendering cause is established.",
+          "measurement": {
+            "totalPixels": 1237596,
+            "firstAttemptDiffPixels": 6680,
+            "finalAttemptDiffPixels": 6682,
+            "previousObservedRatio": 0.005397561078090103,
+            "maxDiffPixelRatio": 0.005399177114341029,
+            "addedMargin": 0,
+            "oldToNewCurrentChangedRgbPixels": 94630,
+            "oldToNewCurrentMaxChannelChange": 2,
+            "oldToNewCurrentDifferenceBounds": [
+              728,
+              105,
+              1272,
+              802
+            ]
+          },
+          "scope": "This supplemental inspection covers only visit-map/laptop-1366 from this later capture. Its exact measured ratio replaces only that comparison cap. Other 42 result rows match the primary summary numerically, but they were not visually reinspected here. The original d5 full inspection and provenance remain primary. This is not a fresh full-capture review or proof of Firefox navigation behavior; current-head browser and technical CI remain required. No baseline, global threshold, workflow or production code changes are authorized by this record.",
+          "postCaptureBoundByteChanges": [
+            {
+              "path": "integrity-manifest.json",
+              "capturedBlob": "6287fc06efa8467310df2ea7cb32210f8466fb17",
+              "boundBlob": "9f9383d9933fe4902012cd34b80ae5d181df7ee3",
+              "reason": "Regenerated integrity metadata for the final public files and new authored source. These later bytes are not represented as captured."
+            },
+            {
+              "path": "menu-app.js",
+              "capturedBlob": "e7133aba4f503d631dafb23d5eef0aad630a97ae",
+              "boundBlob": "1dd1172d82b3ecff634e195ec17d9b376dbdcf96",
+              "reason": "Rebuilt list runtime now owns list view links, URL context, language selection, preference and history handling through its existing state. This later behavioral implementation was not captured; current-head browser and visual CI must verify it. The search-input handler synchronizes the all-category URL before rendering category navigation, preserving the established contract order without relaxing tests."
+            },
+            {
+              "path": "menu-feed.html",
+              "capturedBlob": "8971dee3af0627cc4bbb38d10eb71449722208ac",
+              "boundBlob": "cd2c05d405b8ab08d0d918c16ccdecc19f6b9e0d",
+              "reason": "Generated script revision for the final compiled menu-view-mode.js. Static card markup, copy and CSS references are unchanged from the captured page."
+            },
+            {
+              "path": "menu-view-mode.js",
+              "capturedBlob": "82822f84751c89bd7f5ece0ce50527f8fd904701",
+              "boundBlob": "ec3857d8e47b88659c88536555fff635a21d2f80",
+              "reason": "Final runtime is compiled/minified from the new src/menu-view-mode.js and loaded by the feed page. It retains navigation timing fallback and list-history safeguards introduced after the primary capture. These final generated bytes were not captured."
+            },
+            {
+              "path": "menu.html",
+              "capturedBlob": "4276cda2cb183b487d95fd202cc24b192af13207",
+              "boundBlob": "c9516cf769ed221dbc97c45a132ef8be58ea3036",
+              "reason": "The standalone menu-view-mode.js script is removed because the list uses its existing menu-app state; menu-app.js revision is regenerated. Static card/category markup, copy and CSS references are unchanged. The final script arrangement was not captured."
+            },
+            {
+              "path": "scripts/build.mjs",
+              "capturedBlob": "4e0ae56119a3d7aa21b00ae5cab6639e8e9659ca",
+              "boundBlob": "6430e1a26401ad9cab80386cbefea2b5f5954ab2",
+              "reason": "Build now compiles src/menu-view-mode.js into the runtime and no longer adds its external script to the list page. This later build implementation was not used for the inspected captures."
+            },
+            {
+              "path": "scripts/test-menu-feed-browser.mjs",
+              "capturedBlob": "946c1c436a0772bb1140d15f92e659ab13006706",
+              "boundBlob": "6698e8833458ae9881a705c462896842f2a9738b",
+              "reason": "Nonpublic fixture includes corrected category selection, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Final preference/history journey uses native location.reload() on every engine with URL, navigation-type, history-marker, saved-preference and console assertions, retaining history traces. The earlier duplicate comparison context is removed. These final fixture bytes were not captured and do not themselves establish a passing browser result."
+            },
+            {
+              "path": "scripts/test-menu-view-mode.mjs",
+              "capturedBlob": "4fbee555a55f4f4054437a274cd633918d2eb68c",
+              "boundBlob": "88cb092a3f9e2952bfb689116aa5c96ceaa2c431",
+              "reason": "Nonpublic tests cover navigation timing fallback, unknown timing and list history markers, plus final authored-source/generated-runtime parity. These later test bytes were not captured."
+            },
+            {
+              "path": "src/menu-app.js",
+              "capturedBlob": "3e345e3cead14bcd3e8d94bc2c0a0fac3e27070b",
+              "boundBlob": "5cf3c0f2aafd57aafcaa57cccb449445339c1d0b",
+              "reason": "List view behavior is integrated into existing list state: initial URL language is distinct from stored-language reads; category/search/product context and view links are synchronized; preference/history behavior moves here. No stylesheet or static card markup change. Final interactive and cross-tab behavior is outside the inspected default views and requires current-head verification. The search-input handler synchronizes the all-category URL before rendering category navigation, preserving the established contract order without relaxing tests."
+            },
+            {
+              "path": "src/menu-view-mode.js",
+              "capturedBlob": null,
+              "boundBlob": "82822f84751c89bd7f5ece0ce50527f8fd904701",
+              "reason": "New authored source for the compiled feed-side mode runtime, copied from the previously authored standalone module. This path was absent from both inspected capture commits and is explicitly bound without a captured blob."
+            },
+            {
+              "path": "sw-core-v64.js",
+              "capturedBlob": "5599988ecb370d9f48dd45fda3e1106193092223",
+              "boundBlob": "bd66f4679e51d61666a3dcdd31794d704b3451c9",
+              "reason": "Generated cache keys and runtime revisions reflect the final menu scripts. These later service-worker bytes were not captured."
+            }
+          ],
+          "postCaptureLimit": "Final public source/build changes and native-reload fixture are enumerated above. Their current blobs are bound for stale-record detection, but neither these final bytes nor their interactive behavior are represented as captured. The supplemental inspection covers only the actual visit-map/laptop-1366 image pair from sourceHead 7dbcc4e0; current-head visual and browser CI remain required."
         }
       ]
     }

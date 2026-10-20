@@ -44,6 +44,7 @@ writeFileSync("src/menu-feed.js", feedSource);
 writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
 const menuFeedRevision = revisionFor("menu-feed.js");
 const menuFeedCssRevision = revisionFor("menu-feed.css");
+writeFileSync("menu-view-mode.js", compileMenuRuntime(readFileSync("src/menu-view-mode.js", "utf8")));
 const menuViewModeRevision = revisionFor("menu-view-mode.js");
 let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "order-checkout.js", orderCheckoutRevision);
@@ -453,7 +454,6 @@ menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
-menuHtml = synchronizeModuleScript(menuHtml, "menu-view-mode.js", menuViewModeRevision);
 writeFileSync("menu.html", menuHtml);
 
 let feedHtml = readFileSync("menu-feed.html", "utf8");

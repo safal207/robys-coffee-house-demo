@@ -1,10 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 import { MENU_VIEW_STORAGE_KEY, normalizeMenuSearch, readMenuViewContext, menuViewUrl,
   readMenuViewPreference, storeMenuViewPreference, readMenuNavigationType, shouldOpenPreferredFeed } from "../menu-view-mode.js";
 
 const base = "https://example.test/cafe/menu.html";
 const categories = ["all", "hot-coffee", "cold-coffee", "desserts", "food"];
+
+test("shipped menu view runtime matches its authored source", () => {
+  const source = readFileSync(new URL("../src/menu-view-mode.js", import.meta.url), "utf8");
+  const shipped = readFileSync(new URL("../menu-view-mode.js", import.meta.url), "utf8");
+  assert.equal(shipped, compileMenuRuntime(source),
+    "Generated menu-view-mode.js is stale or differs from its source; run npm run build");
+});
 
 test("remembered feed applies only to a fresh generic list entry", () => {
   assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate"), true);
