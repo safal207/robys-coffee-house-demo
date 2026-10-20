@@ -502,6 +502,10 @@ try {
     assert.equal(await page.locator("#feed-search").evaluate(node => node === document.activeElement), true);
     assert.equal(await page.locator("#feed-counter").textContent(), counterBeforeTyping, "Arrow keys in discovery must not navigate the background feed");
     await page.locator("#feed-search").fill("Espresso");
+    // Native search inputs may consume Escape to clear their query. Exercise
+    // dialog cancellation from its preceding button in the natural tab order.
+    await page.keyboard.press("Shift+Tab");
+    assert.equal(await page.locator("#feed-discover-close").evaluate(node => node === document.activeElement), true);
     await page.keyboard.press("Escape");
     await page.locator("#feed-discover[open]").waitFor({ state: "hidden" });
     await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-discover-open"));
