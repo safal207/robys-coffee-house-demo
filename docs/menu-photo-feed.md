@@ -13,6 +13,18 @@ search and shared order. A stored view preference applies only to a generic menu
 entry; explicit view links, product and special-purpose links, reloads and Back
 keep their requested destination. Storage failure leaves both modes usable. No additional primary hero CTA or timed feed popup is needed.
 
+The switch stays available while scrolling in both views. Feed entry controls
+open the same 12 editable combos, four takeaway selections, three family ideas
+and kids choices as the list. The choice helper stays in the current menu view;
+Smart Choice opens the same separate builder in either mode.
+
+Product details and the cart use the list's shared editor, including drink and
+dessert pairings, flavor changes, component replacement and quantity editing.
+Simple products still support quick Add from a post. Promotional pairs open the
+shared composition editor so the stored order contains the canonical components.
+Optional editors load on intent; a later navigation cancels an older pending
+reveal without cancelling an order transaction already in progress.
+
 ## Entry and browsing flow
 
 The intended journey is entry → browse → shortlist or add → shared cart → counter

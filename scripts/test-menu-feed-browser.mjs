@@ -64,6 +64,45 @@ async function waitForMenuMode(page, mode) {
   assert.equal(new URL(page.url()).pathname, mode === "feed" ? "/menu-feed.html" : "/menu.html");
   await page.locator(mode === "feed" ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
 }
+const storedOrder = page => page.evaluate(async ids => {
+  const storage = await import("/order-storage.js");
+  return storage.readLatestStoredOrderDraft(new Set(ids));
+}, catalog.map(product => product.id));
+const moneyValue = value => Number(value.replace(/[^\d]/g, ""));
+const expectedTotal = draft => draft.lines.reduce((sum, line) =>
+  sum + catalog.find(product => product.id === line.id).item.price * line.quantity, 0);
+async function assertSharedOrder(page, expected) {
+  const total = expectedTotal(expected), quantity = expected.groups.reduce((sum, group) => sum + group.quantity, 0);
+  await page.waitForFunction(({ quantity, total }) =>
+    Number(document.querySelector("#menu-cart-count").textContent) === quantity
+      && Number(document.querySelector("#menu-cart-total").textContent.replace(/[^\d]/g, "")) === total,
+  { quantity, total });
+  assert.deepEqual(await storedOrder(page), expected, "Switching presentation preserves every item, flavor and group quantity");
+}
+async function roundTripOrder(page, expected, language = "en") {
+  await page.locator('.feed-view-switch [data-menu-view="list"]').click();
+  await waitForMenuMode(page, "list");
+  assert.equal(await page.locator("html").getAttribute("lang"), language);
+  await assertSharedOrder(page, expected);
+  await page.locator("#menu-cart-trigger").click();
+  await page.locator("#menu-cart-dialog[open]").waitFor();
+  assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), expectedTotal(expected));
+  await page.keyboard.press("Escape");
+  await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+  await waitForMenuMode(page, "feed");
+  assert.equal(await page.locator("html").getAttribute("lang"), language);
+  await assertSharedOrder(page, expected);
+}
+async function assertStickySwitch(page, mode) {
+  const selector = mode === "feed" ? ".feed-view-switch" : ".menu-view-switch";
+  await page.evaluate(() => window.scrollTo({ top: 900, behavior: "instant" }));
+  await page.waitForFunction(selector => {
+    const link = document.querySelector(`${selector} a`), box = link.getBoundingClientRect();
+    const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    return scrollY > 0 && box.top >= 0 && box.bottom <= innerHeight && (link === hit || link.contains(hit));
+  }, selector);
+  assert.equal(await page.locator(`${selector} [aria-current="page"]`).getAttribute("data-menu-view"), mode);
+}
 async function openDiscovery(page) {
   await page.locator("#feed-discover-open").click();
   await page.locator("#feed-discover[open]").waitFor();
@@ -98,7 +137,7 @@ async function assertLandingPhotoFits(page) {
     const card = document.querySelector(".feed-card");
     const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
       document.querySelector(".feed-tools").getBoundingClientRect().bottom);
-    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
     return [".feed-card-header", ".feed-photo>img"].every(selector => {
       const node = card.querySelector(selector), box = node.getBoundingClientRect();
       const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
@@ -109,7 +148,7 @@ async function assertLandingPhotoFits(page) {
 async function assertPurchaseControlsReachable(page, index = 0) {
   const card = page.locator(".feed-card").nth(index);
   const delta = await card.locator(".feed-card-content").evaluate(node => {
-    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
     return Math.max(0, node.getBoundingClientRect().bottom - bottom + 12);
   });
   if (delta) {
@@ -120,7 +159,7 @@ async function assertPurchaseControlsReachable(page, index = 0) {
     const card = document.querySelectorAll(".feed-card")[index];
     const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
       document.querySelector(".feed-tools").getBoundingClientRect().bottom);
-    const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+    const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
     return ["h3", ".feed-price", ".feed-add"].every(selector => {
       const node = card.querySelector(selector), box = node.getBoundingClientRect();
       const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
@@ -172,10 +211,10 @@ try {
     await chooseCategory(page, "hot-coffee");
     const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
     await espresso.locator(".feed-add").click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
     await espresso.locator(".feed-add").click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
-    assert.match(await page.locator("#feed-cart-total").textContent(), /220/);
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /220/);
     await openDiscovery(page);
     await page.locator("#feed-search").fill("missing-zx984");
     assert.equal(await page.locator("#feed-discover").evaluate(node => node.open), true);
@@ -188,28 +227,28 @@ try {
     const flavoured = page.locator('[data-product-id="cold-coffee:flavoured-iced-caffe-latte"]');
     await flavoured.locator(".feed-add").click();
     assert.equal(await flavoured.locator("select").evaluate(node => node === document.activeElement), true);
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "2");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "2");
     await flavoured.locator("select").selectOption("vanilla");
     await flavoured.locator(".feed-add").click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "3");
-    assert.match(await page.locator("#feed-cart-total").textContent(), /420/);
-    await page.locator("#feed-cart-open").click();
-    await page.locator("#feed-cart[open]").waitFor();
-    const firstLine = page.locator(".feed-cart-line").filter({ hasText: /Espresso|Эспрессо/ });
-    await firstLine.locator(".feed-remove").click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
-    assert.match(await page.locator("#feed-cart-sum").textContent(), /200/);
-    await page.locator("#feed-checkout").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "3");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /420/);
+    await page.locator("#menu-cart-trigger").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    const firstLine = page.locator(".menu-cart-line").filter({ hasText: /Espresso|Эспрессо/ });
+    await firstLine.locator(".menu-cart-remove").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    assert.match(await page.locator("#menu-cart-dialog-total").textContent(), /200/);
+    await page.locator("#menu-checkout-trigger").click();
     await page.locator(".order-checkout-dialog[open]").waitFor();
     await page.locator(".order-ticket-qr").waitFor();
     assert.equal(await page.locator(".order-ticket-qr").count(), 1);
     assert.match(await page.locator(".order-ticket-total").textContent(), /200/);
     await page.keyboard.press("Escape");
-    assert.equal(await page.locator("#feed-checkout").evaluate(node => node === document.activeElement), true);
+    assert.equal(await page.locator("#menu-checkout-trigger").evaluate(node => node === document.activeElement), true);
     await page.keyboard.press("Escape");
-    assert.equal(await page.locator("#feed-cart-open").evaluate(node => node === document.activeElement), true);
+    assert.equal(await page.locator("#menu-cart-trigger").evaluate(node => node === document.activeElement), true);
     await page.reload();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
     const other = await context.newPage(); observeErrors(other, errors);
     await other.goto(`${origin}/menu.html#hot-coffee`);
     await other.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
@@ -218,8 +257,8 @@ try {
     await other.locator("#menu-add-to-cart").click();
     await other.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
     await page.bringToFront();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
-    assert.match(await page.locator("#feed-cart-total").textContent(), /310/);
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /310/);
     assert.deepEqual(errors, []);
     report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true,
       focus: true, overflow: false, photoUncropped: true, photoWidth: photo.width, canonicalResponsiveBrand: true,
@@ -422,7 +461,7 @@ try {
       const rect = image.getBoundingClientRect();
       const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
         document.querySelector(".feed-tools").getBoundingClientRect().bottom);
-      const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+      const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
       return { browser: Math.max(0, Math.min(rect.bottom, innerHeight) - Math.max(rect.top, 0)) / rect.height,
         unobscured: Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top)) / rect.height };
     });
@@ -493,11 +532,47 @@ try {
       honestPersistenceCopy: true, noFalseReloadPersistence: true });
     await context.close();
   }
-  for (const moduleName of ["storage", "checkout"]) {
+  for (const [kind, fileName] of [["product", "menu-order-ui"], ["combos", "menu-combos-ui"]]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    let release, entered;
+    const gate = new Promise(resolve => { release = resolve; });
+    const waiting = new Promise(resolve => { entered = resolve; });
+    await context.route(`**/${fileName}.js*`, async route => { entered(); await gate; await route.continue(); });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    try {
+      await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+      await waitForMenuMode(page, "feed");
+      const trigger = kind === "product" ? page.locator(".feed-details").first() : page.locator("#menu-combos-trigger");
+      await trigger.click(); await waiting;
+      await openDiscovery(page);
+      if (kind === "combos") await page.locator('[data-category="cold-coffee"]').click();
+      const responseReady = page.waitForResponse(response => new URL(response.url()).pathname.endsWith(`/${fileName}.js`));
+      release();
+      const response = await responseReady;
+      await page.evaluate(async url => {
+        await import(url);
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      }, response.url());
+      assert.equal(await page.locator("#feed-discover[open]").count(), 1, "A newer search intent keeps its dialog");
+      assert.equal(await page.locator("#menu-product-dialog[open],#menu-cart-dialog[open],.menu-combos-dialog[open]").count(), 0,
+        "A delayed previous action cannot open a dialog above Search");
+      if (kind === "product") assert.equal(await page.locator("#feed-search").evaluate(node => node === document.activeElement), true);
+      else {
+        assert.equal(await page.locator("#menu-combos").isHidden(), true, "The old collection cannot reveal after a new category choice");
+        assert.equal(await page.locator('[data-category="cold-coffee"]').getAttribute("aria-pressed"), "true");
+      }
+      assert.deepEqual(errors, []);
+      report.cases.push({ case: `feed-delayed-${kind}-intent`, result: "PASS", delayedModule: fileName,
+        newerSearchPreserved: true, oldDialogNeverOpens: true, categoryChoicePreserved: kind === "combos", consoleErrors: false });
+    } finally { release(); await context.close(); }
+  }
+  for (const [moduleName, fileName] of [["storage", "order-storage"], ["order-ui", "menu-order-ui"], ["checkout", "order-checkout"]]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const requests = [];
-    await context.route(`**/order-${moduleName}.js*`, route => {
+    await context.route(`**/${fileName}.js*`, route => {
       requests.push(route.request().url());
       return requests.length === 1
         ? route.fulfill({ status: 200, contentType: "application/javascript", body: 'throw new Error("Injected first-load failure");' })
@@ -510,19 +585,25 @@ try {
     if (moduleName === "storage") await page.locator("#feed-status").filter({ hasText: /try again/i }).waitFor();
     await chooseCategory(page, "hot-coffee");
     await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
-    await page.locator("#feed-cart-open").click();
-    await page.locator("#feed-checkout").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    await page.locator("#menu-cart-trigger").click();
+    if (moduleName === "order-ui") {
+      await page.locator("#feed-status").filter({ hasText: /try again/i }).waitFor();
+      assert.equal(await page.locator("#menu-cart-dialog[open]").count(), 0);
+      await page.locator("#menu-cart-trigger").click();
+    }
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    await page.locator("#menu-checkout-trigger").click();
     if (moduleName === "checkout") {
-      await page.locator("#feed-cart-error").filter({ hasText: /try again/i }).waitFor();
+      await page.locator("#menu-cart-checkout-error").filter({ hasText: /try again/i }).waitFor();
       assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0);
-      await page.locator("#feed-checkout").click();
+      await page.locator("#menu-checkout-trigger").click();
     }
     await page.locator(".order-checkout-dialog[open]").waitFor();
     await page.locator(".order-ticket-qr").waitFor();
     assert.equal(await page.locator(".order-ticket-qr").count(), 1);
     assert.match(await page.locator(".order-ticket-total").textContent(), /110/);
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "1");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "1");
     assert.equal(requests.length, 2);
     assert.notEqual(requests[0], requests[1]);
     assert.equal(new URL(requests[1]).origin, origin);
@@ -563,7 +644,7 @@ try {
     await first.locator(".feed-photo>img").dblclick();
     assert.equal(await first.locator(".feed-like").getAttribute("aria-pressed"), "true", "Repeated double taps save, rather than toggle, a like");
     assert.equal(await page.locator("#feed-liked-count").textContent(), "1");
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "0", "Photo interactions never add an order item");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "0", "Photo interactions never add an order item");
     assert.equal(await first.locator(".feed-heart-burst").evaluate(node => getComputedStyle(node).display), "none", "Reduced motion disables the decorative heart burst");
     await first.locator(".feed-photo-next").click();
     await waitForCounter(page, 1);
@@ -626,7 +707,7 @@ try {
           document.querySelector(".feed-tools").getBoundingClientRect().bottom);
         const rect = card.getBoundingClientRect();
         const photo = card.querySelector(".feed-photo>img"), box = photo.getBoundingClientRect();
-        const bottom = document.querySelector("#feed-cart-open").getBoundingClientRect().top;
+        const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
         const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
         const fits = Math.abs(rect.top - top) <= 1
           && document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`
@@ -642,6 +723,10 @@ try {
         return { product: card.dataset.productId, top: rect.top, bottom: rect.bottom, scrollY };
       });
     };
+    // The non-sticky collection shortcuts precede the first post. Start this
+    // scrolling journey with the first card aligned, as next/previous do.
+    // Landing photo visibility is independently checked above.
+    await page.locator(".feed-card").first().evaluate(card => card.scrollIntoView({ block: "start", behavior: "instant" }));
     await settled(0);
     const distance = await page.locator(".feed-card").evaluateAll(cards => cards[1].getBoundingClientRect().top - cards[0].getBoundingClientRect().top);
     assert.ok(distance > 32);
@@ -668,7 +753,7 @@ try {
     const afterPrevious = await settled(1);
     assert.equal(await page.locator(".feed-card").nth(1).evaluate(node => node === document.activeElement), true);
     await assertPurchaseControlsReachable(page, 1);
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "0");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "normal-motion-continuous-scroll", result: "PASS", width: 390, height: 844, snapType,
       wheelStopsBetweenPosts: true, wheelUndershootPixels: 32, explicitNavigationSettlesBelowStickyControls: true,
@@ -755,7 +840,7 @@ try {
     assert.equal(await page.locator("#feed-share-url").inputValue(), payload.url);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => document.activeElement === document.querySelector(".feed-share"));
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "0");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "native-share-boundary", result: "PASS", scopedProductAndLanguageUrl: true,
       controlledSuccessAndCancellation: true, successAndCancelRestoreFocus: true, nativeFailureOffersCopy: true, noOrderMutation: true });
@@ -834,15 +919,15 @@ try {
     assert.ok(titleBounds.x >= -1 && titleBounds.x + titleBounds.width <= 321, "The long product name wraps within the mobile column");
     await card.locator("select").selectOption("vanilla");
     await card.locator(".feed-add").click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "1");
-    assert.match(await page.locator("#feed-cart-total").textContent(), /200/);
-    await page.locator("#feed-cart-open").click();
-    await page.locator("#feed-cart[open]").waitFor();
-    assert.match(await page.locator(".feed-cart-item h3").textContent(), /Ваниль/i);
-    await page.locator("#feed-checkout").scrollIntoViewIfNeeded();
-    assert.equal(await page.locator("#feed-checkout").isVisible(), true);
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /200/);
+    await page.locator("#menu-cart-trigger").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    assert.match(await page.locator(".menu-cart-line-details > strong").textContent(), /Ваниль/i);
+    await page.locator("#menu-checkout-trigger").scrollIntoViewIfNeeded();
+    assert.equal(await page.locator("#menu-checkout-trigger").isVisible(), true);
     await page.keyboard.press("Escape");
-    await page.waitForFunction(() => document.activeElement === document.querySelector("#feed-cart-open"));
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#menu-cart-trigger"));
     await card.locator("select").scrollIntoViewIfNeeded();
     await captureScreenshot(page, { path: `${output}/${engine}-320-short-text${textScale * 100}.png` });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
@@ -857,9 +942,135 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+    await waitForMenuMode(page, "feed");
+    await page.locator("#menu-combos-trigger").click();
+    await page.locator(".menu-combos-card").first().waitFor();
+    assert.equal(await page.locator(".menu-combos-card").count(), 12, "The feed exposes all canonical combos");
+    await page.locator("#menu-combos-takeaway-trigger").click();
+    await page.waitForFunction(() => document.querySelectorAll(".menu-combos-card").length === 4);
+    assert.equal(await page.locator('[data-combo-filter="takeaway"]').getAttribute("aria-pressed"), "true");
+    await page.locator('[data-combo-filter="all"]').click();
+    await page.locator('[data-combo-recipe="student"] .menu-combos-choose').click();
+    const preview = page.locator(".menu-combos-dialog[open]");
+    await preview.waitFor();
+    await preview.locator('[data-combo-quantity="brew-hot:black-tea"]').fill("3");
+    await preview.locator('[data-combo-quantity="brew-hot:black-tea"]').press("Tab");
+    await preview.locator('[data-combo-product="food:sesame-simit"] .menu-combos-remove').click();
+    await preview.locator("#menu-combos-add-product").selectOption("desserts:cookie");
+    assert.equal(moneyValue(await preview.locator(".menu-combos-total").textContent()), 250);
+    await preview.locator(".menu-combos-add").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    const expected = await storedOrder(page);
+    assert.deepEqual(expected.lines, [{ id: "brew-hot:black-tea", quantity: 3 }, { id: "desserts:cookie", quantity: 1 }]);
+    assert.equal(expected.groups.length, 1);
+    assert.equal(expected.groups[0].quantity, 1);
+    assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), 250);
+    await captureScreenshot(page, { path: `${output}/${engine}-feed-custom-combo.png` });
+    await page.keyboard.press("Escape");
+    await roundTripOrder(page, expected);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "feed-combo-parity", result: "PASS", allCombos: 12, takeawayCombos: 4,
+      customizedContents: true, total: 250, sameOrderAfterListAndFeed: true, consoleErrors: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru#menu-family`);
+    await waitForMenuMode(page, "feed");
+    await page.locator(".menu-family-card").first().waitFor();
+    assert.equal(await page.locator(".menu-family-card").count(), 3);
+    assert.equal(await page.locator("[data-kids-combo]").count(), 2);
+    await page.locator('[data-family-recipe="simit-break"] .menu-family-choose').click();
+    await page.locator(".menu-family-dialog[open]").waitFor();
+    await page.locator('.menu-family-dialog input[value="desserts:cookie"]').uncheck();
+    await page.locator(".menu-family-add").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    const editedFamily = await storedOrder(page);
+    assert.deepEqual(editedFamily.lines, [{ id: "brew-hot:milk", quantity: 1 }, { id: "food:sesame-simit", quantity: 1 }]);
+    assert.equal(editedFamily.groups.length, 2, "Family suggestions retain independent product lines");
+    await page.keyboard.press("Escape");
+    await page.locator('[data-kids-combo="kids-mini"] .kids-combo-add').click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    const expected = await storedOrder(page);
+    assert.deepEqual(expected.lines, [{ id: "brew-hot:milk", quantity: 2 }, { id: "desserts:cookie", quantity: 1 }, { id: "food:sesame-simit", quantity: 1 }]);
+    assert.equal(expected.groups.length, 3, "A ready kids combo remains one editable order group");
+    assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), 255);
+    await captureScreenshot(page, { path: `${output}/${engine}-feed-family-order.png` });
+    await page.keyboard.press("Escape");
+    await roundTripOrder(page, expected, "ru");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "feed-family-kids-parity", result: "PASS", familyIdeas: 3, kidsCombos: 2,
+      unselectedProductExcluded: true, familyLinesSeparate: true, kidsComboGrouped: true, total: 255,
+      sameOrderAfterListAndFeed: true, language: "ru", consoleErrors: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en&item=pairing-offers%3Acool-lime-macaron-pairing`);
+    await waitForMenuMode(page, "feed");
+    await page.locator('[data-product-id="pairing-offers:cool-lime-macaron-pairing"] .feed-add').click();
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    await page.locator('#menu-pairing-picker[data-ready="true"]').waitFor();
+    assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:macaron"]').isChecked(), true);
+    assert.deepEqual((await storedOrder(page)).lines, [], "Opening a pair is a preview, not an implicit add");
+    await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    assert.deepEqual((await storedOrder(page)).lines, [{ id: "desserts:macaron", quantity: 1 }, { id: "refreshers:cool-lime", quantity: 1 }]);
+    await page.locator(".menu-cart-edit").click();
+    await page.locator('#menu-pairing-picker[data-ready="true"]').waitFor();
+    const cookie = page.locator('input[name="menu-dessert"][value="desserts:cookie"]').locator("..");
+    if (!await cookie.isVisible()) await page.locator(".menu-pairing-expand").click();
+    await cookie.click();
+    await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    const editedPair = await storedOrder(page);
+    assert.deepEqual(editedPair.lines, [{ id: "desserts:cookie", quantity: 1 }, { id: "refreshers:cool-lime", quantity: 1 }]);
+    assert.equal(editedPair.groups.length, 1, "Editing a pair replaces its old group instead of adding another");
+    await page.locator(".menu-cart-replace").click();
+    await page.locator("#menu-replacement-component").selectOption("0");
+    await page.locator("#menu-replacement-product").selectOption("cold-coffee:flavoured-iced-caffe-latte");
+    await page.locator("#menu-replacement-variant").selectOption("vanilla");
+    assert.deepEqual(await storedOrder(page), editedPair, "Component replacements wait for explicit Save");
+    await page.locator(".menu-cart-replacement-actions button").filter({ hasText: "Save replacement" }).click();
+    await page.waitForFunction(() => !document.querySelector(".menu-cart-replacement"));
+    await page.locator('#menu-cart-lines select[data-product-id="cold-coffee:flavoured-iced-caffe-latte"]').selectOption("caramel");
+    await page.waitForFunction(() => document.querySelector('#menu-cart-lines select[data-product-id="cold-coffee:flavoured-iced-caffe-latte"]')?.value === "caramel"
+      && /Caramel/.test(document.querySelector(".menu-cart-line-details > strong").textContent));
+    const expected = await storedOrder(page);
+    assert.deepEqual(expected.lines, [{ id: "cold-coffee:flavoured-iced-caffe-latte", quantity: 1 }, { id: "desserts:cookie", quantity: 1 }]);
+    assert.equal(expected.groups[0].items.find(item => item.id === "cold-coffee:flavoured-iced-caffe-latte").variant, "caramel");
+    assert.equal(moneyValue(await page.locator("#menu-cart-dialog-total").textContent()), 300);
+    await captureScreenshot(page, { path: `${output}/${engine}-feed-pair-edit.png` });
+    await page.keyboard.press("Escape");
+    await roundTripOrder(page, expected);
+    await page.locator("#menu-cart-trigger").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    assert.equal(await page.locator('#menu-cart-lines select[data-product-id="cold-coffee:flavoured-iced-caffe-latte"]').inputValue(), "caramel");
+    await page.locator("#menu-checkout-trigger").click();
+    await page.locator(".order-ticket-qr").waitFor();
+    assert.equal(moneyValue(await page.locator(".order-ticket-total").textContent()), 300);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "feed-editable-pair-parity", result: "PASS", promoExpandedToComponents: true,
+      pairEditedWithoutDuplicate: true, replacementSavedExplicitly: true, cartFlavorChange: "caramel",
+      sameOrderAfterListAndFeed: true, qrUsesEditedTotal: 300, consoleErrors: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
     const query = "Эспрессо";
     await page.goto(`${origin}/menu.html?view=list&lang=ru#hot-coffee`);
     await waitForMenuMode(page, "list");
+    await assertStickySwitch(page, "list");
     await page.locator("#menu-search").fill(query);
     // Typing intentionally searches all categories in the list. Select the
     // category afterwards so this journey carries both real user choices.
@@ -871,16 +1082,17 @@ try {
     await page.keyboard.press("Escape");
     await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
     await waitForMenuMode(page, "feed");
+    await assertStickySwitch(page, "feed");
     assert.equal(await page.locator("html").getAttribute("lang"), "ru");
     assert.equal(await page.locator("#feed-search").inputValue(), query);
     assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator('[data-product-id="hot-coffee:espresso"]').count(), 1);
-    assert.equal(await page.locator("#feed-cart-count").textContent(), "1");
-    assert.match(await page.locator("#feed-cart-total").textContent(), /110/);
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "1");
+    assert.match(await page.locator("#menu-cart-total").textContent(), /110/);
     assert.equal(new URL(page.url()).searchParams.get("view"), "feed");
     assert.equal(new URL(page.url()).searchParams.get("q"), query);
     await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
-    await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "2");
     await page.locator('.feed-view-switch [data-menu-view="list"]').click();
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator("html").getAttribute("lang"), "ru");
@@ -894,7 +1106,8 @@ try {
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "list");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-roundtrip", result: "PASS", language: "ru", category: "hot-coffee",
-      searchPreservedBothWays: true, restoredSearchCanBeCleared: true, sharedCartAfterBothAdds: 2, total: 220, explicitModeUrls: true, consoleErrors: false });
+      searchPreservedBothWays: true, restoredSearchCanBeCleared: true, sharedCartAfterBothAdds: 2, total: 220,
+      explicitModeUrls: true, switchReachableDuringScrollInBothModes: true, consoleErrors: false });
     await context.close();
   }
   {
@@ -1049,7 +1262,7 @@ try {
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);
-  assert.equal(await fallback.locator("#feed-cart-open").isVisible(), false);
+  assert.equal(await fallback.locator("#menu-cart-trigger").isVisible(), false);
   report.cases.push({ case: "no-JavaScript", result: "PASS" });
   await noJs.close();
   console.log(`PASS: ${report.cases.length} menu-feed journeys (${engine})`);

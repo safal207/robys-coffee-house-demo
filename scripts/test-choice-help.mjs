@@ -1,11 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canOfferChoiceHelp, choiceHelpRecipeId, quoteChoiceHelpSuggestion } from "../src/choice-help.js";
+import { canOfferChoiceHelp, choiceHelpRecipeId, choiceHelpMenuUrl, quoteChoiceHelpSuggestion } from "../src/choice-help.js";
 import { menuCategories } from "../menu-catalog.js";
 import { comboRecipes, quoteComboSelection } from "../src/menu-combos.js";
 
 const ready = { seen: false, visible: true, elapsed: 45_000, idle: 8_000,
   editing: false, overlay: false, hasOrder: false, checking: false, width: 320, height: 568 };
+
+test("combo suggestions stay in the current feed route and preserve language", () => {
+  const fallback = "https://cafe.example/sub/menu.html";
+  for (const route of ["menu-feed", "menu-feed.html"]) {
+    assert.equal(choiceHelpMenuUrl(`https://cafe.example/sub/${route}?view=feed&lang=ru&item=desserts%3Acookie#desserts`, fallback, "sweet"),
+      `https://cafe.example/sub/${route}?view=feed&lang=ru#menu-combo-sweet`);
+    assert.equal(choiceHelpMenuUrl(`https://cafe.example/sub/${route}`, fallback), `https://cafe.example/sub/${route}#menu-combos`);
+  }
+});
+
+test("other pages retain the canonical list suggestion destination", () => {
+  const fallback = "https://cafe.example/sub/menu.html";
+  for (const route of ["", "menu.html", "smart-choice/", "not-menu-feed"]) {
+    assert.equal(choiceHelpMenuUrl(`https://cafe.example/sub/${route}`, fallback, "family"), `${fallback}#menu-combo-family`);
+  }
+});
 
 test("choice help waits for both visible time and a pause in interaction", () => {
   assert.equal(canOfferChoiceHelp(ready), true);

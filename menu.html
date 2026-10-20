@@ -41,7 +41,7 @@
   <script src="bootstrap-v2.js?v=d49f5541ba9c"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" fetchpriority="high" />
-  <link rel="stylesheet" href="menu-runtime.css?v=76e5ad8f92a4" />
+  <link rel="stylesheet" href="menu-runtime.css?v=94c6cc2c3c05" />
 
 
 
@@ -69,6 +69,12 @@
 </header>
 
   <main class="menu-page-main">
+    <div class="menu-view-bar"><div class="container">
+      <nav class="menu-view-switch" aria-label="Menü görünümü / Menu view / Вид меню">
+        <a href="menu.html?view=list" data-menu-view="list" aria-current="page"><span lang="tr">Liste</span><span lang="en">List</span><span lang="ru">Список</span></a>
+        <a href="menu-feed.html?view=feed" data-menu-view="feed" data-menu-feed data-localized data-tr="Akış" data-en="Feed" data-ru="Лента">Akış</a>
+      </nav>
+    </div></div>
 
 <section class="menu-page-hero">
   <div class="container menu-page-hero-inner">
@@ -85,10 +91,7 @@
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
-      <nav class="menu-view-switch" aria-label="Menü görünümü / Menu view / Вид меню">
-        <a href="menu.html?view=list" data-menu-view="list" aria-current="page"><span lang="tr">Liste</span><span lang="en">List</span><span lang="ru">Список</span></a>
-        <a href="menu-feed.html?view=feed" data-menu-view="feed" data-menu-feed data-localized data-tr="Akış" data-en="Feed" data-ru="Лента">Akış</a>
-      </nav>
+
       <nav class="combo-entry-links" aria-label="Setler / Combos / Комбо">
         <a class="menu-family-link" id="menu-combos-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
         <a class="menu-family-link" id="menu-combos-takeaway-trigger" href="#menu-combos-fallback" aria-controls="menu-combos">Al götür · 4</a>
@@ -251,7 +254,7 @@
   </dialog>
 
   <script type="module" src="menu-product-reveal.js?v=6ae2dd3ba2e7"></script>
-  <script type="module" src="menu-app.js?v=94e7e08301c2"></script>
+  <script type="module" src="menu-app.js?v=e41f3ed62311"></script>
   <script type="module" src="pairing-posters.js?v=024743e64919"></script>
 </body>
 </html>

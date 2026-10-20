@@ -27,7 +27,7 @@ if (entry) {
     if (loading) return;
     loading = true;
     try {
-      const { initChoiceHelp } = await import("./choice-help.js?v=5dd77e1acead");
+      const { initChoiceHelp } = await import("./choice-help.js?v=2705363f1499");
       window.clearInterval(timer);
       for (const event of events) document.removeEventListener(event, activity, true);
       document.removeEventListener("visibilitychange", visibility);

@@ -1544,6 +1544,15 @@ body.menu-combos-open{overflow:hidden}
 }
 @media(forced-colors:active){.menu-view-switch a[aria-current=page]{outline:2px solid Highlight}}
 
+/* The mode switch stays available while either menu is being browsed. */
+.menu-view-bar{position:sticky;top:var(--menu-header-height,76px);z-index:85;background:var(--cream);border-bottom:1px solid var(--line);padding:6px 0}
+.menu-view-bar .menu-view-switch{margin:0;padding:3px;gap:2px}
+.menu-view-bar .menu-view-switch a{padding:7px 18px;font-size:13px}
+@media(hover:none) and (pointer:coarse){.menu-view-bar{top:0}}
+@media(max-width:680px){.menu-view-bar .menu-view-switch a{font-size:12px;padding-inline:17px}}
+
+@media(hover:hover) and (pointer:fine){.menu-page .menu-controls{top:calc(var(--menu-header-height,76px) + 64px)}}
+
 /* Shared, progressively enhanced routes to editable menu selections. */
 .combo-entry{box-sizing:border-box;min-width:0;margin:32px 0;padding:clamp(20px,3vw,32px);border:1px solid #ddcfc0;border-radius:24px;background:#fffaf3;color:#241c1b;text-align:left}
 .combo-entry h2{margin:0;font:700 clamp(1.35rem,2.5vw,2rem)/1.2 var(--sans,system-ui,sans-serif);letter-spacing:-.025em;text-wrap:balance}

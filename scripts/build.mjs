@@ -36,14 +36,6 @@ await build({
 const menuPairingRevision = revisionFor("menu-pairing.js");
 writeFileSync("order-storage.js", compileOrderStorageRuntime());
 const orderStorageRevision = revisionFor("order-storage.js");
-let feedSource = readFileSync("src/menu-feed.js", "utf8");
-feedSource = feedSource.replace(/from "\.\/menu-catalog\.js(?:\?v=[^"]*)?"/, `from "./menu-catalog.js?v=${menuCatalogRevision}"`);
-feedSource = synchronizeModuleImport(feedSource, "order-storage.js", orderStorageRevision);
-feedSource = synchronizeModuleImport(feedSource, "order-checkout.js", orderCheckoutRevision);
-writeFileSync("src/menu-feed.js", feedSource);
-writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
-const menuFeedRevision = revisionFor("menu-feed.js");
-const menuFeedCssRevision = revisionFor("menu-feed.css");
 writeFileSync("menu-view-mode.js", compileMenuRuntime(readFileSync("src/menu-view-mode.js", "utf8")));
 const menuViewModeRevision = revisionFor("menu-view-mode.js");
 let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
@@ -71,6 +63,23 @@ choiceHelpEntrySource = synchronizeModuleImport(choiceHelpEntrySource, "choice-h
 writeFileSync("src/choice-help-entry.js", choiceHelpEntrySource);
 writeFileSync("choice-help-entry.js", compileMenuRuntime(choiceHelpEntrySource));
 const choiceHelpEntryRevision = revisionFor("choice-help-entry.js");
+for (const [file, dependencies] of [
+  ["src/menu-feed-order.js", [["order-storage.js", orderStorageRevision], ["menu-order-ui.js", menuOrderRevision]]],
+  ["src/menu-feed-collections.js", [["menu-family-ui.js", menuFamilyRevision], ["menu-combos-ui.js", menuCombosRevision]]]
+]) {
+  let source = readFileSync(file, "utf8");
+  for (const [module, revision] of dependencies) {
+    source = synchronizeModuleImport(source, module, revision);
+  }
+  writeFileSync(file, source);
+}
+let feedSource = readFileSync("src/menu-feed.js", "utf8");
+feedSource = feedSource.replace(/from "\.\/menu-catalog\.js(?:\?v=[^"]*)?"/, `from "./menu-catalog.js?v=${menuCatalogRevision}"`);
+writeFileSync("src/menu-feed.js", feedSource);
+writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
+const menuFeedRevision = revisionFor("menu-feed.js");
+const menuFeedCssRevision = revisionFor("menu-feed.css");
+
 let menuSource = readFileSync("src/menu-app.js", "utf8");
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
@@ -460,7 +469,7 @@ let feedHtml = readFileSync("menu-feed.html", "utf8");
 feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
 feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRevision);
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
-feedHtml = synchronizeStylesheet(feedHtml, "order-checkout.css", orderCheckoutCssRevision);
+feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
 writeFileSync("menu-feed.html", feedHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");

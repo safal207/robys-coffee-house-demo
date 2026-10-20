@@ -35,3 +35,22 @@
 @media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.feed-add,.feed-cart-bar,.feed-like,.feed-share{transition:background .18s ease,color .18s ease}.feed-card[data-liked-blink=true] .feed-heart-burst,.feed-heart-burst[data-active=true]{animation:feed-heart-pop .6s ease-out}@keyframes feed-heart-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}65%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.feed-heart-burst{display:none}}
 @media(forced-colors:active){.feed-card,.feed-photo{background:Canvas;color:CanvasText}.feed-card{border-color:CanvasText}.feed-card-byline span,.feed-card-number,.feed-description,.feed-selected,.feed-like,.feed-share,.feed-seen{color:CanvasText}.feed-like[aria-pressed=true],.feed-tool-button[aria-pressed=true]{border:2px solid Highlight;color:Highlight}.feed-view-switch [aria-current=page]{outline:2px solid Highlight}.feed-like svg,.feed-share svg{forced-color-adjust:auto}.feed-photo-tag,.feed-photo-next,.feed-photo-prev{background:Canvas;color:CanvasText;border-color:CanvasText}}
+
+/* Feed presentation around the same collections and ordering components. */
+.feed-page{background:#f6f0e8;line-height:normal;overflow-x:clip}
+.feed-page .feed-view-switch a{line-height:1.3}
+.feed-collections{display:flex;gap:6px;padding:8px 12px 0;flex-wrap:wrap}
+.feed-collections a{display:flex;align-items:center;justify-content:center;flex:1;min-height:44px;padding:6px 8px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font-size:11px;line-height:1.3;text-align:center;text-decoration:none}
+.feed-choice-links{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:4px 12px 8px}
+.feed-choice-links [data-choice-help]{min-width:0;margin:0}
+.feed-choice-links .choice-help-entry,.feed-smart-choice{font-size:11px;min-height:44px;display:inline-flex;align-items:center}
+.feed-smart-choice{color:var(--ruby);text-decoration:underline;text-underline-offset:3px}
+.feed-page :is(.menu-combos-section,.menu-family-section){scroll-margin-top:var(--feed-top-offset);padding:18px 12px}
+.feed-page :is(.menu-combos-cards,.menu-family-cards){grid-template-columns:minmax(0,1fr)}
+.feed-page .menu-family-coming-soon{grid-template-columns:minmax(0,1fr)}
+.feed-page :is(.menu-combos-heading h2,.menu-family-heading h2){font-size:28px;line-height:1.2}
+.feed-details{border:0;background:transparent;color:var(--ink);font-size:12px;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
+.feed-card-bottom{flex-wrap:wrap}
+.feed-cafe-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;margin:20px 12px;font-size:12px}
+.feed-cafe-links a{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-underline-offset:3px}
+.feed-cafe-links [lang]{display:none}html[lang="tr"] .feed-cafe-links [lang="tr"],html[lang="en"] .feed-cafe-links [lang="en"],html[lang="ru"] .feed-cafe-links [lang="ru"]{display:inline}

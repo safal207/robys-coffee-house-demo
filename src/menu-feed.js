@@ -2,6 +2,8 @@ import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
 import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "./src/menu-feed-navigation.js";
+import { createFeedOrder } from "./src/menu-feed-order.js";
+import { initFeedCollections } from "./src/menu-feed-collections.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -14,7 +16,7 @@ const copy = {
     more: "Daha fazla göster", end: "Menünün sonuna geldin. Seçim senin.", order: "Siparişim", total: "Toplam",
     draft: "Bu bir sipariş taslağıdır; kafeye otomatik gönderilmez. Ödeme kasada yapılır.", checkout: "Kasa için QR oluştur",
     continue: "Keşfetmeye devam et", close: "Kapat", all: "Tümü", add: "+ Siparişe ekle", added: "Siparişine eklendi",
-    inOrder: "siparişinde", flavor: "Lezzet seç", choose: "Bir lezzet seçin", next: "Sonraki ürüne geç", results: "ürün",
+    details: "İçerik ve seçenekler", inOrder: "siparişinde", flavor: "Lezzet seç", choose: "Bir lezzet seçin", next: "Sonraki ürüne geç", results: "ürün",
     loading: "Sipariş okunuyor…", error: "İşlem tamamlanamadı. Tekrar dene; seçimini kontrol et.", limit: "Bu üründen en fazla 99 adet ekleyebilirsin.",
     cartEmpty: "Henüz bir seçim eklemedin.", remove: "Kaldır", decrease: "Adedi azalt", increase: "Adedi artır", updated: "Sipariş güncellendi", retry: "Sayfayı yenile" },
   en: { title: "Find your taste.\nOne photo at a time.", lead: "A coffee, a dessert, or a little of both. Save what you like, then add it when you're ready.",
@@ -27,7 +29,7 @@ const copy = {
     more: "Show more", end: "You've reached the end. The choice is yours.", order: "My order", total: "Total",
     draft: "This is an order draft; it is not sent to the café automatically. Pay at the counter.", checkout: "Get QR for the counter",
     continue: "Keep exploring", close: "Close", all: "All", add: "+ Add to order", added: "Added to your order",
-    inOrder: "in your order", flavor: "Choose a flavor", choose: "Select a flavor", next: "Next item", results: "items",
+    details: "Details and options", inOrder: "in your order", flavor: "Choose a flavor", choose: "Select a flavor", next: "Next item", results: "items",
     loading: "Reading your order…", error: "Could not complete this action. Try again and check your order.", limit: "You can add up to 99 of this item.",
     cartEmpty: "You haven't added anything yet.", remove: "Remove", decrease: "Decrease quantity", increase: "Increase quantity", updated: "Order updated", retry: "Reload the page" },
   ru: { title: "Выбирай глазами.\nНаслаждайся вкусом.", lead: "Кофе, десерт, а может, всё вместе. Сохраняй понравившееся и добавляй в заказ, когда решишь.",
@@ -40,7 +42,7 @@ const copy = {
     more: "Показать ещё", end: "Ты долистал меню. Выбор за тобой.", order: "Мой заказ", total: "Итого",
     draft: "Это черновик: заказ не отправляется в кафе автоматически. Оплата — на кассе.", checkout: "Получить QR для кассы",
     continue: "Выбрать ещё", close: "Закрыть", all: "Все", add: "+ В заказ", added: "Добавлено в заказ",
-    inOrder: "в заказе", flavor: "Выбери вкус", choose: "Выберите вкус", next: "Следующая позиция", results: "позиций",
+    details: "Состав и варианты", inOrder: "в заказе", flavor: "Выбери вкус", choose: "Выберите вкус", next: "Следующая позиция", results: "позиций",
     loading: "Проверяем заказ…", error: "Не удалось завершить действие. Попробуй ещё раз и проверь заказ.", limit: "Можно добавить не больше 99 штук этого товара.",
     cartEmpty: "Ты пока ничего не добавил.", remove: "Убрать", decrease: "Уменьшить количество", increase: "Увеличить количество", updated: "Заказ обновлён", retry: "Обновить страницу" }
 };
@@ -62,7 +64,7 @@ const products = feedProducts(menuCategories);
 const productIndex = new Map(products.map(product => [product.id, product]));
 const validIds = new Set(productIndex.keys());
 const selectedVariants = new Map();
-const root = $("#feed"), dialog = $("#feed-cart"), searchInput = $("#feed-search");
+const root = $("#feed"), searchInput = $("#feed-search");
 const discoverDialog = $("#feed-discover"), shareDialog = $("#feed-share");
 let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
@@ -70,15 +72,17 @@ const entry = parseFeedEntry(location.href, products);
 if (entry.language) language = entry.language;
 let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
-let draft = { version: 1, groups: [], lines: [] }, storage, storagePromise, storageNotice;
-let storageRetry = 0, checkoutPromise, checkoutRetry = 0;
-let busy = false, checkoutBusy = false, statusTimer, readVersion = 0, cartSession = 0;
+let busy = false, statusTimer;
 let layoutFrame = 0, activeFrame = 0, shareReturnFocus = null, discoveryChanged = false, sharing = false;
 const text = () => copy[language];
 const localized = value => value?.[language] ?? value?.tr ?? "";
 const money = value => `${new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language], { maximumFractionDigits: 0 }).format(value)} ₺`;
 const say = message => { clearTimeout(statusTimer); $("#feed-status").textContent = message; statusTimer = setTimeout(() => { $("#feed-status").textContent = ""; }, 4500); };
 const engagement = createFeedEngagement({ validIds, onChange: updateEngagement });
+const order = createFeedOrder({ menuCopy, productIndex, orderProductIds: validIds, getLanguage: () => language,
+  localized, formatPrice: money, onCartChange: updateBadges, say });
+const collections = initFeedCollections({ productIndex, orderProductIds: validIds, getLanguage: () => language,
+  localized, formatPrice: money, order, onCartChange: updateBadges, say });
 
 function updateEngagement() {
   $("#feed-liked-label").textContent = `${text().likedFilter} · ${engagement.likes()}`;
@@ -116,7 +120,7 @@ function stopViews() {
 function feedViewBounds() {
   return {
     top: Math.max(0, $(".feed-header").getBoundingClientRect().bottom, $(".feed-tools").getBoundingClientRect().bottom),
-    bottom: Math.min(innerHeight, $("#feed-cart-open").getBoundingClientRect().top || innerHeight)
+    bottom: Math.min(innerHeight, $("#menu-cart-trigger").getBoundingClientRect().top || innerHeight)
   };
 }
 function canView(photo) {
@@ -142,62 +146,25 @@ const viewObserver = "IntersectionObserver" in window ? new IntersectionObserver
   }
 }, { threshold: [0, .5] }) : null;
 
-async function loadStorage() {
-  if (!storagePromise) {
-    let loading;
-    if (storageRetry) {
-      const retryUrl = new URL("./order-storage.js", import.meta.url);
-      retryUrl.searchParams.set("retry", String(storageRetry));
-      loading = import(retryUrl.href);
-    } else loading = import("./order-storage.js?v=6908555cd79b");
-    storagePromise = loading.then(module => {
-      storage = module;
-      storageNotice = module.createOrderStorageNotice({ owner: root, validIds, getLanguage: () => language,
-        getProduct: id => productIndex.get(id)?.item, onResolved: refreshOrder });
-      return module;
-    }).catch(error => { storagePromise = null; storageRetry += 1; throw error; });
-  }
-  return storagePromise;
-}
-
-function loadCheckout() {
-  if (!checkoutPromise) {
-    let loading;
-    if (checkoutRetry) {
-      const retryUrl = new URL("./order-checkout.js", import.meta.url);
-      retryUrl.searchParams.set("retry", String(checkoutRetry));
-      loading = import(retryUrl.href);
-    } else loading = import("./order-checkout.js?v=ede76ee31ffa");
-    checkoutPromise = loading.catch(error => { checkoutPromise = null; checkoutRetry += 1; throw error; });
-  }
-  return checkoutPromise;
-}
-
 async function refreshOrder() {
-  const version = ++readVersion;
-  try {
-    const module = await loadStorage();
-    const latest = await module.readLatestStoredOrderDraft(validIds);
-    if (version !== readVersion) return;
-    draft = latest;
-    updateBadges();
-    if (dialog.open) renderCart();
-  } catch { if (version === readVersion) say(text().error); }
+  try { await order.refresh(); }
+  catch { say(text().error); }
 }
 
-async function mutate(updater) {
+async function addProduct(product, variant, trigger) {
+  if (product.category.id === "pairing-offers") {
+    stopViews();
+    await order.openProduct(product.id, trigger);
+    return;
+  }
   if (busy) return;
   busy = true;
   updateBadges();
   try {
-    const module = await loadStorage();
-    ++readVersion;
-    const result = await module.transactStoredOrderDraft(current => updater(module, current), validIds);
-    draft = result.draft;
-    say(result.applied ? text().updated : text().limit);
-    return result;
+    const result = await order.addProduct(product.id, variant, trigger);
+    say(result.applied ? `${text().added}: ${localized(product.item.name)}` : text().limit);
   } catch { say(text().error); }
-  finally { busy = false; updateBadges(); if (dialog.open) renderCart(); }
+  finally { busy = false; updateBadges(); }
 }
 
 function updateCounter() { $("#feed-counter").textContent = filtered.length ? `${currentIndex + 1} / ${filtered.length}` : `0 / 0`; }
@@ -247,6 +214,7 @@ function openShareFallback(product, trigger) {
 }
 async function shareProduct(product, trigger) {
   if (sharing) return;
+  order.cancelPending();
   sharing = true; trigger.disabled = true; stopViews();
   try {
     if (typeof navigator.share === "function") {
@@ -261,12 +229,11 @@ async function shareProduct(product, trigger) {
 }
 
 function updateBadges() {
+  const draft = order.readDraft();
   const quote = quoteFeedOrder(draft, productIndex);
-  $("#feed-cart-count").textContent = quote.count;
-  $("#feed-cart-total").textContent = money(quote.total);
-  $("#feed-cart-open").setAttribute("aria-label", `${text().order}: ${quote.count}, ${money(quote.total)}`);
-  $("#feed-cart-sum").textContent = money(quote.total);
-  $("#feed-checkout").disabled = !quote.count || busy || checkoutBusy;
+  $("#menu-cart-count").textContent = draft.groups.reduce((sum, group) => sum + group.quantity, 0);
+  $("#menu-cart-total").textContent = money(quote.total);
+  $("#menu-cart-trigger").setAttribute("aria-label", `${text().order}: ${$("#menu-cart-count").textContent}, ${money(quote.total)}`);
   const counts = new Map(draft.lines.map(line => [line.id, line.quantity]));
   root.querySelectorAll(".feed-card").forEach(card => {
     const count = counts.get(card.dataset.productId) ?? 0;
@@ -285,6 +252,7 @@ function renderCategories() {
     image: products.find(product => product.category.id === entry.id)?.image }))];
   entries.forEach(entry => {
     const node = button("feed-category", undefined, () => {
+      order.cancelPending();
       category = entry.id;
       clearItemLink(); discoveryChanged = true;
       renderCategories(); renderFeed();
@@ -319,21 +287,23 @@ function renderCard(product, index) {
   visual.append(photo, element("span", "feed-photo-tag", localized(product.category.name)));
   const burst = element("span", "feed-heart-burst", "♥"); burst.setAttribute("aria-hidden", "true"); visual.append(burst);
   photo.addEventListener("dblclick", () => {
+    order.cancelPending();
     engagement.setLiked(product.id, true); say(text().saved);
     burst.dataset.active = "true";
     setTimeout(() => { delete burst.dataset.active; }, 650);
   });
   if (index > 0) {
-    const previous = button("feed-photo-prev", "↑", () => moveToCard(index - 1, { focus: true }));
+    const previous = button("feed-photo-prev", "↑", () => { order.cancelPending(); moveToCard(index - 1, { focus: true }); });
     previous.setAttribute("aria-label", text().previous); visual.append(previous);
   }
   if (index < filtered.length - 1) {
-    const next = button("feed-photo-next", "↓", () => moveToCard(index + 1, { focus: true }));
+    const next = button("feed-photo-next", "↓", () => { order.cancelPending(); moveToCard(index + 1, { focus: true }); });
     next.setAttribute("aria-label", text().next); visual.append(next);
   }
   const content = element("div", "feed-card-content"), heading = element("div", "feed-product-heading");
   const social = element("div", "feed-social");
   const like = button("feed-like", undefined, () => {
+    order.cancelPending();
     engagement.setLiked(product.id, !engagement.hasLiked(product.id));
     if (likedOnly) reconcileLiked();
   });
@@ -357,13 +327,16 @@ function renderCard(product, index) {
     variantSelect.addEventListener("change", () => { selectedVariants.set(product.id, variantSelect.value); });
     label.append(variantSelect); content.append(label);
   }
+  const details = button("feed-details", text().details, event => {
+    stopViews(); void order.openProduct(product.id, event.currentTarget);
+  });
+  details.setAttribute("aria-label", `${text().details}: ${localized(product.item.name)}`);
+  content.append(details);
   const bottom = element("div", "feed-card-bottom");
-  const add = button("feed-add", text().add, async () => {
+  const add = button("feed-add", text().add, async event => {
     if (variantSelect && !variantSelect.value) { say(text().choose); variantSelect.focus(); return; }
     const variant = variantSelect?.value;
-    const result = await mutate((module, current) => module.addOrderGroup(current,
-      [{ id: product.id, ...(variant ? { variant } : {}) }], 1, validIds));
-    if (result?.applied) say(`${text().added}: ${localized(product.item.name)}`);
+    await addProduct(product, variant, event.currentTarget);
   });
   add.setAttribute("aria-label", `${text().add}: ${localized(product.item.name)}, ${money(product.item.price)}`);
   bottom.append(element("span", "feed-selected"), add); content.append(bottom);
@@ -394,59 +367,21 @@ function renderFeed() {
   scheduleActiveCard();
 }
 
-function renderCart() {
-  const active = dialog.contains(document.activeElement) ? document.activeElement?.dataset.cartAction : null;
-  const lines = $("#feed-cart-lines"); lines.replaceChildren();
-  if (!draft.groups.length) lines.append(element("p", "feed-draft-note", text().cartEmpty));
-  draft.groups.forEach(group => {
-    const line = element("div", "feed-cart-line");
-    const first = productIndex.get(group.items[0]?.id);
-    if (first) { const photo = element("img", "feed-cart-thumb"); photo.src = first.image; photo.alt = ""; photo.width = 56; photo.height = 56; lines.append(line); line.append(photo); }
-    const item = element("div", "feed-cart-item");
-    const names = group.items.map(entry => {
-      const product = productIndex.get(entry.id);
-      const variant = product?.item.variants?.find(value => value.id === entry.variant);
-      return `${entry.quantity > 1 ? `${entry.quantity} × ` : ""}${localized(product?.item.name)}${variant ? ` · ${localized(variant.name)}` : ""}`;
-    }).join(" + ");
-    item.append(element("h3", "", names), element("p", "", money(group.items.reduce((sum, entry) => sum + (productIndex.get(entry.id)?.item.price ?? 0) * entry.quantity, 0) * group.quantity)));
-    const controls = element("div", "feed-cart-controls");
-    for (const [delta, symbol, label] of [[-1, "−", text().decrease], [1, "+", text().increase]]) {
-      const control = button("", symbol, () => mutate((module, current) => {
-        const latest = current.groups.find(entry => entry.id === group.id);
-        return latest ? module.updateOrderGroupQuantity(current, group.id, Math.max(0, latest.quantity + delta), validIds)
-          : { draft: current, applied: false };
-      }));
-      control.dataset.cartAction = `${group.id}:${delta}`; control.setAttribute("aria-label", `${label}: ${names}`);
-      control.disabled = busy || delta > 0 && group.quantity >= 99;
-      if (delta === 1) controls.append(element("output", "", String(group.quantity)));
-      controls.append(control);
-    }
-    const remove = button("feed-remove", text().remove, () => mutate((module, current) => ({
-      draft: module.removeOrderGroup(current, group.id, validIds), applied: current.groups.some(entry => entry.id === group.id)
-    })));
-    remove.dataset.cartAction = `${group.id}:remove`; remove.disabled = busy;
-    remove.setAttribute("aria-label", `${text().remove}: ${names}`); controls.append(remove); item.append(controls); line.append(item);
-    if (!line.isConnected) lines.append(line);
-  });
-  updateBadges();
-  if (active) {
-    const target = [...dialog.querySelectorAll("[data-cart-action]")].find(node => node.dataset.cartAction === active);
-    (target ?? $("#feed-cart-close")).focus({ preventScroll: true });
-  }
-}
-
 function applyLanguage() {
   document.documentElement.lang = language;
   document.title = `${text().feedTitle} · Roby's Coffee House`;
   document.querySelectorAll("[data-copy]").forEach(node => { node.textContent = text()[node.dataset.copy] ?? menuCopy[language][node.dataset.copy] ?? ""; });
   document.querySelectorAll("[data-lang]").forEach(node => node.setAttribute("aria-pressed", String(node.dataset.lang === language)));
   searchInput.placeholder = text().search; $("#feed-search-clear").setAttribute("aria-label", text().clear);
-  for (const id of ["feed-cart-close", "feed-discover-close", "feed-share-close"]) $(`#${id}`).setAttribute("aria-label", text().close);
-  renderCategories(); renderFeed(); if (dialog.open) renderCart(); storageNotice?.refresh();
+  for (const id of ["feed-discover-close", "feed-share-close"]) $(`#${id}`).setAttribute("aria-label", text().close);
+  document.querySelectorAll("[data-menu-copy]").forEach(node => { node.textContent = menuCopy[language][node.dataset.menuCopy] ?? ""; });
+  document.querySelectorAll("[data-localized]").forEach(node => { if (node.dataset[language]) node.textContent = node.dataset[language]; });
+  renderCategories(); renderFeed(); order.refreshLanguage(); collections.refresh();
   scheduleLayout();
 }
 
 document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("click", () => {
+  order.cancelPending();
   const anchor = filtered[currentIndex]?.id;
   language = node.dataset.lang;
   try { localStorage.setItem("robys-language", language); } catch {}
@@ -456,16 +391,18 @@ document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("
   const index = filtered.findIndex(product => product.id === anchor);
   if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
 }));
-searchInput.addEventListener("input", () => { clearItemLink(category, true); discoveryChanged = true; renderFeed(); });
-$("#feed-search-clear").addEventListener("click", () => { searchInput.value = ""; discoveryChanged = true; renderFeed(); searchInput.focus(); });
-$("#feed-reset").addEventListener("click", () => { likedOnly = false; category = "all"; searchInput.value = ""; clearItemLink(); renderCategories(); renderFeed(); moveToCard(0, { focus: true, instant: true }); });
+searchInput.addEventListener("input", () => { order.cancelPending(); clearItemLink(category, true); discoveryChanged = true; renderFeed(); });
+$("#feed-search-clear").addEventListener("click", () => { order.cancelPending(); searchInput.value = ""; discoveryChanged = true; renderFeed(); searchInput.focus(); });
+$("#feed-reset").addEventListener("click", () => { order.cancelPending(); likedOnly = false; category = "all"; searchInput.value = ""; clearItemLink(); renderCategories(); renderFeed(); moveToCard(0, { focus: true, instant: true }); });
 $("#feed-liked-filter").addEventListener("click", () => {
+  order.cancelPending();
   likedOnly = !likedOnly; category = "all"; searchInput.value = "";
   clearItemLink();
   renderCategories(); renderFeed();
   if (filtered.length) moveToCard(0, { instant: true });
 });
 $("#feed-discover-open").addEventListener("click", () => {
+  order.cancelPending();
   discoveryChanged = false; discoverDialog.showModal(); stopViews(); searchInput.focus();
 });
 for (const id of ["feed-discover-close", "feed-discover-done"]) $(`#${id}`).addEventListener("click", () => discoverDialog.close());
@@ -495,40 +432,26 @@ document.addEventListener("keydown", event => {
   const active = document.activeElement;
   if (active?.matches("input,textarea,select,[contenteditable=true]") || (active !== document.body && active !== root && !active?.closest(".feed-card"))) return;
   event.preventDefault();
+  order.cancelPending();
   updateActiveCard(); moveToCard(currentIndex + (event.key === "ArrowDown" ? 1 : -1), { focus: true });
 });
 window.addEventListener("scroll", scheduleActiveCard, { passive: true });
 window.addEventListener("resize", scheduleLayout);
 if ("ResizeObserver" in window) {
   const layout = new ResizeObserver(scheduleLayout);
-  for (const selector of [".feed-header", ".feed-tools", "#feed-cart-open"]) layout.observe($(selector));
+  for (const selector of [".feed-header", ".feed-tools", "#menu-cart-trigger"]) layout.observe($(selector));
 }
 void document.fonts?.ready.then(scheduleLayout);
-$("#feed-more").addEventListener("click", () => { const nextIndex = rendered; appendPage(); root.children[nextIndex]?.querySelector(".feed-add")?.focus({ preventScroll: true }); });
+$("#feed-more").addEventListener("click", () => { order.cancelPending(); const nextIndex = rendered; appendPage(); root.children[nextIndex]?.querySelector(".feed-add")?.focus({ preventScroll: true }); });
 if ("IntersectionObserver" in window) {
   const more = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting) && rendered < filtered.length) appendPage(); }, { rootMargin: "400px" });
   more.observe($("#feed-more-wrap"));
 }
-$("#feed-cart-open").addEventListener("click", async () => {
-  renderCart(); dialog.showModal(); stopViews(); cartSession++; $("#feed-cart-error").textContent = ""; await refreshOrder();
+$("#menu-cart-trigger").addEventListener("click", event => {
+  stopViews(); void order.openCart(event.currentTarget);
 });
-const closeCart = () => { dialog.close(); $("#feed-cart-open").focus({ preventScroll: true }); };
-$("#feed-cart-close").addEventListener("click", closeCart);
-$("#feed-continue").addEventListener("click", closeCart);
-dialog.addEventListener("close", () => { cartSession++; $("#feed-cart-open").focus({ preventScroll: true }); viewCandidates.forEach(scheduleView); });
-$("#feed-checkout").addEventListener("click", async () => {
-  if (checkoutBusy || busy) return;
-  checkoutBusy = true; updateBadges();
-  const session = cartSession, lang = language;
-  const shouldOpen = () => dialog.open && session === cartSession && lang === language;
-  try {
-    const module = await loadStorage();
-    const current = await module.readLatestStoredOrderDraft(validIds);
-    if (!shouldOpen()) return;
-    const checkout = await loadCheckout();
-    await checkout.openOrderCheckout({ draft: current, language: lang, returnFocus: $("#feed-checkout"), shouldOpen });
-  } catch { if (shouldOpen()) $("#feed-cart-error").textContent = text().error; }
-  finally { checkoutBusy = false; updateBadges(); }
+for (const dialog of document.querySelectorAll(".menu-dialog")) dialog.addEventListener("close", () => {
+  scheduleActiveCard(); viewCandidates.forEach(scheduleView);
 });
 function followEntry() {
   const next = parseFeedEntry(location.href, products);
@@ -538,12 +461,18 @@ function followEntry() {
   }
 }
 const navigateCategory = () => {
-  category = parseFeedEntry(location.href, products).category; likedOnly = false; searchInput.value = "";
+  // Collection hash handlers create their own intent before this listener.
+  // Ordinary catalog navigation (including browser Back) cancels older loads.
+  if (!/^#(?:menu-combos(?:-takeaway)?|menu-family|kids-menu|menu-combo-[a-z][a-z0-9-]{0,50})$/.test(location.hash)) order.cancelPending();
+  const next = parseFeedEntry(location.href, products);
+  category = next.category; likedOnly = false; searchInput.value = "";
   renderCategories(); renderFeed(); followEntry();
+  if (!next.productId && menuCategories.some(entry => `#${entry.id}` === location.hash) && filtered.length) {
+    requestAnimationFrame(() => moveToCard(0, { focus: true, instant: true }));
+  }
 };
 window.addEventListener("popstate", navigateCategory);
 window.addEventListener("hashchange", navigateCategory);
-window.addEventListener("robys:order-change", () => { if (!busy) void refreshOrder(); });
 function reconcileLiked() {
   const active = document.activeElement, activeCard = active?.closest(".feed-card");
   const activeId = activeCard?.dataset.productId, oldIndex = Number(activeCard?.dataset.index ?? 0);
@@ -574,7 +503,7 @@ window.addEventListener("storage", event => {
   if (event.key === null || event.key.startsWith("robys-feed-")) syncEngagement(event.key);
 });
 applyLanguage();
-$("#feed-cart-open").hidden = false;
+$("#menu-cart-trigger").hidden = false;
 root.dataset.ready = "true";
 updateFeedLayout(); followEntry();
 void refreshOrder();
