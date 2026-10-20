@@ -260,7 +260,22 @@ try {
     await page.waitForTimeout(1200);
     assert.equal(await delayedPhoto.locator(".feed-seen").getAttribute("data-seen"), "false", "A visible failed image is not a product view");
     await delayedPhoto.locator(".feed-photo>img").evaluate(async image => {
-      const url = new URL(image.src); url.searchParams.set("feed-test", "recovered"); image.src = url.href;
+      const url = new URL(image.src); url.searchParams.set("feed-test", "recovered");
+      // Firefox can still expose the aborted request to decode() immediately
+      // after src changes. Wait for this new request's load event first.
+      await new Promise((resolve, reject) => {
+        const cleanup = () => {
+          clearTimeout(timeout);
+          image.removeEventListener("load", loaded);
+          image.removeEventListener("error", failed);
+        };
+        const loaded = () => { cleanup(); resolve(); };
+        const failed = () => { cleanup(); reject(new Error("Recovered product photograph failed to load")); };
+        const timeout = setTimeout(() => { cleanup(); reject(new Error("Recovered product photograph load timed out")); }, 10000);
+        image.addEventListener("load", loaded, { once: true });
+        image.addEventListener("error", failed, { once: true });
+        image.src = url.href;
+      });
       await image.decode();
     });
     await page.waitForFunction(id => [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)
