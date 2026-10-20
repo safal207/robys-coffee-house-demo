@@ -14,7 +14,7 @@
       "evidenceArtifactSha256": "6cd0bbf9e8b18fa0334641dfa3b78d68d32d15f1254cb8b221ee716d8f564215",
       "captureSummarySha256": "a27ee0c1715381ddfbe58f219725b4740051eda878e017901715c9e8022ad483",
       "summary": "Fresh assistant inspection of all 20 failing baseline/current comparisons from the captured commit: eight full-page pairs (each overview and changed top/entry region), three menu previews, three visit/map regions, five social offers and one menu-share region; native 320px landing/menu footer crops also inspected. The new square-photo entry and separate List/Feed switch fit without observed text/control overlap or lost downstream sections. Full-home heights grow 95/107/148/148px at 320/390/768/1440px; full-menu heights change by -12/-14/+9/+62px. Regional pairs preserve content, wrapping and actions; small positioning/rasterization differences are an inference from paired screenshots. Both attempts contain the same 20 failure rows and 23 passing comparisons. Exact observed ratio caps and dimension reasons below add no extra tolerance. This is assistant visual inspection, not independent-human approval or release attestation.",
-      "scope": "Only the 20 listed home/full-menu comparisons in the captured default Turkish/static list views are covered. The feed page, other locales and interactive mode-switch behavior are outside this visual record. All captured public bytes, including menu-view-mode.js and menu hooks, belong to sourceHead d5abd208. After capture, only the nonpublic browser fixture scripts/test-menu-feed-browser.mjs changed: explicit category selection after search, restored-search/deep-link assertions, and narrowly counted WebKit screenshot-tool CSP diagnostics. Its later blob is bound below to prevent stale reuse, not represented as captured code. Fresh current-head browser/CI verification remains required; no thresholds, baselines, workflows or production CSP are changed by this record.",
+      "scope": "Only the 20 listed home/full-menu comparisons in the captured default Turkish/static list views are covered. The feed page, other locales and interactive mode-switch behavior are outside this visual record. The actual inspected capture remains sourceHead d5abd208; later bound bytes are not claimed to have been captured. After capture, the nonpublic browser fixture was corrected, and a navigation-only public fix added timing fallback, fail-closed unknown timing and a list-entry history marker, with unit tests and generated script revisions, service-worker revisions and integrity metadata. Every changed bound path is enumerated below with captured and current blobs. CSS, page markup and copy are unchanged; menu HTML differences are script revision strings only. The capture setup clears localStorage, so remembered-feed restoration and Back/reload behavior are outside these inspected default views. Reuse of the existing visual evidence is based on this bounded source-diff assessment, not a fresh visual inspection of the later bytes. Fresh current-head navigation journeys and visual/technical CI remain required. No thresholds, baselines, workflows or production CSP are changed by this record.",
       "contentBindings": {
         ".github/workflows/order-reliability.yml": "94077db95bc875d5f93a8e59ae73de1b67b31617",
         ".github/workflows/visual-regression.yml": "87fa0d408a2cf5b7ce96d19d4d97c0930f6541df",
@@ -81,7 +81,7 @@
         "hero-balance.css": "555717872442947b40c41aea019b85a6e7961bc9",
         "icon.svg": "5ea7b8b86d96100357d703f0bc08b7ed759d8ae9",
         "index.html": "1ce693805ad546433103e2bbffdd0adc95e9fab2",
-        "integrity-manifest.json": "c6b9e9a198c6a59caf9ce8d838af0c6b4289258a",
+        "integrity-manifest.json": "6287fc06efa8467310df2ea7cb32210f8466fb17",
         "kids-menu.css": "9e153a159d58ed95a84e94c0c05d5c3007815935",
         "map-live.css": "27f7de6d1b20ac3e5023727a3dfa3dc242695125",
         "menu-app.js": "e7133aba4f503d631dafb23d5eef0aad630a97ae",
@@ -91,7 +91,7 @@
         "menu-family-ui.js": "4c4cbd2650d0575e885592c375eecf977f53906a",
         "menu-family.css": "e5f23c8abebd9aae8bf0c02eb4111014169f5142",
         "menu-feed.css": "aa9655d5f30f23bf6355fc5d308c7f63e828134c",
-        "menu-feed.html": "9616a7f44712dcb95a34b0ed28448ada3f3109cd",
+        "menu-feed.html": "8971dee3af0627cc4bbb38d10eb71449722208ac",
         "menu-feed.js": "ea1db49c959480fc331dd1d64f172013a9bd6034",
         "menu-interactions.js": "55c5576de9020318e754986af4693327c88e93b7",
         "menu-order-ui.js": "417aa5765699fe39b6502ea1432be91641ceea7c",
@@ -108,8 +108,8 @@
         "menu-security-v2.css": "c275456305264e206de18538958df26d768b4d20",
         "menu-stability-v2.css": "625ca38686655bad18322c324d718b1578d3a4f0",
         "menu-stability.css": "625ca38686655bad18322c324d718b1578d3a4f0",
-        "menu-view-mode.js": "b3de565c93eb9e8519bdc30a4a46765a85a6eaa4",
-        "menu.html": "eea4b8e10f43ffbc0ecd3b177fd5682499b20dec",
+        "menu-view-mode.js": "82822f84751c89bd7f5ece0ce50527f8fd904701",
+        "menu.html": "4276cda2cb183b487d95fd202cc24b192af13207",
         "mobile.css": "7aed337581ea5cde7585349b950a88d5813a27ca",
         "morning-entry-v2.js": "d93e7c7e6f79190a5f1d52596de2a31cf91574c7",
         "offline.css": "0a7761f192fa73ace1c0d1f0a5cfa7869472b51c",
@@ -136,7 +136,7 @@
         "scripts/test-menu-feed-browser.mjs": "946c1c436a0772bb1140d15f92e659ab13006706",
         "scripts/test-menu-feed-engagement.mjs": "8225469744b857fda660e5b40590e63594b4d410",
         "scripts/test-menu-feed.mjs": "1c64266574668f744ecaa65838e3f3325fbe1d47",
-        "scripts/test-menu-view-mode.mjs": "b2d2def8aab4375bf8e5754003caa9d1cb4b1afe",
+        "scripts/test-menu-view-mode.mjs": "4fbee555a55f4f4054437a274cd633918d2eb68c",
         "scripts/test-visual-toolchain.mjs": "95982b9806d10ebf4ccadf730cb69f372ee0a500",
         "scripts/verify-reviewed-visual-change.mjs": "0c6869b1762501e6715aa7eea6850bcca09e87a3",
         "scripts/verify-visual-toolchain.mjs": "b64d143d3c810d60f5c432545c3ee483ccd1fbaf",
@@ -498,7 +498,7 @@
         "src/robys-hero-mobile-lite.mp4": "004f0c41a3e48bd880ad7a1696cb92f8a40b21ce",
         "src/robys-hero-poster.jpg": "4ee37f35f466e7a4ce2c2781f04ceebf057f9df5",
         "styles-v2.css": "9bd377ed839b982bd65f379366a653bb4d100e76",
-        "sw-core-v64.js": "af99c137e20cf38f002a3d8ef58055beae696d57",
+        "sw-core-v64.js": "5599988ecb370d9f48dd45fda3e1106193092223",
         "sw.js": "8573779a19f070745184c0628a5832c1ea857d28",
         "takeaway-entry.js": "b41d6e627ffaf1f41e01074e9509b21dea75ae44",
         "wordmark-responsive.css": "c0d05decb5e7663091e4fc6021214bd7932114cf"
@@ -773,10 +773,46 @@
       },
       "postCaptureBoundByteChanges": [
         {
+          "path": "integrity-manifest.json",
+          "capturedBlob": "c6b9e9a198c6a59caf9ce8d838af0c6b4289258a",
+          "boundBlob": "6287fc06efa8467310df2ea7cb32210f8466fb17",
+          "reason": "Regenerated byte sizes and digests for the later public files; this integrity evidence was not part of the captured source."
+        },
+        {
+          "path": "menu-feed.html",
+          "capturedBlob": "9616a7f44712dcb95a34b0ed28448ada3f3109cd",
+          "boundBlob": "8971dee3af0627cc4bbb38d10eb71449722208ac",
+          "reason": "Generated script revision for the later menu-view-mode.js bytes only; page markup, copy and CSS references are otherwise unchanged from capture."
+        },
+        {
+          "path": "menu-view-mode.js",
+          "capturedBlob": "b3de565c93eb9e8519bdc30a4a46765a85a6eaa4",
+          "boundBlob": "82822f84751c89bd7f5ece0ce50527f8fd904701",
+          "reason": "Public navigation behavior fix after capture: classify delayed/legacy navigation timing, fail closed when timing is unknown, and preserve an actual generic list history entry on Back/reload. No CSS, DOM or copy change. Captures clear localStorage and do not exercise remembered-feed restoration; fresh current-head browser journeys must verify this behavior."
+        },
+        {
+          "path": "menu.html",
+          "capturedBlob": "eea4b8e10f43ffbc0ecd3b177fd5682499b20dec",
+          "boundBlob": "4276cda2cb183b487d95fd202cc24b192af13207",
+          "reason": "Generated script revision for the later menu-view-mode.js bytes only; page markup, copy and CSS references are otherwise unchanged from capture."
+        },
+        {
           "path": "scripts/test-menu-feed-browser.mjs",
           "capturedBlob": "afb44ec41ae043a7f06bd62a13c273c663fa6227",
           "boundBlob": "946c1c436a0772bb1140d15f92e659ab13006706",
-          "reason": "Nonpublic browser fixture corrections only; captured public assets are unchanged."
+          "reason": "Nonpublic browser fixture corrections after capture: explicit category selection after search, restored-search/deep-link assertions and narrowly counted WebKit screenshot-tool CSP diagnostics. Not represented as captured code."
+        },
+        {
+          "path": "scripts/test-menu-view-mode.mjs",
+          "capturedBlob": "b2d2def8aab4375bf8e5754003caa9d1cb4b1afe",
+          "boundBlob": "4fbee555a55f4f4054437a274cd633918d2eb68c",
+          "reason": "Nonpublic unit coverage added after capture for navigation timing fallback, unknown timing and list history markers. These tests were not part of the captured source."
+        },
+        {
+          "path": "sw-core-v64.js",
+          "capturedBlob": "af99c137e20cf38f002a3d8ef58055beae696d57",
+          "boundBlob": "5599988ecb370d9f48dd45fda3e1106193092223",
+          "reason": "Generated cache version and menu-view-mode.js revision refresh for the later public bytes; these service-worker bytes were not captured."
         }
       ]
     }

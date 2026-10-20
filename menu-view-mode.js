@@ -56,9 +56,23 @@ export function storeMenuViewPreference(storage, view) {
   catch { return false; }
 }
 
-export function shouldOpenPreferredFeed(href, preference, navigationType = "navigate") {
+export function readMenuNavigationType(timing) {
+  let entryType, legacyType;
+  try { entryType = timing?.getEntriesByType?.("navigation")?.[0]?.type; } catch { /* Timing can be unavailable during startup. */ }
+  try { legacyType = timing?.navigation?.type; } catch { /* A missing fallback must not imply a fresh visit. */ }
+  // Some browsers publish the navigation entry after module initialization.
+  // A history/reload signal from either API takes precedence over "navigate".
+  if (entryType === "back_forward" || legacyType === 2) return "back_forward";
+  if (entryType === "reload" || legacyType === 1) return "reload";
+  if (entryType === "prerender") return "prerender";
+  if (entryType === "navigate" || legacyType === 0) return "navigate";
+  return null;
+}
+
+export function shouldOpenPreferredFeed(href, preference, navigationType = null, historyState = null) {
   const url = new URL(href);
   return preference === "feed" && navigationType === "navigate"
+    && historyState?.robysMenuViewEntry !== "list"
     && /\/menu(?:\.html)?$/.test(url.pathname) && !url.search && !url.hash;
 }
 
@@ -71,8 +85,8 @@ function initializeMenuViews() {
   const categoryRoot = document.querySelector(feed ? "#feed-categories" : "#menu-category-nav");
   let storage;
   try { storage = window.localStorage; } catch { /* Navigation also works without storage. */ }
-  const navigationType = performance.getEntriesByType?.("navigation")[0]?.type ?? "navigate";
-  if (view === "list" && shouldOpenPreferredFeed(location.href, readMenuViewPreference(storage), navigationType)) {
+  const navigationType = readMenuNavigationType(window.performance);
+  if (view === "list" && shouldOpenPreferredFeed(location.href, readMenuViewPreference(storage), navigationType, history.state)) {
     location.replace(menuViewUrl(location.href, "feed", {}, []));
     return;
   }
@@ -124,6 +138,16 @@ function initializeMenuViews() {
   };
 
   const ready = () => {
+    // Preserve this actual list visit across Back and reload without changing
+    // its URL or the user's preference for future, separate menu entries.
+    if (view === "list" && !location.search && !location.hash) {
+      try {
+        const state = history.state;
+        if (state === null || (typeof state === "object" && !Array.isArray(state))) {
+          history.replaceState({ ...state, robysMenuViewEntry: "list" }, "", location.href);
+        }
+      } catch { /* Timing checks still protect history navigation without state. */ }
+    }
     restoreContext();
     document.addEventListener("input", event => {
       if (event.target !== searchInput) return;

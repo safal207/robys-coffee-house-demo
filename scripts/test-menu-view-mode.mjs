@@ -1,25 +1,62 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { MENU_VIEW_STORAGE_KEY, normalizeMenuSearch, readMenuViewContext, menuViewUrl,
-  readMenuViewPreference, storeMenuViewPreference, shouldOpenPreferredFeed } from "../menu-view-mode.js";
+  readMenuViewPreference, storeMenuViewPreference, readMenuNavigationType, shouldOpenPreferredFeed } from "../menu-view-mode.js";
 
 const base = "https://example.test/cafe/menu.html";
 const categories = ["all", "hot-coffee", "cold-coffee", "desserts", "food"];
 
 test("remembered feed applies only to a fresh generic list entry", () => {
-  assert.equal(shouldOpenPreferredFeed(base, "feed"), true);
-  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", "menu"), "feed"), true);
-  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", ""), "feed"), false);
+  assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate"), true);
+  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", "menu"), "feed", "navigate"), true);
+  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", ""), "feed", "navigate"), false);
   for (const suffix of ["?view=list", "?view=feed", "?lang=ru", "?q=latte", "?product=hot-coffee:espresso",
     "?utm_source=qr", "#desserts", "#menu-family", "#kids-menu", "#menu-combos", "#menu-combos-takeaway", "#combo-family"]) {
-    assert.equal(shouldOpenPreferredFeed(base + suffix, "feed"), false, suffix);
+    assert.equal(shouldOpenPreferredFeed(base + suffix, "feed", "navigate"), false, suffix);
   }
-  for (const navigation of ["back_forward", "reload", "prerender"]) {
+  for (const navigation of ["back_forward", "reload", "prerender", null, undefined, "unknown"]) {
     assert.equal(shouldOpenPreferredFeed(base, "feed", navigation), false, navigation);
   }
-  assert.equal(shouldOpenPreferredFeed(base, "list"), false);
-  assert.equal(shouldOpenPreferredFeed(base, "invalid"), false);
-  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", "menu-feed.html"), "feed"), false);
+  assert.equal(shouldOpenPreferredFeed(base, "feed"), false, "Missing timing never implies a new visit");
+  assert.equal(shouldOpenPreferredFeed(base, "list", "navigate"), false);
+  assert.equal(shouldOpenPreferredFeed(base, "invalid", "navigate"), false);
+  assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", "menu-feed.html"), "feed", "navigate"), false);
+});
+
+test("reload and Back remain list entries when the modern timing entry is delayed or disagrees", () => {
+  for (const [legacyType, expected] of [[1, "reload"], [2, "back_forward"]]) {
+    for (const entries of [[], [{ type: "navigate" }], [{ type: expected }]]) {
+      const timing = { getEntriesByType: () => entries, navigation: { type: legacyType } };
+      const navigation = readMenuNavigationType(timing);
+      assert.equal(navigation, expected);
+      assert.equal(shouldOpenPreferredFeed(base, "feed", navigation), false);
+    }
+  }
+  for (const type of ["reload", "back_forward"]) {
+    assert.equal(readMenuNavigationType({ getEntriesByType: () => [{ type }], navigation: { type: 0 } }), type);
+  }
+});
+
+test("preference routing requires positive fresh-navigation evidence and tolerates unavailable timing", () => {
+  const modern = { getEntriesByType: () => [{ type: "navigate" }] };
+  const legacy = { getEntriesByType: () => [], navigation: { type: 0 } };
+  for (const timing of [modern, legacy]) {
+    assert.equal(shouldOpenPreferredFeed(base, "feed", readMenuNavigationType(timing)), true);
+  }
+  const denied = { getEntriesByType() { throw new Error("unavailable"); }, get navigation() { throw new Error("unavailable"); } };
+  for (const timing of [undefined, {}, { getEntriesByType: () => [] }, { navigation: { type: 255 } }, denied]) {
+    assert.equal(readMenuNavigationType(timing), null);
+    assert.equal(shouldOpenPreferredFeed(base, "feed", readMenuNavigationType(timing)), false);
+  }
+  assert.equal(readMenuNavigationType({ getEntriesByType() { throw new Error("unavailable"); }, navigation: { type: 1 } }), "reload");
+});
+
+test("an already visited generic list history entry remains list even if timing reports navigate", () => {
+  const originalEntry = { unrelated: "preserved", robysMenuViewEntry: "list" };
+  assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate", originalEntry), false);
+  assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate", null), true, "A separate fresh entry still uses the saved choice");
+  assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate", { unrelated: "state" }), true);
+  assert.deepEqual(originalEntry, { unrelated: "preserved", robysMenuViewEntry: "list" });
 });
 
 test("language, category and Unicode search survive both direction switches", () => {
@@ -38,7 +75,7 @@ test("language, category and Unicode search survive both direction switches", ()
   assert.equal(list.searchParams.get("lang"), "ru");
   assert.equal(list.searchParams.get("q"), context.search);
   assert.equal(list.hash, "#desserts");
-  assert.equal(shouldOpenPreferredFeed(list.href, "feed"), false);
+  assert.equal(shouldOpenPreferredFeed(list.href, "feed", "navigate"), false);
 });
 
 test("valid product entries translate between the existing product URL formats", () => {
