@@ -45,8 +45,28 @@ try {
     await page.locator('#feed[data-ready="true"]').waitFor();
     assert.equal(await page.locator("html").getAttribute("lang"), language);
     await page.locator(".feed-card").first().locator(".feed-photo>img").evaluate(image => image.decode());
+    await page.locator(".feed-brand img").evaluate(image => image.decode());
+    await page.evaluate(() => document.fonts.ready);
+    const photo = await page.locator(".feed-photo>img").first().evaluate(image => {
+      const rect = image.getBoundingClientRect();
+      return { width: rect.width, height: rect.height, fit: getComputedStyle(image).objectFit,
+        naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+        widthAttribute: image.getAttribute("width"), heightAttribute: image.getAttribute("height") };
+    });
+    assert.deepEqual([photo.naturalWidth, photo.naturalHeight], [1024, 1024]);
+    assert.deepEqual([photo.widthAttribute, photo.heightAttribute], ["1024", "1024"]);
+    assert.ok(Math.abs(photo.width - photo.height) <= 1, `Square photo has ${photo.width} × ${photo.height} rendered bounds`);
+    assert.ok(photo.width > 0 && photo.width <= 460, `Photo width ${photo.width} exceeds the bounded feed column`);
+    assert.equal(photo.fit, "contain", "The full product photograph must remain visible");
+    const brand = await page.locator(".feed-brand img").evaluate(image => image.currentSrc);
+    assert.match(brand, width <= 760 ? /robys-compact-master-v1\.svg/ : /robys-header-master-v1\.svg/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     await page.screenshot({ path: `${output}/${engine}-${width}-${language}.png` });
+    await page.locator(".feed-like").first().click();
+    await page.locator('.feed-like[aria-pressed="true"]').first().waitFor();
+    await page.locator(".feed-card").first().evaluate(card => card.scrollIntoView({ block: "start", behavior: "instant" }));
+    await page.locator(".feed-avatar").first().evaluate(image => image.decode());
+    await page.screenshot({ path: `${output}/${engine}-${width}-${language}-liked-card.png` });
     // Filtering, atomic add, repeat add and removal use the actual user controls.
     await page.locator('[data-category="hot-coffee"]').click();
     const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
@@ -95,7 +115,194 @@ try {
     await page.waitForFunction(() => document.querySelector("#feed-cart-count").textContent === "2");
     assert.match(await page.locator("#feed-cart-total").textContent(), /310/);
     assert.deepEqual(errors, []);
-    report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true, focus: true, overflow: false });
+    report.cases.push({ width, language, result: "PASS", totalAfterCrossPageAdd: 310, sharedCart: true, qr: true,
+      focus: true, overflow: false, photoUncropped: true, photoWidth: photo.width, canonicalResponsiveBrand: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => localStorage.setItem("robys-language", "en"));
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    const espresso = page.locator('[data-product-id="hot-coffee:espresso"]');
+    await espresso.locator(".feed-like").focus();
+    assert.match(await espresso.locator(".feed-like").getAttribute("aria-label"), /like.*espresso/i);
+    await page.keyboard.press("Space");
+    assert.equal(await espresso.locator(".feed-like").getAttribute("aria-pressed"), "true");
+    assert.match(await espresso.locator(".feed-like").getAttribute("aria-label"), /unlike.*espresso/i);
+    await page.locator("#feed-liked-filter").click();
+    assert.equal(await page.locator("#feed-liked-filter").getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator(".feed-card").count(), 1);
+    assert.equal(await page.locator(".feed-card").getAttribute("data-product-id"), "hot-coffee:espresso");
+    await page.reload();
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(await espresso.locator(".feed-like").getAttribute("aria-pressed"), "true");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-feed-like-v1:hot-coffee:espresso")), "1");
+    // The view filter need not persist; ensure both tabs show the whole feed.
+    if (await page.locator("#feed-liked-filter").getAttribute("aria-pressed") === "true") await page.locator("#feed-liked-filter").click();
+    const other = await context.newPage(); other.setDefaultTimeout(15000);
+    other.on("pageerror", error => errors.push(error.message));
+    await other.goto(`${origin}/menu-feed.html`);
+    await other.locator('#feed[data-ready="true"]').waitFor();
+    const otherChoice = other.locator(".feed-card").first();
+    const otherId = await otherChoice.getAttribute("data-product-id");
+    assert.notEqual(otherId, "hot-coffee:espresso", "The cross-tab addition must target a different product");
+    await otherChoice.locator(".feed-like").click();
+    await page.waitForFunction(id => [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)
+      ?.querySelector(".feed-like")?.getAttribute("aria-pressed") === "true", otherId);
+    await other.locator('[data-product-id="hot-coffee:espresso"] .feed-like').click();
+    await page.waitForFunction(() => document.querySelector('[data-product-id="hot-coffee:espresso"] .feed-like')?.getAttribute("aria-pressed") === "false");
+    await page.bringToFront();
+    await page.locator("#feed-liked-filter").click();
+    assert.equal(await page.locator(".feed-card").count(), 1);
+    assert.equal(await page.locator(".feed-card").getAttribute("data-product-id"), otherId);
+    await otherChoice.locator(".feed-like").click();
+    await page.locator("#feed-empty").waitFor({ state: "visible" });
+    assert.equal(await page.locator(".feed-card").count(), 0);
+    // Seed ten real catalog choices through the other tab's storage boundary,
+    // then load the second page of the liked view using its keyboard control.
+    if (await other.locator(".feed-card").count() < 10) {
+      await other.locator("#feed-more").evaluate(button => button.focus({ preventScroll: true }));
+      await other.keyboard.press("Enter");
+    }
+    const likedIds = await other.locator(".feed-card").evaluateAll(cards => cards.slice(0, 10).map(card => card.dataset.productId));
+    assert.equal(likedIds.length, 10);
+    await other.evaluate(ids => { for (const id of ids) localStorage.setItem(`robys-feed-like-v1:${id}`, "1"); }, likedIds);
+    await page.waitForFunction(() => /10$/.test(document.querySelector("#feed-liked-label").textContent));
+    await page.bringToFront();
+    if (await page.locator(".feed-card").count() < 10) {
+      await page.locator("#feed-more").evaluate(button => button.focus({ preventScroll: true }));
+      await page.keyboard.press("Enter");
+    }
+    assert.equal(await page.locator(".feed-card").count(), 10);
+    const seenOnlyId = likedIds.at(-1);
+    await page.evaluate(id => {
+      window.__feedRetainedCards = [...document.querySelectorAll(".feed-card")];
+      window.__feedRetainedFocus = window.__feedRetainedCards.find(card => card.dataset.productId === id).querySelector(".feed-like");
+      window.__feedRetainedFocus.focus({ preventScroll: true });
+    }, seenOnlyId);
+    assert.equal(await page.evaluate(id => [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)
+      .querySelector(".feed-seen").dataset.seen, seenOnlyId), "false");
+    await other.evaluate(id => localStorage.setItem(`robys-feed-seen-v1:${id}`, "1"), seenOnlyId);
+    await page.waitForFunction(id => [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)
+      ?.querySelector(".feed-seen")?.dataset.seen === "true", seenOnlyId);
+    assert.deepEqual(await page.evaluate(() => {
+      const current = [...document.querySelectorAll(".feed-card")];
+      return { count: current.length, sameCards: current.every((card, index) => card === window.__feedRetainedCards[index]),
+        sameFocus: document.activeElement === window.__feedRetainedFocus };
+    }), { count: 10, sameCards: true, sameFocus: true }, "A seen-only storage event must preserve the loaded liked cards and keyboard focus");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "personal-likes", result: "PASS", keyboardToggle: true, reloadPersistence: true,
+      crossTabLikeAndUnlike: true, likedFilterTracksExternalRemoval: true, seenOnlyStoragePreservesFocusAndPages: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.route("**/*?feed-test=unavailable", route => route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-language", "en");
+      // Controlled Page Visibility input tests the production guard uniformly
+      // across engines; it does not claim an operating-system background test.
+      window.__feedTestHidden = true;
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => window.__feedTestHidden });
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => window.__feedTestHidden ? "hidden" : "visible" });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    const first = page.locator(".feed-card").nth(0), shortVisit = page.locator(".feed-card").nth(1), delayedPhoto = page.locator(".feed-card").nth(2);
+    await first.locator(".feed-photo>img").evaluate(async image => { image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode(); });
+    // This bounded wait is the measured exposure requirement, not an arbitrary
+    // readiness delay: hidden or sub-second exposure must never mark a view.
+    await page.waitForTimeout(1200);
+    assert.equal(await first.locator(".feed-seen").getAttribute("data-seen"), "false");
+    assert.equal(await page.locator(".feed-card").nth(5).locator(".feed-seen").getAttribute("data-seen"), "false");
+    assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*0\s*\/\s*63/i);
+    await page.evaluate(async () => {
+      window.__feedTestHidden = false; document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise(resolve => setTimeout(resolve, 250));
+      window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }));
+    });
+    await page.waitForTimeout(1200);
+    assert.equal(await first.locator(".feed-seen").getAttribute("data-seen"), "false", "Pagehide must cancel the incomplete dwell");
+    // Exercise the persisted pageshow handler without a reload or another
+    // intersection/visibility event that could independently restart the timer.
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })));
+    await page.waitForTimeout(250);
+    assert.equal(await first.locator(".feed-seen").getAttribute("data-seen"), "false");
+    await page.waitForFunction(() => document.querySelector(".feed-card .feed-seen")?.dataset.seen === "true");
+    assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*1\s*\/\s*63/i);
+    await page.evaluate(() => { window.__feedTestHidden = true; document.dispatchEvent(new Event("visibilitychange")); });
+    await shortVisit.locator(".feed-photo>img").evaluate(async image => { image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode(); });
+    await page.evaluate(async () => {
+      window.__feedTestHidden = false; document.dispatchEvent(new Event("visibilitychange"));
+      await new Promise(resolve => setTimeout(resolve, 250));
+      window.__feedTestHidden = true; document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await page.waitForTimeout(1200);
+    assert.equal(await shortVisit.locator(".feed-seen").getAttribute("data-seen"), "false");
+    const delayedId = await delayedPhoto.getAttribute("data-product-id");
+    await delayedPhoto.locator(".feed-photo>img").evaluate(async image => {
+      image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode();
+      const url = new URL(image.src); url.searchParams.set("feed-test", "unavailable"); image.src = url.href;
+    });
+    await page.waitForFunction(id => {
+      const image = [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)?.querySelector(".feed-photo>img");
+      return image?.complete && image.naturalWidth === 0;
+    }, delayedId);
+    await page.evaluate(() => { window.__feedTestHidden = false; document.dispatchEvent(new Event("visibilitychange")); });
+    await page.waitForTimeout(1200);
+    assert.equal(await delayedPhoto.locator(".feed-seen").getAttribute("data-seen"), "false", "A visible failed image is not a product view");
+    await delayedPhoto.locator(".feed-photo>img").evaluate(async image => {
+      const url = new URL(image.src); url.searchParams.set("feed-test", "recovered"); image.src = url.href;
+      await image.decode();
+    });
+    await page.waitForFunction(id => [...document.querySelectorAll(".feed-card")].find(card => card.dataset.productId === id)
+      ?.querySelector(".feed-seen")?.dataset.seen === "true", delayedId);
+    assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*2\s*\/\s*63/i);
+    assert.equal(await page.evaluate(id => localStorage.getItem(`robys-feed-seen-v1:${id}`), delayedId), "1");
+    await page.waitForTimeout(1200);
+    assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*2\s*\/\s*63/i);
+    assert.equal(await page.locator(".feed-card").nth(5).locator(".feed-seen").getAttribute("data-seen"), "false");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "personal-views", result: "PASS", controlledVisibilityGuard: true, subSecondExposureExcluded: true,
+      controlledPersistedPageRestore: true, failedImageExcluded: true, recoveredImageCounted: true, belowFoldExcluded: true, uniqueProductCount: 2 });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      for (const method of ["getItem", "setItem", "removeItem"]) Object.defineProperty(Storage.prototype, method, {
+        configurable: true, value() { throw new DOMException("Injected unavailable browser storage", "SecurityError"); }
+      });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`${origin}/menu-feed.html`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.locator('[data-lang="en"]').click();
+    assert.match(await page.locator("#feed-personal-note").textContent(), /this page only/i);
+    await page.locator(".feed-like").first().click();
+    assert.equal(await page.locator(".feed-like").first().getAttribute("aria-pressed"), "true");
+    await page.locator("#feed-liked-filter").click();
+    assert.equal(await page.locator(".feed-card").count(), 1);
+    await page.reload();
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await page.locator('[data-lang="en"]').click();
+    assert.equal(await page.locator(".feed-like").first().getAttribute("aria-pressed"), "false");
+    assert.match(await page.locator("#feed-personal-note").textContent(), /this page only/i);
+    await page.locator("#feed-liked-filter").click();
+    assert.equal(await page.locator("#feed-empty").isVisible(), true);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "personal-storage-unavailable", result: "PASS", memoryLikesAndFilter: true,
+      honestPersistenceCopy: true, noFalseReloadPersistence: true });
     await context.close();
   }
   for (const moduleName of ["storage", "checkout"]) {
