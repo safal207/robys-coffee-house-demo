@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
+  <meta name="theme-color" content="#211b18" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
+  <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="menu-feed.css?v=96635e26903f" />
+  <link rel="stylesheet" href="order-checkout.css?v=9ead86a924fa" />
+  <title>Menü Akışı · Roby's Coffee House</title>
+</head>
+<body>
+  <a class="feed-skip" href="#feed" data-copy="skip">Menüye geç</a>
+  <header class="feed-header">
+    <a class="feed-brand" href="./" aria-label="Roby's Coffee House"><img src="icon.svg" width="42" height="42" alt="" /><span>ROBY'S<small>COFFEE HOUSE · GAZİPAŞA</small></span></a>
+    <nav class="feed-header-actions" aria-label="Menu / Меню">
+      <a href="menu.html" class="feed-classic" data-copy="classic">Klasik menü</a>
+      <div class="feed-languages" aria-label="Language / Dil / Язык">
+        <button type="button" data-lang="tr" aria-pressed="true">TR</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+      </div>
+    </nav>
+  </header>
+  <main class="feed-layout">
+    <aside class="feed-intro">
+      <p class="feed-eyebrow">ROBY'S MENU FEED</p>
+      <h1 data-copy="title">Kaydır.<br />Keşfet.<br />Tadını seç.</h1>
+      <p class="feed-lead" data-copy="lead">Bir kahve, bir tatlı, belki de ikisi. Bir sonraki seçimin bu akışta.</p>
+      <a class="feed-intro-link" href="menu.html" data-copy="allMenu">Tüm menüyü liste olarak gör ↗</a>
+      <div class="feed-intro-note"><span aria-hidden="true">↓</span><p data-copy="hint">Kaydır, beğendiğini siparişine ekle.</p></div>
+    </aside>
+    <section class="feed-column" aria-labelledby="feed-title">
+      <div class="feed-tools">
+        <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Menü akışı</h2><span id="feed-counter"></span></div>
+        <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
+        <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
+      </div>
+      <p id="feed-results" class="sr-only" role="status" aria-live="polite"></p>
+      <div id="feed" class="feed-cards" tabindex="-1"></div>
+      <div class="feed-empty" id="feed-empty" hidden><p data-copy="empty">Aradığın burada yok.</p><button type="button" id="feed-reset" data-copy="reset">Tümünü göster</button></div>
+      <div id="feed-more-wrap" class="feed-more-wrap"><button type="button" id="feed-more" data-copy="more" hidden>Daha fazla göster</button></div>
+      <p class="feed-end" id="feed-end" hidden data-copy="end">Menünün sonuna geldin. Seçim senin.</p>
+      <p class="feed-price-note" data-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
+      <noscript><p class="feed-fallback">Akış için JavaScript gerekir / Enable JavaScript for the feed / Для ленты нужен JavaScript. <a href="menu.html">Menü / Menu / Меню</a> · <a href="src/products/sets-v1/iced-san-sebastian.webp">Latte + cheesecake</a></p></noscript>
+    </section>
+    <aside class="feed-guide"><span class="feed-guide-line"></span><p data-copy="guide">Büyük fotoğraflar.<br />Küçük bir mola.</p><span class="feed-guide-index">01 — ROBY'S</span></aside>
+  </main>
+  <button class="feed-cart-bar" id="feed-cart-open" type="button" aria-haspopup="dialog" aria-controls="feed-cart" hidden><span class="feed-cart-count" id="feed-cart-count">0</span><span data-copy="order">Siparişim</span><strong id="feed-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
+  <p id="feed-status" class="feed-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <dialog class="feed-cart" id="feed-cart" aria-labelledby="feed-cart-title">
+    <div class="feed-cart-shell">
+      <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-cart-title" data-copy="order">Siparişim</h2></div><button type="button" id="feed-cart-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <div id="feed-cart-lines"></div>
+      <p class="feed-cart-sum"><span data-copy="total">Toplam</span><strong id="feed-cart-sum">0 ₺</strong></p>
+      <p class="feed-draft-note" data-copy="draft">Bu bir sipariş taslağıdır. Ödeme kasada yapılır.</p>
+      <button class="feed-primary" id="feed-checkout" type="button" data-copy="checkout">Kasa için QR oluştur</button>
+      <p id="feed-cart-error" role="alert"></p>
+      <button class="feed-continue" type="button" id="feed-continue" data-copy="continue">Keşfetmeye devam et</button>
+    </div>
+  </dialog>
+  <script type="module" src="menu-feed.js?v=969664aa1ccf"></script>
+</body>
+</html>

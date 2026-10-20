@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-dc9c6051421a-custom-pair-85903940e27f-menu-css-148eccb2da7b-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-7c75b862df06-quick-order-23cfea19e573-coffee-paths-e5dc41400cfe-halloween-f6e6682a4f72-home-navigation-aedfd564e851-family-menu-6295cf334f91-occasion-combos-aaebe8b50ee8-custom-pair-123ef0fff187-menu-css-eb5ac53f8bd2-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -81,9 +81,9 @@ const CORE_ASSETS = [
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=148eccb2da7b",
+  "./menu-runtime.css?v=eb5ac53f8bd2",
   "./menu-combos-ui.js?v=0aad157af9c2",
-  "./menu-combos.css?v=fba6d6cd65c7",
+  "./menu-combos.css?v=475b029937b0",
   "./combo-entry.css?v=da624d45b4d6",
   "./choice-help.js?v=5dd77e1acead",
   "./choice-help.css?v=6b3dac7b0da1",
@@ -104,6 +104,9 @@ const CORE_ASSETS = [
   "./seasonal.css?v=f2437d09532e",
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
+  "./menu-feed.html",
+  "./menu-feed.js?v=969664aa1ccf",
+  "./menu-feed.css?v=96635e26903f",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -141,7 +144,7 @@ const CORE_ASSETS = [
   "./app.js?v=1cd220e6b7d9",
   "./conversion.js?v=455b2f39607a",
   "./menu-ready.js",
-  "./menu-app.js?v=7ac9fdabcc39",
+  "./menu-app.js?v=664ba2602b53",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=6ae2dd3ba2e7",
   "./menu-product-reveal-runtime.js?v=fd2730c787d9",
@@ -256,6 +259,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-pwa.js") ||
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
+    url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/menu-feed.css") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
     url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
@@ -318,6 +323,7 @@ async function navigationResponse(request) {
   const url = new URL(request.url);
   const scopePath = new URL(self.registration.scope).pathname;
   const isMenu = url.pathname.endsWith("/menu.html");
+  const isMenuFeed = url.pathname.endsWith("/menu-feed.html");
   const isCashier = url.pathname.endsWith("/cashier.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
@@ -329,7 +335,7 @@ async function navigationResponse(request) {
   try {
     const network = await fetch(request);
     if (network.ok) {
-      if (isMenu || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
+      if (isMenu || isMenuFeed || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
         const cache = await caches.open(CACHE_VERSION);
         cache.put(request, network.clone()).catch(() => {});
       }
@@ -340,6 +346,7 @@ async function navigationResponse(request) {
   }
 
   if (isMenu) return cachedPage("menu.html");
+  if (isMenuFeed) return cachedPage("menu-feed.html");
   if (isCashier) return cachedPage("cashier.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isSmartChoice) return cachedPage("smart-choice/index.html");

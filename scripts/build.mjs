@@ -36,6 +36,14 @@ await build({
 const menuPairingRevision = revisionFor("menu-pairing.js");
 writeFileSync("order-storage.js", compileOrderStorageRuntime());
 const orderStorageRevision = revisionFor("order-storage.js");
+let feedSource = readFileSync("src/menu-feed.js", "utf8");
+feedSource = feedSource.replace(/from "\.\/menu-catalog\.js(?:\?v=[^"]*)?"/, `from "./menu-catalog.js?v=${menuCatalogRevision}"`);
+feedSource = synchronizeModuleImport(feedSource, "order-storage.js", orderStorageRevision);
+feedSource = synchronizeModuleImport(feedSource, "order-checkout.js", orderCheckoutRevision);
+writeFileSync("src/menu-feed.js", feedSource);
+writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
+const menuFeedRevision = revisionFor("menu-feed.js");
+const menuFeedCssRevision = revisionFor("menu-feed.css");
 let menuOrderSource = readFileSync("src/menu-order-ui.js", "utf8");
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "order-checkout.js", orderCheckoutRevision);
 menuOrderSource = synchronizeModuleImport(menuOrderSource, "menu-pairing.js", menuPairingRevision);
@@ -446,6 +454,12 @@ menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
 writeFileSync("menu.html", menuHtml);
 
+let feedHtml = readFileSync("menu-feed.html", "utf8");
+feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
+feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
+feedHtml = synchronizeStylesheet(feedHtml, "order-checkout.css", orderCheckoutCssRevision);
+writeFileSync("menu-feed.html", feedHtml);
+
 let experienceHtml = readFileSync("experience/index.html", "utf8");
 experienceHtml = synchronizeScript(experienceHtml, "experience-pwa.js", experiencePwaRevision);
 experienceHtml = synchronizeScript(experienceHtml, "experience.js", experienceRuntimeRevision);
@@ -528,12 +542,15 @@ const familyPhotoAssets = [
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
-for (const asset of ["kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["menu-feed.html", "menu-feed.js", "menu-feed.css", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
+const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-menu-feed-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-menu-feed-${feedCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlowRevision}-shared-order-`);
 // Offer prices must refresh for returning visitors, including their cached home.
@@ -615,6 +632,8 @@ for (const [filePath, revision] of [
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
+  ["menu-feed.js", menuFeedRevision],
+  ["menu-feed.css", menuFeedCssRevision],
   ["menu-order-ui.js", menuOrderRevision],
   ["menu-family-ui.js", menuFamilyRevision],
   ["menu-family.css", menuFamilyCssRevision],
