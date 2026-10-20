@@ -229,6 +229,7 @@ async function shareProduct(product, trigger) {
 }
 
 function updateBadges() {
+  $("#menu-cart-trigger").hidden = false;
   const draft = order.readDraft();
   const quote = quoteFeedOrder(draft, productIndex);
   $("#menu-cart-count").textContent = draft.groups.reduce((sum, group) => sum + group.quantity, 0);
