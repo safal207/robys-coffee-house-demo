@@ -1,7 +1,7 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
-import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "./src/menu-feed-navigation.js";
+import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex, visibleFeedCardBounds } from "./src/menu-feed-navigation.js";
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
 import { createFeedViewer } from "./src/menu-feed-viewer.js";
@@ -71,13 +71,15 @@ let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
 const entry = parseFeedEntry(location.href, products);
 if (entry.language) language = entry.language;
+if (!entry.productId) searchInput.value = Array.from((new URL(location.href).searchParams.get("q") ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
 let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
 let busy = false, statusTimer;
 let layoutFrame = 0, activeFrame = 0, shareReturnFocus = null, discoveryChanged = false, sharing = false;
 const text = () => copy[language];
 const localized = value => value?.[language] ?? value?.tr ?? "";
-const money = value => `${new Intl.NumberFormat({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }[language], { maximumFractionDigits: 0 }).format(value)} ₺`;
+const priceFormats = Object.fromEntries(Object.entries({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }).map(([key, locale]) => [key, new Intl.NumberFormat(locale, { maximumFractionDigits: 0 })]));
+const money = value => `${priceFormats[language].format(value)} ₺`;
 const say = message => { clearTimeout(statusTimer); $("#feed-status").textContent = message; statusTimer = setTimeout(() => { $("#feed-status").textContent = ""; }, 4500); };
 let viewer;
 const engagement = createFeedEngagement({ validIds, onChange: updateEngagement });
@@ -86,13 +88,13 @@ const order = createFeedOrder({ menuCopy, productIndex, orderProductIds: validId
 const collections = initFeedCollections({ productIndex, orderProductIds: validIds, getLanguage: () => language,
   localized, formatPrice: money, order, onCartChange: updateBadges, say });
 
-function updateEngagement() {
+function updateEngagement(cards = root.querySelectorAll(".feed-card")) {
   $("#feed-liked-label").textContent = `${text().likedFilter} · ${engagement.likes()}`;
   $("#feed-liked-count").textContent = engagement.likes();
   $("#feed-liked-filter").setAttribute("aria-pressed", String(likedOnly));
   $("#feed-seen-summary").textContent = `${text().seenSummary}: ${engagement.seen()} / ${products.length}`;
   $("#feed-personal-note").textContent = engagement.persistent ? text().personal : text().memoryOnly;
-  root.querySelectorAll(".feed-card").forEach(card => {
+  cards.forEach(card => {
     const product = productIndex.get(card.dataset.productId), liked = engagement.hasLiked(product.id);
     const like = card.querySelector(".feed-like");
     like.setAttribute("aria-pressed", String(liked));
@@ -183,9 +185,7 @@ function updateActiveCard() {
   }
   if (document.querySelector("dialog[open]")) return;
   const { top, bottom } = feedViewBounds();
-  const index = selectActiveFeedIndex([...root.children].map(card => {
-    const rect = card.getBoundingClientRect(); return { index: Number(card.dataset.index), top: rect.top, bottom: rect.bottom };
-  }), top, bottom);
+  const index = selectActiveFeedIndex(visibleFeedCardBounds(root.children, top, bottom), top, bottom);
   if (index !== null && index !== currentIndex) { currentIndex = index; updateCounter(); }
 }
 function scheduleActiveCard() { if (!activeFrame) activeFrame = requestAnimationFrame(updateActiveCard); }
@@ -234,7 +234,7 @@ async function shareProduct(product, trigger) {
   }
 }
 
-function updateBadges() {
+function updateBadges(cards = root.querySelectorAll(".feed-card")) {
   $("#menu-cart-trigger").hidden = false;
   const draft = order.readDraft();
   const quote = quoteFeedOrder(draft, productIndex);
@@ -242,7 +242,7 @@ function updateBadges() {
   $("#menu-cart-total").textContent = money(quote.total);
   $("#menu-cart-trigger").setAttribute("aria-label", `${text().order}: ${$("#menu-cart-count").textContent}, ${money(quote.total)}`);
   const counts = new Map(draft.lines.map(line => [line.id, line.quantity]));
-  root.querySelectorAll(".feed-card").forEach(card => {
+  cards.forEach(card => {
     const count = counts.get(card.dataset.productId) ?? 0;
     card.querySelector(".feed-selected").textContent = count ? `${count} ${text().inOrder}` : "";
     const add = card.querySelector(".feed-add");
@@ -356,15 +356,20 @@ function renderCard(product, index) {
 }
 
 function appendPage() {
-  const end = Math.min(rendered + 8, filtered.length);
+  const end = Math.min(rendered + 8, filtered.length), cards = [];
+  const fragment = document.createDocumentFragment();
   for (; rendered < end; rendered++) {
-    const card = renderCard(filtered[rendered], rendered); root.append(card); cardObserver?.observe(card);
+    const card = renderCard(filtered[rendered], rendered); fragment.append(card); cards.push(card);
+  }
+  root.append(fragment);
+  for (const card of cards) {
+    cardObserver?.observe(card);
     viewObserver?.observe(card.querySelector(".feed-photo>img"));
   }
   $("#feed-more").hidden = rendered >= filtered.length;
   $("#feed-end").hidden = !filtered.length || rendered < filtered.length;
-  updateBadges();
-  updateEngagement();
+  updateBadges(cards);
+  updateEngagement(cards);
 }
 
 function renderFeed() {
@@ -506,7 +511,7 @@ const syncEngagement = key => {
   const after = products.filter(product => engagement.hasLiked(product.id)).map(product => product.id).join("|");
   if (likedOnly && before !== after) reconcileLiked();
 };
-window.addEventListener("pageshow", () => { syncEngagement(null); viewCandidates.forEach(scheduleView); void refreshOrder(); });
+window.addEventListener("pageshow", event => { if (event.persisted) { syncEngagement(null); viewCandidates.forEach(scheduleView); void refreshOrder(); } });
 window.addEventListener("pagehide", stopViews);
 document.addEventListener("visibilitychange", () => {
   stopViews();

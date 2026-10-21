@@ -190,3 +190,62 @@ test("preference writes only known modes and tolerates unavailable storage", () 
     assert.equal(storeMenuViewPreference(unavailable, "feed"), false);
   }
 });
+
+import { canWarmMenu } from '../src/menu-view-prefetch.js';
+test('speculative menu bytes respect data saving, offline, hidden tabs and slow connections', () => {
+  assert.equal(canWarmMenu(undefined), true);
+  assert.equal(canWarmMenu({effectiveType:'4g'}), true);
+  for (const connection of [{saveData:true}, {effectiveType:'slow-2g'}, {effectiveType:'2g'}, {effectiveType:'3g'}]) assert.equal(canWarmMenu(connection), false);
+  assert.equal(canWarmMenu(undefined,true), false);
+  assert.equal(canWarmMenu(undefined,false,false), false);
+});
+// Native hints must remain optional and cannot change links, orders or counters.
+function observeWarm({ supported = true, hidden = false, online = true, connection,
+  href = 'https://example.test/cafe/menu.html?view=list&lang=ru#desserts' } = {}) {
+  const listeners = new Map(), hints = [], timers = [];
+  let removed = 0;
+  const hint = { relList: { supports: value => supported && value === 'prefetch' }, remove: () => removed++ };
+  const link = { href };
+  const document = { hidden, readyState: 'loading', createElement: () => hint,
+    querySelector: () => link, head: { append: node => hints.push({ ...node }) },
+    addEventListener: (name, fn) => listeners.set(name, fn) };
+  const context = { URL, document, navigator: { onLine: online, connection },
+    location: { origin: 'https://example.test', href: 'https://example.test/cafe/menu-feed.html' },
+    window: { addEventListener: (name, fn) => listeners.set(name, fn) },
+    setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout: () => {},
+    fetch: () => assert.fail('Warming must not fetch or parse executable assets') };
+  const source = readFileSync(new URL('../src/menu-view-prefetch.js', import.meta.url), 'utf8')
+    .replaceAll('export function', 'function');
+  runInNewContext(source + '\ninitFeedListPrefetch();', context);
+  const intent = { target: { closest: () => link }, preventDefault: () => assert.fail('Native navigation cannot be intercepted') };
+  return { hints, timers, document, link, originalHref: href,
+    intent: () => listeners.get('pointerover')?.(intent),
+    focus: () => listeners.get('focusin')?.(intent),
+    load: () => listeners.get('load')?.(),
+    hide: () => { document.hidden = true; listeners.get('visibilitychange')?.(); },
+    pagehide: () => listeners.get('pagehide')?.(), removed: () => removed };
+}
+test('one low-priority native document hint preserves navigation and does not warm assets', () => {
+  const observed = observeWarm();
+  observed.intent(); observed.intent(); observed.focus(); observed.load(); observed.timers.forEach(fn => fn());
+  assert.equal(observed.hints.length, 1);
+  assert.equal(observed.hints[0].href, 'https://example.test/cafe/menu.html?view=list&lang=ru');
+  assert.equal(observed.hints[0].rel, 'prefetch');
+  assert.equal(observed.hints[0].as, 'document');
+  assert.equal(observed.hints[0].fetchPriority, 'low');
+  assert.equal(observed.link.href, observed.originalHref);
+  observed.pagehide(); assert.equal(observed.removed(), 1);
+});
+test('native warming respects browser support, data saving, visibility, connectivity and target identity', () => {
+  for (const options of [{ supported: false }, { hidden: true }, { online: false },
+    { connection: { saveData: true } }, { connection: { effectiveType: '3g' } },
+    { href: 'https://other.test/cafe/menu.html' }, { href: 'https://user:pass@example.test/cafe/menu.html' },
+    { href: 'https://example.test/other/menu.html' }, { href: 'https://example.test/cafe/order-storage.js' }]) {
+    const observed = observeWarm(options);
+    observed.intent(); observed.load(); observed.timers.forEach(fn => fn());
+    assert.equal(observed.hints.length, 0, JSON.stringify(options));
+    assert.equal(observed.link.href, observed.originalHref);
+  }
+  const observed = observeWarm(); observed.load(); observed.hide(); observed.timers.forEach(fn => fn());
+  assert.equal(observed.hints.length, 0);
+});

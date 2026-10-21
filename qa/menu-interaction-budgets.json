@@ -1,0 +1,13 @@
+{
+  "protocol": 2,
+  "viewports": [390, 1280],
+  "cycles": 4,
+  "cards": 63,
+  "navigationRegressionPercent": 15,
+  "medianNoiseMs": 33.4,
+  "p95NoiseMs": 100,
+  "maxSwitchMs": 1500,
+  "maxGeometryReadRatio": 0.25,
+  "frameNoiseMs": 16.7,
+  "maxP95FrameGapMs": 50
+}

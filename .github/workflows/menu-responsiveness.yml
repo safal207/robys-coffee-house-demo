@@ -1,0 +1,47 @@
+name: Menu interaction performance
+on:
+  push:
+    branches: [perf/menu-switch-scroll-20261021]
+    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
+  pull_request:
+    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
+permissions:
+  contents: read
+concurrency:
+  group: menu-performance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Verify the performance gate rejects regressions and incomplete evidence
+        run: node --test scripts/test-menu-responsiveness-gate.mjs
+      - name: Measure baseline with the same cache-verified harness
+        run: |
+          BASE_SHA="$(git rev-parse refs/remotes/origin/main)"
+          git worktree add --detach /tmp/robys-menu-baseline "$BASE_SHA"
+          ROBYS_PERF_ROOT=/tmp/robys-menu-baseline ROBYS_PERF_OUTPUT=.artifacts/menu-responsiveness/baseline ROBYS_PERF_LABEL=baseline ROBYS_SOURCE_REVISION="$BASE_SHA" node scripts/measure-menu-responsiveness.mjs
+      - name: Measure emitted candidate transitions and full-feed scrolling
+        env:
+          ROBYS_SOURCE_REVISION: ${{ github.sha }}
+          ROBYS_PERF_LABEL: candidate
+          ROBYS_PERF_OUTPUT: .artifacts/menu-responsiveness/candidate
+        run: node scripts/measure-menu-responsiveness.mjs
+      - name: Enforce navigation, scroll-work and frame budgets
+        run: node scripts/compare-menu-responsiveness.mjs .artifacts/menu-responsiveness/baseline/report.json .artifacts/menu-responsiveness/candidate/report.json .artifacts/menu-responsiveness/comparison.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: menu-interaction-performance
+          path: .artifacts/menu-responsiveness/
+          retention-days: 14

@@ -152,3 +152,40 @@ test("active selection uses all current bounds instead of only newly changed ent
   const newlyVisible = { index: 9, top: 650, bottom: 1250 };
   assert.equal(selectActiveFeedIndex([newlyVisible, unchanged], 100, 700), 8);
 });
+
+import { visibleFeedCardBounds } from '../src/menu-feed-navigation.js';
+function orderedCards(rectangles) {
+  let reads = 0;
+  return { cards: rectangles.map(rect => ({ dataset: { index: String(rect.index) },
+    getBoundingClientRect() { reads++; return rect; } })), reads: () => reads };
+}
+test('visible geometry matches exhaustive ranking across variable heights, gaps and jumps', () => {
+  let position = -400;
+  const rects = Array.from({length: 63}, (_, index) => {
+    const height = 160 + (index * 131 % 850);
+    const rect = {index, top: position, bottom: position + height};
+    position += height + 24;
+    return rect;
+  });
+  for (const top of [-1000, -400, 0, 175, 900, 18500, position + 100]) {
+    for (const height of [1, 200, 700, 1200]) {
+      const {cards, reads} = orderedCards(rects);
+      const visible = visibleFeedCardBounds(cards, top, top + height);
+      assert.deepEqual(visible, rects.filter(r => r.bottom > top && r.top < top + height));
+      assert.equal(selectActiveFeedIndex(visible, top, top + height), selectActiveFeedIndex(rects, top, top + height));
+      assert.ok(reads() <= Math.ceil(Math.log2(cards.length)) + visible.length + 1);
+    }
+  }
+});
+test('a long feed never scans historical cards and rereads fresh geometry after resizing', () => {
+  const rectangles = Array.from({length:1024}, (_, index) => ({index,top:index*600,bottom:index*600+580}));
+  let sample = orderedCards(rectangles);
+  assert.equal(visibleFeedCardBounds(sample.cards, 999*600, 999*600+500)[0].index, 999);
+  assert.ok(sample.reads() <= 12);
+  rectangles.forEach(r => { r.top *= 2; r.bottom *= 2; });
+  sample = orderedCards(rectangles);
+  assert.equal(visibleFeedCardBounds(sample.cards, 999*1200, 999*1200+500)[0].index, 999);
+  assert.ok(sample.reads() <= 12);
+  assert.deepEqual(visibleFeedCardBounds([], 0, 500), []);
+  assert.deepEqual(visibleFeedCardBounds(sample.cards, 500, 0), []);
+});
