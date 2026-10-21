@@ -1,0 +1,29 @@
+name: Menu performance QA workspace
+on:
+  push:
+    branches: [perf/menu-responsiveness-20261021]
+    paths: [.github/workflows/menu-perf-workspace.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Package exact source and locked development dependencies for isolated QA
+        run: |
+          git rev-parse HEAD > QA_WORKSPACE_HEAD.txt
+          tar --exclude='./.git' --exclude='./.artifacts' --exclude='./node_modules/.cache' -czf "$RUNNER_TEMP/robys-menu-perf-workspace.tgz" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robys-menu-perf-workspace
+          path: ${{ runner.temp }}/robys-menu-perf-workspace.tgz
+          retention-days: 1
