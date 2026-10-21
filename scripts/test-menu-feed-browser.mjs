@@ -222,19 +222,20 @@ try {
       const geometry = await page.locator(".feed-column").evaluate(column => {
         const box = column.getBoundingClientRect();
         const image = document.querySelector(".feed-photo>img"), photo = image.getBoundingClientRect();
-        return { centerOffset: Math.abs(box.left + box.width / 2 - innerWidth / 2),
-          width: box.width, overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        const clientWidth = document.documentElement.clientWidth;
+        return { centerOffset: Math.abs(box.left + box.width / 2 - clientWidth / 2),
+          width: box.width, clientWidth, overflow: document.documentElement.scrollWidth > clientWidth + 1,
           photoRatio: photo.width / photo.height, sourceRatio: image.naturalWidth / image.naturalHeight,
           objectFit: getComputedStyle(image).objectFit };
       });
       assert.ok(geometry.centerOffset <= 1, `The feed is centered at ${width}px: ${JSON.stringify(geometry)}`);
-      assert.ok(geometry.width <= 460 && geometry.width >= Math.min(width, 460) - 1);
+      assert.ok(geometry.width <= 460 && geometry.width >= Math.min(geometry.clientWidth, 460) - 1);
       assert.equal(geometry.overflow, false);
       assert.ok(Math.abs(geometry.photoRatio - geometry.sourceRatio) < .01, "The complete square photograph keeps its source proportions");
       assert.equal(geometry.objectFit, "contain");
       await assertPhotoActions(page.locator(".feed-card").first());
       await assertPhotoActions(page.locator(".feed-card").nth(1));
-      viewports.push({ width, ...geometry });
+      viewports.push({ viewportWidth: width, ...geometry });
     }
     assert.deepEqual(errors, []);
     report.cases.push({ case: "centered-feed-and-photo-actions", result: "PASS", viewports,
