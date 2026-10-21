@@ -98,6 +98,8 @@ jobs:
         run: node scripts/test-combo-offer-cards-browser.mjs
       - name: Quick builder touch position, cancellation and saved selection
         run: node scripts/test-quick-builder-scroll-browser.mjs
+      - name: Recommendation cart keyboard focus and asynchronous updates
+        run: node scripts/test-smart-choice-cart-focus-browser.mjs
       - name: First offline combo reveal and missing-photo negative control
         if: matrix.browser == 'chromium'
         run: node scripts/test-combo-offline.mjs

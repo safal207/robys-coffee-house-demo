@@ -64,6 +64,25 @@ const html = readFileSync(resolve(root, "discover.html"), "utf8");
 assert.match(html, /href="discover-deck\.css\?v=[a-f0-9]{12}"/);
 assert.match(html, /src="discover-deck\.js\?v=[a-f0-9]{12}"/);
 
+const skipLink = html.match(/<a\b[^>]*class="[^"]*\bskip-link\b[^"]*"[^>]*>[^<]*<\/a>/)?.[0];
+assert.ok(skipLink, "LOC-001: Discover must retain its native skip link");
+assert.match(skipLink, /\bdata-localized(?:\s|>)/,
+  "LOC-001: Discover skip link must participate in the existing localization hook");
+for (const [language, label] of Object.entries({
+  tr: "İçeriğe geç", en: "Skip to content", ru: "Перейти к содержанию"
+})) {
+  assert.ok(skipLink.includes(`data-${language}="${label}"`),
+    `LOC-001: Discover skip link must provide its ${language} label`);
+}
+assert.match(skipLink, /href="#discover-main"/,
+  "LOC-001: Localizing the skip link must preserve its target");
+assert.match(html, /<main\b[^>]*\bid="discover-main"/,
+  "LOC-001: Skip navigation must still target the main landmark");
+assert.match(skipLink, />İçeriğe geç<\/a>/,
+  "LOC-001: Turkish skip text must remain usable without JavaScript");
+assert.doesNotMatch(skipLink, /\baria-(?:label|labelledby)\s*=/,
+  "LOC-001: The localized link text must remain its accessible name");
+
 const source = readFileSync(resolve(root, "discover-deck.js"), "utf8");
 const catalogRevision = menuCatalogRevision(readFileSync(resolve(root, "menu-catalog.js")));
 assert.ok(source.includes(`from "./menu-catalog.js?v=${catalogRevision}"`), "Deck must use the current catalog's exact content revision");
