@@ -191,7 +191,7 @@ test("preference writes only known modes and tolerates unavailable storage", () 
   }
 });
 
-import { canWarmMenu, menuWarmAssets } from '../src/menu-view-prefetch.js';
+import { canWarmMenu } from '../src/menu-view-prefetch.js';
 test('speculative menu bytes respect data saving, offline, hidden tabs and slow connections', () => {
   assert.equal(canWarmMenu(undefined), true);
   assert.equal(canWarmMenu({effectiveType:'4g'}), true);
@@ -199,27 +199,53 @@ test('speculative menu bytes respect data saving, offline, hidden tabs and slow 
   assert.equal(canWarmMenu(undefined,true), false);
   assert.equal(canWarmMenu(undefined,false,false), false);
 });
-test('prefetch only reads bounded critical assets beside the menu, not remote URLs or markup', () => {
-  const target = 'https://example.test/cafe/menu-feed.html?view=feed&lang=ru';
-  const html = '<script src="bootstrap-v2.js?v=1"></script><link rel="stylesheet" href="menu-feed.css?v=2&amp;x=3"><script src="menu-feed.js?v=4"></script><script src="menu-feed.js?v=4"></script><script src="https://other.test/cafe/menu-app.js"></script><script src="https://user:password@example.test/cafe/menu-app.js"></script><script src="../menu-app.js"></script><script src="/cafe/order-storage.js"></script><img src="src/products/huge.webp">';
-  assert.deepEqual(menuWarmAssets(html,target), ['https://example.test/cafe/bootstrap-v2.js?v=1','https://example.test/cafe/menu-feed.css?v=2&x=3','https://example.test/cafe/menu-feed.js?v=4']);
-  assert.deepEqual(menuWarmAssets(' '.repeat(262145),target), []);
-  const files = ['bootstrap-v2.js','menu-runtime.css','menu-feed.css','menu-app.js','menu-feed.js','menu-view-mode.js','pairing-posters.js'];
-  assert.equal(menuWarmAssets(files.map(f=>'<script src="'+f+'"></script>').join(''),target).length,6);
+// Native hints must remain optional and cannot change links, orders or counters.
+function observeWarm({ supported = true, hidden = false, online = true, connection,
+  href = 'https://example.test/cafe/menu.html?view=list&lang=ru#desserts' } = {}) {
+  const listeners = new Map(), hints = [], timers = [];
+  let removed = 0;
+  const hint = { relList: { supports: value => supported && value === 'prefetch' }, remove: () => removed++ };
+  const link = { href };
+  const document = { hidden, readyState: 'loading', createElement: () => hint,
+    querySelector: () => link, head: { append: node => hints.push({ ...node }) },
+    addEventListener: (name, fn) => listeners.set(name, fn) };
+  const context = { URL, document, navigator: { onLine: online, connection },
+    location: { origin: 'https://example.test', href: 'https://example.test/cafe/menu-feed.html' },
+    window: { addEventListener: (name, fn) => listeners.set(name, fn) },
+    setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout: () => {},
+    fetch: () => assert.fail('Warming must not fetch or parse executable assets') };
+  const source = readFileSync(new URL('../src/menu-view-prefetch.js', import.meta.url), 'utf8')
+    .replaceAll('export function', 'function');
+  runInNewContext(source + '\ninitMenuViewPrefetch("feed");', context);
+  const intent = { target: { closest: () => link }, preventDefault: () => assert.fail('Native navigation cannot be intercepted') };
+  return { hints, timers, document, link, originalHref: href,
+    intent: () => listeners.get('pointerover')?.(intent),
+    focus: () => listeners.get('focusin')?.(intent),
+    load: () => listeners.get('load')?.(),
+    hide: () => { document.hidden = true; listeners.get('visibilitychange')?.(); },
+    pagehide: () => listeners.get('pagehide')?.(), removed: () => removed };
+}
+test('one low-priority native document hint preserves navigation and does not warm assets', () => {
+  const observed = observeWarm();
+  observed.intent(); observed.intent(); observed.focus(); observed.load(); observed.timers.forEach(fn => fn());
+  assert.equal(observed.hints.length, 1);
+  assert.equal(observed.hints[0].href, 'https://example.test/cafe/menu.html?view=list&lang=ru');
+  assert.equal(observed.hints[0].rel, 'prefetch');
+  assert.equal(observed.hints[0].as, 'document');
+  assert.equal(observed.hints[0].fetchPriority, 'low');
+  assert.equal(observed.link.href, observed.originalHref);
+  observed.pagehide(); assert.equal(observed.removed(), 1);
 });
-test('warming preserves native navigation and runs only once on repeated intent', async () => {
-  const listeners = new Map(), requests = [], timers = [];
-  const link = {href:'https://example.test/cafe/menu-feed.html?view=feed&lang=ru#desserts'};
-  const doc = {hidden:false, readyState:'loading',querySelector:()=>link,addEventListener:(name,fn)=>listeners.set(name,fn)};
-  const ctx = {URL,Set,AbortController,document:doc,navigator:{onLine:true},location:{origin:'https://example.test',href:base},window:{addEventListener:(name,fn)=>listeners.set(name,fn)},setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout:()=>{},fetch:async(url,options)=>{requests.push({url,options});return {ok:true,headers:new Map([['content-type','text/html']]),text:async()=>'<script src="menu-feed.js?v=abcdef"></script>',arrayBuffer:async()=>new ArrayBuffer(0)};}};
-  const authored = readFileSync(new URL('../src/menu-view-prefetch.js',import.meta.url),'utf8').replaceAll('export function','function');
-  runInNewContext(authored+'\ninitMenuViewPrefetch("list");',ctx);
-  const original=link.href;
-  const event={target:{closest:()=>link},preventDefault:()=>assert.fail('Native navigation must not be intercepted')};
-  listeners.get('pointerover')(event);listeners.get('pointerover')(event);listeners.get('focusin')(event);
-  await new Promise(r=>setImmediate(r));
-  assert.equal(requests.length,2);assert.equal(requests[0].url,original.split('#')[0]);
-  assert.equal(requests[1].url,'https://example.test/cafe/menu-feed.js?v=abcdef');
-  assert.equal(requests[0].options.priority,'low');assert.equal(requests[0].options.redirect,'error');
-  assert.equal(link.href,original);listeners.get('pagehide')();assert.equal(requests[0].options.signal.aborted,true);
+test('native warming respects browser support, data saving, visibility, connectivity and target identity', () => {
+  for (const options of [{ supported: false }, { hidden: true }, { online: false },
+    { connection: { saveData: true } }, { connection: { effectiveType: '3g' } },
+    { href: 'https://other.test/cafe/menu.html' }, { href: 'https://user:pass@example.test/cafe/menu.html' },
+    { href: 'https://example.test/other/menu.html' }, { href: 'https://example.test/cafe/order-storage.js' }]) {
+    const observed = observeWarm(options);
+    observed.intent(); observed.load(); observed.timers.forEach(fn => fn());
+    assert.equal(observed.hints.length, 0, JSON.stringify(options));
+    assert.equal(observed.link.href, observed.originalHref);
+  }
+  const observed = observeWarm(); observed.load(); observed.hide(); observed.timers.forEach(fn => fn());
+  assert.equal(observed.hints.length, 0);
 });

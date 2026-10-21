@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
 import { menuCategories } from "../menu-catalog.js";
+import { runFeedViewerCases } from "./menu-feed-viewer-browser-cases.mjs";
 import { feedProducts } from "../src/menu-feed-model.js";
 
 // Repository CI browser test: public bytes over HTTPS and the real CSP.
@@ -1466,6 +1467,8 @@ try {
       languageCategoryAndSearchTravelInUrl: true, genericEntryStillUsable: true, consoleErrors: false });
     await context.close();
   }
+  await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
+
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);

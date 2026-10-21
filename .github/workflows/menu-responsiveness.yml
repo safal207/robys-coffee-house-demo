@@ -25,9 +25,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - name: Measure baseline with the same cache-verified harness
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || 'f9d728f32c85a8462cea1e8cfa179b445a78e387' }}
         run: |
+          BASE_SHA="$(git rev-parse refs/remotes/origin/main)"
           git worktree add --detach /tmp/robys-menu-baseline "$BASE_SHA"
           ROBYS_PERF_ROOT=/tmp/robys-menu-baseline ROBYS_PERF_OUTPUT=.artifacts/menu-responsiveness/baseline ROBYS_PERF_LABEL=baseline ROBYS_SOURCE_REVISION="$BASE_SHA" node scripts/measure-menu-responsiveness.mjs
       - name: Measure emitted candidate transitions and full-feed scrolling
