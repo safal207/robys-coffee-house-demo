@@ -8,37 +8,73 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 12
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Read pinned reconciliation program
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: c739b25ad631b209806ecde1f7ed1eb29fec6696
+          path: control
+          persist-credentials: false
+      - name: Check out original performance head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: 7b86f83ae37193f65d29ba4484af1bef571aba0c
+          path: candidate
           fetch-depth: 0
-          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '22'
-      - run: npm ci --no-audit --no-fund
-      - name: Preserve exact branches and inspect merge without publishing
+      - name: Reconcile pinned released Stories with the performance source
+        working-directory: candidate
         run: |
           set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/menu-perf-evidence"
-          git config user.name 'Menu performance diagnostic'
-          git config user.email 'diagnostic@localhost'
+          mkdir -p "$RUNNER_TEMP/menu-perf-validation"
+          git config user.name 'Aleksey Safonov'
+          git config user.email '55020240+safal207@users.noreply.github.com'
           git fetch --no-tags origin 7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9
-          git branch diagnostic-current-main 7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9
-          git branch diagnostic-performance-head 7b86f83ae37193f65d29ba4484af1bef571aba0c
-          git merge-base diagnostic-current-main diagnostic-performance-head > "$RUNNER_TEMP/menu-perf-evidence/merge-base.txt"
-          git merge --no-commit --no-ff diagnostic-current-main > "$RUNNER_TEMP/menu-perf-evidence/merge.log" 2>&1 || test -n "$(git ls-files -u)"
-          git status --short > "$RUNNER_TEMP/menu-perf-evidence/status.txt"
-          git diff --name-only --diff-filter=U > "$RUNNER_TEMP/menu-perf-evidence/conflicts.txt"
-          cat "$RUNNER_TEMP/menu-perf-evidence/status.txt"
-          git merge --abort
-          git bundle create "$RUNNER_TEMP/menu-perf-evidence/source.bundle" diagnostic-current-main diagnostic-performance-head
-          tar -czf "$RUNNER_TEMP/menu-perf-evidence/dependencies.tar.gz" node_modules
+          git merge --no-commit --no-ff 7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9 > "$RUNNER_TEMP/menu-perf-validation/merge.log" 2>&1 || test -n "$(git ls-files -u)"
+          printf '%s\n' integrity-manifest.json menu-feed.html menu-feed.js sw-core-v64.js > "$RUNNER_TEMP/expected-conflicts"
+          git diff --name-only --diff-filter=U > "$RUNNER_TEMP/actual-conflicts"
+          diff -u "$RUNNER_TEMP/expected-conflicts" "$RUNNER_TEMP/actual-conflicts"
+          git checkout --theirs -- integrity-manifest.json menu-feed.html menu-feed.js sw-core-v64.js
+          python "$GITHUB_WORKSPACE/control/scripts/reconcile-menu-performance.py"
+          npm ci --no-audit --no-fund 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/install.log"
+          npm run build 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/build.log"
+          npm run integrity:generate 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/integrity-generate.log"
+          git add -u
+          git add src/qa.js src/pairing-posters.js
+          test -z "$(git ls-files -u)"
+          test "$(git write-tree)" = 3638d063ba81c1ddfd23827c12c1f2318505069d
+      - name: Full static, build and security contracts on the exact candidate
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          npm run check 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/check.log"
+          npm run verify:security 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/security.log"
+          npm audit --audit-level=high 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/audit.log"
+          npm run verify:integrity 2>&1 | tee "$RUNNER_TEMP/menu-perf-validation/integrity.log"
+          git diff --exit-code
+          git diff --cached --check
+          test "$(git write-tree)" = 3638d063ba81c1ddfd23827c12c1f2318505069d
+      - name: Stage isolated candidate only; never update main or the PR here
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          target=refs/heads/diag/menu-perf-candidate-20261021
+          test "$target" = refs/heads/diag/menu-perf-candidate-20261021
+          test -z "$(git ls-remote --heads origin "$target")"
+          git commit -m 'perf: reconcile fast menu navigation with Stories and accessible recovery'
+          test "$(git rev-parse HEAD^{tree})" = 3638d063ba81c1ddfd23827c12c1f2318505069d
+          git push origin "HEAD:$target"
+          git log -1 --format='commit=%H%ntree=%T%nparents=%P' | tee "$RUNNER_TEMP/menu-perf-validation/candidate.txt"
+          cat "$RUNNER_TEMP/menu-perf-validation/candidate.txt" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
         with:
-          name: menu-perf-reconciliation-inputs
-          path: ${{ runner.temp }}/menu-perf-evidence/
-          retention-days: 3
+          name: menu-perf-reconciliation-validation
+          path: ${{ runner.temp }}/menu-perf-validation/
+          retention-days: 7
           if-no-files-found: error
