@@ -154,6 +154,29 @@ async function assertLandingPhotoFits(page) {
     });
   });
 }
+async function assertPhotoActions(card) {
+  const layout = await card.evaluate(node => {
+    const photo = node.querySelector(".feed-photo").getBoundingClientRect();
+    const actions = [...node.querySelectorAll(".feed-like,.feed-share")];
+    const rects = actions.map(action => action.getBoundingClientRect());
+    const arrows = [...node.querySelectorAll(".feed-photo-prev,.feed-photo-next")].map(action => action.getBoundingClientRect());
+    const separate = (a, b) => a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top;
+    return {
+      insidePhoto: actions.every(action => action.closest(".feed-photo")) && rects.every(box =>
+        box.left >= photo.left && box.right <= photo.right && box.top >= photo.top && box.bottom <= photo.bottom),
+      horizontal: Math.abs(rects[0].top - rects[1].top) <= 1 && rects[0].right < rects[1].left,
+      touchTargets: rects.every(box => box.width >= 44 && box.height >= 44),
+      separateFromArrows: rects.every(box => arrows.every(arrow => separate(box, arrow))),
+      contrastBackplates: actions.every(action => getComputedStyle(action).backgroundColor !== "rgba(0, 0, 0, 0)"),
+      iconOnly: [...node.querySelectorAll(".feed-like span,.feed-share span")].every(label => {
+        const box = label.getBoundingClientRect(); return box.width <= 1 && box.height <= 1;
+      })
+    };
+  });
+  assert.deepEqual(layout, { insidePhoto: true, horizontal: true, touchTargets: true,
+    separateFromArrows: true, contrastBackplates: true, iconOnly: true },
+  "Like and share stay on the photo, with distinct 44px targets and contrasting backplates");
+}
 async function assertPurchaseControlsReachable(page, index = 0) {
   const card = page.locator(".feed-card").nth(index);
   const delta = await card.locator(".feed-card-content").evaluate(node => {
@@ -179,6 +202,49 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      const motion = window.__menuMotion = { introObserved: false, introPending: false };
+      new MutationObserver(records => {
+        for (const record of records) {
+          if (record.type === "attributes" && record.target.hasAttribute("data-robys-entry-pending")) motion.introPending = true;
+          for (const node of record.addedNodes) {
+            if (node.nodeType === 1 && (node.matches(".robys-takeaway-entry") || node.querySelector(".robys-takeaway-entry"))) motion.introObserved = true;
+          }
+        }
+      }).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-robys-entry-pending"] });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const query = "Эспрессо", navigations = [];
+    await page.goto(`${origin}/menu.html?view=list&lang=ru&q=${encodeURIComponent(query)}#hot-coffee`);
+    await waitForMenuMode(page, "list");
+    for (const mode of ["feed", "list", "feed", "list"]) {
+      const current = mode === "feed" ? ".menu-view-switch" : ".feed-view-switch";
+      await page.locator(`${current} [data-menu-view="${mode}"]`).click();
+      await waitForMenuMode(page, mode);
+      const motion = await page.evaluate(() => window.__menuMotion);
+      assert.equal(motion.introObserved, false, "Changing menu presentation never mounts the café entrance scene");
+      assert.equal(motion.introPending, false, "Changing menu presentation never starts entrance prepaint work");
+      assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), reducedMotion === "reduce");
+      assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+      assert.equal(await page.locator(mode === "feed" ? "#feed-search" : "#menu-search").inputValue(), query);
+      assert.equal(await page.locator(mode === "feed" ? "#feed-categories [data-category=hot-coffee]" : "#menu-category-nav [data-category=hot-coffee]").getAttribute("aria-pressed"), "true");
+      const selector = mode === "feed" ? ".feed-view-switch" : ".menu-view-switch";
+      assert.equal(await page.locator(`${selector} a`).first().evaluate(link => {
+        const box = link.getBoundingClientRect(), hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return link === hit || link.contains(hit);
+      }), true, "Menu controls remain usable after the native navigation settles");
+      navigations.push({ mode, entranceNeverMounted: true, controlsReachable: true });
+    }
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: `menu-mode-motion-${reducedMotion}`, result: "PASS", navigations,
+      nativeHistoryAndAnchors: true, contextPreserved: true, entranceNeverStarted: true,
+      measuredFrameRate: false, consoleErrors: false });
+    await context.close();
+  }
   {
     const context = await browser.newContext({ viewport: { width: 320, height: 568 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
@@ -297,6 +363,8 @@ try {
     assert.ok(Math.abs(photo.width - photo.height) <= 1, `Square photo has ${photo.width} × ${photo.height} rendered bounds`);
     assert.ok(photo.width > 0 && photo.width <= 460, `Photo width ${photo.width} exceeds the bounded feed column`);
     assert.equal(photo.fit, "contain", "The full product photograph must remain visible");
+    await assertPhotoActions(page.locator(".feed-card").first());
+    await assertPhotoActions(page.locator(".feed-card").nth(1));
     const brand = await page.locator(".feed-brand img").evaluate(image => image.currentSrc);
     assert.match(brand, width <= 760 ? /robys-compact-master-v1\.svg/ : /robys-header-master-v1\.svg/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
@@ -727,21 +795,8 @@ try {
     await assertLandingPhotoFits(page);
     const first = page.locator(".feed-card").nth(0), second = page.locator(".feed-card").nth(1);
     await first.locator(".feed-photo>img").evaluate(image => image.decode());
-    const social = await first.evaluate(card => {
-      const photo = card.querySelector(".feed-photo").getBoundingClientRect();
-      const row = card.querySelector(".feed-social").getBoundingClientRect();
-      const like = card.querySelector(".feed-like").getBoundingClientRect();
-      const share = card.querySelector(".feed-share").getBoundingClientRect();
-      const heading = card.querySelector(".feed-product-heading").getBoundingClientRect();
-      return { belowPhoto: row.top >= photo.bottom - 1, beforeDetails: row.bottom <= heading.top + 1,
-        horizontal: Math.abs(like.top - share.top) <= 1 && like.right <= share.left + 1,
-        touchTargets: [like, share].every(box => box.width >= 44 && box.height >= 44),
-        iconOnly: [...card.querySelectorAll(".feed-like span,.feed-share span")].every(node => {
-          const box = node.getBoundingClientRect(); return box.width <= 1 && box.height <= 1;
-        }) };
-    });
-    assert.deepEqual(social, { belowPhoto: true, beforeDetails: true, horizontal: true, touchTargets: true, iconOnly: true },
-      "Like and share must be accessible icon buttons in one row below the photograph");
+    await assertPhotoActions(first);
+    await assertPhotoActions(second);
     assert.match(await first.locator(".feed-share").getAttribute("aria-label"), /share/i);
     await first.locator(".feed-photo>img").dblclick();
     assert.equal(await first.locator(".feed-like").getAttribute("aria-pressed"), "true");
@@ -785,7 +840,7 @@ try {
     assert.deepEqual(errors, []);
     report.cases.push({ case: "social-navigation", result: "PASS", doubleTapSavesOnce: true, photoDoesNotAddToOrder: true,
       previousNextControls: true, arrowKeyboardNavigation: true, nativeWheelNavigation: true, discoveryKeepsTypingFocus: true,
-      discoveryEscapeAndCloseRestoreFocus: true, reducedMotion: true, horizontalSocialRowBelowPhoto: true,
+      discoveryEscapeAndCloseRestoreFocus: true, reducedMotion: true, horizontalSocialActionsOnPhoto: true,
       accessibleIconButtons: true, minimum44pxTouchTargets: true });
     await context.close();
   }

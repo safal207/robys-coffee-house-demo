@@ -314,7 +314,8 @@ function renderCard(product, index) {
   const share = button("feed-share", undefined, event => { void shareProduct(product, event.currentTarget); });
   share.setAttribute("aria-label", `${text().share}: ${localized(product.item.name)}`);
   share.append(icon("m22 2-7 20-4-9-9-4L22 2Zm0 0L11 13"), element("span", "sr-only", text().share));
-  social.append(like, share, seen);
+  social.append(like, share);
+  visual.append(social);
   const title = element("h3", "", localized(product.item.name)); title.id = titleId;
   heading.append(title, element("span", "feed-price", money(product.item.price))); content.append(heading);
   if (product.item.description) content.append(element("p", "feed-description", localized(product.item.description)));
@@ -341,7 +342,7 @@ function renderCard(product, index) {
   });
   add.setAttribute("aria-label", `${text().add}: ${localized(product.item.name)}, ${money(product.item.price)}`);
   bottom.append(element("span", "feed-selected"), add); content.append(bottom);
-  card.append(header, visual, social, content); return card;
+  card.append(header, visual, seen, content); return card;
 }
 
 function appendPage() {

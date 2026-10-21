@@ -4,13 +4,10 @@ document.documentElement.classList.add("js");
 
 const ENTRY_PREPAINT_TIMEOUT_MS = 2_800;
 
-function requestedEntryMode() {
-  return new URLSearchParams(window.location.search).get("entry");
-}
-
 function resolveEntryScene() {
-  const mode = requestedEntryMode();
-  if (mode === "off") return null;
+  const query = new URLSearchParams(window.location.search);
+  const mode = query.get("entry");
+  if (mode === "off" || (/\/menu(?:\.html)?\/?$/.test(window.location.pathname) && query.get("view") === "list")) return null;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return null;
 
   const navigation = performance.getEntriesByType?.("navigation")?.[0];
@@ -19,9 +16,8 @@ function resolveEntryScene() {
   if (mode === "morning" || mode === "day" || mode === "night") return mode;
 
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 18) return "day";
-  return "night";
+  if (hour < 5 || hour >= 18) return "night";
+  return hour < 12 ? "morning" : "day";
 }
 
 function revealProductAfterEntryFailure() {
