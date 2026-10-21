@@ -38,10 +38,12 @@ assert(
   refreshWorkflow.includes("Verify refreshed public digests"),
   "manifest refresh must own final public digest verification"
 );
-assert(
-  refreshWorkflow.includes("remote_menu_sha") && refreshWorkflow.includes("local_menu_sha"),
-  "refresh publication wait must bind to the exact menu digest"
-);
+for (const [name, definition] of [["refresh", refreshWorkflow], ["live", integrityWorkflow]]) {
+  assert(
+    definition.includes("ROBY_INTEGRITY_WAIT_MS: 300000") && definition.includes("run: node scripts/verify-live-integrity.mjs"),
+    `${name} publication must use the bounded exact-manifest and full-digest verifier`
+  );
+}
 assert(
   integrityWorkflow.includes("INTEGRITY_REFRESH_REQUIRED"),
   "pre-refresh content pushes must delegate instead of producing false failures"
