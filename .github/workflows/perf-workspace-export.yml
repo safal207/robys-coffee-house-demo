@@ -1,0 +1,32 @@
+name: Isolated menu performance QA workspace
+on:
+  push:
+    branches: [perf/menu-switch-scroll-20261021]
+    paths: [.github/workflows/perf-workspace-export.yml]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Package tracked source and locked public dependencies (no git credentials)
+        run: |
+          mkdir -p /tmp/robys-perf-workspace
+          git archive --format=tar.gz HEAD > /tmp/robys-perf-workspace/source.tar.gz
+          tar -czf /tmp/robys-perf-workspace/dependencies.tar.gz node_modules
+          git rev-parse HEAD > /tmp/robys-perf-workspace/head.txt
+          sha256sum /tmp/robys-perf-workspace/*.tar.gz > /tmp/robys-perf-workspace/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isolated-menu-performance-workspace
+          path: /tmp/robys-perf-workspace/
+          retention-days: 3
+          compression-level: 0
