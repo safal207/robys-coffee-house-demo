@@ -1,0 +1,44 @@
+name: Menu performance reconciliation evidence
+on:
+  push:
+    branches: [diag/menu-perf-reconcile-20261021]
+    paths: [.github/workflows/menu-perf-reconcile.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 7b86f83ae37193f65d29ba4484af1bef571aba0c
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Preserve exact branches and inspect merge without publishing
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/menu-perf-evidence"
+          git config user.name 'Menu performance diagnostic'
+          git config user.email 'diagnostic@localhost'
+          git fetch --no-tags origin 7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9
+          git branch diagnostic-current-main 7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9
+          git branch diagnostic-performance-head 7b86f83ae37193f65d29ba4484af1bef571aba0c
+          git merge-base diagnostic-current-main diagnostic-performance-head > "$RUNNER_TEMP/menu-perf-evidence/merge-base.txt"
+          git merge --no-commit --no-ff diagnostic-current-main > "$RUNNER_TEMP/menu-perf-evidence/merge.log" 2>&1 || test -n "$(git ls-files -u)"
+          git status --short > "$RUNNER_TEMP/menu-perf-evidence/status.txt"
+          git diff --name-only --diff-filter=U > "$RUNNER_TEMP/menu-perf-evidence/conflicts.txt"
+          cat "$RUNNER_TEMP/menu-perf-evidence/status.txt"
+          git merge --abort
+          git bundle create "$RUNNER_TEMP/menu-perf-evidence/source.bundle" diagnostic-current-main diagnostic-performance-head
+          tar -czf "$RUNNER_TEMP/menu-perf-evidence/dependencies.tar.gz" node_modules
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: menu-perf-reconciliation-inputs
+          path: ${{ runner.temp }}/menu-perf-evidence/
+          retention-days: 3
+          if-no-files-found: error
