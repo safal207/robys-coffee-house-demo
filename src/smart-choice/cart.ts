@@ -186,6 +186,11 @@ function mountCart(): void {
       ? selectedGroups.map(group => orderGroupName(group, language)).join(" + ") : text.selectionRemoved;
     if (summaryPrice) summaryPrice.textContent = `${text.selectionTotal}: ${formatPrice(selectedGroups.reduce((sum, group) => sum + orderGroupTotal(group), 0), language)}`;
 
+    // Capture at commit time: the user may have moved focus while storage was
+    // pending. Restore the current logical control after replacing its DOM node.
+    const focused = document.activeElement;
+    const focusKey = focused instanceof HTMLButtonElement && root.contains(focused)
+      ? focused.dataset.cartFocus : undefined;
     root.replaceChildren();
     const heading = create("h2", "cart-title", text.title);
     heading.id = "cart-builder-title";
@@ -198,6 +203,7 @@ function mountCart(): void {
       notice.setAttribute("role", "alert");
       const retry = create("button", "secondary-button", { tr: "Tekrar dene", en: "Try again", ru: "Попробовать ещё раз" }[language]);
       retry.type = "button";
+      retry.dataset.cartFocus = "retry";
       retry.addEventListener("click", () => { void render(true); });
       root.append(notice, retry);
     }
@@ -213,6 +219,7 @@ function mountCart(): void {
     const actions = create("div", "cart-next-actions");
     const handoff = create("button", "primary-button cart-handoff", needsFlavour ? text.chooseFlavours : text.handoff);
     handoff.type = "button";
+    handoff.dataset.cartFocus = "handoff";
     handoff.disabled = !canHandoff;
     handoff.setAttribute("aria-disabled", String(!canHandoff));
     handoff.setAttribute("aria-describedby", "cart-payment-note");
@@ -247,6 +254,7 @@ function mountCart(): void {
     });
     const more = create("button", "secondary-button cart-choose-more", text.chooseMore);
     more.type = "button";
+    more.dataset.cartFocus = "choose-more";
     more.addEventListener("click", () => {
       window.dispatchEvent(new CustomEvent("robys:quick-order"));
       window.requestAnimationFrame(() => {
@@ -287,6 +295,7 @@ function mountCart(): void {
       const active = cart.substitutionIds.includes(rule.id);
       const button = create("button", "cart-choice");
       button.type = "button";
+      button.dataset.cartFocus = `substitution:${rule.id}`;
       button.setAttribute("aria-pressed", String(active));
       const delta = rule.priceDeltaMinor === 0
         ? text.noExtra
@@ -308,6 +317,7 @@ function mountCart(): void {
       const active = cart.upgradeIds.includes(rule.id);
       const button = create("button", "cart-choice");
       button.type = "button";
+      button.dataset.cartFocus = `upgrade:${rule.id}`;
       button.setAttribute("aria-pressed", String(active));
       button.append(
         create("span", "cart-choice-label", rule.label[language]),
@@ -338,6 +348,8 @@ function mountCart(): void {
       const accept = create("button", "primary-button", text.accept);
       const decline = create("button", "secondary-button", text.decline);
       accept.type = decline.type = "button";
+      accept.dataset.cartFocus = `bump:${bump.id}`;
+      decline.dataset.cartFocus = `decline-bump:${bump.id}`;
       accept.addEventListener("click", () => {
         cart = { ...cart, bumpDecision: "accepted" };
         render();
@@ -355,6 +367,7 @@ function mountCart(): void {
     } else if (bump && cart.bumpDecision === "accepted") {
       const remove = create("button", "cart-choice");
       remove.type = "button";
+      remove.dataset.cartFocus = `bump:${bump.id}`;
       remove.setAttribute("aria-pressed", "true");
       remove.append(
         create("span", "cart-choice-label", bump.label[language]),
@@ -370,6 +383,11 @@ function mountCart(): void {
 
     if (calculation.notices.some((notice) => notice.code.includes("removed"))) {
       root.append(create("p", "cart-notice", text.unavailable));
+    }
+    if (focusKey && root.isConnected && document.activeElement === document.body) {
+      [...root.querySelectorAll<HTMLButtonElement>("[data-cart-focus]")]
+        .find(button => button.dataset.cartFocus === focusKey && !button.disabled)
+        ?.focus({ preventScroll: true });
     }
   };
 

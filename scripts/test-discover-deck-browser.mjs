@@ -45,6 +45,56 @@ async function waitForRenderedPoster(page, expectedJourneyId) {
   }, expectedJourneyId, { timeout: 8000 });
 }
 
+async function assertLocalizedSkipLinks(browser) {
+  const labels = { tr: "İçeriğe geç", en: "Skip to content", ru: "Перейти к содержанию" };
+  const languages = Object.keys(labels);
+  for (const [index, initialLanguage] of languages.entries()) {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 }, serviceWorkers: "block"
+    });
+    try {
+      await context.addInitScript(language => localStorage.setItem("robys-language", language), initialLanguage);
+      await context.route("https://api.open-meteo.com/**", route => route.abort());
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", error => errors.push(error.message));
+      await page.goto(`${base}discover.html?entry=off`, { waitUntil: "networkidle" });
+
+      for (let offset = 0; offset <= languages.length; offset += 1) {
+        const language = languages[(index + offset) % languages.length];
+        if (offset > 0) await page.locator(`.lang-button[data-lang="${language}"]`).click();
+        await page.waitForFunction(expected => document.documentElement.lang === expected, language);
+        const skip = page.getByRole("link", { name: labels[language], exact: true });
+        assert.equal(await skip.count(), 1,
+          `LOC-001: ${language} skip link must have the localized accessible name after ${offset ? "switching" : "initial load"}`);
+        assert.equal((await skip.textContent()).trim(), labels[language],
+          `LOC-001: ${language} visible and accessible labels must agree`);
+        assert.equal(await skip.getAttribute("href"), "#discover-main");
+        assert.equal(await page.getByRole("main").getAttribute("id"), "discover-main");
+
+        if (offset === 0) await page.keyboard.press("Tab");
+        else await skip.focus();
+        assert.equal(await skip.evaluate(node => node === document.activeElement), true,
+          `LOC-001: ${language} skip link must be keyboard focusable and first on initial entry`);
+        assert.equal(await skip.isVisible(), true, `LOC-001: Focused ${language} skip label must be visible`);
+        const bounds = await skip.boundingBox();
+        assert.ok(bounds && bounds.x >= 0 && bounds.y >= 0
+          && bounds.x + bounds.width <= 390 && bounds.y + bounds.height <= 844,
+          `LOC-001: Focused ${language} skip label must remain within the viewport`);
+        if (offset === 0) await page.screenshot({ path: `${out}/discover-skip-${language}-390.png` });
+
+        await page.evaluate(() => history.replaceState(null, "", location.pathname + location.search));
+        await page.keyboard.press("Enter");
+        await page.waitForURL(url => url.hash === "#discover-main");
+      }
+      assert.deepEqual(errors, [], `LOC-001: Unhandled browser errors: ${errors.join(" | ")}`);
+    } finally {
+      await context.close();
+    }
+  }
+  console.log("LOC-001: Discover skip labels, accessible names and targets: 3 initial locales + 9 locale switches PASS");
+}
+
 let browser;
 try {
   for (let attempt = 0; attempt < 50; attempt += 1) {
@@ -55,6 +105,7 @@ try {
   }
 
   browser = await chromium.launch({ headless: true });
+  await assertLocalizedSkipLinks(browser);
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     hasTouch: true,
