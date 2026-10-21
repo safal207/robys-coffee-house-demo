@@ -216,7 +216,7 @@ function observeWarm({ supported = true, hidden = false, online = true, connecti
     fetch: () => assert.fail('Warming must not fetch or parse executable assets') };
   const source = readFileSync(new URL('../src/menu-view-prefetch.js', import.meta.url), 'utf8')
     .replaceAll('export function', 'function');
-  runInNewContext(source + '\ninitMenuViewPrefetch("feed");', context);
+  runInNewContext(source + '\ninitFeedListPrefetch();', context);
   const intent = { target: { closest: () => link }, preventDefault: () => assert.fail('Native navigation cannot be intercepted') };
   return { hints, timers, document, link, originalHref: href,
     intent: () => listeners.get('pointerover')?.(intent),

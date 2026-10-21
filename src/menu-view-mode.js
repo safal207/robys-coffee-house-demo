@@ -1,4 +1,4 @@
-import { initMenuViewPrefetch } from "./src/menu-view-prefetch.js";
+import { initFeedListPrefetch } from "./src/menu-view-prefetch.js";
 // List and feed are two views of the same menu. Explicit links always win over
 // the remembered preference; only an unqualified menu entry can use it.
 export const MENU_VIEW_STORAGE_KEY = "robys-menu-view";
@@ -185,7 +185,7 @@ function initializeMenuViews() {
       if (event.persisted) restoreContext();
     });
     document.documentElement.dataset.menuViewReady = "true";
-    initMenuViewPrefetch(view);
+    if (view === "feed") initFeedListPrefetch();
   };
   if (root.dataset.ready === "true") ready();
   else {

@@ -1,21 +1,20 @@
-// Let the browser warm one document; never fetch or execute another view's assets.
+// The feed may warm its return to the list. Keep the list's startup JS budget
+// unchanged; no custom prefetch code runs on its initial load.
 export function canWarmMenu(connection, hidden = false, online = true) {
   return !hidden && online !== false && !connection?.saveData
     && !['slow-2g', '2g', '3g'].includes(connection?.effectiveType);
 }
-export function initMenuViewPrefetch(view) {
-  if (!['list', 'feed'].includes(view)) return;
+export function initFeedListPrefetch() {
   const hint = document.createElement('link');
   if (!hint.relList?.supports('prefetch')) return;
-  const targetView = view === 'list' ? 'feed' : 'list';
-  const selector = 'a[data-menu-view="' + targetView + '"]';
+  const selector = 'a[data-menu-view="list"]';
   let attempted = false, timer;
   function warm() {
     if (attempted || !canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) return;
     const link = document.querySelector(selector);
     if (!link) return;
     const url = new URL(link.href, location.href);
-    const expected = new URL(targetView === 'feed' ? 'menu-feed.html' : 'menu.html', location.href);
+    const expected = new URL('menu.html', location.href);
     if (url.origin !== location.origin || url.pathname !== expected.pathname || url.username || url.password) return;
     url.hash = '';
     attempted = true;

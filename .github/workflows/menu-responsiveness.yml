@@ -2,9 +2,9 @@ name: Menu interaction performance
 on:
   push:
     branches: [perf/menu-switch-scroll-20261021]
-    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/measure-menu-responsiveness.mjs', '.github/workflows/menu-responsiveness.yml']
+    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
   pull_request:
-    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/measure-menu-responsiveness.mjs', '.github/workflows/menu-responsiveness.yml']
+    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
 permissions:
   contents: read
 concurrency:
@@ -24,6 +24,8 @@ jobs:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
+      - name: Verify the performance gate rejects regressions and incomplete evidence
+        run: node --test scripts/test-menu-responsiveness-gate.mjs
       - name: Measure baseline with the same cache-verified harness
         run: |
           BASE_SHA="$(git rev-parse refs/remotes/origin/main)"
@@ -35,6 +37,8 @@ jobs:
           ROBYS_PERF_LABEL: candidate
           ROBYS_PERF_OUTPUT: .artifacts/menu-responsiveness/candidate
         run: node scripts/measure-menu-responsiveness.mjs
+      - name: Enforce navigation, scroll-work and frame budgets
+        run: node scripts/compare-menu-responsiveness.mjs .artifacts/menu-responsiveness/baseline/report.json .artifacts/menu-responsiveness/candidate/report.json .artifacts/menu-responsiveness/comparison.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
