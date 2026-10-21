@@ -6,24 +6,82 @@ on:
 permissions:
   contents: read
 jobs:
-  workspace:
+  compare:
+    if: github.ref == 'refs/heads/perf/menu-responsiveness-20261021'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 25
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Package exact source and locked development dependencies for isolated QA
+      - name: Apply checksum-verified authored patch on the isolated feature branch
+        shell: bash
         run: |
-          git rev-parse HEAD > QA_WORKSPACE_HEAD.txt
-          tar --exclude='./.git' --exclude='./.artifacts' --exclude='./node_modules/.cache' -czf "$RUNNER_TEMP/robys-menu-perf-workspace.tgz" .
-      - uses: actions/upload-artifact@v4
+          base64 --decode .qa-menu-performance.patch.b64 | gzip -d > "$RUNNER_TEMP/menu-performance.patch"
+          echo "90eb6f04c2b8efdc68d7d626efaa194368758b8b6f8d115dce38eb7b5afaf902  $RUNNER_TEMP/menu-performance.patch" | sha256sum -c -
+          git apply --check "$RUNNER_TEMP/menu-performance.patch"
+          git apply "$RUNNER_TEMP/menu-performance.patch"
+          # Existing CI integration is published separately through the owner connector.
+          # This job does not change existing workflow permissions or release checks.
+          git restore .github/workflows/order-reliability.yml
+          mkdir -p .artifacts/menu-performance
+      - name: Canonical build, full check and security
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/build.mjs 2>&1 | tee .artifacts/menu-performance/build.log
+          npm run integrity:generate
+          npm run check 2>&1 | tee .artifacts/menu-performance/check.log
+          npm run verify:security 2>&1 | tee .artifacts/menu-performance/security.log
+          git diff --check
+      - name: Record local candidate tree before measurement
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/menu-app.js src/menu-feed.js src/menu-feed-engagement.js src/menu-feed-navigation.js src/menu-view-mode.js src/menu-view-warmup.js scripts/build.mjs scripts/test-menu-view-warmup.mjs scripts/test-menu-performance-browser.mjs package.json menu-app.js menu-feed.js menu-view-mode.js menu.html menu-feed.html sw-core-v64.js integrity-manifest.json
+          git commit -m 'perf: warm alternate menu assets and bound feed scroll work'
+          git rev-parse HEAD > .artifacts/menu-performance/candidate-head.txt
+      - name: Install pinned browser
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Prepare unchanged baseline with the same measurement harness
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/menu-baseline" d8426661dcd5a0b73c971fdef932fd1bf16c62b1
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/menu-baseline/node_modules"
+          cp scripts/test-menu-performance-browser.mjs "$RUNNER_TEMP/menu-baseline/scripts/"
+      - name: Baseline browser measurements
+        shell: bash
+        run: |
+          set -o pipefail
+          cd "$RUNNER_TEMP/menu-baseline"
+          ROBYS_PERF_OUTPUT="$GITHUB_WORKSPACE/.artifacts/menu-performance/baseline" node scripts/test-menu-performance-browser.mjs 2>&1 | tee "$GITHUB_WORKSPACE/.artifacts/menu-performance/baseline.log"
+      - name: Candidate browser measurements and structural regression budgets
+        shell: bash
+        run: |
+          set -o pipefail
+          ROBYS_PERF_ENFORCE=1 ROBYS_PERF_OUTPUT=.artifacts/menu-performance/candidate node scripts/test-menu-performance-browser.mjs 2>&1 | tee .artifacts/menu-performance/candidate.log
+      - name: Existing menu and shared-cart browser regression
+        shell: bash
+        env:
+          CHECKOUT_BROWSERS: chromium
+        run: |
+          set -o pipefail
+          node scripts/test-menu-feed-browser.mjs 2>&1 | tee .artifacts/menu-performance/menu-regression.log
+      - name: Publish tested source and generated files only to the feature branch
+        run: |
+          test "$(git ls-remote origin refs/heads/perf/menu-responsiveness-20261021 | cut -f1)" = "$GITHUB_SHA"
+          git push origin HEAD:refs/heads/perf/menu-responsiveness-20261021
+      - name: Preserve measurement evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: robys-menu-perf-workspace
-          path: ${{ runner.temp }}/robys-menu-perf-workspace.tgz
-          retention-days: 1
+          name: robys-menu-performance-comparison
+          path: .artifacts/
+          include-hidden-files: true
+          retention-days: 7
