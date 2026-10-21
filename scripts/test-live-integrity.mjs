@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
@@ -27,7 +27,11 @@ async function runFixture(t, respond, { files = current, waitMs = 0 } = {}) {
   const directory = mkdtempSync(join(tmpdir(), "robys-live-integrity-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   writeFileSync(join(directory, "integrity-manifest.json"), serialize(files));
-  for (const [path, bytes] of Object.entries(files)) writeFileSync(join(directory, path), bytes);
+  for (const [path, bytes] of Object.entries(files)) {
+    const target = join(directory, path);
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, bytes);
+  }
   const requests = [];
   let attempt = 0;
   const server = createServer((req, res) => {
@@ -64,6 +68,66 @@ async function runFixture(t, respond, { files = current, waitMs = 0 } = {}) {
 }
 
 const serve = (files) => (path) => ({ bytes: path === "integrity-manifest.json" ? serialize(files) : files[path] });
+
+// Model #460's added public module without coupling future releases to a fixed catalog size.
+const previous470 = {
+  ...current,
+  ...Object.fromEntries(Array.from({ length: 466 }, (_, index) =>
+    [`fixtures/catalog-${index}.json`, Buffer.from(JSON.stringify({ index }))]))
+};
+const viewerPath = "src/menu-feed-viewer.js";
+const current471 = { ...previous470, [viewerPath]: Buffer.from('export const VIEWER = "new";\n') };
+
+test("a 471-file publication checks the added nested viewer and every prior entry", async (t) => {
+  const { code, output, report } = await runFixture(t, serve(current471), { files: current471 });
+  assert.equal(code, 0, output);
+  assert.equal(report.checked.length, 471);
+  assert.equal(new Set(report.checked.map((entry) => entry.path)).size, 471);
+  assert.ok(report.checked.every((entry) => entry.passed));
+  assert.ok(report.checked.some((entry) => entry.path === viewerPath));
+});
+
+test("a consistent 470-file publication cannot certify the 471-file revision", async (t) => {
+  const { code, output, report, requests } = await runFixture(t, serve(previous470), { files: current471 });
+  assert.equal(code, 1, output);
+  assert.equal(report.checked.length, 0);
+  assert.deepEqual(requests.map((request) => request.path), ["integrity-manifest.json"]);
+  assert.equal(report.failures[0].actual.sha256, digest(serialize(previous470)));
+  assert.equal(report.failures[0].expected.sha256, digest(serialize(current471)));
+});
+
+test("470-to-471 propagation retries old manifests and cached viewer bytes before a complete pass", async (t) => {
+  const { code, output, report, requests } = await runFixture(t, (path, attempt) => {
+    if (attempt === 1) return serve(previous470)(path);
+    if (attempt === 2 && path === viewerPath) return { bytes: Buffer.from('export const VIEWER = "old";\n') };
+    return serve(current471)(path);
+  }, { files: current471, waitMs: 5000 });
+  assert.equal(code, 0, output);
+  assert.deepEqual(report.attempts.map((attempt) => attempt.checked), [0, 471, 471]);
+  assert.equal(report.attempts[0].failures[0].path, "integrity-manifest.json");
+  const cachedViewer = report.attempts[1].failures[0];
+  assert.equal(cachedViewer.path, viewerPath);
+  assert.equal(cachedViewer.expected.bytes, cachedViewer.actual.bytes);
+  assert.notEqual(cachedViewer.expected.sha256, cachedViewer.actual.sha256);
+  assert.equal(cachedViewer.response.headers["x-cache"], "HIT");
+  assert.equal(cachedViewer.response.headers.age, "42");
+  assert.equal(report.checked.length, 471);
+  assert.ok(report.checked.every((entry) => entry.passed));
+  assert.equal(report.failures.length, 0);
+  assert.equal(new Set(requests.filter((request) => request.path === "integrity-manifest.json")
+    .map((request) => request.nonce)).size, 3);
+});
+
+test("a temporary manifest HTTP failure is retained before a full successful retry", async (t) => {
+  const { code, output, report } = await runFixture(t, (path, attempt) =>
+    attempt === 1 ? { status: 503 } : serve(current)(path), { waitMs: 1500 });
+  assert.equal(code, 0, output);
+  assert.equal(report.attempts.length, 2);
+  assert.equal(report.attempts[0].checked, 0);
+  assert.match(report.attempts[0].failures[0].error, /503/);
+  assert.equal(report.checked.length, Object.keys(current).length);
+  assert.ok(report.checked.every((entry) => entry.passed));
+});
 
 test("an exact publication checks every local manifest entry, including binary bytes", async (t) => {
   const { code, output, report, requests } = await runFixture(t, serve(current));

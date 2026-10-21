@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
 import { menuCategories } from "../menu-catalog.js";
+import { runFeedViewerCases } from "./menu-feed-viewer-browser-cases.mjs";
 import { feedProducts } from "../src/menu-feed-model.js";
 
 // Repository CI browser test: public bytes over HTTPS and the real CSP.
@@ -166,6 +167,9 @@ async function assertPhotoActions(card) {
         box.left >= photo.left && box.right <= photo.right && box.top >= photo.top && box.bottom <= photo.bottom),
       horizontal: Math.abs(rects[0].top - rects[1].top) <= 1 && rects[0].right < rects[1].left,
       touchTargets: rects.every(box => box.width >= 44 && box.height >= 44),
+      circularTargets: [...rects, ...arrows].every(box => Math.abs(box.width - box.height) <= 1),
+      centeredPair: Math.abs((rects[0].left + rects[1].right) / 2 - (photo.left + photo.right) / 2) <= 1,
+      commonBaseline: arrows.every(arrow => Math.abs(arrow.bottom - rects[0].bottom) <= 1),
       separateFromArrows: rects.every(box => arrows.every(arrow => separate(box, arrow))),
       contrastBackplates: actions.every(action => getComputedStyle(action).backgroundColor !== "rgba(0, 0, 0, 0)"),
       iconOnly: [...node.querySelectorAll(".feed-like span,.feed-share span")].every(label => {
@@ -174,8 +178,8 @@ async function assertPhotoActions(card) {
     };
   });
   assert.deepEqual(layout, { insidePhoto: true, horizontal: true, touchTargets: true,
-    separateFromArrows: true, contrastBackplates: true, iconOnly: true },
-  "Like and share stay on the photo, with distinct 44px targets and contrasting backplates");
+    circularTargets: true, centeredPair: true, commonBaseline: true, separateFromArrows: true, contrastBackplates: true, iconOnly: true },
+  "Like and share stay on the photo, centered with circular, aligned, distinct 44px targets and contrasting backplates");
 }
 async function assertPurchaseControlsReachable(page, index = 0) {
   const card = page.locator(".feed-card").nth(index);
@@ -202,6 +206,43 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  {
+    const context = await browser.newContext({ viewport: { width: 320, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru`);
+    await waitForMenuMode(page, "feed");
+    await page.evaluate(() => document.fonts.ready);
+    await page.locator(".feed-photo>img").first().evaluate(image => image.decode());
+    const viewports = [];
+    // Include both sides of the layout breakpoints: the former two-column
+    // tablet layout shifted a 460px feed 217px away from the viewport center.
+    for (const width of [320, 390, 760, 761, 1024, 1100, 1101, 1440]) {
+      await page.setViewportSize({ width, height: width > 800 ? 1000 : 844 });
+      const geometry = await page.locator(".feed-column").evaluate(column => {
+        const box = column.getBoundingClientRect();
+        const image = document.querySelector(".feed-photo>img"), photo = image.getBoundingClientRect();
+        const clientWidth = document.documentElement.clientWidth;
+        return { centerOffset: Math.abs(box.left + box.width / 2 - clientWidth / 2),
+          width: box.width, clientWidth, overflow: document.documentElement.scrollWidth > clientWidth + 1,
+          photoRatio: photo.width / photo.height, sourceRatio: image.naturalWidth / image.naturalHeight,
+          objectFit: getComputedStyle(image).objectFit };
+      });
+      assert.ok(geometry.centerOffset <= 1, `The feed is centered at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.width <= 460 && geometry.width >= Math.min(geometry.clientWidth, 460) - 1);
+      assert.equal(geometry.overflow, false);
+      assert.ok(Math.abs(geometry.photoRatio - geometry.sourceRatio) < .01, "The complete square photograph keeps its source proportions");
+      assert.equal(geometry.objectFit, "contain");
+      await assertPhotoActions(page.locator(".feed-card").first());
+      await assertPhotoActions(page.locator(".feed-card").nth(1));
+      viewports.push({ viewportWidth: width, ...geometry });
+    }
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "centered-feed-and-photo-actions", result: "PASS", viewports,
+      firstAndMiddleCardActionsAligned: true, fullPhotoPreserved: true, consoleErrors: false });
+    await context.close();
+  }
   for (const reducedMotion of ["no-preference", "reduce"]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
@@ -1426,6 +1467,8 @@ try {
       languageCategoryAndSearchTravelInUrl: true, genericEntryStillUsable: true, consoleErrors: false });
     await context.close();
   }
+  await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
+
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);

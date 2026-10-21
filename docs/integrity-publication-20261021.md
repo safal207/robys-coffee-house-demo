@@ -79,3 +79,30 @@ missing resources, binary bytes, and page build markers. The stale-deployment
 test fails against the original verifier because it incorrectly exits zero;
 all nine scenarios pass against the corrected verifier. These tests run as part
 of `npm run check`.
+
+## Compatibility after Stories/Reels (PR #460)
+
+On 22 October the branch was updated against main
+`7f2eff58bd3b8249a8880ab6d09e7ef9bf87f8e9`, which includes PR #460.
+The merge has no conflicts and preserves every public byte from that main.
+The current manifest has 471 entries, including `src/menu-feed-viewer.js`.
+It is 67,226 bytes with SHA-256
+`209d360a7a300048f010655214f31774f12f24062e62d4a49440f4a7ced62d7e`.
+No manifest regeneration or service-worker version change is needed because
+the integrity fix changes only development scripts, workflows and evidence.
+
+All 13 HTTP fixture regressions pass. Four additional cases cover a complete
+471-file publication, rejection of the self-consistent prior 470-file catalog,
+the old-manifest then cached-viewer propagation sequence, and recovery after
+a temporary manifest HTTP 503. The propagation fixture retains three attempts:
+zero entries checked under the old manifest, then all 471 with a same-size
+cached viewer mismatch, then all 471 matching in one complete attempt. Cache
+headers and distinct request nonces are asserted rather than assuming that a
+cache-busting parameter guarantees fresh bytes.
+
+The actual 471 project files also pass the corrected verifier over a local
+HTTP server, including binary files and the new nested viewer module.
+`npm run check`, `npm run verify:security` (47 tests, 376 security contracts,
+secret scan), YAML parsing and `git diff --check` pass on the combined tree.
+The earlier 470-file live run above remains historical evidence; current
+publication must be checked independently against the new manifest fingerprint.
