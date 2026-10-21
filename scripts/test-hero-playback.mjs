@@ -1,3 +1,4 @@
+import { readVerifiedAuthoredRuntime } from "./menu-runtime-source.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -12,7 +13,7 @@ function setup({ reduced = false, hidden = false, hasSource = true } = {}) {
   const document = new EventTarget();
   Object.assign(document, { readyState: "loading", hidden, querySelector: () => video });
   const context = vm.createContext({ window, document });
-  vm.runInContext(readFileSync("qa.js", "utf8"), context);
+  vm.runInContext(readVerifiedAuthoredRuntime("qa"), context);
   context.scheduleHeroPlayback();
   return { video, source, window, document };
 }

@@ -4,12 +4,13 @@ import { createFeedEngagement } from "./src/menu-feed-engagement.js";
 import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex, visibleFeedCardBounds } from "./src/menu-feed-navigation.js";
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
+import { createFeedViewer } from "./src/menu-feed-viewer.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
     classic: "Klasik menü", allMenu: "Tüm menüyü liste olarak gör ↗", feedTitle: "Fotoğraflı menü", skip: "Menüye geç",
     hint: "Seç, QR'ı kasaya göster, kafede öde.", guide: "Beğen.\nSonra karar ver.", search: "Kahve, tatlı…",
-    listView: "Liste", photoView: "Akış", like: "Beğen", liked: "Beğendin", unlike: "Beğeniyi kaldır", likedFilter: "Beğendiklerim", seen: "Sen gördün", seenSummary: "Gördüklerin", personal: "Beğeniler ve görülenler bu cihazda saklanır.", memoryOnly: "Beğeniler ve görülenler yalnızca bu sayfa açıkken saklanır.", likedEmpty: "Burada henüz beğendiğin bir ürün yok. Kalbe dokunarak kaydet.",
+    listView: "Liste", photoView: "Akış", reels: "Reels", views: "Görüntülenme", viewsDevice: "Bu cihazda", like: "Beğen", liked: "Beğendin", unlike: "Beğeniyi kaldır", likedFilter: "Beğendiklerim", seen: "Sen gördün", seenSummary: "Gördüklerin", personal: "Beğeniler ve görülenler bu cihazda saklanır.", memoryOnly: "Beğeniler ve görülenler yalnızca bu sayfa açıkken saklanır.", likedEmpty: "Burada henüz beğendiğin bir ürün yok. Kalbe dokunarak kaydet.",
     discover: "Ara", discoverTitle: "Ne istersin?", discoverDone: "Akışa dön", swipeHint: "Menüyü keşfetmek için kaydır", previous: "Önceki ürün",
     share: "Paylaş", shareTitle: "Bu seçimi paylaş", shareLink: "Ürün bağlantısı", copyLink: "Bağlantıyı kopyala", copyHelp: "Bu bağlantıyı kopyalayıp paylaşabilirsin.", copied: "Bağlantı kopyalandı", saved: "Beğendiklerine kaydedildi",
     searchLabel: "Menüde ara", clear: "Aramayı temizle", empty: "Aradığın burada yok.", reset: "Tümünü göster",
@@ -22,7 +23,7 @@ const copy = {
   en: { title: "Find your taste.\nOne photo at a time.", lead: "A coffee, a dessert, or a little of both. Save what you like, then add it when you're ready.",
     classic: "Classic menu", allMenu: "See the menu as a list ↗", feedTitle: "Menu in photos", skip: "Skip to menu",
     hint: "Choose, show your QR at the counter, pay at the café.", guide: "Like it.\nCome back to it.", search: "Coffee, dessert…",
-    listView: "List", photoView: "Feed", like: "Like", liked: "Liked", unlike: "Unlike", likedFilter: "Liked", seen: "Viewed by you", seenSummary: "Viewed by you", personal: "Likes and viewed items are saved on this device.", memoryOnly: "Likes and viewed items are saved on this page only.", likedEmpty: "No liked items here yet. Tap a heart to save a favorite.",
+    listView: "List", photoView: "Feed", reels: "Reels", views: "Views", viewsDevice: "On this device", like: "Like", liked: "Liked", unlike: "Unlike", likedFilter: "Liked", seen: "Viewed by you", seenSummary: "Viewed by you", personal: "Likes and viewed items are saved on this device.", memoryOnly: "Likes and viewed items are saved on this page only.", likedEmpty: "No liked items here yet. Tap a heart to save a favorite.",
     discover: "Search", discoverTitle: "What sounds good?", discoverDone: "Back to the feed", swipeHint: "Scroll to explore the menu", previous: "Previous item",
     share: "Share", shareTitle: "Share this choice", shareLink: "Item link", copyLink: "Copy link", copyHelp: "Copy this link to share the item.", copied: "Link copied", saved: "Saved to your liked items",
     searchLabel: "Search the menu", clear: "Clear search", empty: "Nothing matches this search.", reset: "Show everything",
@@ -35,7 +36,7 @@ const copy = {
   ru: { title: "Выбирай глазами.\nНаслаждайся вкусом.", lead: "Кофе, десерт, а может, всё вместе. Сохраняй понравившееся и добавляй в заказ, когда решишь.",
     classic: "Меню списком", allMenu: "Открыть всё меню списком ↗", feedTitle: "Меню по фото", skip: "Перейти к меню",
     hint: "Выбери, покажи QR на кассе и оплати в кафе.", guide: "Нравится?\nСохрани на потом.", search: "Кофе, десерт…",
-    listView: "Список", photoView: "Лента", like: "Нравится", liked: "Тебе нравится", unlike: "Убрать лайк", likedFilter: "Понравилось", seen: "Ты посмотрел", seenSummary: "Просмотрено тобой", personal: "Лайки и просмотренное сохраняются на этом устройстве.", memoryOnly: "Лайки и просмотренное сохраняются только до закрытия страницы.", likedEmpty: "Здесь пока нет понравившихся позиций. Нажми на сердечко, чтобы сохранить.",
+    listView: "Список", photoView: "Лента", reels: "Reels", views: "Просмотры", viewsDevice: "На этом устройстве", like: "Нравится", liked: "Тебе нравится", unlike: "Убрать лайк", likedFilter: "Понравилось", seen: "Ты посмотрел", seenSummary: "Просмотрено тобой", personal: "Лайки и просмотренное сохраняются на этом устройстве.", memoryOnly: "Лайки и просмотренное сохраняются только до закрытия страницы.", likedEmpty: "Здесь пока нет понравившихся позиций. Нажми на сердечко, чтобы сохранить.",
     discover: "Поиск", discoverTitle: "Чего хочется?", discoverDone: "Вернуться в ленту", swipeHint: "Листай и выбирай из меню", previous: "Предыдущая позиция",
     share: "Поделиться", shareTitle: "Поделиться выбором", shareLink: "Ссылка на позицию", copyLink: "Скопировать ссылку", copyHelp: "Скопируй эту ссылку и отправь её другу.", copied: "Ссылка скопирована", saved: "Сохранено в понравившемся",
     searchLabel: "Поиск по меню", clear: "Очистить поиск", empty: "По этому запросу ничего не нашлось.", reset: "Показать всё",
@@ -80,6 +81,7 @@ const localized = value => value?.[language] ?? value?.tr ?? "";
 const priceFormats = Object.fromEntries(Object.entries({ tr: "tr-TR", en: "en-US", ru: "ru-RU" }).map(([key, locale]) => [key, new Intl.NumberFormat(locale, { maximumFractionDigits: 0 })]));
 const money = value => `${priceFormats[language].format(value)} ₺`;
 const say = message => { clearTimeout(statusTimer); $("#feed-status").textContent = message; statusTimer = setTimeout(() => { $("#feed-status").textContent = ""; }, 4500); };
+let viewer;
 const engagement = createFeedEngagement({ validIds, onChange: updateEngagement });
 const order = createFeedOrder({ menuCopy, productIndex, orderProductIds: validIds, getLanguage: () => language,
   localized, formatPrice: money, onCartChange: updateBadges, say });
@@ -100,8 +102,12 @@ function updateEngagement(cards = root.querySelectorAll(".feed-card")) {
     like.querySelector("span").textContent = liked ? text().liked : text().like;
     const seen = card.querySelector(".feed-seen");
     seen.dataset.seen = String(engagement.hasSeen(product.id));
-    seen.querySelector("span").textContent = text().seen;
+    const count = new Intl.NumberFormat(language).format(engagement.viewCount(product.id));
+    card.querySelector(".feed-view-count").textContent = count;
+    card.querySelector(".feed-photo-views").setAttribute("aria-label", `${text().viewsDevice} · ${text().views}: ${count}`);
+    seen.querySelector("span").textContent = `${text().viewsDevice} · ${text().views}: ${count}`;
   });
+  viewer?.refresh();
 }
 
 function icon(path) {
@@ -135,10 +141,10 @@ function canView(photo) {
 }
 function scheduleView(photo) {
   const id = photo.closest(".feed-card")?.dataset.productId;
-  if (!id || engagement.hasSeen(id) || viewTimers.has(photo) || !viewCandidates.has(photo) || !canView(photo)) return;
+  if (!id || engagement.hasViewedThisVisit(id) || viewTimers.has(photo) || !viewCandidates.has(photo) || !canView(photo)) return;
   viewTimers.set(photo, setTimeout(() => {
     viewTimers.delete(photo);
-    if (viewCandidates.has(photo) && canView(photo)) engagement.markSeen(id);
+    if (viewCandidates.has(photo) && canView(photo)) engagement.recordView(id);
   }, 1000));
 }
 const viewObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
@@ -169,7 +175,7 @@ async function addProduct(product, variant, trigger) {
   finally { busy = false; updateBadges(); }
 }
 
-function updateCounter() { $("#feed-counter").textContent = filtered.length ? `${currentIndex + 1} / ${filtered.length}` : `0 / 0`; }
+function updateCounter() { $("#feed-reels-open").disabled = !filtered.length; $("#feed-counter").textContent = filtered.length ? `${currentIndex + 1} / ${filtered.length}` : `0 / 0`; }
 
 function updateActiveCard() {
   activeFrame = 0;
@@ -286,6 +292,10 @@ function renderCard(product, index) {
   photo.addEventListener("load", () => scheduleView(photo));
   if (index === 0) photo.setAttribute("fetchpriority", "high");
   visual.append(photo, element("span", "feed-photo-tag", localized(product.category.name)));
+  const views = element("span", "feed-photo-views");
+  views.append(icon("M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"), element("output", "feed-view-count", "0"));
+  views.querySelector("output").setAttribute("aria-live", "off");
+  visual.append(views);
   const burst = element("span", "feed-heart-burst", "♥"); burst.setAttribute("aria-hidden", "true"); visual.append(burst);
   photo.addEventListener("dblclick", () => {
     order.cancelPending();
@@ -384,6 +394,8 @@ function applyLanguage() {
   document.querySelectorAll("[data-menu-copy]").forEach(node => { node.textContent = menuCopy[language][node.dataset.menuCopy] ?? ""; });
   document.querySelectorAll("[data-localized]").forEach(node => { if (node.dataset[language]) node.textContent = node.dataset[language]; });
   renderCategories(); renderFeed(); order.refreshLanguage(); collections.refresh();
+  $("#feed-reels-open").setAttribute("aria-label", `${text().reels} · ${text().feedTitle}`);
+  viewer?.renderStories(); viewer?.refresh();
   scheduleLayout();
 }
 
@@ -509,7 +521,20 @@ window.addEventListener("storage", event => {
   if (event.key === null || event.key.startsWith("robys-menu-order")) void refreshOrder();
   if (event.key === null || event.key.startsWith("robys-feed-")) syncEngagement(event.key);
 });
+viewer = createFeedViewer({ products, categories: menuCategories, engagement, getLanguage: () => language, formatPrice: money,
+  getFiltered: () => filtered, getCurrentIndex: () => currentIndex,
+  onOpen: () => { order.cancelPending(); stopViews(); },
+  onClose: () => {
+    if (likedOnly) {
+      reconcileLiked();
+      if ($("#feed-reels-open").disabled && [document.body, $("#feed-reels-open")].includes(document.activeElement)) $("#feed-liked-filter").focus({ preventScroll: true });
+    }
+    scheduleActiveCard(); viewCandidates.forEach(scheduleView);
+  },
+  onShare: shareProduct,
+  onChoose: (product, trigger) => { stopViews(); void order.openProduct(product.id, trigger?.disabled ? $("#feed-liked-filter") : trigger); } });
 applyLanguage();
+$(".feed-formats").hidden = false;
 $("#menu-cart-trigger").hidden = false;
 root.dataset.ready = "true";
 updateFeedLayout(); followEntry();

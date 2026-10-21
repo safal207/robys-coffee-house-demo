@@ -39,3 +39,12 @@ export function readVerifiedMenuSource() {
     "Generated menu-app.js is stale or differs from its verified source; run npm run build");
   return source;
 }
+
+// Keep source-level behavior checks tied to the actual production bytes.
+export function readVerifiedAuthoredRuntime(name) {
+  assert.ok(["qa", "pairing-posters"].includes(name), "Unsupported authored runtime");
+  const source = readFileSync(`src/${name}.js`, "utf8");
+  assert.equal(readFileSync(`${name}.js`, "utf8"), compileMenuRuntime(source),
+    `Generated ${name}.js is stale; run npm run build`);
+  return source;
+}

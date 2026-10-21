@@ -1,3 +1,4 @@
+import { readVerifiedAuthoredRuntime } from "./menu-runtime-source.mjs";
 import "./verify-critical-user-journeys.mjs";
 import "./verify-p1-interface-contracts.mjs";
 import "./verify-seo-content-deploy.mjs";
@@ -14,7 +15,7 @@ const featuredCss = readFileSync("featured-gallery.css", "utf8");
 const brandCss = readFileSync("brand-photo-logo.css", "utf8");
 const featuredRuntime = readFileSync("featured-gallery.js", "utf8");
 const featuredSource = readFileSync("src/featured-gallery.ts", "utf8");
-const qaRuntime = readFileSync("qa.js", "utf8");
+const qaRuntime = readVerifiedAuthoredRuntime("qa");
 const bootstrapRuntime = readFileSync("bootstrap-v2.js", "utf8");
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));

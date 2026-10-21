@@ -10,7 +10,7 @@
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="menu-runtime.css?v=5c3205d7c5f8" />
-  <link rel="stylesheet" href="menu-feed.css?v=fd44063b3a7f" />
+  <link rel="stylesheet" href="menu-feed.css?v=e9d1d4ac0258" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
 <body class="feed-page">
@@ -43,6 +43,13 @@
           <button type="button" id="feed-discover-open" class="feed-tool-button" aria-haspopup="dialog" aria-controls="feed-discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><span class="sr-only" data-copy="discover">Ara ve keşfet</span></button>
         </div>
         <p class="feed-swipe-hint"><span aria-hidden="true">↑</span><span data-copy="swipeHint">Sonraki ürün için yukarı kaydır</span></p>
+      </div>
+      <div class="feed-formats" hidden>
+        <button type="button" id="feed-reels-open" class="feed-reel-entry" aria-haspopup="dialog" aria-controls="feed-viewer">
+          <span class="feed-reel-ring"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M3 9h18M8 3l4 6m3-6 4 6m-9 3 5 3-5 3Z" /></svg></span>
+          <span data-copy="reels">Reels</span>
+        </button>
+        <nav id="feed-stories" class="feed-stories" aria-label="Stories"></nav>
       </div>
       <nav class="feed-collections" aria-label="Setler / Collections / Подборки">
         <a id="menu-combos-trigger" href="#menu-combos" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
@@ -147,7 +154,7 @@
     </div>
   </dialog>
 
-  <script type="module" src="menu-feed.js?v=1cd4f7e77c15"></script>
+  <script type="module" src="menu-feed.js?v=4e91fc8e367b"></script>
   <script type="module" src="menu-view-mode.js?v=544b53136564"></script>
 </body>
 </html>

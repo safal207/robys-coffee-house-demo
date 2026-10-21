@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
 import { menuCategories } from "../menu-catalog.js";
+import { runFeedViewerCases } from "./menu-feed-viewer-browser-cases.mjs";
 import { feedProducts } from "../src/menu-feed-model.js";
 
 // Repository CI browser test: public bytes over HTTPS and the real CSP.
@@ -796,6 +797,14 @@ try {
     await page.locator('#feed[data-ready="true"]').waitFor();
     if (moduleName === "storage") await page.locator("#feed-status").filter({ hasText: /try again/i }).waitFor();
     await chooseCategory(page, "hot-coffee");
+    assert.equal(await page.locator("html").evaluate(node => getComputedStyle(node).scrollBehavior), "auto",
+      "Native control reveal must not start competing smooth scroll animations");
+    if (moduleName === "storage") {
+      assert.equal(await page.locator("#feed-status").evaluate(node => getComputedStyle(node).pointerEvents), "none",
+        "The noninteractive recovery announcement must never intercept the retry tap");
+    }
+    // A real locator click must settle above fixed chrome; do not force it or
+    // dismiss the recovery announcement to make the scenario pass.
     await page.locator('[data-product-id="hot-coffee:espresso"] .feed-add').click();
     await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
     await page.locator("#menu-cart-trigger").click();
@@ -1466,6 +1475,8 @@ try {
       languageCategoryAndSearchTravelInUrl: true, genericEntryStillUsable: true, consoleErrors: false });
     await context.close();
   }
+  await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
+
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);

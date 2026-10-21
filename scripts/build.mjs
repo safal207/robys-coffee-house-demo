@@ -321,6 +321,7 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
+writeFileSync("qa.js", compileMenuRuntime(readFileSync("src/qa.js", "utf8")));
 const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
@@ -362,6 +363,7 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
+writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuAppRevision = revisionFor("menu-app.js");
