@@ -41,13 +41,45 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
     });
     assert.deepEqual(hit, { size: true, inside: true, hit: true }, `${selector} remains a visible, unobscured 44px target`);
   }
-  async function contextFor({ width = 390, height = 844, language = "en", reducedMotion = "reduce", nativeShare = false } = {}) {
+  async function contextFor({ width = 390, height = 844, language = "en", reducedMotion = "reduce", nativeShare = false, batchViewerIntersections = false } = {}) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
-    await context.addInitScript(({ language, nativeShare }) => {
+    await context.addInitScript(({ language, nativeShare, batchViewerIntersections }) => {
       localStorage.setItem("robys-language", language);
       if (!nativeShare) Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
-    }, { language, nativeShare });
+      const NativeObserver = window.IntersectionObserver;
+      if (NativeObserver) window.IntersectionObserver = class extends NativeObserver {
+        constructor(callback, options) {
+          const viewerObserver = options?.root?.classList?.contains("feed-viewer-shell");
+          const initialHidden = new WeakMap();
+          super(viewerObserver ? (entries, observer) => {
+            const events = window.__feedViewerIOEvents ??= [];
+            const dialog = document.querySelector("#feed-viewer");
+            for (const entry of entries) events.push({ target: entry.target.id, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
+              ratio: entry.intersectionRatio, intersecting: entry.isIntersecting, entryTime: entry.time, now: performance.now(),
+              state: dialog?.dataset.state, product: dialog?.dataset.productId, hidden: document.hidden,
+              visibilityState: document.visibilityState });
+            if (events.length > 60) events.splice(0, events.length - 60);
+            if (!batchViewerIntersections) { callback(entries, observer); return; }
+            const delivered = [];
+            for (const entry of entries) {
+              if (entry.target.id === "feed-viewer-image" && entry.intersectionRatio === 0 && dialog?.dataset.state === "loading") {
+                initialHidden.set(entry.target, entry);
+                window.__feedViewerIOBatchInitials = (window.__feedViewerIOBatchInitials ?? 0) + 1;
+              } else if (initialHidden.has(entry.target) && entry.intersectionRatio >= .5) {
+                const hidden = initialHidden.get(entry.target); initialHidden.delete(entry.target);
+                delivered.push(hidden, entry);
+                const batches = window.__feedViewerIOBatches ??= [];
+                batches.push({ product: dialog?.dataset.productId, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
+                  ratios: [hidden.intersectionRatio, entry.intersectionRatio], entryTimes: [hidden.time, entry.time] });
+                if (batches.length > 20) batches.shift();
+              } else delivered.push(entry);
+            }
+            if (delivered.length) callback(delivered, observer);
+          } : callback, options);
+        }
+      };
+    }, { language, nativeShare, batchViewerIntersections });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
     return { context, page, errors, language };
@@ -63,9 +95,47 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
     await page.waitForFunction(selector => document.activeElement === document.querySelector(selector), opener);
   }
   async function cleanErrors(errors) { assert.deepEqual(errors, [], "Stories/Reels produce no application page or console errors"); }
+  async function recordFailure(page, error, name, errors) {
+    const screenshot = `${output}/${engine}-${name}-failure.png`;
+    const diagnostics = await page.evaluate(() => {
+      const dialog = document.querySelector("#feed-viewer"), image = document.querySelector("#feed-viewer-image");
+      const shell = document.querySelector(".feed-viewer-shell"), choose = document.querySelector("#feed-viewer-choose");
+      const rect = node => {
+        if (!node) return null;
+        const box = node.getBoundingClientRect();
+        return { x: box.x, y: box.y, width: box.width, height: box.height, top: box.top, right: box.right, bottom: box.bottom, left: box.left };
+      };
+      const nativeValue = name => {
+        for (let prototype = Object.getPrototypeOf(document); prototype; prototype = Object.getPrototypeOf(prototype)) {
+          const getter = Object.getOwnPropertyDescriptor(prototype, name)?.get;
+          if (getter) return getter.call(document);
+        }
+        return null;
+      };
+      const choice = rect(choose), hit = choice && document.elementFromPoint(choice.x + choice.width / 2, choice.y + choice.height / 2);
+      return { url: location.href, formatsHidden: document.querySelector(".feed-formats")?.hidden,
+        ready: document.querySelector("#feed")?.dataset.ready, script: [...document.scripts].find(script => /menu-feed\.js/.test(script.src))?.src,
+        viewer: dialog ? { open: dialog.open, ...dialog.dataset } : null,
+        document: { hidden: document.hidden, visibilityState: document.visibilityState,
+          nativeHidden: nativeValue("hidden"), nativeVisibilityState: nativeValue("visibilityState"), hasFocus: document.hasFocus() },
+        dialogs: [...document.querySelectorAll("dialog[open]")].map(node => ({ id: node.id, ...node.dataset })),
+        counts: Object.fromEntries(Object.keys(localStorage).filter(key => key.startsWith("robys-feed-views-v1:")).map(key => [key, localStorage.getItem(key)])),
+        visibleCount: document.querySelector("#feed-viewer-view-count")?.textContent,
+        image: image ? { complete: image.complete, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, hidden: image.hidden, rect: rect(image) } : null,
+        shell: shell ? { scrollTop: shell.scrollTop, height: shell.clientHeight, content: shell.scrollHeight, rect: rect(shell) } : null,
+        choice: { rect: choice, hit: hit?.id || hit?.tagName, centerHit: hit === choose || !!choose?.contains(hit) },
+        progress: [...document.querySelectorAll(".feed-viewer-segment")].slice(0, 4).map(node => ({ value: node.value, max: node.max })),
+        ioEvents: window.__feedViewerIOEvents ?? [], controlledIntersectionBatches: window.__feedViewerIOBatches ?? [], now: performance.now() };
+    }).catch(diagnosticError => ({ diagnosticError: diagnosticError.message }));
+    await captureScreenshot(page, { path: screenshot }).catch(() => {});
+    const record = { case: name, screenshot, error: error.message, ...diagnostics, errors: [...errors] };
+    (report.failures ??= []).push(record);
+    console.error(`VIEWER_FAILURE_DIAGNOSTICS ${JSON.stringify(record)}`);
+    error.message += `\nViewer diagnostics: ${JSON.stringify(diagnostics)}`;
+  }
 
   {
-    const { context, page, errors } = await contextFor({ reducedMotion: "no-preference" });
+    const { context, page, errors } = await contextFor({ reducedMotion: "no-preference", batchViewerIntersections: true });
     const releases = [];
     for (const product of hot.slice(0, 3)) {
       let release;
@@ -80,11 +150,15 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       await page.locator(`${viewer}[open][data-mode="stories"][data-state="loading"]`).waitFor();
       assert.equal(await currentId(page), hot[0].id);
       await page.waitForTimeout(1150);
+      await page.waitForFunction(() => window.__feedViewerIOBatchInitials > 0);
       assert.equal(await count(page, hot[0].id), 0, "Rendering a story before its photograph loads is not a view");
       await page.locator("#feed-viewer-pause").click();
       releases[0]();
       await ready(page, "stories");
       assert.equal(await page.locator(viewer).getAttribute("data-paused"), "true");
+      await page.waitForFunction(id => window.__feedViewerIOBatches?.some(batch => batch.product === id && batch.currentImage
+        && batch.ratios[0] === 0 && batch.ratios[batch.ratios.length - 1] >= .5), hot[0].id);
+      const controlledIntersectionBatchCount = await page.evaluate(() => window.__feedViewerIOBatches.length);
       await waitForCount(page, hot[0].id, 1);
       assert.equal(await page.locator(".feed-viewer-segment").first().evaluate(progress => progress.value), 0,
         "Explicit pause stops Story progress while a loaded foreground photograph still qualifies as viewed");
@@ -167,15 +241,13 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       await cleanErrors(errors);
       report.cases.push({ case: "stories-qualified-views-pause-share-order", result: "PASS", language: "en", width: 390,
         noCountBeforeLoadOrWhileCovered: true, pausedLoadedPhotoCounts: true, controlledVisibilityChange: true, physicalBackgroundTabTested: false,
-        continuousSecond: true, perPageDeduplication: true,
+        continuousSecond: true, perPageDeduplication: true, controlledNativeIntersectionBatch: true,
+        controlledIntersectionBatchCount,
         freshPageCountsAgain: true, autoplayAndHold: true, shareUsesActiveProduct: true,
         sharedProductEditorAndListRoundTrip: true, likesAndOrderPersist: true, consoleErrors: false });
     } catch (error) {
       releases.forEach(release => release());
-      await captureScreenshot(page, { path: `${output}/${engine}-stories-failure.png` }).catch(() => {});
-      const diagnostics = await page.evaluate(() => ({ url: location.href, formatsHidden: document.querySelector(".feed-formats")?.hidden,
-        ready: document.querySelector("#feed")?.dataset.ready, script: [...document.scripts].find(script => /menu-feed\.js/.test(script.src))?.src })).catch(() => ({}));
-      error.message += `\nViewer diagnostics: ${JSON.stringify({ ...diagnostics, errors })}`;
+      await recordFailure(page, error, "stories", errors);
       throw error;
     } finally { releases.forEach(release => release()); await context.close(); }
   }
@@ -184,9 +256,14 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
     const { context, page, errors } = await contextFor({ language: "ru" });
     try {
       await openFeed(page, "ru");
+      const visibleReelsLabel = (await page.locator('#feed-reels-open [data-copy="reels"]').textContent()).trim();
+      assert.ok((await page.locator("#feed-reels-open").getAttribute("aria-label")).includes(visibleReelsLabel),
+        "The Reels opener's accessible name includes its visible label");
       await page.locator("#feed-reels-open").scrollIntoViewIfNeeded();
       const scrollBefore = await page.evaluate(() => scrollY);
       await page.locator("#feed-reels-open").click(); await ready(page, "reels");
+      assert.ok((await page.locator("#feed-reels-open").getAttribute("aria-label")).includes(visibleReelsLabel),
+        "Refreshing the viewer preserves the Reels opener's visible label in its accessible name");
       await imageFits(page);
       const initial = await currentId(page);
       const initialIndex = Number(await page.locator(viewer).getAttribute("data-index"));
@@ -243,7 +320,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       assert.ok(Math.abs(await page.evaluate(() => scrollY) - scrollBefore) <= 1, "Closing Reels preserves the underlying menu position");
       await cleanErrors(errors);
       report.cases.push({ case: "reels-gestures-heart-native-share", result: "PASS", language: "ru", width: 390,
-        trustedMousePointerDrag: true, physicalTouchTested: false, wheelKeyboardAndButtons: true,
+        trustedMousePointerDrag: true, physicalTouchTested: false, wheelKeyboardAndButtons: true, reelsLabelInAccessibleName: true,
         actionDragDoesNotNavigate: true, doubleTapSaves: true, nativeShareMock: true,
         activeProductLink: true, focusAndMenuPositionRestored: true, consoleErrors: false });
     } finally { await context.close(); }
@@ -271,15 +348,33 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
         assert.fail(`A short screen with 200% text must exercise inner scrolling: ${JSON.stringify(dimensions)}`);
       }
       const beforeWheelProduct = await currentId(page);
-      const stage = await page.locator(".feed-viewer-stage").boundingBox();
-      await page.mouse.move(stage.x + stage.width * .35, Math.min(stage.y + stage.height * .5, 460));
-      await page.mouse.wheel(0, 650);
-      await page.waitForFunction(() => document.querySelector(".feed-viewer-shell").scrollTop > 0);
+      const purchaseIsReachable = () => {
+        const node = document.querySelector("#feed-viewer-choose"), shell = document.querySelector(".feed-viewer-shell");
+        const box = node.getBoundingClientRect(), clip = shell.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return box.left >= 0 && box.right <= innerWidth + 1 && box.top >= Math.max(0, clip.top)
+          && box.bottom <= Math.min(innerHeight, clip.bottom) + 1 && (hit === node || node.contains(hit));
+      };
+      let purchaseAfterWheel = false;
+      for (let step = 0; step < 3 && !purchaseAfterWheel; step++) {
+        const geometry = await shell.evaluate(node => {
+          const clip = node.getBoundingClientRect(), choice = document.querySelector("#feed-viewer-choose").getBoundingClientRect();
+          const stage = document.querySelector(".feed-viewer-stage").getBoundingClientRect();
+          const top = Math.max(0, clip.top), bottom = Math.min(innerHeight, clip.bottom);
+          return { x: clip.left + clip.width * .35, y: stage.bottom > top && stage.top < bottom
+            ? Math.min(bottom - 8, Math.max(top + 8, stage.top + stage.height / 2)) : (top + bottom) / 2,
+          delta: choice.top < top ? Math.min(-32, Math.floor(choice.top - top - 16))
+            : Math.max(32, Math.ceil(choice.bottom - bottom + 16)) };
+        });
+        await page.mouse.move(geometry.x, geometry.y);
+        await page.mouse.wheel(0, geometry.delta);
+        // A wheel promise resolves before WebKit finishes scrolling. Wait for
+        // the actual purchase action, not merely the first changed scroll tick.
+        purchaseAfterWheel = await page.waitForFunction(purchaseIsReachable, null, { timeout: 650 })
+          .then(() => true).catch(error => { if (error.name === "TimeoutError") return false; throw error; });
+      }
+      assert.equal(await shell.evaluate(node => node.scrollTop > 0), true, "A real wheel scroll moves the overflowing viewer");
       assert.equal(await currentId(page), beforeWheelProduct, "An overflowing viewer scrolls enlarged content instead of advancing the reel");
-      const purchaseAfterWheel = await page.locator("#feed-viewer-choose").evaluate(node => {
-        const box = node.getBoundingClientRect(), hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-        return box.top >= 0 && box.bottom <= innerHeight && (hit === node || node.contains(hit));
-      });
       assert.equal(purchaseAfterWheel, true, "Real wheel scrolling exposes an unobscured purchase action at 200% text");
       for (const selector of ["#feed-viewer-close", "#feed-viewer-like", "#feed-viewer-share", "#feed-viewer-prev", "#feed-viewer-next", "#feed-viewer-choose"]) await hitTarget(page, selector);
       assert.equal(await page.locator(viewer).evaluate(dialog => dialog.scrollWidth > dialog.clientWidth + 1), false);
@@ -290,6 +385,9 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       report.cases.push({ case: "reels-short-text200", result: "PASS", language: "ru", width: 320, height: 568,
         textScale: 2, textScaleMethod: "computed viewer text size; not browser zoom", controlsReachable: true,
         noHorizontalOverflow: true, realWheelScrollReachesPurchase: true, backgroundPositionPreserved: true, consoleErrors: false });
+    } catch (error) {
+      await recordFailure(page, error, "reels-320-text200", errors);
+      throw error;
     } finally { await context.close(); }
   }
 

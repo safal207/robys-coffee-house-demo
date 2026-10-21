@@ -116,7 +116,10 @@ export function createFeedViewer({ products, categories, engagement, getLanguage
   const viewBlocked = () => !imageInView || shareBusy || document.hidden || covered();
   const paused = () => userPaused || holdPaused || viewBlocked();
   const imageObserver = typeof IntersectionObserver === "function" ? new IntersectionObserver(entries => {
-    const entry = entries.find(value => value.target === image);
+    // One ordered batch can include the hidden image and its later loaded
+    // state. Apply the last transition for the current image.
+    let entry;
+    for (const candidate of entries) if (candidate.target === image) entry = candidate;
     if (!entry || !active) return;
     imageInView = entry.isIntersecting && entry.intersectionRatio >= .5;
     wake(true);
@@ -150,7 +153,6 @@ export function createFeedViewer({ products, categories, engagement, getLanguage
 
   function refresh() {
     updateSeen();
-    reelsTrigger?.setAttribute("aria-label", text().reels);
     if (!active) return;
     const product = activeProduct(), words = text();
     title.textContent = localized(product.item.name);
