@@ -2,6 +2,7 @@ import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
+import { initMenuViewWarmup } from "./src/menu-view-warmup.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
 function initializeMenu() {
@@ -874,7 +875,7 @@ function translateStaticPage() {
 }
 
 function setLanguage(next) {
-  if (!supportedLanguages.includes(next)) return;
+  if (!supportedLanguages.includes(next) || next === language) return;
   language = next;
   storeLanguage(next);
   translateStaticPage();
@@ -954,6 +955,7 @@ menuViewLinks.forEach(link => {
   link.addEventListener("auxclick", choose, true);
 });
 document.documentElement.dataset.menuViewReady = "true";
+initMenuViewWarmup("list");
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();
@@ -963,10 +965,13 @@ function refreshObservedCart(resetAdded = false) {
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
   beginMenuIntent();
-  language = readEntryLanguage();
-  translateStaticPage();
-  renderCategoryNav();
-  renderMenu();
+  const restoredLanguage = readEntryLanguage();
+  // BFCache has already restored the DOM, photos and scroll position.
+  // Only rebuild when the language actually changed while away.
+  if (restoredLanguage !== language) {
+    language = restoredLanguage;
+    translateStaticPage(); renderCategoryNav(); renderMenu();
+  }
   refreshObservedCart(true);
 });
 

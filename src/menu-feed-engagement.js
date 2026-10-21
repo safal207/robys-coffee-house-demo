@@ -8,10 +8,10 @@ export function createFeedEngagement({ validIds, getStorage = () => localStorage
   let liked = new Set(), viewed = new Set(), persistent = true, notifying = false;
   const valid = id => typeof id === "string" && ids.has(id);
 
-  function notify(changed) {
+  function notify(changed, id = null) {
     if (!changed || notifying) return;
     notifying = true;
-    try { onChange(); } finally { notifying = false; }
+    try { onChange(id); } finally { notifying = false; }
   }
 
   function sync(key = null, announce = true) {
@@ -43,7 +43,7 @@ export function createFeedEngagement({ validIds, getStorage = () => localStorage
       if (announce) notify(true);
       return false;
     }
-    if (announce) notify(changed);
+    if (announce) notify(changed, entries.length === 1 ? entries[0][1] : null);
     return changed;
   }
 
@@ -65,7 +65,7 @@ export function createFeedEngagement({ validIds, getStorage = () => localStorage
         persistenceChanged = true;
       }
     }
-    notify(changed || persistenceChanged);
+    notify(changed || persistenceChanged, id);
     return changed;
   }
 

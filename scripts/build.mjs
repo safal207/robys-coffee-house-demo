@@ -463,6 +463,16 @@ menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
+// Warm-up metadata lives in HTML to avoid circular hashes between the two bundles.
+function synchronizeMenuWarmAssets(html, assets) {
+  const tag = `<meta name="robys-menu-warm-assets" content="${assets.join("|")}" />`;
+  return /<meta name="robys-menu-warm-assets"[^>]*>/.test(html)
+    ? html.replace(/<meta name="robys-menu-warm-assets"[^>]*>/, tag)
+    : html.replace("</head>", `  ${tag}\n</head>`);
+}
+menuHtml = synchronizeMenuWarmAssets(menuHtml, [
+  `menu-feed.js?v=${menuFeedRevision}`, `menu-feed.css?v=${menuFeedCssRevision}`, `menu-view-mode.js?v=${menuViewModeRevision}`
+]);
 writeFileSync("menu.html", menuHtml);
 
 let feedHtml = readFileSync("menu-feed.html", "utf8");
@@ -470,6 +480,10 @@ feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
 feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRevision);
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
+feedHtml = synchronizeMenuWarmAssets(feedHtml, [
+  `menu-app.js?v=${menuAppRevision}`, `bootstrap-v2.js?v=${bootstrapRevision}`,
+  `menu-product-reveal.js?v=${menuProductRevealRevision}`, `pairing-posters.js?v=${pairingPostersRevision}`
+]);
 writeFileSync("menu-feed.html", feedHtml);
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");

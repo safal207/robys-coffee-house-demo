@@ -4,6 +4,7 @@ import { createFeedEngagement } from "./src/menu-feed-engagement.js";
 import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "./src/menu-feed-navigation.js";
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
+import { initMenuViewWarmup } from "./src/menu-view-warmup.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -65,10 +66,14 @@ const productIndex = new Map(products.map(product => [product.id, product]));
 const validIds = new Set(productIndex.keys());
 const selectedVariants = new Map();
 const root = $("#feed"), searchInput = $("#feed-search");
+const renderedCards = new Map(), activeCandidates = new Set();
 const discoverDialog = $("#feed-discover"), shareDialog = $("#feed-share");
 let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
 const entry = parseFeedEntry(location.href, products);
+// Restore the query before the first render, not by rebuilding the first batch.
+searchInput.value = entry.productId ? "" : Array.from((new URL(location.href).searchParams.get("q") ?? "")
+  .replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
 if (entry.language) language = entry.language;
 let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
@@ -84,13 +89,13 @@ const order = createFeedOrder({ menuCopy, productIndex, orderProductIds: validId
 const collections = initFeedCollections({ productIndex, orderProductIds: validIds, getLanguage: () => language,
   localized, formatPrice: money, order, onCartChange: updateBadges, say });
 
-function updateEngagement() {
+function updateEngagement(changedId = null, cards = changedId ? [renderedCards.get(changedId)].filter(Boolean) : renderedCards.values()) {
   $("#feed-liked-label").textContent = `${text().likedFilter} · ${engagement.likes()}`;
   $("#feed-liked-count").textContent = engagement.likes();
   $("#feed-liked-filter").setAttribute("aria-pressed", String(likedOnly));
   $("#feed-seen-summary").textContent = `${text().seenSummary}: ${engagement.seen()} / ${products.length}`;
   $("#feed-personal-note").textContent = engagement.persistent ? text().personal : text().memoryOnly;
-  root.querySelectorAll(".feed-card").forEach(card => {
+  for (const card of cards) {
     const product = productIndex.get(card.dataset.productId), liked = engagement.hasLiked(product.id);
     const like = card.querySelector(".feed-like");
     like.setAttribute("aria-pressed", String(liked));
@@ -99,7 +104,7 @@ function updateEngagement() {
     const seen = card.querySelector(".feed-seen");
     seen.dataset.seen = String(engagement.hasSeen(product.id));
     seen.querySelector("span").textContent = text().seen;
-  });
+  }
 }
 
 function icon(path) {
@@ -123,11 +128,10 @@ function feedViewBounds() {
     bottom: Math.min(innerHeight, $("#menu-cart-trigger").getBoundingClientRect().top || innerHeight)
   };
 }
-function canView(photo) {
+function canView(photo, bounds = feedViewBounds()) {
   if (document.hidden || sharing || document.querySelector("dialog[open]") || !photo.isConnected || !photo.complete || !photo.naturalWidth) return false;
   const rect = photo.getBoundingClientRect();
   const width = Math.max(0, Math.min(rect.right, innerWidth) - Math.max(rect.left, 0));
-  const bounds = feedViewBounds();
   const height = Math.max(0, Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top));
   return rect.width > 0 && rect.height > 0 && width * height >= rect.width * rect.height * .5;
 }
@@ -171,13 +175,17 @@ function updateCounter() { $("#feed-counter").textContent = filtered.length ? `$
 
 function updateActiveCard() {
   activeFrame = 0;
+  const bounds = feedViewBounds();
   for (const photo of viewCandidates) {
-    if (canView(photo)) scheduleView(photo);
+    if (canView(photo, bounds)) scheduleView(photo);
     else { clearTimeout(viewTimers.get(photo)); viewTimers.delete(photo); }
   }
   if (document.querySelector("dialog[open]")) return;
-  const { top, bottom } = feedViewBounds();
-  const index = selectActiveFeedIndex([...root.children].map(card => {
+  const { top, bottom } = bounds;
+  // Keep the complete near-viewport candidate set, not only the latest IO entries.
+  // Distant cards must not force layout reads on every scroll frame.
+  const candidates = cardObserver ? activeCandidates : root.children;
+  const index = selectActiveFeedIndex([...candidates].map(card => {
     const rect = card.getBoundingClientRect(); return { index: Number(card.dataset.index), top: rect.top, bottom: rect.bottom };
   }), top, bottom);
   if (index !== null && index !== currentIndex) { currentIndex = index; updateCounter(); }
@@ -188,8 +196,10 @@ function updateFeedLayout() {
   const headerHeight = $(".feed-header").getBoundingClientRect().height;
   const toolsHeight = $(".feed-tools").getBoundingClientRect().height;
   const style = document.documentElement.style;
-  style.setProperty("--feed-header-height", `${headerHeight}px`);
-  style.setProperty("--feed-top-offset", `${headerHeight + toolsHeight}px`);
+  for (const [name, value] of [["--feed-header-height", headerHeight], ["--feed-top-offset", headerHeight + toolsHeight]]) {
+    const next = `${value}px`;
+    if (style.getPropertyValue(name) !== next) style.setProperty(name, next);
+  }
   scheduleActiveCard();
 }
 function scheduleLayout() { if (!layoutFrame) layoutFrame = requestAnimationFrame(updateFeedLayout); }
@@ -228,7 +238,7 @@ async function shareProduct(product, trigger) {
   }
 }
 
-function updateBadges() {
+function updateBadges(cards = renderedCards.values()) {
   $("#menu-cart-trigger").hidden = false;
   const draft = order.readDraft();
   const quote = quoteFeedOrder(draft, productIndex);
@@ -236,13 +246,13 @@ function updateBadges() {
   $("#menu-cart-total").textContent = money(quote.total);
   $("#menu-cart-trigger").setAttribute("aria-label", `${text().order}: ${$("#menu-cart-count").textContent}, ${money(quote.total)}`);
   const counts = new Map(draft.lines.map(line => [line.id, line.quantity]));
-  root.querySelectorAll(".feed-card").forEach(card => {
+  for (const card of cards) {
     const count = counts.get(card.dataset.productId) ?? 0;
     card.querySelector(".feed-selected").textContent = count ? `${count} ${text().inOrder}` : "";
     const add = card.querySelector(".feed-add");
     add.disabled = busy || count >= 99;
     add.textContent = count >= 99 ? "99 / 99" : text().add;
-  });
+  }
 }
 
 function renderCategories() {
@@ -271,7 +281,13 @@ function renderCategories() {
   document.dispatchEvent(new CustomEvent("robys:menu-view-change"));
 }
 
-const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(scheduleActiveCard, { threshold: [0, .3, .6, 1] }) : null;
+const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) activeCandidates.add(entry.target);
+    else activeCandidates.delete(entry.target);
+  }
+  scheduleActiveCard();
+}, { rootMargin: "600px 0px", threshold: [0, .3, .6, 1] }) : null;
 
 function renderCard(product, index) {
   const card = element("article", "feed-card"); card.dataset.productId = product.id; card.dataset.index = index; card.tabIndex = -1;
@@ -347,18 +363,24 @@ function renderCard(product, index) {
 
 function appendPage() {
   const end = Math.min(rendered + 8, filtered.length);
+  const fragment = document.createDocumentFragment(), cards = [];
   for (; rendered < end; rendered++) {
-    const card = renderCard(filtered[rendered], rendered); root.append(card); cardObserver?.observe(card);
+    const card = renderCard(filtered[rendered], rendered);
+    renderedCards.set(card.dataset.productId, card); cards.push(card); fragment.append(card);
+  }
+  root.append(fragment);
+  for (const card of cards) {
+    cardObserver?.observe(card);
     viewObserver?.observe(card.querySelector(".feed-photo>img"));
   }
   $("#feed-more").hidden = rendered >= filtered.length;
   $("#feed-end").hidden = !filtered.length || rendered < filtered.length;
-  updateBadges();
-  updateEngagement();
+  updateBadges(cards);
+  updateEngagement(null, cards);
 }
 
 function renderFeed() {
-  cardObserver?.disconnect();
+  cardObserver?.disconnect(); activeCandidates.clear(); renderedCards.clear();
   stopViews(); viewCandidates.clear(); viewObserver?.disconnect();
   filtered = filterFeed(products, category, searchInput.value).filter(product => !likedOnly || engagement.hasLiked(product.id)); rendered = 0; currentIndex = 0;
   root.replaceChildren(); appendPage(); updateCounter();
@@ -385,6 +407,7 @@ function applyLanguage() {
 document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("click", () => {
   order.cancelPending();
   const anchor = filtered[currentIndex]?.id;
+  if (language === node.dataset.lang) return;
   language = node.dataset.lang;
   try { localStorage.setItem("robys-language", language); } catch {}
   const url = new URL(location.href);
@@ -446,7 +469,7 @@ if ("ResizeObserver" in window) {
 void document.fonts?.ready.then(scheduleLayout);
 $("#feed-more").addEventListener("click", () => { order.cancelPending(); const nextIndex = rendered; appendPage(); root.children[nextIndex]?.querySelector(".feed-add")?.focus({ preventScroll: true }); });
 if ("IntersectionObserver" in window) {
-  const more = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting) && rendered < filtered.length) appendPage(); }, { rootMargin: "400px" });
+  const more = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting) && rendered < filtered.length) appendPage(); }, { rootMargin: "1000px" });
   more.observe($("#feed-more-wrap"));
 }
 $("#menu-cart-trigger").addEventListener("click", event => {
@@ -509,3 +532,5 @@ $("#menu-cart-trigger").hidden = false;
 root.dataset.ready = "true";
 updateFeedLayout(); followEntry();
 void refreshOrder();
+
+initMenuViewWarmup("feed");

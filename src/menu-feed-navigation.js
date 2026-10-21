@@ -19,8 +19,9 @@ export function feedProductUrl(href, id, language) {
   return url.href;
 }
 
-// Compare all rendered cards against the usable viewport. IntersectionObserver
-// callbacks contain only changed entries, not a complete active-card ranking.
+// Compare the complete near-viewport candidate set against the usable viewport.
+// IntersectionObserver callbacks contain only changed entries: the caller must
+// retain still-visible candidates between callbacks, not just the latest batch.
 export function selectActiveFeedIndex(rects, top, bottom) {
   if (!(bottom > top)) return null;
   let best = null, bestScore = 0, bestDistance = Infinity;

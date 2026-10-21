@@ -129,7 +129,7 @@ function initializeMenuViews() {
       if (context.language && document.documentElement.lang !== context.language) {
         document.querySelector(`[data-lang="${context.language}"]`)?.click();
       }
-      if (context.hasSearch && !context.productId) {
+      if (context.hasSearch && !context.productId && searchInput.value !== context.search) {
         searchInput.value = context.search;
         searchInput.dispatchEvent(new Event("input", { bubbles: true }));
       }

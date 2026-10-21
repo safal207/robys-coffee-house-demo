@@ -88,7 +88,7 @@
     "test:ordering": "node --test scripts/test-kids-menu.mjs scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs",
     "test:choice-funnel": "node scripts/verify-pairing-cta-static.mjs && node scripts/test-choice-funnel-browser.mjs",
     "test:menu-combos": "node --test scripts/test-menu-combos.mjs scripts/test-choice-help.mjs scripts/test-menu-styles-bundle.mjs scripts/test-combo-video-cache.mjs && node scripts/test-combo-offline.mjs --static",
-    "test:menu-feed": "node --test scripts/test-menu-feed.mjs scripts/test-menu-feed-engagement.mjs scripts/test-menu-feed-navigation.mjs scripts/test-menu-view-mode.mjs"
+    "test:menu-feed": "node --test scripts/test-menu-feed.mjs scripts/test-menu-feed-engagement.mjs scripts/test-menu-feed-navigation.mjs scripts/test-menu-view-mode.mjs scripts/test-menu-view-warmup.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
