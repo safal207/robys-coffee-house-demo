@@ -21,14 +21,15 @@ export function menuWarmAsset(href, base) {
 export function initMenuViewWarmup(view) {
   const other = view === 'list' ? 'feed' : 'list';
   const expectedPath = new URL(other === 'feed' ? 'menu-feed.html' : 'menu.html', location.href).pathname;
-  const assets = new Set(), documents = new Set();
+  const assets = new Set();
   let delay, idle;
   const permitted = () => !document.hidden && canWarmMenuView(navigator.connection);
-  const prefetch = (href, as) => {
-    const link = document.createElement('link');
-    link.rel = 'prefetch'; link.href = href; link.as = as; link.fetchPriority = 'low';
-    link.dataset.menuWarm = other;
-    document.head.append(link);
+  const warmBytes = href => {
+    // A normal same-origin HTTP-cache read avoids replacing an already cached
+    // module with a separate speculative-prefetch response. Never execute it.
+    void fetch(href, { cache: 'force-cache', credentials: 'same-origin', priority: 'low' })
+      .then(response => response.ok ? response.arrayBuffer() : undefined)
+      .catch(() => { /* Native navigation remains the fallback. */ });
   };
   function warm() {
     if (!permitted()) return;
@@ -36,16 +37,12 @@ export function initMenuViewWarmup(view) {
     if (!target) return;
     const url = new URL(target.href);
     if (url.origin !== location.origin || url.pathname !== expectedPath) return;
-    url.hash = '';
-    // Search and language changes must not create an unbounded prefetch queue.
-    if (!documents.has(url.href) && documents.size < 2) {
-      documents.add(url.href); prefetch(url.href, 'document');
-    }
+    // Do not fetch documents or photos: only the bounded, revisioned assets.
     const manifest = document.querySelector('meta[name="robys-menu-warm-assets"]')?.content ?? '';
     for (const entry of manifest.split('|').slice(0, 4)) {
       const resource = menuWarmAsset(entry, location.href);
       if (!resource || assets.has(resource.href)) continue;
-      assets.add(resource.href); prefetch(resource.href, resource.as);
+      assets.add(resource.href); warmBytes(resource.href);
     }
   }
   const queue = () => {
