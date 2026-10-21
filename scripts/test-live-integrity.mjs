@@ -41,7 +41,8 @@ async function runFixture(t, respond, { files = current, waitMs = 0 } = {}) {
     requests.push({ path, nonce: url.searchParams.get("integrity"), headers: req.headers, attempt });
     const result = respond(path, attempt);
     res.writeHead(result?.status ?? (result?.bytes ? 200 : 404), {
-      "cache-control": "max-age=600", age: "42", etag: '"fixture"', "x-cache": "HIT"
+      "cache-control": "max-age=600", age: "42", etag: '"fixture"', "x-cache": "HIT",
+      "x-github-request-id": "fixture-request"
     });
     res.end(result?.bytes ?? "missing");
   });
@@ -125,6 +126,28 @@ test("a temporary manifest HTTP failure is retained before a full successful ret
   assert.equal(report.attempts.length, 2);
   assert.equal(report.attempts[0].checked, 0);
   assert.match(report.attempts[0].failures[0].error, /503/);
+  const response = report.attempts[0].failures[0].response;
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.age, "42");
+  assert.equal(response.headers["x-cache"], "HIT");
+  assert.equal(response.headers["x-github-request-id"], "fixture-request");
+  assert.match(response.url, /integrity-manifest\.json\?integrity=/);
+  assert.equal(report.checked.length, Object.keys(current).length);
+  assert.ok(report.checked.every((entry) => entry.passed));
+});
+
+test("a temporary resource HTTP failure retains response diagnostics and retries every file", async (t) => {
+  const { code, output, report } = await runFixture(t, (path, attempt) =>
+    path === "sw-core-v64.js" && attempt === 1 ? { status: 503 } : serve(current)(path), { waitMs: 1500 });
+  assert.equal(code, 0, output);
+  assert.equal(report.attempts.length, 2);
+  assert.equal(report.attempts[0].checked, Object.keys(current).length);
+  const failure = report.attempts[0].failures[0];
+  assert.equal(failure.path, "sw-core-v64.js");
+  assert.equal(failure.response.status, 503);
+  assert.equal(failure.response.headers["cache-control"], "max-age=600");
+  assert.equal(failure.response.headers.etag, '"fixture"');
+  assert.equal(failure.response.headers["x-github-request-id"], "fixture-request");
   assert.equal(report.checked.length, Object.keys(current).length);
   assert.ok(report.checked.every((entry) => entry.passed));
 });
@@ -213,6 +236,8 @@ test("a missing public resource is not skipped", async (t) => {
   assert.equal(report.checked.length, Object.keys(current).length);
   assert.equal(report.failures[0].path, "sw-core-v64.js");
   assert.match(report.failures[0].error, /404/);
+  assert.equal(report.failures[0].response.status, 404);
+  assert.equal(report.failures[0].response.headers["x-github-request-id"], "fixture-request");
 });
 
 test("matching file hashes do not waive the page build marker contract", async (t) => {

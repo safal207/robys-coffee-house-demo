@@ -49,15 +49,25 @@ async function fetchBytes(url, nonce) {
       pragma: "no-cache"
     }
   });
-  if (!response.ok) throw new Error(`${requestUrl.href} returned ${response.status}`);
+  const metadata = {
+    url: response.url,
+    status: response.status,
+    headers: Object.fromEntries(["date", "age", "etag", "last-modified", "cache-control", "x-cache", "x-proxy-cache", "x-served-by", "x-github-request-id"]
+      .map((name) => [name, response.headers.get(name)]))
+  };
+  try {
+    if (!response.ok) throw new Error(`${requestUrl.href} returned ${response.status}`);
+    return { bytes: Buffer.from(await response.arrayBuffer()), response: metadata };
+  } catch (error) {
+    // Preserve response evidence for HTTP errors and failures while reading the body.
+    throw Object.assign(error, { response: metadata });
+  }
+}
+
+function failureDetails(error) {
   return {
-    bytes: Buffer.from(await response.arrayBuffer()),
-    response: {
-      url: response.url,
-      status: response.status,
-      headers: Object.fromEntries(["date", "age", "etag", "last-modified", "cache-control", "x-cache", "x-proxy-cache", "x-served-by", "x-github-request-id"]
-        .map((name) => [name, response.headers.get(name)]))
-    }
+    error: String(error.message ?? error),
+    ...(error.response ? { response: error.response } : {})
   };
 }
 
@@ -97,7 +107,7 @@ async function verifyAttempt() {
       return attempt;
     }
   } catch (error) {
-    attempt.failures.push({ path: "integrity-manifest.json", error: String(error.message ?? error) });
+    attempt.failures.push({ path: "integrity-manifest.json", ...failureDetails(error) });
     return attempt;
   }
 
@@ -121,7 +131,7 @@ async function verifyAttempt() {
         if (!passed) result.response = response;
         return result;
       } catch (error) {
-        return { path: entry.path, passed: false, error: String(error.message ?? error) };
+        return { path: entry.path, passed: false, ...failureDetails(error) };
       }
     }));
     for (const result of results) {
@@ -137,7 +147,7 @@ async function verifyAttempt() {
       const build = html.match(/<meta\b[^>]*name=["']robys-build["'][^>]*content=["']([^"']+)["']/i)?.[1];
       if (build !== manifest.build) attempt.failures.push({ path: page, error: `build ${build} != manifest ${manifest.build}` });
     } catch (error) {
-      attempt.failures.push({ path: page, error: String(error.message ?? error) });
+      attempt.failures.push({ path: page, ...failureDetails(error) });
     }
   }
   return attempt;

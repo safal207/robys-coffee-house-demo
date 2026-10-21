@@ -91,10 +91,13 @@ It is 67,226 bytes with SHA-256
 No manifest regeneration or service-worker version change is needed because
 the integrity fix changes only development scripts, workflows and evidence.
 
-All 13 HTTP fixture regressions pass. Four additional cases cover a complete
+All 14 HTTP fixture regressions pass. Five additional cases cover a complete
 471-file publication, rejection of the self-consistent prior 470-file catalog,
 the old-manifest then cached-viewer propagation sequence, and recovery after
-a temporary manifest HTTP 503. The propagation fixture retains three attempts:
+a temporary manifest or resource HTTP 503. Non-2xx responses and interrupted
+response bodies preserve their status, cache headers and request IDs in the
+failure report; the manifest/resource 503 and missing-resource 404 paths assert
+these diagnostics. The propagation fixture retains three attempts:
 zero entries checked under the old manifest, then all 471 with a same-size
 cached viewer mismatch, then all 471 matching in one complete attempt. Cache
 headers and distinct request nonces are asserted rather than assuming that a
