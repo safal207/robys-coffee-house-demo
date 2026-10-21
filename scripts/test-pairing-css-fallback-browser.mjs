@@ -81,12 +81,14 @@ export async function verifyPairingCssFallback(context, baseUrl, check, options 
         try {
           await page.setViewportSize({ width, height: 1080 });
           let interceptedRequests = 0;
+          const interceptedTypes = [];
           await page.route((url) => url.pathname.endsWith(`/${MENU_STYLESHEET_FILE}`), async (route) => {
             const response = await route.fetch();
             assert.equal(response.status(), 200, "Unsupported-unit fixture must intercept the delivered menu bundle");
             assert.deepEqual(await response.body(), originalBundle,
               "Unsupported-unit fixture must start from the complete emitted menu CSS bundle");
             interceptedRequests += 1;
+            interceptedTypes.push(route.request().resourceType());
             await route.fulfill({ response, body: fallbackBundle });
           });
           await page.goto(new URL("menu.html#pairing-offers", baseUrl).href, { waitUntil: "domcontentloaded" });
@@ -114,11 +116,21 @@ export async function verifyPairingCssFallback(context, baseUrl, check, options 
             card.plusFont >= card.rootFont * 1.5 - .1 &&
             card.accentFont >= card.rootFont * 1.1 - .1 &&
             card.priceFont >= card.rootFont * 1.2 - .1 && !card.documentOverflow);
+          // A fetch used to warm the opposite view does not apply a stylesheet.
+          // Routing disables normal cache reuse, so it can reach this fixture
+          // even though the same CSS has already loaded. Keep exactly one real
+          // stylesheet load, permit at most one speculative fetch, and deliver
+          // the identical rejected-declaration fixture for both request types.
+          const stylesheetRequests = interceptedTypes.filter(type => type === "stylesheet").length;
+          const speculativeFetches = interceptedTypes.filter(type => type === "fetch").length;
+          const deliveryValid = stylesheetRequests === 1 && speculativeFetches <= 1
+            && interceptedRequests === stylesheetRequests + speculativeFetches;
           const evidence = { label, rejectedDeclarations: fixture.rejected.length,
-            interceptedStylesheet: MENU_STYLESHEET_FILE, interceptedRequests,
+            interceptedStylesheet: MENU_STYLESHEET_FILE, interceptedRequests, interceptedTypes,
+            stylesheetRequests, speculativeFetches, deliveryValid,
             preservedStylesheets: MENU_STYLE_INPUTS.filter(({ source }) => source !== "pairing-posters.css").map(({ source }) => source),
             cards, geometryError, errors };
-          check("PAIRING-CSS-FALLBACK-001", interceptedRequests === 1 && readable && !geometryError && errors.length === 0,
+          check("PAIRING-CSS-FALLBACK-001", deliveryValid && readable && !geometryError && errors.length === 0,
             `${label}: both posters retain readable type, photograph height and separated content`, evidence);
           results.push(evidence);
         } finally { await page.close(); }
