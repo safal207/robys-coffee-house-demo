@@ -98,7 +98,7 @@
     "playwright": "1.55.1",
     "pngjs": "7.0.0",
     "typescript": "5.8.3",
-    "vite": "8.2.2"
+    "vite": "8.2.4"
   },
   "dependencies": {
     "qrcode-generator": "1.4.4"
