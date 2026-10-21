@@ -1,3 +1,4 @@
+import { initMenuViewPrefetch } from "./src/menu-view-prefetch.js";
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
@@ -808,12 +809,14 @@ function renderMenu() {
   });
 
   let rendered = 0;
+  const fragment = document.createDocumentFragment();
   categories.forEach((category) => {
     const section = createCategory(category);
     if (!section) return;
-    menuRoot.append(section);
+    fragment.append(section);
     rendered += 1;
   });
+  menuRoot.append(fragment);
 
   emptyState.hidden = rendered > 0;
   menuRoot.dataset.ready = "true";
@@ -954,6 +957,7 @@ menuViewLinks.forEach(link => {
   link.addEventListener("auxclick", choose, true);
 });
 document.documentElement.dataset.menuViewReady = "true";
+initMenuViewPrefetch("list");
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();

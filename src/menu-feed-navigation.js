@@ -19,8 +19,7 @@ export function feedProductUrl(href, id, language) {
   return url.href;
 }
 
-// Compare all rendered cards against the usable viewport. IntersectionObserver
-// callbacks contain only changed entries, not a complete active-card ranking.
+// Rank complete visible candidates, not just changed IntersectionObserver entries.
 export function selectActiveFeedIndex(rects, top, bottom) {
   if (!(bottom > top)) return null;
   let best = null, bestScore = 0, bestDistance = Infinity;
@@ -34,4 +33,31 @@ export function selectActiveFeedIndex(rects, top, bottom) {
     }
   }
   return best;
+}
+
+// Actual single-column geometry: O(log N + visible cards), with no height
+// estimates, cached offsets or DOM removal that could cause scrolling jumps.
+export function visibleFeedCardBounds(cards, top, bottom) {
+  if (!(bottom > top) || !cards.length) return [];
+  const measured = new Map();
+  const rectAt = index => {
+    if (!measured.has(index)) {
+      const rect = cards[index].getBoundingClientRect();
+      measured.set(index, { index: Number(cards[index].dataset.index), top: rect.top, bottom: rect.bottom });
+    }
+    return measured.get(index);
+  };
+  let low = 0, high = cards.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (rectAt(middle).bottom <= top) low = middle + 1;
+    else high = middle;
+  }
+  const visible = [];
+  for (let index = low; index < cards.length; index++) {
+    const rect = rectAt(index);
+    if (rect.top >= bottom) break;
+    if (rect.bottom > top) visible.push(rect);
+  }
+  return visible;
 }

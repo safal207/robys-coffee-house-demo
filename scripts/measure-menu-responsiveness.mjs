@@ -1,10 +1,11 @@
+import assert from 'node:assert/strict';
 import { createServer } from 'node:https';
 import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { extname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { chromium } from 'playwright';
-const repo = resolve(new URL('..', import.meta.url).pathname);
+const repo = resolve(process.env.ROBYS_PERF_ROOT ?? new URL('..', import.meta.url).pathname);
 const out = resolve(process.env.ROBYS_PERF_OUTPUT ?? '.artifacts/menu-responsiveness');
 mkdirSync(out, {recursive:true});
 const cert = mkdtempSync(join(tmpdir(), 'robys-perf-'));
@@ -52,6 +53,7 @@ try {
    await page.waitForURL(url=>url.pathname===(target==='feed'?'/menu-feed.html':'/menu.html'));
    await page.waitForFunction(()=>window.__qa.ready);
    const data=await page.evaluate(()=>({...window.__qa.ready,longTasks:window.__qa.longTasks,resources:performance.getEntriesByType('resource').map(e=>({name:e.name.split('/').pop(),bytes:e.transferSize,duration:e.duration}))}));
+   assert.ok(Number.isFinite(data.switchMs) && data.switchMs > 0, "A completed real navigation must have a positive click-to-ready sample");
    report.samples.push({width,cycle,target,...data});console.log(JSON.stringify({width,cycle,target,ms:data.switchMs}));
  }
  await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru`,{waitUntil:'domcontentloaded'});
@@ -66,6 +68,7 @@ try {
    running=false;return {rectReads:q.rects,frames:q.frames,longTasks:q.longTasks,cards:document.querySelectorAll('.feed-card').length,positions};
  });
  report.scroll.push({width,...scroll});report.samples.push({width,errors});
+ assert.deepEqual(errors, [], "Application errors invalidate performance measurements");
  await page.screenshot({path:join(out,`feed-${width}.png`)});
  await context.close();
  }

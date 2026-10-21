@@ -1,3 +1,4 @@
+import { initMenuViewPrefetch } from "./src/menu-view-prefetch.js";
 // List and feed are two views of the same menu. Explicit links always win over
 // the remembered preference; only an unqualified menu entry can use it.
 export const MENU_VIEW_STORAGE_KEY = "robys-menu-view";
@@ -129,7 +130,7 @@ function initializeMenuViews() {
       if (context.language && document.documentElement.lang !== context.language) {
         document.querySelector(`[data-lang="${context.language}"]`)?.click();
       }
-      if (context.hasSearch && !context.productId) {
+      if (context.hasSearch && !context.productId && searchInput.value !== context.search) {
         searchInput.value = context.search;
         searchInput.dispatchEvent(new Event("input", { bubbles: true }));
       }
@@ -184,6 +185,7 @@ function initializeMenuViews() {
       if (event.persisted) restoreContext();
     });
     document.documentElement.dataset.menuViewReady = "true";
+    initMenuViewPrefetch(view);
   };
   if (root.dataset.ready === "true") ready();
   else {

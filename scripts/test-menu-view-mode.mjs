@@ -190,3 +190,36 @@ test("preference writes only known modes and tolerates unavailable storage", () 
     assert.equal(storeMenuViewPreference(unavailable, "feed"), false);
   }
 });
+
+import { canWarmMenu, menuWarmAssets } from '../src/menu-view-prefetch.js';
+test('speculative menu bytes respect data saving, offline, hidden tabs and slow connections', () => {
+  assert.equal(canWarmMenu(undefined), true);
+  assert.equal(canWarmMenu({effectiveType:'4g'}), true);
+  for (const connection of [{saveData:true}, {effectiveType:'slow-2g'}, {effectiveType:'2g'}, {effectiveType:'3g'}]) assert.equal(canWarmMenu(connection), false);
+  assert.equal(canWarmMenu(undefined,true), false);
+  assert.equal(canWarmMenu(undefined,false,false), false);
+});
+test('prefetch only reads bounded critical assets beside the menu, not remote URLs or markup', () => {
+  const target = 'https://example.test/cafe/menu-feed.html?view=feed&lang=ru';
+  const html = '<script src="bootstrap-v2.js?v=1"></script><link rel="stylesheet" href="menu-feed.css?v=2&amp;x=3"><script src="menu-feed.js?v=4"></script><script src="menu-feed.js?v=4"></script><script src="https://other.test/cafe/menu-app.js"></script><script src="https://user:password@example.test/cafe/menu-app.js"></script><script src="../menu-app.js"></script><script src="/cafe/order-storage.js"></script><img src="src/products/huge.webp">';
+  assert.deepEqual(menuWarmAssets(html,target), ['https://example.test/cafe/bootstrap-v2.js?v=1','https://example.test/cafe/menu-feed.css?v=2&x=3','https://example.test/cafe/menu-feed.js?v=4']);
+  assert.deepEqual(menuWarmAssets(' '.repeat(262145),target), []);
+  const files = ['bootstrap-v2.js','menu-runtime.css','menu-feed.css','menu-app.js','menu-feed.js','menu-view-mode.js','pairing-posters.js'];
+  assert.equal(menuWarmAssets(files.map(f=>'<script src="'+f+'"></script>').join(''),target).length,6);
+});
+test('warming preserves native navigation and runs only once on repeated intent', async () => {
+  const listeners = new Map(), requests = [], timers = [];
+  const link = {href:'https://example.test/cafe/menu-feed.html?view=feed&lang=ru#desserts'};
+  const doc = {hidden:false, readyState:'loading',querySelector:()=>link,addEventListener:(name,fn)=>listeners.set(name,fn)};
+  const ctx = {URL,Set,AbortController,document:doc,navigator:{onLine:true},location:{origin:'https://example.test',href:base},window:{addEventListener:(name,fn)=>listeners.set(name,fn)},setTimeout:fn=>{timers.push(fn);return timers.length;},clearTimeout:()=>{},fetch:async(url,options)=>{requests.push({url,options});return {ok:true,headers:new Map([['content-type','text/html']]),text:async()=>'<script src="menu-feed.js?v=abcdef"></script>',arrayBuffer:async()=>new ArrayBuffer(0)};}};
+  const authored = readFileSync(new URL('../src/menu-view-prefetch.js',import.meta.url),'utf8').replaceAll('export function','function');
+  runInNewContext(authored+'\ninitMenuViewPrefetch("list");',ctx);
+  const original=link.href;
+  const event={target:{closest:()=>link},preventDefault:()=>assert.fail('Native navigation must not be intercepted')};
+  listeners.get('pointerover')(event);listeners.get('pointerover')(event);listeners.get('focusin')(event);
+  await new Promise(r=>setImmediate(r));
+  assert.equal(requests.length,2);assert.equal(requests[0].url,original.split('#')[0]);
+  assert.equal(requests[1].url,'https://example.test/cafe/menu-feed.js?v=abcdef');
+  assert.equal(requests[0].options.priority,'low');assert.equal(requests[0].options.redirect,'error');
+  assert.equal(link.href,original);listeners.get('pagehide')();assert.equal(requests[0].options.signal.aborted,true);
+});
