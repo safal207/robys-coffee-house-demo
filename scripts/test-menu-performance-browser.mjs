@@ -28,7 +28,7 @@ const server = createServer({key:readFileSync(join(tmp,'key.pem')),cert:readFile
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const base = `https://127.0.0.1:${server.address().port}`;
 const report = {sourceHead:execFileSync('git',['rev-parse','HEAD'],{cwd:repo,encoding:'utf8'}).trim(), browser:null,
-  conditions:{viewport:'390x844',cpuSlowdown:4,requestDelayMs:latency,bandwidth:'unlimited local HTTPS; latency only, not a real 4G simulation',serviceWorkers:'blocked',httpCache:'enabled, max-age=600',warmupMs:1200},
+  conditions:{viewport:'390x844',cpuSlowdown:4,requestDelayMs:latency,bandwidth:'unlimited local HTTPS; latency only, not a real 4G simulation',serviceWorkers:'blocked',httpCache:'enabled, max-age=600',warmupMs:1200,readiness:'menu ready marker plus two animation frames; first photo is a separately observed upper bound'},
   assetHashes:Object.fromEntries(['menu-app.js','menu-feed.js','menu-view-mode.js','menu-feed.css'].map(f=>[f,createHash('sha256').update(readFileSync(join(repo,f))).digest('hex')])),switches:[],scroll:{},errors:[]};
 let browser;
 try {
@@ -36,7 +36,9 @@ try {
   report.browser=browser.version();
   const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,ignoreHTTPSErrors:true,serviceWorkers:'block'});
   await context.addInitScript(() => {
-    window.__menuPerf={cardReads:0,frameGaps:[],longTasks:[],readyAt:null,feedReplacements:0};
+    window.__menuPerf={cardReads:0,frameGaps:[],longTasks:[],readyAt:null,feedReplacements:0,warmFetches:[]};
+    const originalFetch=window.fetch;
+    window.fetch=function(input,options){if(options?.cache==='force-cache'&&options?.priority==='low')window.__menuPerf.warmFetches.push(String(input));return originalFetch.call(this,input,options);};
     const original=Element.prototype.getBoundingClientRect;
     Element.prototype.getBoundingClientRect=function(...args){ if(this.classList.contains('feed-card'))window.__menuPerf.cardReads++;return original.apply(this,args); };
     try{new PerformanceObserver(list=>{for(const e of list.getEntries())window.__menuPerf.longTasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});}catch{}
@@ -67,6 +69,10 @@ try {
     await page.waitForFunction(()=>window.__menuPerf.readyAt>0);
     report.switches.push(await page.evaluate(mode=>({to:mode,readyMs:window.__menuPerf.readyAt-Number(sessionStorage.getItem('robys-qa-click-at')),domElements:document.querySelectorAll('*').length,navigation:performance.getEntriesByType('navigation')[0]?.toJSON(),longTasks:window.__menuPerf.longTasks}),mode));
     assert.equal(await page.locator('html').getAttribute('lang'),'ru');
+    if(mode==='feed'){
+      await page.waitForFunction(()=>{const image=document.querySelector('.feed-photo>img');return image?.complete&&image.naturalWidth>0;});
+      report.switches.at(-1).firstPhotoObservedMs=await page.evaluate(()=>performance.timeOrigin+performance.now()-Number(sessionStorage.getItem('robys-qa-click-at')));
+    }
   }
   await page.goto(`${base}/menu-feed.html?view=feed&lang=ru`);
   await page.waitForFunction(()=>window.__menuPerf.readyAt>0);
@@ -85,6 +91,7 @@ try {
     return {cards:document.querySelectorAll('.feed-card').length,frames,cardRectReads:stats.cardReads,longTasks:stats.longTasks,counter:document.querySelector('#feed-counter').textContent};
   });
   if (process.env.ROBYS_PERF_ENFORCE === '1') {
+    assert.ok(report.switches.every(s=>s.readyMs>0&&s.readyMs<=1500),'Every measured mode change must meet the 1.5-second lab readiness budget');
     assert.ok(report.scroll.cardRectReads < 1200, 'Scroll geometry must be bounded to near-screen cards, not the complete feed');
     const originBefore=await page.evaluate(()=>performance.timeOrigin);
     await page.locator('.feed-view-switch a[data-menu-view="feed"]').click();
@@ -95,17 +102,22 @@ try {
     await page.waitForTimeout(300);
     assert.equal(await page.evaluate(()=>window.__menuPerf.feedReplacements),0,'Initial query must not destroy and recreate the first batch');
     assert.equal(await page.locator('#feed-search').inputValue(),'latte');
-    const warm=await page.locator('link[data-menu-warm]').evaluateAll(nodes=>nodes.map(n=>({href:n.href,as:n.as})));
-    assert.ok(warm.length<=6,'Warmup must be bounded, not fetch the catalog');
-    report.functionalChecks=['bounded scroll geometry','active mode no-op','query restored before first render','bounded same-origin warmup'];
+    await page.waitForFunction(()=>window.__menuPerf.warmFetches.length>0);
+    const warm=await page.evaluate(()=>window.__menuPerf.warmFetches);
+    assert.ok(warm.length<=4&&new Set(warm).size===warm.length,'Warmup must be bounded and deduplicated, not fetch documents or the catalog');
+    assert.ok(warm.every(url=>/\/(?:menu-app|menu-feed|menu-view-mode|bootstrap-v2|menu-product-reveal|pairing-posters)\.(?:js|css)\?v=/.test(url)));
+    report.warmFetches=warm;
+    report.functionalChecks=['all measured switches within 1500ms','bounded scroll geometry','active mode no-op','query restored before first render','bounded same-origin HTTP-cache warmup'];
     for (const connection of [{saveData:true,effectiveType:'4g'},{saveData:false,effectiveType:'2g'}]) {
       const limited=await browser.newContext({viewport:{width:390,height:844},ignoreHTTPSErrors:true,serviceWorkers:'block'});
       await limited.addInitScript(connection=>Object.defineProperty(navigator,'connection',{configurable:true,value:connection}),connection);
       const limitedPage=await limited.newPage();
+      const speculative=[];
+      limitedPage.on('request',request=>{if(request.resourceType()==='fetch')speculative.push(request.url());});
       await limitedPage.goto(`${base}/menu-feed.html?view=feed&lang=en`);
       await limitedPage.waitForTimeout(1600);
       await limitedPage.locator('.feed-view-switch a[data-menu-view="list"]').focus();
-      assert.equal(await limitedPage.locator('link[data-menu-warm]').count(),0,'Reduced-data connections must not prefetch on idle or focus');
+      assert.equal(speculative.length,0,'Reduced-data connections must not prefetch on idle or focus');
       await limited.close();
     }
     report.functionalChecks.push('Data Saver and 2G skip speculative downloads');
