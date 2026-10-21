@@ -5,6 +5,38 @@ import { test } from "node:test";
 
 const source = readFileSync("takeaway-entry.js", "utf8").replace(/^export /gm, "");
 
+test("changing to the list skips entrance work while generic café visits retain it", () => {
+  const bootstrap = readFileSync("src/bootstrap-v2.js", "utf8").replace(/import\(([^)]+)\)/g, "loadEntryModule($1)");
+  function run(href, { reduced = false, navigation = "navigate", hour = 12 } = {}) {
+    const root = { classList: { add() {} }, dataset: {}, style: {} };
+    const preloads = [], imports = [];
+    const window = { location: new URL(href), matchMedia: () => ({ matches: reduced }), setTimeout() {} };
+    const document = { documentElement: root, head: { append: node => preloads.push(node) }, createElement: () => ({}) };
+    vm.runInNewContext(bootstrap, { window, document, URLSearchParams, Date: class extends Date { getHours() { return hour; } },
+      performance: { getEntriesByType: () => [{ type: navigation }] },
+      loadEntryModule: path => { imports.push(path); return Promise.resolve(); } });
+    return { pending: root.dataset.robysEntryPending, preloads: preloads.length, imports: imports.length };
+  }
+  for (const route of ["menu", "menu.html", "menu.html/"]) {
+    assert.deepEqual(run(`https://example.test/cafe/${route}?view=list&lang=ru#hot-coffee`),
+      { pending: undefined, preloads: 0, imports: 0 }, route);
+  }
+  for (const path of ["", "menu.html", "menu-feed-lookalike.html?view=list"]) {
+    const entry = run(`https://example.test/cafe/${path}`);
+    assert.ok(["morning", "day", "night"].includes(entry.pending), path);
+    assert.equal(entry.preloads, 1, path);
+    assert.equal(entry.imports, 1, path);
+  }
+  for (const options of [{ reduced: true }, { navigation: "back_forward" }]) {
+    assert.deepEqual(run("https://example.test/cafe/", options), { pending: undefined, preloads: 0, imports: 0 });
+  }
+  for (let hour = 0; hour < 24; hour++) {
+    assert.equal(run("https://example.test/cafe/", { hour }).pending,
+      hour >= 5 && hour < 12 ? "morning" : hour >= 12 && hour < 18 ? "day" : "night", `hour ${hour}`);
+  }
+  assert.deepEqual(run("https://example.test/cafe/?entry=off"), { pending: undefined, preloads: 0, imports: 0 });
+});
+
 function harness({ warm = false, language = "tr", reduced = false, image = "ready", storageFails = false, activated = false, vibration = "available", animation = "normal", animationDelay = 0 } = {}) {
   let time = 0;
   let sequence = 0;

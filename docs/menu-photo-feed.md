@@ -13,7 +13,10 @@ search and shared order. A stored view preference applies only to a generic menu
 entry; explicit view links, product and special-purpose links, reloads and Back
 keep their requested destination. Storage failure leaves both modes usable. No additional primary hero CTA or timed feed popup is needed.
 
-The switch stays available while scrolling in both views. Feed entry controls
+The switch stays available while scrolling in both views. An explicit list-view
+entry skips the café entrance animation and its prepaint work, so returning from
+the feed goes directly to the menu. Native links and Back/reload are retained.
+Feed entry controls
 open the same 12 editable combos, four takeaway selections, three family ideas
 and kids choices as the list. The choice helper stays in the current menu view;
 Smart Choice opens the same separate builder in either mode.
@@ -32,8 +35,10 @@ QR. The first product is visible immediately on mobile. Search, categories and
 the personal viewing summary live in a separate accessible discovery dialog.
 
 Cards follow familiar photo-post browsing: a light header, full-width square
-photograph, then a horizontal heart/share row and the product details with price
-and Add. Double-tapping a photograph likes the product without undoing a like.
+photograph with heart/share buttons directly over its lower-left corner, then
+the product details with price and Add. The 44px icon buttons have a dark
+backplate for contrast; previous/next controls occupy the lower-right corner.
+Double-tapping a photograph likes the product without undoing a like.
 The feed scrolls continuously without fullscreen snapping; previous/next controls
 and arrow keys remain alternatives. Photos keep their complete square composition
 and intrinsic aspect ratio, including on short screens. Long content remains
