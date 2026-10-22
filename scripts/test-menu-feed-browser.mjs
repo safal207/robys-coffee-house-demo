@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
 import { menuCategories } from "../menu-catalog.js";
@@ -12,7 +13,7 @@ import { feedProducts } from "../src/menu-feed-model.js";
 
 // Repository CI browser test: public bytes over HTTPS and the real CSP.
 // Recovery cases explicitly replace one module response with a failed module.
-const repo = resolve(new URL("..", import.meta.url).pathname);
+const repo = resolve(fileURLToPath(new URL("..", import.meta.url)));
 process.chdir(repo);
 const output = resolve(".artifacts/menu-feed"); mkdirSync(output, { recursive: true });
 const certificate = mkdtempSync(join(tmpdir(), "robys-feed-"));
@@ -1024,8 +1025,8 @@ try {
     assert.equal(await share.evaluate(node => node === document.activeElement), true, "Native share success restores the triggering button's focus");
     const payload = await page.evaluate(() => window.__feedShares[0]);
     const url = new URL(payload.url);
-    assert.equal(url.origin, origin); assert.equal(url.pathname, "/menu-feed.html");
-    assert.deepEqual([...url.searchParams], [["item", "hot-coffee:espresso"], ["lang", "en"]]);
+    assert.equal(url.origin, origin); assert.equal(url.pathname, "/share/en/hot-coffee--espresso.html");
+    assert.deepEqual([...url.searchParams], []);
     assert.equal(url.hash, ""); assert.match(payload.title, /Espresso/);
     assert.equal(await page.locator("#feed-share").evaluate(node => node.open), false);
     await page.evaluate(() => { window.__feedShareOutcome = "cancel"; });
@@ -1065,7 +1066,8 @@ try {
     await page.locator(".feed-share").first().click();
     await page.locator("#feed-share[open]").waitFor();
     const value = await page.locator("#feed-share-url").inputValue(), url = new URL(value);
-    assert.deepEqual([...url.searchParams], [["item", "hot-coffee:espresso"], ["lang", "en"]]);
+    assert.equal(url.pathname, "/share/en/hot-coffee--espresso.html");
+    assert.deepEqual([...url.searchParams], []);
     assert.equal(url.origin, origin); assert.equal(url.hash, "");
     assert.equal(await page.locator("#feed-share-url").evaluate(node => node.readOnly), true);
     await page.locator("#feed-share-copy").click();
@@ -1468,6 +1470,47 @@ try {
     await context.close();
   }
   await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
+
+  for (const language of ["tr", "en", "ru"]) {
+    const sharedPath = `/share/${language}/desserts--san-sebastian-cheesecake.html`;
+    const product = catalog.find(item => item.id === "desserts:san-sebastian-cheesecake");
+    const previewContext = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 } });
+    const preview = await previewContext.newPage();
+    const response = await preview.goto(`${origin}${sharedPath}`);
+    assert.equal(response.status(), 200);
+    assert.equal(await preview.locator('meta[property="og:title"]').getAttribute("content"), `${product.item.name[language]} · Roby's Coffee House`);
+    assert.equal(await preview.locator("h1").textContent(), product.item.name[language]);
+    assert.equal(await preview.locator("#menu-share-open").isVisible(), true);
+    // Check the loaded photo synchronously in this script-disabled document.
+    assert.equal(await preview.locator("main img").evaluate(image => image.complete && image.naturalWidth > 0), true);
+    if (language === "ru") await captureScreenshot(preview, { path: `${output}/share-preview-ru.png`, fullPage: true });
+    await previewContext.close();
+
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      localStorage.setItem("robys-language", "en");
+      localStorage.setItem("robys-menu-view", "list");
+      Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}${sharedPath}?lang=de&item=hot-coffee%3Aespresso&url=https://other.test/#hot-coffee`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(new URL(page.url()).origin, origin);
+    assert.equal(new URL(page.url()).pathname, "/menu-feed.html");
+    assert.equal(new URL(page.url()).searchParams.get("item"), product.id);
+    assert.equal(await page.locator("html").getAttribute("lang"), language);
+    const card = page.locator(`[data-product-id="${product.id}"]`);
+    assert.equal(await card.locator("h3").textContent(), product.item.name[language]);
+    await card.locator(".feed-share").click();
+    await page.locator("#feed-share[open]").waitFor();
+    assert.equal(await page.locator("#feed-share-url").inputValue(), `${origin}${sharedPath}`);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "product-photo-share-entry", result: "PASS", language, initialHtmlPreview: true,
+      noJavaScriptPhotoAndLink: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
+    await context.close();
+  }
 
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);

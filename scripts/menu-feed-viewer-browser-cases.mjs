@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { feedSharePath } from "../src/menu-feed-navigation.js";
 
 // Runs inside the menu-feed harness, against built public bytes over HTTPS and
 // its real CSP. Pointer drags below use Playwright's mouse, not synthetic
@@ -187,8 +188,8 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       await page.waitForTimeout(1150);
       assert.equal(await count(page, hot[1].id), 0, "A loaded story covered by the share dialog is not a view");
       const shared = new URL(await page.locator("#feed-share-url").inputValue());
-      assert.equal(shared.searchParams.get("item"), hot[1].id);
-      assert.equal(shared.searchParams.get("lang"), "en");
+      assert.equal(shared.pathname, `/${feedSharePath(hot[1].id, "en")}`);
+      assert.equal(shared.search, "");
       await page.locator("#feed-share-close").click();
       await page.waitForTimeout(600);
       assert.equal(await count(page, hot[1].id), 0, "A covered Story restarts its continuous one-second qualification when uncovered");
@@ -309,8 +310,8 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       await page.locator("#feed-viewer-share").click();
       await page.waitForFunction(() => window.__viewerNativeShares.length === 1);
       const shared = await page.evaluate(() => window.__viewerNativeShares[0]);
-      assert.equal(new URL(shared.url).searchParams.get("item"), active);
-      assert.equal(new URL(shared.url).searchParams.get("lang"), "ru");
+      assert.equal(new URL(shared.url).pathname, `/${feedSharePath(active, "ru")}`);
+      assert.equal(new URL(shared.url).search, "");
       if (shared.activation !== null) assert.equal(shared.activation, true, "Native sharing retains the trusted click's user activation");
       for (const selector of ["#feed-viewer-close", "#feed-viewer-like", "#feed-viewer-share", "#feed-viewer-choose", "#feed-viewer-next"]) await hitTarget(page, selector);
       await captureScreenshot(page, { path: `${output}/${engine}-reels-ru.png` });
@@ -468,7 +469,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
       await page.locator("#feed-viewer-share").click();
       await page.waitForFunction(() => window.__viewerDeferredShares.length === 2);
       const latestShare = await page.evaluate(() => window.__viewerDeferredShares[1]);
-      assert.equal(new URL(latestShare.url).searchParams.get("item"), hot[1].id);
+      assert.equal(new URL(latestShare.url).pathname, `/${feedSharePath(hot[1].id, "ru")}`);
       await closeViewer(page, opener);
       assert.deepEqual(failedRequests, [brokenImage.href], "Only the deliberately failed viewer photograph request may fail");
       const expectedPhotoErrors = errors.filter(error => /^console\.error: Failed to load resource/.test(error));

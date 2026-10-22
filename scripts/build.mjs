@@ -471,6 +471,9 @@ feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRe
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
 writeFileSync("menu-feed.html", feedHtml);
+const { menuShareProducts } = await import("./build-menu-share-pages.mjs");
+const menuShareEntryRevision = revisionFor("menu-share-entry.js");
+const menuShareStyleRevision = revisionFor("menu-share-entry.css");
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
 experienceHtml = synchronizeScript(experienceHtml, "experience-pwa.js", experiencePwaRevision);
@@ -546,6 +549,8 @@ for (const file of choiceSurfaces) {
 }
 
 let serviceWorker = readFileSync("sw-core-v64.js", "utf8");
+if (!/^const MENU_SHARE_PRODUCTS = .*;$/m.test(serviceWorker)) throw new Error("Missing offline share product registry");
+serviceWorker = serviceWorker.replace(/^const MENU_SHARE_PRODUCTS = .*;$/m, `const MENU_SHARE_PRODUCTS = ${JSON.stringify(menuShareProducts)};`);
 const familyPhotoAssets = [
   "src/products/family-sets-v1/milk-cookie.webp",
   "src/products/family-sets-v1/simit-break.webp",
@@ -554,13 +559,16 @@ const familyPhotoAssets = [
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
-for (const asset of ["menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
 const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+const shareCacheRevision = createHash("sha256").update(`${menuShareEntryRevision}:${menuShareStyleRevision}:${JSON.stringify(menuShareProducts)}`).digest("hex").slice(0, 12);
+serviceWorker = serviceWorker.replace(/-menu-share-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-menu-share-${shareCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-menu-feed-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-feed-${feedCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
@@ -647,6 +655,8 @@ for (const [filePath, revision] of [
   ["menu-feed.js", menuFeedRevision],
   ["menu-view-mode.js", menuViewModeRevision],
   ["menu-feed.css", menuFeedCssRevision],
+  ["menu-share-entry.js", menuShareEntryRevision],
+  ["menu-share-entry.css", menuShareStyleRevision],
   ["menu-order-ui.js", menuOrderRevision],
   ["menu-family-ui.js", menuFamilyRevision],
   ["menu-family.css", menuFamilyCssRevision],

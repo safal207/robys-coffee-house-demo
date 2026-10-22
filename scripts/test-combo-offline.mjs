@@ -9,6 +9,9 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 import { chromium } from "playwright";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { menuCategories } from "../menu-catalog.js";
+import { feedProducts } from "../src/menu-feed-model.js";
+import { feedSharePath } from "../src/menu-feed-navigation.js";
 
 const repo = resolve(fileURLToPath(new URL("..", import.meta.url)));
 process.chdir(repo);
@@ -215,6 +218,21 @@ async function runBrowser({ cacheName }) {
         report.cases.push({ id: `first-offline-combo-reveal-${language}`, status: "PASS", photosDecoded: 12,
           cachedByteHashesVerified: expectedAssets.length, helperUsable: true, missingPhotoNegativeControl, blockedRequests: blockedRequests.slice(blockedStart) });
         console.log(`PASS first offline combo reveal + twelve photos + helper (${language})`);
+        const product = feedProducts(menuCategories).find(item => item.id === "desserts:san-sebastian-cheesecake");
+        const sharePath = feedSharePath(product.id, language);
+        await page.goto(`${origin}/${sharePath}?lang=de&item=unknown&url=https://other.test`, { waitUntil: "domcontentloaded" });
+        await page.locator('#feed[data-ready="true"]').waitFor();
+        assert.equal(new URL(page.url()).pathname, "/menu-feed.html");
+        assert.equal(new URL(page.url()).searchParams.get("item"), product.id);
+        assert.equal(await page.locator("html").getAttribute("lang"), language);
+        const card = page.locator(`[data-product-id="${product.id}"]`);
+        assert.equal(await card.locator("h3").textContent(), product.item.name[language]);
+        await card.locator(".feed-photo > img").evaluate(image => image.decode());
+        assert.ok(blockedRequests.slice(blockedStart).some(url => url.startsWith(`/${sharePath}`)), "The shared link must reach the network-blocking fixture before the worker recovers it");
+        assert.deepEqual(errors, []);
+        report.cases.push({ id: `first-offline-product-share-${language}`, status: "PASS", product: product.id,
+          catalogLanguagePreserved: true, incomingQueryIgnored: true, actualWorkerRedirect: true, cachedPhotoDecoded: true });
+        console.log(`PASS offline shared product + correct language + cached photograph (${language})`);
       } catch (error) {
         await page.screenshot({ path: join(output, `offline-${language}-failure.png`) }).catch(() => {});
         report.cases.push({ id: `first-offline-combo-reveal-${language}`, status: "FAIL", error: error.stack, pageErrors: errors,

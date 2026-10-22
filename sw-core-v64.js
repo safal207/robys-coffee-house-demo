@@ -1,4 +1,5 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-feed-70fb1a65a189-quick-order-4d1950bc20b3-coffee-paths-e0e89349a2f4-halloween-e3045e5201bf-home-navigation-f5ed7645d93c-family-menu-6295cf334f91-occasion-combos-182e5bf4f3e8-custom-pair-7b78c19cb880-menu-css-5c3205d7c5f8-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-024743e64919-pairing-css-882faab929d1-menu-share-4f662e6b236a-menu-feed-c7d8cf16169b-quick-order-4d1950bc20b3-coffee-paths-e0e89349a2f4-halloween-e3045e5201bf-home-navigation-f5ed7645d93c-family-menu-6295cf334f91-occasion-combos-182e5bf4f3e8-custom-pair-7b78c19cb880-menu-css-5c3205d7c5f8-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-7d1b6bc8f058-b7b8c4df73db-96b566c9731e";
+const MENU_SHARE_PRODUCTS = {"pairing-offers--cool-lime-macaron-pairing":"pairing-offers:cool-lime-macaron-pairing","hot-coffee--espresso":"hot-coffee:espresso","brew-hot--filter-coffee":"brew-hot:filter-coffee","cold-coffee--iced-filter-coffee":"cold-coffee:iced-filter-coffee","refreshers--cool-lime":"refreshers:cool-lime","herbal-tea--beauty-tea-floral-white-tea":"herbal-tea:beauty-tea-floral-white-tea","desserts--san-sebastian-cheesecake":"desserts:san-sebastian-cheesecake","food--three-cheese-croissant":"food:three-cheese-croissant","pairing-offers--iced-san-sebastian-pairing":"pairing-offers:iced-san-sebastian-pairing","hot-coffee--americano":"hot-coffee:americano","brew-hot--turkish-coffee":"brew-hot:turkish-coffee","cold-coffee--iced-americano":"cold-coffee:iced-americano","refreshers--berry-hibiscus":"refreshers:berry-hibiscus","herbal-tea--tahiti-tea-hibiscus-lemongrass":"herbal-tea:tahiti-tea-hibiscus-lemongrass","desserts--lotus-cheesecake":"desserts:lotus-cheesecake","food--nutella-croissant":"food:nutella-croissant","hot-coffee--espresso-macchiato":"hot-coffee:espresso-macchiato","brew-hot--black-tea":"brew-hot:black-tea","cold-coffee--iced-caffe-latte":"cold-coffee:iced-caffe-latte","refreshers--mango-passionfruit":"refreshers:mango-passionfruit","herbal-tea--maroc-tea-mint-green-tea":"herbal-tea:maroc-tea-mint-green-tea","desserts--raspberry-cheesecake":"desserts:raspberry-cheesecake","food--white-cheese-baguette-sandwich":"food:white-cheese-baguette-sandwich","hot-coffee--cortado":"hot-coffee:cortado","brew-hot--hot-chocolate":"brew-hot:hot-chocolate","cold-coffee--flavoured-iced-caffe-latte":"cold-coffee:flavoured-iced-caffe-latte","refreshers--berry-lemonade":"refreshers:berry-lemonade","herbal-tea--relax-tea-lavender-rooibos":"herbal-tea:relax-tea-lavender-rooibos","desserts--chocolate-cake":"desserts:chocolate-cake","food--beef-sirloin-baguette-sandwich":"food:beef-sirloin-baguette-sandwich","hot-coffee--flat-white":"hot-coffee:flat-white","brew-hot--milk":"brew-hot:milk","cold-coffee--iced-mocha":"cold-coffee:iced-mocha","refreshers--pineapple-berry":"refreshers:pineapple-berry","herbal-tea--balance-tea-detox-green-tea":"herbal-tea:balance-tea-detox-green-tea","desserts--almond-tart":"desserts:almond-tart","food--sesame-simit":"food:sesame-simit","hot-coffee--cappuccino":"hot-coffee:cappuccino","brew-hot--salep":"brew-hot:salep","cold-coffee--white-chocolate-mocha":"cold-coffee:white-chocolate-mocha","refreshers--summer-pine":"refreshers:summer-pine","desserts--cake-roll":"desserts:cake-roll","hot-coffee--caramel-cappuccino":"hot-coffee:caramel-cappuccino","brew-hot--chai-tea-latte":"brew-hot:chai-tea-latte","cold-coffee--caffe-latte-frappe":"cold-coffee:caffe-latte-frappe","refreshers--tropical-mango":"refreshers:tropical-mango","desserts--mosaic-cake":"desserts:mosaic-cake","hot-coffee--caffe-latte":"hot-coffee:caffe-latte","cold-coffee--milkshake":"cold-coffee:milkshake","refreshers--strawberry-lime":"refreshers:strawberry-lime","desserts--tiramisu":"desserts:tiramisu","hot-coffee--chocolate-cookie-latte":"hot-coffee:chocolate-cookie-latte","refreshers--yuzu-popcorn":"refreshers:yuzu-popcorn","desserts--brownie":"desserts:brownie","hot-coffee--cinnamon-latte":"hot-coffee:cinnamon-latte","desserts--savoury-cookie":"desserts:savoury-cookie","hot-coffee--caramel-latte":"hot-coffee:caramel-latte","desserts--cookie":"desserts:cookie","hot-coffee--vanilla-latte":"hot-coffee:vanilla-latte","desserts--macaron":"desserts:macaron","hot-coffee--hazelnut-latte":"hot-coffee:hazelnut-latte","hot-coffee--caffe-mocha":"hot-coffee:caffe-mocha","hot-coffee--white-chocolate-mocha":"hot-coffee:white-chocolate-mocha"};
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
   "./src/products/menu-v1/brew-hot--chai-tea-latte.webp",
@@ -105,9 +106,11 @@ const CORE_ASSETS = [
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=59bffc03490d",
   "./menu-feed.html",
-  "./menu-feed.js?v=4e91fc8e367b",
+  "./menu-feed.js?v=b3d5e60d8515",
   "./menu-feed.css?v=b9c32b97a6eb",
   "./menu-view-mode.js?v=277d248a767d",
+  "./menu-share-entry.js?v=a7a7ede8582e",
+  "./menu-share-entry.css?v=5be22dbb9b83",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -263,6 +266,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/menu-feed.js") ||
     url.pathname.endsWith("/menu-view-mode.js") ||
     url.pathname.endsWith("/menu-feed.css") ||
+    url.pathname.endsWith("/menu-share-entry.js") ||
+    url.pathname.endsWith("/menu-share-entry.css") ||
     url.pathname.endsWith("/menu-order-ui.js") ||
     url.pathname.endsWith("/order-storage.js") ||
     url.pathname.endsWith("/order-checkout.js") ||
@@ -326,6 +331,9 @@ async function navigationResponse(request) {
   const scopePath = new URL(self.registration.scope).pathname;
   const isMenu = url.pathname.endsWith("/menu.html");
   const isMenuFeed = url.pathname.endsWith("/menu-feed.html");
+  const shareMatch = url.pathname.startsWith(scopePath)
+    ? url.pathname.slice(scopePath.length).match(/^share\/(tr|en|ru)\/([a-z0-9-]+)\.html$/) : null;
+  const shareProduct = shareMatch ? MENU_SHARE_PRODUCTS[shareMatch[2]] : null;
   const isCashier = url.pathname.endsWith("/cashier.html");
   const isDiscover = url.pathname.endsWith("/discover.html");
   const isSmartChoice = url.pathname === `${scopePath}smart-choice/` ||
@@ -349,6 +357,13 @@ async function navigationResponse(request) {
 
   if (isMenu) return cachedPage("menu.html");
   if (isMenuFeed) return cachedPage("menu-feed.html");
+  if (typeof shareProduct === "string") {
+    const entry = new URL("menu-feed.html", self.registration.scope);
+    entry.searchParams.set("item", shareProduct);
+    entry.searchParams.set("lang", shareMatch[1]);
+    entry.searchParams.set("view", "feed");
+    return Response.redirect(entry.href, 302);
+  }
   if (isCashier) return cachedPage("cashier.html");
   if (isDiscover) return cachedPage("discover.html");
   if (isSmartChoice) return cachedPage("smart-choice/index.html");
