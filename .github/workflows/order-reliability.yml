@@ -131,7 +131,6 @@ jobs:
           include-hidden-files: true
           retention-days: 14
 
-  # Insert this job under jobs in order-reliability.yml; keep the canonical host jobs unchanged.
   # This diagnostic changes the whole user-space toolchain, not one isolated library.
   webkit-supported-toolchain-control:
     name: WebKit official user-space control (diagnostic)
@@ -157,6 +156,8 @@ jobs:
         with:
           node-version: '22.23.3'
           cache: npm
+      - name: Trust this container checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Install the locked project dependencies
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
