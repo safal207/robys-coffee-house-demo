@@ -18,6 +18,9 @@ on:
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/verify-integrity-manifest.mjs"
+      - "scripts/ensure-playwright-browsers.mjs"
+      - "scripts/signed-ubuntu-packages.mjs"
+      - "scripts/test-playwright-prerequisites.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/contextual-entry-certification.yml"
@@ -40,6 +43,9 @@ on:
       - "scripts/contextual-routing-smoke.mjs"
       - "scripts/generate-integrity-manifest.mjs"
       - "scripts/verify-integrity-manifest.mjs"
+      - "scripts/ensure-playwright-browsers.mjs"
+      - "scripts/signed-ubuntu-packages.mjs"
+      - "scripts/test-playwright-prerequisites.mjs"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/contextual-entry-certification.yml"
@@ -55,7 +61,7 @@ concurrency:
 jobs:
   certify:
     name: MOTION-CONTEXT-001 Day/Night matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -75,7 +81,7 @@ jobs:
         run: npm ci
 
       - name: Install deterministic Chromium
-        run: npx playwright install --with-deps chromium
+        run: node scripts/ensure-playwright-browsers.mjs chromium
 
       - name: Verify contextual runtime syntax
         run: |
