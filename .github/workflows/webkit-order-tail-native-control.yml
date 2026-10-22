@@ -1,0 +1,112 @@
+name: Native WebKit Order tail control
+on:
+  push:
+    branches: [diagnostic/webkit-order-tail-20261022]
+permissions:
+  contents: read
+jobs:
+  native-tail:
+    name: Native macOS five canonical Order tail suites
+    runs-on: macos-15-intel
+    timeout-minutes: 20
+    env:
+      DEBUG: pw:browser
+      ROBYS_PROMO_BROWSER: webkit
+      ROBYS_PROMO_QA_DIR: .artifacts/order-reliability/promo
+      ROBYS_TRANSACTION_BROWSER: webkit
+      ROBYS_TRANSACTION_QA_DIR: .artifacts/order-reliability/transactions
+      CHECKOUT_BROWSERS: webkit
+      ROBYS_STORAGE_BROWSER: webkit
+      ROBYS_RELEASE_BUILT_BROWSERS: webkit
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22.23.3'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install webkit
+      - name: Bind unchanged frontend, five original harnesses and native executable
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, accessSync, constants, mkdirSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          import { webkit } from 'playwright';
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+          const manifest = readFileSync('integrity-manifest.json');
+          const files = JSON.parse(manifest).files, hash = createHash('sha256').update(manifest);
+          for (const file of [...files].sort((a,b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path), sha256 = sha(bytes);
+            if (bytes.length !== file.bytes || sha256 !== file.sha256) throw new Error('Protected asset differs: ' + file.path);
+            hash.update(JSON.stringify({ path: file.path, bytes: bytes.length, sha256 }));
+          }
+          const runtimeSha256 = hash.digest('hex');
+          if (runtimeSha256 !== 'a1b831d2fc0234f1e5d610f3ad93faf6d197681294b74c2375b7b67f1b50b657' || files.length !== 733) throw new Error('Unexpected frontend');
+          const pkg = JSON.parse(readFileSync('node_modules/playwright-core/package.json', 'utf8'));
+          const browser = JSON.parse(readFileSync('node_modules/playwright-core/browsers.json', 'utf8')).browsers.find(item => item.name === 'webkit');
+          const executablePath = webkit.executablePath();
+          const osVersion = execFileSync('sw_vers', ['-productVersion'], { encoding: 'utf8' }).trim();
+          if (process.version !== 'v22.23.3' || process.platform !== 'darwin' || process.arch !== 'x64'
+            || !osVersion.startsWith('15.') || pkg.version !== '1.55.1' || browser?.revision !== '2203'
+            || !executablePath.includes('/webkit-2203/')) throw new Error('Unexpected native toolchain');
+          accessSync(executablePath, constants.X_OK);
+          const harnesses = ['test-promo-components-browser.mjs','test-order-transactions-stress-browser.mjs',
+            'test-order-checkout-staleness-browser.mjs','test-order-storage-compat-browser.mjs','test-order-release-built-browser.mjs'];
+          const metadata = { scope: 'Diagnostic only: five canonical tail commands; never substitutes for complete current-head Order',
+            revision: git('rev-parse','HEAD'), tree: git('rev-parse','HEAD^{tree}'), parent: git('rev-parse','HEAD^'),
+            dirty: git('status','--porcelain').length > 0, runtimeSha256, runtimeFiles: files.length, manifestSha256: sha(manifest),
+            harnesses: Object.fromEntries(harnesses.map(file => [file,sha(readFileSync('scripts/' + file))])),
+            node: process.version, osVersion, architecture: process.arch, playwright: pkg.version, webkit: browser,
+            executablePath, launcherSha256: sha(readFileSync(executablePath)) };
+          if (metadata.revision !== process.env.GITHUB_SHA || metadata.parent !== '04e4706127ad53b48160b3ca43254fe9d7c007cb' || metadata.dirty) throw new Error('Unexpected source');
+          mkdirSync('.artifacts/order-tail-control', { recursive: true });
+          writeFileSync('.artifacts/order-tail-control/environment.json', JSON.stringify(metadata,null,2) + '\n');
+          console.log(JSON.stringify(metadata,null,2));
+          NODE
+      - name: Editable promotional pairs
+        id: promo
+        continue-on-error: true
+        run: node scripts/test-promo-components-browser.mjs
+      - name: Concurrent cart mutations and storage recovery
+        id: transactions
+        continue-on-error: true
+        run: node scripts/test-order-transactions-stress-browser.mjs
+      - name: Immutable QR and explicit refresh
+        id: staleness
+        continue-on-error: true
+        run: node scripts/test-order-checkout-staleness-browser.mjs
+      - name: Unavailable storage and legacy tab recovery
+        id: storage
+        continue-on-error: true
+        run: node scripts/test-order-storage-compat-browser.mjs
+      - name: Built release QR, cashier and concurrent native Add
+        id: release
+        continue-on-error: true
+        run: node scripts/test-order-release-built-browser.mjs
+      - name: Preserve every original command outcome and source guard
+        if: always()
+        env:
+          PROMO_RESULT: ${{ steps.promo.outcome }}
+          TRANSACTIONS_RESULT: ${{ steps.transactions.outcome }}
+          STALENESS_RESULT: ${{ steps.staleness.outcome }}
+          STORAGE_RESULT: ${{ steps.storage.outcome }}
+          RELEASE_RESULT: ${{ steps.release.outcome }}
+        run: |
+          git diff --exit-code
+          node --input-type=module <<'NODE'
+          for (const key of ['PROMO_RESULT','TRANSACTIONS_RESULT','STALENESS_RESULT','STORAGE_RESULT','RELEASE_RESULT']) {
+            if (process.env[key] !== 'success') throw new Error(key + ': ' + process.env[key]);
+          }
+          NODE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: native-webkit-order-tail-control-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          retention-days: 14
