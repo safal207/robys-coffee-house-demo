@@ -1,0 +1,1959 @@
+{
+  "schemaVersion": 1,
+  "components": [
+    {
+      "id": "build",
+      "label": "Authored source, emitted runtime and dependency build inputs",
+      "paths": [
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "vite.config.mjs",
+        "scripts/build*.mjs",
+        "scripts/menu-runtime-source.mjs",
+        "scripts/menu-styles-bundle.mjs"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "catalog",
+      "label": "Product identities, prices, variants and approved menu content",
+      "paths": [
+        "menu-catalog.js",
+        "menu-catalog.d.ts",
+        "data/featured-products.json",
+        "qa/menu-content-baseline.json",
+        "src/menu-icons/**"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "i18n",
+      "label": "TR/EN/RU copy and language persistence inputs",
+      "paths": [
+        "src/i18n.ts",
+        "discover-copy.js",
+        "src/smart-choice/cart-copy.ts"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog"
+      ]
+    },
+    {
+      "id": "shared-styles",
+      "label": "Shared responsive layout, branding, contrast, focus and reduced motion",
+      "paths": [
+        "styles-v2.css",
+        "mobile.css",
+        "conversion.css",
+        "brand-photo-logo.css",
+        "wordmark-responsive.css",
+        "hero-balance.css",
+        "final-qa*.css",
+        "coffee-paths.css",
+        "seasonal.css"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "home",
+      "label": "Home entry, navigation, skip links, language and contextual entrance",
+      "paths": [
+        "index.html",
+        "src/app.ts",
+        "app.js",
+        "src/bootstrap-v2.js",
+        "bootstrap-v2.js",
+        "src/conversion.js",
+        "conversion.js",
+        "takeaway-entry.js",
+        "morning-entry-v2.js",
+        "day-night-entry.js",
+        "src/amenities.ts",
+        "src/seasonal-theme.ts",
+        "seasonal-theme.js",
+        "src/.parts/**"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog",
+        "i18n",
+        "shared-styles",
+        "business-profile"
+      ]
+    },
+    {
+      "id": "menu-list",
+      "label": "List rendering, categories, search, clear and action loading",
+      "paths": [
+        "menu.html",
+        "src/menu-app.js",
+        "menu-app.js",
+        "menu-interactions.js",
+        "menu-ready.js",
+        "menu-search-clear.js",
+        "src/menu-actions-loader.js",
+        "menu-premium.css",
+        "menu-stability*.css",
+        "menu-security-v2.css",
+        "menu-runtime.css"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog",
+        "i18n",
+        "shared-styles",
+        "menu-view",
+        "order-ui",
+        "product-dialog"
+      ]
+    },
+    {
+      "id": "menu-view",
+      "label": "List/feed navigation context and remembered view",
+      "paths": [
+        "src/menu-view-mode.js",
+        "src/menu-view-prefetch.js",
+        "menu-view-mode.js"
+      ],
+      "dependsOn": [
+        "build",
+        "order-storage"
+      ]
+    },
+    {
+      "id": "menu-feed",
+      "label": "Full photo feed, filtering, product navigation and shared order adapter",
+      "paths": [
+        "menu-feed.html",
+        "menu-feed.js",
+        "menu-feed.css",
+        "src/menu-feed.js",
+        "src/menu-feed-model.js",
+        "src/menu-feed-navigation.js",
+        "src/menu-feed-order.js"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog",
+        "i18n",
+        "shared-styles",
+        "menu-view",
+        "order-ui",
+        "product-photos"
+      ]
+    },
+    {
+      "id": "feed-social",
+      "label": "Personal likes/views, sharing, Stories and Reels",
+      "paths": [
+        "src/menu-feed-engagement.js",
+        "src/menu-feed-collections.js",
+        "src/menu-feed-viewer.js"
+      ],
+      "dependsOn": [
+        "menu-feed",
+        "order-storage",
+        "share-links",
+        "product-photos"
+      ]
+    },
+    {
+      "id": "product-photos",
+      "label": "Approved product photographs, delivery variants and recovery registry",
+      "paths": [
+        "src/products/**",
+        "qa/menu-thumbnail-assets.json",
+        "scripts/build-menu-thumbnails.mjs"
+      ],
+      "dependsOn": [
+        "catalog",
+        "build"
+      ]
+    },
+    {
+      "id": "product-dialog",
+      "label": "Product reveal, variants, dismissal and focus restoration",
+      "paths": [
+        "menu-product-reveal.js",
+        "menu-product-reveal-runtime.js",
+        "menu-product-reveal.css",
+        "pairing-preview.css"
+      ],
+      "dependsOn": [
+        "catalog",
+        "product-photos",
+        "shared-styles",
+        "build"
+      ]
+    },
+    {
+      "id": "order-model",
+      "label": "Shared draft, product groups and ordering invariants",
+      "paths": [
+        "src/order-draft.js",
+        "src/order-draft.d.ts"
+      ],
+      "dependsOn": [
+        "catalog",
+        "build"
+      ]
+    },
+    {
+      "id": "order-storage",
+      "label": "Draft serialization, compatibility, cross-tab and storage failure recovery",
+      "paths": [
+        "order-storage.js",
+        "src/order-storage.js",
+        "src/order-storage.d.ts",
+        "src/order-storage-notice.js",
+        "src/order-storage-notice.d.ts",
+        "src/order-ticket-storage.js"
+      ],
+      "dependsOn": [
+        "order-model",
+        "build"
+      ]
+    },
+    {
+      "id": "order-ui",
+      "label": "Cart badge, totals, edit, quantity, remove and dialog focus",
+      "paths": [
+        "menu-order-ui.js",
+        "src/menu-order-ui.js"
+      ],
+      "dependsOn": [
+        "order-model",
+        "order-storage",
+        "catalog",
+        "shared-styles",
+        "build"
+      ]
+    },
+    {
+      "id": "families-combos",
+      "label": "Pairs, family/kids sets, combos and edit/retry paths",
+      "paths": [
+        "menu-combos-ui.js",
+        "src/menu-combos-ui.js",
+        "src/menu-combos.js",
+        "menu-combos.css",
+        "combo-entry.css",
+        "menu-family-ui.js",
+        "src/menu-family-ui.js",
+        "src/menu-family.js",
+        "menu-family.css",
+        "src/kids-menu.js",
+        "src/kids-menu.d.ts",
+        "kids-menu.css",
+        "src/menu-promo-pair.js",
+        "src/menu-pairing.js",
+        "src/menu-pairing-view.js",
+        "menu-pairing.js"
+      ],
+      "dependsOn": [
+        "catalog",
+        "order-model",
+        "order-storage",
+        "order-ui",
+        "product-photos",
+        "build"
+      ]
+    },
+    {
+      "id": "ticket-qr",
+      "label": "Counter ticket encoding, display, scan and static cashier handoff",
+      "paths": [
+        "src/order-ticket.js",
+        "cashier.html",
+        "cashier.js",
+        "src/cashier.js"
+      ],
+      "dependsOn": [
+        "order-model",
+        "order-storage",
+        "build"
+      ]
+    },
+    {
+      "id": "checkout",
+      "label": "Truthful checkout, stale snapshot recovery and optional counter handoff",
+      "paths": [
+        "order-checkout.js",
+        "order-checkout.css",
+        "src/order-checkout.js",
+        "src/order-checkout.d.ts",
+        "src/counter-checkout.js"
+      ],
+      "dependsOn": [
+        "order-model",
+        "order-storage",
+        "ticket-qr",
+        "counter-service",
+        "build"
+      ]
+    },
+    {
+      "id": "counter-service",
+      "label": "Owned counter HTTP order lifecycle and persistent store",
+      "paths": [
+        "counter/server.mjs",
+        "counter/store.mjs",
+        "counter-config.json",
+        "counter/CONTRACT.md"
+      ],
+      "dependsOn": [
+        "order-model",
+        "counter-auth",
+        "build"
+      ]
+    },
+    {
+      "id": "counter-auth",
+      "label": "Counter roles, staff sessions and provisioning boundary",
+      "paths": [
+        "counter/auth.mjs",
+        "counter/provision.mjs"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "counter-staff",
+      "label": "Cashier payment acknowledgement, barista sequence and staff queue",
+      "paths": [
+        "counter/public/staff.*",
+        "counter/src/staff*"
+      ],
+      "dependsOn": [
+        "counter-service",
+        "counter-auth",
+        "shared-styles"
+      ]
+    },
+    {
+      "id": "counter-guest",
+      "label": "Guest polling, order status and stale/offline recovery",
+      "paths": [
+        "counter/public/guest.*",
+        "counter/src/guest.js"
+      ],
+      "dependsOn": [
+        "counter-service",
+        "shared-styles"
+      ]
+    },
+    {
+      "id": "smart-choice",
+      "label": "Preference engine, recommendations, quick builder and shared cart",
+      "paths": [
+        "smart-choice/**",
+        "src/smart-choice/**",
+        "choice-help.js",
+        "choice-help-entry.js",
+        "choice-help.css",
+        "src/choice-help.js",
+        "src/choice-help-entry.js"
+      ],
+      "dependsOn": [
+        "catalog",
+        "order-model",
+        "order-storage",
+        "product-photos",
+        "i18n",
+        "build"
+      ]
+    },
+    {
+      "id": "discover",
+      "label": "Discover deck, pairing rotation and remembered journey progression",
+      "paths": [
+        "discover.html",
+        "discover*.js",
+        "discover*.css",
+        "src/discover-rotation.ts",
+        "src/pairings-data/**",
+        "pairing-posters.js",
+        "pairing-posters.css"
+      ],
+      "dependsOn": [
+        "catalog",
+        "i18n",
+        "product-photos",
+        "order-model",
+        "order-storage",
+        "build"
+      ]
+    },
+    {
+      "id": "weather",
+      "label": "External weather context and explicit unavailable fallback",
+      "paths": [
+        "discover-weather-guard.js"
+      ],
+      "dependsOn": [
+        "discover"
+      ]
+    },
+    {
+      "id": "gallery",
+      "label": "Home gallery, media fallback, lightbox and footer geometry",
+      "paths": [
+        "featured-gallery.js",
+        "src/featured-gallery.ts",
+        "featured-gallery.css",
+        "gallery-clean.css",
+        "featured-strip.css"
+      ],
+      "dependsOn": [
+        "home",
+        "product-photos",
+        "shared-styles",
+        "build"
+      ]
+    },
+    {
+      "id": "social-offer",
+      "label": "Daily social offer and external booking/profile handoff",
+      "paths": [
+        "social-offer.js",
+        "src/social-offer.ts",
+        "social-offer.css",
+        "menu-preview.css"
+      ],
+      "dependsOn": [
+        "catalog",
+        "home",
+        "business-profile",
+        "build"
+      ]
+    },
+    {
+      "id": "share-links",
+      "label": "Localized product preview documents, selected image and offline share entry",
+      "paths": [
+        "share/**",
+        "menu-share-entry.js",
+        "menu-share-entry.css",
+        "scripts/build-menu-share-pages.mjs"
+      ],
+      "dependsOn": [
+        "catalog",
+        "product-photos",
+        "menu-feed",
+        "build"
+      ]
+    },
+    {
+      "id": "analytics",
+      "label": "Best-effort event queue, privacy and destination boundary",
+      "paths": [
+        "analytics.js"
+      ],
+      "dependsOn": [
+        "home",
+        "menu-list",
+        "smart-choice",
+        "build"
+      ]
+    },
+    {
+      "id": "business-profile",
+      "label": "Business identity, address, opening times and route destinations",
+      "paths": [
+        "qa/business-profile.json",
+        "map-live.css"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "media",
+      "label": "Home motion, local media formats, posters and brand assets",
+      "paths": [
+        "src/*.mp4",
+        "src/*.webp",
+        "src/*.svg",
+        "src/*.jpg",
+        "src/*.b64",
+        "src/brand/**",
+        "icon.svg",
+        "community-reel*.css"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "offline-cache",
+      "label": "Service-worker install/update, exact revisions and offline navigation",
+      "paths": [
+        "sw.js",
+        "sw-core-v64.js",
+        "pwa.js",
+        "pwa-pairing-fix.js",
+        "menu-pwa.js",
+        "offline.css",
+        "refresh.html"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "publication",
+      "label": "Static route metadata, manifest and served digest identity",
+      "paths": [
+        "404.html",
+        "robots.txt",
+        "sitemap.xml",
+        "ru/*.html",
+        "integrity-manifest.json",
+        ".nojekyll"
+      ],
+      "dependsOn": [
+        "build",
+        "offline-cache",
+        "business-profile"
+      ]
+    },
+    {
+      "id": "security-policy",
+      "label": "CSP, executable sinks, secrets and owned-service trust policy",
+      "paths": [
+        "SECURITY.md",
+        "docs/threat-model.md",
+        "scripts/verify-security-contracts.mjs",
+        "scripts/scan-secrets.mjs",
+        "scripts/verify-analytics-destination-boundaries.mjs",
+        ".github/workflows/security.yml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/zap-baseline.yml"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    {
+      "id": "qa-registry",
+      "label": "Declarative feature contracts, potential impact graph and evidence adapters",
+      "paths": [
+        "qa/causal-regression-graph.json",
+        "qa/feature-traceability-matrix.json",
+        "qa/traceability/*.json",
+        "qa/regression-dashboard.json",
+        "qa/ui-ux-matrix.json",
+        "qa/visual-regression.json",
+        "qa/menu-interaction-budgets.json",
+        "scripts/verify-feature-traceability.mjs",
+        "scripts/test-feature-traceability.mjs",
+        "scripts/audit-dependencies.mjs",
+        "scripts/test-audit-dependencies.mjs",
+        "scripts/compare-menu-responsiveness.mjs",
+        "scripts/measure-menu-responsiveness.mjs",
+        "scripts/test-menu-responsiveness-gate.mjs",
+        "qa.js",
+        ".github/workflows/causal-regression.yml",
+        "qa/journey-latency-budgets.json",
+        "scripts/causal-regression.mjs",
+        "scripts/measure-journey-responsiveness.mjs",
+        "scripts/test-journey-measurement.mjs",
+        "docs/qa/causal-regression-pipeline.md",
+        "scripts/test-causal-regression-pipeline.mjs"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "source-contracts",
+      "label": "Canonical build, static contracts and unit suites; command evidence is not all runtime coverage",
+      "kind": "contract",
+      "workflow": ".github/workflows/visual-regression.yml",
+      "command": "npm run check",
+      "components": [
+        "build",
+        "catalog",
+        "i18n",
+        "shared-styles",
+        "home",
+        "menu-list",
+        "menu-view",
+        "menu-feed",
+        "feed-social",
+        "product-photos",
+        "product-dialog",
+        "order-model",
+        "order-storage",
+        "order-ui",
+        "families-combos",
+        "ticket-qr",
+        "checkout",
+        "counter-service",
+        "counter-auth",
+        "counter-staff",
+        "counter-guest",
+        "smart-choice",
+        "discover",
+        "weather",
+        "gallery",
+        "social-offer",
+        "share-links",
+        "analytics",
+        "business-profile",
+        "media",
+        "offline-cache",
+        "publication",
+        "security-policy",
+        "qa-registry"
+      ],
+      "execution": "pipeline",
+      "always": true
+    },
+    {
+      "id": "security-contracts",
+      "label": "Security contracts and secret scan; browser security probes are separate",
+      "kind": "security",
+      "workflow": ".github/workflows/security.yml",
+      "command": "npm run verify:security",
+      "components": [
+        "security-policy",
+        "counter-auth",
+        "analytics",
+        "order-storage",
+        "offline-cache",
+        "publication"
+      ],
+      "execution": "pipeline",
+      "always": true
+    },
+    {
+      "id": "journey-responsiveness",
+      "label": "Direct UI timing probe with correctness separate from budget status",
+      "kind": "performance",
+      "workflow": ".github/workflows/causal-regression.yml",
+      "command": "node scripts/measure-journey-responsiveness.mjs",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "menu-view",
+        "catalog",
+        "i18n",
+        "product-dialog",
+        "order-ui",
+        "order-model",
+        "order-storage",
+        "shared-styles",
+        "qa-registry"
+      ],
+      "execution": "timing-probe",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "menu-feed-browser",
+      "label": "Feed, list/feed context, order, engagement and recovery journeys",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-menu-feed-browser.mjs",
+      "components": [
+        "menu-feed",
+        "menu-list",
+        "menu-view",
+        "feed-social",
+        "catalog",
+        "i18n",
+        "product-photos",
+        "order-ui",
+        "share-links",
+        "offline-cache"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "home-navigation-browser",
+      "label": "Home entry links and keyboard navigation",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-home-navigation-browser.mjs",
+      "components": [
+        "home",
+        "menu-list",
+        "discover",
+        "i18n",
+        "shared-styles"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "counter-contracts",
+      "label": "Counter HTTP roles, lifecycle, store and UI model contracts",
+      "kind": "contract",
+      "workflow": ".github/workflows/counter-service.yml",
+      "command": "npm run test:counter",
+      "components": [
+        "counter-service",
+        "counter-auth",
+        "counter-staff",
+        "counter-guest",
+        "checkout",
+        "ticket-qr"
+      ],
+      "execution": "pipeline"
+    },
+    {
+      "id": "product-reveal-browser",
+      "label": "Product dialog, keyboard and focus behavior",
+      "kind": "browser",
+      "workflow": ".github/workflows/menu-product-reveal.yml",
+      "command": "node scripts/test-menu-product-reveal-browser.mjs",
+      "components": [
+        "product-dialog",
+        "menu-list",
+        "catalog",
+        "product-photos",
+        "shared-styles"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "smart-cart-browser",
+      "label": "Smart-choice shared cart and focus restoration",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-smart-choice-cart-focus-browser.mjs",
+      "components": [
+        "smart-choice",
+        "order-ui",
+        "order-model",
+        "order-storage"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "discover-deck-browser",
+      "label": "Discover deck selection and menu handoff",
+      "kind": "browser",
+      "workflow": ".github/workflows/discover-deck-consolidated.yml",
+      "command": "node scripts/test-discover-deck-browser.mjs",
+      "components": [
+        "discover",
+        "catalog",
+        "product-dialog",
+        "product-photos",
+        "order-storage"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "adversarial-browser",
+      "label": "Hostile URL/input/storage browser probes",
+      "kind": "security",
+      "workflow": ".github/workflows/adversarial-browser.yml",
+      "command": "node scripts/adversarial-browser.mjs",
+      "components": [
+        "security-policy",
+        "home",
+        "menu-list",
+        "discover",
+        "weather",
+        "offline-cache",
+        "analytics"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "order-stress-browser",
+      "label": "Ordering transactions and concurrent write stress",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-order-transactions-stress-browser.mjs",
+      "components": [
+        "order-model",
+        "order-storage",
+        "order-ui",
+        "families-combos",
+        "checkout"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "checkout-staleness-browser",
+      "label": "Checkout snapshot and cross-view staleness recovery",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-order-checkout-staleness-browser.mjs",
+      "components": [
+        "order-storage",
+        "order-ui",
+        "checkout",
+        "ticket-qr"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "order-storage-browser",
+      "label": "Storage compatibility and unavailable-storage recovery",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-order-storage-compat-browser.mjs",
+      "components": [
+        "order-model",
+        "order-storage",
+        "order-ui"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "family-browser",
+      "label": "Family/kids selection and shared-order edit behavior",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-menu-family-browser.mjs",
+      "components": [
+        "families-combos",
+        "order-model",
+        "order-ui",
+        "catalog"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "combos-browser",
+      "label": "Combos, quick builder and variant consistency",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-menu-combos-browser.mjs",
+      "components": [
+        "families-combos",
+        "order-model",
+        "order-ui",
+        "catalog"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "share-loader-browser",
+      "label": "Native-share intent and loader fallback behavior",
+      "kind": "browser",
+      "workflow": ".github/workflows/premium-feedback-contract.yml",
+      "command": "node scripts/test-menu-share-loader-browser.mjs",
+      "components": [
+        "share-links",
+        "menu-list",
+        "menu-feed"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "share-preview-contracts",
+      "label": "Every generated product/language preview, photo and offline route contract",
+      "kind": "contract",
+      "workflow": ".github/workflows/visual-regression.yml",
+      "command": "node scripts/test-menu-share-pages.mjs",
+      "components": [
+        "share-links",
+        "catalog",
+        "product-photos",
+        "offline-cache"
+      ],
+      "execution": "pipeline"
+    },
+    {
+      "id": "gallery-assets",
+      "label": "Approved gallery asset and responsive source contracts",
+      "kind": "contract",
+      "workflow": ".github/workflows/gallery-mobile.yml",
+      "command": "npm run verify:gallery:assets",
+      "components": [
+        "gallery",
+        "product-photos",
+        "media",
+        "shared-styles"
+      ],
+      "execution": "existing-workflow"
+    },
+    {
+      "id": "contextual-entry-browser",
+      "label": "Day/night entry, route recovery and offline context certification",
+      "kind": "browser",
+      "workflow": ".github/workflows/contextual-entry-certification.yml",
+      "command": "node scripts/contextual-entry-smoke.mjs",
+      "components": [
+        "home",
+        "media",
+        "shared-styles",
+        "offline-cache"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "poster-contracts",
+      "label": "Pairing poster source and price coherence",
+      "kind": "contract",
+      "workflow": ".github/workflows/taste-journey-posters.yml",
+      "command": "npm run verify:taste-journey-posters",
+      "components": [
+        "discover",
+        "catalog",
+        "product-photos"
+      ],
+      "execution": "existing-workflow"
+    },
+    {
+      "id": "analytics-boundaries",
+      "label": "Analytics destinations and privacy contracts",
+      "kind": "security",
+      "workflow": ".github/workflows/security.yml",
+      "command": "node scripts/verify-analytics-destination-boundaries.mjs",
+      "components": [
+        "analytics",
+        "security-policy"
+      ],
+      "execution": "existing-workflow"
+    },
+    {
+      "id": "offline-browser",
+      "label": "Installed service-worker offline navigation; needs workflow HTTPS server",
+      "kind": "browser",
+      "workflow": ".github/workflows/adversarial-browser.yml",
+      "command": "node scripts/verify-offline-browser.mjs",
+      "components": [
+        "offline-cache",
+        "publication",
+        "menu-list",
+        "menu-feed",
+        "share-links"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "visual-baseline",
+      "label": "Exact-base screenshot comparison; requires paired baseline captures",
+      "kind": "visual",
+      "workflow": ".github/workflows/visual-regression.yml",
+      "command": "node scripts/visual-regression.mjs",
+      "components": [
+        "home",
+        "menu-list",
+        "menu-feed",
+        "product-dialog",
+        "shared-styles",
+        "gallery",
+        "families-combos",
+        "discover"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "ui-ux-matrix",
+      "label": "Configured viewport/state checks and bounded recheck evidence",
+      "kind": "visual",
+      "workflow": ".github/workflows/premium-ui-regression.yml",
+      "command": "node scripts/ui-ux-matrix.mjs",
+      "components": [
+        "home",
+        "menu-list",
+        "shared-styles",
+        "gallery",
+        "product-dialog"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "menu-interaction-comparison",
+      "label": "Matched menu interaction and scroll gate; baseline/environment required",
+      "kind": "performance",
+      "workflow": ".github/workflows/menu-responsiveness.yml",
+      "command": "node scripts/measure-menu-responsiveness.mjs",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "menu-view",
+        "product-photos",
+        "shared-styles"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "lighthouse-mobile",
+      "label": "Mobile hard assertions plus versioned Lighthouse regression comparison",
+      "kind": "performance",
+      "workflow": ".github/workflows/lighthouse-profile.yml",
+      "command": "node scripts/run-lighthouse-profile.mjs mobile",
+      "components": [
+        "home",
+        "menu-list",
+        "media",
+        "shared-styles",
+        "build"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "lighthouse-desktop",
+      "label": "Desktop hard assertions plus versioned Lighthouse regression comparison",
+      "kind": "performance",
+      "workflow": ".github/workflows/lighthouse-profile.yml",
+      "command": "node scripts/run-lighthouse-profile.mjs desktop",
+      "components": [
+        "home",
+        "menu-list",
+        "media",
+        "shared-styles",
+        "build"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "live-smoke",
+      "label": "Published customer smoke; deployment identity distinct from source",
+      "kind": "browser",
+      "workflow": ".github/workflows/live-smoke.yml",
+      "command": "node scripts/live-smoke.mjs",
+      "components": [
+        "publication",
+        "home",
+        "menu-list",
+        "media",
+        "i18n"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "live-integrity",
+      "label": "Published byte-digest identity; needs exact deployment",
+      "kind": "contract",
+      "workflow": ".github/workflows/live-integrity.yml",
+      "command": "node scripts/verify-live-integrity.mjs",
+      "components": [
+        "publication",
+        "offline-cache",
+        "build"
+      ],
+      "execution": "existing-workflow"
+    },
+    {
+      "id": "traceability-contracts",
+      "label": "Legacy feature/state graph validation; not execution proof",
+      "kind": "contract",
+      "workflow": ".github/workflows/traceability.yml",
+      "command": "npm run verify:traceability",
+      "components": [
+        "qa-registry"
+      ],
+      "execution": "existing-workflow"
+    }
+  ],
+  "journeys": [
+    {
+      "id": "menu-switch-feed",
+      "label": "Switch list to usable photo feed preserving context",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "menu-view",
+        "order-storage",
+        "i18n"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser",
+        "menu-interaction-comparison"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "owner requirement",
+          "enforced": true
+        }
+      ]
+    },
+    {
+      "id": "menu-switch-list",
+      "label": "Switch feed to usable list preserving context",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "menu-view",
+        "order-storage",
+        "i18n"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser",
+        "menu-interaction-comparison"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "owner requirement",
+          "enforced": true
+        }
+      ]
+    },
+    {
+      "id": "menu-search",
+      "label": "Search catalog with truthful matching and no-results state",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "catalog",
+        "i18n"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "menu-clear",
+      "label": "Clear search and restore catalog/focus",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "catalog"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "menu-category",
+      "label": "Select category and preserve category/search context",
+      "components": [
+        "menu-list",
+        "menu-feed",
+        "catalog",
+        "menu-view"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "menu-language",
+      "label": "Switch TR/EN/RU copy and persist language",
+      "components": [
+        "i18n",
+        "menu-list",
+        "menu-feed",
+        "menu-view"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "product-open",
+      "label": "Open matching product details and restore focus on dismissal",
+      "components": [
+        "product-dialog",
+        "menu-list",
+        "menu-feed",
+        "catalog",
+        "product-photos"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "product-reveal-browser",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "cart-add",
+      "label": "Add product once with correct quantity and total",
+      "components": [
+        "order-model",
+        "order-storage",
+        "order-ui",
+        "catalog",
+        "menu-list",
+        "menu-feed"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser",
+        "order-stress-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "cart-open",
+      "label": "Open current cart with truthful state and keyboard focus",
+      "components": [
+        "order-ui",
+        "order-storage",
+        "menu-list",
+        "menu-feed"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "cart-close",
+      "label": "Dismiss cart and restore interaction/focus",
+      "components": [
+        "order-ui",
+        "menu-list",
+        "menu-feed"
+      ],
+      "checks": [
+        "source-contracts",
+        "journey-responsiveness",
+        "menu-feed-browser"
+      ],
+      "metrics": [
+        {
+          "id": "ready_ms",
+          "unit": "ms",
+          "max": 999,
+          "authority": "provisional engineering target",
+          "enforced": false
+        }
+      ]
+    },
+    {
+      "id": "cart-edit-remove",
+      "label": "Edit variants, replace/remove items and recalculate shared totals; timing unmeasured",
+      "components": [
+        "order-ui",
+        "order-model",
+        "order-storage",
+        "families-combos",
+        "catalog"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-feed-browser",
+        "order-stress-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "storage-recovery",
+      "label": "Recover blocked/corrupt storage and synchronize cross-tab order; timing unmeasured",
+      "components": [
+        "order-storage",
+        "order-model",
+        "order-ui"
+      ],
+      "checks": [
+        "source-contracts",
+        "order-storage-browser",
+        "order-stress-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "family-combo-order",
+      "label": "Select family/kids/combo items and preserve variants/groups; timing unmeasured",
+      "components": [
+        "families-combos",
+        "order-model",
+        "order-storage",
+        "catalog"
+      ],
+      "checks": [
+        "source-contracts",
+        "family-browser",
+        "combos-browser",
+        "menu-feed-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "checkout-qr",
+      "label": "Create truthful ticket/QR from the current order; timing unmeasured",
+      "components": [
+        "checkout",
+        "ticket-qr",
+        "order-model",
+        "order-storage"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-feed-browser",
+        "checkout-staleness-browser",
+        "counter-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "cashier-static-ticket",
+      "label": "Read static cashier ticket without inventing payment; timing unmeasured",
+      "components": [
+        "ticket-qr",
+        "checkout"
+      ],
+      "checks": [
+        "source-contracts",
+        "counter-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "counter-order-lifecycle",
+      "label": "Create server order, acknowledge test payment and advance allowed staff states; timing unmeasured",
+      "components": [
+        "counter-service",
+        "counter-auth",
+        "counter-staff",
+        "counter-guest",
+        "checkout"
+      ],
+      "checks": [
+        "source-contracts",
+        "counter-contracts",
+        "security-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "counter-role-boundary",
+      "label": "Reject unauthorized counter actions and preserve session/role boundaries; timing unmeasured",
+      "components": [
+        "counter-auth",
+        "counter-service",
+        "counter-staff"
+      ],
+      "checks": [
+        "counter-contracts",
+        "security-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "guest-order-status",
+      "label": "Show current guest progress and recover from stale/offline status; timing unmeasured",
+      "components": [
+        "counter-guest",
+        "counter-service",
+        "checkout"
+      ],
+      "checks": [
+        "counter-contracts",
+        "source-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "feed-likes-views",
+      "label": "Persist device-scoped likes and truthful personal views; timing unmeasured",
+      "components": [
+        "feed-social",
+        "menu-feed",
+        "order-storage"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-feed-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "feed-stories-reels",
+      "label": "Open/pause/navigate Stories and Reels without losing order; timing unmeasured",
+      "components": [
+        "feed-social",
+        "menu-feed",
+        "product-photos",
+        "order-ui"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-feed-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "photo-readiness-recovery",
+      "label": "Render correct sharp photo, retain controls and recover missing variants; timing coverage remains in external workflow",
+      "components": [
+        "product-photos",
+        "menu-feed",
+        "gallery",
+        "product-dialog"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-feed-browser",
+        "gallery-assets",
+        "menu-interaction-comparison"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "product-share-preview",
+      "label": "Share exact product/language photo and recover installed offline route; timing unmeasured",
+      "components": [
+        "share-links",
+        "feed-social",
+        "menu-feed",
+        "product-photos",
+        "offline-cache"
+      ],
+      "checks": [
+        "source-contracts",
+        "share-preview-contracts",
+        "menu-feed-browser",
+        "share-loader-browser",
+        "offline-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "home-navigation",
+      "label": "Open home, select menu/Discover, use skip links and restore language; timing unmeasured",
+      "components": [
+        "home",
+        "i18n",
+        "menu-list",
+        "discover",
+        "business-profile"
+      ],
+      "checks": [
+        "source-contracts",
+        "home-navigation-browser",
+        "live-smoke"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "contextual-entry-motion",
+      "label": "Choose entrance context and preserve reduced-motion/first-scroll usability; timing unmeasured",
+      "components": [
+        "home",
+        "media",
+        "shared-styles",
+        "offline-cache"
+      ],
+      "checks": [
+        "source-contracts",
+        "contextual-entry-browser",
+        "ui-ux-matrix"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "gallery-lightbox",
+      "label": "Open approved gallery media, trap focus and close lightbox; timing unmeasured",
+      "components": [
+        "gallery",
+        "product-photos",
+        "home",
+        "shared-styles"
+      ],
+      "checks": [
+        "source-contracts",
+        "gallery-assets",
+        "ui-ux-matrix"
+      ],
+      "metrics": [],
+      "coverageGap": "No linked browser assertion currently proves lightbox open, focus trap and close; mapped checks provide static/layout evidence only."
+    },
+    {
+      "id": "business-directions",
+      "label": "Read café identity/hours and open correct static-map/directions destination; timing unmeasured",
+      "components": [
+        "business-profile",
+        "home",
+        "publication"
+      ],
+      "checks": [
+        "source-contracts",
+        "home-navigation-browser",
+        "live-smoke"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "social-offer-booking",
+      "label": "Read current offer and hand off explicitly to external booking/profile; timing unmeasured",
+      "components": [
+        "social-offer",
+        "home",
+        "catalog",
+        "business-profile"
+      ],
+      "checks": [
+        "source-contracts",
+        "adversarial-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "discover-pairing",
+      "label": "Choose a pairing and carry truthful products/prices to menu; timing unmeasured",
+      "components": [
+        "discover",
+        "catalog",
+        "product-dialog",
+        "order-storage"
+      ],
+      "checks": [
+        "source-contracts",
+        "discover-deck-browser",
+        "poster-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "weather-fallback",
+      "label": "Keep Discover usable during external weather failure; timing unmeasured",
+      "components": [
+        "weather",
+        "discover"
+      ],
+      "checks": [
+        "source-contracts",
+        "adversarial-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "smart-choice-recommendation",
+      "label": "Collect preferences, explain valid options and preserve user choice; timing unmeasured",
+      "components": [
+        "smart-choice",
+        "catalog",
+        "product-photos"
+      ],
+      "checks": [
+        "source-contracts",
+        "smart-cart-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "smart-choice-cart",
+      "label": "Add/edit recommendation through shared cart with focus restored; timing unmeasured",
+      "components": [
+        "smart-choice",
+        "order-model",
+        "order-storage",
+        "order-ui"
+      ],
+      "checks": [
+        "source-contracts",
+        "smart-cart-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "smart-choice-experiments",
+      "label": "Keep experiments, local decision trace and simulator arithmetic truthful; timing unmeasured",
+      "components": [
+        "smart-choice",
+        "analytics"
+      ],
+      "checks": [
+        "source-contracts",
+        "security-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "analytics-queue",
+      "label": "Keep best-effort analytics bounded and privacy-safe; delivery and timing unverified",
+      "components": [
+        "analytics",
+        "security-policy"
+      ],
+      "checks": [
+        "source-contracts",
+        "security-contracts",
+        "analytics-boundaries"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "offline-update",
+      "label": "Install/update cache with exact revisions and recover offline navigation; timing unmeasured",
+      "components": [
+        "offline-cache",
+        "publication",
+        "share-links"
+      ],
+      "checks": [
+        "source-contracts",
+        "offline-browser",
+        "live-integrity"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "source-generated-parity",
+      "label": "Build authored source into reproducible protected runtime bytes; not a runtime latency metric",
+      "components": [
+        "build",
+        "qa-registry",
+        "publication"
+      ],
+      "checks": [
+        "source-contracts",
+        "security-contracts",
+        "traceability-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "responsive-accessible-ui",
+      "label": "Protect layout, keyboard, focus, contrast and reduced motion; complete device coverage not implied",
+      "components": [
+        "shared-styles",
+        "home",
+        "menu-list",
+        "menu-feed",
+        "product-dialog",
+        "order-ui",
+        "gallery"
+      ],
+      "checks": [
+        "source-contracts",
+        "home-navigation-browser",
+        "menu-feed-browser",
+        "product-reveal-browser",
+        "ui-ux-matrix",
+        "visual-baseline"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "runtime-performance",
+      "label": "Observe load/scroll metrics under existing unchanged baseline contracts; needs external paired evidence",
+      "components": [
+        "home",
+        "menu-list",
+        "menu-feed",
+        "media",
+        "shared-styles",
+        "build"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-interaction-comparison",
+        "lighthouse-mobile",
+        "lighthouse-desktop"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "published-integrity",
+      "label": "Compare served bytes and customer smoke to intended deployment; source-only success cannot prove publication",
+      "components": [
+        "publication",
+        "offline-cache",
+        "home",
+        "menu-list"
+      ],
+      "checks": [
+        "live-integrity",
+        "live-smoke"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "security-boundaries",
+      "label": "Reject unsafe sinks, hostile input, secret egress and invalid trust transitions; timing unmeasured",
+      "components": [
+        "security-policy",
+        "counter-auth",
+        "analytics",
+        "order-storage",
+        "offline-cache"
+      ],
+      "checks": [
+        "security-contracts",
+        "adversarial-browser",
+        "counter-contracts"
+      ],
+      "metrics": []
+    }
+  ],
+  "featureCoverage": [
+    {
+      "featureId": "FEAT-UI-001",
+      "journeys": [
+        "home-navigation",
+        "menu-language",
+        "business-directions"
+      ],
+      "status": "mapped",
+      "reason": "Existing home/navigation checks are linked; legacy released/available labels are not fresh execution evidence. Non-menu navigation has no direct timing probe."
+    },
+    {
+      "featureId": "FEAT-UI-002",
+      "journeys": [
+        "contextual-entry-motion",
+        "responsive-accessible-ui"
+      ],
+      "status": "mapped",
+      "reason": "Maps existing motion/layout checks while preserving the legacy degraded declaration. This registry does not establish that first-scroll defect is resolved; temporal timing coverage remains a gap."
+    },
+    {
+      "featureId": "FEAT-UI-003",
+      "journeys": [
+        "menu-switch-feed",
+        "menu-switch-list",
+        "menu-search",
+        "menu-clear",
+        "menu-category",
+        "menu-language",
+        "product-open"
+      ],
+      "status": "mapped",
+      "reason": "Catalog/list/feed and10 targeted interaction probe IDs are explicit; static checks do not certify every runtime variant. Non-switch999ms targets are informational."
+    },
+    {
+      "featureId": "FEAT-UI-004",
+      "journeys": [
+        "product-share-preview",
+        "social-offer-booking"
+      ],
+      "status": "mapped",
+      "reason": "Selected-product share metadata and explicit external handoff are covered by named checks. External reservation confirmation and timing remain unverified."
+    },
+    {
+      "featureId": "FEAT-UI-005",
+      "journeys": [
+        "discover-pairing"
+      ],
+      "status": "mapped",
+      "reason": "Existing pairing rotation, price/poster contracts and Discover browser journey are linked. No new runtime latency budget is claimed."
+    },
+    {
+      "featureId": "FEAT-UI-006",
+      "journeys": [
+        "social-offer-booking"
+      ],
+      "status": "mapped",
+      "reason": "Existing social-offer source contract and explicit destination checks are reused; neither backend ownership nor conversion outcome is inferred."
+    },
+    {
+      "featureId": "FEAT-API-001",
+      "journeys": [
+        "weather-fallback"
+      ],
+      "status": "mapped",
+      "reason": "Weather fallback and adversarial checks are linked. The external provider is not certified available and there is no new weather latency probe."
+    },
+    {
+      "featureId": "FEAT-PLATFORM-001",
+      "journeys": [
+        "offline-update",
+        "product-share-preview",
+        "published-integrity"
+      ],
+      "status": "mapped",
+      "reason": "Local cache contracts and separate existing offline/live workflows are linked. External-only checks stay NOT_RUN in this pipeline unless their own execution receipts are supplied."
+    },
+    {
+      "featureId": "FEAT-PLATFORM-002",
+      "journeys": [
+        "analytics-queue"
+      ],
+      "status": "gap",
+      "reason": "Privacy/destination contracts protect the best-effort queue, but no owned collector or end-to-end delivery proof exists. Legacy degraded status is not upgraded by graph coverage."
+    },
+    {
+      "featureId": "FEAT-QA-001",
+      "journeys": [
+        "responsive-accessible-ui",
+        "runtime-performance"
+      ],
+      "status": "mapped",
+      "reason": "Visual/matrix/performance workflows are linked as potential checks, with external prerequisites explicit. No screenshot comparison or timing result is invented from the registry."
+    },
+    {
+      "featureId": "FEAT-QA-002",
+      "journeys": [
+        "source-generated-parity"
+      ],
+      "status": "mapped",
+      "reason": "Reuses legacy TRACE-001 identities and validation. Dependency edges denote potential impact, not proven runtime cause; execution receipts are separate evidence."
+    },
+    {
+      "featureId": "FEAT-BE-001",
+      "journeys": [],
+      "status": "planned",
+      "reason": "Preserves the legacy general first-party application-backend roadmap. Current counter-service behavior is independently mapped in modern journeys and does not prove this broad roadmap milestone complete."
+    },
+    {
+      "featureId": "FEAT-BE-002",
+      "journeys": [],
+      "status": "planned",
+      "reason": "Menu/campaign CMS remains a declared plan. Static catalog source and tests do not imply an implemented content API."
+    },
+    {
+      "featureId": "FEAT-BE-003",
+      "journeys": [],
+      "status": "planned",
+      "reason": "Reservation confirmation remains a declared plan and explicit external handoff. Counter order/payment states are distinct from a staffed reservation-confirmation lifecycle."
+    }
+  ]
+}
