@@ -48,15 +48,13 @@ jobs:
 
   order-reliability:
     name: Order integrity (${{ matrix.browser }})
-    runs-on: ubuntu-24.04
-    container: ${{ matrix.browser == 'webkit' && 'mcr.microsoft.com/playwright@sha256:d8e0bdf35da90942fc8f97a65fa7f1969200ccd916ec0fd78780d80d9b81e07b' || '' }}
+    runs-on: ${{ matrix.browser == 'webkit' && 'macos-15-intel' || 'ubuntu-24.04' }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
     env:
-      PLAYWRIGHT_BROWSERS_PATH: ${{ matrix.browser == 'webkit' && '/ms-playwright' || '' }}
       # Playwright 1.55.1 DebugLogger names native process logs pw:browser.
       DEBUG: ${{ matrix.browser == 'webkit' && 'pw:browser' || '' }}
       ROBYS_FAMILY_BROWSER: ${{ matrix.browser }}
@@ -85,38 +83,37 @@ jobs:
         with:
           node-version: ${{ matrix.browser == 'webkit' && '22.23.3' || '22' }}
           cache: npm
-      - name: Trust the exact container workspace
-        if: matrix.browser == 'webkit'
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: npm ci --no-audit --no-fund
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ${{ matrix.browser == 'webkit' && '1' || '' }}
       - run: npm run build && npm run verify:integrity && git diff --exit-code
       - if: matrix.browser != 'webkit'
         run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
-      - name: Bind the pinned WebKit image and executable
+      - name: Bind native macOS WebKit and its locked executable
         if: matrix.browser == 'webkit'
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync, accessSync, constants, mkdirSync, writeFileSync } from 'node:fs';
           import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
           import { webkit } from 'playwright';
           const pkg = JSON.parse(readFileSync('node_modules/playwright-core/package.json', 'utf8'));
           const browser = JSON.parse(readFileSync('node_modules/playwright-core/browsers.json', 'utf8')).browsers.find(item => item.name === 'webkit');
-          const marker = JSON.parse(readFileSync('/ms-playwright/.docker-info', 'utf8'));
           const executablePath = webkit.executablePath();
-          if (process.version !== 'v22.23.3' || pkg.version !== '1.55.1' || browser?.revision !== '2203'
-            || marker.driverVersion !== '1.55.1' || marker.dockerImageName !== 'mcr.microsoft.com/playwright:v1.55.1-noble'
-            || !executablePath.startsWith('/ms-playwright/webkit-2203/')) throw new Error('Canonical WebKit toolchain differs from the verified image');
+          const osVersion = execFileSync('sw_vers', ['-productVersion'], { encoding: 'utf8' }).trim();
+          if (process.version !== 'v22.23.3' || process.platform !== 'darwin' || process.arch !== 'x64'
+            || !osVersion.startsWith('15.') || pkg.version !== '1.55.1' || browser?.revision !== '2203'
+            || !executablePath.includes('/webkit-2203/')) throw new Error('Canonical WebKit toolchain differs from the declared native macOS environment');
           accessSync(executablePath, constants.X_OK);
-          const metadata = { declaredImage: 'mcr.microsoft.com/playwright@sha256:d8e0bdf35da90942fc8f97a65fa7f1969200ccd916ec0fd78780d80d9b81e07b',
-            node: process.version, playwright: pkg.version, webkit: browser, imageMarker: marker, executablePath,
+          const metadata = { declaredRunner: 'macos-15-intel', osVersion,
+            runnerImage: process.env.ImageVersion ?? null, architecture: process.arch,
+            node: process.version, playwright: pkg.version, webkit: browser, executablePath,
             launcherSHA256: createHash('sha256').update(readFileSync(executablePath)).digest('hex') };
           mkdirSync('.artifacts/order-reliability', { recursive: true });
           writeFileSync('.artifacts/order-reliability/webkit-environment.json', JSON.stringify(metadata, null, 2) + '\n');
           console.log(JSON.stringify(metadata, null, 2));
           NODE
-      - name: Validate baked WebKit
+      - name: Install and validate the locked native WebKit
         if: matrix.browser == 'webkit'
         run: npx --no-install playwright install webkit
       - name: Built menu photo visibility and recovery

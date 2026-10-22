@@ -650,6 +650,12 @@ try {
         assert.equal(await page.locator(".choice-help-entry").evaluate(button => document.activeElement === button), true, "Manual offer leaves keyboard focus on its entry");
         await page.keyboard.press("Escape");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
+        await page.locator(".choice-help-entry").click();
+        await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        assert.equal(await page.locator(".choice-help-entry").evaluate(button => document.activeElement === button), true,
+          "The mounted helper preserves focus on repeated manual activation");
+        await page.keyboard.press("Escape");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
         return { language, virtualVisibleTimeBeforeOffer: 59_000, editingSuppressed: true, idleThresholdRespected: true,
           noFocusSteal: true, nonmodal: true, oncePerSessionAcrossViews: true, manualStillAvailable: true, idleActivity, actions };
       }, { language });
