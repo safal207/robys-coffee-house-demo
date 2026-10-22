@@ -71,6 +71,30 @@ const discoverDialog = $("#feed-discover"), shareDialog = $("#feed-share");
 let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
 const entry = parseFeedEntry(location.href, products);
+// A shared-product reload must land on that product even when native scroll
+// restoration runs after pageshow. Return ownership on user input/pagehide so
+// ordinary history navigation and persisted reading positions keep working.
+const reloadScrollEvents = ["pointerdown", "keydown", "wheel", "touchstart"];
+let ownsReloadScroll = false;
+try {
+  const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
+  const reload = type === "reload" || !type && performance.navigation?.type === 1;
+  if (entry.productId && reload && history.scrollRestoration === "auto") {
+    history.scrollRestoration = "manual";
+    ownsReloadScroll = true;
+  }
+} catch { /* Explicit item scrolling also works without this optional API. */ }
+function releaseReloadScroll(event) {
+  if (!ownsReloadScroll || event.type !== "pagehide" && !event.isTrusted) return;
+  ownsReloadScroll = false;
+  try { if (history.scrollRestoration === "manual") history.scrollRestoration = "auto"; } catch {}
+  for (const type of reloadScrollEvents) window.removeEventListener(type, releaseReloadScroll, true);
+  window.removeEventListener("pagehide", releaseReloadScroll);
+}
+if (ownsReloadScroll) {
+  for (const type of reloadScrollEvents) window.addEventListener(type, releaseReloadScroll, { capture: true, passive: true });
+  window.addEventListener("pagehide", releaseReloadScroll);
+}
 if (entry.language) language = entry.language;
 if (!entry.productId) searchInput.value = Array.from((new URL(location.href).searchParams.get("q") ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
 // Start the actual entry photograph before controls and cards need layout.

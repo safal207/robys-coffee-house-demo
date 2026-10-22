@@ -131,7 +131,23 @@ async function chooseCategory(page, id) {
   await closeDiscovery(page);
 }
 async function waitForCounter(page, index, count = catalog.length) {
-  await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
+  try {
+    await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
+  } catch (error) {
+    const observation = await page.evaluate(() => ({
+      url: location.href, ready: document.querySelector("#feed")?.dataset.ready,
+      counter: document.querySelector("#feed-counter")?.textContent, scrollY, hidden: document.hidden,
+      restoration: history.scrollRestoration, navigation: performance.getEntriesByType("navigation")[0]?.type,
+      width: innerWidth, height: innerHeight,
+      cards: [...document.querySelectorAll(".feed-card")].map(node => ({ id: node.dataset.productId,
+        index: node.dataset.index, top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom }))
+        .filter(node => node.bottom > 0 && node.top < innerHeight).slice(0, 8)
+    })).catch(failure => ({ observationError: failure.message }));
+    const failure = { case: "counter-timeout", result: "FAIL", expectedIndex: index, expectedCount: count, observation };
+    report.cases.push(failure);
+    console.error(`COUNTER_TIMEOUT_OBSERVATION ${JSON.stringify(failure)}`);
+    throw error;
+  }
 }
 async function secondCardPosition(page) {
   return page.locator(".feed-card").nth(1).evaluate(card => {
@@ -1085,10 +1101,32 @@ try {
     await waitForCounter(page, 0, lane.length);
     await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
     await waitForCounter(page, lane.length - 1, lane.length);
-    await page.reload();
-    await page.locator('#feed[data-ready="true"]').waitFor();
-    await waitForCounter(page, lane.length - 1, lane.length);
+    // The native WebKit witness failed on its second reload after a reader
+    // returned to the first product. Retain that sequence in the full suite.
+    for (let reloadCycle = 0; reloadCycle < 3; reloadCycle++) {
+      if (reloadCycle) {
+        if (reloadCycle === 1) {
+          await page.keyboard.press("Shift");
+          assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "Keyboard activity releases the completed initial scroll");
+        }
+        await firstCard.locator(".feed-photo>img").evaluate(image => image.scrollIntoView({ block: "center", behavior: "instant" }));
+        await waitForCounter(page, 0, lane.length);
+        const readingPosition = await page.evaluate(() => scrollY);
+        await page.evaluate(async () => {
+          window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
+        assert.ok(Math.abs(await page.evaluate(() => scrollY) - readingPosition) < 1, "Persisted reading positions remain unchanged between reloads");
+        await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
+        await waitForCounter(page, lane.length - 1, lane.length);
+      }
+      await page.reload();
+      await page.locator('#feed[data-ready="true"]').waitFor();
+      await waitForCounter(page, lane.length - 1, lane.length);
+      assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "An explicit product reload owns its initial scroll restoration");
+    }
     await chooseCategory(page, "cold-coffee");
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "New user navigation returns scroll restoration to the browser");
     assert.equal(new URL(page.url()).searchParams.has("item"), false);
     await page.goBack();
     await waitForCounter(page, lane.length - 1, lane.length);
@@ -1101,6 +1139,7 @@ try {
     assert.deepEqual(errors, []);
     report.cases.push({ case: "shared-product-entry", result: "PASS", product: target.id, categoryIndex: lane.length - 1,
       laterBatchLoadedAndVisible: true, explicitLanguage: true, persistedPageKeepsCurrentScroll: true,
+      explicitReloadScrollOwned: true, userNavigationRestoresNativeScroll: true, reloadCycles: 3,
       nonpersistedPageRestoresEntry: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
     await context.close();
   }
