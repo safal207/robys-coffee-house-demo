@@ -145,6 +145,14 @@ test('combined app inputs have narrow owners and preserve their actual menu and 
   for (const path of ['src/menu-feed-viewer-entry.js', 'menu-feed-viewer.js']) {
     assert.ok(impactPlan(graph, [path]).impactedJourneys.includes('feed-stories-reels'), path);
   }
+  const focus = impactPlan(graph, ['scripts/test-smart-choice-cart-focus-browser.mjs']);
+  assert.deepEqual(focus.directComponents, ['smart-choice']);
+  assert.deepEqual(focus.unmappedPaths, []);
+  assert.ok(focus.selectedChecks.includes('smart-cart-browser'));
+  assert.equal(graph.checks.find(check => check.id === 'smart-cart-browser').command,
+    'node scripts/test-smart-choice-cart-focus-browser.mjs');
+  const unknownFocus = 'scripts/test-smart-choice-cart-focus-unregistered.mjs';
+  assert.deepEqual(impactPlan(graph, [unknownFocus]).unmappedPaths, [unknownFocus]);
   const unknown = 'src/menu-feedback-unregistered.js';
   assert.deepEqual(impactPlan(graph, [...Object.keys(combinedAppOwnership), unknown]).unmappedPaths, [unknown]);
 });
