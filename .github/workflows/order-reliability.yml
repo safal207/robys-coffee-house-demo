@@ -87,7 +87,12 @@ jobs:
       - run: npm run build && npm run verify:integrity && git diff --exit-code
       - run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
       - name: Built menu photo visibility and recovery
-        run: node scripts/test-menu-lazy-images-browser.mjs
+        run: |
+          if [ "${{ matrix.browser }}" = webkit ]; then
+            node scripts/run-menu-lazy-images-diagnostics.mjs
+          else
+            node scripts/test-menu-lazy-images-browser.mjs
+          fi
       - name: Pairing prices at increased text size
         run: node scripts/test-pairing-price-browser.mjs
       - name: Family loading, contents and photographs
@@ -124,4 +129,85 @@ jobs:
           name: order-reliability-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: .artifacts/
           include-hidden-files: true
+          retention-days: 14
+
+  # Insert this job under jobs in order-reliability.yml; keep the canonical host jobs unchanged.
+  # This diagnostic changes the whole user-space toolchain, not one isolated library.
+  webkit-supported-toolchain-control:
+    name: WebKit official user-space control (diagnostic)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    container:
+      # Official v1.55.1-noble linux/amd64 manifest, verified directly from public MCR.
+      image: mcr.microsoft.com/playwright@sha256:d8e0bdf35da90942fc8f97a65fa7f1969200ccd916ec0fd78780d80d9b81e07b
+    env:
+      ROBYS_LAZY_BROWSER: webkit
+      ROBYS_LAZY_QA_DIR: .artifacts/webkit-supported-toolchain-control
+      ROBYS_CONTROL_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DEBUG: pw:browser
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - name: Install the locked project dependencies
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+      - name: Record the bound image, browser and resource metadata
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync, mkdirSync, statfsSync, accessSync, constants } from 'node:fs';
+          import { execFileSync, spawnSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { resolve } from 'node:path';
+          import { release } from 'node:os';
+          import { webkit } from 'playwright';
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const optional = path => { try { return readFileSync(path, 'utf8').trim(); } catch { return null; } };
+          const head = git('rev-parse', 'HEAD');
+          if (!/^[0-9a-f]{40}$/.test(process.env.ROBYS_CONTROL_EXPECTED_HEAD ?? '') || head !== process.env.ROBYS_CONTROL_EXPECTED_HEAD) throw new Error('Control checkout does not match the requested head');
+          if (git('status', '--porcelain')) throw new Error('Control checkout is not clean');
+          const pkg = JSON.parse(readFileSync('node_modules/playwright-core/package.json', 'utf8'));
+          const browser = JSON.parse(readFileSync('node_modules/playwright-core/browsers.json', 'utf8')).browsers.find(item => item.name === 'webkit');
+          const marker = JSON.parse(readFileSync('/ms-playwright/.docker-info', 'utf8'));
+          if (process.version !== 'v22.23.3' || pkg.version !== '1.55.1' || browser?.revision !== '2203' || marker.driverVersion !== '1.55.1' || marker.dockerImageName !== 'mcr.microsoft.com/playwright:v1.55.1-noble') throw new Error('Control toolchain differs from the declared versions');
+          const executablePath = webkit.executablePath();
+          accessSync(executablePath, constants.X_OK);
+          const shm = statfsSync('/dev/shm');
+          const memory = Object.fromEntries((optional('/proc/meminfo') ?? '').split('\n').filter(line => /^(MemTotal|MemAvailable|SwapTotal|SwapFree):/.test(line)).map(line => line.split(':').map(part => part.trim())));
+          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n', 'libglib2.0-0t64', 'libgl1-mesa-dri', 'libgbm1', 'libegl-mesa0'], { encoding: 'utf8' });
+          const output = resolve(process.env.ROBYS_LAZY_QA_DIR);
+          mkdirSync(output, { recursive: true });
+          const metadata = {
+            observedAt: new Date().toISOString(), diagnosticScope: 'whole user-space toolchain; does not replace the canonical host gate',
+            source: { head, tree: git('rev-parse', 'HEAD^{tree}') },
+            declaredImage: 'mcr.microsoft.com/playwright@sha256:d8e0bdf35da90942fc8f97a65fa7f1969200ccd916ec0fd78780d80d9b81e07b', imageMarker: marker,
+            node: process.version, npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim(), kernel: release(), uid: process.getuid(),
+            playwright: pkg.version, webkit: browser, executablePath, launcherSHA256: createHash('sha256').update(readFileSync(executablePath)).digest('hex'),
+            shm: { totalBytes: shm.bsize * shm.blocks, availableBytes: shm.bsize * shm.bavail }, memory,
+            cgroup: Object.fromEntries(['memory.max', 'memory.current', 'memory.events', 'memory.swap.max', 'pids.max'].map(name => [name, optional('/sys/fs/cgroup/' + name)])),
+            libraries: { status: libraries.status, versions: libraries.stdout?.trim() ?? '', error: libraries.error?.message ?? null }
+          };
+          writeFileSync(resolve(output, 'environment.json'), JSON.stringify(metadata, null, 2) + '\n');
+          console.log(JSON.stringify(metadata, null, 2));
+          NODE
+      - name: Run the original canonical WebKit lazy-photo suite
+        run: node scripts/test-menu-lazy-images-browser.mjs
+      - name: Preserve the diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: webkit-supported-toolchain-control-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/webkit-supported-toolchain-control/
+          include-hidden-files: true
+          if-no-files-found: warn
           retention-days: 14

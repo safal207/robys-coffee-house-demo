@@ -11,6 +11,7 @@ import sharp from "sharp";
 import { menuCategories } from "../menu-catalog.js";
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { MENU_STYLE_INPUTS, MENU_STYLESHEET_FILE, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
+import { captureFailure, startStartupDiagnostics } from "./browser-failure-diagnostics.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 process.chdir(repo);
@@ -19,6 +20,7 @@ mkdirSync(output, { recursive: true });
 const assets = [...new Set(["menu.html", "menu-app.js", "src/menu-app.js", "menu-catalog.js", "menu-order-ui.js", "src/menu-order-ui.js",
   MENU_STYLESHEET_FILE, ...MENU_STYLE_INPUTS.flatMap(({ source, delivered }) => [source, delivered]),
   "scripts/menu-styles-bundle.mjs", "scripts/menu-runtime-source.mjs", "scripts/test-menu-lazy-images-browser.mjs",
+  "scripts/browser-failure-diagnostics.mjs", "scripts/run-menu-lazy-images-diagnostics.mjs",
   ".github/workflows/order-reliability.yml", "integrity-manifest.json", "package-lock.json"])];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
@@ -90,7 +92,7 @@ function installIoAudit({ language, mode }) {
   };
 }
 
-let certificate, server, origin, browser;
+let certificate, server, origin, browser, startupDiagnostics;
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json",
   ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".woff2": "font/woff2" };
 
@@ -109,9 +111,13 @@ async function loadedPhoto(page, id) {
     top: node.getBoundingClientRect().top, viewportHeight: innerHeight }));
 }
 async function openMenu(page) {
+  startupDiagnostics?.mark("goto-start");
   await page.goto(`${origin}/menu.html?entry=off`, { waitUntil: "networkidle" });
+  startupDiagnostics?.mark("goto-networkidle");
   await page.locator('#menu-root[data-ready="true"]').waitFor();
+  startupDiagnostics?.mark("root-ready");
   await settle(page);
+  startupDiagnostics?.mark("two-raf-complete");
 }
 async function correctPhoto(page, requests, id, language) {
   await imageFor(page, id).scrollIntoViewIfNeeded();
@@ -180,11 +186,16 @@ async function run(browserName, id, callback, { language = "ru", mode = "native"
   } catch (error) {
     const lifecycle = failureLifecycle();
     const screenshot = `${browserName}-${id}-failure.png`;
-    await page.screenshot({ path: join(output, screenshot) }).catch(() => {});
-    report.cases.push({ browser: browserName, id, language, mode, status: "FAIL", startedAt, finishedAt: new Date().toISOString(),
-      error: error.stack, uncaughtErrors: errors, requests, screenshot, lifecycle });
+    const failure = { browser: browserName, id, language, mode, status: "FAIL", startedAt, finishedAt: new Date().toISOString(),
+      error: error.stack, uncaughtErrors: errors, requests, screenshot, lifecycle, captureErrors: [], screenshotCapture: "PENDING" };
+    if (startupDiagnostics) failure.startupDiagnostics = startupDiagnostics.finish("before-failure-capture");
+    report.cases.push(failure);
+    await captureFailure(failure, persist, () => page.screenshot({ path: join(output, screenshot) }));
     console.error(`FAIL ${browserName}/${id}: ${error.message}`);
-  } finally { await context.close(); persist(); }
+  } finally {
+    if (startupDiagnostics) { report.startupDiagnostics = startupDiagnostics.finish("first-case-finished"); startupDiagnostics = null; }
+    await context.close(); persist();
+  }
 }
 
 try {
@@ -211,6 +222,7 @@ try {
   assert(selected.length && selected.every(name => ["chromium", "firefox", "webkit"].includes(name)), "Choose supported browser engines");
   report.expectedCases = selected.length * 12;
   for (const browserName of selected) {
+    if (browserName === "webkit" && process.env.ROBYS_BROWSER_STARTUP_DIAGNOSTICS === "1") startupDiagnostics = startStartupDiagnostics(join(output, "diagnostics/canonical"));
     browser = await ({ chromium, firefox, webkit })[browserName].launch({ headless: true });
     report.browsers[browserName] = { version: browser.version() };
     for (const language of languages) await run(browserName, `withheld-and-approach-${language}`, async (page, requests) => {
@@ -375,6 +387,7 @@ try {
   report.fatalError = error.stack;
   console.error(error.stack);
 } finally {
+  startupDiagnostics?.finish("suite-finally");
   await browser?.close();
   if (server) { server.closeAllConnections(); await new Promise(done => server.close(done)); }
   if (certificate) rmSync(certificate, { recursive: true, force: true });
