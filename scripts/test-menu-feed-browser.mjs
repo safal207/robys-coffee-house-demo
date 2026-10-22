@@ -230,7 +230,14 @@ try {
       const errors = [], requests = []; observeErrors(page, errors);
       page.on("request", request => requests.push(new URL(request.url()).pathname));
       await page.goto(`${origin}/menu-feed.html?view=feed&lang=en${fixture.suffix}`, { waitUntil: "networkidle" });
-      await waitForMenuMode(page, "feed");
+      if (fixture.product) await waitForMenuMode(page, "feed");
+      else {
+        await page.locator('html[data-menu-view-ready="true"]').waitFor();
+        assert.equal(new URL(page.url()).pathname, "/menu-feed.html");
+        await page.locator('#feed[data-ready="true"]').waitFor({ state: "attached" });
+        await page.locator("#feed-empty").waitFor({ state: "visible" });
+        assert.equal(await page.locator("#feed .feed-card").count(), 0, "An empty search must show its empty state without cards");
+      }
       assert.equal(await page.evaluate(() => "imageSrcset" in document.createElement("link")), true,
         "The browser fixture must support responsive image preloading");
       const hints = page.locator('link[rel="preload"][as="image"]');

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import pixelmatch from "pixelmatch";
@@ -141,6 +141,13 @@ async function stabilize(page) {
       image.loading = "eager";
       image.scrollIntoView({ block: "center", inline: "nearest" });
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      if (image.closest(".full-menu-item-media")) {
+        const deadline = performance.now() + 8000;
+        while (image.hasAttribute("data-menu-lazy-src") || !image.currentSrc) {
+          if (performance.now() >= deadline) throw new Error("VISUAL-PHOTO-001: catalog source was not assigned after approach");
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+      }
       if (!image.complete) {
         await new Promise((resolve) => {
           image.addEventListener("load", resolve, { once: true });
@@ -155,6 +162,81 @@ async function stabilize(page) {
   });
 
   await page.waitForTimeout(180);
+}
+
+async function catalogImageState(page, decode = false) {
+  return page.evaluate(async (decodeImages) => {
+    const images = Array.from(document.querySelectorAll(".full-menu-item-media img"));
+    const deadline = performance.now() + 8000;
+    const states = () => images.map((image, index) => ({
+      id: image.closest("[data-product-id]")?.dataset.productId ?? `catalog-image-${index}`,
+      currentSrc: image.currentSrc,
+      pending: image.hasAttribute("data-menu-lazy-src"),
+      complete: image.complete,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      connected: image.isConnected
+    }));
+    if (decodeImages) {
+      // Source selection may change after another image populates the cache.
+      // Decode the actual selection; never assign a URL to make evidence pass.
+      for (;;) {
+        const decoded = await Promise.all(images.map(async (image) => {
+          while (image.hasAttribute("data-menu-lazy-src") || !image.currentSrc) {
+            if (performance.now() >= deadline) throw new Error("VISUAL-PHOTO-001: pending catalog source");
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+          }
+          const selected = image.currentSrc;
+          let timer;
+          try {
+            await Promise.race([
+              image.decode(),
+              new Promise((_, reject) => {
+                timer = setTimeout(() => reject(new Error("VISUAL-PHOTO-001: catalog decode timeout")), Math.max(1, deadline - performance.now()));
+              })
+            ]);
+          } finally { clearTimeout(timer); }
+          return selected;
+        }));
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const snapshot = states();
+        if (snapshot.every((image, index) => image.currentSrc === decoded[index]
+          && !image.pending && image.complete && image.naturalWidth > 0 && image.connected)) return snapshot;
+        if (performance.now() >= deadline) throw new Error("VISUAL-PHOTO-001: catalog selection did not settle");
+      }
+    }
+    return states();
+  }, decode);
+}
+
+async function captureStableCatalogPage(page, filePath) {
+  const attempts = [];
+  const stem = filePath.replace(/\.png$/, "");
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    let before;
+    try { before = await catalogImageState(page, true); }
+    catch (error) {
+      writeFileSync(`${stem}.catalog-capture.json`, `${JSON.stringify({ passed: false, attempts, readinessError: error.message }, null, 2)}\n`);
+      throw error;
+    }
+    await page.screenshot({ path: filePath, fullPage: true, animations: "disabled" });
+    const after = await catalogImageState(page);
+    const stable = before.length === after.length && before.every((image, index) => {
+      const current = after[index];
+      return image.id === current.id && image.currentSrc === current.currentSrc
+        && !current.pending && current.complete && current.naturalWidth > 0 && current.connected;
+    });
+    const evidence = { attempt, stable, before, after };
+    if (!stable) {
+      evidence.unstableScreenshot = `${stem}.unstable-attempt-${attempt}.png`;
+      renameSync(filePath, evidence.unstableScreenshot);
+    }
+    attempts.push(evidence);
+    writeFileSync(`${stem}.catalog-attempt-${attempt}.json`, `${JSON.stringify(evidence, null, 2)}\n`);
+    writeFileSync(`${stem}.catalog-capture.json`, `${JSON.stringify({ passed: stable, attempts }, null, 2)}\n`);
+    if (stable) return;
+  }
+  throw new Error("VISUAL-PHOTO-001: catalog sources or readiness changed during all three captures");
 }
 
 function viewportById(id) {
@@ -220,7 +302,8 @@ async function captureMatrix(browser, baseUrl, destination) {
           await locator.screenshot({ path: filePath, animations: "disabled" });
         }
       } else {
-        await page.screenshot({ path: filePath, fullPage: Boolean(capture.fullPage), animations: "disabled" });
+        if (capture.id === "menu-full" && capture.fullPage) await captureStableCatalogPage(page, filePath);
+        else await page.screenshot({ path: filePath, fullPage: Boolean(capture.fullPage), animations: "disabled" });
       }
 
       captures.push({ capture, viewport, fileName, filePath });
