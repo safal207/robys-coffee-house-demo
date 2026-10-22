@@ -3,13 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- menu startup modules -->
+  <link rel="modulepreload" href="menu-catalog.js?v=05e7dac3c17b" />
+  <link rel="modulepreload" href="menu-feed.js?v=3e74ec4e551c" />
+  <script type="module" src="menu-feed.js?v=3e74ec4e551c"></script>
+  <!-- /menu startup modules -->
   <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="menu-runtime.css?v=5c3205d7c5f8" />
+  <link rel="stylesheet" href="menu-runtime.css?v=54f7bd9d9596" />
   <link rel="stylesheet" href="menu-feed.css?v=b9c32b97a6eb" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
@@ -36,7 +41,7 @@
     </aside>
     <section class="feed-column" aria-labelledby="feed-title">
       <div class="feed-tools">
-        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html?view=list" data-menu-view="list" data-copy="listView">Liste</a><a href="menu-feed.html?view=feed" data-menu-view="feed" aria-current="page" data-copy="photoView">Akış</a></nav>
+        <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu.html?view=list" data-menu-view="list" data-copy="listView">Liste</a><a href="menu-feed.html?view=feed" data-menu-view="feed" aria-current="page" data-copy="photoView">Akış</a><button type="button" class="menu-sound-toggle" aria-label="Ses / Sound / Звук" title="Ses / Sound / Звук" aria-pressed="false">♪</button></nav>
         <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Fotoğraflı menü</h2><span id="feed-counter"></span></div>
         <div class="feed-tool-actions">
           <button type="button" id="feed-liked-filter" class="feed-tool-button" aria-pressed="false" aria-controls="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span id="feed-liked-count" aria-hidden="true">0</span><span id="feed-liked-label" class="sr-only">Beğendiklerim</span></button>
@@ -153,8 +158,6 @@
       </footer>
     </div>
   </dialog>
-
-  <script type="module" src="menu-feed.js?v=b3d5e60d8515"></script>
   <script type="module" src="menu-view-mode.js?v=277d248a767d"></script>
 </body>
 </html>

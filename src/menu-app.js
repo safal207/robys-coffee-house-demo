@@ -1,6 +1,8 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
+import "./src/menu-feedback-entry.js";
+import { canWarmMenu } from "./src/menu-view-prefetch.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
@@ -954,6 +956,15 @@ menuViewLinks.forEach(link => {
   link.addEventListener("auxclick", choose, true);
 });
 document.documentElement.dataset.menuViewReady = "true";
+// Warm only the alternate document; its optional JS stays out of this startup.
+if (canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) {
+  const hint = document.createElement("link");
+  if (hint.relList?.supports("prefetch")) {
+    hint.rel = "prefetch"; hint.as = "document"; hint.fetchPriority = "low";
+    hint.href = Array.from(menuViewLinks).find(link => link.dataset.menuView === "feed").href.split("#")[0];
+    document.head.append(hint);
+  }
+}
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();

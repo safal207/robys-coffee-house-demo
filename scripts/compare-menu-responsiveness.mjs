@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 const budgets = JSON.parse(readFileSync(new URL('../qa/menu-interaction-budgets.json', import.meta.url), 'utf8'));
 const percentile = (values, p) => [...values].sort((a, b) => a - b)[Math.ceil(values.length * p) - 1];
 const positive = value => Number.isFinite(value) && value > 0;
-function validate(report) {
+function validate(report, requireRapid = false) {
   assert.equal(report.protocol, budgets.protocol, 'Measurement protocol must match');
   assert.match(report.environment.sourceRevision, /^[a-f0-9]{40}$/, 'Pin the measured revision');
   const cache = report.cachePreflight;
@@ -14,6 +14,21 @@ function validate(report) {
     && cache.slice(1).every(item => item.transferSize === 0 && item.decodedBodySize > 0), 'HTTP cache reuse must be verified');
   assert.equal(report.samples.length, budgets.viewports.length * (2 * budgets.cycles + 1), 'Missing or extra navigation evidence');
   assert.equal(report.scroll.length, budgets.viewports.length, 'Missing or extra scroll profile');
+  if (requireRapid || report.rapidSamples !== undefined) {
+    assert.equal(report.rapidPreClickDelayMs, 0, 'Rapid switching cannot include an artificial pre-click dwell');
+    assert.ok(Array.isArray(report.rapidSamples), 'Missing rapid switching evidence');
+    assert.equal(report.rapidSamples.length, budgets.viewports.length * 2 * budgets.rapidCycles, 'Missing or extra rapid navigation evidence');
+    assert.equal(report.rapidErrors?.length, budgets.viewports.length, 'Missing rapid application-error evidence');
+    for (const width of budgets.viewports) {
+      const errors = report.rapidErrors.filter(sample => sample.width === width);
+      assert.equal(errors.length, 1); assert.deepEqual(errors[0].errors, [], 'Application errors invalidate rapid measurements');
+    }
+    for (const width of budgets.viewports) for (const target of ['feed', 'list']) {
+      const samples = report.rapidSamples.filter(sample => sample.width === width && sample.target === target);
+      assert.deepEqual(samples.map(sample => sample.cycle).sort(), Array.from({ length: budgets.rapidCycles }, (_, i) => i), 'Every rapid cycle must execute exactly once');
+      assert.ok(samples.every(sample => positive(sample.switchMs) && (target !== 'feed' || positive(sample.photoReadyMs))), 'Rapid transitions and their photographs must complete');
+    }
+  }
   for (const width of budgets.viewports) {
     const errors = report.samples.filter(sample => sample.width === width && Array.isArray(sample.errors));
     assert.equal(errors.length, 1); assert.deepEqual(errors[0].errors, [], 'Application errors invalidate the measurement');
@@ -33,7 +48,7 @@ function validate(report) {
 }
 
 export function compareMenuResponsiveness(baseline, candidate) {
-  validate(baseline); validate(candidate);
+  validate(baseline); validate(candidate, true);
   assert.notEqual(baseline.environment.sourceRevision, candidate.environment.sourceRevision, 'Baseline cannot be the candidate');
   for (const key of ['server', 'cache', 'cpu', 'latencyMs', 'downloadMbps', 'serviceWorkers', 'metric']) {
     assert.notEqual(baseline.environment[key], undefined, `Missing environment ${key}`);
@@ -54,6 +69,13 @@ export function compareMenuResponsiveness(baseline, candidate) {
         check(`${width}/first-photo-p95-ms`, percentile(photos(candidate), .95),
           Math.min(budgets.maxSwitchMs, limit(percentile(photos(baseline), .95), budgets.p95NoiseMs)));
       }
+      // This fresh-context profile starts switching as soon as the current view
+      // is usable, without the normal profile's 1.8 s preparation window. Keep
+      // its absolute acceptance independent of historical baseline coverage.
+      const rapid = candidate.rapidSamples.filter(sample => sample.width === width && sample.target === target);
+      check(`${width}/rapid/${target}/max-ms`, Math.max(...rapid.map(sample => sample.switchMs)), budgets.rapidMaxSwitchMs);
+      if (target === 'feed') check(`${width}/rapid/first-photo-max-ms`,
+        Math.max(...rapid.map(sample => sample.photoReadyMs)), budgets.rapidMaxSwitchMs);
     }
     const before = baseline.scroll.find(sample => sample.width === width), after = candidate.scroll.find(sample => sample.width === width);
     // The baseline follows main, which already contains the initial optimization.

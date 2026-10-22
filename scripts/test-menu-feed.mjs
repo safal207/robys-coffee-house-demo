@@ -19,7 +19,11 @@ test("every menu item appears once and has a local photograph", () => {
   assert.equal(index.get("hot-coffee:espresso").item.price, 110);
   assert.equal(index.get("cold-coffee:flavoured-iced-caffe-latte").item.price, 200);
   assert.equal(index.get("pairing-offers:iced-san-sebastian-pairing").item.price, 370);
-  for (const product of products) assert.ok(existsSync(product.image), product.image);
+  for (const product of products) {
+    assert.ok(existsSync(product.image), product.image);
+    const compact = product.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+    assert.ok(existsSync(compact), compact);
+  }
   assert.equal(new Set(products.slice(0, 8).map(product => product.category.id)).size, 8);
 });
 
@@ -65,6 +69,31 @@ test("shipped feed matches authored source and content-derived cache revisions",
   for (const file of ["menu-feed.html", "menu-feed.js", "menu-feed.css"]) assert.ok(sw.includes(`./${file}`));
   assert.match(html, /require-trusted-types-for 'script'/);
   assert.match(html, /<noscript>/);
+});
+
+test("menu startup discovers exact modules early and optional viewers remain lazy", () => {
+  for (const [page, entry] of [["menu.html", "menu-app.js"], ["menu-feed.html", "menu-feed.js"]]) {
+    const html = readFileSync(page, "utf8"), head = html.split("</head>")[0];
+    for (const file of [entry, "menu-catalog.js"]) {
+      const revision = createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 12);
+      assert.ok(head.includes(`<link rel="modulepreload" href="${file}?v=${revision}"`));
+    }
+    assert.equal((html.match(new RegExp(`src="${entry.replaceAll(".", "\\.")}\\?`, "g")) ?? []).length, 1);
+    assert.match(head, /<script type="module" src="menu-(?:app|feed)\.js\?v=[a-f0-9]{12}">/);
+    assert.doesNotMatch(head, /blocking="render"/);
+    assert.equal((html.match(/class="menu-sound-toggle"/g) ?? []).length, 1);
+  }
+  const feed = readFileSync("menu-feed.js", "utf8");
+  assert.match(feed, /import\("\.\/menu-feed-viewer\.js\?v=[a-f0-9]{12}"\)/);
+  assert.doesNotMatch(feed, /feed-viewer-stage|feed-viewer-image|createOscillator/);
+  for (const file of ["menu-feedback.js", "menu-feed-viewer.js"]) {
+    const source = readFileSync(`src/${file}`, "utf8");
+    assert.equal(readFileSync(file, "utf8"), compileMenuRuntime(source));
+    const revision = createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 12);
+    const worker = readFileSync("sw-core-v64.js", "utf8");
+    assert.ok(worker.includes(`./${file}?v=${revision}`));
+    assert.ok(worker.includes(`url.pathname.endsWith("/${file}")`));
+  }
 });
 
 for (const [name, file, method] of [["Storage", "order-storage", "loadStorage"], ["Order UI", "menu-order-ui", "loadUi"],

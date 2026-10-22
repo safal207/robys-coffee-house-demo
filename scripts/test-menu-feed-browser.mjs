@@ -400,7 +400,8 @@ try {
         naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
         widthAttribute: image.getAttribute("width"), heightAttribute: image.getAttribute("height") };
     });
-    assert.deepEqual([photo.naturalWidth, photo.naturalHeight], [1024, 1024]);
+    assert.ok(photo.naturalWidth >= photo.width - 1 && photo.naturalHeight >= photo.height - 1,
+      "The responsive full-frame photo remains sharp at its displayed size");
     assert.deepEqual([photo.widthAttribute, photo.heightAttribute], ["1024", "1024"]);
     assert.ok(Math.abs(photo.width - photo.height) <= 1, `Square photo has ${photo.width} × ${photo.height} rendered bounds`);
     assert.ok(photo.width > 0 && photo.width <= 460, `Photo width ${photo.width} exceeds the bounded feed column`);
@@ -613,6 +614,7 @@ try {
     const delayedId = await delayedPhoto.getAttribute("data-product-id");
     await delayedPhoto.locator(".feed-photo>img").evaluate(async image => {
       image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode();
+      image.removeAttribute("srcset");
       const url = new URL(image.src); url.searchParams.set("feed-test", "unavailable"); image.src = url.href;
     });
     await page.waitForFunction(id => {
@@ -1509,6 +1511,100 @@ try {
     assert.deepEqual(errors, []);
     report.cases.push({ case: "product-photo-share-entry", result: "PASS", language, initialHtmlPreview: true,
       noJavaScriptPhotoAndLink: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = [], audioRequests = []; observeErrors(page, errors);
+    page.on("request", request => { if (new URL(request.url()).pathname === "/menu-feedback.js") audioRequests.push(request.url()); });
+    await page.goto(`${origin}/menu.html?view=list&lang=en`);
+    await waitForMenuMode(page, "list");
+    const toggle = page.locator(".menu-sound-toggle");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), null);
+    assert.equal(audioRequests.length, 0, "Optional audio is absent from initial menu requests");
+    await page.locator('[data-lang="ru"]').click();
+    assert.equal(audioRequests.length, 0, "Ordinary actions keep audio unloaded while sound is off");
+    await toggle.click();
+    await page.waitForFunction(() => localStorage.getItem("robys-menu-sound") === "on"
+      && document.querySelector(".menu-sound-toggle").dataset.soundReady === "true");
+    assert.equal(audioRequests.length, 1, "The actual toggle activation downloads audio lazily");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "true");
+    assert.equal(await toggle.getAttribute("aria-label"), "Выключить звук меню");
+    assert.equal(await toggle.getAttribute("title"), "Выключить звук меню");
+    await page.locator('[data-lang="en"]').click();
+    await page.waitForFunction(() => document.querySelector(".menu-sound-toggle").getAttribute("aria-label") === "Turn menu sound off");
+    assert.equal(await toggle.getAttribute("title"), "Turn menu sound off");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "true", "Switching presentation preserves the opt in");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), "on");
+    await toggle.click();
+    await page.waitForFunction(() => localStorage.getItem("robys-menu-sound") === "off"
+      && document.querySelector(".menu-sound-toggle").dataset.soundReady === "true");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await toggle.getAttribute("aria-label"), "Turn menu sound on");
+    const requestsBeforeReload = audioRequests.length;
+    await page.reload(); await waitForMenuMode(page, "feed");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), "off");
+    assert.equal(audioRequests.length, requestsBeforeReload, "A saved mute does not download audio on reload");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "optional-menu-sound", result: "PASS", defaultOff: true, lazyActualToggleRequest: true,
+      localizedLabelAndTitle: true, optInSurvivesViewSwitch: true, muteSurvivesReload: true,
+      audioModuleRequests: audioRequests.length, applicationConsoleErrors: false, audibleOutputVerified: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    const forcedAborts = new Set(), failedRequests = [], expectedResourceErrors = [], applicationErrors = [];
+    await context.route("**/*", route => {
+      const url = new URL(route.request().url());
+      if (url.origin === origin && url.pathname.startsWith("/src/products/quick-v1/")) {
+        forcedAborts.add(url.href); return route.abort();
+      }
+      return url.origin === origin ? route.continue() : route.abort();
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    page.on("requestfailed", request => failedRequests.push(request.url()));
+    page.on("pageerror", error => applicationErrors.push(`pageerror: ${error.message}`));
+    page.on("console", message => {
+      if (message.type() !== "error") return;
+      const url = message.location().url;
+      // Attribute only a resource error for an exact deliberately aborted URL.
+      // Script errors, CSP failures and all other console errors remain failures.
+      if (forcedAborts.has(url) && /^Failed to load resource/.test(message.text())) expectedResourceErrors.push({ url, message: message.text() });
+      else applicationErrors.push(`console.error: ${message.text()} (${url})`);
+    });
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+    await waitForMenuMode(page, "feed");
+    const original = new URL(catalog[0].image, origin).href;
+    await page.waitForFunction(original => {
+      const image = document.querySelector(".feed-photo>img");
+      return image && !image.hasAttribute("srcset") && image.complete && image.naturalWidth > 0 && image.currentSrc === original;
+    }, original);
+    await page.locator(".feed-photo>img").first().evaluate(image => image.decode());
+    const recovered = await page.locator(".feed-photo>img").first().evaluate(image => {
+      const box = image.getBoundingClientRect();
+      return { currentSrc: image.currentSrc, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+        displayWidth: box.width, ratio: box.width / box.height, objectFit: getComputedStyle(image).objectFit, srcsetRemoved: !image.hasAttribute("srcset") };
+    });
+    assert.equal(recovered.currentSrc, original);
+    assert.ok(recovered.naturalWidth >= Math.round(recovered.displayWidth), "The recovered original remains sharp at its display width");
+    assert.equal(recovered.naturalWidth, recovered.naturalHeight); assert.ok(Math.abs(recovered.ratio - 1) < .01);
+    assert.equal(recovered.objectFit, "contain"); assert.equal(recovered.srcsetRemoved, true);
+    assert.ok(forcedAborts.size > 0, "The compact delivery path was actually requested and aborted");
+    assert.ok(failedRequests.length > 0, "The fallback test exercised a real network failure");
+    assert.deepEqual(failedRequests.filter(url => !forcedAborts.has(url)), [], "Only explicitly aborted compact photos may fail");
+    assert.deepEqual(applicationErrors, []);
+    report.cases.push({ case: "responsive-photo-original-fallback", result: "PASS", forcedCompactAborts: forcedAborts.size,
+      failedRequests: failedRequests.length, expectedResourceConsoleErrors: expectedResourceErrors.length,
+      recovered, applicationConsoleErrors: false });
     await context.close();
   }
 
