@@ -2,12 +2,32 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
-import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex } from "../src/menu-feed-navigation.js";
+import { parseFeedEntry, feedProductUrl, feedSharePath, feedShareUrl, selectActiveFeedIndex } from "../src/menu-feed-navigation.js";
 
 const products = feedProducts(menuCategories);
 const base = "https://example.test/cafe/menu-feed.html";
 const feedPaths = ["/", "/cafe/"].flatMap(directory =>
   ["menu-feed", "menu-feed/", "menu-feed.html", "menu-feed.html/"].map(route => `${directory}${route}`));
+
+test("share documents have distinct catalog paths and discard query and fragment state", () => {
+  for (const pathname of feedPaths) {
+    for (const language of ["tr", "en", "ru"]) {
+      const url = new URL(feedShareUrl(`https://example.test:8443${pathname}?q=tea&lang=de&url=https://other.test/#desserts`, "desserts:san-sebastian-cheesecake", language));
+      const directory = pathname.startsWith("/cafe/") ? "/cafe/" : "/";
+      assert.equal(url.origin, "https://example.test:8443");
+      assert.equal(url.pathname, `${directory}share/${language}/desserts--san-sebastian-cheesecake.html`);
+      assert.equal(url.search, ""); assert.equal(url.hash, "");
+    }
+  }
+  assert.equal(feedShareUrl("https://example.test/cafe/menu.html", "hot-coffee:espresso", "en"),
+    "https://example.test/cafe/share/en/hot-coffee--espresso.html");
+  assert.equal(feedSharePath("desserts:cookie", "de"), "share/tr/desserts--cookie.html");
+  for (const id of ["../escape:x", "//other.test:x", "desserts:cookie?url=x", "<script>", "a:b:c", null]) {
+    assert.throws(() => feedSharePath(id, "en"), TypeError);
+  }
+  const paths = products.flatMap(product => ["tr", "en", "ru"].map(language => feedSharePath(product.id, language)));
+  assert.equal(new Set(paths).size, products.length * 3);
+});
 
 test("a shared product opens its own category and explicit supported language", () => {
   const id = "cold-coffee:flavoured-iced-caffe-latte";

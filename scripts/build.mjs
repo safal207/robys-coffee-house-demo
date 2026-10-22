@@ -471,6 +471,7 @@ feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRe
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
 writeFileSync("menu-feed.html", feedHtml);
+await import("./build-menu-share-pages.mjs");
 
 let experienceHtml = readFileSync("experience/index.html", "utf8");
 experienceHtml = synchronizeScript(experienceHtml, "experience-pwa.js", experiencePwaRevision);

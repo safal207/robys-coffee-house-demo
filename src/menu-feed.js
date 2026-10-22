@@ -1,7 +1,7 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
-import { parseFeedEntry, feedProductUrl, selectActiveFeedIndex, visibleFeedCardBounds } from "./src/menu-feed-navigation.js";
+import { parseFeedEntry, feedShareUrl, selectActiveFeedIndex, visibleFeedCardBounds } from "./src/menu-feed-navigation.js";
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
 import { createFeedViewer } from "./src/menu-feed-viewer.js";
@@ -214,7 +214,7 @@ function clearItemLink(nextCategory = category, replace = false) {
 }
 function openShareFallback(product, trigger) {
   shareReturnFocus = trigger;
-  $("#feed-share-url").value = feedProductUrl(location.href, product.id, language);
+  $("#feed-share-url").value = feedShareUrl(location.href, product.id, language);
   $("#feed-share-help").textContent = text().copyHelp;
   shareDialog.showModal(); stopViews();
 }
@@ -224,7 +224,7 @@ async function shareProduct(product, trigger) {
   sharing = true; trigger.disabled = true; stopViews();
   try {
     if (typeof navigator.share === "function") {
-      try { await navigator.share({ title: `${localized(product.item.name)} · Roby's Coffee House`, url: feedProductUrl(location.href, product.id, language) }); }
+      try { await navigator.share({ title: `${localized(product.item.name)} · Roby's Coffee House`, url: feedShareUrl(location.href, product.id, language) }); }
       catch (error) { if (error?.name !== "AbortError") openShareFallback(product, trigger); }
     } else openShareFallback(product, trigger);
   } finally {

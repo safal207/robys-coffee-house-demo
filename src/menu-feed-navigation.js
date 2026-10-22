@@ -19,6 +19,21 @@ export function feedProductUrl(href, id, language) {
   return url.href;
 }
 
+// Static hosts return the same HTML for every query string. Share a real
+// document per product/language so crawlers can read its photo without JS.
+export function feedSharePath(id, language) {
+  if (!/^[a-z0-9-]+:[a-z0-9-]+$/.test(id)) throw new TypeError("Invalid menu product ID");
+  const lang = ["tr", "en", "ru"].includes(language) ? language : "tr";
+  return `share/${lang}/${id.replace(":", "--")}.html`;
+}
+
+export function feedShareUrl(href, id, language) {
+  const url = new URL(feedProductUrl(href, id, language));
+  url.pathname = url.pathname.replace(/\/menu-feed(?:\.html)?\/?$/, "/") + feedSharePath(id, language);
+  url.search = "";
+  return url.href;
+}
+
 // Rank complete visible candidates, not just changed IntersectionObserver entries.
 export function selectActiveFeedIndex(rects, top, bottom) {
   if (!(bottom > top)) return null;
