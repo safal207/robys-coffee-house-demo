@@ -576,6 +576,18 @@
       ]
     },
     {
+      "id": "browser-prerequisites",
+      "label": "Declared Playwright engines and bounded browser setup",
+      "paths": [
+        "scripts/ensure-playwright-browsers.mjs",
+        "scripts/test-playwright-prerequisites.mjs",
+        "scripts/signed-ubuntu-packages.mjs",
+        ".github/workflows/causal-regression.yml",
+        ".github/workflows/menu-responsiveness.yml"
+      ],
+      "dependsOn": []
+    },
+    {
       "id": "qa-registry",
       "label": "Repository governance, declarative contracts, impact graph and evidence adapters",
       "paths": [
@@ -597,6 +609,7 @@
         ".github/workflows/menu-responsiveness.yml",
         "scripts/lighthouse-comment.mjs",
         "scripts/ensure-lighthouse-ffprobe.mjs",
+        "scripts/signed-ubuntu-packages.mjs",
         "scripts/test-lighthouse-ffprobe.mjs",
         ".github/workflows/lighthouse-build-smoke.yml",
         ".github/workflows/lighthouse-profile.yml",
@@ -656,7 +669,8 @@
         "offline-cache",
         "publication",
         "security-policy",
-        "qa-registry"
+        "qa-registry",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "always": true
@@ -695,7 +709,8 @@
         "order-model",
         "order-storage",
         "shared-styles",
-        "qa-registry"
+        "qa-registry",
+        "browser-prerequisites"
       ],
       "execution": "timing-probe",
       "browsers": [
@@ -718,7 +733,8 @@
         "product-photos",
         "order-ui",
         "share-links",
-        "offline-cache"
+        "offline-cache",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -736,7 +752,8 @@
         "menu-list",
         "discover",
         "i18n",
-        "shared-styles"
+        "shared-styles",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -772,7 +789,8 @@
         "menu-list",
         "catalog",
         "product-photos",
-        "shared-styles"
+        "shared-styles",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -789,7 +807,8 @@
         "smart-choice",
         "order-ui",
         "order-model",
-        "order-storage"
+        "order-storage",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -809,7 +828,8 @@
         "catalog",
         "product-dialog",
         "product-photos",
-        "order-storage"
+        "order-storage",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -829,7 +849,8 @@
         "discover",
         "weather",
         "offline-cache",
-        "analytics"
+        "analytics",
+        "browser-prerequisites"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -847,7 +868,8 @@
         "order-storage",
         "order-ui",
         "families-combos",
-        "checkout"
+        "checkout",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -866,7 +888,8 @@
         "order-storage",
         "order-ui",
         "checkout",
-        "ticket-qr"
+        "ticket-qr",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -884,7 +907,8 @@
       "components": [
         "order-model",
         "order-storage",
-        "order-ui"
+        "order-ui",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -903,7 +927,8 @@
         "families-combos",
         "order-model",
         "order-ui",
-        "catalog"
+        "catalog",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -922,7 +947,8 @@
         "families-combos",
         "order-model",
         "order-ui",
-        "catalog"
+        "catalog",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -1085,7 +1111,8 @@
         "menu-feed",
         "menu-view",
         "product-photos",
-        "shared-styles"
+        "shared-styles",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -1796,7 +1823,8 @@
       "components": [
         "build",
         "qa-registry",
-        "publication"
+        "publication",
+        "browser-prerequisites"
       ],
       "checks": [
         "source-contracts",

@@ -1597,6 +1597,10 @@ try {
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    const previewPhotoRequests = [];
+    page.on("request", request => {
+      if (new URL(request.url()).pathname.startsWith("/src/products/share-v1/")) previewPhotoRequests.push(request.url());
+    });
     await page.goto(`${origin}${sharedPath}?lang=de&item=hot-coffee%3Aespresso&url=https://other.test/#hot-coffee`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     assert.equal(new URL(page.url()).origin, origin);
@@ -1609,8 +1613,9 @@ try {
     await page.locator("#feed-share[open]").waitFor();
     assert.equal(await page.locator("#feed-share-url").inputValue(), `${origin}${sharedPath}`);
     assert.deepEqual(errors, []);
+    assert.deepEqual(previewPhotoRequests, [], "The automatic redirect must not interrupt a transient preview photo download");
     report.cases.push({ case: "product-photo-share-entry", result: "PASS", language, initialHtmlPreview: true,
-      noJavaScriptPhotoAndLink: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
+      noJavaScriptPhotoAndLink: true, noTransientPreviewPhotoRequest: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
     await context.close();
   }
 

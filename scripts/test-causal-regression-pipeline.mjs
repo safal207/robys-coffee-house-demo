@@ -14,7 +14,7 @@ const RUN_START = Date.parse('2026-10-22T10:00:00Z');
 const ORIGIN = 'https://127.0.0.1:4321';
 // The 18 missing ownership inputs in the first combined-app CI plan (run39822718923).
 const combinedAppOwnership = {
-  '.github/workflows/menu-responsiveness.yml': ['qa-registry'],
+  '.github/workflows/menu-responsiveness.yml': ['browser-prerequisites', 'qa-registry'],
   'AGENTS.md': ['build', 'qa-registry'],
   'menu-feed-viewer.js': ['feed-social'],
   'menu-feedback.css': ['menu-view'],
@@ -194,6 +194,54 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   const workflow = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
   for (const file of ['test-menu-lazy-images-browser.mjs', 'test-menu-combos-browser.mjs', 'test-menu-family-browser.mjs', 'test-menu-feed-browser.mjs', 'test-smart-choice-cart-focus-browser.mjs', 'test-home-navigation-browser.mjs']) assert.ok(workflow.includes(`node scripts/${file}`), file);
   for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
+test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {
+  const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
+    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'adversarial-browser'];
+  const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
+    'family-browser', 'combos-browser', 'menu-interaction-comparison'];
+  for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['browser-prerequisites']);
+    assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.deepEqual(result.selectedChecks, pipeline); assert.deepEqual(result.externalChecks, external);
+    assert.deepEqual(result.unmappedPaths, []);
+  }
+  assert.ok(graph.checks.find(check => check.id === 'journey-responsiveness').components.includes('browser-prerequisites'));
+  const shared = impactPlan(graph, ['scripts/signed-ubuntu-packages.mjs']);
+  assert.deepEqual(shared.directComponents, ['browser-prerequisites', 'qa-registry']);
+  for (const id of [...pipeline]) assert.ok(shared.selectedChecks.includes(id), id);
+  for (const id of [...external, 'lighthouse-mobile', 'lighthouse-desktop']) assert.ok(shared.externalChecks.includes(id), id);
+  for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/ensure-lighthouse-ffprobe.mjs']) {
+    assert.match(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'), /from ["']\.\/signed-ubuntu-packages\.mjs["']/);
+  }
+  const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.ok(packageJson.scripts.check.includes('scripts/test-playwright-prerequisites.mjs'));
+  for (const path of ['.github/workflows/causal-regression.yml', '.github/workflows/menu-responsiveness.yml']) {
+    const result = impactPlan(graph, [path]);
+    assert.ok(result.externalChecks.includes('menu-interaction-comparison'));
+    for (const id of pipeline) assert.ok(result.selectedChecks.includes(id), `${path}: ${id}`);
+  }
+  for (const path of ['scripts/ensure-playwright-unregistered.mjs', 'scripts/signed-ubuntu-unregistered.mjs', 'scripts/test-playwright-unregistered.mjs']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
+  }
+});
+
+test('causal browser setup preserves enum validation and uses the bounded installer in both jobs', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/causal-regression.yml', import.meta.url), 'utf8');
+  const validate = workflow.indexOf("browsers.some(browser => !['chromium', 'firefox', 'webkit'].includes(browser))");
+  const install = workflow.indexOf("spawnSync(process.execPath, ['scripts/ensure-playwright-browsers.mjs', ...browsers]");
+  assert.ok(validate >= 0 && install > validate, 'Untrusted matrix browser values must be validated before the argv-only installer');
+  assert.match(workflow, /new Set\(browsers\)\.size !== browsers\.length/);
+  assert.match(workflow, /run: node scripts\/ensure-playwright-browsers\.mjs chromium/);
+  assert.doesNotMatch(workflow, /playwright install --with-deps|['"]--with-deps['"]/);
+  const performance = readFileSync(new URL('../.github/workflows/menu-responsiveness.yml', import.meta.url), 'utf8');
+  const triggers = performance.split('\npermissions:')[0];
+  for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/signed-ubuntu-packages.mjs', 'scripts/test-playwright-prerequisites.mjs']) {
+    assert.equal(triggers.split(`- '${path}'`).length - 1, 2, `${path} must trigger both push and PR performance checks`);
+  }
 });
 
 test('consistently forged plan fields cannot suppress the real changed-file scope', () => {

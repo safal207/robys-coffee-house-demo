@@ -124,7 +124,7 @@ jobs:
           const browsers = process.env.BROWSERS.split(' ');
           if (!browsers.length || new Set(browsers).size !== browsers.length
             || browsers.some(browser => !['chromium', 'firefox', 'webkit'].includes(browser))) throw new Error('Invalid browser selection');
-          const result = spawnSync('npx', ['--no-install', 'playwright', 'install', '--with-deps', ...browsers], { stdio: 'inherit' });
+          const result = spawnSync(process.execPath, ['scripts/ensure-playwright-browsers.mjs', ...browsers], { stdio: 'inherit' });
           if (result.error) throw result.error;
           process.exit(result.status ?? 1);
           NODE
@@ -159,7 +159,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npx --no-install playwright install --with-deps chromium
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Record real local-browser journey samples
         env:
           ROBYS_SOURCE_REVISION: ${{ needs.plan.outputs.head }}

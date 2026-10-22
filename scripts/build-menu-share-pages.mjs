@@ -88,7 +88,7 @@ for (const product of products) {
 <body>
   <main>
     <p class="brand">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
-    <img src="../../${escape(imagePath)}" alt="${escape(product.item.name[language])}" width="${info.width}" height="${info.height}" />
+    <noscript><img src="../../${escape(imagePath)}" alt="${escape(product.item.name[language])}" width="${info.width}" height="${info.height}" /></noscript>
     <h1>${escape(product.item.name[language])}</h1>
     <p class="category">${escape(product.category.name[language])}</p>
     <a id="menu-share-open" href="${escape(destination)}">${labels.open}</a>

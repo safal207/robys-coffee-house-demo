@@ -81,7 +81,9 @@ const linesFor = id => sortLines(recipes[id].map(([id, quantity]) => ({ id, quan
 // Observation only: retain bounded evidence before existing failure cleanup.
 function observeFailureLifecycle(context, browser) {
   const events = [], failedRequests = [], pageIds = new WeakMap();
-  let nextPageId = 0;
+  const moduleRequests = [], moduleFacts = new WeakMap();
+  const modulePaths = new Set(["/menu-app.js", "/menu-combos-ui.js", "/src/menu-combos.js", "/menu-combos.css"]);
+  let nextPageId = 0, nextRequestId = 0;
   const retain = (buffer, value, limit) => {
     buffer.push(value);
     if (buffer.length > limit) buffer.shift();
@@ -96,11 +98,36 @@ function observeFailureLifecycle(context, browser) {
     page.on("framenavigated", frame => {
       if (frame === page.mainFrame()) record("main-frame-navigated", { pageId, url: frame.url().slice(0, 1000) });
     });
+    page.on("request", request => {
+      const url = new URL(request.url());
+      if (url.origin !== origin || !modulePaths.has(url.pathname)) return;
+      const facts = { requestId: ++nextRequestId, pageId, url: request.url().slice(0, 1000),
+        resourceType: request.resourceType(), requestedAt: new Date().toISOString(), state: "pending" };
+      moduleFacts.set(request, facts);
+      retain(moduleRequests, { request, facts }, 40);
+      record("combo-module-request", facts);
+    });
+    page.on("response", response => {
+      const facts = moduleFacts.get(response.request());
+      if (!facts) return;
+      facts.responseAt = new Date().toISOString(); facts.status = response.status(); facts.state = "response";
+      record("combo-module-response", { requestId: facts.requestId, pageId, url: facts.url, status: facts.status });
+    });
+    page.on("requestfinished", request => {
+      const facts = moduleFacts.get(request);
+      if (!facts) return;
+      facts.finishedAt = new Date().toISOString(); facts.state = "finished";
+      record("combo-module-finished", { requestId: facts.requestId, pageId, url: facts.url });
+    });
     page.on("requestfailed", request => {
       const failure = { pageId, url: request.url().slice(0, 1000), resourceType: request.resourceType(),
         error: request.failure()?.errorText };
       retain(failedRequests, failure, 20);
       record("request-failed", failure);
+      const facts = moduleFacts.get(request);
+      if (facts) {
+        facts.failedAt = new Date().toISOString(); facts.state = "failed"; facts.error = failure.error;
+      }
     });
   };
   context.pages().forEach(observe);
@@ -108,7 +135,39 @@ function observeFailureLifecycle(context, browser) {
   context.on("close", () => record("context-close"));
   return () => ({ observedAt: new Date().toISOString(), browserConnected: browser.isConnected(),
     pages: context.pages().map(page => ({ pageId: pageIds.get(page), url: page.url().slice(0, 1000), closed: page.isClosed() })),
-    events: events.slice(), lastFailedRequests: failedRequests.slice() });
+    events: events.slice(), lastFailedRequests: failedRequests.slice(),
+    comboModuleRequests: moduleRequests.map(({ request, facts }) => ({ ...facts, timing: request.timing() })) });
+}
+
+function captureError(error) {
+  return { name: String(error?.name ?? "Error").slice(0, 100), message: String(error?.message ?? error).slice(0, 2000),
+    ...(typeof error?.stack === "string" ? { stack: error.stack.slice(0, 4000) } : {}) };
+}
+
+async function captureFailureDiagnostics(context, browser, id, diagnostics = [], checkpoint = () => {}) {
+  for (const [index, page] of context.pages().entries()) {
+    const state = () => ({ observedAt: new Date().toISOString(), browserConnected: browser.isConnected(),
+      url: page.url().slice(0, 1000), closed: page.isClosed() });
+    const diagnostic = { pageIndex: index, beforeCapture: state() };
+    const screenshot = { file: `${id}-failure-${index}.png`, startedAt: new Date().toISOString(), status: "PENDING" };
+    diagnostic.screenshot = screenshot; diagnostics.push(diagnostic); checkpoint();
+    try { await page.screenshot({ path: join(output, screenshot.file) }); screenshot.status = "PASS"; }
+    catch (error) { screenshot.status = "FAIL"; screenshot.error = captureError(error); }
+    screenshot.finishedAt = new Date().toISOString(); screenshot.afterCapture = state();
+    checkpoint();
+    const evaluation = { startedAt: new Date().toISOString(), status: "PENDING" };
+    diagnostic.evaluation = evaluation; checkpoint();
+    try {
+      evaluation.result = await page.evaluate(() => ({ url: location.href, lang: document.documentElement.lang,
+        active: document.activeElement?.outerHTML.slice(0, 250), openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
+        helperActivity: window.__qaHelperActivity,
+        text: document.body.innerText.slice(-3500) }));
+      evaluation.status = "PASS";
+    } catch (error) { evaluation.status = "FAIL"; evaluation.error = captureError(error); }
+    evaluation.finishedAt = new Date().toISOString(); evaluation.afterCapture = state();
+    checkpoint();
+  }
+  return diagnostics;
 }
 
 async function newContext(browser, { width = 390, height = 844, language = "ru", serviceWorkers = "block" } = {}) {
@@ -138,15 +197,12 @@ async function run(browser, id, callback, options = {}) {
     console.log(`PASS ${id}`);
   } catch (error) {
     const lifecycle = failureLifecycle();
-    const diagnostics = [];
-    for (const [index, page] of context.pages().entries()) {
-      await page.screenshot({ path: join(output, `${id}-failure-${index}.png`) }).catch(() => {});
-      diagnostics.push(await page.evaluate(() => ({ url: location.href, lang: document.documentElement.lang,
-        active: document.activeElement?.outerHTML.slice(0, 250), openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
-        helperActivity: window.__qaHelperActivity,
-        text: document.body.innerText.slice(-3500) })).catch(() => ({})));
-    }
-    report.cases.push({ id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics, lifecycle });
+    const failure = { id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics: [], lifecycle };
+    report.cases.push(failure); persist();
+    await captureFailureDiagnostics(context, browser, id, failure.diagnostics, () => {
+      failure.lifecycleDuringDiagnostics = failureLifecycle(); persist();
+    });
+    failure.lifecycleAfterDiagnostics = failureLifecycle(); persist();
     console.error(`FAIL ${id}: ${error.stack}`);
   } finally { await context.close(); persist(); }
 }

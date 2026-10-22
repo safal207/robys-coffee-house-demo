@@ -11,7 +11,7 @@ permissions:
 jobs:
   home-navigation:
     name: Home menu and keyboard (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -31,7 +31,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build && npm run verify:integrity && git diff --exit-code
-      - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
       - name: Returning visitor navigation asset revisions
         run: node --test scripts/test-home-navigation-cache.mjs
       - name: Home menu text at breakpoints and increased text size
@@ -48,7 +48,7 @@ jobs:
 
   order-reliability:
     name: Order integrity (${{ matrix.browser }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -85,7 +85,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build && npm run verify:integrity && git diff --exit-code
-      - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
       - name: Built menu photo visibility and recovery
         run: node scripts/test-menu-lazy-images-browser.mjs
       - name: Pairing prices at increased text size
