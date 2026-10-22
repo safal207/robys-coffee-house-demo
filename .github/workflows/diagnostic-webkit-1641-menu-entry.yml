@@ -1,0 +1,243 @@
+name: WebKit 1.64.1 menu-entry control
+
+# Separate toolchain evidence; canonical 1.55.1 failures remain unchanged.
+on:
+  push:
+    branches: [diagnostic/webkit-1641-menu-entry]
+
+permissions:
+  contents: read
+
+jobs:
+  full-order-control:
+    name: Full unchanged WebKit Order with isolated 1.64.1 client
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    container:
+      # Official v1.64.1-noble linux/amd64 manifest, verified from public MCR.
+      image: mcr.microsoft.com/playwright@sha256:bdfda2a8fdf48707c5e50a49bd3e06d8d0c759153dc8ee057d8a81c3450bb3e9
+    env:
+      ROBYS_CONTROL_EXPECTED_HEAD: ${{ github.sha }}
+      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+      DEBUG: pw:browser
+      ROBYS_FAMILY_BROWSER: webkit
+      ROBYS_FAMILY_QA_DIR: .artifacts/order-reliability/family
+      ROBYS_PROMO_BROWSER: webkit
+      ROBYS_PROMO_QA_DIR: .artifacts/order-reliability/promo
+      ROBYS_TRANSACTION_BROWSER: webkit
+      ROBYS_TRANSACTION_QA_DIR: .artifacts/order-reliability/transactions
+      CHECKOUT_BROWSERS: webkit
+      ROBYS_RELEASE_BUILT_BROWSERS: webkit
+      ROBYS_STORAGE_BROWSER: webkit
+      ROBYS_LAZY_BROWSER: webkit
+      ROBYS_LAZY_QA_DIR: .artifacts/order-reliability/lazy-images
+      ROBYS_PAIRING_BROWSER: webkit
+      ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
+      ROBYS_COMBO_BROWSERS: webkit
+      ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
+      ROBYS_OFFER_BROWSERS: webkit
+      ROBYS_QUICK_BUILDER_BROWSERS: webkit
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - name: Trust this exact container workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Install locked project dependencies without changing their version
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm ci --no-audit --no-fund
+      - name: Verify original generated runtime
+        run: npm run build && npm run verify:integrity && git diff --exit-code
+      - name: Install the separate pinned diagnostic client
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: npm install --prefix /tmp/robys-playwright-1641-control --save-exact --no-audit --no-fund playwright@1.64.1
+      - name: Bind source, image, engine, libraries and exact-import hook
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, realpathSync, accessSync, constants, copyFileSync } from 'node:fs';
+          import { execFileSync, spawnSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { resolve, join } from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          const output = resolve('.artifacts/webkit-1641-control');
+          const temporary = '/tmp/robys-playwright-1641-control';
+          mkdirSync(output, { recursive: true });
+          const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const expectedTree = '0aaead24abd3717578c7502c0404dfe481ebf2ff';
+          const workflow = '.github/workflows/diagnostic-webkit-1641-menu-entry.yml';
+          const source = { head: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), parentTree: git('rev-parse', 'HEAD^1^{tree}'), dirty: Boolean(git('status', '--porcelain')) };
+          if (source.head !== process.env.ROBYS_CONTROL_EXPECTED_HEAD || source.parentTree !== expectedTree || source.dirty
+            || git('diff', '--name-only', 'HEAD^1', 'HEAD') !== workflow) throw new Error('Diagnostic must contain only its workflow above the unchanged application tree');
+          const manifestBytes = readFileSync('integrity-manifest.json');
+          const files = JSON.parse(manifestBytes).files;
+          const runtime = createHash('sha256').update(manifestBytes);
+          for (const file of [...files].sort((a, b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path);
+            const evidence = { path: file.path, bytes: bytes.length, sha256: sha(bytes) };
+            if (evidence.bytes !== file.bytes || evidence.sha256 !== file.sha256) throw new Error('Runtime manifest differs: ' + file.path);
+            runtime.update(JSON.stringify(evidence));
+          }
+          source.runtimeFileCount = files.length;
+          source.runtimeSHA256 = runtime.digest('hex');
+          source.manifestSHA256 = sha(manifestBytes);
+          if (files.length !== 733 || source.runtimeSHA256 !== '54f4141a39de335bebbf564cb7be4f065ff94ffc7ab0466642ff891fa5c61d6c') throw new Error('Application runtime changed');
+          const harnesses = {"scripts/test-menu-combos-browser.mjs":"573c9261e1f98dbac782517d6bf443872d4c6f591289204e55ebc58100294a84","scripts/test-menu-lazy-images-browser.mjs":"d6981054396fbbe58eb72be41b5d1cc3e4c9b250bb2d593607e403a978e92399","scripts/test-pairing-price-browser.mjs":"971334c544ecf59155cd3ee7cd5d88f9e30d9a25ee3dca218aabe827e4620185","scripts/test-menu-family-browser.mjs":"a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82","scripts/test-menu-feed-browser.mjs":"432f92dd696f003ced62004928ec1556636594d95ac1f9f6ca2a90a437ab9c71","scripts/test-combo-offer-cards-browser.mjs":"1c76395658b09d41fb23b5e6ea3d07f83b17a3e2aab052b3c5d67047a974e8b0","scripts/test-quick-builder-scroll-browser.mjs":"c06a8d6a066eb1bc17d8ebca62ec7c4d9301eb208f10420808fb1a6246d1de33","scripts/test-smart-choice-cart-focus-browser.mjs":"8721fa140c7d87d89bad4546e56e8c3d1a89454233443ebaac75928a827ca301","scripts/test-promo-components-browser.mjs":"0591dd17272563a65224b20afa5e67a2c858f4fbfce6cf7966cce37082f19402","scripts/test-order-transactions-stress-browser.mjs":"0d0585b2ad987730a56e8e61ac8c62d206deb24ed36bc6563af9063d3d100852","scripts/test-order-checkout-staleness-browser.mjs":"d7c83a96ad6edcfc9904dac55052c16027cfc5408e10a73dd769ef980fb94715","scripts/test-order-storage-compat-browser.mjs":"9bf116dd3b31fbd99a00c51373b0a3e8e604f104014c022dd250947768092ebb","scripts/test-order-release-built-browser.mjs":"dc5aa83d804a5a08ae1fa4073703fae4ec6b4c01acbf7f12acf72866892bcacb"};
+          for (const [file, expected] of Object.entries(harnesses)) if (sha(readFileSync(file)) !== expected) throw new Error('Canonical harness changed: ' + file);
+          const clientRoot = temporary + '/node_modules/playwright';
+          const coreRoot = temporary + '/node_modules/playwright-core';
+          const client = JSON.parse(readFileSync(clientRoot + '/package.json'));
+          const core = JSON.parse(readFileSync(coreRoot + '/package.json'));
+          const locked = JSON.parse(readFileSync('node_modules/playwright/package.json'));
+          const lockedCore = JSON.parse(readFileSync('node_modules/playwright-core/package.json'));
+          const marker = JSON.parse(readFileSync('/ms-playwright/.docker-info'));
+          const browser = JSON.parse(readFileSync(coreRoot + '/browsers.json')).browsers.find(item => item.name === 'webkit');
+          const { webkit } = await import(pathToFileURL(clientRoot + '/index.mjs').href);
+          const executablePath = realpathSync(webkit.executablePath());
+          if (process.version !== 'v22.23.3' || process.platform !== 'linux' || process.arch !== 'x64'
+            || client.version !== '1.64.1' || core.version !== '1.64.1' || locked.version !== '1.55.1' || lockedCore.version !== '1.55.1'
+            || browser?.revision !== '2370' || browser.browserVersion !== '27.2'
+            || marker.driverVersion !== '1.64.1' || marker.dockerImageName !== 'mcr.microsoft.com/playwright:v1.64.1-noble'
+            || !executablePath.startsWith('/ms-playwright/webkit-2370/')) throw new Error('Diagnostic toolchain differs from the pinned official image');
+          accessSync(executablePath, constants.X_OK);
+          const hook = `let binding;
+          export function initialize(data) { binding = data; }
+          export async function resolve(specifier, context, nextResolve) {
+            if (specifier === 'playwright' && context.parentURL === binding.harnessURL) return { url: binding.clientURL, shortCircuit: true };
+            return nextResolve(specifier, context);
+          }
+          `;
+          const configuration = { source, output, harnesses, clientURL: pathToFileURL(clientRoot + '/index.mjs').href };
+          writeFileSync(temporary + '/configuration.json', JSON.stringify(configuration));
+          writeFileSync(temporary + '/playwright-loader.mjs', hook);
+          const preload = `import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { register } from 'node:module';
+          import { execFileSync } from 'node:child_process';
+          import { relative, resolve, basename } from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          if (process.env.NODE_OPTIONS) throw new Error('Unexpected inherited Node options');
+          const injected = process.execArgv.indexOf('--import=/tmp/robys-playwright-1641-control/register.mjs');
+          if (injected < 0) throw new Error('Diagnostic preload flag is missing');
+          process.execArgv.splice(injected, 1); // Do not propagate this preload to child processes or workers.
+          const config = JSON.parse(readFileSync(new URL('./configuration.json', import.meta.url)));
+          const harnessPath = realpathSync(process.argv[1]);
+          const harness = relative(process.cwd(), harnessPath);
+          const actualSHA256 = createHash('sha256').update(readFileSync(harnessPath)).digest('hex');
+          if (!Object.hasOwn(config.harnesses, harness) || actualSHA256 !== config.harnesses[harness]) throw new Error('Unapproved diagnostic harness');
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          if (git('rev-parse', 'HEAD') !== config.source.head || git('rev-parse', 'HEAD^{tree}') !== config.source.tree || git('status', '--porcelain')) throw new Error('Diagnostic source drifted before suite');
+          const record = { harness, harnessSHA256: actualSHA256, source: config.source, startedAt: new Date().toISOString(), complete: false };
+          const receipt = resolve(config.output, basename(harness) + '.execution.json');
+          const save = () => writeFileSync(receipt, JSON.stringify(record, null, 2) + '\\n');
+          save();
+          register(new URL('./playwright-loader.mjs', import.meta.url), { data: { harnessURL: pathToFileURL(harnessPath).href, clientURL: config.clientURL } });
+          process.on('uncaughtExceptionMonitor', error => { record.error = String(error.stack || error); save(); });
+          process.once('exit', code => { record.complete = true; record.finishedAt = new Date().toISOString(); record.exitCode = code; save(); });
+          `;
+          writeFileSync(temporary + '/register.mjs', preload);
+          for (const name of ['playwright-loader.mjs', 'register.mjs', 'configuration.json', 'package-lock.json']) copyFileSync(temporary + '/' + name, output + '/' + name);
+          const engineFiles = [];
+          const walk = directory => {
+            for (const entry of readdirSync(directory, { withFileTypes: true })) {
+              const file = join(directory, entry.name);
+              if (entry.isDirectory()) walk(file);
+              else if (entry.isFile()) engineFiles.push({ path: file, bytes: statSync(file).size, sha256: sha(readFileSync(file)) });
+            }
+          };
+          walk('/ms-playwright/webkit-2370');
+          const packageFiles = ['package.json', 'index.mjs'].map(file => clientRoot + '/' + file).concat(['package.json', 'browsers.json', 'lib/coreBundle.js'].map(file => coreRoot + '/' + file));
+          const toolchainFiles = [...engineFiles, ...packageFiles.map(path => ({ path, bytes: statSync(path).size, sha256: sha(readFileSync(path)) }))];
+          writeFileSync(output + '/toolchain-files.json', JSON.stringify(toolchainFiles, null, 2) + '\n');
+          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n'], { encoding: 'utf8' });
+          writeFileSync(output + '/system-packages.txt', libraries.stdout ?? '');
+          const metadata = { schemaVersion: 1, startedAt: new Date().toISOString(), scope: 'Separate full Order toolchain control; original 1.55.1 failures remain authoritative for that toolchain',
+            alteredExecutionOrder: 'Full combos first; other twelve WebKit Order suites retain their original relative order. Later suites run only after prior steps pass.',
+            source, node: process.version, platform: process.platform, architecture: process.arch, declaredImage: 'mcr.microsoft.com/playwright@sha256:bdfda2a8fdf48707c5e50a49bd3e06d8d0c759153dc8ee057d8a81c3450bb3e9',
+            imageMarker: marker, lockedClient: locked.version, diagnosticClient: client.version, diagnosticCore: core.version, browser, executablePath, harnesses,
+            hookSHA256: sha(Buffer.from(hook)), preloadSHA256: sha(Buffer.from(preload)), toolchainFilesSHA256: sha(readFileSync(output + '/toolchain-files.json')),
+            systemPackagesStatus: libraries.status, systemPackagesSHA256: sha(readFileSync(output + '/system-packages.txt')),
+            localNativeControl: 'NOT_RUN: host prerequisites failed; no library workaround or validation bypass',
+            expectedSuites: Object.keys(harnesses), expectedCases: [51, 12, 6, 31, 53, 17, 9, 8, 9, 116, 6, 25, 23] };
+          if (libraries.status !== 0) throw new Error('Cannot record installed system libraries');
+          writeFileSync(output + '/environment.json', JSON.stringify(metadata, null, 2) + '\n');
+          console.log(JSON.stringify(metadata, null, 2));
+          NODE
+      - name: Validate baked WebKit with its matching client and normal host checks
+        run: node /tmp/robys-playwright-1641-control/node_modules/playwright/cli.js install webkit
+      - name: Full editable combos and all entry points (first, unchanged)
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-menu-combos-browser.mjs
+      - name: Built menu photo visibility and recovery
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-menu-lazy-images-browser.mjs
+      - name: Pairing prices at increased text size
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-pairing-price-browser.mjs
+      - name: Family loading, contents and photographs
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-menu-family-browser.mjs
+      - name: Menu feed selection, shared cart and counter QR
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-menu-feed-browser.mjs
+      - name: Contextual offer cards and exact recipe navigation
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-combo-offer-cards-browser.mjs
+      - name: Quick builder touch position, cancellation and saved selection
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-quick-builder-scroll-browser.mjs
+      - name: Recommendation cart keyboard focus and asynchronous updates
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-smart-choice-cart-focus-browser.mjs
+      - name: Editable promotional pairs
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-promo-components-browser.mjs
+      - name: Concurrent cart mutations and storage recovery
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-order-transactions-stress-browser.mjs
+      - name: Immutable QR and explicit refresh
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-order-checkout-staleness-browser.mjs
+      - name: Unavailable storage and legacy tab recovery
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-order-storage-compat-browser.mjs
+      - name: Built release QR, cashier and concurrent native Add
+        run: node --import=/tmp/robys-playwright-1641-control/register.mjs scripts/test-order-release-built-browser.mjs
+      - name: Record final source and full-suite completion
+        if: always()
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { resolve, basename } from 'node:path';
+          const output = resolve('.artifacts/webkit-1641-control');
+          mkdirSync(output, { recursive: true });
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const environmentPath = output + '/environment.json';
+          const initial = existsSync(environmentPath) ? JSON.parse(readFileSync(environmentPath)) : null;
+          const source = { head: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), dirty: Boolean(git('status', '--porcelain')) };
+          const manifest = readFileSync('integrity-manifest.json');
+          const runtime = createHash('sha256').update(manifest);
+          for (const file of [...JSON.parse(manifest).files].sort((a, b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path);
+            runtime.update(JSON.stringify({ path: file.path, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }));
+          }
+          source.runtimeSHA256 = runtime.digest('hex');
+          const suites = (initial?.expectedSuites ?? []).map(harness => {
+            const path = output + '/' + basename(harness) + '.execution.json';
+            return existsSync(path) ? JSON.parse(readFileSync(path)) : { harness, complete: false, status: 'NOT_RUN' };
+          });
+          const sourceUnchanged = Boolean(initial && !source.dirty && source.head === initial.source.head && source.tree === initial.source.tree && source.runtimeSHA256 === initial.source.runtimeSHA256);
+          const complete = suites.length === 13 && suites.every(suite => suite.complete && suite.exitCode === 0);
+          const result = { finishedAt: new Date().toISOString(), source, sourceUnchanged, suites, complete, status: sourceUnchanged && complete ? 'PASS' : 'FAIL_OR_INCOMPLETE' };
+          writeFileSync(output + '/completion.json', JSON.stringify(result, null, 2) + '\n');
+          if (!sourceUnchanged || !complete) process.exitCode = 1;
+          NODE
+      - name: Preserve all reports, failures and diagnostic provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: webkit-1641-full-order-control-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
