@@ -178,7 +178,7 @@ while (queue.length) {
 // Runtime imports are resolved from the emitted module, not from the source dir.
 // Exact source/output byte parity remains enforced by the generated-runtime gate.
 for (const [runtime, input, importer, importBase = runtime] of [
-  ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-combos.css", "combo-entry.css", "choice-help.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]
+  ...["styles-v2.css", "menu-premium.css", "menu-family.css", "menu-product-reveal.css", "pairing-posters.css", "menu-stability.css", "menu-combos.css", "combo-entry.css", "choice-help.css", "menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css", "menu-feedback.css"]
     .map(input => ["menu-runtime.css", input]),
   ["conversion.js", "src/conversion.js"],
   ["bootstrap-v2.js", "src/bootstrap-v2.js"],
@@ -189,6 +189,11 @@ for (const [runtime, input, importer, importBase = runtime] of [
   ["menu-feed.js", "src/menu-feed-model.js", "src/menu-feed.js"],
   ["menu-feed.js", "src/menu-feed-order.js", "src/menu-feed.js"],
   ["menu-feed.js", "src/menu-feed-collections.js", "src/menu-feed.js"],
+  ["menu-feed.js", "src/menu-feed-viewer-entry.js", "src/menu-feed.js"],
+  ["menu-feed.js", "src/menu-feedback-entry.js", "src/menu-feed.js"],
+  ["menu-app.js", "src/menu-feedback-entry.js", "src/menu-app.js"],
+  ["menu-feedback.js", "src/menu-feedback.js"],
+  ["menu-feed-viewer.js", "src/menu-feed-viewer.js"],
   ["menu-feed.js", "src/choice-help-entry.js", "src/menu-feed-collections.js", "src/menu-feed-collections.js"],
   ["menu-app.js", "menu-search-clear.js", "src/menu-app.js"],
   ["menu-app.js", "src/choice-help-entry.js", "src/menu-app.js"],

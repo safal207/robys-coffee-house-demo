@@ -75,6 +75,7 @@ export function browserProbe() {
   document.addEventListener("click", capture, { capture: true });
   document.addEventListener("input", capture, { capture: true });
   window.__robysJourneyReady = ({ kind, language, count, total }) => {
+    if (!document.documentElement) return false;
     const visible = node => {
       if (!node || !node.getClientRects().length) return false;
       for (let ancestor = node; ancestor; ancestor = ancestor.parentElement) {
@@ -97,7 +98,7 @@ export function browserProbe() {
     if (kind === "clear") return document.querySelector("#menu-search")?.value === "" && rows.length === count && document.querySelector(".menu-search-clear")?.hidden === true && visible(document.querySelector("#menu-search"));
     if (kind === "category") return document.querySelector('#menu-category-nav [data-category="hot-coffee"]')?.getAttribute("aria-pressed") === "true" && rows.length > 0 && rows.every(row => row.dataset.productId.startsWith("hot-coffee:")) && rows.some(row => visible(row.querySelector(".full-menu-item-copy")));
     if (kind === "language") return document.documentElement.lang === language && document.querySelector(`[data-lang="${language}"]`)?.getAttribute("aria-pressed") === "true" && document.querySelector('[data-product-id="hot-coffee:espresso"] .full-menu-item-copy strong')?.textContent === count && visible(document.querySelector('[data-product-id="hot-coffee:espresso"] .full-menu-item-copy strong'));
-    if (kind === "product") { const image = document.querySelector("#menu-product-image"), add = document.querySelector("#menu-add-to-cart"); return product?.open && settled(product.querySelector(".menu-dialog-shell")) && image?.complete && image.naturalWidth > 0 && add && !add.disabled && visible(add) && visible(document.querySelector("#menu-product-title")) && document.querySelector("#menu-product-title")?.textContent === count; }
+    if (kind === "product") { const image = document.querySelector("#menu-product-image"), add = document.querySelector("#menu-add-to-cart"); return product?.open && settled(product.querySelector(".menu-dialog-shell")) && image?.complete && image.naturalWidth > 0 && visible(image) && add && !add.disabled && visible(add) && visible(document.querySelector("#menu-product-title")) && document.querySelector("#menu-product-title")?.textContent === count; }
     if (kind === "add" || kind === "cart") return cart?.open && !product?.open && settled(cart.querySelector(".menu-dialog-shell")) && document.querySelector("#menu-cart-count")?.textContent === "1" && document.querySelectorAll("#menu-cart-lines .menu-cart-line").length === 1 && visible(document.querySelector("#menu-cart-lines .menu-cart-line")) && visible(document.querySelector("#menu-cart-dialog-total")) && Number(document.querySelector("#menu-cart-dialog-total")?.textContent.replace(/[^\d]/g, "")) === Math.round(total);
     if (kind === "cart-closed") return !cart?.open && listReady() && document.querySelector("#menu-cart-count")?.textContent === "1" && document.activeElement === document.querySelector("#menu-cart-trigger");
     return false;
@@ -127,7 +128,7 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
   const revision = process.env.ROBYS_SOURCE_REVISION ?? execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
   const source = sourceIdentity(revision), expectedSamples = profiles.flatMap(profile => Array.from({ length: attempts }, (_, i) => expectedJourneyIDs.map(journeyId => ({ journeyId, metricId: "ready_ms", profile: profile.id, attempt: i + 1 }))).flat());
   const harness = { sha256: sha256(fileURLToPath(import.meta.url)), policySha256: sha256(policyPath) };
-  const report = { schemaVersion: 1, source, harness, environment: { browser: "chromium", platform: process.platform, nodeVersion: process.version, profiles, serviceWorkers: "blocked", network: "local HTTPS; same-origin only; fresh context per profile/attempt; cache reused within ten ordered journeys", journeyOrder: expectedJourneyIDs, cpuRate: 4,
+  const report = { schemaVersion: 1, startedAt: new Date().toISOString(), finishedAt: null, source, harness, environment: { browser: "chromium", platform: process.platform, nodeVersion: process.version, profiles, serviceWorkers: "blocked", network: "local HTTPS; same-origin only; fresh context per profile/attempt; cache reused within ten ordered journeys", journeyOrder: expectedJourneyIDs, cpuRate: 4,
     latencyMs: 150, downloadMbps: 1.6, metric: "trusted activation to semantic visible readiness plus two animation frames; feed switch includes first visible photograph loaded successfully; includes finite dialog animation settlement; no artificial dwell; not field INP" },
     expectedJourneyIDs, expectedSamples, samples: [], complete: false, status: "FAIL" };
   mkdirSync(output, { recursive: true }); const save = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n"); save();
@@ -147,6 +148,7 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
       } catch { response.writeHead(400).end(); }
     });
     await new Promise(resolve => server.listen(0, "127.0.0.1", resolve)); const origin = `https://127.0.0.1:${server.address().port}`;
+    report.environment.origin = origin;
     browser = await chromium.launch({ headless: true, args: [`--ignore-certificate-errors-spki-list=${pin}`] }); report.environment.browserVersion = browser.version();
     const { menuCategories } = await import(pathToFileURL(join(repo, "menu-catalog.js")));
     const espresso = menuCategories.find(category => category.id === "hot-coffee").items.find(item => item.name.en === "Espresso");
@@ -194,8 +196,8 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
     if (source.revision !== final.revision || source.tree !== final.tree) throw Error("Checkout revision or tree changed during measurement");
     if (source.runtimeSha256 !== final.runtimeSha256) throw Error("Load-bearing runtime bytes changed during measurement");
     if (harness.sha256 !== sha256(fileURLToPath(import.meta.url)) || harness.policySha256 !== sha256(policyPath)) throw Error("Measurement harness or timing policy changed during collection");
-    report.complete = true; report.validation = validateJourneyReport(report); report.status = report.validation.status; save(); return report;
-  } catch (error) { report.error = error.message; save(); throw error; }
+    report.finishedAt = new Date().toISOString(); report.complete = true; report.validation = validateJourneyReport(report); report.status = report.validation.status; save(); return report;
+  } catch (error) { report.finishedAt = new Date().toISOString(); report.error = error.message; save(); throw error; }
   finally { await browser?.close(); if (server) await new Promise(resolve => server.close(resolve)); rmSync(cert, { recursive: true, force: true }); }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

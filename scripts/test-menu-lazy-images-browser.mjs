@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { chromium, firefox, webkit } from "playwright";
+import sharp from "sharp";
 import { menuCategories } from "../menu-catalog.js";
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { MENU_STYLE_INPUTS, MENU_STYLESHEET_FILE, readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
@@ -24,7 +25,9 @@ const report = { startedAt: new Date().toISOString(), head: execFileSync("git", 
   dirtyFilesAtStart: execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim().split("\n").filter(Boolean),
   mode: "Actual emitted menu runtime served unchanged over local HTTPS; native browser IO and request events; not a physical-phone or Lighthouse test",
   environment: { bypassCSP: false, serviceWorkers: "blocked", localSelfSignedCertificate: true,
-    firefoxContentSandbox: process.env.MOZ_DISABLE_CONTENT_SANDBOX ?? "default", approachGapCssPixels: 100 },
+    firefoxContentSandbox: process.env.MOZ_DISABLE_CONTENT_SANDBOX ?? "default",
+    playwrightBrowsersPath: process.env.PLAYWRIGHT_BROWSERS_PATH ?? "default",
+    skipHostRequirementValidation: process.env.PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS ?? "default", approachGapCssPixels: 100 },
   assetHashesStart: hashes(), sourceParityVerified: false, bundleParityVerified: false, browsers: {}, cases: [] };
 const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
 const languages = ["tr", "en", "ru"];
@@ -38,6 +41,18 @@ const searchId = "desserts:tiramisu";
 const firstColdId = "cold-coffee:iced-filter-coffee";
 const firstDessertId = "desserts:san-sebastian-cheesecake";
 const defaultProductPath = catalog.get("hot-coffee:espresso").path;
+const deliveryPaths = id => {
+  const original = catalog.get(id).path;
+  const compact = original.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+  assert(existsSync(resolve(repo, `.${compact}`)), `Verified full-frame delivery copy must exist: ${compact}`);
+  return [original, compact];
+};
+async function originalAssetPixels(path) {
+  const { width, height } = await sharp(resolve(repo, `.${path}`)).metadata();
+  assert.equal(width, 1024, "The selected original asset must retain its full-resolution pixels");
+  assert.equal(height, 1024, "The selected original asset must retain its complete square frame");
+  return { width, height };
+}
 const imageFor = (page, id) => page.locator(`[data-product-id="${id}"] .full-menu-item-media img`);
 
 // The wrapper delegates geometry and scheduling to the real browser observer.
@@ -85,10 +100,11 @@ async function settle(page) {
 async function loadedPhoto(page, id) {
   const expected = catalog.get(id);
   assert(expected, `Catalog fixture must exist: ${id}`);
-  await page.waitForFunction(({ id, path }) => {
+  await page.waitForFunction(({ id, paths, original }) => {
     const image = document.querySelector(`[data-product-id="${id}"] .full-menu-item-media img`);
-    return image?.complete && image.naturalWidth > 0 && new URL(image.currentSrc || image.src, location.href).pathname === path;
-  }, { id, path: expected.path });
+    return image?.complete && image.naturalWidth > 0 && paths.includes(new URL(image.currentSrc || image.src, location.href).pathname)
+      && new URL(image.getAttribute('src'), location.href).pathname === original;
+  }, { id, paths: deliveryPaths(id), original: expected.path });
   return imageFor(page, id).evaluate(node => ({ path: new URL(node.currentSrc).pathname, width: node.naturalWidth, height: node.naturalHeight,
     top: node.getBoundingClientRect().top, viewportHeight: innerHeight }));
 }
@@ -101,13 +117,14 @@ async function correctPhoto(page, requests, id, language) {
   await imageFor(page, id).scrollIntoViewIfNeeded();
   const photo = await loadedPhoto(page, id);
   assert.equal(await page.locator(`[data-product-id="${id}"] .full-menu-item-copy > strong`).innerText(), catalog.get(id).name[language]);
-  assert(requests.some(row => row.path === catalog.get(id).path), `${id}: browser must request the exact current catalog photograph`);
+  assert(requests.some(row => row.path === photo.path), `${id}: browser must request the selected verified catalog photograph`);
+  assert.equal(photo.width, photo.height, "Responsive delivery must preserve the complete square frame");
   return photo;
 }
 
-async function run(browserName, id, callback, { language = "ru", mode = "native" } = {}) {
+async function run(browserName, id, callback, { language = "ru", mode = "native", scale = 1 } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true,
-    ignoreHTTPSErrors: true, serviceWorkers: "block", reducedMotion: "reduce" });
+    deviceScaleFactor: scale, ignoreHTTPSErrors: true, serviceWorkers: "block", reducedMotion: "reduce" });
   await context.addInitScript(installIoAudit, { language, mode });
   await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort("blockedbyclient"));
   const page = await context.newPage();
@@ -157,7 +174,7 @@ try {
   origin = `https://127.0.0.1:${server.address().port}`;
   const selected = (process.env.ROBYS_LAZY_BROWSERS ?? process.env.ROBYS_LAZY_BROWSER ?? "chromium,firefox,webkit").split(",");
   assert(selected.length && selected.every(name => ["chromium", "firefox", "webkit"].includes(name)), "Choose supported browser engines");
-  report.expectedCases = selected.length * 10;
+  report.expectedCases = selected.length * 12;
   for (const browserName of selected) {
     browser = await ({ chromium, firefox, webkit })[browserName].launch({ headless: true });
     report.browsers[browserName] = { version: browser.version() };
@@ -167,7 +184,7 @@ try {
       const initial = await page.evaluate(paths => {
         const photos = [...document.querySelectorAll('#menu-root [data-product-id]')].map(row => {
           const image = row.querySelector('.full-menu-item-media img');
-          return image ? { id: row.dataset.productId, expected: paths[row.dataset.productId], src: image.getAttribute('src'),
+          return image ? { id: row.dataset.productId, expected: paths[row.dataset.productId], src: image.getAttribute('src'), srcset: image.getAttribute('srcset'),
             top: image.getBoundingClientRect().top, bottom: image.getBoundingClientRect().bottom } : null;
         }).filter(Boolean);
         const nearPaths = new Set(photos.filter(row => row.top <= innerHeight + 250 && row.bottom >= -250).map(row => row.expected));
@@ -177,7 +194,8 @@ try {
       assert(initial.far.length >= 10, "Initial mobile fixture must include a meaningful far catalog sample");
       for (const item of initial.far) {
         assert(!item.src || new URL(item.src, origin).pathname !== item.expected, `${item.id}: far catalog source must stay deferred`);
-        assert(!requests.some(row => row.path === item.expected), `${item.id}: far catalog photograph must not be requested initially`);
+        assert(!item.srcset, `${item.id}: far responsive sources must stay deferred`);
+        assert(!requests.some(row => deliveryPaths(item.id).includes(row.path)), `${item.id}: no delivery size of a far photograph may be requested initially`);
       }
       assert(initial.closedPlaceholder, "The closed product dialog retains its required branded default source");
       const placeholderPath = new URL(initial.closedPlaceholder, origin).pathname;
@@ -190,7 +208,7 @@ try {
       const approached = await loadedPhoto(page, farId);
       assert(approached.top > approached.viewportHeight + 40 && approached.top <= approached.viewportHeight + 250,
         "The exact far photograph must load when approaching the viewport, before becoming visible");
-      assert(requests.some(row => row.path === catalog.get(farId).path), "Approach must produce the previously withheld exact photograph request");
+      assert(requests.some(row => row.path === approached.path), "Approach must produce the previously withheld selected photograph request");
       return { priority, initiallyDeferredPhotos: initial.far, closedPlaceholder: placeholderPath, approached };
     }, { language });
 
@@ -224,7 +242,7 @@ try {
         scrollTo({ top: scrollY + node.getBoundingClientRect().top - innerHeight - 100, behavior: 'instant' });
       });
       await page.waitForFunction(() => { const held = window.__menuImageIoAudit.held; return held.record.pending.some(entry => entry.target === held.target && entry.isIntersecting); });
-      assert(!requests.some(row => row.path === catalog.get(farId).path), "Holding the native entry must defer the original image request");
+      assert(!requests.some(row => deliveryPaths(farId).includes(row.path)), "Holding the native entry must defer every delivery size of the photograph");
       await page.locator('#menu-search').fill(catalog.get(searchId).name.ru);
       await imageFor(page, searchId).waitFor();
       const replay = await page.evaluate(() => {
@@ -242,7 +260,7 @@ try {
       assert.equal(replay.srcAfterReplay, replay.src, "A stale callback must not assign a detached image source");
       await settle(page);
       await page.waitForLoadState('networkidle');
-      assert(!requests.some(row => row.path === catalog.get(farId).path), "Detached queued entries must not fetch stale photographs");
+      assert(!requests.some(row => deliveryPaths(farId).includes(row.path)), "Detached queued entries must not fetch either delivery size of stale photographs");
       // Production may reuse the same observer after disconnect. Release only
       // connected new-generation entries so the audit itself cannot starve them.
       const releasedConnectedEntries = await page.evaluate(() => {
@@ -264,6 +282,39 @@ try {
       const photo = await correctPhoto(page, requests, farId, 'ru');
       return { source, photo };
     }, { mode });
+
+    await run(browserName, "responsive-copy-original-fallback", async (page, requests) => {
+      const [original, compact] = deliveryPaths(farId);
+      let aborted = 0;
+      await page.route(`**${compact}`, route => { aborted++; return route.abort("failed"); });
+      await imageFor(page, farId).scrollIntoViewIfNeeded();
+      await page.waitForFunction(({ id, original }) => {
+        const image = document.querySelector(`[data-product-id="${id}"] .full-menu-item-media img`);
+        return image?.complete && image.naturalWidth > 0 && !image.hasAttribute('srcset')
+          && new URL(image.currentSrc, location.href).pathname === original;
+      }, { id: farId, original });
+      const recovered = await loadedPhoto(page, farId);
+      assert.equal(aborted, 1, "The compact request must actually fail once without a retry loop");
+      assert(requests.some(row => row.path === compact), "The negative control must exercise the responsive delivery copy");
+      assert(requests.some(row => row.path === original), "Failed responsive delivery must request the original catalog photo");
+      assert.equal(recovered.path, original);
+      assert.equal(recovered.width, recovered.height, "Fallback decoding must preserve the complete square frame");
+      const assetPixels = await originalAssetPixels(recovered.path);
+      return { aborted, compact, recovered, assetPixels };
+    });
+
+    await run(browserName, "high-density-original", async (page, requests) => {
+      const id = "pairing-offers:cool-lime-macaron-pairing", [original] = deliveryPaths(id);
+      const photo = await loadedPhoto(page, id);
+      assert.equal(await page.evaluate(() => devicePixelRatio), 2, "The fixture must use an actual dense browser viewport");
+      assert.equal(photo.path, original);
+      // Width descriptors make naturalWidth density-adjusted; the requested
+      // asset's metadata is the physical-pixel oracle on a dense display.
+      assert.equal(photo.width, photo.height, "Dense-display decoding must preserve the complete square frame");
+      assert(requests.some(row => row.path === original), "A dense display must request the sharp original");
+      const assetPixels = await originalAssetPixels(photo.path);
+      return { photo, devicePixelRatio: 2, assetPixels };
+    }, { scale: 2 });
 
     await run(browserName, "first-product-photo", async (page, requests) => {
       const initial = await page.locator('#menu-product-image').getAttribute('src');

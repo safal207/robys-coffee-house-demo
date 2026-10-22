@@ -78,6 +78,19 @@ test("semantic readiness excludes invisible ancestors, offscreen results and occ
 });
 
 import vm from "node:vm";
+test("navigation startup before the document root exists remains pending instead of aborting measurement", () => {
+  const sandbox = { window: {}, location: { pathname: "/menu.html" }, document: {
+    documentElement: null, addEventListener() {}, querySelector: () => null, querySelectorAll: () => [] } };
+  vm.runInNewContext(`(${browserProbe.toString()})()`, sandbox);
+  for (const kind of ["list", "feed", "language", "product", "cart"]) {
+    assert.equal(sandbox.window.__robysJourneyReady({ kind, language: "en" }), false);
+  }
+  sandbox.document.documentElement = { dataset: {}, lang: "tr" };
+  assert.equal(sandbox.window.__robysJourneyReady({ kind: "list" }), false);
+  sandbox.location.pathname = "/menu-feed.html";
+  assert.equal(sandbox.window.__robysJourneyReady({ kind: "feed", language: "en" }), false);
+});
+
 test("cart readiness uses the canonical expected price and requires visible line and total", () => {
   const style = () => ({ opacity: "1", visibility: "visible", display: "block" });
   const node = (text, top, bottom) => ({ textContent: text, style: style(), parentElement: null,
@@ -86,11 +99,30 @@ test("cart readiness uses the canonical expected price and requires visible line
   const map = { "#menu-cart-dialog": { open: true, querySelector: () => shell }, "#menu-product-dialog": { open: false },
     "#menu-cart-count": { textContent: "1" }, "#menu-cart-lines .menu-cart-line": line, "#menu-cart-dialog-total": total };
   const sandbox = { window: {}, innerWidth: 390, innerHeight: 844, getComputedStyle: node => node.style,
-    document: { addEventListener() {}, querySelector: selector => map[selector] ?? null,
+    document: { documentElement: {}, addEventListener() {}, querySelector: selector => map[selector] ?? null,
       querySelectorAll: selector => selector === "#menu-cart-lines .menu-cart-line" ? [line] : [], elementFromPoint: (x, y) => y >= 500 ? total : line } };
   vm.runInNewContext(`(${browserProbe.toString()})()`, sandbox);
   const ready = price => sandbox.window.__robysJourneyReady({ kind: "cart", total: price });
   assert.equal(ready(175), true); assert.equal(ready(110), false);
   total.style.visibility = "hidden"; assert.equal(ready(175), false); total.style.visibility = "visible";
   line.style.visibility = "hidden"; assert.equal(ready(175), false);
+});
+
+test("a decoded product image must be visible before product readiness can pass", () => {
+  const node = (top, bottom) => ({ style: { opacity: "1", visibility: "visible", display: "block" }, parentElement: null,
+    getClientRects: () => [{}], getBoundingClientRect: () => ({ left: 0, right: 300, top, bottom }), getAnimations: () => [], contains: () => false });
+  const shell = node(0, 800), title = node(100, 140), image = node(200, 450), add = node(500, 550);
+  shell.contains = hit => [title, image, add].includes(hit);
+  Object.assign(title, { textContent: "Espresso" }); Object.assign(image, { complete: true, naturalWidth: 1024 }); add.disabled = false;
+  const map = { "#menu-product-dialog": { open: true, querySelector: () => shell }, "#menu-product-image": image,
+    "#menu-product-title": title, "#menu-add-to-cart": add };
+  let occluded = false;
+  const sandbox = { window: {}, innerWidth: 390, innerHeight: 844, getComputedStyle: node => node.style,
+    document: { documentElement: {}, addEventListener() {}, querySelector: selector => map[selector] ?? null, querySelectorAll: () => [],
+      elementFromPoint: (x, y) => y >= 500 ? add : y >= 200 ? (occluded ? {} : image) : title } };
+  vm.runInNewContext(`(${browserProbe.toString()})()`, sandbox);
+  const ready = () => sandbox.window.__robysJourneyReady({ kind: "product", count: "Espresso" });
+  assert.equal(ready(), true);
+  image.style.visibility = "hidden"; assert.equal(ready(), false);
+  image.style.visibility = "visible"; occluded = true; assert.equal(ready(), false);
 });

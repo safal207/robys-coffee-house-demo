@@ -2,9 +2,61 @@ name: Menu interaction performance
 on:
   push:
     branches: [perf/menu-switch-scroll-20261021]
-    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
+    paths:
+      - 'src/menu-*.js'
+      - 'menu-*.js'
+      - 'menu.html'
+      - 'menu-feed.html'
+      - 'menu*.css'
+      - 'styles-v2.css'
+      - 'kids-menu.css'
+      - 'pairing-posters.css'
+      - 'combo-entry.css'
+      - 'choice-help.css'
+      - 'seasonal.css'
+      - 'brand-photo-logo.css'
+      - 'order-checkout.css'
+      - 'pairing-posters.js'
+      - 'src/pairing-posters.js'
+      - 'scripts/build.mjs'
+      - 'scripts/menu-runtime-source.mjs'
+      - 'scripts/menu-styles-bundle.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/products/menu-v1/**'
+      - 'src/products/sets-v1/**'
+      - 'src/products/quick-v1/**'
+      - 'scripts/*menu-responsiveness*.mjs'
+      - 'qa/menu-interaction-budgets.json'
+      - '.github/workflows/menu-responsiveness.yml'
   pull_request:
-    paths: ['src/menu-*.js', 'menu-feed.css', 'scripts/*menu-responsiveness*.mjs', 'qa/menu-interaction-budgets.json', '.github/workflows/menu-responsiveness.yml']
+    paths:
+      - 'src/menu-*.js'
+      - 'menu-*.js'
+      - 'menu.html'
+      - 'menu-feed.html'
+      - 'menu*.css'
+      - 'styles-v2.css'
+      - 'kids-menu.css'
+      - 'pairing-posters.css'
+      - 'combo-entry.css'
+      - 'choice-help.css'
+      - 'seasonal.css'
+      - 'brand-photo-logo.css'
+      - 'order-checkout.css'
+      - 'pairing-posters.js'
+      - 'src/pairing-posters.js'
+      - 'scripts/build.mjs'
+      - 'scripts/menu-runtime-source.mjs'
+      - 'scripts/menu-styles-bundle.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/products/menu-v1/**'
+      - 'src/products/sets-v1/**'
+      - 'src/products/quick-v1/**'
+      - 'scripts/*menu-responsiveness*.mjs'
+      - 'qa/menu-interaction-budgets.json'
+      - '.github/workflows/menu-responsiveness.yml'
 permissions:
   contents: read
 concurrency:
@@ -17,6 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -27,13 +80,21 @@ jobs:
       - name: Verify the performance gate rejects regressions and incomplete evidence
         run: node --test scripts/test-menu-responsiveness-gate.mjs
       - name: Measure baseline with the same cache-verified harness
+        env:
+          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          BASE_SHA="$(git rev-parse refs/remotes/origin/main)"
-          git worktree add --detach /tmp/robys-menu-baseline "$BASE_SHA"
-          ROBYS_PERF_ROOT=/tmp/robys-menu-baseline ROBYS_PERF_OUTPUT=.artifacts/menu-responsiveness/baseline ROBYS_PERF_LABEL=baseline ROBYS_SOURCE_REVISION="$BASE_SHA" node scripts/measure-menu-responsiveness.mjs
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          TASK_BASE_SHA="$EVENT_BASE"
+          if [[ ! "$TASK_BASE_SHA" =~ ^[a-f0-9]{40}$ || "$TASK_BASE_SHA" =~ ^0{40}$ ]]; then
+            TASK_BASE_SHA="$(git rev-parse HEAD^)"
+          fi
+          git cat-file -e "$TASK_BASE_SHA^{commit}"
+          git worktree add --detach /tmp/robys-menu-baseline "$TASK_BASE_SHA"
+          ROBYS_PERF_ROOT=/tmp/robys-menu-baseline ROBYS_PERF_OUTPUT=.artifacts/menu-responsiveness/baseline ROBYS_PERF_LABEL=baseline ROBYS_SOURCE_REVISION="$TASK_BASE_SHA" node scripts/measure-menu-responsiveness.mjs
       - name: Measure emitted candidate transitions and full-feed scrolling
         env:
-          ROBYS_SOURCE_REVISION: ${{ github.sha }}
+          ROBYS_SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
           ROBYS_PERF_LABEL: candidate
           ROBYS_PERF_OUTPUT: .artifacts/menu-responsiveness/candidate
         run: node scripts/measure-menu-responsiveness.mjs

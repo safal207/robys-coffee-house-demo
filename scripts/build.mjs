@@ -10,6 +10,20 @@ import { MENU_STYLESHEET_FILE, MENU_STYLE_INPUTS, compileMenuStylesBundle, verif
 await import("./build-counter.mjs");
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
+writeFileSync("menu-feedback.js", compileMenuRuntime(readFileSync("src/menu-feedback.js", "utf8")));
+const menuFeedbackRevision = revisionFor("menu-feedback.js");
+writeFileSync("menu-feed-viewer.js", compileMenuRuntime(readFileSync("src/menu-feed-viewer.js", "utf8")));
+const menuFeedViewerRevision = revisionFor("menu-feed-viewer.js");
+let viewerEntry = readFileSync("src/menu-feed-viewer-entry.js", "utf8");
+viewerEntry = synchronizeModuleImport(viewerEntry, "menu-feed-viewer.js", menuFeedViewerRevision);
+viewerEntry = viewerEntry.replace(/new URL\("\.\/menu-feed-viewer\.js(?:\?v=[^"]*)?", import\.meta\.url\)/,
+  `new URL("./menu-feed-viewer.js?v=${menuFeedViewerRevision}", import.meta.url)`);
+writeFileSync("src/menu-feed-viewer-entry.js", viewerEntry);
+let feedbackEntry = readFileSync("src/menu-feedback-entry.js", "utf8");
+feedbackEntry = synchronizeModuleImport(feedbackEntry, "menu-feedback.js", menuFeedbackRevision);
+feedbackEntry = feedbackEntry.replace(/new URL\("\.\/menu-feedback\.js(?:\?v=[^"]*)?", import\.meta\.url\)/,
+  `new URL("./menu-feedback.js?v=${menuFeedbackRevision}", import.meta.url)`);
+writeFileSync("src/menu-feedback-entry.js", feedbackEntry);
 for (const file of ["src/menu-app.js", "menu-product-reveal-runtime.js", "discover-v2.js", "discover-deck.js"]) {
   const source = readFileSync(file, "utf8").replace(/(from\s*["']\.\/menu-catalog\.js)(?:\?[^"']*)?(["'])/g, `$1?v=${menuCatalogRevision}$2`);
   writeFileSync(file, source);
@@ -235,6 +249,21 @@ function locateScript(html, fileName) {
   return { open, close };
 }
 
+// Discover the current view and its shared catalog before blocking CSS/bootstrap
+// and the body. These are already required modules: no speculative execution or
+// extra startup payload, and no serial entry -> catalog network round trip.
+function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
+  html = html.replace(/\n\s*<!-- menu startup modules -->[\s\S]*?<!-- \/menu startup modules -->/, "");
+  let hints = modules.map(([file, revision]) => `  <link rel="modulepreload" href="${file}?v=${revision}" />`).join("\n");
+  if (alternateStyle) hints += `\n  <link rel="preload" href="${alternateStyle[0]}?v=${alternateStyle[1]}" as="style" fetchpriority="low" />`;
+  const [entry, revision] = modules.at(-1);
+  const script = new RegExp(`\\s*<script\\b[^>]*src="${entry.replaceAll(".", "\\.")}\\?v=[^"]*"[^>]*><\\/script>`);
+  html = html.replace(script, "");
+  // Keep normal deferred execution and incremental painting; no render-blocking
+  // snapshots or timers stand between a tap and the next document.
+  return html.replace(/(<meta name="viewport"[^>]*>)/, `$1\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
+}
+
 function synchronizeScript(html, fileName, revision) {
   const { open, close } = locateScript(html, fileName);
   const tag = "<" + `script defer src="${fileName}?v=${revision}">` + "</" + "script>";
@@ -362,6 +391,7 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
+writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuAppRevision = revisionFor("menu-app.js");
@@ -463,6 +493,7 @@ menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
+menuHtml = synchronizeMenuPreloads(menuHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-app.js", menuAppRevision]], ["menu-feed.css", menuFeedCssRevision]);
 writeFileSync("menu.html", menuHtml);
 
 let feedHtml = readFileSync("menu-feed.html", "utf8");
@@ -470,6 +501,7 @@ feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
 feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRevision);
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
+feedHtml = synchronizeMenuPreloads(feedHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-feed.js", menuFeedRevision]]);
 writeFileSync("menu-feed.html", feedHtml);
 const { menuShareProducts } = await import("./build-menu-share-pages.mjs");
 const menuShareEntryRevision = revisionFor("menu-share-entry.js");
@@ -559,9 +591,14 @@ const familyPhotoAssets = [
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
-for (const asset of ["menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+const { menuCategories: storyCategories } = await import("../menu-catalog.js");
+const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js");
+const storyCatalog = storyProducts(storyCategories);
+const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
+  .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
+for (const asset of ["menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
-  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets]) {
+  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
@@ -653,6 +690,8 @@ for (const [filePath, revision] of [
   ["pairing-posters.js", pairingPostersRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-feed.js", menuFeedRevision],
+  ["menu-feedback.js", menuFeedbackRevision],
+  ["menu-feed-viewer.js", menuFeedViewerRevision],
   ["menu-view-mode.js", menuViewModeRevision],
   ["menu-feed.css", menuFeedCssRevision],
   ["menu-share-entry.js", menuShareEntryRevision],

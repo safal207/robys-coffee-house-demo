@@ -97,7 +97,11 @@
         "menu-interactions.js",
         "menu-ready.js",
         "menu-search-clear.js",
+        "scripts/test-menu-photo-delivery.mjs",
         "src/menu-actions-loader.js",
+        "src/pairing-posters.js",
+        "pairing-posters.js",
+        "pairing-posters.css",
         "menu-premium.css",
         "menu-stability*.css",
         "menu-security-v2.css",
@@ -169,7 +173,8 @@
       "paths": [
         "src/products/**",
         "qa/menu-thumbnail-assets.json",
-        "scripts/build-menu-thumbnails.mjs"
+        "scripts/build-menu-thumbnails.mjs",
+        "scripts/test-menu-photo-delivery.mjs"
       ],
       "dependsOn": [
         "catalog",
@@ -379,6 +384,7 @@
         "discover*.css",
         "src/discover-rotation.ts",
         "src/pairings-data/**",
+        "src/pairing-posters.js",
         "pairing-posters.js",
         "pairing-posters.css"
       ],

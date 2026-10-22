@@ -1,4 +1,4 @@
-import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
+import { compileMenuRuntime, readVerifiedMenuSource } from "./menu-runtime-source.mjs";
 import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-styles-bundle.mjs";
 import "./verify-pairing-cta-static.mjs";
 import "./verify-pairing-catalog-parity.mjs";
@@ -14,6 +14,8 @@ const menuData = readFileSync("menu-catalog.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
 const menuHtml = readFileSync("menu.html", "utf8");
 const pairingRuntime = readFileSync("pairing-posters.js", "utf8");
+const pairingSource = readFileSync("src/pairing-posters.js", "utf8");
+assert.equal(pairingRuntime, compileMenuRuntime(pairingSource), "Pairing runtime must be reproduced from its authored source");
 const pairingCss = readFileSync("pairing-posters.css", "utf8");
 const buildScript = readFileSync("scripts/build.mjs", "utf8");
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
@@ -109,8 +111,8 @@ assert.match(buildScript, /const pairingPostersCssRevision = revisionFor\("pairi
 assert.match(serviceWorker, new RegExp(`\\./pairing-posters\\.js\\?v=${pairingRuntimeRevision}`), "offline cache must pin pairing runtime revision");
 assert.match(serviceWorker, new RegExp(`\\./pairing-posters\\.css\\?v=${pairingCssRevision}`), "offline cache must pin pairing stylesheet revision");
 assert.match(serviceWorker, /url\.pathname\.endsWith\("\/pairing-posters\.css"\)/, "pairing stylesheet cache must require exact revision");
-assert.match(pairingRuntime, /media\.setAttribute\("aria-expanded", "false"\)/, "pairing trigger must expose collapsed state");
-assert.match(pairingRuntime, /removeExperiencePanel\(\{ restoreFocus: true \}\)/, "closing discovery must return keyboard focus");
+assert.match(pairingSource, /media\.setAttribute\("aria-expanded", "false"\)/, "pairing trigger must expose collapsed state");
+assert.match(pairingSource, /removeExperiencePanel\(\{ restoreFocus: true \}\)/, "closing discovery must return keyboard focus");
 assert.match(pairingCss, /\.pairing-poster-card \.full-menu-item-media:focus-visible/, "pairing trigger must have a visible keyboard focus state");
 assert.match(pairingCss, /content: "→"/, "pairing card must expose a visible action affordance");
 

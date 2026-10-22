@@ -58,7 +58,14 @@ Choosing another view replaces it; clearing site data removes it. If storage is
 unavailable, explicit list/feed links still work without remembering the choice.
 
 `PRIVACY-001` permits direct literal access to this exact key only in
-`menu-app.js` and its authored source `src/menu-app.js`. The existing
+`menu-app.js` and its authored source `src/menu-app.js`.
+
+The optional menu sound uses `robys-menu-sound` (`on` / `off`) only in the two
+menu entry runtimes and lazy feedback runtime. It defaults to off, contains no
+identity or activity history, stays on this device and is never transmitted.
+Clearing site data removes the preference; blocked storage leaves sound usable
+for the current page. Audio is created only after a trusted user activation.
+
 `robys-language` allowance is unchanged; other keys and other files receive no
 new permission. The standalone view-mode source and generated runtime
 (`src/menu-view-mode.js` and `menu-view-mode.js`) are also included in the common

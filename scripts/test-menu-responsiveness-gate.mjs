@@ -13,6 +13,10 @@ function fixture(revision, rectReads) {
   cachePreflight: [{ transferSize: 100 }, { transferSize: 0, decodedBodySize: 100 }, { transferSize: 0, decodedBodySize: 100 }],
   samples: [390, 1280].flatMap(width => [{ width, errors: [] }, ...['feed', 'list'].flatMap(target =>
     Array.from({ length: 4 }, (_, cycle) => ({ width, target, cycle, switchMs: 200, photoReadyMs: 200 })))]),
+  rapidPreClickDelayMs: 0,
+  rapidSamples: [390, 1280].flatMap(width => ['feed', 'list'].flatMap(target =>
+    Array.from({ length: 5 }, (_, cycle) => ({ width, target, cycle, switchMs: 200, photoReadyMs: 200 })))),
+  rapidErrors: [390, 1280].map(width => ({ width, errors: [] })),
   scroll: [390, 1280].map(width => ({ width, cards: 63, rectReads, frames: Array(120).fill(16.7),
     positions: Array.from({ length: 100 }, (_, i) => i), longTasks: [] })) };
 }
@@ -46,6 +50,39 @@ test('missing coverage, invalid cache, application errors and mismatched identit
 test('already optimized main accepts unchanged per-frame work from a new revision', () => {
   const result = compareMenuResponsiveness(fixture('a', 900), fixture('b', 900));
   assert.equal(result.passed, true, JSON.stringify(result.checks.filter(check => !check.passed)));
+});
+
+test('rapid gate rejects a one-second transition or photo without changing normal samples', () => {
+  for (const key of ['switchMs', 'photoReadyMs']) {
+    const candidate = fixture('b', 900);
+    candidate.rapidSamples[0][key] = 999;
+    assert.equal(compareMenuResponsiveness(fixture('a', 900), candidate).passed, true);
+    candidate.rapidSamples[0][key] = 1000;
+    const result = compareMenuResponsiveness(fixture('a', 900), candidate);
+    assert.equal(result.passed, false);
+    assert.ok(result.checks.filter(check => !check.passed).every(check => check.name.includes('/rapid/')));
+  }
+});
+
+test('rapid evidence must cover every fresh-context cycle without artificial dwell or errors', () => {
+  for (const mutate of [
+    report => { delete report.rapidSamples; },
+    report => { report.rapidSamples.pop(); },
+    report => { report.rapidSamples[0].cycle = 1; },
+    report => { report.rapidSamples[0].photoReadyMs = null; },
+    report => { report.rapidPreClickDelayMs = 1800; },
+    report => { report.rapidErrors[0].errors.push('stale ready'); }
+  ]) {
+    const candidate = fixture('b', 900); mutate(candidate);
+    assert.throws(() => compareMenuResponsiveness(fixture('a', 900), candidate));
+  }
+});
+
+test('historical normal-only baseline remains comparable but candidate must execute rapid profile', () => {
+  const baseline = fixture('a', 900), candidate = fixture('b', 900);
+  delete baseline.rapidSamples; delete baseline.rapidErrors; delete baseline.rapidPreClickDelayMs;
+  assert.equal(compareMenuResponsiveness(baseline, candidate).passed, true);
+  assert.throws(() => compareMenuResponsiveness(candidate, baseline));
 });
 
 test('geometry comparison uses work per frame, not differing frame counts', () => {
@@ -91,7 +128,8 @@ test('CLI exits nonzero for regressions and incomplete evidence, not unchanged o
     for (const [name, mutate, expectedExit] of [
       ['unchanged', () => {}, 0],
       ['geometry-regression', report => { report.scroll[0].rectReads = 1200; }, 1],
-      ['switch-over-budget', report => { report.samples[1].switchMs = 1501; }, 1],
+      ['switch-over-budget', report => { report.samples[1].switchMs = 1000; }, 1],
+      ['rapid-switch-over-budget', report => { report.rapidSamples[0].switchMs = 1000; }, 1],
       ['missing-coverage', report => { report.samples.pop(); }, 1]
     ]) {
       const candidate = fixture('b', 900); mutate(candidate);
@@ -106,7 +144,7 @@ test('CLI exits nonzero for regressions and incomplete evidence, not unchanged o
       if (name !== 'missing-coverage') {
         const result = JSON.parse(readFileSync(output, 'utf8'));
         assert.equal(result.passed, expectedExit === 0);
-        assert.equal(result.checks.length, 22);
+        assert.equal(result.checks.length, 28);
       }
     }
   } finally { rmSync(directory, { recursive: true, force: true }); }

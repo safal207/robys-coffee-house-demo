@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { createWriteStream, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, constants, createWriteStream, existsSync, fstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -179,14 +179,27 @@ export function graphMermaid(graph) {
   return lines.join('\n') + '\n';
 }
 
-export function verifyReceipt(receipt, plan, check, verifyArtifact = () => true) {
+// Wall clocks may differ slightly across CI jobs. This is a bounded sanity
+// contract for recorded evidence, not authentication of an artifact producer.
+const CLOCK_SKEW_MS = 2000;
+function executionWindow(record, plan, now, requireDuration = false) {
+  const errors = [], started = Date.parse(record.startedAt), finished = Date.parse(record.finishedAt), planned = Date.parse(plan.createdAt);
+  if (!Number.isFinite(now) || !Number.isFinite(planned) || !Number.isFinite(started) || !Number.isFinite(finished) || finished <= started) errors.push('invalid execution times');
+  else {
+    if (planned > now + CLOCK_SKEW_MS || started < planned - CLOCK_SKEW_MS || finished > now + CLOCK_SKEW_MS) errors.push('execution interval is outside the plan/collection clock window');
+    if (requireDuration && (!Number.isFinite(record.durationMs) || record.durationMs <= 0
+      || Math.abs(record.durationMs - (finished - started)) > Math.max(1000, (finished - started) * .02))) errors.push('monotonic duration differs from the wall-clock interval');
+  }
+  return { errors, started, finished };
+}
+
+export function verifyReceipt(receipt, plan, check, verifyArtifact = () => true, { now = Date.now() } = {}) {
   const errors = [];
   if (receipt.schemaVersion !== 1 || receipt.checkId !== check.id || receipt.complete !== true) errors.push('incomplete or foreign receipt');
   if (receipt.source?.revision !== plan.source.revision || receipt.source?.tree !== plan.source.tree || receipt.source?.dirty !== false) errors.push('stale or dirty source');
   if (receipt.registrySha256 !== plan.registrySha256 || receipt.command !== check.command) errors.push('registry or command mismatch');
   if (receipt.exitCode !== 0 || receipt.signal || receipt.timedOut || receipt.status !== 'PASS') errors.push('command did not pass');
-  const started = Date.parse(receipt.startedAt), finished = Date.parse(receipt.finishedAt);
-  if (!Number.isFinite(receipt.durationMs) || receipt.durationMs <= 0 || !Number.isFinite(started) || !Number.isFinite(finished) || finished <= started) errors.push('invalid execution times');
+  errors.push(...executionWindow(receipt, plan, now, true).errors);
   if (receipt.selection?.mode !== 'full' || receipt.selection?.filters?.length) errors.push('filtered or undeclared execution');
   if (!Array.isArray(receipt.artifacts) || receipt.artifacts.length === 0 || receipt.artifacts.some(artifact => !safePath(artifact.path)
     || !/^[a-f0-9]{64}$/.test(artifact.sha256) || !Number.isInteger(artifact.bytes) || artifact.bytes < 0 || !verifyArtifact(artifact))) errors.push('missing or altered artifacts');
@@ -200,12 +213,20 @@ export function expectedTimingMatrix(policy) {
       profile: `${width === 390 ? 'mobile390' : 'desktop1280'}-${language}-${motion}`, attempt: i + 1 }))).flat())));
 }
 
-export function evaluateTimings(report, plan, graph, policy = readJson(resolve(ROOT, 'qa/journey-latency-budgets.json'))) {
+export function evaluateTimings(report, plan, graph, policy = readJson(resolve(ROOT, 'qa/journey-latency-budgets.json')), { now = Date.now() } = {}) {
   const errors = [], rows = [];
   if (!report) return { status: 'NOT_RUN', errors: ['Timing report not provided'], rows };
   if (report.schemaVersion !== 1 || report.complete !== true || report.source?.revision !== plan.source.revision || report.source?.tree !== plan.source.tree || report.source?.dirty !== false) errors.push('Incomplete, stale or dirty timing evidence');
   if (report.environment?.browser !== 'chromium' || report.environment?.cpuRate !== 4 || report.environment?.latencyMs !== 150
     || report.environment?.downloadMbps !== 1.6 || report.environment?.serviceWorkers !== 'blocked') errors.push('Unexpected timing environment');
+  const window = executionWindow(report, plan, now); errors.push(...window.errors);
+  let declaredOrigin;
+  try {
+    const url = new URL(report.environment?.origin);
+    if (url.protocol !== 'https:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)
+      || url.origin !== report.environment.origin) throw new Error('Origin must be canonical local HTTPS');
+    declaredOrigin = url.origin;
+  } catch { errors.push('Timing origin is not an explicit loopback HTTPS origin'); }
   const expected = expectedTimingMatrix(policy);
   if (!Array.isArray(report.expectedSamples) || report.expectedSamples.length !== expected.length || !Array.isArray(report.samples)) errors.push('Missing declared timing sample matrix');
   const key = sample => `${sample.journeyId}|${sample.metricId}|${sample.profile}|${sample.attempt}`;
@@ -221,6 +242,13 @@ export function evaluateTimings(report, plan, graph, policy = readJson(resolve(R
     const evidence = sample.evidence;
     if (!evidence?.id || transitionIds.has(evidence.id) || !Number.isFinite(evidence.start) || !Number.isFinite(evidence.end)
       || evidence.end <= evidence.start || Math.abs(evidence.end - evidence.start - sample.value) > 1) errors.push(`Missing or replayed transition evidence: ${id}`);
+    if (!Number.isFinite(window.started) || !Number.isFinite(window.finished) || evidence?.start < window.started - CLOCK_SKEW_MS
+      || evidence?.end > window.finished + CLOCK_SKEW_MS) errors.push(`Transition epoch is outside its timing run: ${id}`);
+    try {
+      const url = new URL(evidence?.url);
+      const expectedPath = sample.journeyId === 'menu-switch-feed' ? '/menu-feed.html' : '/menu.html';
+      if (!declaredOrigin || url.origin !== declaredOrigin || url.pathname !== expectedPath || url.username || url.password) throw new Error('Wrong outcome URL');
+    } catch { errors.push(`Transition outcome URL differs from its declared local journey: ${id}`); }
     if (evidence?.id) transitionIds.add(evidence.id);
   }
   const keys = new Set(expected.map(key)), declared = new Set((report.expectedSamples ?? []).map(key));
@@ -248,12 +276,26 @@ function walkFiles(directory) {
   if (!existsSync(directory)) return [];
   return readdirSync(directory, { withFileTypes: true }).flatMap(entry => entry.isSymbolicLink() ? [] : entry.isDirectory() ? walkFiles(resolve(directory, entry.name)) : [resolve(directory, entry.name)]);
 }
-function checkedArtifact(base, artifact) {
+export function checkedArtifact(base, artifact) {
+  let descriptor;
   try {
+    // Linux /proc binds containment to the opened object. A pathname checked
+    // before readFileSync(path) can be replaced, including through an ancestor.
+    // Refuse platforms without this descriptor-containment contract.
+    if (process.platform !== 'linux' || !Number.isInteger(constants.O_NOFOLLOW) || !safePath(artifact.path)
+      || !Number.isSafeInteger(artifact.bytes) || artifact.bytes < 0) return false;
     const root = realpathSync(base), file = resolve(base, artifact.path);
-    if (!safePath(artifact.path) || lstatSync(file).isSymbolicLink() || !realpathSync(file).startsWith(root + sep)) return false;
-    const bytes = readFileSync(file); return bytes.length === artifact.bytes && sha256(bytes) === artifact.sha256;
+    descriptor = openSync(file, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    const before = fstatSync(descriptor, { bigint: true });
+    if (!before.isFile() || before.size !== BigInt(artifact.bytes)
+      || !realpathSync(`/proc/self/fd/${descriptor}`).startsWith(root + sep)) return false;
+    // Read the same descriptor that was inspected; never reopen its pathname.
+    const bytes = readFileSync(descriptor), after = fstatSync(descriptor, { bigint: true });
+    return before.dev === after.dev && before.ino === after.ino && before.size === after.size
+      && before.mtimeNs === after.mtimeNs && before.ctimeNs === after.ctimeNs
+      && bytes.length === artifact.bytes && sha256(bytes) === artifact.sha256;
   } catch { return false; }
+  finally { if (descriptor !== undefined) closeSync(descriptor); }
 }
 
 async function runCheck(check, head, output, loaded) {
@@ -295,7 +337,7 @@ async function runCheck(check, head, output, loaded) {
   return receipt;
 }
 
-export function collectReport(plan, graph, receiptRecords, timingReport) {
+export function collectReport(plan, graph, receiptRecords, timingReport, { now = Date.now() } = {}) {
   const checks = [], errors = [];
   const byId = new Map();
   for (const record of receiptRecords) {
@@ -306,12 +348,12 @@ export function collectReport(plan, graph, receiptRecords, timingReport) {
   for (const check of graph.checks) {
     if (plan.selectedChecks.includes(check.id)) {
       const record = byId.get(check.id);
-      const verdict = record ? verifyReceipt(record.receipt, plan, check, record.verifyArtifact) : { status: 'NOT_RUN', errors: ['Missing receipt'] };
+      const verdict = record ? verifyReceipt(record.receipt, plan, check, record.verifyArtifact, { now }) : { status: 'NOT_RUN', errors: ['Missing receipt'] };
       checks.push({ id: check.id, label: check.label, kind: check.kind, workflow: check.workflow, selected: true, ...verdict });
     } else checks.push({ id: check.id, label: check.label, kind: check.kind, workflow: check.workflow, selected: false,
       status: check.execution === 'timing-probe' ? 'SEE_TIMINGS' : check.execution === 'existing-workflow' ? 'NOT_RUN' : 'NOT_SELECTED', errors: [] });
   }
-  const timings = evaluateTimings(timingReport, plan, graph);
+  const timings = evaluateTimings(timingReport, plan, graph, undefined, { now });
   const incomplete = errors.length || plan.source.dirty || plan.unmappedPaths.length || timings.status === 'INCOMPLETE' || timings.status === 'NOT_RUN'
     || checks.some(check => check.selected && ['INCOMPLETE', 'STALE', 'NOT_RUN'].includes(check.status));
   const failed = timings.status === 'FAIL' || checks.some(check => check.selected && check.status === 'FAIL');
@@ -323,7 +365,7 @@ export function collectReport(plan, graph, receiptRecords, timingReport) {
       functionalOutcome: !journey.metrics.length ? 'NOT_ASSESSED_BY_TIMING_PROBE' : (timingReport?.samples ?? []).filter(sample => sample.journeyId === journey.id).some(sample => sample.correctnessStatus !== 'PASS') ? 'FAIL'
         : ['INCOMPLETE', 'NOT_RUN'].includes(timings.status) ? 'INCOMPLETE' : 'PASS', coverageGap: journey.coverageGap ?? null };
   });
-  return { schemaVersion: 1, collectedAt: new Date().toISOString(), source: plan.source, base: plan.base, registrySha256: plan.registrySha256,
+  return { schemaVersion: 1, collectedAt: Number.isFinite(now) ? new Date(now).toISOString() : null, source: plan.source, base: plan.base, registrySha256: plan.registrySha256,
     status: failed ? 'FAIL' : incomplete ? 'INCOMPLETE' : 'PASS', scope: plan.scope,
     claim: 'Selected command outcomes and bounded measured journeys only. Dependency edges indicate potential impact, not confirmed root cause or release approval.',
     changedPaths: plan.changedPaths, impactedComponents: plan.impactedComponents, impactedJourneys: plan.impactedJourneys, unmappedPaths: plan.unmappedPaths,

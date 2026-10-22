@@ -50,6 +50,14 @@ overwriting each other. Logs and partial artifacts are uploaded after failure
 when the runner can still execute cleanup steps. Cancellation or runner loss can
 leave missing evidence, which must remain incomplete.
 
+Artifact verification requires Linux with `/proc/self/fd`: the collector opens
+each file without following a final symlink, checks the opened descriptor's
+containment and metadata, and reads that same descriptor. Unsupported platforms
+remain incomplete. Receipt and sample clocks must fit the plan/run/collection
+window, with two seconds of clock skew allowed. Sample URLs must identify the
+declared local HTTPS origin and the expected menu route. These consistency
+checks do not authenticate a hostile artifact producer.
+
 Only repository read permission is granted. The workflow needs no repository
 secrets, writes no review comments, changes no protection rules and grants no
 merge or deployment authority. It adds evidence to the existing technical
