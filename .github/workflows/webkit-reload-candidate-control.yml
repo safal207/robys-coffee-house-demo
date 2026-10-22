@@ -1,0 +1,80 @@
+name: Native WebKit explicit reload candidate
+on:
+  push:
+    branches: [diagnostic/webkit-reload-candidate-20261022]
+permissions:
+  contents: read
+jobs:
+  native-feed:
+    name: Native macOS complete feed and three reload cycles
+    runs-on: macos-15-intel
+    timeout-minutes: 15
+    env:
+      DEBUG: pw:browser
+      CHECKOUT_BROWSERS: webkit
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22.23.3'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install webkit
+      - name: Bind candidate frontend, unchanged complete harness and native executable
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, accessSync, constants, mkdirSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          import { webkit } from 'playwright';
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+          const manifest = readFileSync('integrity-manifest.json'), files = JSON.parse(manifest).files;
+          const hash = createHash('sha256').update(manifest);
+          for (const file of [...files].sort((a,b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path), sha256 = sha(bytes);
+            if (bytes.length !== file.bytes || sha256 !== file.sha256) throw new Error('Protected asset differs: ' + file.path);
+            hash.update(JSON.stringify({ path: file.path, bytes: bytes.length, sha256 }));
+          }
+          const runtimeSha256 = hash.digest('hex');
+          if (runtimeSha256 !== '5f155b4306e6b7f97d71263c6d9fa1d3d1a6ce9f6fed200e83d5513251002c18' || files.length !== 733
+            || sha(manifest) !== 'fbf8093cf6a746c7729ceac132a63e084a73d1e5f00360dee6aa75b74566b4f8') throw new Error('Unexpected candidate frontend');
+          const pkg = JSON.parse(readFileSync('node_modules/playwright-core/package.json', 'utf8'));
+          const browser = JSON.parse(readFileSync('node_modules/playwright-core/browsers.json', 'utf8')).browsers.find(item => item.name === 'webkit');
+          const executablePath = webkit.executablePath(), osVersion = execFileSync('sw_vers', ['-productVersion'], { encoding: 'utf8' }).trim();
+          if (process.version !== 'v22.23.3' || process.platform !== 'darwin' || process.arch !== 'x64'
+            || !osVersion.startsWith('15.') || pkg.version !== '1.55.1' || browser?.revision !== '2203'
+            || !executablePath.includes('/webkit-2203/')) throw new Error('Unexpected native toolchain');
+          accessSync(executablePath, constants.X_OK);
+          const harnessSha256 = sha(readFileSync('scripts/test-menu-feed-browser.mjs'));
+          const metadata = { scope: 'Diagnostic complete canonical feed on immutable candidate, including three reload cycles; never substitutes for complete current-head Order',
+            sourceAnchor: '053ce971db05cf3285e31cae0110e06e3b559306', revision: git('rev-parse','HEAD'), tree: git('rev-parse','HEAD^{tree}'), parent: git('rev-parse','HEAD^'),
+            sourceChanges: git('diff','--name-only','053ce971db05cf3285e31cae0110e06e3b559306','HEAD'), dirty: git('status','--porcelain').length > 0,
+            runtimeSha256, runtimeFiles: files.length, manifestSha256: sha(manifest), harnessSha256,
+            node: process.version, osVersion, architecture: process.arch, playwright: pkg.version, webkit: browser,
+            executablePath, launcherSha256: sha(readFileSync(executablePath)) };
+          if (metadata.revision !== process.env.GITHUB_SHA || metadata.parent !== '053ce971db05cf3285e31cae0110e06e3b559306'
+            || metadata.sourceChanges !== '.github/workflows/webkit-reload-candidate-control.yml'
+            || metadata.dirty || harnessSha256 !== 'f14f588da00eb831d619d097dc688c4eab2ef1cf9261f02c73700e49a6703f9e') throw new Error('Unexpected candidate source');
+          mkdirSync('.artifacts/reload-candidate', { recursive: true });
+          writeFileSync('.artifacts/reload-candidate/environment.json', JSON.stringify(metadata,null,2) + '\n');
+          console.log(JSON.stringify(metadata,null,2));
+          NODE
+      - name: Complete original feed suite with native reload regression
+        run: node scripts/test-menu-feed-browser.mjs
+      - name: Retain source identity after browser execution
+        if: always()
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: native-webkit-reload-candidate-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          retention-days: 14
