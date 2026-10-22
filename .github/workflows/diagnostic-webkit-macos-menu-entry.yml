@@ -1,0 +1,173 @@
+name: Native macOS WebKit menu-entry control
+
+# Diagnostic platform control. Existing Linux WebKit failures are retained.
+on:
+  push:
+    branches: [diagnostic/webkit-macos-menu-entry]
+
+permissions:
+  contents: read
+
+jobs:
+  source-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npm run verify:security
+      - run: git diff --exit-code
+
+  native-webkit-order:
+    name: Full unchanged WebKit Order on native macOS
+    needs: source-check
+    runs-on: macos-15-intel
+    timeout-minutes: 25
+    env:
+      ROBYS_CONTROL_EXPECTED_HEAD: ${{ github.sha }}
+      DEBUG: pw:browser
+      ROBYS_FAMILY_BROWSER: webkit
+      ROBYS_FAMILY_QA_DIR: .artifacts/order-reliability/family
+      ROBYS_PROMO_BROWSER: webkit
+      ROBYS_PROMO_QA_DIR: .artifacts/order-reliability/promo
+      ROBYS_TRANSACTION_BROWSER: webkit
+      ROBYS_TRANSACTION_QA_DIR: .artifacts/order-reliability/transactions
+      CHECKOUT_BROWSERS: webkit
+      ROBYS_RELEASE_BUILT_BROWSERS: webkit
+      ROBYS_STORAGE_BROWSER: webkit
+      ROBYS_LAZY_BROWSER: webkit
+      ROBYS_LAZY_QA_DIR: .artifacts/order-reliability/lazy-images
+      ROBYS_PAIRING_BROWSER: webkit
+      ROBYS_PAIRING_QA_DIR: .artifacts/order-reliability/pairing-price
+      ROBYS_COMBO_BROWSERS: webkit
+      ROBYS_COMBO_QA_DIR: .artifacts/order-reliability/combos
+      ROBYS_OFFER_BROWSERS: webkit
+      ROBYS_QUICK_BUILDER_BROWSERS: webkit
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22.23.3'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - name: Install the locked native WebKit with normal validation
+        run: npx --no-install playwright install webkit
+      - name: Bind native toolchain and unchanged application bytes
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync, mkdirSync, accessSync, constants } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { resolve } from 'node:path';
+          import { webkit } from 'playwright';
+          const output = resolve('.artifacts/webkit-macos-control');
+          mkdirSync(output, { recursive: true });
+          const sha = bytes => createHash('sha256').update(bytes).digest('hex');
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const expectedTree = '0aaead24abd3717578c7502c0404dfe481ebf2ff';
+          const workflow = '.github/workflows/diagnostic-webkit-macos-menu-entry.yml';
+          const source = { head: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), parentTree: git('rev-parse', 'HEAD^1^{tree}'), dirty: Boolean(git('status', '--porcelain')) };
+          if (source.head !== process.env.ROBYS_CONTROL_EXPECTED_HEAD || source.parentTree !== expectedTree || source.dirty
+            || git('diff', '--name-only', 'HEAD^1', 'HEAD') !== workflow) throw new Error('Diagnostic must contain only its workflow above the unchanged application tree');
+          const manifestBytes = readFileSync('integrity-manifest.json');
+          const files = JSON.parse(manifestBytes).files;
+          const runtime = createHash('sha256').update(manifestBytes);
+          for (const file of [...files].sort((a, b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path);
+            const evidence = { path: file.path, bytes: bytes.length, sha256: sha(bytes) };
+            if (evidence.bytes !== file.bytes || evidence.sha256 !== file.sha256) throw new Error('Runtime manifest differs: ' + file.path);
+            runtime.update(JSON.stringify(evidence));
+          }
+          source.runtimeFileCount = files.length;
+          source.runtimeSHA256 = runtime.digest('hex');
+          source.manifestSHA256 = sha(manifestBytes);
+          if (files.length !== 733 || source.runtimeSHA256 !== '54f4141a39de335bebbf564cb7be4f065ff94ffc7ab0466642ff891fa5c61d6c') throw new Error('Application runtime changed');
+          const harnesses = {"scripts/test-menu-combos-browser.mjs":"573c9261e1f98dbac782517d6bf443872d4c6f591289204e55ebc58100294a84","scripts/test-menu-lazy-images-browser.mjs":"d6981054396fbbe58eb72be41b5d1cc3e4c9b250bb2d593607e403a978e92399","scripts/test-pairing-price-browser.mjs":"971334c544ecf59155cd3ee7cd5d88f9e30d9a25ee3dca218aabe827e4620185","scripts/test-menu-family-browser.mjs":"a3e7122abe273bfd6c3f3de06d793f39ae05970ec9ebe42111ed0f7f147f1b82","scripts/test-menu-feed-browser.mjs":"432f92dd696f003ced62004928ec1556636594d95ac1f9f6ca2a90a437ab9c71","scripts/test-combo-offer-cards-browser.mjs":"1c76395658b09d41fb23b5e6ea3d07f83b17a3e2aab052b3c5d67047a974e8b0","scripts/test-quick-builder-scroll-browser.mjs":"c06a8d6a066eb1bc17d8ebca62ec7c4d9301eb208f10420808fb1a6246d1de33","scripts/test-smart-choice-cart-focus-browser.mjs":"8721fa140c7d87d89bad4546e56e8c3d1a89454233443ebaac75928a827ca301","scripts/test-promo-components-browser.mjs":"0591dd17272563a65224b20afa5e67a2c858f4fbfce6cf7966cce37082f19402","scripts/test-order-transactions-stress-browser.mjs":"0d0585b2ad987730a56e8e61ac8c62d206deb24ed36bc6563af9063d3d100852","scripts/test-order-checkout-staleness-browser.mjs":"d7c83a96ad6edcfc9904dac55052c16027cfc5408e10a73dd769ef980fb94715","scripts/test-order-storage-compat-browser.mjs":"9bf116dd3b31fbd99a00c51373b0a3e8e604f104014c022dd250947768092ebb","scripts/test-order-release-built-browser.mjs":"dc5aa83d804a5a08ae1fa4073703fae4ec6b4c01acbf7f12acf72866892bcacb"};
+          for (const [file, expected] of Object.entries(harnesses)) if (sha(readFileSync(file)) !== expected) throw new Error('Canonical harness changed: ' + file);
+          
+          const pkg = JSON.parse(readFileSync('node_modules/playwright/package.json'));
+          const core = JSON.parse(readFileSync('node_modules/playwright-core/package.json'));
+          const browser = JSON.parse(readFileSync('node_modules/playwright-core/browsers.json')).browsers.find(item => item.name === 'webkit');
+          const executablePath = webkit.executablePath();
+          const osVersion = execFileSync('sw_vers', ['-productVersion'], { encoding: 'utf8' }).trim();
+          if (process.platform !== 'darwin' || process.arch !== 'x64' || !osVersion.startsWith('15.') || process.version !== 'v22.23.3'
+            || pkg.version !== '1.55.1' || core.version !== '1.55.1' || browser?.revision !== '2203'
+            || !executablePath.includes('/webkit-2203/')) throw new Error('Native macOS control differs from its declared toolchain');
+          accessSync(executablePath, constants.X_OK);
+          const metadata = { startedAt: new Date().toISOString(), scope: 'Supported native macOS WebKit control; existing Linux failures remain separate and unchanged',
+            runnerLabel: 'macos-15-intel', source, node: process.version, platform: process.platform, architecture: process.arch, osVersion,
+            playwright: pkg.version, core: core.version, browser, executablePath, launcherSHA256: sha(readFileSync(executablePath)),
+            lockSHA256: sha(readFileSync('package-lock.json')), harnesses };
+          writeFileSync(output + '/environment.json', JSON.stringify(metadata, null, 2) + '\n');
+          console.log(JSON.stringify(metadata, null, 2));
+          NODE
+      - name: Built menu photo visibility and recovery
+        run: node scripts/test-menu-lazy-images-browser.mjs
+      - name: Pairing prices at increased text size
+        run: node scripts/test-pairing-price-browser.mjs
+      - name: Family loading, contents and photographs
+        run: node scripts/test-menu-family-browser.mjs
+      - name: Editable combos, all views and gentle choice help
+        run: node scripts/test-menu-combos-browser.mjs
+      - name: Menu feed selection, shared cart and counter QR
+        run: node scripts/test-menu-feed-browser.mjs
+      - name: Contextual offer cards and exact recipe navigation
+        run: node scripts/test-combo-offer-cards-browser.mjs
+      - name: Quick builder touch position, cancellation and saved selection
+        run: node scripts/test-quick-builder-scroll-browser.mjs
+      - name: Recommendation cart keyboard focus and asynchronous updates
+        run: node scripts/test-smart-choice-cart-focus-browser.mjs
+      - name: Editable promotional pairs
+        run: node scripts/test-promo-components-browser.mjs
+      - name: Concurrent cart mutations and storage recovery
+        run: node scripts/test-order-transactions-stress-browser.mjs
+      - name: Immutable QR and explicit refresh
+        run: node scripts/test-order-checkout-staleness-browser.mjs
+      - name: Unavailable storage and legacy tab recovery
+        run: node scripts/test-order-storage-compat-browser.mjs
+      - name: Built release QR, cashier and concurrent native Add
+        run: node scripts/test-order-release-built-browser.mjs
+      - name: Preserve final source identity
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          const output = '.artifacts/webkit-macos-control';
+          mkdirSync(output, { recursive: true });
+          const initial = existsSync(output + '/environment.json') ? JSON.parse(readFileSync(output + '/environment.json')) : null;
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const manifest = readFileSync('integrity-manifest.json');
+          const runtime = createHash('sha256').update(manifest);
+          for (const file of [...JSON.parse(manifest).files].sort((a,b) => a.path.localeCompare(b.path))) {
+            const bytes = readFileSync(file.path);
+            runtime.update(JSON.stringify({ path:file.path, bytes:bytes.length, sha256:createHash('sha256').update(bytes).digest('hex') }));
+          }
+          const source = { head:git('rev-parse','HEAD'), tree:git('rev-parse','HEAD^{tree}'), dirty:Boolean(git('status','--porcelain')), runtimeSHA256:runtime.digest('hex') };
+          const unchanged = Boolean(initial && !source.dirty && source.head === initial.source.head && source.tree === initial.source.tree && source.runtimeSHA256 === initial.source.runtimeSHA256);
+          writeFileSync(output + '/final-source.json', JSON.stringify({ finishedAt:new Date().toISOString(), source, sourceUnchanged:unchanged, suiteVerdict:'See original reports and GitHub job steps; source parity is not a suite verdict' },null,2) + '\n');
+          if (!unchanged) process.exitCode = 1;
+          NODE
+      - name: Preserve all original reports and failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: webkit-macos-full-order-control-${{ github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
