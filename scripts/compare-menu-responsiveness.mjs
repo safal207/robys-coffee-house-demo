@@ -56,8 +56,14 @@ export function compareMenuResponsiveness(baseline, candidate) {
       }
     }
     const before = baseline.scroll.find(sample => sample.width === width), after = candidate.scroll.find(sample => sample.width === width);
-    check(`${width}/geometry-reads-per-frame`, after.rectReads / after.frames.length,
-      before.rectReads / before.frames.length * budgets.maxGeometryReadRatio);
+    // The baseline follows main, which already contains the initial optimization.
+    // Preserve that gain with an absolute cap plus a relative regression guard;
+    // requiring another 75% reduction on every PR rejects unchanged fast code.
+    const beforeReadsPerFrame = before.rectReads / before.frames.length;
+    const geometryLimit = Math.min(budgets.maxGeometryReadsPerFrame,
+      Math.max(beforeReadsPerFrame * (1 + budgets.geometryRegressionPercent / 100),
+        beforeReadsPerFrame + budgets.geometryNoiseReadsPerFrame));
+    check(`${width}/geometry-reads-per-frame`, after.rectReads / after.frames.length, geometryLimit);
     check(`${width}/p95-frame-gap-ms`, percentile(after.frames, .95),
       Math.min(budgets.maxP95FrameGapMs, percentile(before.frames, .95) + budgets.frameNoiseMs));
     check(`${width}/long-task-count`, after.longTasks.length, before.longTasks.length);
