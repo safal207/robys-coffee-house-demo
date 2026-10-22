@@ -27,7 +27,7 @@ if (entry) {
     if (loading) return;
     loading = true;
     try {
-      const { initChoiceHelp } = await import("./choice-help.js?v=2705363f1499");
+      const { initChoiceHelp } = await import("./choice-help.js?v=b968a6dcbaa8");
       window.clearInterval(timer);
       for (const event of events) document.removeEventListener(event, activity, true);
       document.removeEventListener("visibilitychange", visibility);
@@ -39,7 +39,10 @@ if (entry) {
       else helper?.offerAutomatic();
     } catch { loading = false; }
   }
-  const click = () => { void load(true); };
+  const click = () => {
+    entry.focus({ preventScroll: true });
+    void load(true);
+  };
   entry.addEventListener("click", click);
   const timer = seen ? undefined : window.setInterval(() => {
     const now = performance.now();

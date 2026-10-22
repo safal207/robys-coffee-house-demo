@@ -610,7 +610,8 @@
         ".github/workflows/menu-responsiveness.yml",
         ".github/workflows/menu-product-reveal.yml",
         ".github/workflows/ios-route-webkit.yml",
-        ".github/workflows/contextual-entry-certification.yml"
+        ".github/workflows/contextual-entry-certification.yml",
+        ".github/workflows/discover-deck-consolidated.yml"
       ],
       "dependsOn": []
     },

@@ -249,12 +249,13 @@ test('causal browser setup preserves enum validation and uses the bounded instal
 
 test('adopted setup workflows and canonical iOS assertions retain narrow ownership', () => {
   for (const path of ['.github/workflows/menu-product-reveal.yml', '.github/workflows/ios-route-webkit.yml',
-    '.github/workflows/contextual-entry-certification.yml']) {
+    '.github/workflows/contextual-entry-certification.yml', '.github/workflows/discover-deck-consolidated.yml']) {
     const result = impactPlan(graph, [path]);
     assert.deepEqual(result.directComponents, ['browser-prerequisites']);
     assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
     assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
     assert.ok(result.selectedChecks.includes('product-reveal-browser'));
+    assert.ok(result.selectedChecks.includes('discover-deck-browser'));
     assert.ok(result.externalChecks.includes('contextual-entry-browser'));
     assert.ok(result.externalChecks.includes('ios-route-webkit'));
     assert.equal(result.externalChecks.includes('generated-runtime-contracts'), false);
@@ -276,7 +277,8 @@ test('adopted setup workflows and canonical iOS assertions retain narrow ownersh
   assert.ok(routeAssertions.externalChecks.includes('ios-route-webkit'));
   assert.equal(routeAssertions.impactedComponents.includes('browser-prerequisites'), false);
   for (const path of ['.github/workflows/menu-product-reveal-unregistered.yml', '.github/workflows/ios-route-webkit-unregistered.yml',
-    '.github/workflows/contextual-entry-certification-unregistered.yml', '.github/workflows/typescript-build-unregistered.yml',
+    '.github/workflows/contextual-entry-certification-unregistered.yml', '.github/workflows/discover-deck-unregistered.yml',
+    '.github/workflows/typescript-build-unregistered.yml',
     'scripts/verify-ios-route-webkit-unregistered.mjs']) {
     assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
   }
