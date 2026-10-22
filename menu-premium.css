@@ -444,4 +444,3 @@ body.menu-dialog-open{overflow:hidden}
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}
 .menu-scroll-aware .menu-share-card{scroll-margin-block:12px}
-.full-menu-panel:not(:first-child){content-visibility:auto;contain-intrinsic-block-size:auto 1200px}

@@ -73,6 +73,18 @@ try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(c
 const entry = parseFeedEntry(location.href, products);
 if (entry.language) language = entry.language;
 if (!entry.productId) searchInput.value = Array.from((new URL(location.href).searchParams.get("q") ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
+// Start the actual entry photograph before controls and cards need layout.
+const initialLead = productIndex.get(entry.productId) ?? filterFeed(products, entry.category, searchInput.value)[0];
+if (initialLead) {
+  const hint = document.createElement("link");
+  if ("imageSrcset" in hint) {
+    hint.rel = "preload"; hint.as = "image"; hint.fetchPriority = "high";
+    hint.imageSizes = "(max-width: 460px) 100vw, 460px";
+    const compact = initialLead.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+    hint.imageSrcset = `${compact} 512w, ${initialLead.image} 1024w`;
+    hint.href = initialLead.image; document.head.append(hint);
+  }
+}
 let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
 let busy = false, statusTimer;
@@ -271,7 +283,7 @@ function renderCategories() {
     node.setAttribute("aria-pressed", String(category === entry.id));
     const portrait = element("span", "feed-category-portrait");
     if (entry.image) {
-      const photo = element("img"); photo.src = entry.image; photo.alt = ""; photo.width = 50; photo.height = 50; photo.loading = "lazy"; portrait.append(photo);
+      const photo = element("img"); photo.alt = ""; photo.width = 50; photo.height = 50; photo.loading = "lazy"; photo.src = entry.image; portrait.append(photo);
     } else portrait.textContent = "✦";
     node.append(portrait, element("span", "feed-category-label", entry.name));
     nav.append(node);

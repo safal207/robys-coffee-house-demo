@@ -208,6 +208,83 @@ let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
   {
+    const defaultProduct = catalog[0];
+    const firstCoffee = catalog.find(product => product.category.id === "hot-coffee");
+    const searched = catalog.find(product => product.id === "desserts:tiramisu");
+    const lane = catalog.filter(product => product.category.id === "hot-coffee");
+    assert(lane.length > 8, "Explicit-entry fixture must lie beyond the first rendered page");
+    const explicit = lane.at(-1);
+    const deliveryPaths = product => [product.image, product.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp")];
+    const defaultPaths = deliveryPaths(defaultProduct).map(path => new URL(path, origin).pathname);
+    const fixtures = [
+      { id: "default", suffix: "", product: defaultProduct },
+      { id: "category", suffix: "#hot-coffee", product: firstCoffee },
+      { id: "search", suffix: "&q=tiramisu", product: searched },
+      { id: "explicit-late-product", suffix: `&item=${encodeURIComponent(explicit.id)}`, product: explicit },
+      { id: "empty-search", suffix: "&q=zzzz-robys-no-such-photo-zzzz", product: null }
+    ];
+    for (const fixture of fixtures) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+      await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+      const page = await context.newPage(); page.setDefaultTimeout(15000);
+      const errors = [], requests = []; observeErrors(page, errors);
+      page.on("request", request => requests.push(new URL(request.url()).pathname));
+      await page.goto(`${origin}/menu-feed.html?view=feed&lang=en${fixture.suffix}`, { waitUntil: "networkidle" });
+      await waitForMenuMode(page, "feed");
+      assert.equal(await page.evaluate(() => "imageSrcset" in document.createElement("link")), true,
+        "The browser fixture must support responsive image preloading");
+      const hints = page.locator('link[rel="preload"][as="image"]');
+      assert.equal(await hints.count(), fixture.product ? 1 : 0, "Only an actual entry product may receive an image hint");
+      if (fixture.product) {
+        const [original, compact] = deliveryPaths(fixture.product);
+        assert.equal(await hints.getAttribute("href"), original, "The early hint must select the canonical entry photograph");
+        assert.equal(await hints.getAttribute("imagesrcset"), `${compact} 512w, ${original} 1024w`);
+        assert.equal(await hints.getAttribute("imagesizes"), "(max-width: 460px) 100vw, 460px");
+        const paths = [original, compact].map(path => new URL(path, origin).pathname);
+        assert(requests.some(path => paths.includes(path)), "The browser must request the hinted entry photograph");
+      }
+      if (fixture.product?.id !== defaultProduct.id) {
+        assert(!requests.some(path => defaultPaths.includes(path)), "A deep or empty entry must not fetch the default full photograph");
+      }
+      assert.deepEqual(errors, []);
+      report.cases.push({ case: `entry-photo-priority-${fixture.id}`, result: "PASS", entryProduct: fixture.product?.id ?? null,
+        noWrongDefaultPhotoRequest: fixture.product?.id !== defaultProduct.id, consoleErrors: false });
+      await context.close();
+    }
+  }
+  // Closed discovery portraits must not contend with the first visible photo.
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = [], requests = []; observeErrors(page, errors);
+    page.on("request", request => requests.push(new URL(request.url()).pathname));
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`, { waitUntil: "networkidle" });
+    await waitForMenuMode(page, "feed");
+    const portrait = page.locator('#feed-categories [data-category="hot-coffee"] img');
+    const source = catalog.find(product => product.category.id === "hot-coffee").image;
+    const path = new URL(source, origin).pathname;
+    assert.equal(await portrait.getAttribute("src"), source, "The request guard must cover the real category portrait");
+    assert.equal(await page.locator("#feed-discover").evaluate(dialog => dialog.open), false);
+    assert.equal(await portrait.evaluate(image => image.getClientRects().length), 0, "The portrait must really be hidden");
+    assert(!requests.includes(path), "A hidden discovery portrait must not request its photograph before discovery opens");
+    await page.locator("#feed-discover-open").click();
+    await page.locator("#feed-discover[open]").waitFor();
+    await portrait.waitFor({ state: "visible" });
+    await page.waitForFunction(path => {
+      const image = document.querySelector('#feed-categories [data-category="hot-coffee"] img');
+      return image?.complete && image.naturalWidth > 0 && new URL(image.currentSrc).pathname === path;
+    }, path);
+    await portrait.evaluate(image => image.decode());
+    assert.equal(await portrait.evaluate(image => image.complete && image.naturalWidth > 0), true);
+    assert.equal(await portrait.evaluate(image => new URL(image.currentSrc).pathname), path);
+    assert(requests.includes(path), "Opening discovery must request and decode the previously withheld portrait");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "discovery-portrait-request-boundary", result: "PASS", path,
+      hiddenPortraitRequests: 0, visiblePortraitDecoded: true, consoleErrors: false });
+    await context.close();
+  }
+  {
     const context = await browser.newContext({ viewport: { width: 320, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);

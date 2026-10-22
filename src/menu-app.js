@@ -546,6 +546,20 @@ document.addEventListener("click", event => {
 // Native lazy loading can fetch several screens of large catalog photos on a
 // slow connection. Keep those requests close to the viewport so they do not
 // compete with the first visible photograph. Older browsers retain native loading.
+function loadMenuProductPhoto(image, sourceUrl) {
+  // Both views use the same full-frame delivery choices, so a view switch can
+  // reuse the photo already selected by the browser. Dense screens keep 1024px.
+  const compact = sourceUrl.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+  image.sizes = "(max-width: 460px) 100vw, 460px";
+  image.addEventListener("error", () => {
+    if (!image.srcset) return;
+    image.removeAttribute("srcset");
+    image.src = sourceUrl;
+  });
+  image.srcset = `${compact} 512w, ${sourceUrl} 1024w`;
+  image.src = sourceUrl;
+}
+
 function createProductImageObserver() {
   if (typeof IntersectionObserver !== "function") return null;
   try {
@@ -557,7 +571,7 @@ function createProductImageObserver() {
         const sourceUrl = image.dataset.menuLazySrc;
         if (!image.isConnected || !sourceUrl) continue;
         delete image.dataset.menuLazySrc;
-        image.src = sourceUrl;
+        loadMenuProductPhoto(image, sourceUrl);
       }
     }, { rootMargin: "150px 0px", threshold: 0 });
   } catch { return null; }
@@ -614,7 +628,7 @@ function createItem(item, { priority = false, categoryId } = {}) {
     if (!priority && productImageObserver) {
       image.dataset.menuLazySrc = sourceUrl;
       productImageObserver.observe(image);
-    } else image.src = sourceUrl;
+    } else loadMenuProductPhoto(image, sourceUrl);
     media.append(image);
 
     const details = document.createElement("div");

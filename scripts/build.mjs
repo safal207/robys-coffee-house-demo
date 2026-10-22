@@ -391,6 +391,7 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
+writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuAppRevision = revisionFor("menu-app.js");

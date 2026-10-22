@@ -686,7 +686,6 @@ body.menu-dialog-open{overflow:hidden}
 html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-scroll-aware :is(.full-menu-wrap,.full-menu-panel){scroll-margin-top:var(--menu-anchor-gap,12px)}
 .menu-scroll-aware .menu-share-card{scroll-margin-block:12px}
-.full-menu-panel:not(:first-child){content-visibility:auto;contain-intrinsic-block-size:auto 1200px}
 
 .menu-family-link{display:inline-flex;align-items:center;min-height:44px;margin-top:20px;padding:10px 16px;border:1px solid var(--ruby);border-radius:999px;color:var(--ruby);font-weight:700;font-size:.9rem;text-decoration:none}
 .menu-family-link:focus-visible,.menu-family-card button:focus-visible,.menu-family-dialog button:focus-visible,.menu-family-option:focus-within,.menu-family-hide:focus-visible{outline:3px solid var(--ruby);outline-offset:4px}

@@ -62,3 +62,4 @@ assert.equal(readFileSync('menu-app.js', 'utf8'), emitted, 'real runtime was mod
 console.log('Menu runtime contract: PASS (source parity, compact output, tamper rejection, stale-source rejection, rebuild recovery)');
 await import('./test-menu-order-loader.mjs');
 await import('./test-checkout-loader.mjs');
+await import('./test-menu-photo-delivery.mjs');
