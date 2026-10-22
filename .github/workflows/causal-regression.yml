@@ -1,0 +1,234 @@
+name: Causal functional regression
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: causal-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ROBYS_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  contracts:
+    name: Regression verifier contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify runner, completeness and rejected regressions
+        run: node --test scripts/test-regression-pipeline.mjs scripts/test-regression-journeys-gate.mjs
+      - name: Verify emitted bytes and security on the proposed head
+        run: |
+          npm run build
+          npm run verify:integrity
+          npm run verify:security
+          git diff --exit-code
+
+  functional:
+    name: ${{ matrix.group }} (${{ matrix.browser }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [home, menu, feed, smart-choice, order, recovery]
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Reject unreproducible emitted files
+        run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - name: Execute every registered suite in this group and engine
+        run: node scripts/run-regression-pipeline.mjs --group=${{ matrix.group }} --browser=${{ matrix.browser }} --output=.artifacts/causal-regression/functional/${{ matrix.group }}-${{ matrix.browser }}
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: causal-evidence-functional-${{ matrix.group }}-${{ matrix.browser }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+
+  counter:
+    name: Order models and isolated counter
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Verify built service and site remain reproducible
+        run: npm run build && npm run build:counter && npm run verify:integrity && git diff --exit-code
+      - name: Execute registered Node suites without live services
+        run: node scripts/run-regression-pipeline.mjs --group=counter --browser=node --output=.artifacts/causal-regression/functional/counter-node
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: causal-evidence-counter-node-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+
+  metrics:
+    name: Action budgets (${{ matrix.browser }}, ${{ matrix.profile }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            profile: throttled
+          - browser: firefox
+            profile: native
+          - browser: webkit
+            profile: native
+    env:
+      ROBYS_REGRESSION_BROWSER: ${{ matrix.browser }}
+      ROBYS_REGRESSION_PROFILE: ${{ matrix.profile }}
+      EVENT_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install --with-deps ${{ matrix.browser }}
+      - name: Resolve immutable baseline and verify checkout identity
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$ROBYS_EXPECTED_HEAD"
+          BASE_SHA="$EVENT_BASE_SHA"
+          if ! [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse "$ROBYS_EXPECTED_HEAD^")"
+          fi
+          git cat-file -e "$BASE_SHA^{commit}"
+          test "$BASE_SHA" != "$ROBYS_EXPECTED_HEAD"
+          BASE_ROOT="$RUNNER_TEMP/robys-regression-base-${{ matrix.browser }}"
+          git worktree add --detach "$BASE_ROOT" "$BASE_SHA"
+          echo "ROBYS_BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+          echo "ROBYS_BASE_ROOT=$BASE_ROOT" >> "$GITHUB_ENV"
+      - name: Measure baseline with the candidate harness and unchanged protocol
+        id: baseline
+        continue-on-error: true
+        env:
+          ROBYS_REGRESSION_ROOT: ${{ env.ROBYS_BASE_ROOT }}
+          ROBYS_SOURCE_REVISION: ${{ env.ROBYS_BASE_SHA }}
+          ROBYS_REGRESSION_LABEL: baseline
+          ROBYS_REGRESSION_OUTPUT: .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/baseline
+        run: node scripts/measure-regression-journeys.mjs
+      - name: Measure candidate even if baseline execution fails
+        id: candidate
+        if: ${{ always() && steps.baseline.outcome != 'skipped' }}
+        continue-on-error: true
+        env:
+          ROBYS_SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+          ROBYS_REGRESSION_LABEL: candidate
+          ROBYS_REGRESSION_OUTPUT: .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/candidate
+        run: node scripts/measure-regression-journeys.mjs
+      - name: Enforce correctness, absolute budgets and matched baseline comparison
+        if: ${{ always() && steps.baseline.outcome != 'skipped' }}
+        env:
+          CANDIDATE_OUTCOME: ${{ steps.candidate.outcome }}
+        shell: bash
+        run: |
+          mkdir -p .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/comparison
+          node scripts/compare-regression-journeys.mjs .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/baseline/report.json .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/candidate/report.json .artifacts/causal-regression/metrics/${{ matrix.browser }}-${{ matrix.profile }}/comparison/report.json
+          test "$CANDIDATE_OUTCOME" = success
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: causal-evidence-metrics-${{ matrix.browser }}-${{ matrix.profile }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+
+  summary:
+    name: Complete regression evidence
+    if: always()
+    needs: [contracts, functional, counter, metrics]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+      - name: Download evidence from this run only
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: causal-evidence-*-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/causal-regression/inputs
+          merge-multiple: false
+      - name: Reject missing, stale, partial or failed evidence
+        id: summary
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p .artifacts/causal-regression/inputs
+          node scripts/aggregate-regression-pipeline.mjs .artifacts/causal-regression/inputs --output=.artifacts/causal-regression/summary
+      - name: Add concise evidence report to the run
+        if: always()
+        shell: bash
+        run: |
+          if test -f .artifacts/causal-regression/summary/report.md; then
+            cat .artifacts/causal-regression/summary/report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: causal-summary-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/causal-regression/summary/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Require every job and the complete evidence gate
+        if: always()
+        env:
+          CONTRACTS: ${{ needs.contracts.result }}
+          FUNCTIONAL: ${{ needs.functional.result }}
+          COUNTER: ${{ needs.counter.result }}
+          METRICS: ${{ needs.metrics.result }}
+          SUMMARY: ${{ steps.summary.outcome }}
+        run: test "$CONTRACTS" = success && test "$FUNCTIONAL" = success && test "$COUNTER" = success && test "$METRICS" = success && test "$SUMMARY" = success

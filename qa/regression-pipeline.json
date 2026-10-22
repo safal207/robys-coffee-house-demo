@@ -1,0 +1,1043 @@
+{
+  "version": 1,
+  "scope": "Executable regression inventory for the registered Robys journeys. Existing security, visual, Lighthouse and menu-scroll gates remain separate required evidence.",
+  "semantics": "Edges are source-backed dependency mechanisms and potential impact paths. Graph reachability is advisory; it does not establish the root cause of a measured regression.",
+  "metricEnvironments": [
+    {
+      "browser": "chromium",
+      "profile": "throttled"
+    },
+    {
+      "browser": "firefox",
+      "profile": "native"
+    },
+    {
+      "browser": "webkit",
+      "profile": "native"
+    }
+  ],
+  "features": [
+    {
+      "id": "entry",
+      "label": "Вход, навигация и доступность",
+      "nodes": [
+        "HOME_RUNTIME",
+        "ENTRY_ROUTE",
+        "MENU_READY",
+        "ACCESSIBLE_CONTROLS"
+      ],
+      "suites": [
+        "home-navigation",
+        "home-responsive",
+        "choice-funnel"
+      ],
+      "journeys": [
+        "home-menu"
+      ]
+    },
+    {
+      "id": "catalog-search",
+      "label": "Каталог, поиск, категории и очистка",
+      "nodes": [
+        "CATALOG",
+        "MENU_RUNTIME",
+        "MENU_FIND"
+      ],
+      "suites": [
+        "menu-feed",
+        "menu-combos",
+        "home-navigation"
+      ],
+      "journeys": [
+        "list-search",
+        "list-search-clear",
+        "list-category",
+        "feed-search"
+      ]
+    },
+    {
+      "id": "language",
+      "label": "TR/EN/RU и сохранение языка",
+      "nodes": [
+        "LANGUAGE_CHANGE",
+        "MENU_RUNTIME",
+        "FEED_RUNTIME"
+      ],
+      "suites": [
+        "home-navigation",
+        "home-responsive",
+        "menu-feed"
+      ],
+      "journeys": [
+        "list-language",
+        "feed-language"
+      ]
+    },
+    {
+      "id": "view-mode",
+      "label": "Список ↔ лента, история и сохранение состояния",
+      "nodes": [
+        "VIEW_SWITCH",
+        "MENU_RUNTIME",
+        "FEED_RUNTIME",
+        "ORDER_STORAGE"
+      ],
+      "suites": [
+        "menu-feed"
+      ],
+      "journeys": [
+        "list-to-feed",
+        "feed-to-list"
+      ]
+    },
+    {
+      "id": "product",
+      "label": "Карточки, варианты, комбо и семейные наборы",
+      "nodes": [
+        "CATALOG",
+        "PRODUCT_OPEN",
+        "CART_MUTATE"
+      ],
+      "suites": [
+        "menu-combos",
+        "menu-family",
+        "promo-editing",
+        "cart-editing"
+      ],
+      "journeys": [
+        "list-product-open",
+        "list-product-add",
+        "list-combos",
+        "list-family"
+      ]
+    },
+    {
+      "id": "photos",
+      "label": "Фотографии, загрузка и восстановление",
+      "nodes": [
+        "PHOTO_ASSETS",
+        "PHOTO_READY",
+        "MENU_RUNTIME",
+        "FEED_RUNTIME"
+      ],
+      "suites": [
+        "menu-photos",
+        "menu-family",
+        "menu-feed",
+        "combo-offline"
+      ],
+      "journeys": []
+    },
+    {
+      "id": "engagement",
+      "label": "Лайки, передача позиции, Stories/Reels и звук",
+      "nodes": [
+        "ENGAGEMENT",
+        "SHARE_MODULE",
+        "VIEWER_MODULE",
+        "FEEDBACK_MODULE"
+      ],
+      "suites": [
+        "menu-feed",
+        "share-recovery",
+        "feedback-motion"
+      ],
+      "journeys": [
+        "feed-like",
+        "feed-share",
+        "feed-reels",
+        "feed-stories",
+        "sound-toggle"
+      ]
+    },
+    {
+      "id": "smart-choice",
+      "label": "Подбор по пожеланиям и быстрый конструктор",
+      "nodes": [
+        "CHOICE_ENGINE",
+        "SMART_OPTIONS",
+        "CART_MUTATE"
+      ],
+      "suites": [
+        "smart-models",
+        "smart-cart-focus",
+        "quick-builder",
+        "choice-funnel"
+      ],
+      "journeys": [
+        "smart-start",
+        "smart-answer",
+        "smart-next"
+      ]
+    },
+    {
+      "id": "discover",
+      "label": "Discover, предложения и выбор конкретной пары",
+      "nodes": [
+        "DISCOVER_PAIR",
+        "CATALOG",
+        "PRODUCT_OPEN"
+      ],
+      "suites": [
+        "discover-deck",
+        "choice-funnel",
+        "promo-editing"
+      ],
+      "journeys": []
+    },
+    {
+      "id": "cart",
+      "label": "Корзина, редактирование, сумма и конкурентные изменения",
+      "nodes": [
+        "ORDER_STORAGE",
+        "CART_MUTATE",
+        "CART_TOTAL"
+      ],
+      "suites": [
+        "order-transactions",
+        "order-built",
+        "checkout-staleness",
+        "storage-recovery",
+        "cart-editing",
+        "order-models"
+      ],
+      "journeys": [
+        "cart-open",
+        "cart-quantity",
+        "cart-remove"
+      ]
+    },
+    {
+      "id": "checkout",
+      "label": "Подтверждённый состав, QR и устаревший заказ",
+      "nodes": [
+        "CHECKOUT_MODULE",
+        "CART_TOTAL",
+        "CHECKOUT_READY"
+      ],
+      "suites": [
+        "order-built",
+        "checkout-staleness",
+        "order-models",
+        "counter-service"
+      ],
+      "journeys": [
+        "cart-checkout"
+      ]
+    },
+    {
+      "id": "counter",
+      "label": "Кассир, бариста, статусы, роли и восстановление",
+      "nodes": [
+        "COUNTER_SERVICE",
+        "ORDER_STATE",
+        "AUTH_BOUNDARY",
+        "RECOVERY"
+      ],
+      "suites": [
+        "counter-service"
+      ],
+      "journeys": []
+    },
+    {
+      "id": "offline-recovery",
+      "label": "Потеря сети, хранилища и восстановление",
+      "nodes": [
+        "CACHE_WORKER",
+        "OFFLINE_MENU",
+        "ORDER_STORAGE",
+        "RECOVERY"
+      ],
+      "suites": [
+        "combo-offline",
+        "storage-recovery",
+        "share-recovery",
+        "checkout-staleness",
+        "counter-service"
+      ],
+      "journeys": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "HOME_RUNTIME",
+      "label": "Главная и входные ссылки",
+      "kind": "dependency",
+      "source": "src/app.ts"
+    },
+    {
+      "id": "CATALOG",
+      "label": "Каталог, идентификаторы и цены",
+      "kind": "dependency",
+      "source": "menu-catalog.js"
+    },
+    {
+      "id": "MENU_RUNTIME",
+      "label": "Инициализация списка и поиск",
+      "kind": "dependency",
+      "source": "src/menu-app.js"
+    },
+    {
+      "id": "FEED_RUNTIME",
+      "label": "Инициализация ленты",
+      "kind": "dependency",
+      "source": "src/menu-feed.js"
+    },
+    {
+      "id": "ORDER_STORAGE",
+      "label": "Хранилище и транзакции корзины",
+      "kind": "dependency",
+      "source": "src/order-draft.js"
+    },
+    {
+      "id": "PHOTO_ASSETS",
+      "label": "Фотографии и адаптивные копии",
+      "kind": "dependency",
+      "source": "qa/menu-thumbnail-assets.json"
+    },
+    {
+      "id": "SHARE_MODULE",
+      "label": "Загрузка модуля передачи позиции",
+      "kind": "dependency",
+      "source": "src/menu-actions-loader.js"
+    },
+    {
+      "id": "VIEWER_MODULE",
+      "label": "Просмотрщик Stories/Reels",
+      "kind": "dependency",
+      "source": "src/menu-feed-viewer.js"
+    },
+    {
+      "id": "FEEDBACK_MODULE",
+      "label": "Отклик и необязательный звук",
+      "kind": "dependency",
+      "source": "src/menu-feedback.js"
+    },
+    {
+      "id": "CHOICE_ENGINE",
+      "label": "Подбор и ограничения рекомендаций",
+      "kind": "dependency",
+      "source": "src/smart-choice/engine.ts"
+    },
+    {
+      "id": "CHECKOUT_MODULE",
+      "label": "Состав и неизменяемый QR",
+      "kind": "dependency",
+      "source": "src/order-checkout.js"
+    },
+    {
+      "id": "COUNTER_SERVICE",
+      "label": "HTTP, роли и переходы сервиса заказов",
+      "kind": "dependency",
+      "source": "counter/server.mjs"
+    },
+    {
+      "id": "CACHE_WORKER",
+      "label": "Кеш и offline fallback",
+      "kind": "dependency",
+      "source": "sw-core-v64.js"
+    },
+    {
+      "id": "ENTRY_ROUTE",
+      "label": "Переход с главной в меню",
+      "kind": "action",
+      "source": "index.html"
+    },
+    {
+      "id": "MENU_READY",
+      "label": "Меню доступно",
+      "kind": "state",
+      "source": "menu.html"
+    },
+    {
+      "id": "MENU_FIND",
+      "label": "Поиск, очистка и категория",
+      "kind": "action",
+      "source": "src/menu-app.js"
+    },
+    {
+      "id": "LANGUAGE_CHANGE",
+      "label": "Смена языка",
+      "kind": "action",
+      "source": "src/menu-app.js"
+    },
+    {
+      "id": "VIEW_SWITCH",
+      "label": "Список ↔ лента и история",
+      "kind": "action",
+      "source": "src/menu-view-mode.js"
+    },
+    {
+      "id": "PRODUCT_OPEN",
+      "label": "Просмотр, состав и отмена выбора",
+      "kind": "action",
+      "source": "src/menu-app.js"
+    },
+    {
+      "id": "PHOTO_READY",
+      "label": "Фото показано или ошибка восстановлена",
+      "kind": "state",
+      "source": "src/menu-feed.js"
+    },
+    {
+      "id": "ENGAGEMENT",
+      "label": "Лайк, поделиться, Stories/Reels и звук",
+      "kind": "action",
+      "source": "src/menu-feed.js"
+    },
+    {
+      "id": "SMART_OPTIONS",
+      "label": "Пожелания и рекомендации",
+      "kind": "action",
+      "source": "smart-choice/app-v2.js"
+    },
+    {
+      "id": "DISCOVER_PAIR",
+      "label": "Пара и переход к конкретному составу",
+      "kind": "action",
+      "source": "discover-deck.js"
+    },
+    {
+      "id": "CART_MUTATE",
+      "label": "Добавить, изменить, удалить",
+      "kind": "action",
+      "source": "src/menu-order-ui.js"
+    },
+    {
+      "id": "CART_TOTAL",
+      "label": "Актуальный состав, количество и сумма",
+      "kind": "invariant",
+      "source": "src/order-draft.js"
+    },
+    {
+      "id": "CHECKOUT_READY",
+      "label": "QR соответствует подтверждённому составу",
+      "kind": "invariant",
+      "source": "src/order-ticket.js"
+    },
+    {
+      "id": "ORDER_STATE",
+      "label": "Подтверждённый сервером статус заказа",
+      "kind": "state",
+      "source": "counter/server.mjs"
+    },
+    {
+      "id": "AUTH_BOUNDARY",
+      "label": "Роли, сессии и запрет лишних действий",
+      "kind": "invariant",
+      "source": "counter/server.mjs"
+    },
+    {
+      "id": "RECOVERY",
+      "label": "Явный повтор и сохранение состояния",
+      "kind": "state",
+      "source": "src/order-storage-notice.js"
+    },
+    {
+      "id": "OFFLINE_MENU",
+      "label": "Ранее сохранённое меню доступно",
+      "kind": "state",
+      "source": "sw-core-v64.js"
+    },
+    {
+      "id": "ACCESSIBLE_CONTROLS",
+      "label": "Фокус, клавиатура, размеры и reduced motion",
+      "kind": "invariant",
+      "source": "qa/ui-ux-matrix.json"
+    }
+  ],
+  "edges": [
+    {
+      "from": "HOME_RUNTIME",
+      "to": "ENTRY_ROUTE",
+      "mechanism": "Входная ссылка определяется интерфейсом главной",
+      "evidence": "index.html"
+    },
+    {
+      "from": "ENTRY_ROUTE",
+      "to": "MENU_READY",
+      "mechanism": "Навигация загружает выбранное меню",
+      "evidence": "menu.html"
+    },
+    {
+      "from": "CATALOG",
+      "to": "MENU_RUNTIME",
+      "mechanism": "Список строит товары из каталога",
+      "evidence": "src/menu-app.js"
+    },
+    {
+      "from": "CATALOG",
+      "to": "FEED_RUNTIME",
+      "mechanism": "Лента строит товары из того же каталога",
+      "evidence": "src/menu-feed.js"
+    },
+    {
+      "from": "CATALOG",
+      "to": "CHOICE_ENGINE",
+      "mechanism": "Подбор ограничен доступными товарами и ценами",
+      "evidence": "src/smart-choice/engine.ts"
+    },
+    {
+      "from": "MENU_RUNTIME",
+      "to": "MENU_READY",
+      "mechanism": "Инициализация выставляет готовность списка",
+      "evidence": "src/menu-app.js"
+    },
+    {
+      "from": "FEED_RUNTIME",
+      "to": "MENU_READY",
+      "mechanism": "Инициализация выставляет готовность ленты",
+      "evidence": "src/menu-feed.js"
+    },
+    {
+      "from": "MENU_RUNTIME",
+      "to": "MENU_FIND",
+      "mechanism": "Обработчики применяют фильтры и обновляют результат",
+      "evidence": "src/menu-app.js"
+    },
+    {
+      "from": "FEED_RUNTIME",
+      "to": "MENU_FIND",
+      "mechanism": "Поиск ленты меняет её видимый набор",
+      "evidence": "src/menu-feed.js"
+    },
+    {
+      "from": "MENU_RUNTIME",
+      "to": "LANGUAGE_CHANGE",
+      "mechanism": "Смена языка обновляет подписи и товары",
+      "evidence": "src/menu-app.js"
+    },
+    {
+      "from": "FEED_RUNTIME",
+      "to": "LANGUAGE_CHANGE",
+      "mechanism": "Смена языка обновляет ленту",
+      "evidence": "src/menu-feed.js"
+    },
+    {
+      "from": "MENU_RUNTIME",
+      "to": "VIEW_SWITCH",
+      "mechanism": "Ссылка переключения передаёт состояние",
+      "evidence": "src/menu-view-mode.js"
+    },
+    {
+      "from": "FEED_RUNTIME",
+      "to": "VIEW_SWITCH",
+      "mechanism": "Лента передаёт состояние при возвращении в список",
+      "evidence": "src/menu-view-mode.js"
+    },
+    {
+      "from": "MENU_RUNTIME",
+      "to": "PRODUCT_OPEN",
+      "mechanism": "Обработчик открывает карточку выбранного товара",
+      "evidence": "src/menu-app.js"
+    },
+    {
+      "from": "PHOTO_ASSETS",
+      "to": "PHOTO_READY",
+      "mechanism": "Декодирование либо fallback определяет видимое фото",
+      "evidence": "scripts/test-menu-lazy-images-browser.mjs"
+    },
+    {
+      "from": "FEED_RUNTIME",
+      "to": "PHOTO_READY",
+      "mechanism": "Лента выбирает источник и обрабатывает ошибку фото",
+      "evidence": "src/menu-feed.js"
+    },
+    {
+      "from": "SHARE_MODULE",
+      "to": "ENGAGEMENT",
+      "mechanism": "Передача позиции требует успешной загрузки модуля",
+      "evidence": "scripts/test-menu-share-loader-browser.mjs"
+    },
+    {
+      "from": "VIEWER_MODULE",
+      "to": "ENGAGEMENT",
+      "mechanism": "Stories/Reels требуют готовности просмотрщика",
+      "evidence": "src/menu-feed-viewer.js"
+    },
+    {
+      "from": "FEEDBACK_MODULE",
+      "to": "ENGAGEMENT",
+      "mechanism": "Звук требует явного включения пользователем",
+      "evidence": "src/menu-feedback.js"
+    },
+    {
+      "from": "CHOICE_ENGINE",
+      "to": "SMART_OPTIONS",
+      "mechanism": "Ответы и ограничения определяют варианты подбора",
+      "evidence": "src/smart-choice/engine.ts"
+    },
+    {
+      "from": "CATALOG",
+      "to": "DISCOVER_PAIR",
+      "mechanism": "Предложение должно ссылаться на существующий состав",
+      "evidence": "scripts/test-discover-deck-browser.mjs"
+    },
+    {
+      "from": "DISCOVER_PAIR",
+      "to": "PRODUCT_OPEN",
+      "mechanism": "Выбор предложения открывает его точный состав",
+      "evidence": "scripts/test-choice-funnel-browser.mjs"
+    },
+    {
+      "from": "PRODUCT_OPEN",
+      "to": "CART_MUTATE",
+      "mechanism": "Подтверждённый выбор изменяет корзину",
+      "evidence": "src/menu-order-ui.js"
+    },
+    {
+      "from": "SMART_OPTIONS",
+      "to": "CART_MUTATE",
+      "mechanism": "Подтверждение рекомендации добавляет её состав",
+      "evidence": "scripts/test-smart-choice-cart-focus-browser.mjs"
+    },
+    {
+      "from": "ORDER_STORAGE",
+      "to": "CART_MUTATE",
+      "mechanism": "Транзакция применяет изменение к актуальному черновику",
+      "evidence": "src/order-draft.js"
+    },
+    {
+      "from": "CART_MUTATE",
+      "to": "CART_TOTAL",
+      "mechanism": "Пересчёт обязан соответствовать сохранённому составу",
+      "evidence": "scripts/test-order-transactions-stress-browser.mjs"
+    },
+    {
+      "from": "CART_TOTAL",
+      "to": "CHECKOUT_READY",
+      "mechanism": "QR отражает подтверждённый состав и сумму",
+      "evidence": "src/order-ticket.js"
+    },
+    {
+      "from": "CHECKOUT_MODULE",
+      "to": "CHECKOUT_READY",
+      "mechanism": "Оформление проверяет актуальность черновика",
+      "evidence": "src/order-checkout.js"
+    },
+    {
+      "from": "COUNTER_SERVICE",
+      "to": "ORDER_STATE",
+      "mechanism": "Сервис подтверждает разрешённые переходы статуса",
+      "evidence": "counter/server.mjs"
+    },
+    {
+      "from": "COUNTER_SERVICE",
+      "to": "AUTH_BOUNDARY",
+      "mechanism": "Сервис ограничивает действия ролью и сессией",
+      "evidence": "counter/server.mjs"
+    },
+    {
+      "from": "ORDER_STORAGE",
+      "to": "RECOVERY",
+      "mechanism": "Отказ хранилища требует понятного безопасного fallback",
+      "evidence": "src/order-storage-notice.js"
+    },
+    {
+      "from": "COUNTER_SERVICE",
+      "to": "RECOVERY",
+      "mechanism": "Повторы и потерянные ответы не создают дубликаты",
+      "evidence": "counter/test/server.test.mjs"
+    },
+    {
+      "from": "CACHE_WORKER",
+      "to": "OFFLINE_MENU",
+      "mechanism": "Кеш обеспечивает ранее сохранённые маршруты и ресурсы",
+      "evidence": "sw-core-v64.js"
+    }
+  ],
+  "suites": [
+    {
+      "id": "home-navigation",
+      "group": "home",
+      "command": [
+        "node",
+        "scripts/test-home-navigation-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_HOME_NAV_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "home-responsive",
+      "group": "home",
+      "command": [
+        "node",
+        "scripts/test-home-menu-responsive-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_HOME_QA_ENGINES": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "menu-photos",
+      "group": "menu",
+      "command": [
+        "node",
+        "scripts/test-menu-lazy-images-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_LAZY_BROWSER": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "menu-combos",
+      "group": "menu",
+      "command": [
+        "node",
+        "scripts/test-menu-combos-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_COMBO_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "menu-family",
+      "group": "menu",
+      "command": [
+        "node",
+        "scripts/test-menu-family-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_FAMILY_BROWSER": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Real browser with HTTPS/CSP; selected modules compiled from current sources by the existing suite."
+    },
+    {
+      "id": "menu-feed",
+      "group": "feed",
+      "command": [
+        "node",
+        "scripts/test-menu-feed-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "CHECKOUT_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "share-recovery",
+      "group": "feed",
+      "command": [
+        "node",
+        "scripts/test-menu-share-loader-browser.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {
+        "ROBYS_SHARE_REPORT": ".artifacts/share-loader-report.json"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Real Chromium with HTTPS/CSP and current sources compiled in memory; native share outcomes stubbed, no recipient-delivery claim."
+    },
+    {
+      "id": "feedback-motion",
+      "group": "feed",
+      "command": [
+        "node",
+        "scripts/premium-feedback-regression.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {},
+      "timeoutMs": 480000,
+      "boundary": "Real Chromium with production CSP and emulated viewports; no physical-device, FPS or audible-sound-quality claim."
+    },
+    {
+      "id": "discover-deck",
+      "group": "smart-choice",
+      "command": [
+        "node",
+        "scripts/test-discover-deck-browser.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {},
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "choice-funnel",
+      "group": "smart-choice",
+      "command": [
+        "node",
+        "scripts/test-choice-funnel-browser.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {},
+      "timeoutMs": 480000,
+      "boundary": "Existing Chromium funnel fixtures and no-JavaScript navigation; original report baseline label is historical, wrapper identity is authoritative for this execution."
+    },
+    {
+      "id": "smart-cart-focus",
+      "group": "smart-choice",
+      "command": [
+        "node",
+        "scripts/test-smart-choice-cart-focus-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "CHECKOUT_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "quick-builder",
+      "group": "smart-choice",
+      "command": [
+        "node",
+        "scripts/test-quick-builder-scroll-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_QUICK_BUILDER_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "order-built",
+      "group": "order",
+      "command": [
+        "node",
+        "scripts/test-order-release-built-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_RELEASE_BUILT_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "checkout-staleness",
+      "group": "order",
+      "command": [
+        "node",
+        "scripts/test-order-checkout-staleness-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "CHECKOUT_BROWSERS": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of a bundled checkout fixture, including actual order/QR modules; not a complete physical checkout."
+    },
+    {
+      "id": "order-transactions",
+      "group": "order",
+      "command": [
+        "node",
+        "scripts/test-order-transactions-stress-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_TRANSACTION_BROWSER": "{browser}"
+      },
+      "timeoutMs": 900000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "promo-editing",
+      "group": "order",
+      "command": [
+        "node",
+        "scripts/test-promo-components-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_PROMO_BROWSER": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "storage-recovery",
+      "group": "recovery",
+      "command": [
+        "node",
+        "scripts/test-order-storage-compat-browser.mjs"
+      ],
+      "engines": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "env": {
+        "ROBYS_STORAGE_BROWSER": "{browser}"
+      },
+      "timeoutMs": 480000,
+      "boundary": "Browser execution of the emitted site and its declared recovery fixtures."
+    },
+    {
+      "id": "combo-offline",
+      "group": "recovery",
+      "command": [
+        "node",
+        "scripts/test-combo-offline.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {},
+      "timeoutMs": 900000,
+      "boundary": "Emitted site, HTTPS/CSP and actual Chromium service worker; controlled network loss. Other engines are not supported by this suite."
+    },
+    {
+      "id": "cart-editing",
+      "group": "recovery",
+      "command": [
+        "node",
+        "scripts/test-menu-cart-edit-browser.mjs"
+      ],
+      "engines": [
+        "chromium"
+      ],
+      "env": {},
+      "timeoutMs": 480000,
+      "boundary": "Real Chromium running the existing cart-edit fixture; cancellation, composition save and concurrent changes."
+    },
+    {
+      "id": "counter-service",
+      "group": "counter",
+      "command": [
+        "npm",
+        "run",
+        "test:counter"
+      ],
+      "engines": [
+        "node"
+      ],
+      "env": {},
+      "timeoutMs": 600000,
+      "boundary": "HTTP and DOM-model tests with disposable local service state; synthetic payment acknowledgement, no live payment or camera."
+    },
+    {
+      "id": "order-models",
+      "group": "counter",
+      "command": [
+        "npm",
+        "run",
+        "test:ordering"
+      ],
+      "engines": [
+        "node"
+      ],
+      "env": {},
+      "timeoutMs": 300000,
+      "boundary": "Node model/contract tests for amounts, recipes, order groups and QR ticket round trips."
+    },
+    {
+      "id": "smart-models",
+      "group": "counter",
+      "command": [
+        "npm",
+        "run",
+        "test:smart-choice"
+      ],
+      "engines": [
+        "node"
+      ],
+      "env": {},
+      "timeoutMs": 600000,
+      "boundary": "Node engine/model/contracts; supplements browser journeys without claiming browser or physical-device coverage."
+    }
+  ],
+  "gaps": [
+    {
+      "id": "physical-device",
+      "status": "NOT_RUN",
+      "scope": "Physical phone smoothness, thermal/network variability and audible sound quality need a real-device run."
+    },
+    {
+      "id": "native-share-camera",
+      "status": "NOT_RUN",
+      "scope": "OS share sheet recipient delivery, physical camera QR scan and camera privacy indicators are not established by browser fixtures."
+    },
+    {
+      "id": "external-services",
+      "status": "NOT_RUN",
+      "scope": "External map/social destinations, real payment, production counter deployment and service availability are not simulated as successful outcomes."
+    },
+    {
+      "id": "performance-coverage",
+      "status": "NOT_RUN",
+      "scope": "The 25 timed actions cover core UI transitions, not every path, image decode, recommendation result, counter operation or offline recovery. Existing dedicated gates and manual cases retain their own boundaries."
+    },
+    {
+      "id": "browser-fixtures",
+      "status": "NOT_RUN",
+      "scope": "Discover, choice funnel, share-loader, cart editing, feedback motion and service-worker offline suites currently support Chromium only; unsupported engines remain explicit in reports."
+    }
+  ]
+}
