@@ -1,4 +1,4 @@
-name: Native WebKit Order tail control
+name: Native WebKit Order tail and reload control
 on:
   push:
     branches: [diagnostic/webkit-order-tail-20261022]
@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   native-tail:
-    name: Native macOS five canonical Order tail suites
+    name: Native macOS tail suites and observed feed
     runs-on: macos-15-intel
     timeout-minutes: 20
     env:
@@ -22,6 +22,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
@@ -57,17 +58,65 @@ jobs:
           accessSync(executablePath, constants.X_OK);
           const harnesses = ['test-promo-components-browser.mjs','test-order-transactions-stress-browser.mjs',
             'test-order-checkout-staleness-browser.mjs','test-order-storage-compat-browser.mjs','test-order-release-built-browser.mjs'];
-          const metadata = { scope: 'Diagnostic only: five canonical tail commands; never substitutes for complete current-head Order',
+          const metadata = { scope: 'Diagnostic only: five canonical tail commands plus an observed feed/reload probe; never substitutes for complete current-head Order',
             revision: git('rev-parse','HEAD'), tree: git('rev-parse','HEAD^{tree}'), parent: git('rev-parse','HEAD^'),
+            sourceChanges: git('diff','--name-only','04e4706127ad53b48160b3ca43254fe9d7c007cb','HEAD'),
             dirty: git('status','--porcelain').length > 0, runtimeSha256, runtimeFiles: files.length, manifestSha256: sha(manifest),
             harnesses: Object.fromEntries(harnesses.map(file => [file,sha(readFileSync('scripts/' + file))])),
             node: process.version, osVersion, architecture: process.arch, playwright: pkg.version, webkit: browser,
             executablePath, launcherSha256: sha(readFileSync(executablePath)) };
-          if (metadata.revision !== process.env.GITHUB_SHA || metadata.parent !== '04e4706127ad53b48160b3ca43254fe9d7c007cb' || metadata.dirty) throw new Error('Unexpected source');
+          if (metadata.revision !== process.env.GITHUB_SHA || metadata.sourceChanges !== '.github/workflows/webkit-order-tail-native-control.yml' || metadata.dirty) throw new Error('Unexpected source');
           mkdirSync('.artifacts/order-tail-control', { recursive: true });
           writeFileSync('.artifacts/order-tail-control/environment.json', JSON.stringify(metadata,null,2) + '\n');
           console.log(JSON.stringify(metadata,null,2));
           NODE
+      - name: Observe the original feed counter predicate on failure
+        id: feed
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, textwrap
+          source = Path('scripts/test-menu-feed-browser.mjs').read_text()
+          start = source.index('async function waitForCounter(')
+          end = source.index('\nasync function secondCardPosition', start)
+          old = source[start:end]
+          header, body = old.split('{\n', 1)
+          body = body.rsplit('\n}', 1)[0]
+          observation = """
+            } catch (error) {
+              const observation = await page.evaluate(() => ({
+                url: location.href, ready: document.querySelector('#feed')?.dataset.ready,
+                counter: document.querySelector('#feed-counter')?.textContent, scrollY, hidden: document.hidden,
+                restoration: history.scrollRestoration, active: document.activeElement?.outerHTML?.slice(0,300),
+                navigation: performance.getEntriesByType('navigation')[0]?.type, width: innerWidth, height: innerHeight,
+                cards: [...document.querySelectorAll('.feed-card')].map(node => ({ id: node.dataset.productId,
+                  index: node.dataset.index, top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom }))
+                  .filter(node => node.bottom > 0 && node.top < innerHeight)
+              })).catch(failure => ({ observationError: failure.message }));
+              const failure = { case: 'diagnostic-counter-timeout', result: 'FAIL', expectedIndex: index, expectedCount: count, observation };
+              report.cases.push(failure);
+              console.error('COUNTER_TIMEOUT_OBSERVATION ' + JSON.stringify(failure));
+              throw error;
+            }
+          }
+          """
+          replacement = header + '{\n  try {\n' + textwrap.indent(body, '  ') + '\n' + textwrap.dedent(observation).lstrip()
+          observed = source[:start] + replacement + source[end:]
+          reload_source = "    await page.reload();\n    await page.locator('#feed[data-ready=\"true\"]').waitFor();\n    await waitForCounter(page, lane.length - 1, lane.length);"
+          reload_probe = "    for (let reloadProbe = 0; reloadProbe < 3; reloadProbe++) {\n      if (reloadProbe) {\n        await firstCard.locator(\".feed-photo>img\").evaluate(image => image.scrollIntoView({ block: \"center\", behavior: \"instant\" }));\n        await waitForCounter(page, 0, lane.length);\n        await page.evaluate(async () => {\n          window.dispatchEvent(new PageTransitionEvent(\"pageshow\", { persisted: true }));\n          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));\n        });\n        await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent(\"pageshow\", { persisted: false })));\n        await waitForCounter(page, lane.length - 1, lane.length);\n      }\n      console.log(\"RELOAD_PROBE_BEFORE \" + JSON.stringify({ reloadProbe, state: await page.evaluate(() => ({\n        url: location.href, counter: document.querySelector(\"#feed-counter\")?.textContent, scrollY, restoration: history.scrollRestoration\n      })) }));\n      await page.reload();\n      await page.locator('#feed[data-ready=\"true\"]').waitFor();\n      await waitForCounter(page, lane.length - 1, lane.length);\n      console.log(\"RELOAD_PROBE_AFTER \" + JSON.stringify({ reloadProbe, state: await page.evaluate(() => ({\n        url: location.href, counter: document.querySelector(\"#feed-counter\")?.textContent, scrollY, restoration: history.scrollRestoration\n      })) }));\n    }"
+          assert observed.count(reload_source) == 1
+          observed = observed.replace(reload_source, reload_probe)
+          target = Path('scripts/.native-feed-observer.mjs')
+          assert not target.exists()
+          target.write_text(observed)
+          root = Path('.artifacts/order-tail-control')
+          root.mkdir(parents=True, exist_ok=True)
+          (root/'observed-feed-harness.mjs').write_text(observed)
+          (root/'observer-harness.json').write_text(json.dumps({'scope': 'Diagnostic observer only; original counter predicate/timeouts unchanged; three bounded explicit-entry reload samples',
+            'sourceHarnessSha256': hashlib.sha256(source.encode()).hexdigest(), 'observedHarnessSha256': hashlib.sha256(observed.encode()).hexdigest()},indent=2))
+          PY
+          node scripts/.native-feed-observer.mjs
       - name: Editable promotional pairs
         id: promo
         continue-on-error: true
@@ -91,15 +140,17 @@ jobs:
       - name: Preserve every original command outcome and source guard
         if: always()
         env:
+          FEED_RESULT: ${{ steps.feed.outcome }}
           PROMO_RESULT: ${{ steps.promo.outcome }}
           TRANSACTIONS_RESULT: ${{ steps.transactions.outcome }}
           STALENESS_RESULT: ${{ steps.staleness.outcome }}
           STORAGE_RESULT: ${{ steps.storage.outcome }}
           RELEASE_RESULT: ${{ steps.release.outcome }}
         run: |
+          rm -f scripts/.native-feed-observer.mjs
           git diff --exit-code
           node --input-type=module <<'NODE'
-          for (const key of ['PROMO_RESULT','TRANSACTIONS_RESULT','STALENESS_RESULT','STORAGE_RESULT','RELEASE_RESULT']) {
+          for (const key of ['FEED_RESULT','PROMO_RESULT','TRANSACTIONS_RESULT','STALENESS_RESULT','STORAGE_RESULT','RELEASE_RESULT']) {
             if (process.env[key] !== 'success') throw new Error(key + ': ' + process.env[key]);
           }
           NODE
