@@ -7,7 +7,9 @@
   "medianNoiseMs": 33.4,
   "p95NoiseMs": 100,
   "maxSwitchMs": 1500,
-  "maxGeometryReadRatio": 0.25,
+  "maxGeometryReadsPerFrame": 15,
+  "geometryRegressionPercent": 15,
+  "geometryNoiseReadsPerFrame": 1,
   "frameNoiseMs": 16.7,
   "maxP95FrameGapMs": 50
 }
