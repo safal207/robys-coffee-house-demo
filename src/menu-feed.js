@@ -553,7 +553,8 @@ const syncEngagement = key => {
 };
 window.addEventListener("pageshow", event => { if (event.persisted) { syncEngagement(null); viewCandidates.forEach(scheduleView); void refreshOrder(); } });
 // Native reload restoration can run after the initial explicit-item scroll.
-window.addEventListener("pageshow", followEntry);
+// A persisted page already owns the visitor's later scroll position.
+window.addEventListener("pageshow", event => { if (!event.persisted) followEntry(); });
 window.addEventListener("pagehide", stopViews);
 document.addEventListener("visibilitychange", () => {
   stopViews();

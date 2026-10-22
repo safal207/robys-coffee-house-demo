@@ -42,7 +42,12 @@ const receipt = check => ({ schemaVersion: 1, checkId: check.id, source: { ...so
   durationMs: 1000, exitCode: 0, signal: null, timedOut: false, artifacts: [{ path: 'check.log', bytes: 4, sha256: 'e'.repeat(64) }] });
 function timingReport() {
   const expectedSamples = expectedTimingMatrix(policy);
-  return { schemaVersion: 1, startedAt: '2026-10-22T10:00:00Z', finishedAt: '2026-10-22T10:02:00Z', complete: true, source: { ...source }, expectedSamples, environment: { origin: ORIGIN, browser: 'chromium', cpuRate: 4, latencyMs: 150, downloadMbps: 1.6, serviceWorkers: 'blocked' },
+  const contexts = [...new Map(expectedSamples.map(sample => [`${sample.profile}|${sample.attempt}`, sample])).values()];
+  return { schemaVersion: 1, startedAt: '2026-10-22T10:00:00Z', finishedAt: '2026-10-22T10:02:00Z', complete: true, source: { ...source }, expectedSamples, environment: { origin: ORIGIN, browser: 'chromium', cpuRate: 4, latencyMs: 150, downloadMbps: 1.6, serviceWorkers: 'blocked', networkGuard: 'loopback-only CONNECT proxy', cache: 'per-context fetch-to-stylesheet reuse and external denial observed' },
+    cacheProofs: contexts.map((sample, i) => ({ profile: sample.profile, attempt: sample.attempt, origin: ORIGIN, start: RUN_START + i * 1000 + 1, end: RUN_START + i * 1000 + 101,
+      url: `${ORIGIN}/menu-feed.css?journey-cache-proof=${i}`, proxyLocalConnections: 1,
+      entries: [{ initiatorType: 'fetch', transferSize: 1300, decodedBodySize: 1000 }, { initiatorType: 'fetch', transferSize: 0, decodedBodySize: 1000 }, { initiatorType: 'link', transferSize: 0, decodedBodySize: 1000 }],
+      external: { url: `https://journey-deny-${i.toString(16)}.invalid/blocked`, rejected: true, proxyDenied: true } })),
     samples: expectedSamples.map((sample, i) => ({ ...sample, value: 100, correctnessStatus: 'PASS', timingStatus: 'VALID', status: 'PASS',
       evidence: { id: `transition-${i}`, start: RUN_START + i * 1000 + 1, end: RUN_START + i * 1000 + 101, correct: true, url: `${ORIGIN}/${sample.journeyId === 'menu-switch-feed' ? 'menu-feed.html' : 'menu.html'}` } })) };
 }
@@ -157,6 +162,26 @@ test('planning refuses missing ownership before publishing its execution matrix'
   assert.match(workflow.slice(guard, workflow.indexOf('\n  checks:')), /actions\/upload-artifact@v4\n\s+if: always\(\)/);
 });
 
+test('Lighthouse prerequisites select source contracts and their existing mobile and desktop consumers', () => {
+  const inputs = ['scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs',
+    '.github/workflows/lighthouse-build-smoke.yml', '.github/workflows/lighthouse-profile.yml'];
+  for (const path of inputs) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['qa-registry']); assert.deepEqual(result.impactedComponents, ['qa-registry']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']); assert.deepEqual(result.unmappedPaths, []);
+    assert.ok(result.selectedChecks.includes('source-contracts')); assert.ok(result.selectedChecks.includes('security-contracts'));
+    assert.ok(result.externalChecks.includes('lighthouse-mobile')); assert.ok(result.externalChecks.includes('lighthouse-desktop'));
+  }
+  const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.ok(packageJson.scripts.check.includes('scripts/test-lighthouse-ffprobe.mjs'));
+  assert.ok(packageJson.scripts.check.includes('npm run test:causal-regression'));
+  for (const path of inputs.filter(path => path.endsWith('.yml'))) {
+    assert.match(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'), /node scripts\/ensure-lighthouse-ffprobe\.mjs/);
+  }
+  const unknown = 'scripts/ensure-lighthouse-ffprobe-unregistered.mjs';
+  assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
 test('consistently forged plan fields cannot suppress the real changed-file scope', () => {
   const p = { schemaVersion: 1, graph, ...plan() }, expected = { base: p.base, head: source.revision };
   assert.ok(verifyPlanIdentity(p, graph, p.registrySha256, source, ['menu-catalog.js'], expected));
@@ -200,6 +225,18 @@ test('bad timing evidence, replayed transition and changed environment do not pa
   for (const mutate of [r => { r.complete = false; }, r => { r.samples[0].value = null; }, r => { r.samples[0].evidence.start = r.samples[0].evidence.end; },
     r => { r.samples[1].evidence.id = r.samples[0].evidence.id; }, r => { r.environment.cpuRate = 1; }, r => { r.source.dirty = true; },
     r => { r.source.revision = 'f'.repeat(40); }, r => { r.samples[0].metricId = 'another_ms'; }]) {
+    const altered = timingReport(); mutate(altered); assert.equal(evaluateTimings(altered, plan(), graph).status, 'INCOMPLETE');
+  }
+});
+
+test('cache-off, missing context proofs and unobserved external denial cannot pass as cache-enabled timings', () => {
+  for (const mutate of [r => { delete r.cacheProofs; }, r => { r.cacheProofs = {}; }, r => { r.cacheProofs = null; }, r => { r.cacheProofs.pop(); }, r => { r.cacheProofs.push(r.cacheProofs[0]); },
+    r => { r.cacheProofs[0].entries[1].transferSize = 1300; }, r => { r.cacheProofs[0].entries[2].decodedBodySize = 0; },
+    r => { r.cacheProofs[0].entries[0].transferSize = Infinity; },
+    r => { r.cacheProofs[0].proxyLocalConnections = 0; }, r => { r.cacheProofs[0].external.proxyDenied = false; },
+    r => { r.cacheProofs[0].external.rejected = false; }, r => { r.cacheProofs[0].external.url = 'https://example.com/blocked'; },
+    r => { r.cacheProofs[0].start = 1; }, r => { r.cacheProofs[0].origin = 'https://127.0.0.1:9999'; },
+    r => { delete r.environment.networkGuard; }]) {
     const altered = timingReport(); mutate(altered); assert.equal(evaluateTimings(altered, plan(), graph).status, 'INCOMPLETE');
   }
 });

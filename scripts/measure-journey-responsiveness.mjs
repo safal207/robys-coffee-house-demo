@@ -1,5 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createServer } from "node:https";
+import { createServer as createProxyServer } from "node:http";
+import { connect } from "node:net";
 import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { extname, join, resolve, sep } from "node:path";
@@ -63,6 +65,66 @@ function sourceIdentity(revision) {
   const actualRevision = git("rev-parse", "HEAD");
   if (!/^[a-f0-9]{40}$/.test(revision) || revision !== actualRevision) throw Error("ROBYS_SOURCE_REVISION must be the actual 40-character checkout HEAD");
   return { revision, tree: git("rev-parse", "HEAD^{tree}"), dirty: Boolean(git("status", "--porcelain")), actualRevision, ...runtimeIdentity() };
+}
+export async function createJourneyProxy(origin) {
+  const url = new URL(origin);
+  if (url.protocol !== "https:" || url.hostname !== "127.0.0.1" || url.origin !== origin) throw Error("Proxy requires the canonical local HTTPS origin");
+  const sockets = new Set(), blocked = [];
+  let allowedTunnels = 0;
+  const track = socket => { sockets.add(socket); socket.on("error", () => {}); socket.once("close", () => sockets.delete(socket)); return socket; };
+  const proxy = createProxyServer((request, response) => { blocked.push(request.url); response.writeHead(403).end(); });
+  proxy.on("connection", track);
+  proxy.on("connect", (request, client, head) => {
+    if (request.url !== url.host) { blocked.push(request.url); client.end("HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\n\r\n"); return; }
+    allowedTunnels++;
+    // Never resolve or connect to a request-supplied host, including for a deny probe.
+    const upstream = track(connect({ host: "127.0.0.1", port: Number(url.port || 443) }, () => {
+      client.write("HTTP/1.1 200 Connection Established\r\n\r\n");
+      if (head.length) upstream.write(head);
+      client.pipe(upstream); upstream.pipe(client);
+    }));
+    upstream.once("error", () => client.destroy()); client.once("error", () => upstream.destroy());
+    upstream.once("close", () => client.destroy()); client.once("close", () => upstream.destroy());
+  });
+  await new Promise(resolve => proxy.listen(0, "127.0.0.1", resolve));
+  return { server: `http://127.0.0.1:${proxy.address().port}`, blocked, get allowedTunnels() { return allowedTunnels; },
+    close: async () => { for (const socket of sockets) socket.destroy(); await new Promise(resolve => proxy.close(resolve)); } };
+}
+export function validCacheProof(proof, origin) {
+  try {
+    const url = new URL(proof.url), external = new URL(proof.external.url), entries = proof.entries;
+    return proof.origin === origin && url.origin === origin && !url.username && !url.password && url.pathname === "/menu-feed.css" && Boolean(url.searchParams.get("journey-cache-proof"))
+      && Number.isFinite(proof.start) && Number.isFinite(proof.end) && proof.end > proof.start && Number.isInteger(proof.proxyLocalConnections) && proof.proxyLocalConnections > 0
+      && Array.isArray(entries) && entries.length === 3 && entries[0].initiatorType === "fetch" && Number.isFinite(entries[0].transferSize) && entries[0].transferSize > 0
+      && entries[1].initiatorType === "fetch" && entries[2].initiatorType === "link"
+      && entries.every(entry => Number.isFinite(entry.decodedBodySize) && entry.decodedBodySize > 0 && entry.decodedBodySize === entries[0].decodedBodySize)
+      && entries.slice(1).every(entry => entry.transferSize === 0)
+      && external.protocol === "https:" && /^journey-deny-[a-f0-9-]+\.invalid$/.test(external.hostname)
+      && !external.username && !external.password && !external.port && external.pathname === "/blocked"
+      && proof.external.rejected === true && proof.external.proxyDenied === true;
+  } catch { return false; }
+}
+async function throttledPage(context) {
+  const page = await context.newPage(); page.setDefaultTimeout(12000);
+  const cdp = await context.newCDPSession(page); await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 }); await cdp.send("Network.enable");
+  await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: 1.6 * 1024 * 1024 / 8, uploadThroughput: 750 * 1024 / 8 });
+  return page;
+}
+async function recordCacheProof(context, origin, proxy, profile, attempt) {
+  const page = await throttledPage(context), start = Date.now(), tunnels = proxy.allowedTunnels, blocked = proxy.blocked.length;
+  const external = `https://journey-deny-${randomUUID()}.invalid/blocked`;
+  try {
+    await page.goto(`${origin}/__journey-cache-proof.html`);
+    const observed = await page.evaluate(async ({ external, nonce }) => {
+      const url = new URL(`menu-feed.css?journey-cache-proof=${nonce}`, location.href).href;
+      await (await fetch(url)).arrayBuffer(); await (await fetch(url)).arrayBuffer();
+      await new Promise((resolve, reject) => { const link = document.createElement("link"); link.rel = "stylesheet"; link.href = url; link.onload = resolve; link.onerror = reject; document.head.append(link); });
+      let rejected = false; try { await fetch(external); } catch { rejected = true; }
+      return { url, entries: performance.getEntriesByName(url).map(entry => ({ initiatorType: entry.initiatorType, transferSize: entry.transferSize, decodedBodySize: entry.decodedBodySize })), rejected };
+    }, { external, nonce: randomUUID() });
+    return { profile, attempt, origin, start, end: Date.now(), url: observed.url, entries: observed.entries, proxyLocalConnections: proxy.allowedTunnels - tunnels,
+      external: { url: external, rejected: observed.rejected, proxyDenied: proxy.blocked.slice(blocked).includes(`${new URL(external).hostname}:443`) } };
+  } finally { await page.close(); }
 }
 export function browserProbe() {
   const key = "__robysJourneyTiming";
@@ -128,11 +190,11 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
   const revision = process.env.ROBYS_SOURCE_REVISION ?? execFileSync("git", ["rev-parse", "HEAD"], { cwd: repo, encoding: "utf8" }).trim();
   const source = sourceIdentity(revision), expectedSamples = profiles.flatMap(profile => Array.from({ length: attempts }, (_, i) => expectedJourneyIDs.map(journeyId => ({ journeyId, metricId: "ready_ms", profile: profile.id, attempt: i + 1 }))).flat());
   const harness = { sha256: sha256(fileURLToPath(import.meta.url)), policySha256: sha256(policyPath) };
-  const report = { schemaVersion: 1, startedAt: new Date().toISOString(), finishedAt: null, source, harness, environment: { browser: "chromium", platform: process.platform, nodeVersion: process.version, profiles, serviceWorkers: "blocked", network: "local HTTPS; same-origin only; fresh context per profile/attempt; cache reused within ten ordered journeys", journeyOrder: expectedJourneyIDs, cpuRate: 4,
+  const report = { schemaVersion: 1, startedAt: new Date().toISOString(), finishedAt: null, source, harness, environment: { browser: "chromium", platform: process.platform, nodeVersion: process.version, profiles, serviceWorkers: "blocked", network: "local HTTPS; fresh context per profile/attempt; observed HTTP cache reused within ten ordered journeys", networkGuard: "loopback-only CONNECT proxy", cache: "per-context fetch-to-stylesheet reuse and external denial observed", journeyOrder: expectedJourneyIDs, cpuRate: 4,
     latencyMs: 150, downloadMbps: 1.6, metric: "trusted activation to semantic visible readiness plus two animation frames; feed switch includes first visible photograph loaded successfully; includes finite dialog animation settlement; no artificial dwell; not field INP" },
-    expectedJourneyIDs, expectedSamples, samples: [], complete: false, status: "FAIL" };
+    expectedJourneyIDs, expectedSamples, cacheProofs: [], samples: [], complete: false, status: "FAIL" };
   mkdirSync(output, { recursive: true }); const save = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n"); save();
-  const cert = mkdtempSync(join(tmpdir(), "robys-journey-")); let server, browser;
+  const cert = mkdtempSync(join(tmpdir(), "robys-journey-")); let server, browser, proxy;
   try {
     execFileSync("openssl", ["req", "-x509", "-nodes", "-newkey", "rsa:2048", "-days", "1", "-keyout", join(cert, "key"), "-out", join(cert, "cert"), "-subj", "/CN=localhost", "-addext", "subjectAltName=IP:127.0.0.1,DNS:localhost"], { stdio: "ignore" });
     const publicKey = execFileSync("openssl", ["x509", "-in", join(cert, "cert"), "-pubkey", "-noout"]);
@@ -140,7 +202,9 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
     const pin = createHash("sha256").update(der).digest("base64");
     const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp", ".jpg": "image/jpeg", ".woff2": "font/woff2" };
     server = createServer({ key: readFileSync(join(cert, "key")), cert: readFileSync(join(cert, "cert")) }, (request, response) => {
-      try { let path = resolve(repo, "." + decodeURIComponent(new URL(request.url, "https://localhost").pathname));
+      try {
+        if (new URL(request.url, "https://localhost").pathname === "/__journey-cache-proof.html") return response.writeHead(200, { "content-type": "text/html", "content-security-policy": "default-src 'none'; style-src 'self'; connect-src 'self' https://*.invalid" }).end("<!doctype html><title>HTTP cache and network guard proof</title>");
+        let path = resolve(repo, "." + decodeURIComponent(new URL(request.url, "https://localhost").pathname));
         if (!path.startsWith(repo + sep) || !existsSync(path)) return response.writeHead(404).end();
         if (statSync(path).isDirectory()) path = join(path, "index.html");
         if (!existsSync(path)) return response.writeHead(404).end();
@@ -149,17 +213,20 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
     });
     await new Promise(resolve => server.listen(0, "127.0.0.1", resolve)); const origin = `https://127.0.0.1:${server.address().port}`;
     report.environment.origin = origin;
-    browser = await chromium.launch({ headless: true, args: [`--ignore-certificate-errors-spki-list=${pin}`] }); report.environment.browserVersion = browser.version();
+    proxy = await createJourneyProxy(origin);
+    browser = await chromium.launch({ headless: true, proxy: { server: proxy.server, bypass: "<-loopback>" }, args: [`--ignore-certificate-errors-spki-list=${pin}`] }); report.environment.browserVersion = browser.version();
     const { menuCategories } = await import(pathToFileURL(join(repo, "menu-catalog.js")));
     const espresso = menuCategories.find(category => category.id === "hot-coffee").items.find(item => item.name.en === "Espresso");
     for (const profile of profiles) for (let attempt = 1; attempt <= attempts; attempt++) {
       const context = await browser.newContext({ viewport: { width: profile.width, height: profile.height }, deviceScaleFactor: 1, reducedMotion: profile.motion === "reduced" ? "reduce" : "no-preference", serviceWorkers: "block" });
+      // Routing turns off Chromium's HTTP cache. The deny proxy preserves both
+      // the same-origin boundary and the cache behavior this measurement declares.
+      const proof = await recordCacheProof(context, origin, proxy, profile.id, attempt); report.cacheProofs.push(proof); save();
+      if (!validCacheProof(proof, origin)) throw Error(`HTTP cache/network guard proof failed: ${profile.id}|${attempt}`);
       const errors = [], externalRequests = [];
-      await context.route("**/*", route => { if (new URL(route.request().url()).origin !== origin) { externalRequests.push(route.request().url()); return route.abort(); } return route.continue(); });
-      await context.addInitScript(browserProbe); const page = await context.newPage(); page.setDefaultTimeout(12000);
+      context.on("request", request => { if (new URL(request.url()).origin !== origin) externalRequests.push(request.url()); });
+      await context.addInitScript(browserProbe); const page = await throttledPage(context);
       page.on("pageerror", error => errors.push(error.message)); page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
-      const cdp = await context.newCDPSession(page); await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 }); await cdp.send("Network.enable");
-      await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: 1.6 * 1024 * 1024 / 8, uploadThroughput: 750 * 1024 / 8 });
       const firstSample = report.samples.length;
       const run = async (journeyId, selector, outcome, action, event) => {
         const sample = await measureJourney(page, { journeyId, profile: profile.id, attempt, selector, outcome, action: action ?? (() => page.locator(selector).click()), event });
@@ -198,7 +265,7 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
     if (harness.sha256 !== sha256(fileURLToPath(import.meta.url)) || harness.policySha256 !== sha256(policyPath)) throw Error("Measurement harness or timing policy changed during collection");
     report.finishedAt = new Date().toISOString(); report.complete = true; report.validation = validateJourneyReport(report); report.status = report.validation.status; save(); return report;
   } catch (error) { report.finishedAt = new Date().toISOString(); report.error = error.message; save(); throw error; }
-  finally { await browser?.close(); if (server) await new Promise(resolve => server.close(resolve)); rmSync(cert, { recursive: true, force: true }); }
+  finally { await browser?.close(); await proxy?.close(); if (server) await new Promise(resolve => server.close(resolve)); rmSync(cert, { recursive: true, force: true }); }
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try { const report = await runJourneyProbe(); console.log(JSON.stringify({ status: report.status, complete: report.complete, samples: report.samples.length })); if (report.status !== "PASS") process.exitCode = 1; }

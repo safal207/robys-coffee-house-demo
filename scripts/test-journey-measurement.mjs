@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { defaultProfiles, expectedJourneyIDs, makeSample, measureJourney, sampleKey, validateJourneyReport } from "./measure-journey-responsiveness.mjs";
+import { createJourneyProxy, defaultProfiles, expectedJourneyIDs, makeSample, measureJourney, sampleKey, validCacheProof, validateJourneyReport } from "./measure-journey-responsiveness.mjs";
+import { createServer as createTcpServer } from "node:net";
+import { request } from "node:http";
 const identity = { journeyId: "menu-search", profile: "mobile390-en-normal", attempt: 1 };
 const good = () => makeSample({ ...identity, value: 42, correctness: true });
 const report = samples => ({ complete: true, expectedSamples: [{ ...identity, metricId: "ready_ms" }], samples });
@@ -125,4 +127,52 @@ test("a decoded product image must be visible before product readiness can pass"
   assert.equal(ready(), true);
   image.style.visibility = "hidden"; assert.equal(ready(), false);
   image.style.visibility = "visible"; occluded = true; assert.equal(ready(), false);
+});
+
+test("the local deny proxy forwards only its exact HTTPS authority and rejects external or other loopback destinations", async () => {
+  let connections = 0;
+  const target = createTcpServer(socket => { connections++; socket.on("data", data => socket.write(data)); });
+  await new Promise(resolve => target.listen(0, "127.0.0.1", resolve));
+  const authority = `127.0.0.1:${target.address().port}`, proxy = await createJourneyProxy(`https://${authority}`), endpoint = new URL(proxy.server);
+  const tunnel = destination => new Promise((resolve, reject) => {
+    const req = request({ hostname: endpoint.hostname, port: endpoint.port, method: "CONNECT", path: destination });
+    req.once("error", reject); req.setTimeout(2000, () => req.destroy(Error("Proxy control timed out")));
+    req.once("connect", (response, socket) => {
+      if (response.statusCode !== 200) { socket.destroy(); resolve({ status: response.statusCode }); return; }
+      socket.setTimeout(2000, () => { socket.destroy(); reject(Error("Allowed local tunnel timed out")); });
+      socket.once("data", data => { socket.destroy(); resolve({ status: response.statusCode, body: data.toString() }); }); socket.write("local-only-proof");
+    }); req.end();
+  });
+  try {
+    assert.deepEqual(await tunnel(authority), { status: 200, body: "local-only-proof" });
+    assert.deepEqual(await tunnel("journey-deny-123.invalid:443"), { status: 403 });
+    assert.deepEqual(await tunnel("127.0.0.1:1"), { status: 403 });
+    assert.equal(connections, 1); assert.equal(proxy.allowedTunnels, 1);
+    assert.deepEqual(proxy.blocked, ["journey-deny-123.invalid:443", "127.0.0.1:1"]);
+    const plainHttp = await new Promise((resolve, reject) => {
+      const req = request({ hostname: endpoint.hostname, port: endpoint.port, path: "https://journey-deny-456.invalid/blocked" }, response => { response.resume(); resolve(response.statusCode); });
+      req.once("error", reject); req.end();
+    });
+    assert.equal(plainHttp, 403); assert.equal(connections, 1);
+  } finally { await proxy.close(); await new Promise(resolve => target.close(resolve)); }
+});
+
+test("the deny proxy cannot be configured with an external, credentialed or non-HTTPS origin", async () => {
+  for (const origin of ["http://127.0.0.1:1234", "https://example.com", "https://localhost:1234", "https://user@127.0.0.1:1234", "https://127.0.0.1:1234/path"]) {
+    await assert.rejects(() => createJourneyProxy(origin));
+  }
+});
+
+test("cache evidence needs a real cold load, cached fetch and stylesheet, and an observed external denial", () => {
+  const origin = "https://127.0.0.1:1234";
+  const good = { origin, start: 100, end: 200, proxyLocalConnections: 1, url: `${origin}/menu-feed.css?journey-cache-proof=123`,
+    entries: [{ initiatorType: "fetch", transferSize: 1300, decodedBodySize: 1000 }, { initiatorType: "fetch", transferSize: 0, decodedBodySize: 1000 }, { initiatorType: "link", transferSize: 0, decodedBodySize: 1000 }],
+    external: { url: "https://journey-deny-123.invalid/blocked", rejected: true, proxyDenied: true } };
+  assert.equal(validCacheProof(good, origin), true);
+  for (const mutate of [p => { p.entries[1].transferSize = 1300; }, p => { p.entries[0].transferSize = 0; }, p => { p.entries[0].transferSize = Infinity; },
+    p => { p.entries[2].initiatorType = "fetch"; }, p => { p.entries[2].decodedBodySize = 0; }, p => { p.proxyLocalConnections = 0; },
+    p => { p.external.proxyDenied = false; }, p => { p.external.rejected = false; }, p => { p.external.url = "https://example.com/blocked"; },
+    p => { p.url = "https://127.0.0.1:9999/menu-feed.css?journey-cache-proof=1"; }]) {
+    const bad = structuredClone(good); mutate(bad); assert.equal(validCacheProof(bad, origin), false);
+  }
 });

@@ -13,7 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         profile: [mobile, desktop]
-    runs-on: ubuntu-latest
+    # The signed ffprobe prerequisite supports this Ubuntu deb822 runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: command -v ffprobe >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - name: Ensure ffprobe is available
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
       - run: npm run verify:media
       - run: node scripts/run-lighthouse-profile.mjs "${{ matrix.profile }}"
       - if: always()

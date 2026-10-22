@@ -586,6 +586,10 @@
         "scripts/test-menu-responsiveness-gate.mjs",
         ".github/workflows/menu-responsiveness.yml",
         "scripts/lighthouse-comment.mjs",
+        "scripts/ensure-lighthouse-ffprobe.mjs",
+        "scripts/test-lighthouse-ffprobe.mjs",
+        ".github/workflows/lighthouse-build-smoke.yml",
+        ".github/workflows/lighthouse-profile.yml",
         "scripts/visual-regression.mjs",
         "qa.js",
         ".github/workflows/causal-regression.yml",
@@ -1089,6 +1093,7 @@
         "menu-list",
         "media",
         "shared-styles",
+        "qa-registry",
         "build"
       ],
       "execution": "existing-workflow",
@@ -1107,6 +1112,7 @@
         "menu-list",
         "media",
         "shared-styles",
+        "qa-registry",
         "build"
       ],
       "execution": "existing-workflow",

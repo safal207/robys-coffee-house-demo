@@ -233,6 +233,31 @@ export function evaluateTimings(report, plan, graph, policy = readJson(resolve(R
     declaredOrigin = url.origin;
   } catch { errors.push('Timing origin is not an explicit loopback HTTPS origin'); }
   const expected = expectedTimingMatrix(policy);
+  if (report.environment?.networkGuard !== 'loopback-only CONNECT proxy'
+    || report.environment?.cache !== 'per-context fetch-to-stylesheet reuse and external denial observed') errors.push('Timing cache/network guard contract was not declared');
+  const contexts = new Set(expected.map(sample => `${sample.profile}|${sample.attempt}`)), proofs = new Set();
+  if (!Array.isArray(report.cacheProofs)) errors.push('Missing per-context HTTP cache/network guard evidence');
+  for (const proof of Array.isArray(report.cacheProofs) ? report.cacheProofs : []) {
+    const id = `${proof.profile}|${proof.attempt}`;
+    if (!contexts.has(id) || proofs.has(id)) errors.push(`Unexpected or duplicate cache proof: ${id}`);
+    proofs.add(id);
+    try {
+      const url = new URL(proof.url), external = new URL(proof.external?.url), entries = proof.entries;
+      if (proof.origin !== declaredOrigin || url.origin !== declaredOrigin || url.pathname !== '/menu-feed.css'
+        || !url.searchParams.get('journey-cache-proof') || url.username || url.password
+        || !Number.isFinite(proof.start) || !Number.isFinite(proof.end) || proof.end <= proof.start
+        || proof.start < window.started - CLOCK_SKEW_MS || proof.end > window.finished + CLOCK_SKEW_MS
+        || !Number.isInteger(proof.proxyLocalConnections) || proof.proxyLocalConnections < 1
+        || !Array.isArray(entries) || entries.length !== 3 || entries[0].initiatorType !== 'fetch' || !Number.isFinite(entries[0].transferSize) || !(entries[0].transferSize > 0)
+        || entries[1].initiatorType !== 'fetch' || entries[2].initiatorType !== 'link'
+        || entries.some(entry => !Number.isFinite(entry.decodedBodySize) || entry.decodedBodySize <= 0 || entry.decodedBodySize !== entries[0].decodedBodySize)
+        || entries.slice(1).some(entry => entry.transferSize !== 0)
+        || external.protocol !== 'https:' || !/^journey-deny-[a-f0-9-]+\.invalid$/.test(external.hostname)
+        || external.username || external.password || external.port || external.pathname !== '/blocked'
+        || proof.external.rejected !== true || proof.external.proxyDenied !== true) throw Error('Cache or denial was not observed');
+    } catch { errors.push(`Invalid HTTP cache/network guard proof: ${id}`); }
+  }
+  if (proofs.size !== contexts.size || [...contexts].some(id => !proofs.has(id))) errors.push('Missing cache proof for an expected timing context');
   if (!Array.isArray(report.expectedSamples) || report.expectedSamples.length !== expected.length || !Array.isArray(report.samples)) errors.push('Missing declared timing sample matrix');
   const key = sample => `${sample.journeyId}|${sample.metricId}|${sample.profile}|${sample.attempt}`;
   const samples = new Map(), transitionIds = new Set();

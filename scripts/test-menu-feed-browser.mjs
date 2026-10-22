@@ -1069,6 +1069,21 @@ try {
     assert.equal(await card.locator(".feed-photo>img").evaluate(node => {
       const rect = node.getBoundingClientRect(); return rect.top < innerHeight && rect.bottom > 0;
     }), true, "A later shared product must enter the viewport without manual paging");
+    const firstCard = page.locator(".feed-card").first();
+    await firstCard.locator(".feed-photo>img").evaluate(image => image.scrollIntoView({ block: "center", behavior: "instant" }));
+    await waitForCounter(page, 0, lane.length);
+    const restoredScroll = await page.evaluate(() => scrollY);
+    // Replay the persisted lifecycle boundary separately from native reload:
+    // a restored page retains the visitor's current product and scroll position.
+    await page.evaluate(async () => {
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    assert.ok(Math.abs(await page.evaluate(() => scrollY) - restoredScroll) < 1,
+      "A persisted page must not jump back to the original shared product");
+    await waitForCounter(page, 0, lane.length);
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
+    await waitForCounter(page, lane.length - 1, lane.length);
     await page.reload();
     await page.locator('#feed[data-ready="true"]').waitFor();
     await waitForCounter(page, lane.length - 1, lane.length);
@@ -1084,7 +1099,8 @@ try {
     assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "shared-product-entry", result: "PASS", product: target.id, categoryIndex: lane.length - 1,
-      laterBatchLoadedAndVisible: true, explicitLanguage: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
+      laterBatchLoadedAndVisible: true, explicitLanguage: true, persistedPageKeepsCurrentScroll: true,
+      nonpersistedPageRestoresEntry: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
     await context.close();
   }
   {
