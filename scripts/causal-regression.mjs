@@ -134,6 +134,11 @@ export function impactPlan(graph, changedPaths, scope = 'affected') {
     matrix: { include: checks.filter(check => check.execution === 'pipeline').map(check => ({ id: check.id, kind: check.kind, browsers: check.browsers ?? [] })) } };
 }
 
+export function assertMappedPlan(plan) {
+  if (!Array.isArray(plan?.unmappedPaths) || plan.unmappedPaths.length) fail(`Plan has unmapped changed paths: ${JSON.stringify(plan?.unmappedPaths ?? null)}`);
+  return plan;
+}
+
 function sourceIdentity(root = ROOT) {
   return { revision: git(['rev-parse', 'HEAD'], root), tree: git(['rev-parse', 'HEAD^{tree}'], root),
     dirty: git(['status', '--porcelain', '--untracked-files=normal'], root).length > 0 };

@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync,
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkedArtifact, collectReport as collectReportRaw, commandArgv, evaluateTimings as evaluateTimingsRaw, expectedTimingMatrix, impactPlan, matchesPath, safePath, validateGraph, verifyPlanIdentity, verifyReceipt as verifyReceiptRaw } from './causal-regression.mjs';
+import { assertMappedPlan, checkedArtifact, collectReport as collectReportRaw, commandArgv, evaluateTimings as evaluateTimingsRaw, expectedTimingMatrix, impactPlan, matchesPath, safePath, validateGraph, verifyPlanIdentity, verifyReceipt as verifyReceiptRaw } from './causal-regression.mjs';
 
 const graph = JSON.parse(readFileSync(new URL('../qa/causal-regression-graph.json', import.meta.url)));
 const policy = JSON.parse(readFileSync(new URL('../qa/journey-latency-budgets.json', import.meta.url)));
@@ -12,6 +12,27 @@ const source = { revision: 'a'.repeat(40), tree: 'b'.repeat(40), dirty: false };
 const FIXED_NOW = Date.parse('2026-10-22T10:02:02Z');
 const RUN_START = Date.parse('2026-10-22T10:00:00Z');
 const ORIGIN = 'https://127.0.0.1:4321';
+// The 18 missing ownership inputs in the first combined-app CI plan (run39822718923).
+const combinedAppOwnership = {
+  '.github/workflows/menu-responsiveness.yml': ['qa-registry'],
+  'AGENTS.md': ['build', 'qa-registry'],
+  'menu-feed-viewer.js': ['feed-social'],
+  'menu-feedback.css': ['menu-view'],
+  'menu-feedback.js': ['menu-view'],
+  'scripts/lighthouse-comment.mjs': ['qa-registry'],
+  'scripts/test-menu-feed-browser.mjs': ['menu-list', 'menu-feed'],
+  'scripts/test-menu-feed-viewer-entry.mjs': ['feed-social'],
+  'scripts/test-menu-feed.mjs': ['menu-feed'],
+  'scripts/test-menu-feedback.mjs': ['menu-view'],
+  'scripts/test-menu-lazy-images-browser.mjs': ['menu-list', 'product-photos'],
+  'scripts/test-menu-runtime-contract.mjs': ['build'],
+  'scripts/test-menu-styles-bundle.mjs': ['build'],
+  'scripts/verify-pairing-cta.mjs': ['menu-list', 'discover'],
+  'scripts/visual-regression.mjs': ['qa-registry'],
+  'src/menu-feed-viewer-entry.js': ['feed-social'],
+  'src/menu-feedback-entry.js': ['menu-view'],
+  'src/menu-feedback.js': ['menu-view']
+};
 const verifyReceipt = (receipt, plan, check, verifyArtifact) => verifyReceiptRaw(receipt, plan, check, verifyArtifact, { now: FIXED_NOW });
 const evaluateTimings = (report, plan, graph, policy) => evaluateTimingsRaw(report, plan, graph, policy, { now: FIXED_NOW });
 const collectReport = (plan, graph, receipts, timings) => collectReportRaw(plan, graph, receipts, timings, { now: FIXED_NOW });
@@ -97,6 +118,43 @@ test('authored pairing posters and photo delivery contracts retain their compone
   }
   const unknown = 'scripts/test-menu-photo-delivery-unregistered.mjs';
   assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
+test('combined app inputs have narrow owners and preserve their actual menu and feed consumers', () => {
+  assert.equal(Object.keys(combinedAppOwnership).length, 18);
+  for (const [path, owners] of Object.entries(combinedAppOwnership)) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, owners, path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+  }
+  const soundPaths = ['src/menu-feedback-entry.js', 'src/menu-feedback.js', 'menu-feedback.js', 'menu-feedback.css'];
+  for (const path of ['src/menu-app.js', 'src/menu-feed.js']) {
+    assert.match(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'), /import "\.\/src\/menu-feedback-entry\.js"/);
+  }
+  for (const path of soundPaths) {
+    const result = impactPlan(graph, [path]);
+    for (const id of ['menu-switch-feed', 'menu-switch-list']) assert.ok(result.impactedJourneys.includes(id), `${path}: ${id}`);
+    assert.ok(result.impactedComponents.includes('menu-list')); assert.ok(result.impactedComponents.includes('menu-feed'));
+  }
+  assert.match(readFileSync(new URL('../src/menu-feed.js', import.meta.url), 'utf8'), /from "\.\/src\/menu-feed-viewer-entry\.js"/);
+  for (const path of ['src/menu-feed-viewer-entry.js', 'menu-feed-viewer.js']) {
+    assert.ok(impactPlan(graph, [path]).impactedJourneys.includes('feed-stories-reels'), path);
+  }
+  const unknown = 'src/menu-feedback-unregistered.js';
+  assert.deepEqual(impactPlan(graph, [...Object.keys(combinedAppOwnership), unknown]).unmappedPaths, [unknown]);
+});
+
+test('planning refuses missing ownership before publishing its execution matrix', () => {
+  const failedCombinedPlan = { unmappedPaths: Object.keys(combinedAppOwnership) };
+  assert.throws(() => assertMappedPlan(failedCombinedPlan), /Plan has unmapped changed paths/);
+  for (const input of [null, {}, { unmappedPaths: null }]) assert.throws(() => assertMappedPlan(input));
+  const mapped = impactPlan(graph, Object.keys(combinedAppOwnership));
+  assert.equal(assertMappedPlan(mapped), mapped);
+  const workflow = readFileSync(new URL('../.github/workflows/causal-regression.yml', import.meta.url), 'utf8');
+  const readPlan = workflow.indexOf("const plan = JSON.parse(readFileSync("), guard = workflow.indexOf('assertMappedPlan(plan);');
+  const outputMatrix = workflow.indexOf('appendFileSync(process.env.GITHUB_OUTPUT');
+  assert.ok(readPlan >= 0 && guard > readPlan && outputMatrix > guard, 'Coverage must be checked after the saved plan and before job outputs');
+  assert.match(workflow.slice(guard, workflow.indexOf('\n  checks:')), /actions\/upload-artifact@v4\n\s+if: always\(\)/);
 });
 
 test('consistently forged plan fields cannot suppress the real changed-file scope', () => {

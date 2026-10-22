@@ -55,6 +55,7 @@ jobs:
           node --input-type=module <<'NODE'
           import { execFileSync, spawnSync } from 'node:child_process';
           import { appendFileSync, readFileSync } from 'node:fs';
+          import { assertMappedPlan } from './scripts/causal-regression.mjs';
           const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
           const sha = /^[a-f0-9]{40}$/;
           const head = git('rev-parse', 'HEAD');
@@ -73,6 +74,7 @@ jobs:
           if (result.error) throw result.error;
           if (result.status !== 0) process.exit(result.status ?? 1);
           const plan = JSON.parse(readFileSync('.artifacts/causal-regression/plan/plan.json', 'utf8'));
+          assertMappedPlan(plan);
           if (!Array.isArray(plan.matrix?.include) || !plan.matrix.include.length) throw new Error('Plan has no executable check matrix');
           const seen = new Set();
           for (const check of plan.matrix.include) {

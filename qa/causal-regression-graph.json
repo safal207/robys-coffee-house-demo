@@ -3,15 +3,18 @@
   "components": [
     {
       "id": "build",
-      "label": "Authored source, emitted runtime and dependency build inputs",
+      "label": "Authored source, emitted runtime, build inputs and repository governance",
       "paths": [
+        "AGENTS.md",
         "package.json",
         "package-lock.json",
         "tsconfig.json",
         "vite.config.mjs",
         "scripts/build*.mjs",
         "scripts/menu-runtime-source.mjs",
-        "scripts/menu-styles-bundle.mjs"
+        "scripts/menu-styles-bundle.mjs",
+        "scripts/test-menu-runtime-contract.mjs",
+        "scripts/test-menu-styles-bundle.mjs"
       ],
       "dependsOn": []
     },
@@ -98,6 +101,9 @@
         "menu-ready.js",
         "menu-search-clear.js",
         "scripts/test-menu-photo-delivery.mjs",
+        "scripts/test-menu-feed-browser.mjs",
+        "scripts/test-menu-lazy-images-browser.mjs",
+        "scripts/verify-pairing-cta.mjs",
         "src/menu-actions-loader.js",
         "src/pairing-posters.js",
         "pairing-posters.js",
@@ -119,11 +125,16 @@
     },
     {
       "id": "menu-view",
-      "label": "List/feed navigation context and remembered view",
+      "label": "List/feed navigation context, remembered view and optional shared feedback",
       "paths": [
         "src/menu-view-mode.js",
         "src/menu-view-prefetch.js",
-        "menu-view-mode.js"
+        "menu-view-mode.js",
+        "src/menu-feedback-entry.js",
+        "src/menu-feedback.js",
+        "menu-feedback.js",
+        "menu-feedback.css",
+        "scripts/test-menu-feedback.mjs"
       ],
       "dependsOn": [
         "build",
@@ -140,7 +151,9 @@
         "src/menu-feed.js",
         "src/menu-feed-model.js",
         "src/menu-feed-navigation.js",
-        "src/menu-feed-order.js"
+        "src/menu-feed-order.js",
+        "scripts/test-menu-feed.mjs",
+        "scripts/test-menu-feed-browser.mjs"
       ],
       "dependsOn": [
         "build",
@@ -158,7 +171,10 @@
       "paths": [
         "src/menu-feed-engagement.js",
         "src/menu-feed-collections.js",
-        "src/menu-feed-viewer.js"
+        "src/menu-feed-viewer.js",
+        "src/menu-feed-viewer-entry.js",
+        "menu-feed-viewer.js",
+        "scripts/test-menu-feed-viewer-entry.mjs"
       ],
       "dependsOn": [
         "menu-feed",
@@ -174,6 +190,7 @@
         "src/products/**",
         "qa/menu-thumbnail-assets.json",
         "scripts/build-menu-thumbnails.mjs",
+        "scripts/test-menu-lazy-images-browser.mjs",
         "scripts/test-menu-photo-delivery.mjs"
       ],
       "dependsOn": [
@@ -385,6 +402,7 @@
         "src/discover-rotation.ts",
         "src/pairings-data/**",
         "src/pairing-posters.js",
+        "scripts/verify-pairing-cta.mjs",
         "pairing-posters.js",
         "pairing-posters.css"
       ],
@@ -549,8 +567,9 @@
     },
     {
       "id": "qa-registry",
-      "label": "Declarative feature contracts, potential impact graph and evidence adapters",
+      "label": "Repository governance, declarative contracts, impact graph and evidence adapters",
       "paths": [
+        "AGENTS.md",
         "qa/causal-regression-graph.json",
         "qa/feature-traceability-matrix.json",
         "qa/traceability/*.json",
@@ -565,6 +584,9 @@
         "scripts/compare-menu-responsiveness.mjs",
         "scripts/measure-menu-responsiveness.mjs",
         "scripts/test-menu-responsiveness-gate.mjs",
+        ".github/workflows/menu-responsiveness.yml",
+        "scripts/lighthouse-comment.mjs",
+        "scripts/visual-regression.mjs",
         "qa.js",
         ".github/workflows/causal-regression.yml",
         "qa/journey-latency-budgets.json",
