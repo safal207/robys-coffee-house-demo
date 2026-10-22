@@ -55,6 +55,8 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     env:
+      # Playwright 1.55.1 DebugLogger names native process logs pw:browser.
+      DEBUG: ${{ matrix.browser == 'webkit' && 'pw:browser' || '' }}
       ROBYS_FAMILY_BROWSER: ${{ matrix.browser }}
       ROBYS_FAMILY_QA_DIR: .artifacts/order-reliability/family
       ROBYS_PROMO_BROWSER: ${{ matrix.browser }}

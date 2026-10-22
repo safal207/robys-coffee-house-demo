@@ -7,6 +7,8 @@ import { pathToFileURL } from "node:url";
 const keyring = "/usr/share/keyrings/ubuntu-archive-keyring.gpg";
 const sourcePath = "/etc/apt/sources.list.d/ubuntu.sources";
 const archive = "https://archive.ubuntu.com/ubuntu/";
+const securityUris = new Set(["http://security.ubuntu.com/ubuntu", "http://security.ubuntu.com/ubuntu/",
+  "https://security.ubuntu.com/ubuntu", "https://security.ubuntu.com/ubuntu/"]);
 const allowedUris = new Set(["mirror+file:/etc/apt/apt-mirrors.txt", ...["http:", "https:"].flatMap(protocol =>
   ["azure.archive.ubuntu.com", "archive.ubuntu.com", "security.ubuntu.com"].flatMap(host =>
     [`${protocol}//${host}/ubuntu`, `${protocol}//${host}/ubuntu/`]))]);
@@ -14,20 +16,28 @@ const allowedUris = new Set(["mirror+file:/etc/apt/apt-mirrors.txt", ...["http:"
 // Keep the runner's signed Ubuntu suites/components; change only the mirror.
 // Unknown formats and trust overrides fail instead of inventing new sources.
 export function fallbackSources(source) {
-  const blocks = source.trim().split(/\n\s*\n/);
+  // cloud-init includes comment-only paragraphs before its active repositories.
+  const blocks = source.trim().split(/\n\s*\n/).filter(block =>
+    block.split("\n").some(line => line.trim() && !line.trimStart().startsWith("#")));
   if (!blocks.length) throw new Error("Missing Ubuntu deb822 sources");
   return blocks.map(block => {
     const fields = new Map();
+    const reject = reason => {
+      const types = fields.has("Types") ? fields.get("Types") === "deb" ? "deb" : "unsupported" : "missing";
+      const architectures = fields.has("Architectures") ? fields.get("Architectures") === "amd64" ? "amd64" : "unsupported" : "unspecified";
+      throw new Error(`Unsupported or unsigned Ubuntu source: ${reason}; fields=${[...fields.keys()].join(",") || "none"}; `
+        + `Types=${types}; Architectures=${architectures}; Signed-By-matches=${fields.get("Signed-By") === keyring}`);
+    };
     for (const line of block.split("\n").filter(line => line.trim() && !line.trimStart().startsWith("#"))) {
       const match = /^([A-Za-z-]+):\s*(\S.*)$/.exec(line);
-      if (!match || fields.has(match[1])) throw new Error("Unsupported Ubuntu deb822 field");
+      if (!match || fields.has(match[1])) reject("malformed or duplicate field");
       fields.set(match[1], match[2].trim());
     }
     const allowed = ["Types", "URIs", "Suites", "Components", "Signed-By", "Architectures", "Enabled"];
     if ([...fields.keys()].some(key => !allowed.includes(key)) || fields.get("Types") !== "deb"
       || fields.get("Signed-By") !== keyring || (fields.has("Enabled") && fields.get("Enabled") !== "yes")
       || (fields.has("Architectures") && fields.get("Architectures") !== "amd64")) {
-      throw new Error("Unsupported or unsigned Ubuntu source");
+      reject("unsupported fields, type, signature key, enablement or architecture");
     }
     const uris = fields.get("URIs")?.split(/\s+/) ?? [];
     const suites = fields.get("Suites")?.split(/\s+/) ?? [];
@@ -35,9 +45,9 @@ export function fallbackSources(source) {
     if (!uris.length || uris.some(uri => !allowedUris.has(uri)) || !suites.length
       || suites.some(suite => !/^noble(?:-updates|-backports|-security)?$/.test(suite))
       || !components.length || components.some(component => !["main", "restricted", "universe", "multiverse"].includes(component))) {
-      throw new Error("Unsupported Ubuntu URI, suite or component");
+      reject("unsupported URI, suite or component");
     }
-    const fallback = [...new Set(uris.map(uri => uri.includes("//security.ubuntu.com/") ? uri : archive))];
+    const fallback = [...new Set(uris.map(uri => securityUris.has(uri) ? uri : archive))];
     return block.replace(/^URIs:.*$/m, `URIs: ${fallback.join(" ")}`);
   }).join("\n\n") + "\n";
 }

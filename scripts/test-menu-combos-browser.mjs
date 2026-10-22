@@ -78,6 +78,39 @@ const recipes = {
 };
 const linesFor = id => sortLines(recipes[id].map(([id, quantity]) => ({ id, quantity })));
 
+// Observation only: retain bounded evidence before existing failure cleanup.
+function observeFailureLifecycle(context, browser) {
+  const events = [], failedRequests = [], pageIds = new WeakMap();
+  let nextPageId = 0;
+  const retain = (buffer, value, limit) => {
+    buffer.push(value);
+    if (buffer.length > limit) buffer.shift();
+  };
+  const record = (event, facts = {}) => retain(events, { at: new Date().toISOString(), event, ...facts }, 80);
+  const observe = page => {
+    const pageId = ++nextPageId;
+    pageIds.set(page, pageId);
+    record("page-created", { pageId, url: page.url().slice(0, 1000) });
+    page.on("crash", () => record("page-crash", { pageId, url: page.url().slice(0, 1000) }));
+    page.on("close", () => record("page-close", { pageId, url: page.url().slice(0, 1000) }));
+    page.on("framenavigated", frame => {
+      if (frame === page.mainFrame()) record("main-frame-navigated", { pageId, url: frame.url().slice(0, 1000) });
+    });
+    page.on("requestfailed", request => {
+      const failure = { pageId, url: request.url().slice(0, 1000), resourceType: request.resourceType(),
+        error: request.failure()?.errorText };
+      retain(failedRequests, failure, 20);
+      record("request-failed", failure);
+    });
+  };
+  context.pages().forEach(observe);
+  context.on("page", observe);
+  context.on("close", () => record("context-close"));
+  return () => ({ observedAt: new Date().toISOString(), browserConnected: browser.isConnected(),
+    pages: context.pages().map(page => ({ pageId: pageIds.get(page), url: page.url().slice(0, 1000), closed: page.isClosed() })),
+    events: events.slice(), lastFailedRequests: failedRequests.slice() });
+}
+
 async function newContext(browser, { width = 390, height = 844, language = "ru", serviceWorkers = "block" } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, hasTouch: width < 800,
     reducedMotion: "reduce", serviceWorkers, ignoreHTTPSErrors: true });
@@ -91,6 +124,7 @@ async function newContext(browser, { width = 390, height = 844, language = "ru",
 async function run(browser, id, callback, options = {}) {
   if (process.env.ROBYS_COMBO_FILTER && !id.includes(process.env.ROBYS_COMBO_FILTER)) return;
   const context = await newContext(browser, options);
+  const failureLifecycle = observeFailureLifecycle(context, browser);
   const errors = [];
   context.on("page", page => {
     page.setDefaultTimeout(timeoutMs);
@@ -103,6 +137,7 @@ async function run(browser, id, callback, options = {}) {
     report.cases.push({ id, status: "PASS", startedAt, facts });
     console.log(`PASS ${id}`);
   } catch (error) {
+    const lifecycle = failureLifecycle();
     const diagnostics = [];
     for (const [index, page] of context.pages().entries()) {
       await page.screenshot({ path: join(output, `${id}-failure-${index}.png`) }).catch(() => {});
@@ -111,7 +146,7 @@ async function run(browser, id, callback, options = {}) {
         helperActivity: window.__qaHelperActivity,
         text: document.body.innerText.slice(-3500) })).catch(() => ({})));
     }
-    report.cases.push({ id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics });
+    report.cases.push({ id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics, lifecycle });
     console.error(`FAIL ${id}: ${error.stack}`);
   } finally { await context.close(); persist(); }
 }

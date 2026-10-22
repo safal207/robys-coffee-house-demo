@@ -67,6 +67,7 @@
       "id": "home",
       "label": "Home entry, navigation, skip links, language and contextual entrance",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "index.html",
         "src/app.ts",
         "app.js",
@@ -94,6 +95,7 @@
       "id": "menu-list",
       "label": "List rendering, categories, search, clear and action loading",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "menu.html",
         "src/menu-app.js",
         "menu-app.js",
@@ -145,6 +147,7 @@
       "id": "menu-feed",
       "label": "Full photo feed, filtering, product navigation and shared order adapter",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "menu-feed.html",
         "menu-feed.js",
         "menu-feed.css",
@@ -230,6 +233,7 @@
       "id": "order-storage",
       "label": "Draft serialization, compatibility, cross-tab and storage failure recovery",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "order-storage.js",
         "src/order-storage.js",
         "src/order-storage.d.ts",
@@ -246,6 +250,7 @@
       "id": "order-ui",
       "label": "Cart badge, totals, edit, quantity, remove and dialog focus",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "menu-order-ui.js",
         "src/menu-order-ui.js"
       ],
@@ -261,6 +266,8 @@
       "id": "families-combos",
       "label": "Pairs, family/kids sets, combos and edit/retry paths",
       "paths": [
+        ".github/workflows/order-reliability.yml",
+        "scripts/test-menu-combos-browser.mjs",
         "menu-combos-ui.js",
         "src/menu-combos-ui.js",
         "src/menu-combos.js",
@@ -291,6 +298,7 @@
       "id": "ticket-qr",
       "label": "Counter ticket encoding, display, scan and static cashier handoff",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "src/order-ticket.js",
         "cashier.html",
         "cashier.js",
@@ -306,6 +314,7 @@
       "id": "checkout",
       "label": "Truthful checkout, stale snapshot recovery and optional counter handoff",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "order-checkout.js",
         "order-checkout.css",
         "src/order-checkout.js",
@@ -375,6 +384,7 @@
       "id": "smart-choice",
       "label": "Preference engine, recommendations, quick builder and shared cart",
       "paths": [
+        ".github/workflows/order-reliability.yml",
         "smart-choice/**",
         "src/smart-choice/**",
         "choice-help.js",

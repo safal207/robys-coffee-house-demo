@@ -182,6 +182,20 @@ test('Lighthouse prerequisites select source contracts and their existing mobile
   assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
+test('order browser diagnostics retain the family and actual workflow consumers without QA-wide fanout', () => {
+  const combos = impactPlan(graph, ['scripts/test-menu-combos-browser.mjs']);
+  assert.deepEqual(combos.directComponents, ['families-combos']); assert.deepEqual(combos.unmappedPaths, []);
+  assert.ok(combos.externalChecks.includes('combos-browser')); assert.ok(combos.externalChecks.includes('family-browser'));
+  const path = '.github/workflows/order-reliability.yml', result = impactPlan(graph, [path]);
+  assert.deepEqual(result.directComponents, ['home', 'menu-list', 'menu-feed', 'order-storage', 'order-ui', 'families-combos', 'ticket-qr', 'checkout', 'smart-choice']);
+  assert.equal(result.directComponents.includes('qa-registry'), false); assert.deepEqual(result.unmappedPaths, []);
+  for (const id of ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser', 'smart-cart-browser']) assert.ok(result.selectedChecks.includes(id), id);
+  for (const id of ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser', 'family-browser', 'combos-browser']) assert.ok(result.externalChecks.includes(id), id);
+  const workflow = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+  for (const file of ['test-menu-lazy-images-browser.mjs', 'test-menu-combos-browser.mjs', 'test-menu-family-browser.mjs', 'test-menu-feed-browser.mjs', 'test-smart-choice-cart-focus-browser.mjs', 'test-home-navigation-browser.mjs']) assert.ok(workflow.includes(`node scripts/${file}`), file);
+  for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
 test('consistently forged plan fields cannot suppress the real changed-file scope', () => {
   const p = { schemaVersion: 1, graph, ...plan() }, expected = { base: p.base, head: source.revision };
   assert.ok(verifyPlanIdentity(p, graph, p.registrySha256, source, ['menu-catalog.js'], expected));
