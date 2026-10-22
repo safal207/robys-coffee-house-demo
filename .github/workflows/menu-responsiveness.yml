@@ -27,6 +27,9 @@ on:
       - 'src/products/sets-v1/**'
       - 'src/products/quick-v1/**'
       - 'scripts/*menu-responsiveness*.mjs'
+      - 'scripts/ensure-playwright-browsers.mjs'
+      - 'scripts/signed-ubuntu-packages.mjs'
+      - 'scripts/test-playwright-prerequisites.mjs'
       - 'qa/menu-interaction-budgets.json'
       - '.github/workflows/menu-responsiveness.yml'
   pull_request:
@@ -55,6 +58,9 @@ on:
       - 'src/products/sets-v1/**'
       - 'src/products/quick-v1/**'
       - 'scripts/*menu-responsiveness*.mjs'
+      - 'scripts/ensure-playwright-browsers.mjs'
+      - 'scripts/signed-ubuntu-packages.mjs'
+      - 'scripts/test-playwright-prerequisites.mjs'
       - 'qa/menu-interaction-budgets.json'
       - '.github/workflows/menu-responsiveness.yml'
 permissions:
@@ -76,7 +82,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Verify the performance gate rejects regressions and incomplete evidence
         run: node --test scripts/test-menu-responsiveness-gate.mjs
       - name: Measure baseline with the same cache-verified harness
