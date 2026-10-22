@@ -171,6 +171,7 @@ test('Lighthouse prerequisites select source contracts and their existing mobile
     assert.deepEqual(result.impactedJourneys, ['source-generated-parity']); assert.deepEqual(result.unmappedPaths, []);
     assert.ok(result.selectedChecks.includes('source-contracts')); assert.ok(result.selectedChecks.includes('security-contracts'));
     assert.ok(result.externalChecks.includes('lighthouse-mobile')); assert.ok(result.externalChecks.includes('lighthouse-desktop'));
+    assert.ok(result.externalChecks.includes('generated-runtime-contracts'));
   }
   const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
   assert.ok(packageJson.scripts.check.includes('scripts/test-lighthouse-ffprobe.mjs'));
@@ -190,7 +191,7 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   assert.deepEqual(result.directComponents, ['home', 'menu-list', 'menu-feed', 'order-storage', 'order-ui', 'families-combos', 'ticket-qr', 'checkout', 'smart-choice']);
   assert.equal(result.directComponents.includes('qa-registry'), false); assert.deepEqual(result.unmappedPaths, []);
   for (const id of ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser', 'smart-cart-browser']) assert.ok(result.selectedChecks.includes(id), id);
-  for (const id of ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser', 'family-browser', 'combos-browser']) assert.ok(result.externalChecks.includes(id), id);
+  for (const id of ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser', 'family-browser', 'combos-browser', 'lazy-images-browser']) assert.ok(result.externalChecks.includes(id), id);
   const workflow = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
   for (const file of ['test-menu-lazy-images-browser.mjs', 'test-menu-combos-browser.mjs', 'test-menu-family-browser.mjs', 'test-menu-feed-browser.mjs', 'test-smart-choice-cart-focus-browser.mjs', 'test-home-navigation-browser.mjs']) assert.ok(workflow.includes(`node scripts/${file}`), file);
   for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
@@ -200,7 +201,7 @@ test('Playwright prerequisites select their actual browser consumers without app
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
     'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'adversarial-browser'];
   const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
-    'family-browser', 'combos-browser', 'menu-interaction-comparison'];
+    'family-browser', 'combos-browser', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs']) {
     const result = impactPlan(graph, [path]);
     assert.deepEqual(result.directComponents, ['browser-prerequisites']);
@@ -213,7 +214,9 @@ test('Playwright prerequisites select their actual browser consumers without app
   const shared = impactPlan(graph, ['scripts/signed-ubuntu-packages.mjs']);
   assert.deepEqual(shared.directComponents, ['browser-prerequisites', 'qa-registry']);
   for (const id of [...pipeline]) assert.ok(shared.selectedChecks.includes(id), id);
-  for (const id of [...external, 'lighthouse-mobile', 'lighthouse-desktop']) assert.ok(shared.externalChecks.includes(id), id);
+  assert.deepEqual(shared.externalChecks, ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
+    'family-browser', 'combos-browser', 'contextual-entry-browser', 'menu-interaction-comparison', 'lighthouse-mobile', 'lighthouse-desktop',
+    'traceability-contracts', 'ios-route-webkit', 'generated-runtime-contracts', 'lazy-images-browser']);
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/ensure-lighthouse-ffprobe.mjs']) {
     assert.match(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'), /from ["']\.\/signed-ubuntu-packages\.mjs["']/);
   }
@@ -241,6 +244,96 @@ test('causal browser setup preserves enum validation and uses the bounded instal
   const triggers = performance.split('\npermissions:')[0];
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/signed-ubuntu-packages.mjs', 'scripts/test-playwright-prerequisites.mjs']) {
     assert.equal(triggers.split(`- '${path}'`).length - 1, 2, `${path} must trigger both push and PR performance checks`);
+  }
+});
+
+test('adopted setup workflows and canonical iOS assertions retain narrow ownership', () => {
+  for (const path of ['.github/workflows/menu-product-reveal.yml', '.github/workflows/ios-route-webkit.yml',
+    '.github/workflows/contextual-entry-certification.yml']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['browser-prerequisites']);
+    assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.ok(result.selectedChecks.includes('product-reveal-browser'));
+    assert.ok(result.externalChecks.includes('contextual-entry-browser'));
+    assert.ok(result.externalChecks.includes('ios-route-webkit'));
+    assert.equal(result.externalChecks.includes('generated-runtime-contracts'), false);
+    assert.equal(result.externalChecks.includes('lighthouse-mobile'), false);
+    assert.deepEqual(result.unmappedPaths, []);
+  }
+  for (const path of ['.github/workflows/typescript-build.yml', 'scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['qa-registry']);
+    assert.deepEqual(result.impactedComponents, ['qa-registry']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.deepEqual(result.selectedChecks, ['source-contracts', 'security-contracts']);
+    assert.deepEqual(result.externalChecks, ['lighthouse-mobile', 'lighthouse-desktop', 'traceability-contracts', 'generated-runtime-contracts']);
+    assert.deepEqual(result.unmappedPaths, []);
+  }
+  const routeAssertions = impactPlan(graph, ['scripts/verify-ios-route-webkit.mjs']);
+  assert.deepEqual(routeAssertions.directComponents, ['business-profile']);
+  assert.ok(routeAssertions.impactedJourneys.includes('business-directions'));
+  assert.ok(routeAssertions.externalChecks.includes('ios-route-webkit'));
+  assert.equal(routeAssertions.impactedComponents.includes('browser-prerequisites'), false);
+  for (const path of ['.github/workflows/menu-product-reveal-unregistered.yml', '.github/workflows/ios-route-webkit-unregistered.yml',
+    '.github/workflows/contextual-entry-certification-unregistered.yml', '.github/workflows/typescript-build-unregistered.yml',
+    'scripts/verify-ios-route-webkit-unregistered.mjs']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
+  }
+  assert.ok(graph.journeys.find(journey => journey.id === 'business-directions').checks.includes('ios-route-webkit'));
+  assert.ok(graph.journeys.find(journey => journey.id === 'source-generated-parity').checks.includes('generated-runtime-contracts'));
+  for (const [id, workflow, command] of [['ios-route-webkit', '.github/workflows/ios-route-webkit.yml', 'node scripts/verify-ios-route-webkit.mjs'],
+    ['generated-runtime-contracts', '.github/workflows/typescript-build.yml', 'npm run build']]) {
+    const check = graph.checks.find(check => check.id === id);
+    assert.equal(check.execution, 'existing-workflow'); assert.equal(check.workflow, workflow); assert.equal(check.command, command);
+  }
+});
+
+test('Experience changes select the actual external Liminal gate without inventing home/menu or direct-timing proof', () => {
+  const result = impactPlan(graph, ['experience/index.html']);
+  assert.deepEqual(result.directComponents, ['experience']);
+  assert.deepEqual(result.impactedComponents, ['experience']);
+  assert.deepEqual(result.impactedJourneys, ['runtime-performance']);
+  assert.deepEqual(result.selectedChecks, ['source-contracts', 'security-contracts']);
+  assert.deepEqual(result.externalChecks, ['liminal-experience']);
+  assert.deepEqual(result.unmappedPaths, []);
+  const check = graph.checks.find(check => check.id === 'liminal-experience');
+  assert.equal(check.execution, 'existing-workflow');
+  assert.equal(check.workflow, '.github/workflows/liminalqa-decision.yml');
+  const p = { ...plan(), ...result };
+  const external = collectReport(p, graph, [], null).checks.find(item => item.id === check.id);
+  assert.equal(external.status, 'NOT_RUN');
+  assert.equal(external.workflow, check.workflow);
+  assert.deepEqual(graph.journeys.find(journey => journey.id === 'runtime-performance').metrics, []);
+  const photograph = impactPlan(graph, ['src/products/gallery-v5/croissant-828.webp']);
+  assert.ok(photograph.directComponents.includes('product-photos'));
+  assert.ok(photograph.impactedComponents.includes('experience'));
+  assert.ok(photograph.externalChecks.includes(check.id));
+  for (const path of ['experience/unregistered.html', 'experience/unregistered.js']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
+  }
+});
+
+test('browser diagnostics select canonical lazy-image evidence without application or unrelated QA fanout', () => {
+  for (const path of ['scripts/browser-failure-diagnostics.mjs', 'scripts/run-menu-lazy-images-diagnostics.mjs', 'scripts/test-browser-failure-diagnostics.mjs']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['browser-diagnostics']);
+    assert.deepEqual(result.impactedComponents, ['browser-diagnostics']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.deepEqual(result.selectedChecks, ['source-contracts', 'security-contracts']);
+    assert.deepEqual(result.externalChecks, ['lazy-images-browser']);
+    assert.deepEqual(result.unmappedPaths, []);
+  }
+  const check = graph.checks.find(check => check.id === 'lazy-images-browser');
+  assert.equal(check.execution, 'existing-workflow'); assert.equal(check.workflow, '.github/workflows/order-reliability.yml');
+  assert.equal(check.command, 'node scripts/test-menu-lazy-images-browser.mjs');
+  assert.deepEqual(check.browsers, ['chromium', 'firefox', 'webkit']);
+  assert.ok(graph.checks.find(check => check.id === 'source-contracts').components.includes('browser-diagnostics'));
+  assert.ok(graph.journeys.find(journey => journey.id === 'photo-readiness-recovery').checks.includes(check.id));
+  const canonical = impactPlan(graph, ['scripts/test-menu-lazy-images-browser.mjs']);
+  assert.ok(canonical.externalChecks.includes(check.id));
+  for (const path of ['scripts/browser-failure-diagnostics-unregistered.mjs', 'scripts/run-menu-lazy-images-diagnostics-unregistered.mjs', 'scripts/test-browser-failure-diagnostics-unregistered.mjs']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
   }
 });
 
@@ -319,6 +412,10 @@ test('collector preserves missing, duplicate and foreign receipts instead of hid
   const p = plan(), records = p.selectedChecks.map(id => ({ receipt: receipt(graph.checks.find(check => check.id === id)), verifyArtifact: () => true }));
   const full = collectReport(p, graph, records, timingReport()); assert.equal(full.status, 'PASS');
   assert.ok(full.checks.some(check => check.status === 'NOT_RUN')); assert.ok(full.timingCoverageGaps.length > 0);
+  for (const id of ['ios-route-webkit', 'generated-runtime-contracts', 'lazy-images-browser']) {
+    const check = full.checks.find(check => check.id === id);
+    assert.equal(check.status, 'NOT_RUN'); assert.equal(check.selected, false);
+  }
   assert.equal(collectReport(p, graph, records.slice(1), timingReport()).status, 'INCOMPLETE');
   assert.equal(collectReport(p, graph, [...records, records[0]], timingReport()).status, 'INCOMPLETE');
   const foreign = { receipt: { ...records[0].receipt, checkId: 'unknown' } };

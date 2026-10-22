@@ -657,7 +657,12 @@ try {
       await run(browser, `${name}-helper-timing-and-immediate-dismissal`, async context => {
         const page = await context.newPage(); await installClock(page);
         await openMenu(page, ""); await page.locator(".choice-help-entry").waitFor();
-        await page.locator("#menu-share-button").focus();
+        // Keep this idle-only clock fixture independent of the footer's native
+        // focus scroll, which WebKit can deliver after virtual time advances.
+        const readingPosition = await page.evaluate(() => ({ x: scrollX, y: scrollY }));
+        await page.locator("#menu-share-button").evaluate(button => button.focus({ preventScroll: true }));
+        assert.deepEqual(await page.locator("#menu-share-button").evaluate(button => ({ focused: document.activeElement === button, x: scrollX, y: scrollY })),
+          { focused: true, ...readingPosition }, "The idle timing anchor preserves focus and the current reading position");
         await page.clock.runFor(44_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Offer is not immediate or before45seconds");
         await page.clock.runFor(2_000); await page.locator(".choice-help-panel:not([hidden])").waitFor();

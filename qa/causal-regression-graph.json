@@ -92,6 +92,29 @@
       ]
     },
     {
+      "id": "experience",
+      "label": "Experience landing document, local presentation and initial pairing-photo scheduling",
+      "paths": [
+        "experience/index.html",
+        "experience/experience.css",
+        "experience/brand-fidelity.css",
+        "experience/experience-state.css",
+        "experience/cinematic-environments.css",
+        "experience/experience.js",
+        "experience/experience-pwa.js",
+        "experience/environments/*.svg"
+      ],
+      "dependsOn": [
+        "build",
+        "shared-styles",
+        "media",
+        "product-photos",
+        "families-combos",
+        "smart-choice",
+        "offline-cache"
+      ]
+    },
+    {
       "id": "menu-list",
       "label": "List rendering, categories, search, clear and action loading",
       "paths": [
@@ -502,7 +525,8 @@
       "label": "Business identity, address, opening times and route destinations",
       "paths": [
         "qa/business-profile.json",
-        "map-live.css"
+        "map-live.css",
+        "scripts/verify-ios-route-webkit.mjs"
       ],
       "dependsOn": [
         "build"
@@ -583,7 +607,20 @@
         "scripts/test-playwright-prerequisites.mjs",
         "scripts/signed-ubuntu-packages.mjs",
         ".github/workflows/causal-regression.yml",
-        ".github/workflows/menu-responsiveness.yml"
+        ".github/workflows/menu-responsiveness.yml",
+        ".github/workflows/menu-product-reveal.yml",
+        ".github/workflows/ios-route-webkit.yml",
+        ".github/workflows/contextual-entry-certification.yml"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "browser-diagnostics",
+      "label": "Bounded browser failure evidence and canonical lazy-image launcher",
+      "paths": [
+        "scripts/browser-failure-diagnostics.mjs",
+        "scripts/run-menu-lazy-images-diagnostics.mjs",
+        "scripts/test-browser-failure-diagnostics.mjs"
       ],
       "dependsOn": []
     },
@@ -613,6 +650,7 @@
         "scripts/test-lighthouse-ffprobe.mjs",
         ".github/workflows/lighthouse-build-smoke.yml",
         ".github/workflows/lighthouse-profile.yml",
+        ".github/workflows/typescript-build.yml",
         "scripts/visual-regression.mjs",
         "qa.js",
         ".github/workflows/causal-regression.yml",
@@ -670,7 +708,9 @@
         "publication",
         "security-policy",
         "qa-registry",
-        "browser-prerequisites"
+        "browser-prerequisites",
+        "browser-diagnostics",
+        "experience"
       ],
       "execution": "pipeline",
       "always": true
@@ -1011,7 +1051,8 @@
         "home",
         "media",
         "shared-styles",
-        "offline-cache"
+        "offline-cache",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -1198,6 +1239,69 @@
         "qa-registry"
       ],
       "execution": "existing-workflow"
+    },
+    {
+      "id": "ios-route-webkit",
+      "label": "Existing iPhone WebKit route workflow; local HTTPS and reviewed stylesheet prerequisites required",
+      "kind": "browser",
+      "workflow": ".github/workflows/ios-route-webkit.yml",
+      "command": "node scripts/verify-ios-route-webkit.mjs",
+      "components": [
+        "home",
+        "menu-list",
+        "business-profile",
+        "browser-prerequisites"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "webkit"
+      ]
+    },
+    {
+      "id": "generated-runtime-contracts",
+      "label": "Existing generated-runtime workflow reference with canonical build command; separate workflow gates require their own evidence",
+      "kind": "contract",
+      "workflow": ".github/workflows/typescript-build.yml",
+      "command": "npm run build",
+      "components": [
+        "build",
+        "media",
+        "qa-registry"
+      ],
+      "execution": "existing-workflow"
+    },
+    {
+      "id": "lazy-images-browser",
+      "label": "Canonical lazy-image assertions; native tracing remains separate optional diagnostic tooling",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-menu-lazy-images-browser.mjs",
+      "components": [
+        "menu-list",
+        "product-photos",
+        "browser-prerequisites",
+        "browser-diagnostics"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
+      "id": "liminal-experience",
+      "label": "Existing Experience measurement and fresh-runner sealed-evidence release gate; full external workflow required",
+      "kind": "performance",
+      "workflow": ".github/workflows/liminalqa-decision.yml",
+      "command": "node scripts/verify-liminalqa-evidence.mjs qa/liminal-artifacts",
+      "components": [
+        "experience"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium"
+      ]
     }
   ],
   "journeys": [
@@ -1614,7 +1718,8 @@
         "source-contracts",
         "menu-feed-browser",
         "gallery-assets",
-        "menu-interaction-comparison"
+        "menu-interaction-comparison",
+        "lazy-images-browser"
       ],
       "metrics": []
     },
@@ -1698,7 +1803,8 @@
       "checks": [
         "source-contracts",
         "home-navigation-browser",
-        "live-smoke"
+        "live-smoke",
+        "ios-route-webkit"
       ],
       "metrics": []
     },
@@ -1824,12 +1930,14 @@
         "build",
         "qa-registry",
         "publication",
-        "browser-prerequisites"
+        "browser-prerequisites",
+        "browser-diagnostics"
       ],
       "checks": [
         "source-contracts",
         "security-contracts",
-        "traceability-contracts"
+        "traceability-contracts",
+        "generated-runtime-contracts"
       ],
       "metrics": []
     },
@@ -1864,13 +1972,15 @@
         "menu-feed",
         "media",
         "shared-styles",
-        "build"
+        "build",
+        "experience"
       ],
       "checks": [
         "source-contracts",
         "menu-interaction-comparison",
         "lighthouse-mobile",
-        "lighthouse-desktop"
+        "lighthouse-desktop",
+        "liminal-experience"
       ],
       "metrics": []
     },
