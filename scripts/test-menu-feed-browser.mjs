@@ -1481,7 +1481,8 @@ try {
     assert.equal(await preview.locator('meta[property="og:title"]').getAttribute("content"), `${product.item.name[language]} · Roby's Coffee House`);
     assert.equal(await preview.locator("h1").textContent(), product.item.name[language]);
     assert.equal(await preview.locator("#menu-share-open").isVisible(), true);
-    await preview.locator("main img").evaluate(image => image.decode());
+    // Check the loaded photo synchronously in this script-disabled document.
+    assert.equal(await preview.locator("main img").evaluate(image => image.complete && image.naturalWidth > 0), true);
     if (language === "ru") await captureScreenshot(preview, { path: `${output}/share-preview-ru.png`, fullPage: true });
     await previewContext.close();
 
