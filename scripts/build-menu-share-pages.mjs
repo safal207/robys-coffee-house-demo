@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import sharp from "sharp";
 import { menuCategories } from "../menu-catalog.js";
@@ -18,7 +18,11 @@ const escape = value => String(value).replace(/[&<>"']/g, character => ({
 const revision = file => createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 12);
 function writeChanged(file, bytes) {
   const buffer = Buffer.from(bytes);
-  if (existsSync(file) && readFileSync(file).equals(buffer)) return;
+  try {
+    if (readFileSync(file).equals(buffer)) return;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, buffer);
 }
