@@ -587,14 +587,29 @@ try {
             ["robys-menu-order.v2", "robys-menu-order.v1", "robys-menu-order.tab.v1"]) storage.removeItem(key);
         });
         await page.bringToFront();
+        await page.waitForFunction(() => !document.hidden);
+        await page.locator(".choice-help-entry").evaluate(button => button.focus({ preventScroll: true }));
         assert.deepEqual(storageRequests, [], "A peer commit notification is still not local ordering intent");
         assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"));
-        await page.clock.runFor(9_000);
+        // Keep the45second module boundary and the eight-second idle window
+        // separate. Real module loading can finish after runFor has advanced
+        // virtual time, so networkidle alone is not a mounted-helper barrier.
+        await page.clock.runFor(1_000);
+        await page.locator('[data-choice-help-mounted="true"]').waitFor({ state: "attached" });
+        await page.locator(".back-top").evaluate(link => link.focus({ preventScroll: true }));
+        assert.deepEqual(storageRequests, [], "Mounting the helper before its idle window does not download authoritative storage");
+        await page.clock.runFor(7_000);
+        assert.deepEqual(storageRequests, [], "The mounted helper still waits for eight seconds of idle");
+        await Promise.all([
+          page.waitForRequest(request => new URL(request.url()).pathname === "/order-storage.js"),
+          page.clock.runFor(1_000)
+        ]);
         await page.waitForLoadState("networkidle");
         assert.equal(storageRequests.length, 1, "An eligible idle offer must read the actual basket even when its mirror is absent");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "The nonempty canonical basket suppresses the automatic offer");
         assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"), "Assistance cannot mutate the peer's order");
         return { notificationTypes: ["storage projection", "robys:order-change", "focus"], before44sStorageRequests: 0,
+          mountedBeforeIdleWindow: true, before7sIdleStorageRequests: 0, after8sIdleStorageRequests: storageRequests.length,
           eligibleStorageRequests: storageRequests.length, authoritativePeerOrder: linesFor("student"), canonicalRevision: revision,
           missingDisposableMirror: true, nonemptyCanonicalOrderSuppressesOffer: true };
       });

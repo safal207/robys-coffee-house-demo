@@ -956,7 +956,8 @@ try {
     await page.locator("#feed-search").fill("Espresso");
     // Native search inputs may consume Escape to clear their query. Exercise
     // dialog cancellation from its preceding button in the natural tab order.
-    await page.keyboard.press("Shift+Tab");
+    // Native macOS WebKit uses Option-Tab to include clickable controls.
+    await page.keyboard.press(engine === "webkit" && process.platform === "darwin" ? "Alt+Shift+Tab" : "Shift+Tab");
     assert.equal(await page.locator("#feed-discover-close").evaluate(node => node === document.activeElement), true);
     await page.keyboard.press("Escape");
     await page.locator("#feed-discover[open]").waitFor({ state: "hidden" });
