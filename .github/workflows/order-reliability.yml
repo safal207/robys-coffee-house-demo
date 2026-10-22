@@ -89,6 +89,9 @@ jobs:
       - run: npm run build && npm run verify:integrity && git diff --exit-code
       - if: matrix.browser != 'webkit'
         run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
+      - name: Install and validate the locked native WebKit
+        if: matrix.browser == 'webkit'
+        run: npx --no-install playwright install webkit
       - name: Bind native macOS WebKit and its locked executable
         if: matrix.browser == 'webkit'
         run: |
@@ -113,9 +116,6 @@ jobs:
           writeFileSync('.artifacts/order-reliability/webkit-environment.json', JSON.stringify(metadata, null, 2) + '\n');
           console.log(JSON.stringify(metadata, null, 2));
           NODE
-      - name: Install and validate the locked native WebKit
-        if: matrix.browser == 'webkit'
-        run: npx --no-install playwright install webkit
       - name: Built menu photo visibility and recovery
         run: node scripts/test-menu-lazy-images-browser.mjs
       - name: Pairing prices at increased text size
