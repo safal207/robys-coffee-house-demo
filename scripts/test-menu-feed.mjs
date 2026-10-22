@@ -137,7 +137,8 @@ for (const [name, file, method] of [["Storage", "order-storage", "loadStorage"],
 test("offline navigation opens the feed and never substitutes another asset revision", async () => {
   for (const scope of ["https://example.test/", "https://example.test/cafe/"]) {
     const cached = new Map([[scope + "menu-feed.html", "FEED"], [scope + "404.html", "NOT_FOUND"],
-      [scope + "menu-feed.js?v=current", "CURRENT_JS"], [scope + "menu-feed.css?v=current", "CURRENT_CSS"]]);
+      [scope + "menu-feed.js?v=current", "CURRENT_JS"], [scope + "menu-feed.css?v=current", "CURRENT_CSS"],
+      [scope + "menu-share-entry.js?v=current", "CURRENT_SHARE_JS"], [scope + "menu-share-entry.css?v=current", "CURRENT_SHARE_CSS"]]);
     const context = { URL, Request, Response, fetch: async () => { throw new Error("offline"); },
       caches: { open: async () => ({ match: async (request, options) => {
         const key = options?.ignoreSearch ? [...cached.keys()].find(key => key.split("?")[0] === request.url.split("?")[0]) : request.url;
@@ -146,9 +147,21 @@ test("offline navigation opens the feed and never substitutes another asset revi
     vm.runInNewContext(readFileSync("sw-core-v64.js", "utf8"), context);
     assert.equal(await (await context.navigationResponse(new Request(scope + "menu-feed.html?lang=ru"))).text(), "FEED");
     assert.equal(await (await context.navigationResponse(new Request(scope + "unknown.html"))).text(), "NOT_FOUND");
+    for (const product of products) for (const language of ["tr", "en", "ru"]) {
+      const response = await context.navigationResponse(new Request(scope + `share/${language}/${product.id.replace(":", "--")}.html?lang=de&item=unknown&url=https://other.test`));
+      assert.equal(response.status, 302);
+      const destination = new URL(response.headers.get("location"));
+      assert.equal(destination.href, `${scope}menu-feed.html?item=${encodeURIComponent(product.id)}&lang=${language}&view=feed`);
+      assert.equal(await (await context.navigationResponse(new Request(destination))).text(), "FEED");
+    }
+    for (const path of ["share/de/desserts--cookie.html", "share/en/unknown.html", "share/en/constructor.html", "share/en/toString.html"]) {
+      assert.equal(await (await context.navigationResponse(new Request(scope + path))).text(), "NOT_FOUND");
+    }
     for (const extension of ["js", "css"]) {
       assert.equal(await context.cachedResponse(new Request(scope + `menu-feed.${extension}?v=old`)), undefined);
       assert.match(await (await context.cachedResponse(new Request(scope + `menu-feed.${extension}?v=current`))).text(), /CURRENT_/);
+      assert.equal(await context.cachedResponse(new Request(scope + `menu-share-entry.${extension}?v=old`)), undefined);
+      assert.match(await (await context.cachedResponse(new Request(scope + `menu-share-entry.${extension}?v=current`))).text(), /CURRENT_SHARE_/);
     }
   }
 });

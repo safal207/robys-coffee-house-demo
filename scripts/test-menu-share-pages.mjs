@@ -1,16 +1,58 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { basename, join, resolve, sep } from "node:path";
 import sharp from "sharp";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
 import { feedSharePath, parseFeedEntry } from "../src/menu-feed-navigation.js";
+import { pruneShareArtifacts } from "./menu-share-artifacts.mjs";
 
 const products = feedProducts(menuCategories);
 const base = new URL("https://safal207.github.io/robys-coffee-house-demo/");
 const unescape = value => value.replace(/&(amp|lt|gt|quot|#39);/g, (_, key) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" })[key]);
 const meta = (html, key) => unescape(html.match(new RegExp(`<meta (?:property|name)="${key}" content="([^"]*)"`))?.[1] ?? "");
+
+test("generated directories contain exactly the current catalog pages and photo hashes", () => {
+  for (const language of ["tr", "en", "ru"]) {
+    assert.deepEqual(readdirSync(`share/${language}`).filter(name => name.endsWith(".html")).sort(),
+      products.map(product => basename(feedSharePath(product.id, language))).sort());
+  }
+  const expectedImages = products.map(product => {
+    const image = new URL(meta(readFileSync(feedSharePath(product.id, "en"), "utf8"), "og:image"));
+    return basename(image.pathname);
+  }).sort();
+  assert.deepEqual(readdirSync("src/products/share-v1").filter(name => name.endsWith(".jpg")).sort(), expectedImages);
+});
+
+test("removed/renamed products and old photo hashes are pruned without removing retained outputs", () => {
+  mkdirSync(".artifacts", { recursive: true });
+  const directory = mkdtempSync(".artifacts/share-prune-");
+  try {
+    for (const name of ["current.html", "removed.html", "renamed.html", "current-123456789abc.jpg", "current-aaaaaaaaaaaa.jpg", "note.txt"]) {
+      writeFileSync(join(directory, name), name);
+    }
+    pruneShareArtifacts(directory, ["current.html"], ".html");
+    pruneShareArtifacts(directory, ["current-123456789abc.jpg"], ".jpg");
+    assert.deepEqual(readdirSync(directory).sort(), ["current-123456789abc.jpg", "current.html", "note.txt"]);
+  } finally {
+    const target = resolve(directory);
+    assert.ok(target.startsWith(resolve(".artifacts") + sep));
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("share entry scripts, styles and product routes are bound to the offline cache namespace", () => {
+  const revision = file => createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 12);
+  const routes = Object.fromEntries(products.map(product => [product.id.replace(":", "--"), product.id]));
+  const cacheKey = createHash("sha256").update(`${revision("menu-share-entry.js")}:${revision("menu-share-entry.css")}:${JSON.stringify(routes)}`).digest("hex").slice(0, 12);
+  const worker = readFileSync("sw-core-v64.js", "utf8");
+  assert.ok(worker.includes(`-menu-share-${cacheKey}-`));
+  for (const file of ["menu-share-entry.js", "menu-share-entry.css"]) {
+    assert.ok(worker.includes(`"./${file}?v=${revision(file)}"`));
+  }
+});
 
 for (const language of ["tr", "en", "ru"]) test(`${language}: every shared product includes its own preview in the original HTML`, async () => {
   for (const product of products) {

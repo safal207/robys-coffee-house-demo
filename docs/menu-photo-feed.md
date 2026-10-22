@@ -102,6 +102,10 @@ name and category. `scripts/build-menu-share-pages.mjs` generates all 189 pages
 and 63 JPEG delivery copies directly from the catalog and approved photographs
 as part of `npm run build`. Photos retain their full frame. Image URLs include
 a content hash so a changed photo has a new cache identity.
+The build prunes obsolete generated pages and photo hashes against the current
+catalog. Entry-script/style revisions and the offline product registry are bound
+to the service worker cache namespace. Installed offline visitors follow a
+catalog-validated share route into the cached feed with the correct item/language.
 
 The browser follows a same-origin external script to the exact product and
 language in the feed; without JavaScript, the photo, name and menu link remain

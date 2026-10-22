@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { basename, dirname } from "node:path";
 import sharp from "sharp";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
 import { feedProductUrl, feedSharePath } from "../src/menu-feed-navigation.js";
+import { pruneShareArtifacts } from "./menu-share-artifacts.mjs";
 
 const base = new URL("https://safal207.github.io/robys-coffee-house-demo/");
 const copy = {
@@ -29,7 +30,9 @@ function writeChanged(file, bytes) {
 const css = `../../menu-share-entry.css?v=${revision("menu-share-entry.css")}`;
 const script = `../../menu-share-entry.js?v=${revision("menu-share-entry.js")}`;
 const products = feedProducts(menuCategories);
+export const menuShareProducts = Object.fromEntries(products.map(product => [product.id.replace(":", "--"), product.id]));
 const paths = new Set();
+const imagePaths = new Set();
 for (const product of products) {
   // Delivery copy of the approved photo: preserve its full frame and colors.
   const { data, info } = await sharp(readFileSync(product.image)).rotate()
@@ -39,6 +42,7 @@ for (const product of products) {
   const digest = createHash("sha256").update(data).digest("hex").slice(0, 12);
   const imagePath = `src/products/share-v1/${product.id.replace(":", "--")}-${digest}.jpg`;
   writeChanged(imagePath, data);
+  imagePaths.add(imagePath);
   const image = new URL(imagePath, base).href;
   for (const [language, labels] of Object.entries(copy)) {
     const path = feedSharePath(product.id, language);
@@ -95,4 +99,8 @@ for (const product of products) {
 `);
   }
 }
+for (const language of Object.keys(copy)) {
+  pruneShareArtifacts(`share/${language}`, [...paths].filter(path => path.startsWith(`share/${language}/`)).map(path => basename(path)), ".html");
+}
+pruneShareArtifacts("src/products/share-v1", [...imagePaths].map(path => basename(path)), ".jpg");
 console.log(`Built ${paths.size} menu share pages and ${products.length} full-frame JPEG previews.`);
