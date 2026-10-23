@@ -1076,6 +1076,7 @@ try {
     const linkedUrl = `${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`;
     await page.goto(linkedUrl);
     await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "A fresh shared link preserves native restoration");
     const card = page.locator(`[data-product-id="${target.id}"]`);
     await card.waitFor();
     await card.locator(".feed-photo>img").evaluate(image => image.decode());
@@ -1120,10 +1121,16 @@ try {
         await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
         await waitForCounter(page, lane.length - 1, lane.length);
       }
-      await page.reload();
+      // The locked Firefox automation reload reports a fresh navigation. Use
+      // the document's native reload to exercise the actual reload lifecycle.
+      await Promise.all([page.waitForNavigation(), page.evaluate(() => { location.reload(); })]);
+      assert.equal(await page.evaluate(() => performance.getEntriesByType("navigation")[0]?.type), "reload",
+        "The regression must exercise a native reload in every engine");
       await page.locator('#feed[data-ready="true"]').waitFor();
       await waitForCounter(page, lane.length - 1, lane.length);
       assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "An explicit product reload owns its initial scroll restoration");
+      assert.equal(await page.evaluate(() => history.state?.robysFeedReloadScroll), target.id,
+        "The reload entry records ownership before Firefox copies its manual policy");
     }
     await chooseCategory(page, "cold-coffee");
     assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "New user navigation returns scroll restoration to the browser");
@@ -1141,6 +1148,30 @@ try {
       laterBatchLoadedAndVisible: true, explicitLanguage: true, persistedPageKeepsCurrentScroll: true,
       explicitReloadScrollOwned: true, userNavigationRestoresNativeScroll: true, reloadCycles: 3,
       nonpersistedPageRestoresEntry: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      history.scrollRestoration = "manual";
+      history.replaceState({ existingPolicy: "manual" }, "");
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
+    await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    await Promise.all([page.waitForNavigation(), page.evaluate(() => { location.reload(); })]);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    await page.keyboard.press("Shift");
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "A pre-existing manual policy remains with its owner");
+    assert.deepEqual(await page.evaluate(() => history.state), { existingPolicy: "manual" }, "Existing entry state is preserved");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "shared-product-preexisting-scroll-policy", result: "PASS", product: target.id,
+      nativeReloadKeepsProduct: true, existingManualPolicyPreserved: true, entryStatePreserved: true });
     await context.close();
   }
   {
