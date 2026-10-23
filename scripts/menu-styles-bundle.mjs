@@ -19,6 +19,7 @@ export const MENU_STYLE_INPUTS = Object.freeze([
   { source: "combo-entry.css", delivered: "combo-entry.css" },
   { source: "choice-help.css", delivered: "choice-help.css" },
   { source: "seasonal.css", delivered: "seasonal.css" },
+  { source: "menu-feedback.css", delivered: "menu-feedback.css" },
   { source: "menu-security-v2.css", delivered: "menu-security-v2.css" },
   { source: "brand-photo-logo.css", delivered: "brand-photo-logo.css" },
   { source: "order-checkout.css", delivered: "order-checkout.css" }

@@ -348,6 +348,8 @@ export function initChoiceHelp(host = document.querySelector("[data-choice-help]
 
   function dismiss() { consume(); hide(true); }
   function entryClick() {
+    // Safari pointer activation does not focus buttons automatically.
+    entry.focus({ preventScroll: true });
     if (panel.hidden) void offer(true);
     else dismiss();
   }

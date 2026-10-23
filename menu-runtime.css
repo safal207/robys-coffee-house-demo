@@ -1629,6 +1629,30 @@ html[data-robys-season="halloween"] .menu-page-hero-inner{position:relative;z-in
 @media(max-height:700px){html[data-robys-season="halloween"] .hero-overlay::before,html[data-robys-season="halloween"] .hero-overlay::after{width:48px}}
 @media(forced-colors:active){html[data-robys-season="halloween"] .hero-overlay::before,html[data-robys-season="halloween"] .hero-overlay::after,html[data-robys-season="halloween"] .menu-page-hero::after{display:none}}
 
+/* Small, interruptible feedback: actions run immediately on activation. */
+.menu-sound-toggle{display:grid;place-items:center;flex:0 0 44px;width:44px;min-height:44px;padding:0;border:0;border-radius:999px;background:transparent;color:var(--ink,#2f2725);font:700 23px/1 sans-serif;cursor:pointer}
+.menu-sound-toggle[aria-pressed=false]{opacity:.6;text-decoration:line-through;text-decoration-thickness:1px}
+.menu-sound-toggle[aria-pressed=true]{background:var(--ink,#2f2725);color:#fff}
+.menu-sound-toggle:focus-visible{outline:2px solid var(--ruby,#e21b23);outline-offset:2px}
+@media(prefers-reduced-motion:no-preference){
+  :is(.menu-page,.feed-page) :is(button,a.button,a[data-menu-view],.menu-family-link,.feed-collections a,.feed-intro-link,.feed-smart-choice,.menu-smart-choice-link){transition:scale .12s ease-out,transform .12s ease-out,opacity .12s ease-out,background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out}
+  :is(.menu-page,.feed-page) :is(button,a.button,a[data-menu-view],.menu-family-link,.feed-collections a,.feed-intro-link,.feed-smart-choice,.menu-smart-choice-link):active:not(:disabled):not([aria-disabled=true]){scale:.97}
+  /* Individual scale leaves the cart bar's centering translate intact. */
+  :is(.menu-page,.feed-page) :is(.menu-dialog[open] .menu-dialog-shell,.feed-cart[open] .feed-cart-shell){animation:menuFeedbackOpen .18s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes menuFeedbackOpen{from{opacity:0;translate:0 7px}to{opacity:1;translate:0 0}}
+  :is(.menu-page,.feed-page) dialog[open]::backdrop{animation:menuFeedbackBackdrop .16s ease-out both}
+  @keyframes menuFeedbackBackdrop{from{opacity:0}to{opacity:1}}
+}
+@media(prefers-reduced-motion:reduce){
+  :is(.menu-page,.feed-page) :is(button,a.button,a[data-menu-view],.menu-family-link,.feed-collections a,.feed-intro-link,.feed-smart-choice,.menu-smart-choice-link){transition:none}
+  :is(.menu-page,.feed-page) :is(.menu-dialog[open] .menu-dialog-shell,.feed-cart[open] .feed-cart-shell){animation:none}
+}
+@media(prefers-reduced-motion:no-preference){
+  /* Avoid capturing the entire long catalog before navigation can start. */
+  #menu-root[data-ready=true]>.full-menu-panel:first-child,#feed[data-ready=true]>.feed-card:first-child{animation:menuViewFadeIn .1s ease-out both}
+  @keyframes menuViewFadeIn{from{opacity:0}}
+}
+
 .menu-search input{padding-right:58px}
 .menu-search-clear{position:absolute;top:50%;right:9px;display:grid;width:34px;height:34px;place-items:center;padding:0;color:var(--muted);background:transparent;border:0;border-radius:50%;cursor:pointer;font:500 1.35rem/1 var(--sans);transform:translateY(-50%);transition:color .18s,background .18s,transform .18s}
 .menu-search-clear:hover{color:var(--ink);background:rgba(47,39,37,.08)}

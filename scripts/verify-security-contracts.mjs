@@ -13,6 +13,12 @@ const RUNTIME_FILES = [
   "analytics.js",
   "qa.js",
   "menu-app.js",
+  "menu-feed.js",
+  "menu-feed-viewer.js",
+  "src/menu-feed-viewer.js",
+  "menu-feedback.js",
+  "src/menu-feedback.js",
+  "src/menu-feedback-entry.js",
   "src/menu-app.js",
   "menu-view-mode.js",
   "src/menu-view-mode.js",
@@ -31,7 +37,8 @@ const HTML_FILES = ["index.html", "menu.html", "experience/index.html"];
 // this does not approve another storage key or another runtime's use of it.
 const MENU_VIEW_STORAGE_FILES = new Set(["menu-app.js", "src/menu-app.js"]);
 function approvedLocalStorageKey(file, key) {
-  return key === "robys-language" || (key === "robys-menu-view" && MENU_VIEW_STORAGE_FILES.has(file));
+  return key === "robys-language" || (key === "robys-menu-view" && MENU_VIEW_STORAGE_FILES.has(file))
+    || (key === "robys-menu-sound" && ["menu-app.js", "menu-feed.js", "menu-feedback.js", "src/menu-feedback-entry.js"].includes(file));
 }
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));

@@ -78,6 +78,98 @@ const recipes = {
 };
 const linesFor = id => sortLines(recipes[id].map(([id, quantity]) => ({ id, quantity })));
 
+// Observation only: retain bounded evidence before existing failure cleanup.
+function observeFailureLifecycle(context, browser) {
+  const events = [], failedRequests = [], pageIds = new WeakMap();
+  const moduleRequests = [], moduleFacts = new WeakMap();
+  const modulePaths = new Set(["/menu-app.js", "/menu-combos-ui.js", "/src/menu-combos.js", "/menu-combos.css"]);
+  let nextPageId = 0, nextRequestId = 0;
+  const retain = (buffer, value, limit) => {
+    buffer.push(value);
+    if (buffer.length > limit) buffer.shift();
+  };
+  const record = (event, facts = {}) => retain(events, { at: new Date().toISOString(), event, ...facts }, 80);
+  const observe = page => {
+    const pageId = ++nextPageId;
+    pageIds.set(page, pageId);
+    record("page-created", { pageId, url: page.url().slice(0, 1000) });
+    page.on("crash", () => record("page-crash", { pageId, url: page.url().slice(0, 1000) }));
+    page.on("close", () => record("page-close", { pageId, url: page.url().slice(0, 1000) }));
+    page.on("framenavigated", frame => {
+      if (frame === page.mainFrame()) record("main-frame-navigated", { pageId, url: frame.url().slice(0, 1000) });
+    });
+    page.on("request", request => {
+      const url = new URL(request.url());
+      if (url.origin !== origin || !modulePaths.has(url.pathname)) return;
+      const facts = { requestId: ++nextRequestId, pageId, url: request.url().slice(0, 1000),
+        resourceType: request.resourceType(), requestedAt: new Date().toISOString(), state: "pending" };
+      moduleFacts.set(request, facts);
+      retain(moduleRequests, { request, facts }, 40);
+      record("combo-module-request", facts);
+    });
+    page.on("response", response => {
+      const facts = moduleFacts.get(response.request());
+      if (!facts) return;
+      facts.responseAt = new Date().toISOString(); facts.status = response.status(); facts.state = "response";
+      record("combo-module-response", { requestId: facts.requestId, pageId, url: facts.url, status: facts.status });
+    });
+    page.on("requestfinished", request => {
+      const facts = moduleFacts.get(request);
+      if (!facts) return;
+      facts.finishedAt = new Date().toISOString(); facts.state = "finished";
+      record("combo-module-finished", { requestId: facts.requestId, pageId, url: facts.url });
+    });
+    page.on("requestfailed", request => {
+      const failure = { pageId, url: request.url().slice(0, 1000), resourceType: request.resourceType(),
+        error: request.failure()?.errorText };
+      retain(failedRequests, failure, 20);
+      record("request-failed", failure);
+      const facts = moduleFacts.get(request);
+      if (facts) {
+        facts.failedAt = new Date().toISOString(); facts.state = "failed"; facts.error = failure.error;
+      }
+    });
+  };
+  context.pages().forEach(observe);
+  context.on("page", observe);
+  context.on("close", () => record("context-close"));
+  return () => ({ observedAt: new Date().toISOString(), browserConnected: browser.isConnected(),
+    pages: context.pages().map(page => ({ pageId: pageIds.get(page), url: page.url().slice(0, 1000), closed: page.isClosed() })),
+    events: events.slice(), lastFailedRequests: failedRequests.slice(),
+    comboModuleRequests: moduleRequests.map(({ request, facts }) => ({ ...facts, timing: request.timing() })) });
+}
+
+function captureError(error) {
+  return { name: String(error?.name ?? "Error").slice(0, 100), message: String(error?.message ?? error).slice(0, 2000),
+    ...(typeof error?.stack === "string" ? { stack: error.stack.slice(0, 4000) } : {}) };
+}
+
+async function captureFailureDiagnostics(context, browser, id, diagnostics = [], checkpoint = () => {}) {
+  for (const [index, page] of context.pages().entries()) {
+    const state = () => ({ observedAt: new Date().toISOString(), browserConnected: browser.isConnected(),
+      url: page.url().slice(0, 1000), closed: page.isClosed() });
+    const diagnostic = { pageIndex: index, beforeCapture: state() };
+    const screenshot = { file: `${id}-failure-${index}.png`, startedAt: new Date().toISOString(), status: "PENDING" };
+    diagnostic.screenshot = screenshot; diagnostics.push(diagnostic); checkpoint();
+    try { await page.screenshot({ path: join(output, screenshot.file) }); screenshot.status = "PASS"; }
+    catch (error) { screenshot.status = "FAIL"; screenshot.error = captureError(error); }
+    screenshot.finishedAt = new Date().toISOString(); screenshot.afterCapture = state();
+    checkpoint();
+    const evaluation = { startedAt: new Date().toISOString(), status: "PENDING" };
+    diagnostic.evaluation = evaluation; checkpoint();
+    try {
+      evaluation.result = await page.evaluate(() => ({ url: location.href, lang: document.documentElement.lang,
+        active: document.activeElement?.outerHTML.slice(0, 250), openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
+        helperActivity: window.__qaHelperActivity,
+        text: document.body.innerText.slice(-3500) }));
+      evaluation.status = "PASS";
+    } catch (error) { evaluation.status = "FAIL"; evaluation.error = captureError(error); }
+    evaluation.finishedAt = new Date().toISOString(); evaluation.afterCapture = state();
+    checkpoint();
+  }
+  return diagnostics;
+}
+
 async function newContext(browser, { width = 390, height = 844, language = "ru", serviceWorkers = "block" } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, hasTouch: width < 800,
     reducedMotion: "reduce", serviceWorkers, ignoreHTTPSErrors: true });
@@ -91,6 +183,7 @@ async function newContext(browser, { width = 390, height = 844, language = "ru",
 async function run(browser, id, callback, options = {}) {
   if (process.env.ROBYS_COMBO_FILTER && !id.includes(process.env.ROBYS_COMBO_FILTER)) return;
   const context = await newContext(browser, options);
+  const failureLifecycle = observeFailureLifecycle(context, browser);
   const errors = [];
   context.on("page", page => {
     page.setDefaultTimeout(timeoutMs);
@@ -103,15 +196,13 @@ async function run(browser, id, callback, options = {}) {
     report.cases.push({ id, status: "PASS", startedAt, facts });
     console.log(`PASS ${id}`);
   } catch (error) {
-    const diagnostics = [];
-    for (const [index, page] of context.pages().entries()) {
-      await page.screenshot({ path: join(output, `${id}-failure-${index}.png`) }).catch(() => {});
-      diagnostics.push(await page.evaluate(() => ({ url: location.href, lang: document.documentElement.lang,
-        active: document.activeElement?.outerHTML.slice(0, 250), openDialogs: [...document.querySelectorAll("dialog[open]")].map(node => node.className || node.id),
-        helperActivity: window.__qaHelperActivity,
-        text: document.body.innerText.slice(-3500) })).catch(() => ({})));
-    }
-    report.cases.push({ id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics });
+    const lifecycle = failureLifecycle();
+    const failure = { id, status: "FAIL", startedAt, error: error.stack, errors, diagnostics: [], lifecycle };
+    report.cases.push(failure); persist();
+    await captureFailureDiagnostics(context, browser, id, failure.diagnostics, () => {
+      failure.lifecycleDuringDiagnostics = failureLifecycle(); persist();
+    });
+    failure.lifecycleAfterDiagnostics = failureLifecycle(); persist();
     console.error(`FAIL ${id}: ${error.stack}`);
   } finally { await context.close(); persist(); }
 }
@@ -496,14 +587,29 @@ try {
             ["robys-menu-order.v2", "robys-menu-order.v1", "robys-menu-order.tab.v1"]) storage.removeItem(key);
         });
         await page.bringToFront();
+        await page.waitForFunction(() => !document.hidden);
+        await page.locator(".choice-help-entry").evaluate(button => button.focus({ preventScroll: true }));
         assert.deepEqual(storageRequests, [], "A peer commit notification is still not local ordering intent");
         assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"));
-        await page.clock.runFor(9_000);
+        // Keep the45second module boundary and the eight-second idle window
+        // separate. Real module loading can finish after runFor has advanced
+        // virtual time, so networkidle alone is not a mounted-helper barrier.
+        await page.clock.runFor(1_000);
+        await page.locator('[data-choice-help-mounted="true"]').waitFor({ state: "attached" });
+        await page.locator(".back-top").evaluate(link => link.focus({ preventScroll: true }));
+        assert.deepEqual(storageRequests, [], "Mounting the helper before its idle window does not download authoritative storage");
+        await page.clock.runFor(7_000);
+        assert.deepEqual(storageRequests, [], "The mounted helper still waits for eight seconds of idle");
+        await Promise.all([
+          page.waitForRequest(request => new URL(request.url()).pathname === "/order-storage.js"),
+          page.clock.runFor(1_000)
+        ]);
         await page.waitForLoadState("networkidle");
         assert.equal(storageRequests.length, 1, "An eligible idle offer must read the actual basket even when its mirror is absent");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "The nonempty canonical basket suppresses the automatic offer");
         assert.deepEqual((await canonical(page)).draft.lines, linesFor("student"), "Assistance cannot mutate the peer's order");
         return { notificationTypes: ["storage projection", "robys:order-change", "focus"], before44sStorageRequests: 0,
+          mountedBeforeIdleWindow: true, before7sIdleStorageRequests: 0, after8sIdleStorageRequests: storageRequests.length,
           eligibleStorageRequests: storageRequests.length, authoritativePeerOrder: linesFor("student"), canonicalRevision: revision,
           missingDisposableMirror: true, nonemptyCanonicalOrderSuppressesOffer: true };
       });
@@ -559,6 +665,12 @@ try {
         assert.equal(await page.locator(".choice-help-entry").evaluate(button => document.activeElement === button), true, "Manual offer leaves keyboard focus on its entry");
         await page.keyboard.press("Escape");
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
+        await page.locator(".choice-help-entry").click();
+        await page.locator(".choice-help-panel:not([hidden])").waitFor();
+        assert.equal(await page.locator(".choice-help-entry").evaluate(button => document.activeElement === button), true,
+          "The mounted helper preserves focus on repeated manual activation");
+        await page.keyboard.press("Escape");
+        assert.equal(await page.locator(".choice-help-panel").isHidden(), true);
         return { language, virtualVisibleTimeBeforeOffer: 59_000, editingSuppressed: true, idleThresholdRespected: true,
           noFocusSteal: true, nonmodal: true, oncePerSessionAcrossViews: true, manualStillAvailable: true, idleActivity, actions };
       }, { language });
@@ -566,7 +678,12 @@ try {
       await run(browser, `${name}-helper-timing-and-immediate-dismissal`, async context => {
         const page = await context.newPage(); await installClock(page);
         await openMenu(page, ""); await page.locator(".choice-help-entry").waitFor();
-        await page.locator("#menu-share-button").focus();
+        // Keep this idle-only clock fixture independent of the footer's native
+        // focus scroll, which WebKit can deliver after virtual time advances.
+        const readingPosition = await page.evaluate(() => ({ x: scrollX, y: scrollY }));
+        await page.locator("#menu-share-button").evaluate(button => button.focus({ preventScroll: true }));
+        assert.deepEqual(await page.locator("#menu-share-button").evaluate(button => ({ focused: document.activeElement === button, x: scrollX, y: scrollY })),
+          { focused: true, ...readingPosition }, "The idle timing anchor preserves focus and the current reading position");
         await page.clock.runFor(44_000);
         assert.equal(await page.locator(".choice-help-panel").isHidden(), true, "Offer is not immediate or before45seconds");
         await page.clock.runFor(2_000); await page.locator(".choice-help-panel:not([hidden])").waitFor();

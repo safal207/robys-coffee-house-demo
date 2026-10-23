@@ -13,6 +13,11 @@ on:
       - "scripts/test-discover-deck.mjs"
       - "scripts/test-discover-deck-browser.mjs"
       - "scripts/test-menu-product-reveal.mjs"
+      - "scripts/ensure-playwright-browsers.mjs"
+      - "scripts/signed-ubuntu-packages.mjs"
+      - "scripts/test-playwright-prerequisites.mjs"
+      - "package.json"
+      - "package-lock.json"
       - "integrity-manifest.json"
       - "qa/reviewed-visual-changes.d/discover-deck-consolidated-v1.json"
       - ".github/workflows/discover-deck-consolidated.yml"
@@ -23,7 +28,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact proposed head
         uses: actions/checkout@v4
@@ -48,7 +53,7 @@ jobs:
           npm run verify:integrity
           npm run verify:security
       - name: Install deterministic Chromium
-        run: npx playwright install --with-deps chromium
+        run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Run full mobile customer journey
         env:
           DECK_RESULTS_DIR: .artifacts/discover-deck

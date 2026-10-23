@@ -174,7 +174,8 @@ async function runScenario(browser, engine, scenario) {
         await waitForCart(page, language, false);
         assert.equal(await upgrade.evaluate(node => document.activeElement === node), true, "Removing the upgrade must also preserve focus");
         entry.observations.push({ step: "after-remove", ...await state(page, language) });
-        await page.keyboard.press("Tab");
+        // macOS WebKit includes clickable controls with native Option-Tab.
+        await page.keyboard.press(engine === "webkit" && process.platform === "darwin" ? "Alt+Tab" : "Tab");
         assert.equal(await page.locator(".cart-bump-actions button").first().evaluate(node => document.activeElement === node), true,
           "The next Tab must advance after the upgrade instead of restarting at the cart handoff");
       }

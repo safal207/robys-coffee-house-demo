@@ -1,10 +1,11 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
+import "./src/menu-feedback-entry.js";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
 import { parseFeedEntry, feedShareUrl, selectActiveFeedIndex, visibleFeedCardBounds } from "./src/menu-feed-navigation.js";
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
-import { createFeedViewer } from "./src/menu-feed-viewer.js";
+import { createLazyFeedViewer } from "./src/menu-feed-viewer-entry.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -70,8 +71,59 @@ const discoverDialog = $("#feed-discover"), shareDialog = $("#feed-share");
 let language = "tr";
 try { const stored = localStorage.getItem("robys-language"); if (Object.hasOwn(copy, stored)) language = stored; } catch {}
 const entry = parseFeedEntry(location.href, products);
+// A shared-product reload must land on that product even when native scroll
+// restoration runs after pageshow. Return ownership on user input/pagehide so
+// ordinary history navigation and persisted reading positions keep working.
+const reloadScrollEvents = ["pointerdown", "keydown", "wheel", "touchstart"];
+const reloadScrollOwnerKey = "robysFeedReloadScroll";
+let ownsReloadScroll = false;
+try {
+  const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
+  const reload = type === "reload" || !type && performance.navigation?.type === 1;
+  const state = history.state;
+  const plainState = state === null || Object.getPrototypeOf(state) === Object.prototype;
+  const transferred = state?.[reloadScrollOwnerKey] === entry.productId;
+  if (entry.productId && reload && plainState && (history.scrollRestoration === "auto" || transferred)) {
+    // Firefox can copy the departing entry's manual policy before pagehide.
+    // Transfer only our own policy; preserve a visitor's existing manual one.
+    history.replaceState({ ...state, [reloadScrollOwnerKey]: entry.productId }, "");
+    history.scrollRestoration = "manual";
+    ownsReloadScroll = true;
+  }
+} catch { /* Explicit item scrolling also works without this optional API. */ }
+function releaseReloadScroll(event) {
+  if (!ownsReloadScroll || event.type !== "pagehide" && !event.isTrusted) return;
+  ownsReloadScroll = false;
+  try {
+    if (history.scrollRestoration === "manual") history.scrollRestoration = "auto";
+    // Keep provenance across pagehide so a copied manual entry remains ours.
+    const state = history.state;
+    if (event.type !== "pagehide" && state?.[reloadScrollOwnerKey] === entry.productId) {
+      const next = { ...state }; delete next[reloadScrollOwnerKey];
+      history.replaceState(Object.keys(next).length ? next : null, "");
+    }
+  } catch {}
+  for (const type of reloadScrollEvents) window.removeEventListener(type, releaseReloadScroll, true);
+  window.removeEventListener("pagehide", releaseReloadScroll);
+}
+if (ownsReloadScroll) {
+  for (const type of reloadScrollEvents) window.addEventListener(type, releaseReloadScroll, { capture: true, passive: true });
+  window.addEventListener("pagehide", releaseReloadScroll);
+}
 if (entry.language) language = entry.language;
 if (!entry.productId) searchInput.value = Array.from((new URL(location.href).searchParams.get("q") ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("");
+// Start the actual entry photograph before controls and cards need layout.
+const initialLead = productIndex.get(entry.productId) ?? filterFeed(products, entry.category, searchInput.value)[0];
+if (initialLead) {
+  const hint = document.createElement("link");
+  if ("imageSrcset" in hint) {
+    hint.rel = "preload"; hint.as = "image"; hint.fetchPriority = "high";
+    hint.imageSizes = "(max-width: 460px) 100vw, 460px";
+    const compact = initialLead.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+    hint.imageSrcset = `${compact} 512w, ${initialLead.image} 1024w`;
+    hint.href = initialLead.image; document.head.append(hint);
+  }
+}
 let category = entry.category, filtered = [], rendered = 0, currentIndex = 0;
 let likedOnly = false;
 let busy = false, statusTimer;
@@ -102,7 +154,7 @@ function updateEngagement(cards = root.querySelectorAll(".feed-card")) {
     like.querySelector("span").textContent = liked ? text().liked : text().like;
     const seen = card.querySelector(".feed-seen");
     seen.dataset.seen = String(engagement.hasSeen(product.id));
-    const count = new Intl.NumberFormat(language).format(engagement.viewCount(product.id));
+    const count = priceFormats[language].format(engagement.viewCount(product.id));
     card.querySelector(".feed-view-count").textContent = count;
     card.querySelector(".feed-photo-views").setAttribute("aria-label", `${text().viewsDevice} · ${text().views}: ${count}`);
     seen.querySelector("span").textContent = `${text().viewsDevice} · ${text().views}: ${count}`;
@@ -194,8 +246,9 @@ function updateFeedLayout() {
   const headerHeight = $(".feed-header").getBoundingClientRect().height;
   const toolsHeight = $(".feed-tools").getBoundingClientRect().height;
   const style = document.documentElement.style;
-  style.setProperty("--feed-header-height", `${headerHeight}px`);
-  style.setProperty("--feed-top-offset", `${headerHeight + toolsHeight}px`);
+  const header = `${headerHeight}px`, offset = `${headerHeight + toolsHeight}px`;
+  if (style.getPropertyValue("--feed-header-height") !== header) style.setProperty("--feed-header-height", header);
+  if (style.getPropertyValue("--feed-top-offset") !== offset) style.setProperty("--feed-top-offset", offset);
   scheduleActiveCard();
 }
 function scheduleLayout() { if (!layoutFrame) layoutFrame = requestAnimationFrame(updateFeedLayout); }
@@ -269,7 +322,7 @@ function renderCategories() {
     node.setAttribute("aria-pressed", String(category === entry.id));
     const portrait = element("span", "feed-category-portrait");
     if (entry.image) {
-      const photo = element("img"); photo.src = entry.image; photo.alt = ""; photo.width = 50; photo.height = 50; photo.loading = "lazy"; portrait.append(photo);
+      const photo = element("img"); photo.alt = ""; photo.width = 50; photo.height = 50; photo.loading = "lazy"; photo.src = entry.image; portrait.append(photo);
     } else portrait.textContent = "✦";
     node.append(portrait, element("span", "feed-category-label", entry.name));
     nav.append(node);
@@ -278,6 +331,15 @@ function renderCategories() {
 }
 
 const cardObserver = "IntersectionObserver" in window ? new IntersectionObserver(scheduleActiveCard, { threshold: [0, .3, .6, 1] }) : null;
+const pendingPhotos = new WeakMap();
+// Native lazy loading may fetch several full screens on a slow connection.
+// Keep offscreen photographs from competing with the first visible choice.
+const photoObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+  for (const entry of entries) if (entry.isIntersecting) {
+    photoObserver.unobserve(entry.target);
+    pendingPhotos.get(entry.target)?.();
+  }
+}, { rootMargin: "150px 0px" }) : null;
 
 function renderCard(product, index) {
   const card = element("article", "feed-card"); card.dataset.productId = product.id; card.dataset.index = index; card.tabIndex = -1;
@@ -287,10 +349,24 @@ function renderCard(product, index) {
   const byline = element("div", "feed-card-byline"); byline.append(element("strong", "", "robyscoffeehouse"), element("span", "", "Gazipaşa · Coffee House"));
   header.append(avatar, byline, element("span", "feed-card-number", String(index + 1).padStart(2, "0")));
   const visual = element("div", "feed-photo");
-  const photo = element("img"); photo.src = product.image; photo.alt = localized(product.item.imageAlt ?? product.item.name);
+  const photo = element("img"); photo.alt = localized(product.item.imageAlt ?? product.item.name);
   photo.width = 1024; photo.height = 1024; photo.loading = index === 0 ? "eager" : "lazy"; photo.decoding = "async";
-  photo.addEventListener("load", () => scheduleView(photo));
+  // Reuse verified full-frame delivery copies; dense displays keep the original.
+  const compact = product.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
+  photo.sizes = "(max-width: 460px) 100vw, 460px";
   if (index === 0) photo.setAttribute("fetchpriority", "high");
+  photo.addEventListener("error", () => {
+    if (!photo.srcset) return;
+    photo.removeAttribute("srcset"); photo.src = product.image;
+  });
+  const loadPhoto = () => {
+    pendingPhotos.delete(photo);
+    photo.srcset = `${compact} 512w, ${product.image} 1024w`;
+    photo.src = product.image;
+  };
+  if (index === 0 || !photoObserver) loadPhoto();
+  else { pendingPhotos.set(photo, loadPhoto); photoObserver.observe(photo); }
+  photo.addEventListener("load", () => scheduleView(photo));
   visual.append(photo, element("span", "feed-photo-tag", localized(product.category.name)));
   const views = element("span", "feed-photo-views");
   views.append(icon("M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"), element("output", "feed-view-count", "0"));
@@ -374,6 +450,7 @@ function appendPage() {
 
 function renderFeed() {
   cardObserver?.disconnect();
+  photoObserver?.disconnect();
   stopViews(); viewCandidates.clear(); viewObserver?.disconnect();
   filtered = filterFeed(products, category, searchInput.value).filter(product => !likedOnly || engagement.hasLiked(product.id)); rendered = 0; currentIndex = 0;
   root.replaceChildren(); appendPage(); updateCounter();
@@ -393,7 +470,9 @@ function applyLanguage() {
   for (const id of ["feed-discover-close", "feed-share-close"]) $(`#${id}`).setAttribute("aria-label", text().close);
   document.querySelectorAll("[data-menu-copy]").forEach(node => { node.textContent = menuCopy[language][node.dataset.menuCopy] ?? ""; });
   document.querySelectorAll("[data-localized]").forEach(node => { if (node.dataset[language]) node.textContent = node.dataset[language]; });
-  renderCategories(); renderFeed(); order.refreshLanguage(); collections.refresh();
+  // Measure the translated controls before cards exist; changing inherited
+  // layout variables afterwards would force the whole feed to lay out twice.
+  renderCategories(); updateFeedLayout(); renderFeed(); order.refreshLanguage(); collections.refresh();
   $("#feed-reels-open").setAttribute("aria-label", `${text().reels} · ${text().feedTitle}`);
   viewer?.renderStories(); viewer?.refresh();
   scheduleLayout();
@@ -405,7 +484,7 @@ document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("
   language = node.dataset.lang;
   try { localStorage.setItem("robys-language", language); } catch {}
   const url = new URL(location.href);
-  if (url.searchParams.has("lang")) { url.searchParams.set("lang", language); history.replaceState(null, "", url); }
+  if (url.searchParams.has("lang")) { url.searchParams.set("lang", language); history.replaceState(history.state, "", url); }
   applyLanguage();
   const index = filtered.findIndex(product => product.id === anchor);
   if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
@@ -512,6 +591,9 @@ const syncEngagement = key => {
   if (likedOnly && before !== after) reconcileLiked();
 };
 window.addEventListener("pageshow", event => { if (event.persisted) { syncEngagement(null); viewCandidates.forEach(scheduleView); void refreshOrder(); } });
+// Native reload restoration can run after the initial explicit-item scroll.
+// A persisted page already owns the visitor's later scroll position.
+window.addEventListener("pageshow", event => { if (!event.persisted) followEntry(); });
 window.addEventListener("pagehide", stopViews);
 document.addEventListener("visibilitychange", () => {
   stopViews();
@@ -521,7 +603,7 @@ window.addEventListener("storage", event => {
   if (event.key === null || event.key.startsWith("robys-menu-order")) void refreshOrder();
   if (event.key === null || event.key.startsWith("robys-feed-")) syncEngagement(event.key);
 });
-viewer = createFeedViewer({ products, categories: menuCategories, engagement, getLanguage: () => language, formatPrice: money,
+viewer = createLazyFeedViewer({ products, categories: menuCategories, engagement, getLanguage: () => language, formatPrice: money,
   getFiltered: () => filtered, getCurrentIndex: () => currentIndex,
   onOpen: () => { order.cancelPending(); stopViews(); },
   onClose: () => {
@@ -537,5 +619,5 @@ applyLanguage();
 $(".feed-formats").hidden = false;
 $("#menu-cart-trigger").hidden = false;
 root.dataset.ready = "true";
-updateFeedLayout(); followEntry();
+followEntry();
 void refreshOrder();

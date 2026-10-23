@@ -138,6 +138,14 @@ function mountCart(): void {
   selectedCard.dataset.cartMounted = "true";
   const root = create("section", "cart-builder");
   root.setAttribute("aria-labelledby", "cart-builder-title");
+  // Safari pointer activation can blur a button instead of focusing it. Give
+  // the explicit action focus before its asynchronous save; render still
+  // preserves whichever control the user has reached when that save completes.
+  root.addEventListener("click", event => {
+    if (!event.isTrusted || !(event.target instanceof Element)) return;
+    const button = event.target.closest<HTMLButtonElement>("button[data-cart-focus]");
+    if (button && root.contains(button) && !button.disabled) button.focus({ preventScroll: true });
+  }, { capture: true });
   selectedCard.insertBefore(root, selectedCard.querySelector(".actions"));
   const partySize = flow.answers.partySize as PartySize;
   let cart = reconcileCart(loadCart(combo.id), partySize).state;

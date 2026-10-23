@@ -8,7 +8,8 @@ env:
 
 jobs:
   build-smoke:
-    runs-on: ubuntu-latest
+    # The signed ffprobe prerequisite supports this Ubuntu deb822 runner.
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -20,11 +21,7 @@ jobs:
       - run: npm run build
       - run: node --check app.js
       - name: Ensure ffprobe is available
-        run: |
-          if ! command -v ffprobe >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
-          fi
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
       - run: npm run verify:media
       - name: Refresh redirect smoke
         run: npx --yes @lhci/cli@${LHCI_VERSION} collect --config=lighthouse/lighthouserc.refresh-smoke.cjs

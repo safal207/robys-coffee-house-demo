@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   ios-route-webkit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Check out repository
@@ -27,8 +27,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright for the iOS WebKit gate
-        run: |
-          npx --no-install playwright install --with-deps webkit
+        run: node scripts/ensure-playwright-browsers.mjs webkit
 
       - name: Build site
         run: npm run build

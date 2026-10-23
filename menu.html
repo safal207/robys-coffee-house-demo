@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- menu startup modules -->
+  <link rel="modulepreload" href="menu-catalog.js?v=05e7dac3c17b" />
+  <link rel="modulepreload" href="menu-app.js?v=84823df02192" />
+  <link rel="preload" href="menu-feed.css?v=b9c32b97a6eb" as="style" fetchpriority="low" />
+  <script type="module" src="menu-app.js?v=84823df02192"></script>
+  <!-- /menu startup modules -->
   <meta name="robys-build" content="20260904-1" />
   <meta name="description" content="Roby's Coffee House Gazipaşa menüsü: espresso, latte, soğuk içecekler, çaylar, cheesecake, kruvasan ve sandviçler. Türkçe, English ve Русский." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
@@ -41,7 +47,7 @@
   <script src="bootstrap-v2.js?v=b4984fb63ba2"></script>
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="preload" href="src/brand/robys-primary-master-v1.svg?v=20260917-approved-v4-restore" as="image" type="image/svg+xml" fetchpriority="high" />
-  <link rel="stylesheet" href="menu-runtime.css?v=5c3205d7c5f8" />
+  <link rel="stylesheet" href="menu-runtime.css?v=b7cefed06948" />
 
 
 
@@ -70,6 +76,7 @@
       <nav class="menu-view-switch" aria-label="Menü görünümü / Menu view / Вид меню">
         <a href="menu.html?view=list" data-menu-view="list" aria-current="page"><span lang="tr">Liste</span><span lang="en">List</span><span lang="ru">Список</span></a>
         <a href="menu-feed.html?view=feed" data-menu-view="feed" data-menu-feed data-localized data-tr="Akış" data-en="Feed" data-ru="Лента">Akış</a>
+        <button type="button" class="menu-sound-toggle" aria-label="Ses / Sound / Звук" title="Ses / Sound / Звук" aria-pressed="false">♪</button>
       </nav>
     </div></div>
 </header>
@@ -255,7 +262,6 @@
   </dialog>
 
   <script type="module" src="menu-product-reveal.js?v=6ae2dd3ba2e7"></script>
-  <script type="module" src="menu-app.js?v=904879662915"></script>
-  <script type="module" src="pairing-posters.js?v=024743e64919"></script>
+  <script type="module" src="pairing-posters.js?v=4fc1610c3f10"></script>
 </body>
 </html>

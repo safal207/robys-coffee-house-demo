@@ -131,7 +131,23 @@ async function chooseCategory(page, id) {
   await closeDiscovery(page);
 }
 async function waitForCounter(page, index, count = catalog.length) {
-  await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
+  try {
+    await page.waitForFunction(({ index, count }) => document.querySelector("#feed-counter").textContent === `${index + 1} / ${count}`, { index, count });
+  } catch (error) {
+    const observation = await page.evaluate(() => ({
+      url: location.href, ready: document.querySelector("#feed")?.dataset.ready,
+      counter: document.querySelector("#feed-counter")?.textContent, scrollY, hidden: document.hidden,
+      restoration: history.scrollRestoration, navigation: performance.getEntriesByType("navigation")[0]?.type,
+      width: innerWidth, height: innerHeight,
+      cards: [...document.querySelectorAll(".feed-card")].map(node => ({ id: node.dataset.productId,
+        index: node.dataset.index, top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom }))
+        .filter(node => node.bottom > 0 && node.top < innerHeight).slice(0, 8)
+    })).catch(failure => ({ observationError: failure.message }));
+    const failure = { case: "counter-timeout", result: "FAIL", expectedIndex: index, expectedCount: count, observation };
+    report.cases.push(failure);
+    console.error(`COUNTER_TIMEOUT_OBSERVATION ${JSON.stringify(failure)}`);
+    throw error;
+  }
 }
 async function secondCardPosition(page) {
   return page.locator(".feed-card").nth(1).evaluate(card => {
@@ -207,6 +223,90 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  {
+    const defaultProduct = catalog[0];
+    const firstCoffee = catalog.find(product => product.category.id === "hot-coffee");
+    const searched = catalog.find(product => product.id === "desserts:tiramisu");
+    const lane = catalog.filter(product => product.category.id === "hot-coffee");
+    assert(lane.length > 8, "Explicit-entry fixture must lie beyond the first rendered page");
+    const explicit = lane.at(-1);
+    const deliveryPaths = product => [product.image, product.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp")];
+    const defaultPaths = deliveryPaths(defaultProduct).map(path => new URL(path, origin).pathname);
+    const fixtures = [
+      { id: "default", suffix: "", product: defaultProduct },
+      { id: "category", suffix: "#hot-coffee", product: firstCoffee },
+      { id: "search", suffix: "&q=tiramisu", product: searched },
+      { id: "explicit-late-product", suffix: `&item=${encodeURIComponent(explicit.id)}`, product: explicit },
+      { id: "empty-search", suffix: "&q=zzzz-robys-no-such-photo-zzzz", product: null }
+    ];
+    for (const fixture of fixtures) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+      await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+      const page = await context.newPage(); page.setDefaultTimeout(15000);
+      const errors = [], requests = []; observeErrors(page, errors);
+      page.on("request", request => requests.push(new URL(request.url()).pathname));
+      await page.goto(`${origin}/menu-feed.html?view=feed&lang=en${fixture.suffix}`, { waitUntil: "networkidle" });
+      if (fixture.product) await waitForMenuMode(page, "feed");
+      else {
+        await page.locator('html[data-menu-view-ready="true"]').waitFor();
+        assert.equal(new URL(page.url()).pathname, "/menu-feed.html");
+        await page.locator('#feed[data-ready="true"]').waitFor({ state: "attached" });
+        await page.locator("#feed-empty").waitFor({ state: "visible" });
+        assert.equal(await page.locator("#feed .feed-card").count(), 0, "An empty search must show its empty state without cards");
+      }
+      assert.equal(await page.evaluate(() => "imageSrcset" in document.createElement("link")), true,
+        "The browser fixture must support responsive image preloading");
+      const hints = page.locator('link[rel="preload"][as="image"]');
+      assert.equal(await hints.count(), fixture.product ? 1 : 0, "Only an actual entry product may receive an image hint");
+      if (fixture.product) {
+        const [original, compact] = deliveryPaths(fixture.product);
+        assert.equal(await hints.getAttribute("href"), original, "The early hint must select the canonical entry photograph");
+        assert.equal(await hints.getAttribute("imagesrcset"), `${compact} 512w, ${original} 1024w`);
+        assert.equal(await hints.getAttribute("imagesizes"), "(max-width: 460px) 100vw, 460px");
+        const paths = [original, compact].map(path => new URL(path, origin).pathname);
+        assert(requests.some(path => paths.includes(path)), "The browser must request the hinted entry photograph");
+      }
+      if (fixture.product?.id !== defaultProduct.id) {
+        assert(!requests.some(path => defaultPaths.includes(path)), "A deep or empty entry must not fetch the default full photograph");
+      }
+      assert.deepEqual(errors, []);
+      report.cases.push({ case: `entry-photo-priority-${fixture.id}`, result: "PASS", entryProduct: fixture.product?.id ?? null,
+        noWrongDefaultPhotoRequest: fixture.product?.id !== defaultProduct.id, consoleErrors: false });
+      await context.close();
+    }
+  }
+  // Closed discovery portraits must not contend with the first visible photo.
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = [], requests = []; observeErrors(page, errors);
+    page.on("request", request => requests.push(new URL(request.url()).pathname));
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`, { waitUntil: "networkidle" });
+    await waitForMenuMode(page, "feed");
+    const portrait = page.locator('#feed-categories [data-category="hot-coffee"] img');
+    const source = catalog.find(product => product.category.id === "hot-coffee").image;
+    const path = new URL(source, origin).pathname;
+    assert.equal(await portrait.getAttribute("src"), source, "The request guard must cover the real category portrait");
+    assert.equal(await page.locator("#feed-discover").evaluate(dialog => dialog.open), false);
+    assert.equal(await portrait.evaluate(image => image.getClientRects().length), 0, "The portrait must really be hidden");
+    assert(!requests.includes(path), "A hidden discovery portrait must not request its photograph before discovery opens");
+    await page.locator("#feed-discover-open").click();
+    await page.locator("#feed-discover[open]").waitFor();
+    await portrait.waitFor({ state: "visible" });
+    await page.waitForFunction(path => {
+      const image = document.querySelector('#feed-categories [data-category="hot-coffee"] img');
+      return image?.complete && image.naturalWidth > 0 && new URL(image.currentSrc).pathname === path;
+    }, path);
+    await portrait.evaluate(image => image.decode());
+    assert.equal(await portrait.evaluate(image => image.complete && image.naturalWidth > 0), true);
+    assert.equal(await portrait.evaluate(image => new URL(image.currentSrc).pathname), path);
+    assert(requests.includes(path), "Opening discovery must request and decode the previously withheld portrait");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "discovery-portrait-request-boundary", result: "PASS", path,
+      hiddenPortraitRequests: 0, visiblePortraitDecoded: true, consoleErrors: false });
+    await context.close();
+  }
   {
     const context = await browser.newContext({ viewport: { width: 320, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
@@ -400,7 +500,8 @@ try {
         naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
         widthAttribute: image.getAttribute("width"), heightAttribute: image.getAttribute("height") };
     });
-    assert.deepEqual([photo.naturalWidth, photo.naturalHeight], [1024, 1024]);
+    assert.ok(photo.naturalWidth >= photo.width - 1 && photo.naturalHeight >= photo.height - 1,
+      "The responsive full-frame photo remains sharp at its displayed size");
     assert.deepEqual([photo.widthAttribute, photo.heightAttribute], ["1024", "1024"]);
     assert.ok(Math.abs(photo.width - photo.height) <= 1, `Square photo has ${photo.width} × ${photo.height} rendered bounds`);
     assert.ok(photo.width > 0 && photo.width <= 460, `Photo width ${photo.width} exceeds the bounded feed column`);
@@ -613,6 +714,7 @@ try {
     const delayedId = await delayedPhoto.getAttribute("data-product-id");
     await delayedPhoto.locator(".feed-photo>img").evaluate(async image => {
       image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode();
+      image.removeAttribute("srcset");
       const url = new URL(image.src); url.searchParams.set("feed-test", "unavailable"); image.src = url.href;
     });
     await page.waitForFunction(id => {
@@ -870,7 +972,8 @@ try {
     await page.locator("#feed-search").fill("Espresso");
     // Native search inputs may consume Escape to clear their query. Exercise
     // dialog cancellation from its preceding button in the natural tab order.
-    await page.keyboard.press("Shift+Tab");
+    // Native macOS WebKit uses Option-Tab to include clickable controls.
+    await page.keyboard.press(engine === "webkit" && process.platform === "darwin" ? "Alt+Shift+Tab" : "Shift+Tab");
     assert.equal(await page.locator("#feed-discover-close").evaluate(node => node === document.activeElement), true);
     await page.keyboard.press("Escape");
     await page.locator("#feed-discover[open]").waitFor({ state: "hidden" });
@@ -973,6 +1076,7 @@ try {
     const linkedUrl = `${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`;
     await page.goto(linkedUrl);
     await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "A fresh shared link preserves native restoration");
     const card = page.locator(`[data-product-id="${target.id}"]`);
     await card.waitFor();
     await card.locator(".feed-photo>img").evaluate(image => image.decode());
@@ -983,10 +1087,53 @@ try {
     assert.equal(await card.locator(".feed-photo>img").evaluate(node => {
       const rect = node.getBoundingClientRect(); return rect.top < innerHeight && rect.bottom > 0;
     }), true, "A later shared product must enter the viewport without manual paging");
-    await page.reload();
-    await page.locator('#feed[data-ready="true"]').waitFor();
+    const firstCard = page.locator(".feed-card").first();
+    await firstCard.locator(".feed-photo>img").evaluate(image => image.scrollIntoView({ block: "center", behavior: "instant" }));
+    await waitForCounter(page, 0, lane.length);
+    const restoredScroll = await page.evaluate(() => scrollY);
+    // Replay the persisted lifecycle boundary separately from native reload:
+    // a restored page retains the visitor's current product and scroll position.
+    await page.evaluate(async () => {
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    assert.ok(Math.abs(await page.evaluate(() => scrollY) - restoredScroll) < 1,
+      "A persisted page must not jump back to the original shared product");
+    await waitForCounter(page, 0, lane.length);
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
     await waitForCounter(page, lane.length - 1, lane.length);
+    // The native WebKit witness failed on its second reload after a reader
+    // returned to the first product. Retain that sequence in the full suite.
+    for (let reloadCycle = 0; reloadCycle < 3; reloadCycle++) {
+      if (reloadCycle) {
+        if (reloadCycle === 1) {
+          await page.keyboard.press("Shift");
+          assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "Keyboard activity releases the completed initial scroll");
+        }
+        await firstCard.locator(".feed-photo>img").evaluate(image => image.scrollIntoView({ block: "center", behavior: "instant" }));
+        await waitForCounter(page, 0, lane.length);
+        const readingPosition = await page.evaluate(() => scrollY);
+        await page.evaluate(async () => {
+          window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
+        assert.ok(Math.abs(await page.evaluate(() => scrollY) - readingPosition) < 1, "Persisted reading positions remain unchanged between reloads");
+        await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false })));
+        await waitForCounter(page, lane.length - 1, lane.length);
+      }
+      // The locked Firefox automation reload reports a fresh navigation. Use
+      // the document's native reload to exercise the actual reload lifecycle.
+      await Promise.all([page.waitForNavigation(), page.evaluate(() => { location.reload(); })]);
+      assert.equal(await page.evaluate(() => performance.getEntriesByType("navigation")[0]?.type), "reload",
+        "The regression must exercise a native reload in every engine");
+      await page.locator('#feed[data-ready="true"]').waitFor();
+      await waitForCounter(page, lane.length - 1, lane.length);
+      assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "An explicit product reload owns its initial scroll restoration");
+      assert.equal(await page.evaluate(() => history.state?.robysFeedReloadScroll), target.id,
+        "The reload entry records ownership before Firefox copies its manual policy");
+    }
     await chooseCategory(page, "cold-coffee");
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "auto", "New user navigation returns scroll restoration to the browser");
     assert.equal(new URL(page.url()).searchParams.has("item"), false);
     await page.goBack();
     await waitForCounter(page, lane.length - 1, lane.length);
@@ -998,7 +1145,47 @@ try {
     assert.equal(await page.locator('[data-category="hot-coffee"]').getAttribute("aria-pressed"), "true");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "shared-product-entry", result: "PASS", product: target.id, categoryIndex: lane.length - 1,
-      laterBatchLoadedAndVisible: true, explicitLanguage: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
+      laterBatchLoadedAndVisible: true, explicitLanguage: true, persistedPageKeepsCurrentScroll: true,
+      explicitReloadScrollOwned: true, userNavigationRestoresNativeScroll: true, reloadCycles: 3,
+      nonpersistedPageRestoresEntry: true, reloadAndBackRestoreProduct: true, invalidItemAndLanguageFallback: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    let policyInstallations = 0;
+    // Install the existing policy in the committed application document,
+    // before releasing its original module. Early init scripts can run before
+    // Firefox finishes assigning the new entry's native restoration mode.
+    await context.route("**/menu-feed.js?*", async route => {
+      assert.equal(new URL(route.request().url()).origin, origin);
+      await route.request().frame().evaluate(() => {
+        history.scrollRestoration = "manual";
+        history.replaceState({ existingPolicy: "manual" }, "");
+      });
+      policyInstallations++;
+      await route.continue();
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
+    await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "The existing policy is active before reload");
+    assert.deepEqual(await page.evaluate(() => history.state), { existingPolicy: "manual" }, "The application preserves the existing entry before reload");
+    await Promise.all([page.waitForNavigation(), page.evaluate(() => { location.reload(); })]);
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    await waitForCounter(page, lane.length - 1, lane.length);
+    await page.keyboard.press("Shift");
+    assert.ok(policyInstallations >= 1 && policyInstallations <= 2,
+      "Install before every real module request; WebKit may reuse its module cache on reload");
+    assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "A pre-existing manual policy remains with its owner");
+    assert.deepEqual(await page.evaluate(() => history.state), { existingPolicy: "manual" }, "Existing entry state is preserved");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "shared-product-preexisting-scroll-policy", result: "PASS", product: target.id,
+      nativeReloadKeepsProduct: true, existingManualPolicyPreserved: true, entryStatePreserved: true,
+      policyInstallations, setup: "committed application document before unchanged module response" });
     await context.close();
   }
   {
@@ -1495,6 +1682,10 @@ try {
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    const previewPhotoRequests = [];
+    page.on("request", request => {
+      if (new URL(request.url()).pathname.startsWith("/src/products/share-v1/")) previewPhotoRequests.push(request.url());
+    });
     await page.goto(`${origin}${sharedPath}?lang=de&item=hot-coffee%3Aespresso&url=https://other.test/#hot-coffee`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     assert.equal(new URL(page.url()).origin, origin);
@@ -1507,8 +1698,103 @@ try {
     await page.locator("#feed-share[open]").waitFor();
     assert.equal(await page.locator("#feed-share-url").inputValue(), `${origin}${sharedPath}`);
     assert.deepEqual(errors, []);
+    assert.deepEqual(previewPhotoRequests, [], "The automatic redirect must not interrupt a transient preview photo download");
     report.cases.push({ case: "product-photo-share-entry", result: "PASS", language, initialHtmlPreview: true,
-      noJavaScriptPhotoAndLink: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
+      noJavaScriptPhotoAndLink: true, noTransientPreviewPhotoRequest: true, exactProductAndLanguage: true, untrustedQueryIgnored: true, reshareSameDocument: true });
+    await context.close();
+  }
+
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = [], audioRequests = []; observeErrors(page, errors);
+    page.on("request", request => { if (new URL(request.url()).pathname === "/menu-feedback.js") audioRequests.push(request.url()); });
+    await page.goto(`${origin}/menu.html?view=list&lang=en`);
+    await waitForMenuMode(page, "list");
+    const toggle = page.locator(".menu-sound-toggle");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), null);
+    assert.equal(audioRequests.length, 0, "Optional audio is absent from initial menu requests");
+    await page.locator('[data-lang="ru"]').click();
+    assert.equal(audioRequests.length, 0, "Ordinary actions keep audio unloaded while sound is off");
+    await toggle.click();
+    await page.waitForFunction(() => localStorage.getItem("robys-menu-sound") === "on"
+      && document.querySelector(".menu-sound-toggle").dataset.soundReady === "true");
+    assert.equal(audioRequests.length, 1, "The actual toggle activation downloads audio lazily");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "true");
+    assert.equal(await toggle.getAttribute("aria-label"), "Выключить звук меню");
+    assert.equal(await toggle.getAttribute("title"), "Выключить звук меню");
+    await page.locator('[data-lang="en"]').click();
+    await page.waitForFunction(() => document.querySelector(".menu-sound-toggle").getAttribute("aria-label") === "Turn menu sound off");
+    assert.equal(await toggle.getAttribute("title"), "Turn menu sound off");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "true", "Switching presentation preserves the opt in");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), "on");
+    await toggle.click();
+    await page.waitForFunction(() => localStorage.getItem("robys-menu-sound") === "off"
+      && document.querySelector(".menu-sound-toggle").dataset.soundReady === "true");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await toggle.getAttribute("aria-label"), "Turn menu sound on");
+    const requestsBeforeReload = audioRequests.length;
+    await page.reload(); await waitForMenuMode(page, "feed");
+    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-sound")), "off");
+    assert.equal(audioRequests.length, requestsBeforeReload, "A saved mute does not download audio on reload");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "optional-menu-sound", result: "PASS", defaultOff: true, lazyActualToggleRequest: true,
+      localizedLabelAndTitle: true, optInSurvivesViewSwitch: true, muteSurvivesReload: true,
+      audioModuleRequests: audioRequests.length, applicationConsoleErrors: false, audibleOutputVerified: false });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    const forcedAborts = new Set(), failedRequests = [], expectedResourceErrors = [], applicationErrors = [];
+    await context.route("**/*", route => {
+      const url = new URL(route.request().url());
+      if (url.origin === origin && url.pathname.startsWith("/src/products/quick-v1/")) {
+        forcedAborts.add(url.href); return route.abort();
+      }
+      return url.origin === origin ? route.continue() : route.abort();
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    page.on("requestfailed", request => failedRequests.push(request.url()));
+    page.on("pageerror", error => applicationErrors.push(`pageerror: ${error.message}`));
+    page.on("console", message => {
+      if (message.type() !== "error") return;
+      const url = message.location().url;
+      // Attribute only a resource error for an exact deliberately aborted URL.
+      // Script errors, CSP failures and all other console errors remain failures.
+      if (forcedAborts.has(url) && /^Failed to load resource/.test(message.text())) expectedResourceErrors.push({ url, message: message.text() });
+      else applicationErrors.push(`console.error: ${message.text()} (${url})`);
+    });
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+    await waitForMenuMode(page, "feed");
+    const original = new URL(catalog[0].image, origin).href;
+    await page.waitForFunction(original => {
+      const image = document.querySelector(".feed-photo>img");
+      return image && !image.hasAttribute("srcset") && image.complete && image.naturalWidth > 0 && image.currentSrc === original;
+    }, original);
+    await page.locator(".feed-photo>img").first().evaluate(image => image.decode());
+    const recovered = await page.locator(".feed-photo>img").first().evaluate(image => {
+      const box = image.getBoundingClientRect();
+      return { currentSrc: image.currentSrc, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+        displayWidth: box.width, ratio: box.width / box.height, objectFit: getComputedStyle(image).objectFit, srcsetRemoved: !image.hasAttribute("srcset") };
+    });
+    assert.equal(recovered.currentSrc, original);
+    assert.ok(recovered.naturalWidth >= Math.round(recovered.displayWidth), "The recovered original remains sharp at its display width");
+    assert.equal(recovered.naturalWidth, recovered.naturalHeight); assert.ok(Math.abs(recovered.ratio - 1) < .01);
+    assert.equal(recovered.objectFit, "contain"); assert.equal(recovered.srcsetRemoved, true);
+    assert.ok(forcedAborts.size > 0, "The compact delivery path was actually requested and aborted");
+    assert.ok(failedRequests.length > 0, "The fallback test exercised a real network failure");
+    assert.deepEqual(failedRequests.filter(url => !forcedAborts.has(url)), [], "Only explicitly aborted compact photos may fail");
+    assert.deepEqual(applicationErrors, []);
+    report.cases.push({ case: "responsive-photo-original-fallback", result: "PASS", forcedCompactAborts: forcedAborts.size,
+      failedRequests: failedRequests.length, expectedResourceConsoleErrors: expectedResourceErrors.length,
+      recovered, applicationConsoleErrors: false });
     await context.close();
   }
 

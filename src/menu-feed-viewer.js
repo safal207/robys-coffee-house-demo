@@ -42,8 +42,8 @@ function icon(name) {
 }
 
 export function createFeedViewer({ products, categories, engagement, getLanguage, formatPrice,
-  getFiltered, getCurrentIndex, onShare, onChoose, onOpen = () => {}, onClose = () => {} }) {
-  const storyRoot = document.querySelector("#feed-stories");
+  getFiltered, getCurrentIndex, onShare, onChoose, onOpen = () => {}, onClose = () => {}, manageEntries = true }) {
+  const storyRoot = manageEntries ? document.querySelector("#feed-stories") : null;
   const reelsTrigger = document.querySelector("#feed-reels-open");
   const productIndex = new Map(products.map(product => [product.id, product]));
   const groups = categories.map(category => ({ category, products: products.filter(product => product.category.id === category.id) }))
@@ -413,6 +413,6 @@ export function createFeedViewer({ products, categories, engagement, getLanguage
   window.addEventListener("blur", () => { if (gesture) { clearGesture(); wake(true); } });
   window.addEventListener("pagehide", closeViewer);
   new MutationObserver(() => { if (active) wake(true); }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["open"] });
-  reelsTrigger?.addEventListener("click", () => openReels());
+  if (manageEntries) reelsTrigger?.addEventListener("click", () => openReels());
   return { renderStories, refresh, isOpen: () => active && dialog.open, openReels, openStories };
 }
