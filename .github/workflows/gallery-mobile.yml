@@ -15,6 +15,9 @@ on:
       - "qa/playwright.config.ts"
       - "scripts/verify-gallery-assets.sh"
       - "scripts/verify-pairing-preview-media.mjs"
+      - "scripts/ensure-playwright-browsers.mjs"
+      - "scripts/signed-ubuntu-packages.mjs"
+      - "scripts/test-playwright-prerequisites.mjs"
       - "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4"
       - ".github/workflows/gallery-mobile.yml"
   workflow_dispatch:
@@ -24,7 +27,7 @@ permissions:
 
 jobs:
   mobile-gallery:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -81,7 +84,7 @@ jobs:
           retention-days: 1
 
       - name: Install browser engines
-        run: npx --no-install playwright install --with-deps webkit chromium
+        run: node scripts/ensure-playwright-browsers.mjs webkit chromium
 
       - name: Verify codec-capable Chrome
         run: google-chrome --version

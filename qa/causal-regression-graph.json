@@ -612,7 +612,8 @@
         ".github/workflows/menu-product-reveal.yml",
         ".github/workflows/ios-route-webkit.yml",
         ".github/workflows/contextual-entry-certification.yml",
-        ".github/workflows/discover-deck-consolidated.yml"
+        ".github/workflows/discover-deck-consolidated.yml",
+        ".github/workflows/gallery-mobile.yml"
       ],
       "dependsOn": []
     },
@@ -1039,7 +1040,8 @@
         "gallery",
         "product-photos",
         "media",
-        "shared-styles"
+        "shared-styles",
+        "browser-prerequisites"
       ],
       "execution": "existing-workflow"
     },

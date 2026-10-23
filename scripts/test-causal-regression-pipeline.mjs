@@ -209,8 +209,8 @@ test('Playwright prerequisites select their actual browser consumers without app
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
     'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'adversarial-browser'];
   const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
-    'family-browser', 'combos-browser', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
-  for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs']) {
+    'family-browser', 'combos-browser', 'gallery-assets', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
+  for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs', '.github/workflows/gallery-mobile.yml']) {
     const result = impactPlan(graph, [path]);
     assert.deepEqual(result.directComponents, ['browser-prerequisites']);
     assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
@@ -223,7 +223,7 @@ test('Playwright prerequisites select their actual browser consumers without app
   assert.deepEqual(shared.directComponents, ['browser-prerequisites', 'qa-registry']);
   for (const id of [...pipeline]) assert.ok(shared.selectedChecks.includes(id), id);
   assert.deepEqual(shared.externalChecks, ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
-    'family-browser', 'combos-browser', 'contextual-entry-browser', 'menu-interaction-comparison', 'lighthouse-mobile', 'lighthouse-desktop',
+    'family-browser', 'combos-browser', 'gallery-assets', 'contextual-entry-browser', 'menu-interaction-comparison', 'lighthouse-mobile', 'lighthouse-desktop',
     'traceability-contracts', 'ios-route-webkit', 'generated-runtime-contracts', 'lazy-images-browser']);
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/ensure-lighthouse-ffprobe.mjs']) {
     assert.match(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'), /from ["']\.\/signed-ubuntu-packages\.mjs["']/);
@@ -235,7 +235,7 @@ test('Playwright prerequisites select their actual browser consumers without app
     assert.ok(result.externalChecks.includes('menu-interaction-comparison'));
     for (const id of pipeline) assert.ok(result.selectedChecks.includes(id), `${path}: ${id}`);
   }
-  for (const path of ['scripts/ensure-playwright-unregistered.mjs', 'scripts/signed-ubuntu-unregistered.mjs', 'scripts/test-playwright-unregistered.mjs']) {
+  for (const path of ['scripts/ensure-playwright-unregistered.mjs', 'scripts/signed-ubuntu-unregistered.mjs', 'scripts/test-playwright-unregistered.mjs', '.github/workflows/gallery-mobile-unregistered.yml']) {
     assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
   }
 });
