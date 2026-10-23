@@ -202,7 +202,13 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   for (const id of ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser', 'family-browser', 'combos-browser', 'lazy-images-browser']) assert.ok(result.externalChecks.includes(id), id);
   const workflow = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
   for (const file of ['test-menu-lazy-images-browser.mjs', 'test-menu-combos-browser.mjs', 'test-menu-family-browser.mjs', 'test-menu-feed-browser.mjs', 'test-smart-choice-cart-focus-browser.mjs', 'test-home-navigation-browser.mjs']) assert.ok(workflow.includes(`node scripts/${file}`), file);
-  for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+  const navigation = impactPlan(graph, ['scripts/test-home-navigation-browser.mjs']);
+  assert.deepEqual(navigation.directComponents, ['home']);
+  assert.doesNotThrow(() => assertMappedPlan(navigation));
+  assert.ok(navigation.selectedChecks.includes('home-navigation-browser'));
+  assert.ok(navigation.impactedJourneys.includes('home-navigation'));
+  assert.equal(navigation.impactedComponents.includes('qa-registry'), false);
+  for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs', 'scripts/test-home-navigation-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
 test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {

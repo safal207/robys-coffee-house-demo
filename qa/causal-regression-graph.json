@@ -68,6 +68,7 @@
       "label": "Home entry, navigation, skip links, language and contextual entrance",
       "paths": [
         ".github/workflows/order-reliability.yml",
+        "scripts/test-home-navigation-browser.mjs",
         "index.html",
         "src/app.ts",
         "app.js",
