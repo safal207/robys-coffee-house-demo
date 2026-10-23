@@ -188,6 +188,20 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: npm ci --no-audit --no-fund
+      - name: Install the signed native-signal tracer
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { spawnSync } from 'node:child_process';
+          import { installSignedUbuntuPackages } from './scripts/signed-ubuntu-packages.mjs';
+          if (process.getuid() !== 0) throw new Error('The declared official container must retain its existing root user');
+          installSignedUbuntuPackages(['strace'], { run(command, args) {
+            // The official image is already root and need not contain sudo.
+            // Keep the installer's signed sources, isolated state and bounds.
+            if (command !== 'sudo' || args[0] !== '-n' || args[1] !== 'env') throw new Error('Unexpected package command');
+            return spawnSync('env', args.slice(2), { stdio: 'inherit' });
+          } });
+          NODE
       - name: Record the bound image, browser and resource metadata
         shell: bash
         run: |
@@ -211,7 +225,7 @@ jobs:
           accessSync(executablePath, constants.X_OK);
           const shm = statfsSync('/dev/shm');
           const memory = Object.fromEntries((optional('/proc/meminfo') ?? '').split('\n').filter(line => /^(MemTotal|MemAvailable|SwapTotal|SwapFree):/.test(line)).map(line => line.split(':').map(part => part.trim())));
-          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n', 'libglib2.0-0t64', 'libgl1-mesa-dri', 'libgbm1', 'libegl-mesa0'], { encoding: 'utf8' });
+          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n', 'libglib2.0-0t64', 'libgl1-mesa-dri', 'libgbm1', 'libegl-mesa0', 'strace'], { encoding: 'utf8' });
           const output = resolve(process.env.ROBYS_LAZY_QA_DIR);
           mkdirSync(output, { recursive: true });
           const metadata = {
@@ -227,8 +241,8 @@ jobs:
           writeFileSync(resolve(output, 'environment.json'), JSON.stringify(metadata, null, 2) + '\n');
           console.log(JSON.stringify(metadata, null, 2));
           NODE
-      - name: Run the original canonical WebKit lazy-photo suite
-        run: node scripts/test-menu-lazy-images-browser.mjs
+      - name: Observe the canonical WebKit suite and separate crash controls
+        run: node scripts/run-menu-lazy-images-diagnostics.mjs
       - name: Preserve the diagnostic evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

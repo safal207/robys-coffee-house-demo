@@ -193,9 +193,12 @@ async function run(browserName, id, callback, { language = "ru", mode = "native"
     const screenshot = `${browserName}-${id}-failure.png`;
     const failure = { browser: browserName, id, language, mode, deviceScaleFactor: scale, status: "FAIL", startedAt, finishedAt: new Date().toISOString(),
       error: error.stack, uncaughtErrors: errors, requests, screenshot, lifecycle, captureErrors: [], screenshotCapture: "PENDING" };
-    if (startupDiagnostics) failure.startupDiagnostics = startupDiagnostics.finish("before-failure-capture");
+    startupDiagnostics?.mark("before-failure-capture");
     report.cases.push(failure);
     await captureFailure(failure, persist, () => page.screenshot({ path: join(output, screenshot) }));
+    failure.lifecycleAfterCapture = failureLifecycle();
+    if (startupDiagnostics) failure.startupDiagnostics = startupDiagnostics.finish("after-failure-capture");
+    persist();
     console.error(`FAIL ${browserName}/${id}: ${error.message}`);
   } finally {
     if (startupDiagnostics) {
