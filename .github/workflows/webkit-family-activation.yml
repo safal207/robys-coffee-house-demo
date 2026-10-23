@@ -1,0 +1,97 @@
+name: Native WebKit enlarged text activation witness
+on:
+  push:
+    branches: [diagnostic/webkit-family-activation-20261023]
+permissions:
+  contents: read
+jobs:
+  family:
+    runs-on: macos-15-intel
+    timeout-minutes: 12
+    env:
+      ROBYS_FAMILY_BROWSER: webkit
+      ROBYS_FAMILY_QA_DIR: .artifacts/family-activation
+      DEBUG: pw:browser
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22.23.3'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npx --no-install playwright install webkit
+      - name: Observe the original complete family suite and five enlarged text repeats
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tempfile,subprocess,hashlib,json
+          source=Path('scripts/test-menu-family-browser.mjs'); text=source.read_text()
+          original=hashlib.sha256(source.read_bytes()).hexdigest()
+          assert subprocess.check_output(['git','diff','--name-only','053ce971db05cf3285e31cae0110e06e3b559306','HEAD'],text=True).strip()=='.github/workflows/webkit-family-activation.yml'
+          original_page='page.setDefaultTimeout(7000);'
+          observer="""page.setDefaultTimeout(7000);
+            if (id.startsWith('text-200-percent')) {
+              await page.addInitScript(() => {
+                window.__familyEvents = [];
+                const record = (phase,event) => {
+                  const target = event.target instanceof Element ? event.target : null;
+                  const dialog = document.querySelector('.menu-family-dialog');
+                  const fact = { phase, type:event.type, trusted:event.isTrusted, target:target?.tagName, class:target?.className,
+                    recipe:target?.closest('[data-family-recipe]')?.dataset.familyRecipe, x:event.clientX, y:event.clientY,
+                    open:dialog?.open, scrollY, time:performance.now() };
+                  window.__familyEvents.push(fact); if (window.__familyEvents.length>40) window.__familyEvents.shift();
+                  console.info('FAMILY_ACTIVATION',JSON.stringify(fact));
+                };
+                for (const type of ['pointerdown','pointerup','click']) {
+                  window.addEventListener(type,event=>record('capture',event),true);
+                  window.addEventListener(type,event=>record('bubble',event));
+                }
+                addEventListener('DOMContentLoaded',()=>{
+                  new MutationObserver(records=>{
+                    for(const r of records) if(r.target.matches('.menu-family-dialog')) {
+                      const fact={phase:'mutation',open:r.target.open,scrollY,time:performance.now()};
+                      window.__familyEvents.push(fact);console.info('FAMILY_ACTIVATION',JSON.stringify(fact));
+                    }
+                  }).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['open']});
+                },{once:true});
+              });
+              page.on('console', message=>{if(message.text().startsWith('FAMILY_ACTIVATION'))console.log(id,message.text());});
+            }"""
+          assert text.count(original_page)==1
+          text=text.replace(original_page,observer)
+          failure='const screenshot = `${id}-failure.png`;'
+          observation="""if (id.startsWith('text-200-percent')) console.error('FAMILY_FAILURE_STATE',JSON.stringify(await page.evaluate(()=>({
+            events:window.__familyEvents, focused:document.activeElement?.outerHTML?.slice(0,500),
+            dialog:document.querySelector('.menu-family-dialog')?.outerHTML?.slice(0,700), scrollY,
+            buttons:[...document.querySelectorAll('[data-family-recipe] button')].map(b=>({recipe:b.closest('[data-family-recipe]').dataset.familyRecipe,disabled:b.disabled,rect:b.getBoundingClientRect().toJSON()}))
+          }))));
+          const screenshot = `${id}-failure.png`;"""
+          assert text.count(failure)==1;text=text.replace(failure,observation)
+          start=text.index('  await run("text-200-percent",')
+          end=text.index('  await run("dialog-fallback-keyboard",',start)
+          canonical=text[start:end]
+          text=text[:end]+''.join(canonical.replace('"text-200-percent"',f'"text-200-percent-diagnostic-{i}"') for i in range(1,6))+text[end:]
+          with tempfile.NamedTemporaryFile(mode='w',prefix='.family-activation-',suffix='.mjs',dir='scripts',delete=False) as stream:
+            stream.write(text); temporary=Path(stream.name)
+          stat=temporary.stat(); digest=hashlib.sha256(temporary.read_bytes()).hexdigest()
+          print(json.dumps({'scope':'complete original 31 cases plus five declared exact repeats of enlarged-text case; observers only, original oracles and 7000ms timeout','anchor':'053ce971db05cf3285e31cae0110e06e3b559306','head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'originalHarnessSHA256':original,'observerHarnessSHA256':digest}),flush=True)
+          try:
+            result=subprocess.run(['node',str(temporary)])
+          finally:
+            assert temporary.stat().st_ino==stat.st_ino and temporary.stat().st_dev==stat.st_dev and hashlib.sha256(temporary.read_bytes()).hexdigest()==digest
+            temporary.unlink();assert hashlib.sha256(source.read_bytes()).hexdigest()==original
+          raise SystemExit(result.returncode)
+          PY
+      - if: always()
+        run: git diff --exit-code && test -z "$(git status --porcelain)"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webkit-family-activation
+          path: .artifacts/family-activation/
+          include-hidden-files: true
+          retention-days: 14
