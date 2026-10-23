@@ -1,0 +1,73 @@
+name: Firefox native reload stimulus
+on:
+  push:
+    branches: [diagnostic/firefox-native-reload-20261023]
+permissions:
+  contents: read
+jobs:
+  lifecycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      CHECKOUT_BROWSERS: firefox
+      DEBUG: pw:browser
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22.23.3'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: node scripts/ensure-playwright-browsers.mjs firefox
+      - name: Observe native lifecycle in a declared diagnostic copy of the complete feed suite
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tempfile,subprocess,hashlib,json
+          source=Path('scripts/test-menu-feed-browser.mjs'); text=source.read_text()
+          original=hashlib.sha256(source.read_bytes()).hexdigest()
+          assert original=='f14f588da00eb831d619d097dc688c4eab2ef1cf9261f02c73700e49a6703f9e'
+          assert subprocess.check_output(['git','diff','--name-only','053ce971db05cf3285e31cae0110e06e3b559306','HEAD'],text=True).strip()=='.github/workflows/firefox-native-reload.yml'
+          marker='const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);'
+          start=text.rfind('  {\n',0,text.index(marker))
+          end=text.index('  {\n',text.index('await context.close();',start))
+          block=text[start:end]
+          original_page='const page = await context.newPage(); page.setDefaultTimeout(15000);'
+          observer="""await context.addInitScript(() => {
+            const record = event => console.info('SCROLL_DIAGNOSTIC', JSON.stringify({ event: event.type, trusted: event.isTrusted, persisted: event.persisted, state: history.scrollRestoration, navigation: performance.getEntriesByType('navigation')[0]?.type, time: performance.now() }));
+            for (const type of ['pageshow','pagehide','DOMContentLoaded','keydown','keyup','pointerdown','wheel','touchstart']) window.addEventListener(type, record, true);
+            const descriptor = Object.getOwnPropertyDescriptor(History.prototype, 'scrollRestoration');
+            if (descriptor?.set) Object.defineProperty(History.prototype,'scrollRestoration',{ ...descriptor, set(value) { console.info('SCROLL_SET',JSON.stringify({ value, time: performance.now(), navigation: performance.getEntriesByType('navigation')[0]?.type, trace: new Error().stack })); return descriptor.set.call(this,value); } });
+          });
+          const page = await context.newPage(); page.setDefaultTimeout(15000);
+          page.on('console', message => { if (message.text().startsWith('SCROLL_')) console.log(message.text()); });"""
+          assert block.count(original_page)==1
+          block=block.replace(original_page,observer)
+          block=block.replace('"An explicit product reload owns its initial scroll restoration"','`An explicit product reload owns its initial scroll restoration (cycle ${reloadCycle})`')
+          block=block.replace('await page.reload();', 'await Promise.all([page.waitForNavigation(), page.evaluate(() => { location.reload(); })]);')
+          observed=text[:start]+block+text[end:]
+          with tempfile.NamedTemporaryFile(mode='w',prefix='.firefox-lifecycle-',suffix='.mjs',dir='scripts',delete=False) as stream:
+            stream.write(observed); temporary=Path(stream.name)
+          stat=temporary.stat(); digest=hashlib.sha256(temporary.read_bytes()).hexdigest()
+          print(json.dumps({'scope':'DOM reload instead of the Firefox automation reload; complete 53 cases, three reload cycles, original timeouts and oracles','anchor':'053ce971db05cf3285e31cae0110e06e3b559306','head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'originalHarnessSHA256':original,'observerHarnessSHA256':digest}),flush=True)
+          try:
+            result=subprocess.run(['node',str(temporary)])
+          finally:
+            assert temporary.stat().st_ino==stat.st_ino and temporary.stat().st_dev==stat.st_dev and hashlib.sha256(temporary.read_bytes()).hexdigest()==digest
+            temporary.unlink()
+            assert hashlib.sha256(source.read_bytes()).hexdigest()==original
+          raise SystemExit(result.returncode)
+          PY
+      - if: always()
+        run: git diff --exit-code && test -z "$(git status --porcelain)"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-native-reload
+          path: .artifacts/menu-feed/
+          include-hidden-files: true
+          retention-days: 14
