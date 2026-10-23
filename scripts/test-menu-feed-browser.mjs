@@ -1153,13 +1153,20 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
-    const page = await context.newPage(); page.setDefaultTimeout(15000);
-    // Install the existing policy on the application navigation, after the
-    // browser has created its initial about:blank automation target.
-    await page.addInitScript(() => {
-      history.scrollRestoration = "manual";
-      history.replaceState({ existingPolicy: "manual" }, "");
+    let policyInstallations = 0;
+    // Install the existing policy in the committed application document,
+    // before releasing its original module. Early init scripts can run before
+    // Firefox finishes assigning the new entry's native restoration mode.
+    await context.route("**/menu-feed.js?*", async route => {
+      assert.equal(new URL(route.request().url()).origin, origin);
+      await route.request().frame().evaluate(() => {
+        history.scrollRestoration = "manual";
+        history.replaceState({ existingPolicy: "manual" }, "");
+      });
+      policyInstallations++;
+      await route.continue();
     });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
     const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
     await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`);
@@ -1169,11 +1176,13 @@ try {
     await page.locator('#feed[data-ready="true"]').waitFor();
     await waitForCounter(page, lane.length - 1, lane.length);
     await page.keyboard.press("Shift");
+    assert.equal(policyInstallations, 2, "The existing policy is installed before both unchanged module responses");
     assert.equal(await page.evaluate(() => history.scrollRestoration), "manual", "A pre-existing manual policy remains with its owner");
     assert.deepEqual(await page.evaluate(() => history.state), { existingPolicy: "manual" }, "Existing entry state is preserved");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "shared-product-preexisting-scroll-policy", result: "PASS", product: target.id,
-      nativeReloadKeepsProduct: true, existingManualPolicyPreserved: true, entryStatePreserved: true });
+      nativeReloadKeepsProduct: true, existingManualPolicyPreserved: true, entryStatePreserved: true,
+      policyInstallations, setup: "committed application document before unchanged module response" });
     await context.close();
   }
   {
