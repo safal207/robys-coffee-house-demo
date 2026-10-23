@@ -169,6 +169,7 @@ jobs:
     env:
       ROBYS_LAZY_BROWSER: webkit
       ROBYS_LAZY_QA_DIR: .artifacts/webkit-supported-toolchain-control
+      ROBYS_BROWSER_STARTUP_DIAGNOSTICS: '1'
       ROBYS_CONTROL_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       DEBUG: pw:browser
