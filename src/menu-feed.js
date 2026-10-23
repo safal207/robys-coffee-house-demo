@@ -75,11 +75,18 @@ const entry = parseFeedEntry(location.href, products);
 // restoration runs after pageshow. Return ownership on user input/pagehide so
 // ordinary history navigation and persisted reading positions keep working.
 const reloadScrollEvents = ["pointerdown", "keydown", "wheel", "touchstart"];
+const reloadScrollOwnerKey = "robysFeedReloadScroll";
 let ownsReloadScroll = false;
 try {
   const type = performance.getEntriesByType?.("navigation")?.[0]?.type;
   const reload = type === "reload" || !type && performance.navigation?.type === 1;
-  if (entry.productId && reload && history.scrollRestoration === "auto") {
+  const state = history.state;
+  const plainState = state === null || Object.getPrototypeOf(state) === Object.prototype;
+  const transferred = state?.[reloadScrollOwnerKey] === entry.productId;
+  if (entry.productId && reload && plainState && (history.scrollRestoration === "auto" || transferred)) {
+    // Firefox can copy the departing entry's manual policy before pagehide.
+    // Transfer only our own policy; preserve a visitor's existing manual one.
+    history.replaceState({ ...state, [reloadScrollOwnerKey]: entry.productId }, "");
     history.scrollRestoration = "manual";
     ownsReloadScroll = true;
   }
@@ -87,7 +94,15 @@ try {
 function releaseReloadScroll(event) {
   if (!ownsReloadScroll || event.type !== "pagehide" && !event.isTrusted) return;
   ownsReloadScroll = false;
-  try { if (history.scrollRestoration === "manual") history.scrollRestoration = "auto"; } catch {}
+  try {
+    if (history.scrollRestoration === "manual") history.scrollRestoration = "auto";
+    // Keep provenance across pagehide so a copied manual entry remains ours.
+    const state = history.state;
+    if (event.type !== "pagehide" && state?.[reloadScrollOwnerKey] === entry.productId) {
+      const next = { ...state }; delete next[reloadScrollOwnerKey];
+      history.replaceState(Object.keys(next).length ? next : null, "");
+    }
+  } catch {}
   for (const type of reloadScrollEvents) window.removeEventListener(type, releaseReloadScroll, true);
   window.removeEventListener("pagehide", releaseReloadScroll);
 }
@@ -469,7 +484,7 @@ document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("
   language = node.dataset.lang;
   try { localStorage.setItem("robys-language", language); } catch {}
   const url = new URL(location.href);
-  if (url.searchParams.has("lang")) { url.searchParams.set("lang", language); history.replaceState(null, "", url); }
+  if (url.searchParams.has("lang")) { url.searchParams.set("lang", language); history.replaceState(history.state, "", url); }
   applyLanguage();
   const index = filtered.findIndex(product => product.id === anchor);
   if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
