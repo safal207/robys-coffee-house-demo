@@ -1153,11 +1153,13 @@ try {
   {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
-    await context.addInitScript(() => {
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    // Install the existing policy on the application navigation, after the
+    // browser has created its initial about:blank automation target.
+    await page.addInitScript(() => {
       history.scrollRestoration = "manual";
       history.replaceState({ existingPolicy: "manual" }, "");
     });
-    const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
     const lane = catalog.filter(product => product.category.id === "hot-coffee"), target = lane.at(-1);
     await page.goto(`${origin}/menu-feed.html?item=${encodeURIComponent(target.id)}&lang=ru#desserts`);
