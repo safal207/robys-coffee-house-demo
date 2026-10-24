@@ -61,6 +61,7 @@ export async function runNativeStackReplay(script, { output, env = process.env, 
     const native = JSON.parse(readFileSync(receiptPath, "utf8"));
     receipt.observerComplete = native.complete === true && !native.observerError && !native.cleanupErrors?.length;
     receipt.observedSignalStops = native.signals?.length ?? 0;
+    receipt.signalExits = native.exits?.filter(row => row.signal !== null) ?? [];
     receipt.symbolization = native.signals?.some(row => row.symbolization === "PARTIAL") ? "PARTIAL" : "UNAVAILABLE";
     if (!expired && !receipt.observerComplete) receipt.status = "INCOMPLETE";
   } catch (error) { receipt.receiptError = error.code ?? error.name; if (!expired) receipt.status = "INCOMPLETE"; }

@@ -77,7 +77,7 @@ def binary_identity(path):
 def capture_signal(event):
     if not isinstance(event, gdb.SignalEvent):
         return
-    if event.stop_signal not in {"SIGSEGV", "SIGABRT", "SIGBUS", "SIGILL", "SIGFPE"}:
+    if event.stop_signal not in {"SIGSEGV", "SIGABRT", "SIGBUS", "SIGILL", "SIGFPE", "SIGTRAP"}:
         return
     if len(report["signals"]) >= 32:
         report["truncated"] = True
@@ -226,7 +226,9 @@ for command in [
     "set print entry-values no", "set follow-fork-mode parent",
     "set detach-on-fork off", "set schedule-multiple on", "set non-stop on",
     "handle SIGPIPE nostop noprint pass", "handle SIGCHLD nostop noprint pass",
-    "handle SIGSEGV SIGABRT SIGBUS SIGILL SIGFPE stop print pass",
+    # GLib fatal diagnostics can use SIGTRAP. GDB's default nopass would swallow
+    # those application traps; its own fork/exec/breakpoint traps stay internal.
+    "handle SIGSEGV SIGABRT SIGBUS SIGILL SIGFPE SIGTRAP stop print pass",
 ]:
     gdb.execute(command)
 
