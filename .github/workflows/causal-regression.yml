@@ -1,0 +1,236 @@
+name: Causal regression evidence
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Checks to execute (PRs use affected checks)
+        type: choice
+        options: [all, affected]
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: causal-regression-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Bind revision and plan checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      head: ${{ steps.plan.outputs.head }}
+      base: ${{ steps.plan.outputs.base }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Validate graph and check registry
+        run: node scripts/causal-regression.mjs validate
+      - name: Verify the regression evidence validator
+        run: npm run test:causal-regression
+      - name: Plan from immutable event revisions
+        id: plan
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_SCOPE: ${{ inputs.scope || 'all' }}
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync, spawnSync } from 'node:child_process';
+          import { appendFileSync, readFileSync } from 'node:fs';
+          import { assertMappedPlan } from './scripts/causal-regression.mjs';
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          const sha = /^[a-f0-9]{40}$/;
+          const head = git('rev-parse', 'HEAD');
+          if (!sha.test(head) || head !== process.env.EXPECTED_HEAD) throw new Error('Checkout does not match the event head');
+          let base = process.env.EVENT_BASE;
+          if (!sha.test(base ?? '') || /^0{40}$/.test(base)) {
+            try { base = git('rev-parse', `${head}^`); }
+            catch { base = head; }
+          }
+          if (!sha.test(base)) throw new Error('Base must be an immutable commit');
+          git('cat-file', '-e', `${base}^{commit}`);
+          const scope = process.env.EVENT_NAME === 'pull_request' ? 'affected' : process.env.REQUESTED_SCOPE;
+          if (!['all', 'affected'].includes(scope)) throw new Error('Unknown scope');
+          const result = spawnSync(process.execPath, ['scripts/causal-regression.mjs', 'plan',
+            '--base', base, '--head', head, '--scope', scope, '--output', '.artifacts/causal-regression/plan'], { stdio: 'inherit' });
+          if (result.error) throw result.error;
+          if (result.status !== 0) process.exit(result.status ?? 1);
+          const plan = JSON.parse(readFileSync('.artifacts/causal-regression/plan/plan.json', 'utf8'));
+          assertMappedPlan(plan);
+          if (!Array.isArray(plan.matrix?.include) || !plan.matrix.include.length) throw new Error('Plan has no executable check matrix');
+          const seen = new Set();
+          for (const check of plan.matrix.include) {
+            if (!/^[a-z][a-z0-9-]{0,79}$/.test(check.id) || !/^[a-z][a-z0-9-]{0,39}$/.test(check.kind)
+              || seen.has(check.id)) throw new Error('Invalid or duplicate check matrix entry');
+            if (!Array.isArray(check.browsers) || new Set(check.browsers).size !== check.browsers.length
+              || check.browsers.some(browser => !['chromium', 'firefox', 'webkit'].includes(browser))) throw new Error('Invalid browser matrix');
+            seen.add(check.id);
+          }
+          appendFileSync(process.env.GITHUB_OUTPUT, `head=${head}\nbase=${base}\nmatrix=${JSON.stringify(plan.matrix)}\n`);
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-plan
+          path: .artifacts/causal-regression/plan/
+          if-no-files-found: error
+          retention-days: 14
+
+  checks:
+    name: Check ${{ matrix.id }}
+    needs: plan
+    if: needs.plan.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.plan.outputs.head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Install the check's declared browser engines
+        if: join(matrix.browsers, ' ') != ''
+        env:
+          BROWSERS: ${{ join(matrix.browsers, ' ') }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { spawnSync } from 'node:child_process';
+          const browsers = process.env.BROWSERS.split(' ');
+          if (!browsers.length || new Set(browsers).size !== browsers.length
+            || browsers.some(browser => !['chromium', 'firefox', 'webkit'].includes(browser))) throw new Error('Invalid browser selection');
+          const result = spawnSync(process.execPath, ['scripts/ensure-playwright-browsers.mjs', ...browsers], { stdio: 'inherit' });
+          if (result.error) throw result.error;
+          process.exit(result.status ?? 1);
+          NODE
+      - name: Execute a registered check and retain its receipt
+        env:
+          CHECK_ID: ${{ matrix.id }}
+          EXPECTED_HEAD: ${{ needs.plan.outputs.head }}
+        run: node scripts/causal-regression.mjs run-check --check "$CHECK_ID" --head "$EXPECTED_HEAD" --output ".artifacts/causal-regression/checks/$CHECK_ID"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-check-${{ matrix.id }}
+          path: .artifacts/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+
+  timings:
+    name: Measure bounded journey timings
+    needs: plan
+    if: needs.plan.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.plan.outputs.head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Record real local-browser journey samples
+        env:
+          ROBYS_SOURCE_REVISION: ${{ needs.plan.outputs.head }}
+          ROBYS_JOURNEY_OUTPUT: .artifacts/journey-responsiveness
+        run: node scripts/measure-journey-responsiveness.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-timings
+          path: .artifacts/journey-responsiveness/
+          if-no-files-found: error
+          retention-days: 14
+
+  collect:
+    name: Verify and collect regression evidence
+    needs: [plan, checks, timings]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Require a completed immutable plan
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+        run: node -e "if (process.env.PLAN_RESULT !== 'success') throw new Error('Plan failed or did not run; regression evidence cannot be collected as passing')"
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: ${{ needs.plan.outputs.head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/download-artifact@v4
+        with:
+          name: causal-plan
+          path: .artifacts/causal-plan
+      - uses: actions/download-artifact@v4
+        if: always() && needs.plan.result == 'success'
+        with:
+          pattern: causal-check-*
+          path: .artifacts/causal-receipts
+          merge-multiple: false
+      - uses: actions/download-artifact@v4
+        if: always() && needs.plan.result == 'success'
+        with:
+          name: causal-timings
+          path: .artifacts/timings
+      - name: Verify evidence and render the scoped graph
+        if: always() && needs.plan.result == 'success'
+        env:
+          EXPECTED_BASE: ${{ needs.plan.outputs.base }}
+          EXPECTED_HEAD: ${{ needs.plan.outputs.head }}
+        run: node scripts/causal-regression.mjs collect --base "$EXPECTED_BASE" --head "$EXPECTED_HEAD" --plan .artifacts/causal-plan/plan.json --receipts .artifacts/causal-receipts --timings .artifacts/timings/report.json --output .artifacts/causal-regression/report
+      - name: Preserve upstream job failures
+        if: always()
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+          CHECKS_RESULT: ${{ needs.checks.result }}
+          TIMINGS_RESULT: ${{ needs.timings.result }}
+        run: |
+          node --input-type=module <<'NODE'
+          for (const name of ['PLAN_RESULT', 'CHECKS_RESULT', 'TIMINGS_RESULT']) {
+            if (process.env[name] !== 'success') throw new Error(`${name}: ${process.env[name]}; missing or failed execution cannot be green`);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-regression-report
+          path: .artifacts/causal-regression/report/
+          if-no-files-found: error
+          retention-days: 14

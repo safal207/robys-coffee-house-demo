@@ -8,7 +8,7 @@ import { boundedLog, captureFailure, eventDelta, processStat, runObservedNode, s
 import { canonicalVerdict, runCanonicalDiagnostics } from "./run-menu-lazy-images-diagnostics.mjs";
 
 const head = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-const pass = () => ({ head, complete: true, boundBytesUnchanged: true, sourceParityVerified: true,
+const pass = () => ({ head, dirtyFilesAtStart: [], complete: true, boundBytesUnchanged: true, sourceParityVerified: true,
   bundleParityVerified: true, expectedCases: 12, cases: Array.from({ length: 12 }, () => ({ status: "PASS" })) });
 
 test("failure receipt is durable before a held screenshot and retains its capture error", async () => {
@@ -35,8 +35,31 @@ test("a failed canonical run stays nonzero even when both separate controls pass
       return { code: 0, signal: null };
     } });
     assert.equal(code, 1); assert.equal(calls.length, 3);
-    assert.deepEqual(calls.slice(1).map(call => call.args), [["--control=native"], ["--control=audit"]]);
+    assert.deepEqual(calls.slice(1).map(call => call.args), [
+      ["--control=native", "--language=tr", "--scale=1"], ["--control=audit", "--language=tr", "--scale=1"]]);
     assert.equal(JSON.parse(readFileSync(join(output, "diagnostics/summary.json"))).canonical.effectiveExitCode, 1);
+  } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
+test("a late 2x crash during capture selects separate controls with the failed fixture, without promoting their success", async () => {
+  const output = mkdtempSync(join(tmpdir(), "robys-diagnostic-dense-")), calls = [];
+  try {
+    const code = await runCanonicalDiagnostics({ output, execute: async (script, options) => {
+      calls.push({ script, args: options.args });
+      if (calls.length === 1) {
+        const report = pass(); report.complete = false;
+        report.cases[10] = { id: "high-density-original", language: "ru", deviceScaleFactor: 2, status: "FAIL",
+          lifecycle: { events: [] }, lifecycleAfterCapture: { events: [{ event: "page-crash" }] } };
+        writeFileSync(join(output, "report.json"), JSON.stringify(report)); return { code: 1, signal: null };
+      }
+      return { code: 0, signal: null };
+    } });
+    assert.equal(code, 1); assert.equal(calls.length, 3);
+    assert.deepEqual(calls.slice(1).map(call => call.args), [
+      ["--control=native", "--language=ru", "--scale=2"], ["--control=audit", "--language=ru", "--scale=2"]]);
+    const receipt = JSON.parse(readFileSync(join(output, "diagnostics/summary.json")));
+    assert.deepEqual(receipt.controlCase, { id: "high-density-original", language: "ru", deviceScaleFactor: 2 });
+    assert.equal(receipt.canonical.effectiveExitCode, 1);
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 
@@ -52,6 +75,22 @@ test("missing, stale, incomplete reports and child signals fail closed without a
     assert.equal(await runCanonicalDiagnostics({ output, execute: async () => { calls++; return { code: 0, signal: null }; } }), 1);
     assert.equal(calls, 1, "An old success cannot be reused and no browser retry is started");
   } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
+test("crash controls reject stale source, dirty files and unsupported scale metadata", async () => {
+  for (const invalid of [{ head: "0".repeat(40) }, { dirtyFilesAtStart: [" M menu-app.js"] }, { deviceScaleFactor: 99 }]) {
+    const output = mkdtempSync(join(tmpdir(), "robys-diagnostic-unbound-")); let calls = 0;
+    try {
+      const code = await runCanonicalDiagnostics({ output, execute: async () => {
+        calls++;
+        const report = { ...pass(), ...invalid, complete: false };
+        report.cases[10] = { id: "high-density-original", language: "ru", deviceScaleFactor: invalid.deviceScaleFactor ?? 2,
+          status: "FAIL", lifecycleAfterCapture: { events: [{ event: "page-crash" }] } };
+        writeFileSync(join(output, "report.json"), JSON.stringify(report)); return { code: 1, signal: null };
+      } });
+      assert.equal(code, 1); assert.equal(calls, 1, "Unbound or unsupported evidence must not launch controls");
+    } finally { rmSync(output, { recursive: true, force: true }); }
+  }
 });
 
 test("bounded native logs retain the first and last signal evidence", () => {

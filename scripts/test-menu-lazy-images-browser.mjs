@@ -21,6 +21,7 @@ const assets = [...new Set(["menu.html", "menu-app.js", "src/menu-app.js", "menu
   MENU_STYLESHEET_FILE, ...MENU_STYLE_INPUTS.flatMap(({ source, delivered }) => [source, delivered]),
   "scripts/menu-styles-bundle.mjs", "scripts/menu-runtime-source.mjs", "scripts/test-menu-lazy-images-browser.mjs",
   "scripts/browser-failure-diagnostics.mjs", "scripts/run-menu-lazy-images-diagnostics.mjs",
+  "scripts/browser-native-stacks.mjs", "scripts/browser-native-stacks.py",
   ".github/workflows/order-reliability.yml", "integrity-manifest.json", "package-lock.json"])];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
@@ -162,6 +163,11 @@ function observeFailureLifecycle(context, browser) {
 }
 
 async function run(browserName, id, callback, { language = "ru", mode = "native", scale = 1 } = {}) {
+  // Keep opt-in resource evidence for later cases too. The first case already
+  // owns the pre-launch sampler; previously all later crashes had no samples.
+  if (browserName === "webkit" && process.env.ROBYS_BROWSER_STARTUP_DIAGNOSTICS === "1" && !startupDiagnostics) {
+    startupDiagnostics = startStartupDiagnostics(join(output, "diagnostics", id));
+  }
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true,
     deviceScaleFactor: scale, ignoreHTTPSErrors: true, serviceWorkers: "block", reducedMotion: "reduce" });
   await context.addInitScript(installIoAudit, { language, mode });
@@ -181,19 +187,28 @@ async function run(browserName, id, callback, { language = "ru", mode = "native"
     if (mode === "unavailable") assert.equal(await page.evaluate(() => typeof IntersectionObserver), "undefined", "Fallback fixture must really remove the observer constructor");
     const facts = await callback(page, requests);
     assert.deepEqual(errors, [], "Image loading and redraw must not throw runtime errors");
-    report.cases.push({ browser: browserName, id, language, mode, status: "PASS", startedAt, finishedAt: new Date().toISOString(), facts, requests });
+    report.cases.push({ browser: browserName, id, language, mode, deviceScaleFactor: scale, status: "PASS", startedAt, finishedAt: new Date().toISOString(), facts, requests });
     console.log(`PASS ${browserName}/${id}`);
   } catch (error) {
     const lifecycle = failureLifecycle();
     const screenshot = `${browserName}-${id}-failure.png`;
-    const failure = { browser: browserName, id, language, mode, status: "FAIL", startedAt, finishedAt: new Date().toISOString(),
+    const failure = { browser: browserName, id, language, mode, deviceScaleFactor: scale, status: "FAIL", startedAt, finishedAt: new Date().toISOString(),
       error: error.stack, uncaughtErrors: errors, requests, screenshot, lifecycle, captureErrors: [], screenshotCapture: "PENDING" };
-    if (startupDiagnostics) failure.startupDiagnostics = startupDiagnostics.finish("before-failure-capture");
+    startupDiagnostics?.mark("before-failure-capture");
     report.cases.push(failure);
     await captureFailure(failure, persist, () => page.screenshot({ path: join(output, screenshot) }));
+    failure.lifecycleAfterCapture = failureLifecycle();
+    if (startupDiagnostics) failure.startupDiagnostics = startupDiagnostics.finish("after-failure-capture");
+    persist();
     console.error(`FAIL ${browserName}/${id}: ${error.message}`);
   } finally {
-    if (startupDiagnostics) { report.startupDiagnostics = startupDiagnostics.finish("first-case-finished"); startupDiagnostics = null; }
+    if (startupDiagnostics) {
+      const evidence = startupDiagnostics.finish("case-finished");
+      report.caseDiagnostics ??= [];
+      report.caseDiagnostics.push({ browser: browserName, id, deviceScaleFactor: scale, ...evidence });
+      report.startupDiagnostics ??= evidence;
+      startupDiagnostics = null;
+    }
     await context.close(); persist();
   }
 }
