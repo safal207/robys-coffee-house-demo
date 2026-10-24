@@ -57,11 +57,15 @@ test("real GDB follows fork/exec and separates handled SIGSEGV from fatal child 
   const output = mkdtempSync(join(tmpdir(), "robys-native-signal-"));
   try {
     const script = join(output, "fixture.mjs");
-    writeFileSync(script, `import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';
+    writeFileSync(script, `import assert from 'node:assert/strict';import {spawn,spawnSync} from 'node:child_process';import {createServer} from 'node:http';
+const server=createServer((request,response)=>response.end('ready'));
+await new Promise(done=>server.listen(0,'127.0.0.1',done));
+const probe=spawn(process.execPath,['-e',"require('node:http').get(process.argv[1],r=>{r.resume();r.on('end',()=>process.exit(0));}).on('error',()=>process.exit(9));setTimeout(()=>process.exit(8),4000);",'http://127.0.0.1:'+server.address().port]);
+const probeExit=new Promise(done=>probe.on('exit',done));
 const handled=spawnSync('/bin/sh',['-c','ulimit -c 0; trap "exit 0" SEGV; kill -s SEGV "$$"']);
 assert.equal(handled.status,0);
 const fatal=spawnSync('/bin/sh',['-c','ulimit -c 0; kill -s SEGV "$$"']);
-assert.equal(fatal.signal,'SIGSEGV');process.exit(7);
+assert.equal(fatal.signal,'SIGSEGV');assert.equal(await probeExit,0,'Parent server and fork/exec child must both make progress');server.close();process.exit(7);
 `);
     const result = await runNativeStackReplay(script, { output, availability, timeoutMs: 20000 });
     if (result.status !== "COMPLETED" || result.code !== 7) t.diagnostic(JSON.stringify(result) + "\n" + readFileSync(join(output, "gdb.log"), "utf8").slice(-6000));
@@ -74,6 +78,7 @@ assert.equal(fatal.signal,'SIGSEGV');process.exit(7);
     assert(stopped.some(row => receipt.exits.some(exit => exit.inferior === row.inferior && exit.signal === 11)));
     assert(receipt.signals.every(row => row.frames.every(frame => !('arguments' in frame) && !('locals' in frame))));
     assert.equal(receipt.rootExitCode, 7);
+    assert.equal(receipt.cleanupErrors?.length ?? 0, 0);
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 
@@ -87,6 +92,8 @@ test("real debugger deadline remains inconclusive and stops its own diagnostic i
     const result = await runNativeStackReplay(script, { output, availability, timeoutMs: 3000 });
     assert.equal(result.status, "INCONCLUSIVE_TIMEOUT");
     const receipt = JSON.parse(readFileSync(join(output, "native-stacks.json")));
-    assert.equal(receipt.complete, false); assert.match(receipt.observerError, /KeyboardInterrupt/);
+    assert.equal(receipt.complete, false); assert.match(receipt.observerError, /TimeoutError|KeyboardInterrupt/);
+    assert.equal(result.signal, null, "The driver must clean up instead of requiring SIGKILL");
+    assert.equal(receipt.cleanupErrors?.length ?? 0, 0);
   } finally { rmSync(output, { recursive: true, force: true }); }
 });

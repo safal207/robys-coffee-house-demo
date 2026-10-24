@@ -15,6 +15,7 @@ import gdb
 
 
 output = os.environ["ROBYS_GDB_RECEIPT"]
+cancel = os.environ["ROBYS_GDB_CANCEL"]
 report = {
     "schemaVersion": 1,
     "role": "Diagnostic replay only; cannot replace the original suite verdict",
@@ -28,6 +29,7 @@ report = {
     "interpretation": "A signal stop may be handled; correlate with the same inferior exit",
 }
 root_exit = None
+closing = False
 
 
 def now():
@@ -72,7 +74,7 @@ def binary_identity(path):
         report["binaries"][path] = {"status": "UNAVAILABLE", "code": error.errno}
 
 
-def on_stop(event):
+def capture_signal(event):
     if not isinstance(event, gdb.SignalEvent):
         return
     if event.stop_signal not in {"SIGSEGV", "SIGABRT", "SIGBUS", "SIGILL", "SIGFPE"}:
@@ -140,20 +142,81 @@ def on_exit(event):
     else:
         row["exitCode"] = None
         row["signal"] = "UNKNOWN"
-        # Convenience variables describe the selected inferior only. Do not
-        # assign another process's signal to this exit event.
-        if gdb.selected_inferior().num == event.inferior.num:
-            try:
-                row["signal"] = int(gdb.parse_and_eval("$_exitsignal"))
-            except (gdb.error, TypeError):
-                pass
+        # In non-stop mode GDB does not select the event's inferior for us.
+        try:
+            gdb.execute("inferior %d" % event.inferior.num, to_string=True)
+            row["signal"] = int(gdb.parse_and_eval("$_exitsignal"))
+        except (gdb.error, TypeError):
+            pass
     if len(report["exits"]) < 128:
         report["exits"].append(row)
     else:
         report["truncated"] = True
     if event.inferior.num == 1:
         root_exit = row["exitCode"] if isinstance(row["exitCode"], int) else 1
+        if not closing:
+            report["complete"] = True
+            gdb.post_event(finish)
     save()
+
+
+def finish():
+    global closing
+    closing = True
+    # Only processes launched by this debugger are inferiors. No attachment to
+    # unrelated processes, global ptrace change, or sandbox/capability change.
+    for inferior in gdb.inferiors():
+        if inferior.pid:
+            try:
+                gdb.execute("inferior %d" % inferior.num, to_string=True)
+                gdb.execute("kill")
+            except gdb.error as error:
+                report.setdefault("cleanupErrors", []).append(str(error)[:500])
+    report["finishedAt"] = now()
+    report["rootExitCode"] = root_exit
+    save()
+    gdb.execute("quit %d" % (root_exit if root_exit is not None else 1))
+
+
+def request_deadline():
+    global closing
+    if closing:
+        return
+    closing = True
+    report["observerError"] = "TimeoutError: diagnostic deadline requested"
+    report["complete"] = False
+    save()
+    gdb.execute("interrupt -a")
+    gdb.post_event(finish)
+
+
+def on_stop(event):
+    if closing:
+        return
+    if os.path.exists(cancel):
+        request_deadline()
+        return
+    thread = getattr(event, "inferior_thread", None) or gdb.selected_thread()
+    if thread:
+        thread.switch()
+    try:
+        capture_signal(event)
+    except (gdb.error, OSError, TypeError) as error:
+        report["observerError"] = type(error).__name__ + ": " + str(error)[:500]
+        save()
+
+    def resume():
+        if closing or not thread or not thread.is_valid() or not thread.is_stopped():
+            return
+        if os.path.exists(cancel):
+            request_deadline()
+            return
+        thread.switch()
+        # Continue this signal-receiving thread with its original signal. Other
+        # browser/server threads keep running throughout native stack capture.
+        gdb.execute("continue &")
+
+    gdb.post_event(resume)
 
 
 for command in [
@@ -161,7 +224,7 @@ for command in [
     "set disable-randomization off", "set print thread-events off",
     "set print inferior-events off", "set print frame-arguments none",
     "set print entry-values no", "set follow-fork-mode parent",
-    "set detach-on-fork off", "set schedule-multiple on",
+    "set detach-on-fork off", "set schedule-multiple on", "set non-stop on",
     "handle SIGPIPE nostop noprint pass", "handle SIGCHLD nostop noprint pass",
     "handle SIGSEGV SIGABRT SIGBUS SIGILL SIGFPE stop print pass",
 ]:
@@ -170,32 +233,10 @@ for command in [
 gdb.events.stop.connect(on_stop)
 gdb.events.exited.connect(on_exit)
 report["startedAt"] = now()
+report["executionMode"] = "non-stop; background; resume only the stopped thread"
 save()
 try:
-    gdb.execute("run")
-    while root_exit is None:
-        live = [i for i in gdb.inferiors() if i.pid and i.threads()]
-        if not live:
-            raise RuntimeError("No live inferior and no root exit receipt")
-        # Keep the signal-receiving inferior selected so continue passes the
-        # original signal. Switch only when the selected process has exited.
-        if not gdb.selected_inferior().pid or not gdb.selected_inferior().threads():
-            gdb.execute("inferior %d" % live[0].num)
-        gdb.execute("continue")
-    report["complete"] = True
-except (gdb.error, RuntimeError, KeyboardInterrupt) as error:
+    gdb.execute("run &")
+except (gdb.error, RuntimeError, TimeoutError, KeyboardInterrupt) as error:
     report["observerError"] = type(error).__name__ + ": " + str(error)[:500]
-finally:
-    # All inferiors belong to this diagnostic invocation. Terminate its children
-    # on interruption; never attach to or inspect unrelated processes.
-    for inferior in gdb.inferiors():
-        if inferior.pid:
-            try:
-                gdb.execute("inferior %d" % inferior.num)
-                gdb.execute("kill")
-            except gdb.error:
-                pass
-    report["finishedAt"] = now()
-    report["rootExitCode"] = root_exit
-    save()
-gdb.execute("quit %d" % (root_exit if root_exit is not None else 1))
+    finish()

@@ -26,7 +26,9 @@ export async function runNativeStackReplay(script, { output, env = process.env, 
   assert(Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 120000, "Bounded diagnostic deadline required");
   output = resolve(output); mkdirSync(output, { recursive: true });
   const receiptPath = join(output, "native-stacks.json");
+  const cancelPath = join(output, "deadline-requested");
   rmSync(receiptPath, { force: true });
+  rmSync(cancelPath, { force: true });
   const receipt = { role: "Diagnostic replay; never replaces the canonical result", availability,
     driverSha256: createHash("sha256").update(readFileSync(driver)).digest("hex"),
     startedAt: new Date().toISOString(), timeoutMs };
@@ -36,12 +38,16 @@ export async function runNativeStackReplay(script, { output, env = process.env, 
   const logPath = join(output, "gdb.log"), log = boundedLog(logPath, 512 * 1024);
   let expired = false;
   const result = await new Promise(done => {
-    const child = spawn("gdb", [...gdbArguments, "-x", driver, "--args", process.execPath, script, ...args],
-      { env: { ...env, ROBYS_GDB_RECEIPT: receiptPath }, stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn("gdb", [...gdbArguments.filter(arg => arg !== "--batch"), "-x", driver, "--args", process.execPath, script, ...args],
+      { env: { ...env, ROBYS_GDB_RECEIPT: receiptPath, ROBYS_GDB_CANCEL: cancelPath }, stdio: ["pipe", "pipe", "pipe"] });
+    child.stdin.on("error", () => {}); // A normal debugger exit may close the control pipe first.
     child.stdout.on("data", chunk => log.append(chunk)); child.stderr.on("data", chunk => log.append(chunk));
     let force;
     const timer = setTimeout(() => {
-      expired = true; child.kill("SIGINT"); // GDB's Python driver kills its own inferiors in finally.
+      expired = true; writeFileSync(cancelPath, new Date().toISOString() + "\n");
+      // Background GDB remains responsive to its private control pipe. Sending
+      // SIGINT alone stopped an inferior and the old loop then resumed it.
+      child.stdin.write("python request_deadline()\n");
       force = setTimeout(() => child.kill("SIGKILL"), 5000); force.unref();
     }, timeoutMs); timer.unref();
     const finish = value => { clearTimeout(timer); clearTimeout(force); done(value); };
@@ -53,10 +59,10 @@ export async function runNativeStackReplay(script, { output, env = process.env, 
     interpretation: "GDB changes scheduling; a diagnostic pass does not prove the original crash is fixed" });
   try {
     const native = JSON.parse(readFileSync(receiptPath, "utf8"));
-    receipt.observerComplete = native.complete === true;
+    receipt.observerComplete = native.complete === true && !native.observerError && !native.cleanupErrors?.length;
     receipt.observedSignalStops = native.signals?.length ?? 0;
     receipt.symbolization = native.signals?.some(row => row.symbolization === "PARTIAL") ? "PARTIAL" : "UNAVAILABLE";
-    if (!expired && native.complete !== true) receipt.status = "INCOMPLETE";
+    if (!expired && !receipt.observerComplete) receipt.status = "INCOMPLETE";
   } catch (error) { receipt.receiptError = error.code ?? error.name; if (!expired) receipt.status = "INCOMPLETE"; }
   save(); return receipt;
 }
