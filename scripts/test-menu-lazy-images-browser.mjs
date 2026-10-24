@@ -21,6 +21,7 @@ const assets = [...new Set(["menu.html", "menu-app.js", "src/menu-app.js", "menu
   MENU_STYLESHEET_FILE, ...MENU_STYLE_INPUTS.flatMap(({ source, delivered }) => [source, delivered]),
   "scripts/menu-styles-bundle.mjs", "scripts/menu-runtime-source.mjs", "scripts/test-menu-lazy-images-browser.mjs",
   "scripts/browser-failure-diagnostics.mjs", "scripts/run-menu-lazy-images-diagnostics.mjs",
+  "scripts/browser-native-stacks.mjs", "scripts/browser-native-stacks.py",
   ".github/workflows/order-reliability.yml", "integrity-manifest.json", "package-lock.json"])];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { startedAt: new Date().toISOString(), head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),

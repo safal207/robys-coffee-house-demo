@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { runObservedNode, startStartupDiagnostics } from "./browser-failure-diagnostics.mjs";
+import { runNativeStackReplay } from "./browser-native-stacks.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const self = fileURLToPath(import.meta.url);
@@ -20,7 +21,8 @@ export function canonicalVerdict(execution, report, expectedHead) {
     && report.cases.every(row => row.status === "PASS") ? 0 : execution.code || 1;
 }
 
-export async function runCanonicalDiagnostics({ output, execute = runObservedNode } = {}) {
+export async function runCanonicalDiagnostics({ output, execute = runObservedNode,
+  nativeStackEnabled = false, replay = runNativeStackReplay } = {}) {
   const sidecar = join(output, "diagnostics"); mkdirSync(sidecar, { recursive: true });
   const expectedHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   rmSync(join(output, "report.json"), { force: true });
@@ -46,6 +48,15 @@ export async function runCanonicalDiagnostics({ output, execute = runObservedNod
         env: { ...process.env, ROBYS_DIAGNOSTIC_OUTPUT: join(sidecar, mode) } });
       receipt.controls.push({ mode, execution: result }); write(join(sidecar, "summary.json"), receipt);
     }
+    if (nativeStackEnabled) {
+      const replayOutput = join(sidecar, "native-stack-replay");
+      receipt.nativeStackReplay = { status: "PENDING", expectedHead }; write(join(sidecar, "summary.json"), receipt);
+      try {
+        receipt.nativeStackReplay = { expectedHead, ...await replay(canonical, { output: replayOutput,
+          env: { ...process.env, ROBYS_LAZY_BROWSER: "webkit", ROBYS_LAZY_BROWSERS: "webkit",
+            ROBYS_LAZY_QA_DIR: replayOutput, ROBYS_BROWSER_STARTUP_DIAGNOSTICS: "1" } }) };
+      } catch (error) { receipt.nativeStackReplay = { status: "INCOMPLETE", expectedHead, error: error.code ?? error.name }; }
+    } else receipt.nativeStackReplay = { status: "NOT_REQUESTED" };
   } else receipt.controlDisposition = { status: "NOT_RUN", reason: code === 0 ? "Canonical passed"
     : !crashed ? "No observed page-crash receipt" : "Unbound source or unsupported diagnostic fixture" };
   write(join(sidecar, "summary.json"), receipt);
@@ -124,6 +135,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   else {
     assert(process.argv.length === 2 && (process.env.ROBYS_LAZY_BROWSERS ?? process.env.ROBYS_LAZY_BROWSER) === "webkit",
       "The diagnostic launcher requires the canonical single-WebKit selection");
-    process.exitCode = await runCanonicalDiagnostics({ output: resolve(process.env.ROBYS_LAZY_QA_DIR ?? ".artifacts/menu-lazy-images") });
+    process.exitCode = await runCanonicalDiagnostics({ output: resolve(process.env.ROBYS_LAZY_QA_DIR ?? ".artifacts/menu-lazy-images"),
+      nativeStackEnabled: process.env.ROBYS_NATIVE_STACKS === "1" });
   }
 }

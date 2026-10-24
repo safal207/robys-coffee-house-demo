@@ -623,6 +623,9 @@
       "label": "Bounded browser failure evidence and canonical lazy-image launcher",
       "paths": [
         "scripts/browser-failure-diagnostics.mjs",
+        "scripts/browser-native-stacks.mjs",
+        "scripts/browser-native-stacks.py",
+        "scripts/test-browser-native-stacks.mjs",
         "scripts/run-menu-lazy-images-diagnostics.mjs",
         "scripts/test-browser-failure-diagnostics.mjs"
       ],

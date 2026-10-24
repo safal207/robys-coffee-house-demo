@@ -170,6 +170,7 @@ jobs:
       ROBYS_LAZY_BROWSER: webkit
       ROBYS_LAZY_QA_DIR: .artifacts/webkit-supported-toolchain-control
       ROBYS_BROWSER_STARTUP_DIAGNOSTICS: '1'
+      ROBYS_NATIVE_STACKS: '1'
       ROBYS_CONTROL_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       DEBUG: pw:browser
@@ -188,14 +189,14 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
         run: npm ci --no-audit --no-fund
-      - name: Install the signed native-signal tracer
+      - name: Install the signed native-signal tracer and debugger
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           import { spawnSync } from 'node:child_process';
           import { installSignedUbuntuPackages } from './scripts/signed-ubuntu-packages.mjs';
           if (process.getuid() !== 0) throw new Error('The declared official container must retain its existing root user');
-          installSignedUbuntuPackages(['strace'], { run(command, args) {
+          installSignedUbuntuPackages(['strace', 'gdb'], { run(command, args) {
             // The official image is already root and need not contain sudo.
             // Keep the installer's signed sources, isolated state and bounds.
             if (command !== 'sudo' || args[0] !== '-n' || args[1] !== 'env') throw new Error('Unexpected package command');
@@ -225,7 +226,7 @@ jobs:
           accessSync(executablePath, constants.X_OK);
           const shm = statfsSync('/dev/shm');
           const memory = Object.fromEntries((optional('/proc/meminfo') ?? '').split('\n').filter(line => /^(MemTotal|MemAvailable|SwapTotal|SwapFree):/.test(line)).map(line => line.split(':').map(part => part.trim())));
-          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n', 'libglib2.0-0t64', 'libgl1-mesa-dri', 'libgbm1', 'libegl-mesa0', 'strace'], { encoding: 'utf8' });
+          const libraries = spawnSync('dpkg-query', ['-W', '-f=${binary:Package}\t${Version}\n', 'libglib2.0-0t64', 'libgl1-mesa-dri', 'libgbm1', 'libegl-mesa0', 'strace', 'gdb'], { encoding: 'utf8' });
           const output = resolve(process.env.ROBYS_LAZY_QA_DIR);
           mkdirSync(output, { recursive: true });
           const metadata = {
@@ -243,6 +244,11 @@ jobs:
           NODE
       - name: Observe the canonical WebKit suite and separate crash controls
         run: node scripts/run-menu-lazy-images-diagnostics.mjs
+      - name: Verify the native observer with handled and fatal child signals
+        if: always()
+        env:
+          ROBYS_REQUIRE_NATIVE_STACKS: '1'
+        run: node --test scripts/test-browser-native-stacks.mjs
       - name: Preserve the diagnostic evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

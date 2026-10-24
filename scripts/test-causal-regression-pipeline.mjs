@@ -208,6 +208,12 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   assert.ok(navigation.selectedChecks.includes('home-navigation-browser'));
   assert.ok(navigation.impactedJourneys.includes('home-navigation'));
   assert.equal(navigation.impactedComponents.includes('qa-registry'), false);
+  for (const path of ['scripts/browser-native-stacks.mjs', 'scripts/browser-native-stacks.py', 'scripts/test-browser-native-stacks.mjs']) {
+    const native = impactPlan(graph, [path]);
+    assert.deepEqual(native.directComponents, ['browser-diagnostics']);
+    assert.doesNotThrow(() => assertMappedPlan(native));
+    assert.ok(native.externalChecks.includes('lazy-images-browser'));
+  }
   for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs', 'scripts/test-home-navigation-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
