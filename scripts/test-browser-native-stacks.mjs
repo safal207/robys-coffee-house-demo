@@ -82,6 +82,24 @@ assert.equal(fatal.signal,'SIGSEGV');assert.equal(await probeExit,0,'Parent serv
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 
+test("one source-bound replay validates full-browser integration after an intermittent canonical pass", async () => {
+  const output = mkdtempSync(join(tmpdir(), "robys-native-pass-")); let calls = 0, replays = 0;
+  const head = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  try {
+    const code = await runCanonicalDiagnostics({ output, nativeStackEnabled: true,
+      execute: async () => {
+        calls++; writeFileSync(join(output, "report.json"), JSON.stringify({ head, dirtyFilesAtStart: [],
+          complete: true, boundBytesUnchanged: true, sourceParityVerified: true, bundleParityVerified: true,
+          expectedCases: 12, cases: Array.from({ length: 12 }, () => ({ status: "PASS" })) }));
+        return { code: 0, signal: null };
+      }, replay: async () => { replays++; return { status: "INCOMPLETE", code: 1 }; } });
+    assert.equal(code, 0); assert.equal(calls, 1); assert.equal(replays, 1);
+    const receipt = JSON.parse(readFileSync(join(output, "diagnostics/summary.json")));
+    assert.equal(receipt.canonical.effectiveExitCode, 0); assert.deepEqual(receipt.controls, []);
+    assert.equal(receipt.nativeStackReplay.status, "INCOMPLETE", "The separate diagnostic limitation must remain visible");
+  } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
 test("real debugger deadline remains inconclusive and stops its own diagnostic invocation", async t => {
   const availability = gdbAvailability();
   if (process.env.ROBYS_REQUIRE_NATIVE_STACKS === "1") assert.equal(availability.status, "AVAILABLE", availability.reason);

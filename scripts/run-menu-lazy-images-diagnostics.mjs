@@ -48,17 +48,22 @@ export async function runCanonicalDiagnostics({ output, execute = runObservedNod
         env: { ...process.env, ROBYS_DIAGNOSTIC_OUTPUT: join(sidecar, mode) } });
       receipt.controls.push({ mode, execution: result }); write(join(sidecar, "summary.json"), receipt);
     }
-    if (nativeStackEnabled) {
-      const replayOutput = join(sidecar, "native-stack-replay");
-      receipt.nativeStackReplay = { status: "PENDING", expectedHead }; write(join(sidecar, "summary.json"), receipt);
-      try {
-        receipt.nativeStackReplay = { expectedHead, ...await replay(canonical, { output: replayOutput,
-          env: { ...process.env, ROBYS_LAZY_BROWSER: "webkit", ROBYS_LAZY_BROWSERS: "webkit",
-            ROBYS_LAZY_QA_DIR: replayOutput, ROBYS_BROWSER_STARTUP_DIAGNOSTICS: "1" } }) };
-      } catch (error) { receipt.nativeStackReplay = { status: "INCOMPLETE", expectedHead, error: error.code ?? error.name }; }
-    } else receipt.nativeStackReplay = { status: "NOT_REQUESTED" };
   } else receipt.controlDisposition = { status: "NOT_RUN", reason: code === 0 ? "Canonical passed"
     : !crashed ? "No observed page-crash receipt" : "Unbound source or unsupported diagnostic fixture" };
+  // One opt-in replay also validates the real browser/debugger integration when
+  // an intermittent crash does not recur in the first suite. It is not a retry
+  // to obtain a green gate: keep the original receipt and exit code unchanged.
+  if (nativeStackEnabled && validFixture && (code === 0 || crashed)) {
+    const replayOutput = join(sidecar, "native-stack-replay");
+    receipt.nativeStackReplay = { status: "PENDING", expectedHead }; write(join(sidecar, "summary.json"), receipt);
+    try {
+      receipt.nativeStackReplay = { expectedHead, ...await replay(canonical, { output: replayOutput,
+        env: { ...process.env, ROBYS_LAZY_BROWSER: "webkit", ROBYS_LAZY_BROWSERS: "webkit",
+          ROBYS_LAZY_QA_DIR: replayOutput, ROBYS_BROWSER_STARTUP_DIAGNOSTICS: "1" } }) };
+    } catch (error) { receipt.nativeStackReplay = { status: "INCOMPLETE", expectedHead, error: error.code ?? error.name }; }
+  } else receipt.nativeStackReplay = { status: nativeStackEnabled ? "NOT_RUN" : "NOT_REQUESTED",
+    reason: !nativeStackEnabled ? "Opt-in disabled" : !validFixture ? "Unbound source or unsupported diagnostic fixture"
+      : "No complete success or observed crash to replay" };
   write(join(sidecar, "summary.json"), receipt);
   return code;
 }
