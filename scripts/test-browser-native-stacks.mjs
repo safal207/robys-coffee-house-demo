@@ -66,6 +66,7 @@ const handled=spawnSync('/bin/sh',['-c','ulimit -c 0; trap "exit 0" SEGV; kill -
 assert.equal(handled.status,0);
 const fatal=spawnSync('/bin/sh',['-c','ulimit -c 0; kill -s SEGV "$$"']);
 assert.equal(fatal.signal,'SIGSEGV');
+const handledTrap=spawnSync('/bin/sh',['-c','ulimit -c 0; trap "exit 0" TRAP; kill -s TRAP "$$"']);assert.equal(handledTrap.status,0,'Application trap handlers must run');
 const trap=spawnSync('/bin/sh',['-c','ulimit -c 0; kill -s TRAP "$$"']);assert.equal(trap.signal,'SIGTRAP','GDB must not swallow an application trap');
 assert.equal(await probeExit,0,'Parent server and fork/exec child must both make progress');server.close();process.exit(7);
 `);
@@ -78,7 +79,9 @@ assert.equal(await probeExit,0,'Parent server and fork/exec child must both make
     assert(stopped.every(row => row.fatal === "UNKNOWN_UNTIL_EXIT"));
     assert(stopped.some(row => receipt.exits.some(exit => exit.inferior === row.inferior && exit.exitCode === 0)));
     assert(stopped.some(row => receipt.exits.some(exit => exit.inferior === row.inferior && exit.signal === 11)));
-    assert(receipt.signals.some(row => row.signal === 'SIGTRAP' && receipt.exits.some(exit => exit.inferior === row.inferior && exit.signal === 5)));
+    const traps = receipt.signals.filter(row => row.signal === "SIGTRAP");
+    assert(traps.some(row => receipt.exits.some(exit => exit.inferior === row.inferior && exit.exitCode === 0)));
+    assert(traps.some(row => receipt.exits.some(exit => exit.inferior === row.inferior && exit.signal === 5)));
     assert(result.signalExits.some(row => row.signal === 5));
     assert(receipt.signals.every(row => row.frames.every(frame => !('arguments' in frame) && !('locals' in frame))));
     assert.equal(receipt.rootExitCode, 7);

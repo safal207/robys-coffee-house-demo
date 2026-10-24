@@ -212,9 +212,14 @@ def on_stop(event):
             request_deadline()
             return
         thread.switch()
-        # Continue this signal-receiving thread with its original signal. Other
-        # browser/server threads keep running throughout native stack capture.
-        gdb.execute("continue &")
+        # Deliver an application trap only after GDB exposes a SignalEvent.
+        # Global SIGTRAP pass also forwards debugger-internal exec traps before
+        # this callback runs. `signal` bypasses nopass for this thread alone;
+        # the background form lets browser/server threads continue progressing.
+        if isinstance(event, gdb.SignalEvent) and event.stop_signal == "SIGTRAP":
+            gdb.execute("signal SIGTRAP &")
+        else:
+            gdb.execute("continue &")
 
     gdb.post_event(resume)
 
@@ -226,9 +231,10 @@ for command in [
     "set print entry-values no", "set follow-fork-mode parent",
     "set detach-on-fork off", "set schedule-multiple on", "set non-stop on",
     "handle SIGPIPE nostop noprint pass", "handle SIGCHLD nostop noprint pass",
-    # GLib fatal diagnostics can use SIGTRAP. GDB's default nopass would swallow
-    # those application traps; its own fork/exec/breakpoint traps stay internal.
-    "handle SIGSEGV SIGABRT SIGBUS SIGILL SIGFPE SIGTRAP stop print pass",
+    "handle SIGSEGV SIGABRT SIGBUS SIGILL SIGFPE stop print pass",
+    # Preserve debugger-internal traps; on_stop explicitly delivers only traps
+    # reported as application signals, including GLib fatal diagnostics.
+    "handle SIGTRAP stop print nopass",
 ]:
     gdb.execute(command)
 
