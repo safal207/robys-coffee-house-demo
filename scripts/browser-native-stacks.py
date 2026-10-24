@@ -10,6 +10,7 @@ import datetime
 import hashlib
 import json
 import os
+import signal
 
 import gdb
 
@@ -74,17 +75,31 @@ def binary_identity(path):
         report["binaries"][path] = {"status": "UNAVAILABLE", "code": error.errno}
 
 
-def capture_signal(event):
-    if not isinstance(event, gdb.SignalEvent):
-        return
-    if event.stop_signal not in {"SIGSEGV", "SIGABRT", "SIGBUS", "SIGILL", "SIGFPE", "SIGTRAP"}:
+def received_signal(event):
+    if isinstance(event, gdb.SignalEvent):
+        return event.stop_signal
+    # GDB's Python emitter excludes SIGTRAP from SignalEvent, even when the
+    # console reports an application trap. On Linux, confirm a plain StopEvent
+    # against this stopped thread's kernel siginfo. Never reinterpret a GDB
+    # BreakpointEvent as an application signal.
+    if type(event) is gdb.StopEvent:
+        try:
+            if int(gdb.parse_and_eval("$_siginfo.si_signo")) == signal.SIGTRAP:
+                return "SIGTRAP"
+        except (gdb.error, TypeError):
+            pass
+    return None
+
+
+def capture_signal(name):
+    if name not in {"SIGSEGV", "SIGABRT", "SIGBUS", "SIGILL", "SIGFPE", "SIGTRAP"}:
         return
     if len(report["signals"]) >= 32:
         report["truncated"] = True
         save()
         return
     inferior = gdb.selected_inferior()
-    row = {"at": now(), **identity(inferior), "signal": event.stop_signal,
+    row = {"at": now(), **identity(inferior), "signal": name,
            "fatal": "UNKNOWN_UNTIL_EXIT", "frames": [], "modules": []}
     thread = gdb.selected_thread()
     if thread:
@@ -199,8 +214,9 @@ def on_stop(event):
     thread = getattr(event, "inferior_thread", None) or gdb.selected_thread()
     if thread:
         thread.switch()
+    name = received_signal(event)
     try:
-        capture_signal(event)
+        capture_signal(name)
     except (gdb.error, OSError, TypeError) as error:
         report["observerError"] = type(error).__name__ + ": " + str(error)[:500]
         save()
@@ -212,11 +228,11 @@ def on_stop(event):
             request_deadline()
             return
         thread.switch()
-        # Deliver an application trap only after GDB exposes a SignalEvent.
+        # Deliver only a trap identified on this stopped application thread.
         # Global SIGTRAP pass also forwards debugger-internal exec traps before
         # this callback runs. `signal` bypasses nopass for this thread alone;
         # the background form lets browser/server threads continue progressing.
-        if isinstance(event, gdb.SignalEvent) and event.stop_signal == "SIGTRAP":
+        if name == "SIGTRAP":
             gdb.execute("signal SIGTRAP &")
         else:
             gdb.execute("continue &")
