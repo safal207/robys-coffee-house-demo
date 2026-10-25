@@ -6,6 +6,7 @@ import { parseFeedEntry, feedShareUrl, selectActiveFeedIndex, visibleFeedCardBou
 import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
 import { createLazyFeedViewer } from "./src/menu-feed-viewer-entry.js";
+import { formatFeedItemCount } from "./src/menu-feed-copy.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -18,7 +19,7 @@ const copy = {
     more: "Daha fazla göster", end: "Menünün sonuna geldin. Seçim senin.", order: "Siparişim", total: "Toplam",
     draft: "Bu bir sipariş taslağıdır; kafeye otomatik gönderilmez. Ödeme kasada yapılır.", checkout: "Kasa için QR oluştur",
     continue: "Keşfetmeye devam et", close: "Kapat", all: "Tümü", add: "+ Siparişe ekle", added: "Siparişine eklendi",
-    details: "İçerik ve seçenekler", inOrder: "siparişinde", flavor: "Lezzet seç", choose: "Bir lezzet seçin", next: "Sonraki ürüne geç", results: "ürün",
+    details: "İçerik ve seçenekler", inOrder: "siparişinde", flavor: "Lezzet seç", choose: "Bir lezzet seçin", next: "Sonraki ürüne geç",
     loading: "Sipariş okunuyor…", error: "İşlem tamamlanamadı. Tekrar dene; seçimini kontrol et.", limit: "Bu üründen en fazla 99 adet ekleyebilirsin.",
     cartEmpty: "Henüz bir seçim eklemedin.", remove: "Kaldır", decrease: "Adedi azalt", increase: "Adedi artır", updated: "Sipariş güncellendi", retry: "Sayfayı yenile" },
   en: { title: "Find your taste.\nOne photo at a time.", lead: "A coffee, a dessert, or a little of both. Save what you like, then add it when you're ready.",
@@ -31,7 +32,7 @@ const copy = {
     more: "Show more", end: "You've reached the end. The choice is yours.", order: "My order", total: "Total",
     draft: "This is an order draft; it is not sent to the café automatically. Pay at the counter.", checkout: "Get QR for the counter",
     continue: "Keep exploring", close: "Close", all: "All", add: "+ Add to order", added: "Added to your order",
-    details: "Details and options", inOrder: "in your order", flavor: "Choose a flavor", choose: "Select a flavor", next: "Next item", results: "items",
+    details: "Details and options", inOrder: "in your order", flavor: "Choose a flavor", choose: "Select a flavor", next: "Next item",
     loading: "Reading your order…", error: "Could not complete this action. Try again and check your order.", limit: "You can add up to 99 of this item.",
     cartEmpty: "You haven't added anything yet.", remove: "Remove", decrease: "Decrease quantity", increase: "Increase quantity", updated: "Order updated", retry: "Reload the page" },
   ru: { title: "Выбирай глазами.\nНаслаждайся вкусом.", lead: "Кофе, десерт, а может, всё вместе. Сохраняй понравившееся и добавляй в заказ, когда решишь.",
@@ -44,7 +45,7 @@ const copy = {
     more: "Показать ещё", end: "Ты долистал меню. Выбор за тобой.", order: "Мой заказ", total: "Итого",
     draft: "Это черновик: заказ не отправляется в кафе автоматически. Оплата — на кассе.", checkout: "Получить QR для кассы",
     continue: "Выбрать ещё", close: "Закрыть", all: "Все", add: "+ В заказ", added: "Добавлено в заказ",
-    details: "Состав и варианты", inOrder: "в заказе", flavor: "Выбери вкус", choose: "Выберите вкус", next: "Следующая позиция", results: "позиций",
+    details: "Состав и варианты", inOrder: "в заказе", flavor: "Выбери вкус", choose: "Выберите вкус", next: "Следующая позиция",
     loading: "Проверяем заказ…", error: "Не удалось завершить действие. Попробуй ещё раз и проверь заказ.", limit: "Можно добавить не больше 99 штук этого товара.",
     cartEmpty: "Ты пока ничего не добавил.", remove: "Убрать", decrease: "Уменьшить количество", increase: "Увеличить количество", updated: "Заказ обновлён", retry: "Обновить страницу" }
 };
@@ -457,7 +458,7 @@ function renderFeed() {
   $("#feed-empty").hidden = !!filtered.length;
   $("#feed-empty p").textContent = likedOnly && !searchInput.value ? text().likedEmpty : text().empty;
   $("#feed-search-clear").hidden = !searchInput.value;
-  $("#feed-results").textContent = `${filtered.length} ${text().results}`;
+  $("#feed-results").textContent = formatFeedItemCount(filtered.length, language);
   scheduleActiveCard();
 }
 
