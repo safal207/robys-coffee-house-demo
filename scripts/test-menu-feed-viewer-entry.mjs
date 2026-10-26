@@ -50,11 +50,11 @@ test("localized story entries and seen state render without downloading or build
   const f = fixture(); try {
     f.viewer.renderStories();
     assert.equal(f.stories.attributes["aria-label"], "Stories");
-    assert.equal(f.stories.children[0].attributes["aria-label"], "Coffee · 1 items");
+    assert.equal(f.stories.children[0].attributes["aria-label"], "Coffee · 1 item");
     assert.equal(f.stories.children[0].children[0].children[0].src, "a.webp");
     assert.equal(f.stories.children[0].dataset.seen, "false"); f.seen.add("coffee:a"); f.viewer.refresh();
     assert.equal(f.stories.children[0].dataset.seen, "true");
-    f.language("ru"); f.viewer.renderStories(); assert.equal(f.stories.children[0].attributes["aria-label"], "Кофе · 1 позиций");
+    f.language("ru"); f.viewer.renderStories(); assert.equal(f.stories.children[0].attributes["aria-label"], "Кофе · 1 позиция");
     assert.deepEqual(f.counts(), { loads: 0, factories: 0 });
   } finally { f.cleanup(); }
 });

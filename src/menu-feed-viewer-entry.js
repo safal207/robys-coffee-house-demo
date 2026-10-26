@@ -1,8 +1,9 @@
 // Render discovery entries immediately; download the full viewer on first use.
+import { formatFeedItemCount } from "./menu-feed-copy.js";
 const copy = {
-  tr: { stories: "Hikâyeler", items: "ürün", loading: "Hikâyeler yükleniyor…", error: "Görüntüleyici yüklenemedi. Tekrar açmayı dene." },
-  en: { stories: "Stories", items: "items", loading: "Loading viewer…", error: "The viewer could not load. Try opening it again." },
-  ru: { stories: "Истории", items: "позиций", loading: "Загружаем просмотр…", error: "Не удалось загрузить просмотр. Попробуй открыть ещё раз." }
+  tr: { stories: "Hikâyeler", loading: "Hikâyeler yükleniyor…", error: "Görüntüleyici yüklenemedi. Tekrar açmayı dene." },
+  en: { stories: "Stories", loading: "Loading viewer…", error: "The viewer could not load. Try opening it again." },
+  ru: { stories: "Истории", loading: "Загружаем просмотр…", error: "Не удалось загрузить просмотр. Попробуй открыть ещё раз." }
 };
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -11,8 +12,8 @@ function element(tag, className, text) {
   return node;
 }
 function loadViewer(attempt) {
-  if (!attempt) return import("./menu-feed-viewer.js?v=2c8582b8c3fa");
-  const url = new URL("./menu-feed-viewer.js?v=2c8582b8c3fa", import.meta.url);
+  if (!attempt) return import("./menu-feed-viewer.js?v=5f768fc6a5ff");
+  const url = new URL("./menu-feed-viewer.js?v=5f768fc6a5ff", import.meta.url);
   url.searchParams.set("retry", String(attempt));
   return import(url.href);
 }
@@ -82,7 +83,7 @@ export function createLazyFeedViewer(config, { loadModule = loadViewer } = {}) {
     for (const group of groups) {
       const story = element("button", "feed-story"); story.type = "button"; story.dataset.storyCategory = group.category.id;
       story.setAttribute("aria-haspopup", "dialog"); story.setAttribute("aria-controls", "feed-viewer");
-      story.setAttribute("aria-label", `${localized(group.category.name)} · ${group.products.length} ${text().items}`);
+      story.setAttribute("aria-label", `${localized(group.category.name)} · ${formatFeedItemCount(group.products.length, getLanguage())}`);
       story.addEventListener("click", () => { void openStories(group.category.id, story); });
       const ring = element("span", "feed-story-ring"), cover = element("img");
       const source = group.products[0].image;
