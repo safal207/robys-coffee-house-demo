@@ -26,7 +26,10 @@ export async function runCanonicalDiagnostics({ output, execute = runObservedNod
   const sidecar = join(output, "diagnostics"); mkdirSync(sidecar, { recursive: true });
   const expectedHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   rmSync(join(output, "report.json"), { force: true });
-  const execution = await execute(canonical, { output: join(sidecar, "canonical"),
+  // Keep the acceptance run outside ptrace. strace changes browser process and
+  // signal scheduling; instrumented controls belong to the separate sidecars.
+  // All canonical assertions, evidence binding and failure exit codes remain.
+  const execution = await execute(canonical, { output: join(sidecar, "canonical"), trace: false,
     env: { ...process.env, ROBYS_LAZY_BROWSER: "webkit", ROBYS_LAZY_BROWSERS: "webkit", ROBYS_LAZY_QA_DIR: output,
       ROBYS_BROWSER_STARTUP_DIAGNOSTICS: "1" } });
   let report, reportError;
@@ -44,7 +47,7 @@ export async function runCanonicalDiagnostics({ output, execute = runObservedNod
   if (code !== 0 && crashed && validFixture) {
     receipt.controlCase = { id: crashed.id, language, deviceScaleFactor: scale };
     for (const mode of ["native", "audit"]) {
-      const result = await execute(self, { args: [`--control=${mode}`, `--language=${language}`, `--scale=${scale}`], output: join(sidecar, mode),
+      const result = await execute(self, { args: [`--control=${mode}`, `--language=${language}`, `--scale=${scale}`], output: join(sidecar, mode), trace: true,
         env: { ...process.env, ROBYS_DIAGNOSTIC_OUTPUT: join(sidecar, mode) } });
       receipt.controls.push({ mode, execution: result }); write(join(sidecar, "summary.json"), receipt);
     }

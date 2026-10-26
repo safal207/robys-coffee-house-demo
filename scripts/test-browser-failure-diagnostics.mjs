@@ -27,7 +27,7 @@ test("a failed canonical run stays nonzero even when both separate controls pass
   const output = mkdtempSync(join(tmpdir(), "robys-diagnostic-verdict-")), calls = [];
   try {
     const code = await runCanonicalDiagnostics({ output, execute: async (script, options) => {
-      calls.push({ script, args: options.args });
+      calls.push({ script, args: options.args, trace: options.trace });
       if (calls.length === 1) assert.equal(options.env.ROBYS_LAZY_QA_DIR, output);
       if (calls.length === 1) { const report = pass(); report.complete = false; report.cases[0] = {
         id: "withheld-and-approach-tr", status: "FAIL", lifecycle: { events: [{ event: "page-crash" }] } };
@@ -35,9 +35,29 @@ test("a failed canonical run stays nonzero even when both separate controls pass
       return { code: 0, signal: null };
     } });
     assert.equal(code, 1); assert.equal(calls.length, 3);
+    assert.equal(calls[0].trace, false, "The acceptance run must not execute under ptrace");
+    assert(calls.slice(1).every(call => call.trace === true), "Native tracing remains available in separate controls");
     assert.deepEqual(calls.slice(1).map(call => call.args), [
       ["--control=native", "--language=tr", "--scale=1"], ["--control=audit", "--language=tr", "--scale=1"]]);
     assert.equal(JSON.parse(readFileSync(join(output, "diagnostics/summary.json"))).canonical.effectiveExitCode, 1);
+  } finally { rmSync(output, { recursive: true, force: true }); }
+});
+
+test("successful canonical assertions run without ptrace and preserve their bound receipt", async () => {
+  const output = mkdtempSync(join(tmpdir(), "robys-diagnostic-untraced-")); let calls = 0;
+  try {
+    const code = await runCanonicalDiagnostics({ output, execute: async (script, options) => {
+      calls++;
+      assert(script.endsWith("/test-menu-lazy-images-browser.mjs"));
+      assert.equal(options.trace, false);
+      writeFileSync(join(output, "report.json"), JSON.stringify(pass()));
+      return { code: 0, signal: null, trace: { status: "NOT_REQUESTED" } };
+    } });
+    assert.equal(code, 0); assert.equal(calls, 1);
+    const receipt = JSON.parse(readFileSync(join(output, "diagnostics/summary.json")));
+    assert.equal(receipt.canonical.execution.trace.status, "NOT_REQUESTED");
+    assert.equal(receipt.canonical.effectiveExitCode, 0);
+    assert.equal(receipt.controlDisposition.status, "NOT_RUN");
   } finally { rmSync(output, { recursive: true, force: true }); }
 });
 

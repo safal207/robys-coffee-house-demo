@@ -88,6 +88,12 @@ The report should be read together with the raw receipts, logs, exact test
 reports and screenshots. The workflow's success concerns the selected profile.
 Publication identity and live-site behavior require their own evidence.
 
+The separate Linux WebKit diagnostic job runs the canonical 12-case suite
+without ptrace, preserving its assertions and exit status. Native tracing is
+confined to subsequent diagnostic controls and the bounded debugger replay.
+An instrumented replay can change process scheduling and cannot replace the
+canonical result or establish that a historical native crash is fixed.
+
 ## Local use
 
 Install locked dependencies and the engines required by selected checks. The
