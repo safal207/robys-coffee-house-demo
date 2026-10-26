@@ -58,9 +58,10 @@ function readJson(request, limit = 8192) {
 }
 
 export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-  host = "127.0.0.1", secureCookies = !LOOPBACK.has(host), publicOrigin, now = Date.now,
+  host = "127.0.0.1", secureCookies = !LOOPBACK.has(host), publicOrigin, healthcheckHost, now = Date.now,
   sessionTtlMs = 8 * 60 * 60 * 1000, rateLimits = {} } = {}) {
   const loopback = LOOPBACK.has(host);
+  if (healthcheckHost !== undefined && !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/i.test(healthcheckHost)) throw new Error("Invalid healthcheck host");
   if (!secureCookies && !loopback) throw new Error("Insecure cookies are allowed only on an explicit loopback host");
   const configuredOrigin = publicOrigin ? new URL(publicOrigin) : null;
   if ((!loopback && !configuredOrigin) || (configuredOrigin && (configuredOrigin.protocol !== (secureCookies ? "https:" : "http:")
@@ -103,7 +104,9 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     const port = server.address()?.port;
     const expectedHosts = configuredOrigin ? [configuredOrigin.host] : [host === "::1" ? `[::1]:${port}` : `${host}:${port}`,
       ...(loopback ? [`localhost:${port}`, `127.0.0.1:${port}`, `[::1]:${port}`] : [])];
-    if (!expectedHosts.includes(request.headers.host?.toLowerCase())) fail(403, "invalid_host");
+    const healthProbe = configuredOrigin && healthcheckHost && request.method === "GET"
+      && request.url === `${PREFIX}/health` && request.headers.host?.toLowerCase() === healthcheckHost.toLowerCase();
+    if (!healthProbe && !expectedHosts.includes(request.headers.host?.toLowerCase())) fail(403, "invalid_host");
     return configuredOrigin?.origin ?? `${secureCookies ? "https" : "http"}://${request.headers.host}`;
   }
   async function api(request, response, url, origin) {

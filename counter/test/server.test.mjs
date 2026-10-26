@@ -146,6 +146,23 @@ test("explicit secure-cookie mode uses the secure Host cookie prefix", async t =
   assert.match(response.headers.get("set-cookie"), /; Secure$/);
 });
 
+test("platform healthcheck hostname grants only the exact read-only health route", async t => {
+  const f = await fixture(t, { host: "0.0.0.0", publicOrigin: "https://counter.example.test", healthcheckHost: "healthcheck.railway.app" });
+  const headers = { Host: "healthcheck.railway.app" };
+  const health = await f.api("/health", { headers });
+  assert.equal(health.status, 200);
+  assert.deepEqual(health.body, { ok: true });
+  assert.equal(health.headers.get("cache-control"), "no-store");
+  for (const path of ["/session", "/queue", "/health?lang=en", "/health/", "/%68ealth"]) {
+    assert.equal((await f.api(path, { headers })).status, 403, path);
+  }
+  assert.equal((await f.api("/health", { method: "POST", headers, body: {} })).status, 403);
+  assert.equal((await f.api("/login", { method: "POST", headers, body: { username: "cashier", password: f.credentials.cashier } })).status, 403);
+  assert.equal((await f.api("/health", { headers: { Host: "attacker.invalid", "X-Forwarded-Host": "healthcheck.railway.app" } })).status, 403);
+  const auth = await f.login("cashier");
+  assert.match(auth.setCookie, /^__Host-roby-counter-session=.*; Secure$/);
+});
+
 test("canonical quote, server timestamps and opaque IDs ignore no client price or state", async t => {
   const time = Date.now(), f = await fixture(t, { now: () => time });
   const ticket = makeTicket(2); ticket.createdAt = 1577836800000;

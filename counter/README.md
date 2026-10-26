@@ -1,6 +1,7 @@
-# Local counter service
+# Counter service
 
-This implementation runs locally. It does not publish the site or charge a card.
+The default entrypoint runs locally. An opt-in hosted container and its deployment
+steps are described in [HOSTING.md](HOSTING.md). Neither entrypoint charges a card.
 The cashier records payment received at the counter; only then does the order
 appear in the barista queue. Status changes are recorded in SQLite with the staff
 identity and time.
@@ -31,9 +32,9 @@ the WAL. Keep the data directory private to the operating-system account running
 the service. The server never exposes database files, backend files or tests.
 
 This default binds only to loopback. Non-loopback configuration requires an
-explicit HTTPS `COUNTER_PUBLIC_ORIGIN` and Secure cookies. TLS termination and
-remote hosting are not set up by this implementation; forwarded headers are not
-trusted. Do not expose the loopback HTTP configuration as a remote service.
+explicit HTTPS `COUNTER_PUBLIC_ORIGIN` and Secure cookies. For a TLS-terminating
+host and persistent volume, use the opt-in `node counter/hosted.mjs` entrypoint
+and [hosting instructions](HOSTING.md). Forwarded headers are not trusted.
 
 Sessions expire after eight hours. Passwords use scrypt with a random salt;
 session and guest bearer secrets are stored as hashes. Writes require the exact

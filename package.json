@@ -4,6 +4,7 @@
   "version": "2.0.0",
   "scripts": {
     "counter:start": "node counter/server.mjs",
+    "counter:hosted": "node counter/hosted.mjs",
     "counter:user": "node counter/provision.mjs",
     "test:counter": "node --test counter/test/*.test.mjs",
     "build:counter": "node scripts/build-counter.mjs",

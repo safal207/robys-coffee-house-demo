@@ -128,7 +128,7 @@ const buildRoots = ["src/app.ts"].filter((path) => fileSet.has(path));
 // Backend entry points are reachable through their actual npm start commands,
 // not through browser HTML. Detached server files remain detectable as orphans.
 const packageScripts = fileSet.has("package.json") ? JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).scripts ?? {} : {};
-const serviceRoots = ["counter/server.mjs", "counter/provision.mjs"].filter((path) =>
+const serviceRoots = ["counter/server.mjs", "counter/provision.mjs", "counter/hosted.mjs"].filter((path) =>
   fileSet.has(path) && Object.values(packageScripts).includes(`node ${path}`));
 const roots = [...new Set([...htmlRoots, ...buildRoots, ...serviceRoots])];
 const reachable = new Set();
