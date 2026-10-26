@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "metricId": "ready_ms",
+  "measurement": "Trusted user activation to semantically correct visible outcome, including finite dialog animations, then two animation frames. No artificial think time. Local lab metric, not field INP.",
+  "matrix": { "widths": [390, 1280], "height": 844, "languages": ["tr", "en", "ru"], "motions": ["normal", "reduced"], "attemptsDefault": 1, "expectedSamplesDefault": 120 },
+  "journeys": {
+    "menu-switch-feed": { "maxMs": 999, "enforced": true, "authority": "owner requirement: under one second" },
+    "menu-switch-list": { "maxMs": 999, "enforced": true, "authority": "owner requirement: under one second" },
+    "menu-search": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "menu-clear": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "menu-category": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "menu-language": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "product-open": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "cart-add": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "cart-open": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" },
+    "cart-close": { "maxMs": 999, "enforced": false, "authority": "provisional engineering target; informational" }
+  }
+}

@@ -418,7 +418,8 @@ function textGeometry(element) {
     if (style.display === "none" || style.visibility !== "visible" || Number(style.opacity) === 0) visible = false;
   }
   return { text: element.textContent.trim(), rect: element.getBoundingClientRect().toJSON(), rows, visible,
-    focused: document.activeElement === element, viewport: { width: innerWidth, height: innerHeight } };
+    focused: document.activeElement === element, documentFocused: document.hasFocus(), matchesFocus: element.matches(":focus"),
+    transform: getComputedStyle(element).transform, viewport: { width: innerWidth, height: innerHeight } };
 }
 
 function assertReadable(geometry, message) {
@@ -464,8 +465,19 @@ async function verifyEnlargedCase(browser, { engine, width, height, language, id
     assert.equal(facts.skipUnfocused.focused, false, "Skip link starts unfocused");
     assert.ok(facts.skipUnfocused.rect.bottom <= 1, `Unfocused skip link is entirely offscreen at enlarged text: ${JSON.stringify(facts.skipUnfocused.rect)}`);
     await page.keyboard.press("Tab");
-    await afterLayout(page);
-    facts.skipFocused = await skip.evaluate(textGeometry);
+    assert.equal(await focused(skip), true, "Natural first Tab reaches the skip link before measuring its presentation");
+    // Two animation frames did not guarantee that Chromium had applied :focus:
+    // the failed CI geometry was still translated offscreen, while its later
+    // failure screenshot already showed the link. Wait for the actual CSS state
+    // within a bounded second; a missing/broken focus rule must still fail.
+    try {
+      await page.waitForFunction(() => {
+        const link = document.querySelector(".skip-link");
+        if (!link?.matches(":focus")) return false;
+        const transform = getComputedStyle(link).transform;
+        return transform === "none" || new DOMMatrixReadOnly(transform).isIdentity;
+      }, null, { timeout: 1000, polling: "raf" });
+    } finally { facts.skipFocused = await skip.evaluate(textGeometry); }
     assert.equal(facts.skipFocused.focused, true, "Natural first Tab reaches the skip link");
     assertReadable(facts.skipFocused, "Focused skip link");
     await page.keyboard.press("Tab");
