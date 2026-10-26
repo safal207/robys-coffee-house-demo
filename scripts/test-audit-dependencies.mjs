@@ -237,6 +237,14 @@ check("server files without an actual start command stay orphaned", {
   "package.json": JSON.stringify({ scripts: {} }),
   "counter/server.mjs": 'import "./auth.mjs";', "counter/auth.mjs": "export {};"
 }, ["counter/auth.mjs", "counter/server.mjs"]);
+check("hosted start command traverses the existing counter server", {
+  "package.json": JSON.stringify({ scripts: { "counter:hosted": "node counter/hosted.mjs" } }),
+  "counter/hosted.mjs": 'import "./server.mjs";', "counter/server.mjs": 'import "./auth.mjs";', "counter/auth.mjs": "export {};"
+}, []);
+check("unconfigured hosted entrypoint stays detectable as an orphan", {
+  "package.json": JSON.stringify({ scripts: { "counter:start": "node counter/server.mjs" } }),
+  "counter/hosted.mjs": 'import "./server.mjs";', "counter/server.mjs": "export {};"
+}, ["counter/hosted.mjs"]);
 for (const name of ["guest", "staff"]) {
   const runtime = `counter/public/${name}.js`;
   const source = `counter/src/${name}.js`;

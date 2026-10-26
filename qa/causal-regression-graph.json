@@ -360,7 +360,16 @@
         "counter/server.mjs",
         "counter/store.mjs",
         "counter-config.json",
-        "counter/CONTRACT.md"
+        "counter/CONTRACT.md",
+        "counter/hosted.mjs",
+        "counter/Dockerfile",
+        "counter/Dockerfile.dockerignore",
+        "counter/HOSTING.md",
+        "counter/README.md",
+        "counter/test/*.test.mjs",
+        "scripts/package-counter-runtime.mjs",
+        "scripts/test-counter-hosted-container.mjs",
+        ".github/workflows/counter-service.yml"
       ],
       "dependsOn": [
         "order-model",
@@ -1310,6 +1319,19 @@
       "browsers": [
         "chromium"
       ]
+    },
+    {
+      "id": "counter-hosted-container",
+      "label": "Hosted image startup, security boundaries and order persistence across container replacement",
+      "kind": "contract",
+      "workflow": ".github/workflows/counter-service.yml",
+      "command": "node scripts/test-counter-hosted-container.mjs",
+      "components": [
+        "counter-service",
+        "counter-auth",
+        "checkout"
+      ],
+      "execution": "existing-workflow"
     }
   ],
   "journeys": [
@@ -2021,6 +2043,22 @@
         "security-contracts",
         "adversarial-browser",
         "counter-contracts"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "counter-hosted-restart",
+      "label": "Create a hosted test order and read it after replacement by a fresh container on the same volume; timing unmeasured",
+      "components": [
+        "counter-service",
+        "counter-auth",
+        "checkout"
+      ],
+      "checks": [
+        "source-contracts",
+        "security-contracts",
+        "counter-contracts",
+        "counter-hosted-container"
       ],
       "metrics": []
     }

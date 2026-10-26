@@ -1,6 +1,8 @@
 # Counter service contract
 
-Local-only implementation requested on 2026-10-13. No hosting or publication is authorized for this step.
+The original 2026-10-13 implementation was local-only. The opt-in hosted entrypoint
+is described in [HOSTING.md](HOSTING.md); adding it does not itself publish a service
+or change the static site's customer entry URL.
 
 Node 24, SQLite on a persistent filesystem. The service serves the existing menu from the repository's public integrity allowlist, plus `/counter/guest.html`, `/counter/staff.html` and their explicit static assets from `counter/public/`. It overrides `/counter-config.json` with `{ "enabled": true, "checkoutUrl": "/counter/guest.html" }`; the checked-in static config is disabled. Existing strict CSP remains unchanged. Counter pages never register a service worker; API responses are no-store.
 
