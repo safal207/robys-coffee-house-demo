@@ -3,9 +3,9 @@ name: Counter service
 on:
   push:
     branches: [main]
-    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", "scripts/package-counter-runtime.mjs", "scripts/test-counter-hosted-container.mjs", ".github/workflows/counter-service.yml"]
+    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", "scripts/build.mjs", "package.json", "package-lock.json", "integrity-manifest.json", "scripts/package-counter-runtime.mjs", "scripts/test-counter-hosted-container.mjs", ".github/workflows/counter-service.yml"]
   pull_request:
-    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", "scripts/package-counter-runtime.mjs", "scripts/test-counter-hosted-container.mjs", ".github/workflows/counter-service.yml"]
+    paths: ["counter/**", "src/order-ticket.js", "src/counter-checkout.js", "counter-config.json", "menu-catalog.js", "sw-core-v64.js", "scripts/build-counter.mjs", "scripts/build.mjs", "package.json", "package-lock.json", "integrity-manifest.json", "scripts/package-counter-runtime.mjs", "scripts/test-counter-hosted-container.mjs", ".github/workflows/counter-service.yml"]
 
 permissions:
   contents: read
