@@ -63,7 +63,8 @@ New visual differences require inspection; existing screenshot approvals are not
 silently rebound. Lighthouse transfer measurements must be rerun; static byte
 savings are not a new performance score. The existing native APK visual-handoff
 failure is separate from browser navigation and is not claimed fixed here.
-Request independent Codex and Jules reviews after the final head is published.
+The review instruction for this 2026-09-05 repair is superseded by the current
+policy in `AGENTS.md`.
 
 ## Follow-up: delivery cost and reproducible menu runtime
 

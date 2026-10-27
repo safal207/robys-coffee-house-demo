@@ -96,8 +96,10 @@ run the complete commands above before merge.
 - Preserve progressive enhancement and useful no-JavaScript fallbacks.
 - Treat visual changes as behavior changes: attach reproducible screenshot evidence.
 - Never merge a red or still-running required check.
-- After the latest commit, add separate top-level PR comments:
-  `@codex review` and `@jules review`, subject to the scoped owner instruction below.
+- After the latest commit, request `@codex review`, subject to the scoped owner
+  instruction below and any higher-priority authorization requirements.
+- Per the owner instruction on 27 October 2026, do not request or re-request
+  automated reviews from Jules.
 - Resolve actionable review findings or document why they are not applicable.
 
 ## PR #338: owner opted out of Codex review
