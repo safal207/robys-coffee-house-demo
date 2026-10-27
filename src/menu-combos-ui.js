@@ -283,7 +283,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       selectedItems = selectedItems.filter(item => item.id !== id);
       const row = source.closest(".menu-combos-option");
       const nextFocus = row?.nextElementSibling?.querySelector("input") ?? row?.previousElementSibling?.querySelector("input") ?? addProduct;
-      renderOptions();
+      renderOptions({ preserveInvalid: true });
       renderProductSelect();
       // Rows were recreated; keep a useful focus target after removing an item.
       const nextId = nextFocus?.dataset.comboQuantity;
@@ -300,7 +300,10 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     }
     updateQuote();
   }
-  function renderOptions() {
+  function renderOptions({ preserveInvalid = false } = {}) {
+    const invalidDrafts = new Map(preserveInvalid
+      ? Array.from(options.querySelectorAll("input[aria-invalid=true]"), input => [input.dataset.comboQuantity, input.value])
+      : []);
     options.replaceChildren();
     selectedItems.forEach(selected => {
       const product = productIndex.get(selected.id);
@@ -356,6 +359,10 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
         }
         return !error;
       };
+      if (invalidDrafts.has(product.id)) {
+        quantity.value = invalidDrafts.get(product.id);
+        validateQuantity();
+      }
       quantity.addEventListener("change", () => {
         if (!validateQuantity()) {
           updateQuote();
@@ -386,7 +393,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     closeButton.setAttribute("aria-label", text("close"));
     addLabel.textContent = text("addProduct");
     maximum.textContent = text("maximum");
-    renderOptions();
+    renderOptions({ preserveInvalid: dialog.hasAttribute("open") });
     renderProductSelect();
     if (status.dataset.message) setStatus(status.dataset.message);
     updateQuote();
@@ -472,7 +479,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     if (confirming || !id || selectedItems.some(item => item.id === id)) return;
     selectedItems.push({ id, quantity: 1 });
     setStatus("");
-    renderOptions();
+    renderOptions({ preserveInvalid: true });
     renderProductSelect();
     updateQuote();
     Array.from(options.querySelectorAll("input")).find(input => input.dataset.comboQuantity === id)?.focus();

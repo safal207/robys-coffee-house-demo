@@ -153,6 +153,14 @@ async function verifyQuantity(browser, engine) {
       await simit.fill("21");
       assert.match(await dialog.locator(`[id="${await tea.getAttribute("aria-describedby")}"]`).textContent(), errors[lang]["-1"]);
       assert.match(await dialog.locator(`[id="${await simit.getAttribute("aria-describedby")}"]`).textContent(), errors[lang]["21"]);
+      await dialog.locator('[data-combo-product="brew-hot:black-tea"] .menu-combos-remove').click();
+      assert.equal(await simit.inputValue(), "21", `${lang}: removing another item preserves the invalid draft`);
+      assert.equal(await simit.getAttribute("aria-invalid"), "true");
+      assert.equal(await dialog.locator(".menu-combos-add").isDisabled(), true);
+      await dialog.locator(".menu-combos-add-product").selectOption("brew-hot:black-tea");
+      assert.equal(await simit.inputValue(), "21", `${lang}: adding an item preserves the invalid draft`);
+      assert.match(await dialog.locator(`[id="${await simit.getAttribute("aria-describedby")}"]`).textContent(), errors[lang]["21"]);
+      assert.equal(await dialog.locator(".menu-combos-add").isDisabled(), true);
       await tea.fill("2");
       assert.equal(await dialog.locator(".menu-combos-add").isDisabled(), true);
       assert.match(await status.innerText(), errors[lang]["21"]);
