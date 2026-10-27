@@ -76,6 +76,11 @@ const recipes = {
   sweet: [["hot-coffee:caffe-latte", 1], ["desserts:cookie", 1]],
   hearty: [["brew-hot:filter-coffee", 1], ["food:white-cheese-baguette-sandwich", 1]]
 };
+const quantityErrors = {
+  tr: { "-1": /negatif/, "1.5": /tam sayı/, "": /Bir adet gir/, "21": /en fazla 20/ },
+  en: { "-1": /negative/, "1.5": /whole number/, "": /Enter a quantity/, "21": /at most 20/ },
+  ru: { "-1": /отрицательным/, "1.5": /целым числом/, "": /Укажи количество/, "21": /не больше 20/ }
+};
 const linesFor = id => sortLines(recipes[id].map(([id, quantity]) => ({ id, quantity })));
 
 // Observation only: retain bounded evidence before existing failure cleanup.
@@ -347,9 +352,19 @@ try {
           await quantity.fill("99"); await quantity.press("Tab");
           assert.equal(await quantity.getAttribute("aria-invalid"), "true");
           assert.equal(await preview(page).locator(".menu-combos-add").isDisabled(), true, "Invalid quantities cannot silently add an earlier value");
+          for (const [value, expected] of Object.entries(quantityErrors[language])) {
+            await quantity.fill(value); await quantity.press("Tab");
+            assert.equal(await quantity.getAttribute("aria-invalid"), "true", `${language}: ${value} is invalid`);
+            assert.equal(await preview(page).locator(".menu-combos-add").isDisabled(), true);
+            assert.match(await preview(page).locator(".menu-combos-status").innerText(), expected);
+            const description = await quantity.getAttribute("aria-describedby");
+            assert.ok(description, `${language}: invalid field has a descriptive error`);
+            assert.match(await preview(page).locator(`[id="${description}"]`).textContent(), expected);
+          }
           await preview(page).locator('[data-combo-increase="brew-hot:black-tea"]').click();
           assert.equal(await quantity.inputValue(), "2", "Plus recovers from invalid text using the last valid quantity");
           assert.notEqual(await quantity.getAttribute("aria-invalid"), "true", "A valid step clears the previous validation error");
+          assert.equal(await quantity.getAttribute("aria-describedby"), null, "Recovery removes the stale error description");
           assert.equal(await preview(page).locator(".menu-combos-add").isDisabled(), false);
           await quantity.fill("3"); await quantity.press("Tab");
           await preview(page).locator('[data-combo-product="food:sesame-simit"] .menu-combos-remove').click();

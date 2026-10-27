@@ -171,6 +171,18 @@ async function verifyCase(browser, engine, width, language) {
   page.on("pageerror", error => errors.push(error.message));
   const facts = {};
   try {
+    if (width === 390 && language === "ru") {
+      await page.goto(`${origin}/index.html?entry=off&lang=en`, { waitUntil: "domcontentloaded" });
+      await page.waitForFunction(() => document.documentElement.lang === "en" &&
+        document.title === "Roby's Coffee House | Gazipaşa");
+      await page.locator('.lang-button[data-lang="tr"]').click();
+      await page.waitForFunction(() => document.documentElement.lang === "tr");
+      assert.equal(new URL(page.url()).searchParams.get("lang"), "tr", "Switching language updates the existing URL parameter");
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.waitForFunction(() => document.documentElement.lang === "tr" &&
+        document.title === "Roby's Coffee House | Gazipaşa");
+      facts.urlLanguageAndTitleSurviveReload = true;
+    }
     await page.goto(`${origin}/index.html?entry=off`, { waitUntil: "domcontentloaded" });
     await page.locator(`.lang-button[data-lang="${language}"].active[aria-pressed="true"]`).waitFor();
     await page.locator("html:not([data-robys-entry-pending])").waitFor({ state: "attached" });

@@ -162,6 +162,13 @@ function setupMobileCta() {
 }
 
 let initialized = false;
+// Metadata must reflect the initial language even before the first gesture.
+updateSeoLanguage();
+new MutationObserver(updateSeoLanguage).observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ["lang"]
+});
+
 function initConversionPack() {
   if (initialized) return;
   initialized = true;
@@ -169,12 +176,6 @@ function initConversionPack() {
   setupHeaderAndProgress();
   setupActiveNavigation();
   setupMobileCta();
-  updateSeoLanguage();
-
-  new MutationObserver(updateSeoLanguage).observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["lang"]
-  });
 }
 
 window.addEventListener("scroll", initConversionPack, { once: true, passive: true });

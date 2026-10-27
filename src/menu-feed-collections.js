@@ -33,7 +33,7 @@ export function initFeedCollections({ productIndex, orderProductIds, getLanguage
         const url = new URL("./menu-combos-ui.js", import.meta.url);
         url.searchParams.set("retry", String(combosRetry));
         loading = import(url.href);
-      } else loading = import("./menu-combos-ui.js?v=0aad157af9c2");
+      } else loading = import("./menu-combos-ui.js?v=4916143ecb67");
       combosPromise = loading.then(({ createMenuCombosUi }) => {
         combosUi = createMenuCombosUi({ ...sharedOptions(), root: document.querySelector("#menu-combos-content") });
         return combosUi;
