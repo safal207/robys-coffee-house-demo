@@ -12,6 +12,7 @@ on:
       - "scripts/build.mjs"
       - "scripts/test-discover-deck.mjs"
       - "scripts/test-discover-deck-browser.mjs"
+      - "scripts/test-test-design-fixes-browser.mjs"
       - "scripts/test-menu-product-reveal.mjs"
       - "scripts/ensure-playwright-browsers.mjs"
       - "scripts/signed-ubuntu-packages.mjs"
@@ -58,6 +59,8 @@ jobs:
         env:
           DECK_RESULTS_DIR: .artifacts/discover-deck
         run: node scripts/test-discover-deck-browser.mjs
+      - name: Verify pairing, locale, and quantity regressions
+        run: node scripts/test-test-design-fixes-browser.mjs
       - name: Upload exact-head deck evidence
         if: always()
         uses: actions/upload-artifact@v4
