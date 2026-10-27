@@ -198,30 +198,19 @@ try {
   assert.equal(currentAfter, previewBefore, "Deck preview must delegate to the existing next-pairing selection");
   assert.equal(previewAfter, currentBefore, "Deck must expose the previous journey as the new alternate");
   assert.equal(currentAfter, "iced-san-sebastian", "Fresh P0 deck must be able to switch to the San Sebastian journey");
+  assert.match(await page.locator("#pairing-card").ariaSnapshot(), /Цена:\s*370\s*₺/,
+    "The settled poster must expose the catalog price in the accessible card");
 
   const currentMenuLink = await menuLink.getAttribute("href");
   assert.equal(
     currentMenuLink,
-    "menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts",
-    "San Sebastian journey must hand off to the concrete dessert product"
+    "menu.html?product=pairing-offers%3Aiced-san-sebastian-pairing#pairing-offers",
+    "San Sebastian journey must hand off to the selected pairing"
   );
 
   await menuLink.click();
   await page.waitForURL(/menu\.html\?product=/);
   await page.locator("#menu-product-dialog").waitFor({ state: "visible", timeout: 5000 });
-  assert.match(await page.locator("#menu-product-title").innerText(), /Сан-Себастьян/i);
-  assert.match(await page.locator("#menu-product-price").innerText(), /190\s*₺/);
-
-  const reveal = page.locator(".menu-product-reveal-control");
-  const bridge = page.locator(".menu-product-pairing-bridge");
-  await bridge.waitFor({ state: "visible" });
-  assert.equal(await reveal.count(), 1, "The product reveal runtime must have mounted");
-  assert.equal(await reveal.isHidden(), true, "Identical catalog and fallback photos must not promise another angle");
-  assert.equal(await page.locator(".menu-product-reveal-image").isHidden(), true, "No duplicate photo overlay should be presented");
-  assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
-  assert.match(await bridge.innerText(), /370\s*₺/);
-  await page.locator(".menu-product-pairing-action").click();
-
   await page.waitForFunction(expectedTitle => {
     const dialog = document.querySelector("#menu-product-dialog");
     const title = document.querySelector("#menu-product-title")?.textContent ?? "";
@@ -229,7 +218,6 @@ try {
   }, editablePairTitle);
   assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:san-sebastian-cheesecake"]').isChecked(), true);
   assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
-  assert.equal(await reveal.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
 
   await page.locator("#menu-add-to-cart").click();
   await page.locator("#menu-cart-dialog").waitFor({ state: "visible" });
@@ -248,6 +236,23 @@ try {
   );
 
   await page.screenshot({ path: `${out}/discover-to-cart-390.png` });
+
+  // The separate dessert → pair bridge remains useful when a guest starts
+  // from the dessert itself, even though Discover now opens the pair directly.
+  await page.goto(`${base}menu.html?product=desserts%3Asan-sebastian-cheesecake#desserts`, { waitUntil: "domcontentloaded" });
+  await page.locator("#menu-product-dialog").waitFor({ state: "visible", timeout: 5000 });
+  assert.match(await page.locator("#menu-product-price").innerText(), /190\s*₺/);
+  const reveal = page.locator(".menu-product-reveal-control");
+  const bridge = page.locator(".menu-product-pairing-bridge");
+  await bridge.waitFor({ state: "visible" });
+  assert.equal(await reveal.count(), 1, "The product reveal runtime must have mounted");
+  assert.equal(await reveal.isHidden(), true, "Identical catalog and fallback photos must not promise another angle");
+  assert.equal(await page.locator(".menu-product-reveal-image").isHidden(), true);
+  assert.match(await bridge.innerText(), /Айс-латте \+ чизкейк Сан-Себастьян/i);
+  assert.match(await bridge.innerText(), /370\s*₺/);
+  await page.locator(".menu-product-pairing-action").click();
+  await page.waitForFunction(expectedTitle => document.querySelector("#menu-product-title")?.textContent === expectedTitle, editablePairTitle);
+  assert.equal(await reveal.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
 
   await context.close();

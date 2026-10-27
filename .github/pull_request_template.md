@@ -19,7 +19,6 @@ Optional automated review requests can be posted separately:
 
 ```text
 @codex review
-@jules review
 /deepseek review
 ```
 

@@ -69,6 +69,7 @@
       "paths": [
         ".github/workflows/order-reliability.yml",
         "scripts/test-home-navigation-browser.mjs",
+        "scripts/test-test-design-fixes-browser.mjs",
         "index.html",
         "src/app.ts",
         "app.js",
@@ -292,6 +293,7 @@
       "paths": [
         ".github/workflows/order-reliability.yml",
         "scripts/test-menu-combos-browser.mjs",
+        "scripts/test-test-design-fixes-browser.mjs",
         "menu-combos-ui.js",
         "src/menu-combos-ui.js",
         "src/menu-combos.js",
@@ -443,6 +445,9 @@
         "discover.html",
         "discover*.js",
         "discover*.css",
+        "scripts/test-discover-deck.mjs",
+        "scripts/test-discover-deck-browser.mjs",
+        "scripts/test-test-design-fixes-browser.mjs",
         "src/discover-rotation.ts",
         "src/pairings-data/**",
         "src/pairing-posters.js",
@@ -645,6 +650,9 @@
       "label": "Repository governance, declarative contracts, impact graph and evidence adapters",
       "paths": [
         "AGENTS.md",
+        ".github/pull_request_template.md",
+        "docs/codex-environment.md",
+        "docs/qa/premium-repair-2026-09-05.md",
         "qa/causal-regression-graph.json",
         "qa/feature-traceability-matrix.json",
         "qa/traceability/*.json",
@@ -874,6 +882,19 @@
       ]
     },
     {
+      "id": "discover-deck-contracts",
+      "label": "Discover deck selection, routes and offline contracts",
+      "kind": "contract",
+      "workflow": ".github/workflows/discover-deck-consolidated.yml",
+      "command": "node scripts/test-discover-deck.mjs",
+      "components": [
+        "discover",
+        "catalog",
+        "product-dialog"
+      ],
+      "execution": "pipeline"
+    },
+    {
       "id": "discover-deck-browser",
       "label": "Discover deck selection and menu handoff",
       "kind": "browser",
@@ -884,6 +905,27 @@
         "catalog",
         "product-dialog",
         "product-photos",
+        "order-storage",
+        "browser-prerequisites"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "test-design-fixes-browser",
+      "label": "Pairing selection, localized price, locale state and combo quantity validation",
+      "kind": "browser",
+      "workflow": ".github/workflows/discover-deck-consolidated.yml",
+      "command": "node scripts/test-test-design-fixes-browser.mjs",
+      "components": [
+        "home",
+        "discover",
+        "families-combos",
+        "catalog",
+        "i18n",
+        "product-dialog",
         "order-storage",
         "browser-prerequisites"
       ],
@@ -1627,6 +1669,7 @@
         "source-contracts",
         "family-browser",
         "combos-browser",
+        "test-design-fixes-browser",
         "menu-feed-browser"
       ],
       "metrics": []
@@ -1785,6 +1828,7 @@
       "checks": [
         "source-contracts",
         "home-navigation-browser",
+        "test-design-fixes-browser",
         "live-smoke"
       ],
       "metrics": []
@@ -1864,7 +1908,9 @@
       ],
       "checks": [
         "source-contracts",
+        "discover-deck-contracts",
         "discover-deck-browser",
+        "test-design-fixes-browser",
         "poster-contracts"
       ],
       "metrics": []

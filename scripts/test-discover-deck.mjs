@@ -40,8 +40,8 @@ assert.equal(alternativeJourney(""), null);
 
 assert.deepEqual(
   productRouteForJourney("iced-san-sebastian"),
-  { category: "desserts", product: "desserts:san-sebastian-cheesecake" },
-  "San Sebastian journey must deep-link to the real dessert product"
+  { category: "pairing-offers", product: "pairing-offers:iced-san-sebastian-pairing" },
+  "San Sebastian journey must deep-link to the selected pairing"
 );
 assert.deepEqual(
   productRouteForJourney("cool-lime-macaron"),

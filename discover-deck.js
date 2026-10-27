@@ -2,9 +2,9 @@ import { menuCategories } from "./menu-catalog.js?v=05e7dac3c17b";
 import { journeys } from "./discover-journeys-v2.js";
 
 const DECK_COPY = Object.freeze({
-  tr: Object.freeze({ next: "Sıradaki eşleşme", open: "Bu eşleşmeye geç" }),
-  en: Object.freeze({ next: "Next pairing", open: "Switch to this pairing" }),
-  ru: Object.freeze({ next: "Следующее сочетание", open: "Показать это сочетание" })
+  tr: Object.freeze({ next: "Sıradaki eşleşme", open: "Bu eşleşmeye geç", price: "Fiyat" }),
+  en: Object.freeze({ next: "Next pairing", open: "Switch to this pairing", price: "Price" }),
+  ru: Object.freeze({ next: "Следующее сочетание", open: "Показать это сочетание", price: "Цена" })
 });
 
 const PRODUCT_ROUTES = Object.freeze({
@@ -13,8 +13,8 @@ const PRODUCT_ROUTES = Object.freeze({
     product: "pairing-offers:cool-lime-macaron-pairing"
   }),
   "iced-san-sebastian": Object.freeze({
-    category: "desserts",
-    product: "desserts:san-sebastian-cheesecake"
+    category: "pairing-offers",
+    product: "pairing-offers:iced-san-sebastian-pairing"
   })
 });
 
@@ -91,12 +91,25 @@ function initializeDeck() {
   const preview = createPreview();
   shell.append(preview.button);
 
+  // Some approved posters contain their price only as pixels. Keep the
+  // catalog price in the accessible card until the poster provides a caption.
+  const currentPrice = document.createElement("span");
+  currentPrice.className = "pairing-poster-price";
+  currentPrice.hidden = true;
+  card.querySelector(".pairing-story")?.append(currentPrice);
+
   const renderPreview = () => {
     const currentId = products.dataset.pairingId?.trim() ?? "";
     const route = productRouteForJourney(currentId);
     if (route && menuLink) {
       menuLink.href = `menu.html?product=${encodeURIComponent(route.product)}#${route.category}`;
     }
+
+    const locale = language();
+    const copy = DECK_COPY[locale];
+    const current = pairingForJourney(currentId);
+    currentPrice.hidden = !Number.isFinite(current?.price) || Boolean(products.querySelector(".pairing-poster-price"));
+    currentPrice.textContent = currentPrice.hidden ? "" : `${copy.price}: ${formatPrice(current.price)}`;
 
     const journey = alternativeJourney(currentId);
     const item = journey ? pairingForJourney(journey.id) : null;
@@ -106,8 +119,6 @@ function initializeDeck() {
       return;
     }
 
-    const locale = language();
-    const copy = DECK_COPY[locale];
     const name = localized(item.name, locale);
     const price = formatPrice(item.price);
 
@@ -124,6 +135,7 @@ function initializeDeck() {
   preview.button.addEventListener("click", () => next.click());
 
   new MutationObserver(renderPreview).observe(products, {
+    childList: true,
     attributes: true,
     attributeFilter: ["data-pairing-id"]
   });

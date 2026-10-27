@@ -13,6 +13,10 @@ const copy = {
     error: "Seçim eklenemedi. Tekrar deneyin.", cartError: "Ürünler eklendi. Siparişini üstteki düğmeden açabilirsin.",
     close: "Kapat", fewer: "Önerileri gizle", loading: "Ekleniyor…", regular: "Menüden kendim seçeyim", kids: "Çocuklar için diğer fikirler ve Kids Box",
     maximum: "Bu seçimde ürün başına en fazla 20 adet.",
+    quantityRequired: "Bir adet gir. Sıfır ürünü seçimden çıkarır.",
+    quantityInteger: "Adet tam sayı olmalı. 0 ile 20 arasında bir sayı gir.",
+    quantityNegative: "Adet negatif olamaz. 0 ile 20 arasında bir sayı gir.",
+    quantityOverMaximum: "Bu seçimde ürün başına en fazla 20 adet seçebilirsin.",
     ready: "Hazır bir seçim", contents: "İçindekiler", editContents: "İçeriği değiştir",
     photoNote: "Fotoğraf başlangıçtaki seçimi gösterir. Güncel içeriği aşağıda düzenleyebilirsin.",
     watchVideo: "Videoyu izle", showPhoto: "Fotoğrafa dön", videoLabel: "Çocuklarla seçiminin videosu",
@@ -32,6 +36,10 @@ const copy = {
     error: "Could not add this selection. Please try again.", cartError: "Items added. Open your order using the button above.",
     close: "Close", fewer: "Hide suggestions", loading: "Adding…", regular: "Choose from the full menu", kids: "More ideas for kids and Kids Box",
     maximum: "Up to 20 of each item in this selection.",
+    quantityRequired: "Enter a quantity. Zero removes the item from the selection.",
+    quantityInteger: "Quantity must be a whole number from 0 to 20.",
+    quantityNegative: "Quantity cannot be negative. Enter a number from 0 to 20.",
+    quantityOverMaximum: "You can select at most 20 of each item in this selection.",
     ready: "A ready-made selection", contents: "What’s included", editContents: "Edit contents",
     photoNote: "The photo shows the original selection. You can change the current contents below.",
     watchVideo: "Watch video", showPhoto: "Back to photo", videoLabel: "With kids selection video",
@@ -51,6 +59,10 @@ const copy = {
     error: "Не удалось добавить выбор. Попробуй ещё раз.", cartError: "Продукты добавлены. Открыть заказ можно кнопкой сверху.",
     close: "Закрыть", fewer: "Скрыть подборки", loading: "Добавляем…", regular: "Выбрать из полного меню", kids: "Ещё идеи для детей и Kids Box",
     maximum: "До 20 штук каждой позиции в этой подборке.",
+    quantityRequired: "Укажи количество. Ноль убирает позицию из подборки.",
+    quantityInteger: "Количество должно быть целым числом от 0 до 20.",
+    quantityNegative: "Количество не может быть отрицательным. Укажи число от 0 до 20.",
+    quantityOverMaximum: "В этой подборке можно выбрать не больше 20 штук одной позиции.",
     ready: "Готовая подборка", contents: "Что входит", editContents: "Изменить состав",
     photoNote: "На фото — исходная подборка. Текущий состав можно изменить ниже.",
     watchVideo: "Смотреть видео", showPhoto: "Вернуться к фото", videoLabel: "Видео подборки «С детьми»",
@@ -175,6 +187,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   total.setAttribute("aria-live", "polite");
   total.setAttribute("aria-atomic", "true");
   const status = element("p", "menu-combos-status");
+  status.id = "menu-combos-status";
   status.setAttribute("role", "status");
   status.hidden = true;
   const add = button("menu-combos-add");
@@ -229,7 +242,8 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
   }
   function updateQuote() {
     const quote = quoteComboSelection(activeRecipe?.id, selectedItems, productIndex);
-    const invalidQuantity = Boolean(options.querySelector("input[aria-invalid=true]"));
+    const invalidInput = options.querySelector("input[aria-invalid=true]");
+    const invalidQuantity = Boolean(invalidInput);
     total.textContent = `${text("total")}: ${formatPrice(quote.total)}`;
     add.disabled = confirming || !quote.valid || invalidQuantity;
     add.textContent = confirming ? text("loading") : `${text("add")} · ${formatPrice(quote.total)}`;
@@ -240,8 +254,9 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       const quantity = selectedItems.find(item => item.id === control.dataset.comboIncrease)?.quantity ?? 0;
       control.disabled = confirming || quantity >= MAX_COMBO_QUANTITY;
     });
-    if (!quote.valid && !confirming) setStatus("empty");
-    else if (status.dataset.message === "empty") setStatus("");
+    if (invalidInput && !confirming) setStatus(invalidInput.dataset.quantityError);
+    else if (!quote.valid && !confirming) setStatus("empty");
+    else if (status.dataset.message === "empty" || status.dataset.message?.startsWith("quantity")) setStatus("");
   }
   function renderProductSelect() {
     const placeholder = element("option", "", text("selectProduct"));
@@ -268,20 +283,27 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       selectedItems = selectedItems.filter(item => item.id !== id);
       const row = source.closest(".menu-combos-option");
       const nextFocus = row?.nextElementSibling?.querySelector("input") ?? row?.previousElementSibling?.querySelector("input") ?? addProduct;
-      renderOptions();
+      renderOptions({ preserveInvalid: true });
       renderProductSelect();
       // Rows were recreated; keep a useful focus target after removing an item.
       const nextId = nextFocus?.dataset.comboQuantity;
       (Array.from(options.querySelectorAll("input")).find(input => input.dataset.comboQuantity === nextId) ?? addProduct).focus();
     } else {
       const row = source.closest(".menu-combos-option");
-      row.querySelector("input").value = String(value);
-      row.querySelector("input").removeAttribute("aria-invalid");
+      const input = row.querySelector("input");
+      input.value = String(value);
+      input.removeAttribute("aria-invalid");
+      input.removeAttribute("aria-describedby");
+      delete input.dataset.quantityError;
+      row.querySelector(".menu-combos-quantity-error").textContent = "";
       row.querySelector(".menu-combos-line-price").textContent = formatPrice(productIndex.get(id).item.price * value);
     }
     updateQuote();
   }
-  function renderOptions() {
+  function renderOptions({ preserveInvalid = false } = {}) {
+    const invalidDrafts = new Map(preserveInvalid
+      ? Array.from(options.querySelectorAll("input[aria-invalid=true]"), input => [input.dataset.comboQuantity, input.value])
+      : []);
     options.replaceChildren();
     selectedItems.forEach(selected => {
       const product = productIndex.get(selected.id);
@@ -308,6 +330,8 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       quantity.value = String(selected.quantity);
       quantity.dataset.comboQuantity = product.id;
       quantity.setAttribute("aria-label", `${text("quantity")}: ${name}`);
+      const quantityError = element("span", "menu-combos-quantity-error visually-hidden");
+      quantityError.id = `${quantityId}-error`;
       const increase = button("", "+");
       increase.dataset.comboIncrease = product.id;
       increase.setAttribute("aria-label", `${text("increase")}: ${name}`);
@@ -316,26 +340,42 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
       decrease.addEventListener("click", () => changeQuantity(product.id, selected.quantity - 1, decrease));
       increase.addEventListener("click", () => changeQuantity(product.id, selected.quantity + 1, increase));
       remove.addEventListener("click", () => changeQuantity(product.id, 0, remove));
-      quantity.addEventListener("change", () => {
+      const validateQuantity = () => {
         const value = quantity.valueAsNumber;
-        if (!Number.isInteger(value) || value < 0 || value > MAX_COMBO_QUANTITY) {
+        const error = !Number.isFinite(value) ? "quantityRequired"
+          : !Number.isInteger(value) ? "quantityInteger"
+            : value < 0 ? "quantityNegative"
+              : value > MAX_COMBO_QUANTITY ? "quantityOverMaximum" : "";
+        if (error) {
+          quantity.dataset.quantityError = error;
           quantity.setAttribute("aria-invalid", "true");
-          setStatus("maximum");
+          quantityError.textContent = text(error);
+          quantity.setAttribute("aria-describedby", quantityError.id);
+        } else {
+          delete quantity.dataset.quantityError;
+          quantity.removeAttribute("aria-invalid");
+          quantity.removeAttribute("aria-describedby");
+          quantityError.textContent = "";
+        }
+        return !error;
+      };
+      if (invalidDrafts.has(product.id)) {
+        quantity.value = invalidDrafts.get(product.id);
+        validateQuantity();
+      }
+      quantity.addEventListener("change", () => {
+        if (!validateQuantity()) {
           updateQuote();
           return;
         }
-        quantity.removeAttribute("aria-invalid");
-        changeQuantity(product.id, value, quantity);
+        changeQuantity(product.id, quantity.valueAsNumber, quantity);
       });
       quantity.addEventListener("input", () => {
-        const value = quantity.valueAsNumber;
-        const invalid = !Number.isInteger(value) || value < 0 || value > MAX_COMBO_QUANTITY;
-        if (invalid) { quantity.setAttribute("aria-invalid", "true"); setStatus("maximum"); }
-        else { quantity.removeAttribute("aria-invalid"); if (status.dataset.message === "maximum") setStatus(""); }
+        validateQuantity();
         updateQuote();
       });
       controls.append(decrease, quantity, increase, remove);
-      row.append(photo(product.image), detail, controls);
+      row.append(photo(product.image), detail, controls, quantityError);
       options.append(row);
     });
   }
@@ -353,7 +393,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     closeButton.setAttribute("aria-label", text("close"));
     addLabel.textContent = text("addProduct");
     maximum.textContent = text("maximum");
-    renderOptions();
+    renderOptions({ preserveInvalid: dialog.hasAttribute("open") });
     renderProductSelect();
     if (status.dataset.message) setStatus(status.dataset.message);
     updateQuote();
@@ -439,7 +479,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     if (confirming || !id || selectedItems.some(item => item.id === id)) return;
     selectedItems.push({ id, quantity: 1 });
     setStatus("");
-    renderOptions();
+    renderOptions({ preserveInvalid: true });
     renderProductSelect();
     updateQuote();
     Array.from(options.querySelectorAll("input")).find(input => input.dataset.comboQuantity === id)?.focus();

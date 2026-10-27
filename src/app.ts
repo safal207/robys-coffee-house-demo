@@ -21,11 +21,13 @@ function writeStorage(key: string, value: string) {
   }
 }
 
-let language: Lang = readStorage("robys-language") === "en"
-  ? "en"
-  : readStorage("robys-language") === "ru"
-    ? "ru"
-    : "tr";
+function supportedLanguage(value: string | null): Lang | null {
+  const normalized = value?.toLowerCase();
+  return normalized === "tr" || normalized === "en" || normalized === "ru" ? normalized : null;
+}
+
+const requestedLanguage = supportedLanguage(new URLSearchParams(window.location.search).get("lang"));
+let language: Lang = requestedLanguage ?? supportedLanguage(readStorage("robys-language")) ?? "tr";
 
 function appendSafeRichText(target: HTMLElement, value: string) {
   target.replaceChildren();
@@ -78,6 +80,15 @@ function setLanguage(next: Lang) {
   language = next;
   document.documentElement.lang = next;
   writeStorage("robys-language", next);
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("lang")) {
+      url.searchParams.set("lang", next);
+      window.history.replaceState(window.history.state, "", url);
+    }
+  } catch {
+    // Language selection remains usable when browser history is unavailable.
+  }
   translateTree();
 
   qa<HTMLButtonElement>(".lang-button").forEach((button) => {

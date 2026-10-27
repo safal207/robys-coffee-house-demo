@@ -43,4 +43,4 @@ After creating or updating the environment:
 
 Codex reads the root `AGENTS.md` before working. Follow it for source/generated-file
 boundaries, mandatory validation, integrity updates, visual evidence, and the
-Codex/Jules review protocol.
+Codex review protocol and the owner's reviewer preferences.

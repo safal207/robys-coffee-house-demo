@@ -217,9 +217,29 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs', 'scripts/test-home-navigation-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
+test('pairing and locale regression test changes select their real checks and owners', () => {
+  for (const [path, checks] of [
+    ['scripts/test-discover-deck.mjs', ['discover-deck-contracts']],
+    ['scripts/test-discover-deck-browser.mjs', ['discover-deck-browser']],
+    ['scripts/test-test-design-fixes-browser.mjs', ['test-design-fixes-browser', 'discover-deck-browser', 'home-navigation-browser']]
+  ]) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    for (const check of checks) assert.ok(result.selectedChecks.includes(check), `${path}: ${check}`);
+  }
+  assert.deepEqual(impactPlan(graph, ['scripts/test-test-design-fixes-browser.mjs']).directComponents,
+    ['home', 'families-combos', 'discover']);
+  for (const path of ['.github/pull_request_template.md', 'docs/codex-environment.md', 'docs/qa/premium-repair-2026-09-05.md']) {
+    assert.deepEqual(impactPlan(graph, [path]).directComponents, ['qa-registry']);
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, []);
+  }
+  const unknown = 'scripts/test-discover-deck-unregistered.mjs';
+  assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
 test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
-    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'adversarial-browser'];
+    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser'];
   const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
     'family-browser', 'combos-browser', 'gallery-assets', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs', '.github/workflows/gallery-mobile.yml']) {

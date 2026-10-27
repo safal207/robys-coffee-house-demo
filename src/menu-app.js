@@ -469,7 +469,7 @@ function loadCombosUi() {
       const url = new URL("./menu-combos-ui.js", import.meta.url);
       url.searchParams.set("retry", String(combosRetry));
       loading = import(url.href);
-    } else loading = import("./menu-combos-ui.js?v=0aad157af9c2");
+    } else loading = import("./menu-combos-ui.js?v=7ceff359f5a2");
     combosUiPromise = loading.then(({ createMenuCombosUi }) => {
       combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
