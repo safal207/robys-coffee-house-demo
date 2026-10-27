@@ -114,6 +114,14 @@ async function verifyPair(browser, engine) {
       }
       await page.locator("#pairing-menu-link").click();
       await page.locator("#menu-product-dialog[open]").waitFor();
+      // The dialog opens while the editable pair is still being initialized.
+      // Wait for the requested dessert and total, not just the open shell.
+      await page.waitForFunction(() => {
+        const title = document.querySelector("#menu-product-title")?.textContent ?? "";
+        const price = document.querySelector("#menu-product-price")?.textContent ?? "";
+        const dessert = document.querySelector('input[name="menu-dessert"][value="desserts:san-sebastian-cheesecake"]');
+        return /Айс латте.*Сан-Себастьян/i.test(title) && /370\s*₺/.test(price) && dessert?.checked === true;
+      }, null, { timeout: 15000 });
       assert.match(await page.locator("#menu-product-title").innerText(), /Айс латте.*Сан-Себастьян/i);
       assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
       assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:san-sebastian-cheesecake"]').isChecked(), true);
