@@ -42,7 +42,12 @@ jobs:
       - name: Verify codec-capable Chrome is available
         run: google-chrome --version
 
-      - name: Verify published customer journeys
+      - name: Wait for the exact release bytes before browser smoke
+        env:
+          ROBY_INTEGRITY_WAIT_MS: 300000
+        run: node scripts/verify-live-integrity.mjs
+
+      - name: Verify published journeys and decoded pairing-preview frames
         env:
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
           ROBYS_LIVE_ATTEMPTS: 4
@@ -58,6 +63,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: live-smoke-${{ github.run_id }}
-          path: live-smoke-report.json
+          path: |
+            live-smoke-report.json
+            .artifacts/live-integrity-report.json
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14

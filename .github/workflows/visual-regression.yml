@@ -63,6 +63,10 @@ jobs:
           printf '%s\n' "$status" > visual-results/toolchain/npm-audit.exit-code.txt
           exit "$status"
 
+      - name: Ensure FFmpeg for full media decoding in source contracts
+        working-directory: current
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
+
       - name: Build and verify current branch
         working-directory: current
         run: |

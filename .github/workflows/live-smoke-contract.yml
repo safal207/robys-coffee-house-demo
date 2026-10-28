@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "scripts/live-smoke.mjs"
+      - "scripts/pairing-preview-playback.mjs"
       - "scripts/live-smoke-deadlines.mjs"
       - "scripts/test-live-smoke-deadlines.mjs"
       - ".github/workflows/live-smoke.yml"
@@ -28,6 +29,7 @@ jobs:
       - name: Syntax check live harness
         run: |
           node --check scripts/live-smoke.mjs
+          node --check scripts/pairing-preview-playback.mjs
           node --check scripts/live-smoke-deadlines.mjs
           node --check scripts/test-live-smoke-deadlines.mjs
       - name: Verify timeout and evidence semantics
@@ -48,7 +50,7 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.52.0
       - name: Verify codec-capable Chrome is available
         run: google-chrome --version
-      - name: Replay repaired harness against published Pages
+      - name: Replay candidate media in published Pages (not deployment proof)
         env:
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
           ROBYS_LIVE_ATTEMPTS: 2
@@ -57,6 +59,7 @@ jobs:
           ROBYS_LIVE_VIDEO_TIMEOUT_MS: 8000
           ROBYS_LIVE_BROWSER_CHANNEL: chrome
           ROBYS_LIVE_REPORT: live-smoke-report.json
+          ROBYS_LIVE_PAIRING_CANDIDATE_REPLAY: ${{ github.event_name == 'pull_request' && '1' || '0' }}
         run: node scripts/live-smoke.mjs
       - name: Upload replay evidence
         if: always()

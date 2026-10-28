@@ -91,7 +91,7 @@ const PAIRING_PREVIEW = {
   productId: "san-sebastian",
   pairingId: "iced-san-sebastian",
   href: "menu.html#pairing-offers",
-  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20260921-1",
+  video: "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4?v=20261028-1",
   poster: "src/products/sets-v1/iced-san-sebastian.webp?v=20260704-3",
   stylesheet: "pairing-preview.css?v=20260916-2",
   copy: {
@@ -217,9 +217,11 @@ function activatePairingPreview(event: MouseEvent, card: HTMLAnchorElement): voi
   frame.append(video, cta);
 
   let failed = false;
+  let playbackTimeout: number | undefined;
   const failPreview = (): void => {
     if (failed) return;
     failed = true;
+    window.clearTimeout(playbackTimeout);
     card.classList.remove("pairing-preview-playing");
     card.classList.add("pairing-preview-error");
     video.pause();
@@ -228,6 +230,8 @@ function activatePairingPreview(event: MouseEvent, card: HTMLAnchorElement): voi
   };
 
   video.addEventListener("playing", () => {
+    if (failed) return;
+    window.clearTimeout(playbackTimeout);
     card.classList.remove("pairing-preview-error");
     card.classList.add("pairing-preview-playing");
   }, { once: true });
@@ -239,6 +243,9 @@ function activatePairingPreview(event: MouseEvent, card: HTMLAnchorElement): voi
   video.addEventListener("error", failPreview, { once: true });
   source.addEventListener("error", failPreview, { once: true });
 
+  // Some mobile media engines leave play() pending without an error event.
+  // Keep the poster and menu link usable when no playback starts.
+  playbackTimeout = window.setTimeout(failPreview, 5000);
   video.load();
   void video.play().catch(failPreview);
   trackPairing("pairing_preview_play");

@@ -13,6 +13,9 @@ export default defineConfig({
     // only upgrade-insecure-requests because WebKit applies it before bypassCSP
     // on the local HTTP server. Production CSP is covered by security workflows.
     bypassCSP: true,
+    // Fault-injection routes must reach the media request. Real service-worker
+    // and published-byte behavior is verified by the post-deploy smoke gate.
+    serviceWorkers: "block",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     trace: "retain-on-failure"

@@ -1,5 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { chromium } from "playwright";
+import { verifyPairingPreviewPlayback } from "./pairing-preview-playback.mjs";
 import {
   fetchResponseWithDeadline,
   fetchTextWithDeadline,
@@ -20,12 +22,25 @@ const fetchTimeoutMs = Number(process.env.ROBYS_LIVE_FETCH_TIMEOUT_MS ?? 15000);
 const videoTimeoutMs = Number(process.env.ROBYS_LIVE_VIDEO_TIMEOUT_MS ?? 8000);
 const browserChannel = process.env.ROBYS_LIVE_BROWSER_CHANNEL?.trim() || null;
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
+// PRs cannot publish their replacement media yet. Replay that exact candidate
+// in the published page while retaining the existing live journey checks.
+// Main/scheduled/deployment smoke must always consume the real served MP4.
+const candidateReplay = process.env.ROBYS_LIVE_PAIRING_CANDIDATE_REPLAY === "1";
+if (candidateReplay && process.env.GITHUB_EVENT_NAME !== "pull_request") {
+  throw new Error("Candidate media replay is allowed only in a pull-request contract job");
+}
+const pairingPath = "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
+const candidateMedia = candidateReplay ? readFileSync(pairingPath) : null;
 const report = {
   expectedBuild,
   expectedHeroVideoSrc,
   baseUrl: baseUrl.href,
   attempts: [],
   passed: false,
+  pairingEvidence: {
+    scope: candidateReplay ? "candidate-media-replay-in-published-page" : "published-media",
+    candidateSha256: candidateMedia ? createHash("sha256").update(candidateMedia).digest("hex") : null
+  },
   policy: { attempts, delayMs, fetchTimeoutMs, videoTimeoutMs, browserChannel: browserChannel ?? "bundled-chromium" }
 };
 
@@ -86,6 +101,32 @@ async function verifyPublishedFiles() {
     videoStatus: video.status,
     posterStatus: poster.status
   };
+}
+
+async function replayCandidatePairing(browser, landingUrl) {
+  // The published worker owns media fetches, which page.route cannot replace.
+  // Keep the real worker/customer journey in the primary context; isolate only
+  // the explicitly labeled candidate-media replay from it.
+  const replay = await browser.newContext({
+    viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+    locale: "tr-TR", timezoneId: "Europe/Istanbul", serviceWorkers: "block"
+  });
+  let candidateResponses = 0;
+  try {
+    const page = await replay.newPage();
+    const target = new URL(pairingPath, baseUrl);
+    await page.route(/https:\/\/maps\.google\./, route => route.abort());
+    await page.route(url => url.origin === target.origin && url.pathname === target.pathname, route => {
+      candidateResponses += 1;
+      return route.fulfill({ status: 200, contentType: "video/mp4", body: candidateMedia });
+    });
+    await page.goto(landingUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
+    const state = await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
+    if (!candidateResponses) throw new Error("Candidate media replay did not serve the candidate bytes");
+    return { ...state, candidateResponses };
+  } finally {
+    await replay.close();
+  }
 }
 
 async function verifyBrowser(browser) {
@@ -185,6 +226,11 @@ async function verifyBrowser(browser) {
     );
     if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
 
+    // Both modes must decode real frames. The report distinguishes PR replay
+    // from publication proof; verify-live-integrity binds deployment bytes.
+    const pairingVideoState = candidateMedia ? await replayCandidatePairing(browser, landingUrl)
+      : await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
+
     const menuUrl = new URL("menu.html", baseUrl);
     menuUrl.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
     await page.goto(menuUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
@@ -209,7 +255,7 @@ async function verifyBrowser(browser) {
     if (pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(" | ")}`);
     if (sameOriginFailures.length) throw new Error(`Same-origin browser failures: ${sameOriginFailures.join(" | ")}`);
 
-    return { initialItems, videoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
+    return { initialItems, videoState, pairingVideoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
   } finally {
     await context.close();
   }
