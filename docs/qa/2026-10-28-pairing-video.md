@@ -14,10 +14,11 @@ validator checked container boxes and an `avc1` marker, so this invalid media
 could pass. The exact old bytes are retained as a negative regression fixture.
 The asset predates PR #470; that PR did not change it.
 
-One cloud Chrome session played the old preview. Therefore the evidence does
-not establish failure on every browser, or the exact internals of the user's
-mobile media engine. The screenshot establishes the user's playback failure;
-the independent decode failure establishes a file defect.
+One cloud Chrome session advanced the old preview's playback clock and showed
+the pairing poster. That did not establish decoded frames. The strict Actions
+replay later measured zero frames. The evidence does not establish the exact
+internals of the user's mobile media engine. The screenshot establishes the
+user's playback failure; independent decoding establishes a file defect.
 
 ## Restored media
 
@@ -57,12 +58,34 @@ no audio. All 145 frames decode. Full-sequence SSIM against the original is
   never starts playback or reports an error.
 - The gallery matrix runs on PRs and pushes to main. Published smoke checks
   require decoded pairing frames in addition to the existing customer journey.
-  PR smoke replay observes the deployed release; gallery CI observes the
-  candidate. The separate live-integrity gate binds publication bytes to the
-  intended checkout.
+  PR smoke replays candidate MP4 bytes in the published page, labels its
+  evidence accordingly and records the candidate hash. It cannot establish
+  publication. Candidate substitution is rejected outside a PR event.
+  Main/scheduled/deployment smoke always observes the real served MP4. The
+  separate live-integrity gate binds publication bytes to the intended checkout.
+  Published browser smoke also waits for this exact-byte check, so the push
+  cannot accidentally test the old release while Pages is still deploying.
 
-Local full build/contracts and security checks pass. Local browser attempts
-were blocked before test execution by runtime socket/startup restrictions;
-they are not browser passes. GitHub Actions reports provide the browser
-results for the submitted revision. A physical-device replay remains separate
-from emulated browser coverage.
+Local full build/contracts and security checks pass. Initial local Chrome
+attempts were blocked before test execution by runtime socket/startup
+restrictions. Bundled headless Chromium subsequently ran fault injection:
+404/corrupt passed, while the concurrent stalled case exceeded its assertion
+deadline and passed in isolation. This is retained as a failed attempt, not an
+uninterrupted local matrix pass. This bundled engine lacks H.264 support and
+is not the healthy-playback oracle.
+
+At `a84bb1584313af95e989b034d0e33f3cfe5b96f9`, GitHub Actions gallery run
+`40761689221` passed the mobile matrix, including real Chrome decoded frames
+and all four profiles' failure recovery. Visual run `40761689050` failed
+before screenshot capture because FFprobe was absent. The follow-up declares
+FFmpeg preparation in every workflow invoking the full source contracts
+(visual, causal source-contracts and dependency build-edge jobs). Subsequent
+Actions results must be checked against their own exact head. A
+physical-device replay remains separate from emulated browser coverage.
+
+The first strict published replay, run `40761689358`, rejected the old live
+clip twice: the media clock reached 3.708333 seconds with readyState 4 but
+zero decoded frames. That is an independent browser negative control in
+addition to FFmpeg. PR replay explicitly uses the candidate media to avoid
+requiring an unpublished repair to already exist on Pages; post-deploy smoke
+retains the strict real-publication check.

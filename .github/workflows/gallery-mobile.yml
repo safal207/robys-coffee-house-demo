@@ -17,6 +17,7 @@ on:
       - "package-lock.json"
       - "scripts/verify-gallery-assets.sh"
       - "scripts/verify-pairing-preview-media.mjs"
+      - "scripts/ensure-lighthouse-ffprobe.mjs"
       - "scripts/test-pairing-preview-media.mjs"
       - "scripts/pairing-preview-playback.mjs"
       - "scripts/live-smoke.mjs"

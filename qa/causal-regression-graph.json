@@ -690,6 +690,8 @@
         ".github/workflows/lighthouse-build-smoke.yml",
         ".github/workflows/lighthouse-profile.yml",
         ".github/workflows/typescript-build.yml",
+        ".github/workflows/visual-regression.yml",
+        ".github/workflows/dependency-build-edges.yml",
         "scripts/visual-regression.mjs",
         "qa.js",
         ".github/workflows/causal-regression.yml",

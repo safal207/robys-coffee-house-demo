@@ -114,6 +114,9 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: Ensure FFmpeg for the source-contract media gate
+        if: matrix.id == 'source-contracts'
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
       - name: Install the check's declared browser engines
         if: join(matrix.browsers, ' ') != ''
         env:

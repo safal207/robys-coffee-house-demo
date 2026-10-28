@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { chromium } from "playwright";
 import { verifyPairingPreviewPlayback } from "./pairing-preview-playback.mjs";
 import {
@@ -21,12 +22,25 @@ const fetchTimeoutMs = Number(process.env.ROBYS_LIVE_FETCH_TIMEOUT_MS ?? 15000);
 const videoTimeoutMs = Number(process.env.ROBYS_LIVE_VIDEO_TIMEOUT_MS ?? 8000);
 const browserChannel = process.env.ROBYS_LIVE_BROWSER_CHANNEL?.trim() || null;
 const reportPath = process.env.ROBYS_LIVE_REPORT ?? "live-smoke-report.json";
+// PRs cannot publish their replacement media yet. Replay that exact candidate
+// in the published page while retaining the existing live journey checks.
+// Main/scheduled/deployment smoke must always consume the real served MP4.
+const candidateReplay = process.env.ROBYS_LIVE_PAIRING_CANDIDATE_REPLAY === "1";
+if (candidateReplay && process.env.GITHUB_EVENT_NAME !== "pull_request") {
+  throw new Error("Candidate media replay is allowed only in a pull-request contract job");
+}
+const pairingPath = "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4";
+const candidateMedia = candidateReplay ? readFileSync(pairingPath) : null;
 const report = {
   expectedBuild,
   expectedHeroVideoSrc,
   baseUrl: baseUrl.href,
   attempts: [],
   passed: false,
+  pairingEvidence: {
+    scope: candidateReplay ? "candidate-media-replay-in-published-page" : "published-media",
+    candidateSha256: candidateMedia ? createHash("sha256").update(candidateMedia).digest("hex") : null
+  },
   policy: { attempts, delayMs, fetchTimeoutMs, videoTimeoutMs, browserChannel: browserChannel ?? "bundled-chromium" }
 };
 
@@ -116,6 +130,11 @@ async function verifyBrowser(browser) {
     }
   });
   await page.route(/https:\/\/maps\.google\./, (route) => route.abort());
+  if (candidateMedia) {
+    const target = new URL(pairingPath, baseUrl);
+    await page.route(url => url.origin === target.origin && url.pathname === target.pathname,
+      route => route.fulfill({ status: 200, contentType: "video/mp4", body: candidateMedia }));
+  }
 
   try {
     const landingUrl = new URL("index.html", baseUrl);
@@ -186,9 +205,8 @@ async function verifyBrowser(browser) {
     );
     if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
 
-    // PR contract replays observe the currently deployed release. Candidate
-    // media is checked by the gallery gate; publication identity is checked by
-    // verify-live-integrity after deployment.
+    // Both modes must decode real frames. The report distinguishes PR replay
+    // from publication proof; verify-live-integrity binds deployment bytes.
     const pairingVideoState = await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
 
     const menuUrl = new URL("menu.html", baseUrl);

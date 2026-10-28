@@ -31,6 +31,8 @@ jobs:
       - name: Prove real orphan failures are preserved
         run: node scripts/test-audit-dependencies.mjs
       - run: npm ci --no-audit --no-fund
+      - name: Ensure FFmpeg for full media decoding in source contracts
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
       - run: npm run check
       - run: npm run verify:security
       - name: Audit actual repository and reject stale build output
