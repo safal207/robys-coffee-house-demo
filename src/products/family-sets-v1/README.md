@@ -15,8 +15,8 @@ include the requested `for kids with ❤` ribbon.
 The Kids Box and separate Kinder Surprise are not catalog SKUs and have no price
 or cart action. The pictured packaging and contents are concepts: the final
 contents, price and availability are not established. The Kinder age/supervision
-note follows the manufacturer's guidance:
-https://www.kinder.com/tr/tr/kalite-ve-malzemelera/oyuncaklarimiz
+note follows the
+[manufacturer's guidance](https://www.kinder.com/tr/tr/kalite-ve-malzemelera/oyuncaklarimiz).
 
 Export: 900 × 900 WebP, quality 84. Images load on demand when visitors reveal
 the family selection; they are not added to the landing page's initial media.
