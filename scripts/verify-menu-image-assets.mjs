@@ -150,7 +150,7 @@ if (!cacheVersion || cacheVersion[0] < 40 || cacheVersion[1] < 20260903) {
 const digests = new Map();
 for (const fileName of expectedMenuFiles) verifyAsset(path.join(MENU_ROOT, fileName), digests);
 for (const fileName of expectedSetFiles) verifyAsset(path.join(SETS_ROOT, fileName), digests);
-const expectedFamilyFiles = [...familyRecipes.map(recipe => `${recipe.id}.webp`), "kids-box.webp"].sort();
+const expectedFamilyFiles = [...familyRecipes.map(recipe => `${recipe.id}.webp`), "kids-box.webp", "kids-box-kinder-v1.webp"].sort();
 const actualFamilyFiles = readdirSync(FAMILY_ROOT).filter(name => name.endsWith(".webp")).sort();
 if (JSON.stringify(actualFamilyFiles) !== JSON.stringify(expectedFamilyFiles)) {
   fail("family-sets-v1 photos must match the current family recipes and Kids Box concept");
@@ -163,6 +163,9 @@ for (const recipe of familyRecipes) {
 const kidsBox = "src/products/family-sets-v1/kids-box.webp";
 if (!serviceWorker.includes(`"./${kidsBox}"`)) fail("Kids Box concept photo is not available offline");
 verifyAsset(kidsBox, digests, 900);
+const kinderBox = "src/products/family-sets-v1/kids-box-kinder-v1.webp";
+if (!serviceWorker.includes(`"./${kinderBox}"`)) fail("Kinder Kids Box concept photo is not available offline");
+verifyAsset(kinderBox, digests, 900);
 
 console.log(`✅ MENU-IMAGES-001 passed: ${expectedMenuFiles.length} product and ${expectedSetFiles.length} pairing photos at 1024px; ${expectedFamilyFiles.length} family photos at 900px. All are complete, unique WebP assets.`);
 await import('./verify-menu-thumbnails.mjs');

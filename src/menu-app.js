@@ -397,7 +397,7 @@ function loadFamilyUi() {
       const url = new URL("./menu-family-ui.js", import.meta.url);
       url.searchParams.set("retry", String(familyRetry));
       loading = import(url.href);
-    } else loading = import("./menu-family-ui.js?v=c6e39d14b3d5");
+    } else loading = import("./menu-family-ui.js?v=e9cf66bcd351");
     familyUiPromise = loading.then(({ createMenuFamilyUi }) => {
       familyUi = createMenuFamilyUi({ root: document.querySelector("#menu-family-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,

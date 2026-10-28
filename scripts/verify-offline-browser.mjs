@@ -87,7 +87,7 @@ try {
   await waitForControlledPage(page, "menu page bootstrap");
 
   const uncachedFamilyPhotos = await page.evaluate(async () => {
-    const paths = ["milk-cookie", "simit-break", "milk-roll", "kids-box"];
+    const paths = ["milk-cookie", "simit-break", "milk-roll", "kids-box", "kids-box-kinder-v1"];
     const results = await Promise.all(paths.map(async (name) => {
       const path = `src/products/family-sets-v1/${name}.webp`;
       const response = await caches.match(new URL(path, location.href));

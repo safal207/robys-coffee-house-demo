@@ -237,6 +237,21 @@ test('pairing and locale regression test changes select their real checks and ow
   assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
+test('family photo and offline checks retain their relevant component owners', () => {
+  for (const [path, owners] of [
+    ['scripts/verify-menu-image-assets.mjs', ['product-photos']],
+    ['scripts/test-menu-family-browser.mjs', ['families-combos']],
+    ['scripts/verify-offline-browser.mjs', ['offline-cache']],
+    ['scripts/test-menu-catalog-revision.mjs', ['offline-cache']]
+  ]) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, owners, path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.selectedChecks.includes('source-contracts'));
+    assert.ok(result.selectedChecks.includes('security-contracts'));
+  }
+});
+
 test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
     'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser'];

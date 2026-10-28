@@ -218,6 +218,7 @@
         "src/products/**",
         "qa/menu-thumbnail-assets.json",
         "scripts/build-menu-thumbnails.mjs",
+        "scripts/verify-menu-image-assets.mjs",
         "scripts/test-menu-lazy-images-browser.mjs",
         "scripts/test-menu-photo-delivery.mjs"
       ],
@@ -293,6 +294,7 @@
       "paths": [
         ".github/workflows/order-reliability.yml",
         "scripts/test-menu-combos-browser.mjs",
+        "scripts/test-menu-family-browser.mjs",
         "scripts/test-test-design-fixes-browser.mjs",
         "menu-combos-ui.js",
         "src/menu-combos-ui.js",
@@ -574,6 +576,8 @@
         "pwa.js",
         "pwa-pairing-fix.js",
         "menu-pwa.js",
+        "scripts/verify-offline-browser.mjs",
+        "scripts/test-menu-catalog-revision.mjs",
         "offline.css",
         "refresh.html"
       ],

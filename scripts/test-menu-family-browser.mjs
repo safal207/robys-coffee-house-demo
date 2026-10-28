@@ -48,7 +48,7 @@ const report = {
   mode: "Desktop browser engines in Linux with phone-sized touch viewports; local HTTPS source fixture, not physical Android or vendor browsers",
   sourceHashes: Object.fromEntries(["scripts/test-menu-family-browser.mjs", "src/menu-app.js", "src/order-storage.js", "src/order-storage-notice.js", "src/menu-family-ui.js", "src/menu-family.js", "src/kids-menu.js", "src/order-draft.js", "src/menu-order-ui.js", "menu-family.css", "kids-menu.css", "menu.html", "menu-catalog.js",
     "src/products/family-sets-v1/milk-cookie.webp", "src/products/family-sets-v1/simit-break.webp", "src/products/family-sets-v1/milk-roll.webp",
-    "src/products/family-sets-v1/kids-box.webp"]
+    "src/products/family-sets-v1/kids-box.webp", "src/products/family-sets-v1/kids-box-kinder-v1.webp"]
     .map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")])), cases: []
 };
 const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(report, null, 2) + "\n");
@@ -152,9 +152,9 @@ async function canonicalDraft(page, { seedMilk = false } = {}) {
 
 async function assertKidsBox(page, language) {
   const text = {
-    tr: { status: "Yakında satışta. Kasada sorun.", concept: "Set konsepti", alt: "Roby’s Kids Box ambalaj konsepti" },
-    en: { status: "Coming soon. Ask at the counter.", concept: "Set concept", alt: "Roby’s Kids Box packaging concept" },
-    ru: { status: "Скоро в продаже. Спрашивайте у кассира.", concept: "Концепт набора", alt: "Концепт фирменной коробки Roby’s Kids Box" }
+    tr: { status: "Yakında menüde", title: "Roby’s Kids Box + Kinder Sürpriz", concept: "Görsel konsepttir; kutu ve içerik değişebilir.", alt: "Kinder Sürprizli Roby’s Kids Box çocuk kombosu konsepti", separate: "Kinder Sürpriz tek başına da yakında menüde.", safety: /3 yaş altı/ },
+    en: { status: "Coming soon to the menu", title: "Roby’s Kids Box + Kinder Surprise", concept: "Concept image; packaging and contents may change.", alt: "Concept for a Roby’s Kids Box combo with Kinder Surprise", separate: "Kinder Surprise will also be available separately soon.", safety: /under 3/ },
+    ru: { status: "Скоро в меню", title: "Roby’s Kids Box + Kinder Surprise", concept: "Изображение концепта: упаковка и состав могут измениться.", alt: "Концепт детского комбо Roby’s Kids Box с Kinder Surprise", separate: "Kinder Surprise отдельно — тоже скоро в меню.", safety: /младше 3 лет/ }
   }[language];
   const before = await canonicalDraft(page);
   const box = page.locator(".menu-family-coming-soon");
@@ -172,14 +172,17 @@ async function assertKidsBox(page, language) {
       renderedHeight: bounds.height, viewportWidth: innerWidth, objectFit: getComputedStyle(node).objectFit };
   });
   assert.deepEqual({ src: photo.src, width: photo.width, height: photo.height, loading: photo.loading, decoding: photo.decoding },
-    { src: "/src/products/family-sets-v1/kids-box.webp", width: 900, height: 900, loading: "lazy", decoding: "async" });
+    { src: "/src/products/family-sets-v1/kids-box-kinder-v1.webp", width: 900, height: 900, loading: "lazy", decoding: "async" });
   assert.ok(photo.left >= 0 && photo.right <= photo.viewportWidth && photo.renderedWidth > 0);
   assert.ok(Math.abs(photo.renderedWidth - photo.renderedHeight) < 1, "Kids Box keeps its square composition");
   assert.equal(photo.objectFit, "cover");
   assert.equal(await image.getAttribute("alt"), text.alt);
-  assert.equal(await box.locator("h3").textContent(), "Roby’s Kids Box");
+  assert.equal(await box.locator("h3").textContent(), text.title);
   assert.equal(await box.locator(".menu-family-box-caption").textContent(), text.concept);
   assert.equal(await box.locator(".menu-family-box-status").textContent(), text.status);
+  assert.equal(await box.locator(".menu-family-box-separate").textContent(), text.separate);
+  assert.match(await box.locator(".menu-family-box-safety").textContent(), text.safety);
+  assert.match(await box.locator(".menu-family-box-details").textContent(), /Kinder/);
   assert.equal(await box.locator('button,a,[role="button"],input,[data-family-recipe],.menu-family-price,[data-product-id]').count(), 0,
     "The packaging concept exposes no sale, cart, recipe, price or order action");
   const dialogs = page.locator(".menu-family-dialog[open],#menu-cart-dialog[open],#menu-product-dialog[open],.order-checkout-dialog[open]");
@@ -246,6 +249,13 @@ try {
     assert.deepEqual(await canonicalDraft(page), before, "Changing the concept language preserves the nonempty canonical order");
     await page.locator(".menu-family-coming-soon").screenshot({ path: join(output, `kids-box-${language}-390.png`) });
     return { ...facts, languageChanges, existingOrder: before.lines };
+  });
+  await run("kids-box-feed", async page => {
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru#menu-family`);
+    await page.locator(".menu-family-coming-soon").waitFor({ state: "visible" });
+    const facts = await assertKidsBox(page, "ru");
+    await page.locator(".menu-family-coming-soon").screenshot({ path: join(output, "kids-box-feed-390.png") });
+    return { ...facts, feedEntry: true };
   });
   for (const language of ["tr", "en", "ru"]) await run(`recipes-${language}`, async page => {
     await openMenu(page, language);
@@ -800,6 +810,7 @@ try {
     await page.locator("#menu-family-trigger").click();
     assert.equal(new URL(page.url()).hash, "#menu-family-fallback");
     assert.equal(await page.locator("#menu-family-fallback a").count(), 4);
+    assert.match(await page.locator(".menu-family-fallback").nth(1).textContent(), /Kinder Surprise: скоро в меню/i);
     await page.locator("#menu-family-fallback a").first().click();
     assert.equal(new URL(page.url()).pathname, "/src/products/menu-v1/brew-hot--milk.webp");
     return { javaScriptDisabled: true, anchorReached: true, existingProductPhotoOpened: true };
