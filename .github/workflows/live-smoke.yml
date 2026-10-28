@@ -42,7 +42,7 @@ jobs:
       - name: Verify codec-capable Chrome is available
         run: google-chrome --version
 
-      - name: Verify published customer journeys
+      - name: Verify published journeys and decoded pairing-preview frames
         env:
           ROBYS_LIVE_BASE: https://safal207.github.io/robys-coffee-house-demo/
           ROBYS_LIVE_ATTEMPTS: 4

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "scripts/live-smoke.mjs"
+      - "scripts/pairing-preview-playback.mjs"
       - "scripts/live-smoke-deadlines.mjs"
       - "scripts/test-live-smoke-deadlines.mjs"
       - ".github/workflows/live-smoke.yml"
@@ -28,6 +29,7 @@ jobs:
       - name: Syntax check live harness
         run: |
           node --check scripts/live-smoke.mjs
+          node --check scripts/pairing-preview-playback.mjs
           node --check scripts/live-smoke-deadlines.mjs
           node --check scripts/test-live-smoke-deadlines.mjs
       - name: Verify timeout and evidence semantics

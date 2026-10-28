@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { verifyPairingPreviewPlayback } from "./pairing-preview-playback.mjs";
 import {
   fetchResponseWithDeadline,
   fetchTextWithDeadline,
@@ -185,6 +186,11 @@ async function verifyBrowser(browser) {
     );
     if (!videoState.started) throw new Error(`Hero video did not start: ${JSON.stringify(videoState)}`);
 
+    // PR contract replays observe the currently deployed release. Candidate
+    // media is checked by the gallery gate; publication identity is checked by
+    // verify-live-integrity after deployment.
+    const pairingVideoState = await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
+
     const menuUrl = new URL("menu.html", baseUrl);
     menuUrl.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
     await page.goto(menuUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
@@ -209,7 +215,7 @@ async function verifyBrowser(browser) {
     if (pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(" | ")}`);
     if (sameOriginFailures.length) throw new Error(`Same-origin browser failures: ${sameOriginFailures.join(" | ")}`);
 
-    return { initialItems, videoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
+    return { initialItems, videoState, pairingVideoState, offlineReady: true, language: "en", sameOriginFailures: 0, pageErrors: 0 };
   } finally {
     await context.close();
   }

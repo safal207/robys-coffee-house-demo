@@ -1,4 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
+import { readFileSync } from "node:fs";
+import { verifyPairingPreviewPlayback } from "../scripts/pairing-preview-playback.mjs";
 
 declare global {
   interface Window {
@@ -7,6 +9,8 @@ declare global {
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.route("**/*", route => new URL(route.request().url()).origin === "http://127.0.0.1:4173"
+    ? route.continue() : route.abort());
   // WebKit applies upgrade-insecure-requests before bypassCSP takes effect.
   // The local QA server is HTTP-only, so remove only that directive from the
   // document response. The production CSP remains covered by security jobs.
@@ -168,35 +172,54 @@ test("pairing preview starts after a user tap", async ({ page }, testInfo) => {
 
   await page.goto("/", { waitUntil: "networkidle" });
 
-  const card = page.locator('[data-product-id="san-sebastian"]');
-  await card.scrollIntoViewIfNeeded();
-  await expect(card).toBeVisible();
-
-  await card.click();
-  await expect(card).toHaveAttribute("data-pairing-preview-active", "true");
-
-  const video = card.locator("video.pairing-preview-video");
-  await expect(video).toHaveCount(1);
-  await expect(card).toHaveClass(/pairing-preview-playing/, { timeout: 8_000 });
-  await page.waitForTimeout(250);
-
-  const state = await video.evaluate((element: HTMLVideoElement) => ({
-    currentTime: element.currentTime,
-    paused: element.paused,
-    ended: element.ended,
-    duration: element.duration,
-    readyState: element.readyState,
-    errorCode: element.error?.code ?? 0,
-    currentSrc: element.currentSrc
-  }));
-
+  const state = await verifyPairingPreviewPlayback(page);
   expect(state.errorCode).toBe(0);
+  expect(state.decodedFrames).toBeGreaterThanOrEqual(2);
   expect(state.currentTime).toBeGreaterThan(0);
   expect(state.readyState).toBeGreaterThanOrEqual(2);
-  expect(state.paused === false || state.ended).toBe(true);
-  expect(state.currentTime).toBeLessThanOrEqual(state.duration + 0.1);
-  expect(state.currentSrc).toContain("iced-san-sebastian-pairing-preview.mp4");
+  expect(state.width).toBe(784);
+  expect(state.height).toBe(1168);
+  await testInfo.attach("pairing-decoded-video", {
+    body: Buffer.from(JSON.stringify(state, null, 2)), contentType: "application/json"
+  });
+  await testInfo.attach("pairing-playing", {
+    body: await page.locator('.poster-card[data-product-id="san-sebastian"]').screenshot(), contentType: "image/png"
+  });
 });
+
+for (const failure of ["404", "corrupt", "stalled"] as const) {
+  test(`pairing ${failure} restores the poster and keeps the menu link usable`, async ({ page }) => {
+    let release = () => {};
+    const held = new Promise<void>(resolve => { release = resolve; });
+    await page.route("**/iced-san-sebastian-pairing-preview.mp4?*", async route => {
+      if (failure === "stalled") { await held; await route.abort().catch(() => {}); }
+      else if (failure === "corrupt") await route.fulfill({
+        body: readFileSync("qa/fixtures/media/pairing-no-decodable-frames.mp4").subarray(0, 256),
+        contentType: "video/mp4"
+      });
+      else await route.fulfill({ status: 404, body: "Not found" });
+    });
+    try {
+      await page.goto("/", { waitUntil: "networkidle" });
+      const card = page.locator('.poster-card[data-product-id="san-sebastian"]');
+      await card.scrollIntoViewIfNeeded();
+      const before = await card.locator(".poster-card-frame").boundingBox();
+      await card.click();
+      await expect(card).toHaveClass(/pairing-preview-error/, { timeout: 6500 });
+      await expect(card.locator("video")).toHaveCount(0);
+      await expect(card.locator("img")).toBeVisible();
+      await expect(card.locator("img")).toHaveCSS("opacity", "1");
+      await expect(card.locator(".pairing-preview-cta")).toBeVisible();
+      const after = await card.locator(".poster-card-frame").boundingBox();
+      expect(Math.abs((after?.height ?? 0) - (before?.height ?? 0))).toBeLessThanOrEqual(1);
+      await test.info().attach(`pairing-${failure}-poster-restored`, {
+        body: await card.screenshot({ animations: "disabled" }), contentType: "image/png"
+      });
+      await card.click();
+      await expect(page).toHaveURL(/menu\.html#pairing-offers$/);
+    } finally { release(); }
+  });
+}
 
 test("failed image keeps the same reserved card height", async ({ page }) => {
   await page.route("**/san-sebastian*.webp?*", (route) => route.abort());

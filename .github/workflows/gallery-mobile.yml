@@ -13,13 +13,23 @@ on:
       - "qa/gallery.spec.ts"
       - "qa/footer.spec.ts"
       - "qa/playwright.config.ts"
+      - "package.json"
+      - "package-lock.json"
       - "scripts/verify-gallery-assets.sh"
       - "scripts/verify-pairing-preview-media.mjs"
+      - "scripts/test-pairing-preview-media.mjs"
+      - "scripts/pairing-preview-playback.mjs"
+      - "scripts/live-smoke.mjs"
+      - "scripts/build.mjs"
+      - "sw*.js"
+      - "qa/fixtures/media/**"
       - "scripts/ensure-playwright-browsers.mjs"
       - "scripts/signed-ubuntu-packages.mjs"
       - "scripts/test-playwright-prerequisites.mjs"
-      - "src/products/sets-v1/iced-san-sebastian-pairing-preview.mp4"
+      - "src/products/sets-v1/**"
       - ".github/workflows/gallery-mobile.yml"
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -37,17 +47,17 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install project dependencies
         run: npm ci
 
-      - name: Audit gallery assets and viewport units
-        run: bash scripts/verify-gallery-assets.sh
+      - name: Ensure FFmpeg decoding tools are available
+        run: node scripts/ensure-lighthouse-ffprobe.mjs
 
-      - name: Verify pairing preview MP4 structure
-        run: node scripts/verify-pairing-preview-media.mjs
+      - name: Audit gallery and decode the complete pairing clip
+        run: npm run verify:gallery:assets
 
       - name: Compile TypeScript runtime
         run: npm run build
