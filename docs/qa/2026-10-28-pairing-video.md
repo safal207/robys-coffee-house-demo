@@ -61,6 +61,9 @@ no audio. All 145 frames decode. Full-sequence SSIM against the original is
   PR smoke replays candidate MP4 bytes in the published page, labels its
   evidence accordingly and records the candidate hash. It cannot establish
   publication. Candidate substitution is rejected outside a PR event.
+  This replay uses a separate context with service workers blocked and requires
+  an observed candidate response. The primary context still verifies the real
+  published worker and customer journey.
   Main/scheduled/deployment smoke always observes the real served MP4. The
   separate live-integrity gate binds publication bytes to the intended checkout.
   Published browser smoke also waits for this exact-byte check, so the push
@@ -89,3 +92,8 @@ zero decoded frames. That is an independent browser negative control in
 addition to FFmpeg. PR replay explicitly uses the candidate media to avoid
 requiring an unpublished repair to already exist on Pages; post-deploy smoke
 retains the strict real-publication check.
+
+At `aec14700bc7115f79ff74d54ae94d266e321fd0b`, the PR replay still reached
+the old MP4 because the live service worker owned its fetch. The follow-up
+isolates candidate response interception in a separate browser context while
+preserving the real service-worker journey in the primary context.

@@ -103,6 +103,32 @@ async function verifyPublishedFiles() {
   };
 }
 
+async function replayCandidatePairing(browser, landingUrl) {
+  // The published worker owns media fetches, which page.route cannot replace.
+  // Keep the real worker/customer journey in the primary context; isolate only
+  // the explicitly labeled candidate-media replay from it.
+  const replay = await browser.newContext({
+    viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+    locale: "tr-TR", timezoneId: "Europe/Istanbul", serviceWorkers: "block"
+  });
+  let candidateResponses = 0;
+  try {
+    const page = await replay.newPage();
+    const target = new URL(pairingPath, baseUrl);
+    await page.route(/https:\/\/maps\.google\./, route => route.abort());
+    await page.route(url => url.origin === target.origin && url.pathname === target.pathname, route => {
+      candidateResponses += 1;
+      return route.fulfill({ status: 200, contentType: "video/mp4", body: candidateMedia });
+    });
+    await page.goto(landingUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
+    const state = await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
+    if (!candidateResponses) throw new Error("Candidate media replay did not serve the candidate bytes");
+    return { ...state, candidateResponses };
+  } finally {
+    await replay.close();
+  }
+}
+
 async function verifyBrowser(browser) {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -130,11 +156,6 @@ async function verifyBrowser(browser) {
     }
   });
   await page.route(/https:\/\/maps\.google\./, (route) => route.abort());
-  if (candidateMedia) {
-    const target = new URL(pairingPath, baseUrl);
-    await page.route(url => url.origin === target.origin && url.pathname === target.pathname,
-      route => route.fulfill({ status: 200, contentType: "video/mp4", body: candidateMedia }));
-  }
 
   try {
     const landingUrl = new URL("index.html", baseUrl);
@@ -207,7 +228,8 @@ async function verifyBrowser(browser) {
 
     // Both modes must decode real frames. The report distinguishes PR replay
     // from publication proof; verify-live-integrity binds deployment bytes.
-    const pairingVideoState = await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
+    const pairingVideoState = candidateMedia ? await replayCandidatePairing(browser, landingUrl)
+      : await verifyPairingPreviewPlayback(page, { timeoutMs: videoTimeoutMs });
 
     const menuUrl = new URL("menu.html", baseUrl);
     menuUrl.searchParams.set("live-smoke", `${expectedBuild}-${Date.now()}`);
