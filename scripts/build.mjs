@@ -587,7 +587,8 @@ const familyPhotoAssets = [
   "src/products/family-sets-v1/milk-cookie.webp",
   "src/products/family-sets-v1/simit-break.webp",
   "src/products/family-sets-v1/milk-roll.webp",
-  "src/products/family-sets-v1/kids-box.webp"
+  "src/products/family-sets-v1/kids-box.webp",
+  "src/products/family-sets-v1/kids-box-kinder-v1.webp"
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);

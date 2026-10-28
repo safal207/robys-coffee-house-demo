@@ -10,8 +10,12 @@ const copy = {
     limit: "Bu seçim için bir ürünün adedi dolu. Siparişini kontrol et veya o ürünün işaretini kaldır.",
     error: "Seçim eklenemedi. Tekrar deneyin.", cartError: "Ürünler eklendi. Siparişini üstteki düğmeden açabilirsin.",
     close: "Kapat", fewer: "Önerileri gizle", loading: "Açılıyor…", regular: "Menüden kendim seçeyim",
-    boxSoon: "Yakında satışta. Kasada sorun.", boxConcept: "Set konsepti",
-    boxAlt: "Roby’s Kids Box ambalaj konsepti"
+    boxSoon: "Yakında menüde", boxTitle: "Roby’s Kids Box + Kinder Sürpriz",
+    boxDetails: "Kinder Sürprizli bir çocuk kombosu hazırlıyoruz. İçeriği ve fiyatı yakında paylaşacağız.",
+    boxSeparate: "Kinder Sürpriz tek başına da yakında menüde.",
+    boxSafety: "3 yaş altı için uygun değildir. Oyuncak küçük parçalar içerir; yetişkin gözetimi önerilir.",
+    boxConcept: "Görsel konsepttir; kutu ve içerik değişebilir.",
+    boxAlt: "Kinder Sürprizli Roby’s Kids Box çocuk kombosu konsepti"
   },
   en: {
     title: "With kids", lead: "Three starting ideas from the menu. Parents decide what is suitable.", ideas: "Ideas with editable contents",
@@ -21,8 +25,12 @@ const copy = {
     limit: "An item in this selection is at its quantity limit. Check your order or uncheck that item.",
     error: "Could not add this selection. Please try again.", cartError: "Items added. You can open your order using the button above.",
     close: "Close", fewer: "Hide suggestions", loading: "Opening…", regular: "Choose from the full menu",
-    boxSoon: "Coming soon. Ask at the counter.", boxConcept: "Set concept",
-    boxAlt: "Roby’s Kids Box packaging concept"
+    boxSoon: "Coming soon to the menu", boxTitle: "Roby’s Kids Box + Kinder Surprise",
+    boxDetails: "We’re preparing a kids’ combo with Kinder Surprise. Contents and price will be shared later.",
+    boxSeparate: "Kinder Surprise will also be available separately soon.",
+    boxSafety: "Not suitable for children under 3. The toy contains small parts; adult supervision is recommended.",
+    boxConcept: "Concept image; packaging and contents may change.",
+    boxAlt: "Concept for a Roby’s Kids Box combo with Kinder Surprise"
   },
   ru: {
     title: "С ребёнком", lead: "Три идеи из обычного меню. Что подойдёт ребёнку, решает родитель.", ideas: "Идеи с выбором состава",
@@ -32,8 +40,12 @@ const copy = {
     limit: "Для одной из позиций достигнут лимит количества. Проверь заказ или убери её из выбора.",
     error: "Не удалось добавить выбор. Попробуй ещё раз.", cartError: "Продукты добавлены. Открыть заказ можно кнопкой сверху.",
     close: "Закрыть", fewer: "Скрыть подборку", loading: "Открываем…", regular: "Выбрать из полного меню",
-    boxSoon: "Скоро в продаже. Спрашивайте у кассира.", boxConcept: "Концепт набора",
-    boxAlt: "Концепт фирменной коробки Roby’s Kids Box"
+    boxSoon: "Скоро в меню", boxTitle: "Roby’s Kids Box + Kinder Surprise",
+    boxDetails: "Готовим детское комбо с Kinder Surprise. Состав и цену сообщим позже.",
+    boxSeparate: "Kinder Surprise отдельно — тоже скоро в меню.",
+    boxSafety: "Не подходит детям младше 3 лет: игрушка содержит мелкие детали. Рекомендуется присмотр взрослых.",
+    boxConcept: "Изображение концепта: упаковка и состав могут измениться.",
+    boxAlt: "Концепт детского комбо Roby’s Kids Box с Kinder Surprise"
   }
 };
 
@@ -87,7 +99,7 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   const comingSoon = element("article", "menu-family-coming-soon");
   const boxFigure = element("figure", "menu-family-box-figure");
   const boxImage = element("img", "menu-family-box-image");
-  boxImage.src = "src/products/family-sets-v1/kids-box.webp";
+  boxImage.src = "src/products/family-sets-v1/kids-box-kinder-v1.webp";
   boxImage.alt = text("boxAlt");
   boxImage.width = boxImage.height = 900;
   boxImage.loading = "lazy";
@@ -95,11 +107,14 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
   const boxCaption = element("figcaption", "menu-family-box-caption", text("boxConcept"));
   boxFigure.append(boxImage, boxCaption);
   const boxCopy = element("div", "menu-family-box-copy");
-  const boxTitle = element("h3", "", "Roby’s Kids Box");
+  const boxTitle = element("h3", "", text("boxTitle"));
   const boxStatus = element("p", "menu-family-box-status", text("boxSoon"));
-  boxCopy.append(boxTitle, boxStatus);
+  const boxDetails = element("p", "menu-family-box-details", text("boxDetails"));
+  const boxSeparate = element("p", "menu-family-box-separate", text("boxSeparate"));
+  const boxSafety = element("p", "menu-family-box-safety", text("boxSafety"));
+  boxCopy.append(boxStatus, boxTitle, boxDetails, boxSeparate, boxSafety);
   comingSoon.append(boxFigure, boxCopy);
-  root.replaceChildren(heading, lead, ready, ideas, cards, note, regular, comingSoon);
+  root.replaceChildren(heading, lead, ready, comingSoon, ideas, cards, note, regular);
   renderReady();
 
   const dialog = element("dialog", "menu-family-dialog");
@@ -306,6 +321,10 @@ export function createMenuFamilyUi({ root, productIndex, orderProductIds, initia
     boxImage.alt = text("boxAlt");
     boxCaption.textContent = text("boxConcept");
     boxStatus.textContent = text("boxSoon");
+    boxTitle.textContent = text("boxTitle");
+    boxDetails.textContent = text("boxDetails");
+    boxSeparate.textContent = text("boxSeparate");
+    boxSafety.textContent = text("boxSafety");
     renderReady();
     renderCards();
     if (dialog.hasAttribute("open")) renderPreview();

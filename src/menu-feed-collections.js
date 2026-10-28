@@ -49,7 +49,7 @@ export function initFeedCollections({ productIndex, orderProductIds, getLanguage
         const url = new URL("./menu-family-ui.js", import.meta.url);
         url.searchParams.set("retry", String(familyRetry));
         loading = import(url.href);
-      } else loading = import("./menu-family-ui.js?v=c6e39d14b3d5");
+      } else loading = import("./menu-family-ui.js?v=e9cf66bcd351");
       familyPromise = loading.then(({ createMenuFamilyUi }) => {
         familyUi = createMenuFamilyUi({ ...sharedOptions(), root: document.querySelector("#menu-family-content"),
           openProduct: order.openProduct, addKidsCombo: order.addKidsCombo });

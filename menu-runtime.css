@@ -714,7 +714,10 @@ html.menu-scroll-aware{scroll-padding-top:var(--menu-sticky-inset,0px)}
 .menu-family-box-caption{margin-top:8px;color:var(--muted);font-size:.78rem;line-height:1.4}
 .menu-family-box-copy{min-width:0}
 .menu-family-coming-soon h3{margin:0;color:var(--dark);font:700 clamp(1.6rem,3vw,2.4rem)/1.15 var(--sans);overflow-wrap:anywhere}
-.menu-family-box-status{margin:14px 0 0;color:var(--ruby);font-size:1.15rem;font-weight:700;line-height:1.55}
+.menu-family-box-status{display:inline-flex;margin:0 0 12px;padding:6px 12px;border-radius:999px;background:var(--ruby);color:#fff;font-size:.78rem;font-weight:700;line-height:1.4}
+.menu-family-box-details,.menu-family-box-separate{margin:14px 0 0;color:var(--ink);font-size:1rem;line-height:1.55;overflow-wrap:anywhere}
+.menu-family-box-separate{font-weight:700}
+.menu-family-box-safety{margin:14px 0 0;color:var(--muted);font-size:.84rem;line-height:1.5;overflow-wrap:anywhere}
 .menu-family-fallback{scroll-margin-top:calc(var(--menu-header-height,76px) + 20px);padding:16px;line-height:1.7;background:var(--cream)}
 .menu-family-dialog{box-sizing:border-box;position:fixed;inset:0;width:min(620px,calc(100% - 24px));max-height:min(90vh,820px);max-height:min(90dvh,820px);margin:auto;padding:28px;border:1px solid var(--line);border-radius:24px;background:var(--paper);color:var(--ink);overflow-y:auto;overscroll-behavior:contain}
 .menu-family-dialog:not([open]){display:none}

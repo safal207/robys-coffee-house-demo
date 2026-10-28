@@ -299,7 +299,7 @@ test("family selection source, loader and offline cache use the same fresh bytes
   assert.ok(worker.includes(`"${expectedUrl}"`), "Offline family UI must precache current bytes");
   assert.ok(worker.includes(`"./menu-family.css?v=${cssRevision}"`), "Offline family CSS must precache current bytes");
   verifyMenuStylesBundle(readMenuStylesBundleInputs());
-  const familyPhotos = ["milk-cookie", "simit-break", "milk-roll", "kids-box"]
+  const familyPhotos = ["milk-cookie", "simit-break", "milk-roll", "kids-box", "kids-box-kinder-v1"]
     .map(name => `src/products/family-sets-v1/${name}.webp`);
   const precache = worker.match(/const CORE_ASSETS\s*=\s*\[([\s\S]*?)\];/)?.[1];
   for (const path of familyPhotos) {
