@@ -236,6 +236,12 @@ async function assertReleased({ handle, sources }, reason) {
 async function assertFamilyPhoto(page) {
   assert.equal(await video(page).count(), 0);
   assert.equal(await mediaToggle(page).getAttribute("data-combo-media"), "photo");
+  // Replacing the video creates a fresh image. Firefox may reject decode()
+  // before that image request has completed; a missing image must still fail.
+  await page.waitForFunction(() => {
+    const image = document.querySelector('.menu-combos-dialog[open] .menu-combos-preview-hero > img');
+    return image?.complete && image.naturalWidth > 0;
+  });
   assert.equal(await preview(page).locator(".menu-combos-preview-hero > img").evaluate(async image => { await image.decode(); return new URL(image.currentSrc).pathname; }),
     "/src/products/occasion-sets-v1/family.webp");
 }
