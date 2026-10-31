@@ -171,7 +171,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: causal-timings
+          name: causal-timings-attempt-${{ github.run_attempt }}
           path: .artifacts/journey-responsiveness/
           if-no-files-found: error
           retention-days: 14
@@ -210,14 +210,25 @@ jobs:
       - uses: actions/download-artifact@v4
         if: always() && needs.plan.result == 'success'
         with:
-          name: causal-timings
+          pattern: causal-timings-attempt-*
           path: .artifacts/timings
+          merge-multiple: false
       - name: Verify evidence and render the scoped graph
         if: always() && needs.plan.result == 'success'
         env:
           EXPECTED_BASE: ${{ needs.plan.outputs.base }}
           EXPECTED_HEAD: ${{ needs.plan.outputs.head }}
-        run: node scripts/causal-regression.mjs collect --base "$EXPECTED_BASE" --head "$EXPECTED_HEAD" --plan .artifacts/causal-plan/plan.json --receipts .artifacts/causal-receipts --timings .artifacts/timings/report.json --output .artifacts/causal-regression/report
+        run: |
+          # A retry may rerun timings or reuse a previously successful job.
+          # Keep every attempt and collect the newest available timing report.
+          shopt -s nullglob
+          timing_reports=(.artifacts/timings/causal-timings-attempt-*/report.json)
+          if (( ${#timing_reports[@]} == 0 )); then
+            echo "No timing report was uploaded" >&2
+            exit 1
+          fi
+          timing_report="$(printf '%s\n' "${timing_reports[@]}" | sort -V | tail -n 1)"
+          node scripts/causal-regression.mjs collect --base "$EXPECTED_BASE" --head "$EXPECTED_HEAD" --plan .artifacts/causal-plan/plan.json --receipts .artifacts/causal-receipts --timings "$timing_report" --output .artifacts/causal-regression/report
       - name: Preserve upstream job failures
         if: always()
         env:
@@ -233,7 +244,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: causal-regression-report
+          name: causal-regression-report-attempt-${{ github.run_attempt }}
           path: .artifacts/causal-regression/report/
           if-no-files-found: error
           retention-days: 14
