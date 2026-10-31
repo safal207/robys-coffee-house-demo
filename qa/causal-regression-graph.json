@@ -294,6 +294,7 @@
       "paths": [
         ".github/workflows/order-reliability.yml",
         "scripts/test-menu-combos-browser.mjs",
+        "scripts/test-combo-offer-cards-browser.mjs",
         "scripts/test-menu-family-browser.mjs",
         "scripts/test-test-design-fixes-browser.mjs",
         "menu-combos-ui.js",

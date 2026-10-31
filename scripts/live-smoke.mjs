@@ -129,6 +129,94 @@ async function replayCandidatePairing(browser, landingUrl) {
   }
 }
 
+async function verifyPublishedDraft(browser) {
+  // A fresh context isolates synthetic cart data from all customer sessions.
+  // Blocking service workers and every mutating request makes this a strictly
+  // local-draft journey; the primary smoke above still exercises the real worker.
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 }, deviceScaleFactor: 1,
+    locale: "tr-TR", timezoneId: "Europe/Istanbul", serviceWorkers: "block"
+  });
+  const blockedWrites = [];
+  const pageErrors = [];
+  await context.route("**/*", (route) => {
+    const request = route.request();
+    if (!["GET", "HEAD"].includes(request.method())) {
+      blockedWrites.push(`${request.method()} ${new URL(request.url()).pathname}`);
+      return route.abort("blockedbyclient");
+    }
+    if (/^https:\/\/maps\.google\./.test(request.url())) return route.abort("blockedbyclient");
+    return route.continue();
+  });
+  const page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.on("pageerror", error => pageErrors.push(error.message));
+  const amount = async (selector) => {
+    const text = (await page.locator(selector).textContent())?.trim() ?? "";
+    const match = text.match(/^(\d+)\s*₺$/u);
+    if (!match) throw new Error(`Unexpected price at ${selector}: ${text}`);
+    return Number(match[1]);
+  };
+  const waitCartCount = (count) => page.waitForFunction(expected =>
+    document.querySelector("#menu-cart-count")?.textContent?.trim() === String(expected), count);
+
+  try {
+    const menuUrl = new URL("menu.html", baseUrl);
+    menuUrl.searchParams.set("live-smoke-draft", `${expectedBuild}-${Date.now()}`);
+    await page.goto(menuUrl.href, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.locator('#menu-root[data-ready="true"]').waitFor();
+    await waitCartCount(0);
+    await page.locator("#menu-family-trigger").click();
+    const box = page.locator(".menu-family-coming-soon");
+    await box.waitFor({ state: "visible" });
+    for (const [language, expected] of Object.entries({
+      tr: "Yakında menüde", en: "Coming soon to the menu", ru: "Скоро в меню"
+    })) {
+      await page.locator(`.lang-button[data-lang="${language}"]`).click();
+      if ((await page.locator("html").getAttribute("lang")) !== language)
+        throw new Error(`Language did not switch to ${language}`);
+      if ((await box.locator(".menu-family-box-status").textContent())?.trim() !== expected)
+        throw new Error(`Kids Box is not marked coming soon in ${language}`);
+      if (await box.locator('button,a,[role="button"],input,[data-family-recipe],.menu-family-price,[data-product-id]').count())
+        throw new Error(`Kids Box exposes a price or an order action in ${language}`);
+      if (/(?:₺|\b(?:TL|TRY)\b)/iu.test(await box.innerText()))
+        throw new Error(`Kids Box exposes a currency amount in ${language}`);
+    }
+    await waitCartCount(0);
+
+    await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media').click();
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    const unitPrice = await amount("#menu-product-price");
+    if (unitPrice <= 0) throw new Error("Espresso has no positive price");
+    await page.locator("#menu-quantity-increase").click();
+    const doubledPrice = await amount("#menu-product-price");
+    if (doubledPrice !== 2 * unitPrice) throw new Error("Product quantity did not double the price");
+    await page.locator("#menu-add-to-cart").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    await waitCartCount(2);
+    if (await amount("#menu-cart-dialog-total") !== doubledPrice) throw new Error("Cart total differs from the product total");
+
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.locator('#menu-root[data-ready="true"]').waitFor();
+    await waitCartCount(2);
+    if ((await page.locator("html").getAttribute("lang")) !== "ru") throw new Error("Language did not persist with the draft");
+    await page.locator("#menu-cart-trigger").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    if (await amount("#menu-cart-dialog-total") !== doubledPrice) throw new Error("Cart total did not persist after reload");
+    if (await page.locator(".menu-cart-remove").count() !== 1) throw new Error("Synthetic draft contains unexpected cart lines");
+    await page.locator(".menu-cart-remove").click();
+    await waitCartCount(0);
+    if (blockedWrites.length) throw new Error(`Unexpected attempted network writes: ${blockedWrites.join(" | ")}`);
+    if (pageErrors.length) throw new Error(`Draft journey page errors: ${pageErrors.join(" | ")}`);
+    return { scope: "isolated-local-draft", site: baseUrl.href, serviceWorkers: "blocked", networkWrites: 0,
+      kidsBoxLanguages: ["tr", "en", "ru"], kidsBoxOrderable: false,
+      product: "hot-coffee:espresso", unitPrice, quantity: 2, total: doubledPrice,
+      persistedAfterReload: true, removed: true };
+  } finally {
+    await context.close();
+  }
+}
+
 async function verifyBrowser(browser) {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -279,6 +367,7 @@ try {
     try {
       attemptReport.http = await verifyPublishedFiles();
       attemptReport.browser = await verifyBrowser(browser);
+      attemptReport.publishedDraft = await verifyPublishedDraft(browser);
       attemptReport.passed = true;
       attemptReport.completedAt = new Date().toISOString();
       report.attempts.push(attemptReport);
