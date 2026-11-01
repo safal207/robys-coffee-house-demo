@@ -174,6 +174,17 @@ if (linkedProduct) {
   searchInput.value = searchTerm = "";
   searchInput.dispatchEvent(new Event("change", { bubbles: true }));
 }
+// Start the existing low-priority document hint before rendering the catalog.
+// Its URL already carries the initial language, search and product context.
+updateMenuViews();
+if (canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) {
+  const hint = document.createElement("link");
+  if (hint.relList?.supports("prefetch")) {
+    hint.rel = "prefetch"; hint.as = "document"; hint.fetchPriority = "low";
+    hint.href = Array.from(menuViewLinks).find(link => link.dataset.menuView === "feed").href.split("#")[0];
+    document.head.append(hint);
+  }
+}
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
 let cartReadGeneration = 0;
@@ -970,15 +981,6 @@ menuViewLinks.forEach(link => {
   link.addEventListener("auxclick", choose, true);
 });
 document.documentElement.dataset.menuViewReady = "true";
-// Warm only the alternate document; its optional JS stays out of this startup.
-if (canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) {
-  const hint = document.createElement("link");
-  if (hint.relList?.supports("prefetch")) {
-    hint.rel = "prefetch"; hint.as = "document"; hint.fetchPriority = "low";
-    hint.href = Array.from(menuViewLinks).find(link => link.dataset.menuView === "feed").href.split("#")[0];
-    document.head.append(hint);
-  }
-}
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();
