@@ -21,7 +21,7 @@ function initializeMenu() {
   } catch { /* Unavailable preferences or timing keep the list usable. */ }
 
   // On menu interaction, prepare the exact alternate revision without executing it.
-  warmFeedOnIntent("./menu-feed.js?v=7370a20b4c4a");
+  warmFeedOnIntent();
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
