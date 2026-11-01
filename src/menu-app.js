@@ -3,7 +3,7 @@ import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import "./src/menu-feedback-entry.js";
 import { canWarmMenu } from "./src/menu-view-prefetch.js";
-import { warmFeedRuntime } from "./src/menu-feed-warmup.js";
+import { warmFeedOnIntent } from "./src/menu-feed-warmup.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
@@ -20,9 +20,8 @@ function initializeMenu() {
     }
   } catch { /* Unavailable preferences or timing keep the list usable. */ }
 
-  // Fetch and parse the alternate view at low priority, without executing it.
-  // The build binds this hint to the exact revision used by menu-feed.html.
-  warmFeedRuntime("./menu-feed.js?v=7370a20b4c4a");
+  // On menu interaction, prepare the exact alternate revision without executing it.
+  warmFeedOnIntent("./menu-feed.js?v=7370a20b4c4a");
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));
@@ -178,6 +177,17 @@ if (linkedProduct) {
   activeCategory = linkedProduct.category.id;
   searchInput.value = searchTerm = "";
   searchInput.dispatchEvent(new Event("change", { bubbles: true }));
+}
+// Start the existing low-priority document hint before rendering the catalog.
+// Its URL already carries the initial language, search and product context.
+updateMenuViews();
+if (canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) {
+  const hint = document.createElement("link");
+  if (hint.relList?.supports("prefetch")) {
+    hint.rel = "prefetch"; hint.as = "document"; hint.fetchPriority = "low";
+    hint.href = Array.from(menuViewLinks).find(link => link.dataset.menuView === "feed").href.split("#")[0];
+    document.head.append(hint);
+  }
 }
 const orderProductIds = new Set(productIndex.keys());
 let orderDraft;
@@ -975,15 +985,6 @@ menuViewLinks.forEach(link => {
   link.addEventListener("auxclick", choose, true);
 });
 document.documentElement.dataset.menuViewReady = "true";
-// Warm only the alternate document; its optional JS stays out of this startup.
-if (canWarmMenu(navigator.connection, document.hidden, navigator.onLine)) {
-  const hint = document.createElement("link");
-  if (hint.relList?.supports("prefetch")) {
-    hint.rel = "prefetch"; hint.as = "document"; hint.fetchPriority = "low";
-    hint.href = Array.from(menuViewLinks).find(link => link.dataset.menuView === "feed").href.split("#")[0];
-    document.head.append(hint);
-  }
-}
 function refreshObservedCart(resetAdded = false) {
   if (orderStorage) { void refreshLatestCart({ resetAdded }).catch(() => {}); return; }
   cart = readCart();

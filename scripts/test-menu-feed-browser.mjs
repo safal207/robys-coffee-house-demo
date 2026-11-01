@@ -244,6 +244,10 @@ try {
     const supported = await page.evaluate(() => document.createElement("link").relList?.supports?.("modulepreload") === true);
     const revision = createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex").slice(0, 12);
     const hint = page.locator('link[rel="modulepreload"][href*="menu-feed.js"]');
+    assert.equal(await hint.count(), 0, "An untouched menu must not preload the alternate runtime");
+    assert.deepEqual(feedRequests, [], "The first menu render must not request the feed script");
+    await page.locator("#menu-search").click();
+    await page.waitForLoadState("networkidle");
     assert.equal(await hint.count(), !saveData && supported ? 1 : 0);
     assert.deepEqual(feedRequests, !saveData && supported ? [`?v=${revision}`] : [],
       "Only a supported, unconstrained connection warms the exact feed revision");

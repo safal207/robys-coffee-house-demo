@@ -18,3 +18,20 @@ export function warmFeedRuntime(target, environment = globalThis) {
   document.head.append(hint);
   return true;
 }
+
+// Wait for genuine menu browsing or intent to switch views. This avoids
+// competing with the first render and spending bytes on an untouched menu.
+export function warmFeedOnIntent(target, environment = globalThis) {
+  const { document } = environment;
+  if (!document?.addEventListener) return;
+  const types = ['pointerover', 'pointerdown', 'focusin', 'wheel'];
+  function onIntent(event) {
+    if (!event.isTrusted) return;
+    const switchIntent = event.target?.closest?.('a[data-menu-view="feed"]');
+    const browsing = ['pointerdown', 'wheel'].includes(event.type)
+      && event.target?.closest?.('#menu-root, #menu-search, #menu-category-nav, .menu-view-switch');
+    if (!(switchIntent || browsing) || !warmFeedRuntime(target, environment)) return;
+    for (const type of types) document.removeEventListener(type, onIntent);
+  }
+  for (const type of types) document.addEventListener(type, onIntent, { passive: true });
+}

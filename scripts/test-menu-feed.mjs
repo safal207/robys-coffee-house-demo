@@ -85,7 +85,7 @@ test("menu startup discovers exact modules early and optional viewers remain laz
   }
   const feed = readFileSync("menu-feed.js", "utf8");
   const feedRevision = createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex").slice(0, 12);
-  assert.ok(readFileSync("src/menu-app.js", "utf8").includes(`warmFeedRuntime("./menu-feed.js?v=${feedRevision}")`),
+  assert.ok(readFileSync("src/menu-app.js", "utf8").includes(`warmFeedOnIntent("./menu-feed.js?v=${feedRevision}")`),
     "The alternate view warmup tracks the exact built feed revision");
   assert.match(feed, /import\("\.\/menu-feed-viewer\.js\?v=[a-f0-9]{12}"\)/);
   assert.doesNotMatch(feed, /feed-viewer-stage|feed-viewer-image|createOscillator/);

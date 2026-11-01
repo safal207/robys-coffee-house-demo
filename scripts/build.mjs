@@ -95,9 +95,9 @@ const menuFeedRevision = revisionFor("menu-feed.js");
 const menuFeedCssRevision = revisionFor("menu-feed.css");
 
 let menuSource = readFileSync("src/menu-app.js", "utf8");
-const feedWarmupPattern = /warmFeedRuntime\("\.\/menu-feed\.js(?:\?v=[^"]*)?"\)/;
+const feedWarmupPattern = /warmFeedOnIntent\("\.\/menu-feed\.js(?:\?v=[^"]*)?"\)/;
 if (!feedWarmupPattern.test(menuSource)) throw new Error("Menu feed warmup URL is missing");
-menuSource = menuSource.replace(feedWarmupPattern, `warmFeedRuntime("./menu-feed.js?v=${menuFeedRevision}")`);
+menuSource = menuSource.replace(feedWarmupPattern, `warmFeedOnIntent("./menu-feed.js?v=${menuFeedRevision}")`);
 menuSource = synchronizeModuleImport(menuSource, "menu-order-ui.js", menuOrderRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-family-ui.js", menuFamilyRevision);
 menuSource = synchronizeModuleImport(menuSource, "menu-combos-ui.js", menuCombosRevision);
