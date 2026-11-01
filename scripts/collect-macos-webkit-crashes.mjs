@@ -1,9 +1,40 @@
-import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { mkdir, open, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MAX_REPORT_BYTES = 4 * 1024 * 1024;
 const sleep = ms => new Promise(resolveSleep => setTimeout(resolveSleep, ms));
+
+// Check and read the same opened file. A bounded read protects against growth
+// after fstat; O_NOFOLLOW rejects replacement with a symlink on macOS, while
+// O_NONBLOCK prevents a substituted FIFO from blocking before fstat.
+export async function readCandidate(path, startedAt, { openFile = open, maxBytes = MAX_REPORT_BYTES } = {}) {
+  if (process.platform === "darwin" && constants.O_NOFOLLOW === undefined) throw new Error("O_NOFOLLOW is required on macOS");
+  if (process.platform !== "win32" && constants.O_NONBLOCK === undefined) throw new Error("O_NONBLOCK is required on POSIX");
+  const file = await openFile(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
+  let originalError;
+  try {
+    const before = await file.stat();
+    if (!before.isFile() || before.mtimeMs < startedAt || before.size > maxBytes) return null;
+    const bytes = Buffer.alloc(maxBytes + 1);
+    let used = 0;
+    while (used < bytes.length) {
+      const { bytesRead } = await file.read(bytes, used, bytes.length - used, used);
+      if (bytesRead === 0) break;
+      used += bytesRead;
+    }
+    const after = await file.stat();
+    if (used > maxBytes || used !== before.size || after.size !== before.size
+      || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) return null;
+    return bytes.subarray(0, used).toString("utf8");
+  } catch (error) {
+    originalError = error;
+    throw error;
+  } finally {
+    try { await file.close(); } catch (error) { if (!originalError) throw error; }
+  }
+}
 
 // An .ips file contains a JSON header on its first line followed by a JSON
 // report. Requiring the actual executable path avoids collecting unrelated
@@ -59,10 +90,8 @@ export async function collectReports({ directories, browserRoot, startedAt, outp
         if (!entry.isFile() || !entry.name.endsWith(".ips")) continue;
         const path = join(directory, entry.name);
         try {
-          const info = await stat(path);
-          if (info.mtimeMs < startedAt || info.size > MAX_REPORT_BYTES) continue;
-          const contents = await readFile(path, "utf8");
-          if (matchesReport(contents, browserRoot)) matches.push({ name: entry.name, summary: summarizeReport(contents) });
+          const contents = await readCandidate(path, startedAt);
+          if (contents !== null && matchesReport(contents, browserRoot)) matches.push({ name: entry.name, summary: summarizeReport(contents) });
         } catch (error) { if (error.code !== "ENOENT") errors.push(`${entry.name}: ${error.code ?? error.message}`); }
       }
     }
