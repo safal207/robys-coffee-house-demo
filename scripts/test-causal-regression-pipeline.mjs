@@ -217,6 +217,30 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   for (const unknown of ['.github/workflows/order-reliability-unregistered.yml', 'scripts/test-menu-combos-unregistered.mjs', 'scripts/test-home-navigation-unregistered.mjs']) assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
 });
 
+test('WebKit crash and viewer setup diagnostics retain their real owners and checks', () => {
+  for (const path of ['scripts/collect-macos-webkit-crashes.mjs', 'scripts/test-macos-webkit-crashes.mjs']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['browser-diagnostics'], path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.selectedChecks.includes('source-contracts'), path);
+    assert.ok(result.externalChecks.includes('lazy-images-browser'), path);
+  }
+  for (const path of ['scripts/menu-feed-viewer-browser-cases.mjs', 'scripts/test-menu-feed-viewer-setup-diagnostics.mjs']) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, ['feed-social'], path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.selectedChecks.includes('menu-feed-browser'), path);
+    assert.ok(result.impactedJourneys.includes('feed-stories-reels'), path);
+  }
+  const workflow = readFileSync(new URL('../.github/workflows/order-reliability.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /node scripts\/collect-macos-webkit-crashes\.mjs/);
+  assert.match(workflow, /node --test scripts\/test-macos-webkit-crashes\.mjs/);
+  const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.ok(packageJson.scripts['test:menu-feed'].includes('scripts/test-menu-feed-viewer-setup-diagnostics.mjs'));
+  const unknown = 'scripts/collect-macos-webkit-unregistered.mjs';
+  assert.deepEqual(impactPlan(graph, [unknown]).unmappedPaths, [unknown]);
+});
+
 test('pairing and locale regression test changes select their real checks and owners', () => {
   for (const [path, checks] of [
     ['scripts/test-discover-deck.mjs', ['discover-deck-contracts']],

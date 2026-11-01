@@ -1,6 +1,36 @@
 import assert from "node:assert/strict";
 import { feedSharePath } from "../src/menu-feed-navigation.js";
 
+// Preserve the active setup case even when no Page exists for a screenshot.
+// The caller writes the report; the initial marker also survives abrupt exit.
+export async function withViewerSetupDiagnostics({ report, engine, caseName, profile }, setup) {
+  const state = { engine, case: caseName, ...profile, stage: "newContext", status: "running" };
+  report.viewerSetup = state;
+  console.log(`VIEWER_SETUP ${JSON.stringify(state)}`);
+  let context;
+  try {
+    const result = await setup({
+      setStage: stage => {
+        state.stage = stage;
+        console.log(`VIEWER_SETUP_STAGE ${JSON.stringify({ case: caseName, stage })}`);
+      },
+      trackContext: value => { context = value; },
+    });
+    state.stage = "complete";
+    state.status = "complete";
+    return result;
+  } catch (error) {
+    state.status = "failed";
+    state.error = { name: String(error?.name ?? "Error"), message: String(error?.message ?? error).slice(0, 1000) };
+    console.error(`VIEWER_SETUP_FAILED ${JSON.stringify(state)}`);
+    // Best-effort cleanup must not replace or delay the original failure.
+    if (context) {
+      try { void Promise.resolve(context.close()).catch(() => {}); } catch { /* preserve original error */ }
+    }
+    throw error;
+  }
+}
+
 // Runs inside the menu-feed harness, against built public bytes over HTTPS and
 // its real CSP. Pointer drags below use Playwright's mouse, not synthetic
 // dispatchEvent touch events; physical touch/OS share sheets remain untested.
@@ -42,48 +72,54 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
     });
     assert.deepEqual(hit, { size: true, inside: true, hit: true }, `${selector} remains a visible, unobscured 44px target`);
   }
-  async function contextFor({ width = 390, height = 844, language = "en", reducedMotion = "reduce", nativeShare = false, batchViewerIntersections = false } = {}) {
-    const context = await browser.newContext({ viewport: { width, height }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
-    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
-    await context.addInitScript(({ language, nativeShare, batchViewerIntersections }) => {
-      localStorage.setItem("robys-language", language);
-      if (!nativeShare) Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
-      const NativeObserver = window.IntersectionObserver;
-      if (NativeObserver) window.IntersectionObserver = class extends NativeObserver {
-        constructor(callback, options) {
-          const viewerObserver = options?.root?.classList?.contains("feed-viewer-shell");
-          const initialHidden = new WeakMap();
-          super(viewerObserver ? (entries, observer) => {
-            const events = window.__feedViewerIOEvents ??= [];
-            const dialog = document.querySelector("#feed-viewer");
-            for (const entry of entries) events.push({ target: entry.target.id, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
-              ratio: entry.intersectionRatio, intersecting: entry.isIntersecting, entryTime: entry.time, now: performance.now(),
-              state: dialog?.dataset.state, product: dialog?.dataset.productId, hidden: document.hidden,
-              visibilityState: document.visibilityState });
-            if (events.length > 60) events.splice(0, events.length - 60);
-            if (!batchViewerIntersections) { callback(entries, observer); return; }
-            const delivered = [];
-            for (const entry of entries) {
-              if (entry.target.id === "feed-viewer-image" && entry.intersectionRatio === 0 && dialog?.dataset.state === "loading") {
-                initialHidden.set(entry.target, entry);
-                window.__feedViewerIOBatchInitials = (window.__feedViewerIOBatchInitials ?? 0) + 1;
-              } else if (initialHidden.has(entry.target) && entry.intersectionRatio >= .5) {
-                const hidden = initialHidden.get(entry.target); initialHidden.delete(entry.target);
-                delivered.push(hidden, entry);
-                const batches = window.__feedViewerIOBatches ??= [];
-                batches.push({ product: dialog?.dataset.productId, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
-                  ratios: [hidden.intersectionRatio, entry.intersectionRatio], entryTimes: [hidden.time, entry.time] });
-                if (batches.length > 20) batches.shift();
-              } else delivered.push(entry);
-            }
-            if (delivered.length) callback(delivered, observer);
-          } : callback, options);
-        }
-      };
-    }, { language, nativeShare, batchViewerIntersections });
-    const page = await context.newPage(); page.setDefaultTimeout(15000);
-    const errors = []; observeErrors(page, errors);
-    return { context, page, errors, language };
+  async function contextFor({ caseName, width = 390, height = 844, language = "en", reducedMotion = "reduce", nativeShare = false, batchViewerIntersections = false }) {
+    return withViewerSetupDiagnostics({ report, engine, caseName, profile: { width, height, language, reducedMotion } }, async ({ setStage, trackContext }) => {
+      const context = await browser.newContext({ viewport: { width, height }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
+      trackContext(context);
+      setStage("route");
+      await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+      setStage("addInitScript");
+      await context.addInitScript(({ language, nativeShare, batchViewerIntersections }) => {
+        localStorage.setItem("robys-language", language);
+        if (!nativeShare) Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+        const NativeObserver = window.IntersectionObserver;
+        if (NativeObserver) window.IntersectionObserver = class extends NativeObserver {
+          constructor(callback, options) {
+            const viewerObserver = options?.root?.classList?.contains("feed-viewer-shell");
+            const initialHidden = new WeakMap();
+            super(viewerObserver ? (entries, observer) => {
+              const events = window.__feedViewerIOEvents ??= [];
+              const dialog = document.querySelector("#feed-viewer");
+              for (const entry of entries) events.push({ target: entry.target.id, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
+                ratio: entry.intersectionRatio, intersecting: entry.isIntersecting, entryTime: entry.time, now: performance.now(),
+                state: dialog?.dataset.state, product: dialog?.dataset.productId, hidden: document.hidden,
+                visibilityState: document.visibilityState });
+              if (events.length > 60) events.splice(0, events.length - 60);
+              if (!batchViewerIntersections) { callback(entries, observer); return; }
+              const delivered = [];
+              for (const entry of entries) {
+                if (entry.target.id === "feed-viewer-image" && entry.intersectionRatio === 0 && dialog?.dataset.state === "loading") {
+                  initialHidden.set(entry.target, entry);
+                  window.__feedViewerIOBatchInitials = (window.__feedViewerIOBatchInitials ?? 0) + 1;
+                } else if (initialHidden.has(entry.target) && entry.intersectionRatio >= .5) {
+                  const hidden = initialHidden.get(entry.target); initialHidden.delete(entry.target);
+                  delivered.push(hidden, entry);
+                  const batches = window.__feedViewerIOBatches ??= [];
+                  batches.push({ product: dialog?.dataset.productId, currentImage: entry.target === document.querySelector("#feed-viewer-image"),
+                    ratios: [hidden.intersectionRatio, entry.intersectionRatio], entryTimes: [hidden.time, entry.time] });
+                  if (batches.length > 20) batches.shift();
+                } else delivered.push(entry);
+              }
+              if (delivered.length) callback(delivered, observer);
+            } : callback, options);
+          }
+        };
+      }, { language, nativeShare, batchViewerIntersections });
+      setStage("newPage");
+      const page = await context.newPage(); page.setDefaultTimeout(15000);
+      const errors = []; observeErrors(page, errors);
+      return { context, page, errors, language };
+    });
   }
   async function openFeed(page, language) {
     await page.goto(`${origin}/menu-feed.html?view=feed&lang=${language}`, { waitUntil: "domcontentloaded" });
@@ -136,7 +172,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
   }
 
   {
-    const { context, page, errors } = await contextFor({ reducedMotion: "no-preference", batchViewerIntersections: true });
+    const { context, page, errors } = await contextFor({ caseName: "stories-qualified-views-pause-share-order", reducedMotion: "no-preference", batchViewerIntersections: true });
     const releases = [];
     for (const product of hot.slice(0, 3)) {
       let release;
@@ -254,7 +290,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
   }
 
   {
-    const { context, page, errors } = await contextFor({ language: "ru" });
+    const { context, page, errors } = await contextFor({ caseName: "reels-gestures-heart-native-share", language: "ru" });
     try {
       await openFeed(page, "ru");
       const visibleReelsLabel = (await page.locator('#feed-reels-open [data-copy="reels"]').textContent()).trim();
@@ -328,7 +364,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
   }
 
   {
-    const { context, page, errors } = await contextFor({ width: 320, height: 568, language: "ru" });
+    const { context, page, errors } = await contextFor({ caseName: "reels-short-text200", width: 320, height: 568, language: "ru" });
     try {
       await openFeed(page, "ru");
       await page.locator("#feed-reels-open").click(); await ready(page, "reels");
@@ -393,7 +429,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
   }
 
   for (const [language, width, height] of [["tr", 390, 844], ["en", 1440, 1000]]) {
-    const { context, page, errors } = await contextFor({ width, height, language });
+    const { context, page, errors } = await contextFor({ caseName: `stories-localization-${language}-${width}`, width, height, language });
     try {
       await openFeed(page, language);
       const opener = '#feed-stories .feed-story[data-story-category="hot-coffee"]';
@@ -424,7 +460,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
   }
 
   {
-    const { context, page, errors } = await contextFor({ language: "ru", nativeShare: true, reducedMotion: "no-preference" });
+    const { context, page, errors } = await contextFor({ caseName: "viewer-photo-retry-and-stale-native-share", language: "ru", nativeShare: true, reducedMotion: "no-preference" });
     const failedRequests = [];
     page.on("requestfailed", request => failedRequests.push(request.url()));
     try {
@@ -484,7 +520,7 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
 
 
   {
-    const { context, page, errors } = await contextFor({ language: "ru" });
+    const { context, page, errors } = await contextFor({ caseName: "viewer-likes-reconcile-liked-only-feed", language: "ru" });
     try {
       await openFeed(page, "ru");
       const opener = '#feed-stories .feed-story[data-story-category="hot-coffee"]';
