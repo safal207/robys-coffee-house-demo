@@ -130,6 +130,13 @@ try {
     "Coming-soon packaging must remain non-orderable offline");
   await page.locator("#menu-search").fill("latte");
   assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
+  assert.equal(await page.locator('link[rel="modulepreload"][href*="menu-feed.js"]').count(), 0,
+    "Offline mode must not start the optional feed warmup");
+  await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+  await page.locator('html[data-menu-view-ready="true"]').waitFor({ state: "attached", timeout: 15000 });
+  await page.locator('#feed[data-ready="true"] .feed-card').first().waitFor({ state: "visible", timeout: 15000 });
+  assert.match(new URL(page.url()).pathname, /\/menu-feed\.html$/);
+  assert.equal(await page.locator("#feed-search").inputValue(), "latte", "Offline feed keeps the current search context");
 
   await page.goto(`${baseUrl}/smart-choice/`, { waitUntil: "domcontentloaded" });
   await page.locator("#smart-choice-app[aria-busy='false']").waitFor({ state: "visible", timeout: 15000 });
@@ -137,7 +144,7 @@ try {
 
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: cached homepage, first family reveal with all four photos, menu search and Smart Choice remain usable without an install offer.");
+  console.log("✅ Offline browser gate passed: cached homepage, family reveal, menu search, feed navigation and Smart Choice remain usable without an install offer.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();

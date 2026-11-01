@@ -223,6 +223,40 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  // Exercise the real browser fetch boundary: warming cannot run the feed or
+  // prevent navigation, and data-saving must suppress the speculative fetch.
+  for (const saveData of [false, true]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 },
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.addInitScript(saveData => Object.defineProperty(navigator, "connection", {
+      configurable: true, value: { saveData, effectiveType: "4g" }
+    }), saveData);
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = [], feedRequests = []; observeErrors(page, errors);
+    page.on("request", request => {
+      const url = new URL(request.url());
+      if (url.origin === origin && url.pathname === "/menu-feed.js") feedRequests.push(url.search);
+    });
+    await page.goto(`${origin}/menu.html?view=list&lang=en`, { waitUntil: "domcontentloaded" });
+    await waitForMenuMode(page, "list");
+    await page.waitForLoadState("networkidle");
+    const supported = await page.evaluate(() => document.createElement("link").relList?.supports?.("modulepreload") === true);
+    const revision = createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex").slice(0, 12);
+    const hint = page.locator('link[rel="modulepreload"][href*="menu-feed.js"]');
+    assert.equal(await hint.count(), !saveData && supported ? 1 : 0);
+    assert.deepEqual(feedRequests, !saveData && supported ? [`?v=${revision}`] : [],
+      "Only a supported, unconstrained connection warms the exact feed revision");
+    assert.equal(await page.locator("#feed").count(), 0, "Warming never executes the alternate page");
+    await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
+    await waitForMenuMode(page, "feed");
+    assert.equal(await page.locator("html").getAttribute("lang"), "en");
+    assert.equal(await page.locator("#feed .feed-card").first().getAttribute("data-product-id"), catalog[0].id);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: `alternate-feed-warmup-save-data-${saveData}`, result: "PASS",
+      supported, speculativeFetch: !saveData && supported, normalNavigation: true, noEarlyExecution: true });
+    await context.close();
+  }
   {
     const defaultProduct = catalog[0];
     const firstCoffee = catalog.find(product => product.category.id === "hot-coffee");

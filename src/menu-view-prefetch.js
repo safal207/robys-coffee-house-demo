@@ -1,5 +1,4 @@
-// The feed may warm its return to the list. Keep the list's startup JS budget
-// unchanged; no custom prefetch code runs on its initial load.
+// The feed may warm its return to the list with a low-priority native hint.
 export function canWarmMenu(connection, hidden = false, online = true) {
   return !hidden && online !== false && !connection?.saveData
     && !['slow-2g', '2g', '3g'].includes(connection?.effectiveType);

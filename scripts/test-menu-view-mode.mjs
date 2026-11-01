@@ -28,6 +28,8 @@ function observeListStartup({ suffix = "", preference = "feed", state = null,
     localStorage: { getItem() { if (deniedStorage) throw new Error("Storage unavailable"); return preference; } },
     document: new Proxy({}, { get() { startupReads++; throw boundary; } })
   };
+  // Warming is an initial DOM operation too; the redirect must precede it.
+  context.warmFeedRuntime = () => context.document.head;
   try { runInNewContext(listEntrySource, context); }
   catch (error) { if (error !== boundary) throw error; }
   return { redirects, historyWrites, startupReads };
@@ -192,12 +194,45 @@ test("preference writes only known modes and tolerates unavailable storage", () 
 });
 
 import { canWarmMenu } from '../src/menu-view-prefetch.js';
+import { warmFeedRuntime } from '../src/menu-feed-warmup.js';
 test('speculative menu bytes respect data saving, offline, hidden tabs and slow connections', () => {
   assert.equal(canWarmMenu(undefined), true);
   assert.equal(canWarmMenu({effectiveType:'4g'}), true);
   for (const connection of [{saveData:true}, {effectiveType:'slow-2g'}, {effectiveType:'2g'}, {effectiveType:'3g'}]) assert.equal(canWarmMenu(connection), false);
   assert.equal(canWarmMenu(undefined,true), false);
   assert.equal(canWarmMenu(undefined,false,false), false);
+});
+
+test('alternate feed runtime warming is local, revisioned, low priority and respects connection limits', () => {
+  function fixture({ supported = true, hidden = false, online = true, connection } = {}) {
+    const hints = [];
+    const document = { hidden, head: { append: hint => hints.push(hint) },
+      createElement: () => ({ relList: { supports: value => supported && value === 'modulepreload' } }) };
+    const location = { origin: 'https://example.test', href: 'https://example.test/cafe/menu.html?view=list' };
+    return { environment: { document, navigator: { onLine: online, connection }, location }, hints };
+  }
+  const valid = './menu-feed.js?v=0123456789ab';
+  const allowed = fixture({ connection: { effectiveType: '4g', saveData: false } });
+  assert.equal(warmFeedRuntime(valid, allowed.environment), true);
+  assert.equal(allowed.hints.length, 1);
+  assert.equal(allowed.hints[0].href, 'https://example.test/cafe/menu-feed.js?v=0123456789ab');
+  assert.equal(allowed.hints[0].rel, 'modulepreload');
+  assert.equal(allowed.hints[0].fetchPriority, 'low');
+  for (const options of [{ supported: false }, { hidden: true }, { online: false },
+    { connection: { saveData: true } }, { connection: { effectiveType: 'slow-2g' } },
+    { connection: { effectiveType: '2g' } }, { connection: { effectiveType: '3g' } }]) {
+    const blocked = fixture(options);
+    assert.equal(warmFeedRuntime(valid, blocked.environment), false, JSON.stringify(options));
+    assert.equal(blocked.hints.length, 0);
+  }
+  for (const target of ['https://other.test/cafe/menu-feed.js?v=0123456789ab',
+    'https://user:pass@example.test/cafe/menu-feed.js?v=0123456789ab',
+    './order-storage.js?v=0123456789ab', './menu-feed.js', './menu-feed.js?v=old',
+    './menu-feed.js?v=0123456789ab&other=1', './menu-feed.js?v=0123456789ab#other']) {
+    const rejected = fixture();
+    assert.equal(warmFeedRuntime(target, rejected.environment), false, target);
+    assert.equal(rejected.hints.length, 0);
+  }
 });
 // Native hints must remain optional and cannot change links, orders or counters.
 function observeWarm({ supported = true, hidden = false, online = true, connection,
