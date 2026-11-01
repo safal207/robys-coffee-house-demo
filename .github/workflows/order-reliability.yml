@@ -88,6 +88,9 @@ jobs:
       - run: npm ci --no-audit --no-fund
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: ${{ matrix.browser == 'webkit' && '1' || '' }}
+      - name: Verify native crash report collection
+        if: matrix.browser == 'webkit'
+        run: node --test scripts/test-macos-webkit-crashes.mjs
       - run: npm run build && npm run verify:integrity && git diff --exit-code
       - if: matrix.browser != 'webkit'
         run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
@@ -113,6 +116,7 @@ jobs:
           const metadata = { declaredRunner: 'macos-15-intel', osVersion,
             runnerImage: process.env.ImageVersion ?? null, architecture: process.arch,
             node: process.version, playwright: pkg.version, webkit: browser, executablePath,
+            diagnosticsStartedAt: new Date().toISOString(),
             launcherSHA256: createHash('sha256').update(readFileSync(executablePath)).digest('hex') };
           mkdirSync('.artifacts/order-reliability', { recursive: true });
           writeFileSync('.artifacts/order-reliability/webkit-environment.json', JSON.stringify(metadata, null, 2) + '\n');
@@ -150,6 +154,9 @@ jobs:
       - name: Mobile order navigation
         if: matrix.browser == 'chromium'
         run: node scripts/test-mobile-navigation-browser.mjs
+      - name: Collect candidate Playwright crash summaries
+        if: failure() && matrix.browser == 'webkit'
+        run: node scripts/collect-macos-webkit-crashes.mjs
       - if: always()
         uses: actions/upload-artifact@v4
         with:
