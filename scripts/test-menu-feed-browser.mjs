@@ -223,8 +223,8 @@ async function assertPurchaseControlsReachable(page, index = 0) {
 let browser;
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
-  // Exercise the real browser fetch boundary: warming cannot run the feed or
-  // prevent navigation, and data-saving must suppress the speculative fetch.
+  // Only the alternate document may be warmed; initial menu browsing must
+  // not download or run the feed script, including in data-saving mode.
   for (const saveData of [false, true]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 },
       reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
@@ -241,24 +241,29 @@ try {
     await page.goto(`${origin}/menu.html?view=list&lang=en`, { waitUntil: "domcontentloaded" });
     await waitForMenuMode(page, "list");
     await page.waitForLoadState("networkidle");
-    const supported = await page.evaluate(() => document.createElement("link").relList?.supports?.("modulepreload") === true);
+    const supported = await page.evaluate(() => document.createElement("link").relList?.supports?.("prefetch") === true);
     const revision = createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex").slice(0, 12);
-    const hint = page.locator('link[rel="modulepreload"][href*="menu-feed.js"]');
-    assert.equal(await hint.count(), 0, "An untouched menu must not preload the alternate runtime");
+    const hint = page.locator('link[rel="prefetch"][href*="menu-feed.html"]');
+    assert.equal(await hint.count(), !saveData && supported ? 1 : 0);
+    if (!saveData && supported) {
+      const target = new URL(await hint.getAttribute("href"), origin);
+      assert.equal(target.origin, origin);
+      assert.equal(target.pathname, "/menu-feed.html");
+      assert.equal(target.searchParams.get("lang"), "en");
+    }
     assert.deepEqual(feedRequests, [], "The first menu render must not request the feed script");
     await page.locator("#menu-search").click();
     await page.waitForLoadState("networkidle");
-    assert.equal(await hint.count(), !saveData && supported ? 1 : 0);
-    assert.deepEqual(feedRequests, !saveData && supported ? [`?v=${revision}`] : [],
-      "Only a supported, unconstrained connection warms the exact feed revision");
-    assert.equal(await page.locator("#feed").count(), 0, "Warming never executes the alternate page");
+    assert.deepEqual(feedRequests, [], "Browsing the list must not request the feed script");
+    assert.equal(await page.locator("#feed").count(), 0, "The document hint never executes the alternate page");
     await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
     await waitForMenuMode(page, "feed");
+    assert.deepEqual(feedRequests, [`?v=${revision}`], "Navigation loads the exact built feed revision");
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
     assert.equal(await page.locator("#feed .feed-card").first().getAttribute("data-product-id"), catalog[0].id);
     assert.deepEqual(errors, []);
-    report.cases.push({ case: `alternate-feed-warmup-save-data-${saveData}`, result: "PASS",
-      supported, speculativeFetch: !saveData && supported, normalNavigation: true, noEarlyExecution: true });
+    report.cases.push({ case: `alternate-feed-document-hint-save-data-${saveData}`, result: "PASS",
+      supported, documentHint: !saveData && supported, normalNavigation: true, noEarlyExecution: true });
     await context.close();
   }
   {

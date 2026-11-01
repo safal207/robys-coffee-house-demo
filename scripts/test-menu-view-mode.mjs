@@ -28,8 +28,6 @@ function observeListStartup({ suffix = "", preference = "feed", state = null,
     localStorage: { getItem() { if (deniedStorage) throw new Error("Storage unavailable"); return preference; } },
     document: new Proxy({}, { get() { startupReads++; throw boundary; } })
   };
-  // Warming is an initial DOM operation too; the redirect must precede it.
-  context.warmFeedOnIntent = () => context.document.head;
   try { runInNewContext(listEntrySource, context); }
   catch (error) { if (error !== boundary) throw error; }
   return { redirects, historyWrites, startupReads };
@@ -194,53 +192,12 @@ test("preference writes only known modes and tolerates unavailable storage", () 
 });
 
 import { canWarmMenu } from '../src/menu-view-prefetch.js';
-import { feedRuntimeUrl, warmFeedOnIntent } from '../src/menu-feed-warmup.js';
 test('speculative menu bytes respect data saving, offline, hidden tabs and slow connections', () => {
   assert.equal(canWarmMenu(undefined), true);
   assert.equal(canWarmMenu({effectiveType:'4g'}), true);
   for (const connection of [{saveData:true}, {effectiveType:'slow-2g'}, {effectiveType:'2g'}, {effectiveType:'3g'}]) assert.equal(canWarmMenu(connection), false);
   assert.equal(canWarmMenu(undefined,true), false);
   assert.equal(canWarmMenu(undefined,false,false), false);
-});
-
-test('feed runtime remains unfetched until trusted menu browsing and warms at most once', () => {
-  const listeners = new Map(), hints = [];
-  let supported = true;
-  const document = {
-    hidden: false, head: { append: hint => hints.push(hint) },
-    createElement: () => ({ relList: { supports: value => supported && value === 'modulepreload' } }),
-    addEventListener: (type, fn) => listeners.set(type, fn),
-    removeEventListener: (type, fn) => { if (listeners.get(type) === fn) listeners.delete(type); }
-  };
-  const environment = { document, navigator: { onLine: true, connection: { effectiveType: '4g', saveData: false } },
-    location: { origin: 'https://example.test', href: 'https://example.test/cafe/menu.html' } };
-  const target = { closest: selector => selector.startsWith('#menu-root') ? {} : null };
-  warmFeedOnIntent(environment);
-  assert.equal(hints.length, 0, 'Initial page load must not download the alternate runtime');
-  listeners.get('pointerdown')({ type: 'pointerdown', isTrusted: false, target });
-  assert.equal(hints.length, 0, 'Synthetic events cannot spend speculative bytes');
-  environment.navigator.connection.saveData = true;
-  listeners.get('pointerdown')({ type: 'pointerdown', isTrusted: true, target });
-  assert.equal(hints.length, 0, 'Data saving still blocks user-triggered warming');
-  environment.navigator.connection.saveData = false;
-  for (const blocked of [
-    () => { document.hidden = true; },
-    () => { document.hidden = false; environment.navigator.onLine = false; },
-    () => { environment.navigator.onLine = true; environment.navigator.connection.effectiveType = '3g'; },
-    () => { environment.navigator.connection.effectiveType = '4g'; supported = false; }
-  ]) {
-    blocked();
-    listeners.get('pointerdown')({ type: 'pointerdown', isTrusted: true, target });
-    assert.equal(hints.length, 0, 'Hidden, offline, slow or unsupported environments must not warm');
-  }
-  supported = true;
-  listeners.get('pointerdown')({ type: 'pointerdown', isTrusted: true, target });
-  assert.equal(hints.length, 1);
-  assert.match(feedRuntimeUrl, /^\.\/menu-feed\.js\?v=[a-f0-9]{12}$/);
-  assert.equal(hints[0].href, feedRuntimeUrl);
-  assert.equal(hints[0].rel, 'modulepreload');
-  assert.equal(hints[0].fetchPriority, 'low');
-  assert.equal(listeners.size, 0, 'A successful hint removes all warmup listeners');
 });
 // Native hints must remain optional and cannot change links, orders or counters.
 function observeWarm({ supported = true, hidden = false, online = true, connection,

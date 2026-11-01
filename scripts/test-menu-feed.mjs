@@ -84,9 +84,6 @@ test("menu startup discovers exact modules early and optional viewers remain laz
     assert.equal((html.match(/class="menu-sound-toggle"/g) ?? []).length, 1);
   }
   const feed = readFileSync("menu-feed.js", "utf8");
-  const feedRevision = createHash("sha256").update(readFileSync("menu-feed.js")).digest("hex").slice(0, 12);
-  assert.ok(readFileSync("src/menu-feed-warmup.js", "utf8").includes(`feedRuntimeUrl = './menu-feed.js?v=${feedRevision}'`),
-    "The alternate view warmup tracks the exact built feed revision");
   assert.match(feed, /import\("\.\/menu-feed-viewer\.js\?v=[a-f0-9]{12}"\)/);
   assert.doesNotMatch(feed, /feed-viewer-stage|feed-viewer-image|createOscillator/);
   for (const file of ["menu-feedback.js", "menu-feed-viewer.js"]) {

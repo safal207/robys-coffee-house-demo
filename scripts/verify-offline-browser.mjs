@@ -131,7 +131,7 @@ try {
   await page.locator("#menu-search").fill("latte");
   assert.match(await page.locator("#menu-root").innerText(), /latte/i, "Offline menu search did not return latte items");
   assert.equal(await page.locator('link[rel="modulepreload"][href*="menu-feed.js"]').count(), 0,
-    "Offline mode must not start the optional feed warmup");
+    "Offline mode must not preload the alternate feed runtime");
   await page.locator('.menu-view-switch [data-menu-view="feed"]').click();
   await page.locator('html[data-menu-view-ready="true"]').waitFor({ state: "attached", timeout: 15000 });
   await page.locator('#feed[data-ready="true"] .feed-card').first().waitFor({ state: "visible", timeout: 15000 });

@@ -3,7 +3,6 @@ import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import "./src/menu-feedback-entry.js";
 import { canWarmMenu } from "./src/menu-view-prefetch.js";
-import { warmFeedOnIntent } from "./src/menu-feed-warmup.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
@@ -19,9 +18,6 @@ function initializeMenu() {
       history.replaceState({ ...history.state, robysMenuViewEntry: "list" }, "", location.href);
     }
   } catch { /* Unavailable preferences or timing keep the list usable. */ }
-
-  // On menu interaction, prepare the exact alternate revision without executing it.
-  warmFeedOnIntent();
 
 const supportedLanguages = ["tr", "en", "ru"];
 const languageButtons = Array.from(document.querySelectorAll(".lang-button"));

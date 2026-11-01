@@ -156,8 +156,6 @@
       "paths": [
         "src/menu-view-mode.js",
         "src/menu-view-prefetch.js",
-        "src/menu-feed-warmup.js",
-        "scripts/test-menu-view-mode.mjs",
         "menu-view-mode.js",
         "src/menu-feedback-entry.js",
         "src/menu-feedback.js",
