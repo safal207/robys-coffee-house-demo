@@ -202,7 +202,9 @@
         "src/menu-feed-viewer.js",
         "src/menu-feed-viewer-entry.js",
         "menu-feed-viewer.js",
-        "scripts/test-menu-feed-viewer-entry.mjs"
+        "scripts/test-menu-feed-viewer-entry.mjs",
+        "scripts/menu-feed-viewer-browser-cases.mjs",
+        "scripts/test-menu-feed-viewer-setup-diagnostics.mjs"
       ],
       "dependsOn": [
         "menu-feed",
@@ -656,7 +658,9 @@
         "scripts/browser-native-stacks.py",
         "scripts/test-browser-native-stacks.mjs",
         "scripts/run-menu-lazy-images-diagnostics.mjs",
-        "scripts/test-browser-failure-diagnostics.mjs"
+        "scripts/test-browser-failure-diagnostics.mjs",
+        "scripts/collect-macos-webkit-crashes.mjs",
+        "scripts/test-macos-webkit-crashes.mjs"
       ],
       "dependsOn": []
     },
