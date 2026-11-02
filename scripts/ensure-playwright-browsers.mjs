@@ -1,12 +1,10 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { installSignedUbuntuPackages } from "./signed-ubuntu-packages.mjs";
 
 const require = createRequire(import.meta.url);
-const reviewed = JSON.parse(readFileSync(new URL("./playwright-toolchain.json", import.meta.url), "utf8"));
 const engines = ["chromium", "firefox", "webkit"];
 const runCommand = (command, args) => spawnSync(command, args, { stdio: "inherit" });
 
@@ -14,22 +12,20 @@ export function installedPlaywright() {
   const core = dirname(require.resolve("playwright-core/package.json"));
   const browserPackage = dirname(require.resolve("playwright/package.json"));
   const version = require(join(core, "package.json")).version;
-  if (version !== reviewed.version || require(join(browserPackage, "package.json")).version !== version
-    || require("@playwright/test/package.json").version !== version) {
-    throw new Error(`Playwright prerequisites require the reviewed locked version ${reviewed.version}`);
+  if (version !== "1.55.1" || require(join(browserPackage, "package.json")).version !== version) {
+    throw new Error("Playwright prerequisites require the reviewed locked version 1.55.1");
   }
   return { version, cli: join(browserPackage, "cli.js"),
-    dependencies: reviewed.browsers };
+    dependencies: require(join(core, "lib/server/registry/nativeDeps.js")).deps?.["ubuntu24.04-x64"] };
 }
 
 export function playwrightPackages(browsers, installation = installedPlaywright()) {
   if (!Array.isArray(browsers) || !browsers.length || new Set(browsers).size !== browsers.length
     || browsers.some(browser => !engines.includes(browser))) throw new Error("Invalid Playwright browser selection");
-  if (installation.version !== reviewed.version) throw new Error("Unsupported Playwright prerequisite version");
-  // Playwright 1.64 bundles nativeDeps and its dry-run now simulates APT.
-  // Reviewed package sets include tools; tests compare all engine subsets with
-  // the installed CLI's real simulation arguments without invoking system APT.
-  const groups = browsers.map(group => installation.dependencies?.[group]);
+  if (installation.version !== "1.55.1") throw new Error("Unsupported Playwright prerequisite version");
+  // Use the installed version's canonical native package data, including tools.
+  // Tests compare every engine subset with its public install-deps --dry-run.
+  const groups = [...browsers, "tools"].map(group => installation.dependencies?.[group]);
   if (groups.some(group => !Array.isArray(group) || !group.length)) throw new Error("Missing canonical Playwright dependencies");
   const packages = [...new Set(groups.flat())];
   if (packages.some(name => typeof name !== "string" || !/^[a-z0-9][a-z0-9+.-]{0,100}$/.test(name))) {

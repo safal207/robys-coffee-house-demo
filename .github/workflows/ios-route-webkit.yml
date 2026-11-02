@@ -11,9 +11,7 @@ permissions:
 
 jobs:
   ios-route-webkit:
-    # Match the native Apple WebKit environment used by Order reliability.
-    # Linux WebKit 27.2 stalls animation frames in this touch/route harness.
-    runs-on: macos-15-intel
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Check out repository
@@ -22,14 +20,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22.23.3'
+          node-version: 20
           cache: npm
 
       - name: Install project dependencies
         run: npm ci
 
       - name: Install Playwright for the iOS WebKit gate
-        run: npx --no-install playwright install webkit
+        run: node scripts/ensure-playwright-browsers.mjs webkit
 
       - name: Build site
         run: npm run build

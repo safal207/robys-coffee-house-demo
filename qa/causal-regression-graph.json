@@ -429,7 +429,6 @@
         "smart-choice/**",
         "src/smart-choice/**",
         "scripts/test-smart-choice-cart-focus-browser.mjs",
-        "scripts/test-quick-builder-scroll-browser.mjs",
         "choice-help.js",
         "choice-help-entry.js",
         "choice-help.css",
@@ -639,7 +638,6 @@
       "label": "Declared Playwright engines and bounded browser setup",
       "paths": [
         "scripts/ensure-playwright-browsers.mjs",
-        "scripts/playwright-toolchain.json",
         "scripts/test-playwright-prerequisites.mjs",
         "scripts/signed-ubuntu-packages.mjs",
         ".github/workflows/causal-regression.yml",

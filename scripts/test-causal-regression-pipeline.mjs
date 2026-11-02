@@ -96,15 +96,6 @@ test('shared changes propagate to consumers and unknown paths stay visible', () 
   assert.deepEqual(result.selectedChecks, ['unit']); assert.deepEqual(result.unmappedPaths, ['unmapped.js']);
 });
 
-test('reviewed Playwright package data selects the same browser checks as its installer', () => {
-  const data = impactPlan(graph, ['scripts/playwright-toolchain.json']);
-  const installer = impactPlan(graph, ['scripts/ensure-playwright-browsers.mjs']);
-  assert.deepEqual(data.unmappedPaths, []);
-  assert.deepEqual(data.directComponents, ['browser-prerequisites']);
-  assert.deepEqual(data.selectedChecks, installer.selectedChecks);
-  assert.deepEqual(data.externalChecks, installer.externalChecks);
-});
-
 test('authored pairing posters and photo delivery contracts retain their component ownership', () => {
   const menuHtml = readFileSync(new URL('../menu.html', import.meta.url), 'utf8');
   assert.match(menuHtml, /<script\b[^>]*\bsrc="pairing-posters\.js(?:\?[^\"]*)?"/);
