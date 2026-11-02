@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { delimiter, join } from "node:path";
 import test from "node:test";
 import { ensurePlaywrightBrowsers, installedPlaywright, playwrightPackages } from "./ensure-playwright-browsers.mjs";
 import { installSignedUbuntuPackages } from "./signed-ubuntu-packages.mjs";
@@ -16,14 +18,51 @@ Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 const os = 'ID=ubuntu\nVERSION_ID="24.04"\n';
 const sorted = values => [...values].sort();
 const canonical = browsers => {
-  const dryRun = execFileSync(process.execPath, [installation.cli, "install-deps", "--dry-run", ...browsers], {
-    encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: "ubuntu24.04-x64" }
-  });
-  const packages = /apt-get install -y --no-install-recommends ([a-z0-9+. -]+)"\s*$/.exec(dryRun)?.[1].split(" ");
-  assert(packages?.length, "The locked CLI must report its complete Ubuntu 24.04 package command");
-  return packages;
+  const directory = mkdtempSync(join(tmpdir(), "robys-playwright-cli-"));
+  try {
+    const capture = join(directory, "arguments.json"), apt = join(directory, "apt-get");
+    // Record the public CLI's actual dependency selection. This shim permits
+    // only simulation and never calls APT; it is not host-installation evidence.
+    writeFileSync(apt, `#!${process.execPath}\nconst fs = require('node:fs');
+const args = process.argv.slice(2);
+if (args.slice(0, 3).join(' ') !== 'install -s --no-install-recommends') throw new Error('Unexpected APT command');
+fs.writeFileSync(process.env.ROBYS_APT_ARGS, JSON.stringify(args));\n`);
+    chmodSync(apt, 0o755);
+    execFileSync(process.execPath, [installation.cli, "install-deps", "--dry-run", ...browsers], {
+      encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 15000,
+      env: { ...process.env, PATH: directory + delimiter + process.env.PATH, ROBYS_APT_ARGS: capture,
+        PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: "ubuntu24.04-x64" }
+    });
+    const args = JSON.parse(readFileSync(capture, "utf8"));
+    assert.deepEqual(args.slice(0, 3), ["install", "-s", "--no-install-recommends"]);
+    assert(args.length > 3, "The locked CLI must select its complete Ubuntu 24.04 package set");
+    return args.slice(3);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 };
+
+test("reviewed prerequisites and native WebKit pins match the locked toolchain", () => {
+  const reviewed = JSON.parse(readFileSync(new URL("./playwright-toolchain.json", import.meta.url), "utf8"));
+  const manifest = JSON.parse(readFileSync("package.json", "utf8"));
+  const lock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+  for (const name of ["playwright", "@playwright/test"]) {
+    assert.equal(manifest.devDependencies[name], reviewed.version);
+    assert.equal(lock.packages[`node_modules/${name}`].version, reviewed.version);
+  }
+  assert.equal(reviewed.platform, "ubuntu24.04-x64");
+  const browser = JSON.parse(readFileSync("node_modules/playwright-core/browsers.json", "utf8"))
+    .browsers.find(item => item.name === "webkit");
+  assert.equal(browser.revision, reviewed.webkitRevision);
+  const workflow = readFileSync(".github/workflows/order-reliability.yml", "utf8");
+  assert.match(reviewed.image.reference, /^mcr\.microsoft\.com\/playwright@sha256:[a-f0-9]{64}$/);
+  assert.equal(reviewed.image.tag, `mcr.microsoft.com/playwright:v${reviewed.version}-noble`);
+  assert.equal(workflow.split(reviewed.image.reference).length - 1, 2, "Container and evidence must bind the reviewed image");
+  assert(workflow.includes(`marker.dockerImageName !== '${reviewed.image.tag}'`));
+  assert(workflow.includes(`marker.driverVersion !== '${reviewed.version}'`));
+  assert.equal(workflow.split(`pkg.version !== '${reviewed.version}'`).length - 1, 2);
+  assert.equal(workflow.split(`browser?.revision !== '${reviewed.webkitRevision}'`).length - 1, 2);
+  assert(workflow.includes(`/webkit-${reviewed.webkitRevision}/`));
+  assert(readFileSync("scripts/collect-macos-webkit-crashes.mjs", "utf8").includes(`/webkit-${reviewed.webkitRevision}/`));
+});
 
 for (let mask = 1; mask < 8; mask++) {
   const browsers = engines.filter((_, index) => mask & (1 << index));

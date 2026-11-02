@@ -16,7 +16,7 @@ function report(name, path) {
 test("only a new report for the bound Playwright executable is preserved", async () => {
   const temp = await mkdtemp(join(tmpdir(), "webkit-reports-"));
   try {
-    const source = join(temp, "source"), output = join(temp, "output"), browser = join(temp, "webkit-2203");
+    const source = join(temp, "source"), output = join(temp, "output"), browser = join(temp, "webkit-2370");
     await mkdir(source);
     const matching = report("Playwright", join(browser, "Playwright.app", "Contents", "MacOS", "Playwright"));
     await writeFile(join(source, "matching.ips"), matching);
@@ -44,7 +44,7 @@ test("wait is bounded and an absent report remains explicitly inconclusive", asy
   const temp = await mkdtemp(join(tmpdir(), "webkit-empty-"));
   try {
     let time = 10000;
-    const receipt = await collectReports({ directories: [join(temp, "missing")], browserRoot: join(temp, "webkit-2203"),
+    const receipt = await collectReports({ directories: [join(temp, "missing")], browserRoot: join(temp, "webkit-2370"),
       startedAt: time - 1000, output: join(temp, "output"), waitMs: 3000, pollMs: 2000,
       now: () => time, pause: async ms => { time += ms; } });
     assert.equal(time, 13000);
@@ -56,7 +56,7 @@ test("wait is bounded and an absent report remains explicitly inconclusive", asy
 test("a report written after the first scan is captured before the deadline", async () => {
   const temp = await mkdtemp(join(tmpdir(), "webkit-late-"));
   try {
-    const source = join(temp, "source"), browser = join(temp, "webkit-2203");
+    const source = join(temp, "source"), browser = join(temp, "webkit-2370");
     await mkdir(source);
     let time = Date.now();
     const startedAt = time - 1000;

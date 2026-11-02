@@ -121,7 +121,7 @@ async function main() {
     const metadata = JSON.parse(await readFile(".artifacts/order-reliability/webkit-environment.json", "utf8"));
     const startedAt = Date.parse(metadata.diagnosticsStartedAt);
     const launcher = metadata.executablePath;
-    if (typeof launcher !== "string" || !launcher.includes("/webkit-2203/")) throw new Error("Missing bound WebKit executable");
+    if (typeof launcher !== "string" || !launcher.includes("/webkit-2370/")) throw new Error("Missing bound WebKit executable");
     const browserRoot = dirname(launcher);
     const receipt = await collectReports({ directories: [join(process.env.HOME, "Library/Logs/DiagnosticReports"), "/Library/Logs/DiagnosticReports"], browserRoot, startedAt, output });
     console.log(`Native WebKit crash reports: ${receipt.status} (${receipt.files.length})`);
