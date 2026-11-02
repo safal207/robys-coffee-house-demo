@@ -78,6 +78,7 @@
         "src/conversion.js",
         "conversion.js",
         "takeaway-entry.js",
+        "qa/takeaway-scene.html",
         "morning-entry-v2.js",
         "day-night-entry.js",
         "src/amenities.ts",
@@ -637,6 +638,7 @@
       "label": "Declared Playwright engines and bounded browser setup",
       "paths": [
         "scripts/ensure-playwright-browsers.mjs",
+        "scripts/playwright-toolchain.json",
         "scripts/test-playwright-prerequisites.mjs",
         "scripts/signed-ubuntu-packages.mjs",
         ".github/workflows/causal-regression.yml",
