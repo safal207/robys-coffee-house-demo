@@ -78,6 +78,7 @@
         "src/conversion.js",
         "conversion.js",
         "takeaway-entry.js",
+        "qa/takeaway-scene.html",
         "morning-entry-v2.js",
         "day-night-entry.js",
         "src/amenities.ts",
