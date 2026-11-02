@@ -429,6 +429,7 @@
         "smart-choice/**",
         "src/smart-choice/**",
         "scripts/test-smart-choice-cart-focus-browser.mjs",
+        "scripts/test-quick-builder-scroll-browser.mjs",
         "choice-help.js",
         "choice-help-entry.js",
         "choice-help.css",

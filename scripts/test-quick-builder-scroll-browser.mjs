@@ -53,15 +53,25 @@ async function stableTap(page, dialog, selector) {
     const dialog = element.closest("dialog");
     dialog.scrollTop += element.getBoundingClientRect().top - dialog.getBoundingClientRect().top - 160;
   });
-  const before = await target.boundingBox();
+  // Playwright may scroll the target while making a tap actionable. Measure
+  // selection-induced movement from the native press, after that preparation.
+  await dialog.evaluate(element => { delete element.dataset.qbTouchStartY; });
+  await target.evaluate(element => element.addEventListener("pointerdown", () => {
+    element.closest("dialog").dataset.qbTouchStartY = String(element.getBoundingClientRect().top);
+  }, { once: true }));
+  const beforeAction = await target.boundingBox();
   if (page.viewportSize().width < 800) await target.tap();
   else await target.click();
+  const recordedY = await dialog.getAttribute("data-qb-touch-start-y");
+  assert.notEqual(recordedY, null, "The intended control must receive a native pointer press");
+  const beforeY = Number(recordedY);
+  assert.ok(Number.isFinite(beforeY), "The native press must record valid geometry");
   const after = await target.boundingBox();
-  assert.ok(Math.abs(after.y - before.y) <= 2,
-    `${selector} moved ${after.y - before.y}px after selection (expected <= 2px)`);
+  assert.ok(Math.abs(after.y - beforeY) <= 2,
+    `${selector} moved ${after.y - beforeY}px after selection (expected <= 2px)`);
   assert.equal(await target.getAttribute("aria-pressed"), "true");
   assert.equal(await target.evaluate(element => element === document.activeElement), true);
-  return { selector, beforeY: before.y, afterY: after.y, movement: after.y - before.y };
+  return { selector, beforeActionY: beforeAction.y, beforeY, afterY: after.y, movement: after.y - beforeY };
 }
 
 try {

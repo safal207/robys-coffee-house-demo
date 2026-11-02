@@ -58,7 +58,10 @@ function observeErrors(page, errors) {
 }
 async function captureScreenshot(page, options) {
   if (engine === "webkit") screenshotCspBudget.set(page, 1);
-  try { await page.screenshot(options); }
+  // WebKit 27.2 enforces style-src on the caret-color properties that
+  // Playwright writes to inputs while hiding carets. Preserve the real caret
+  // instead of changing CSP or allowing additional console violations.
+  try { await page.screenshot(engine === "webkit" ? { ...options, caret: "initial" } : options); }
   finally { screenshotCspBudget.delete(page); }
 }
 async function waitForMenuMode(page, mode) {
