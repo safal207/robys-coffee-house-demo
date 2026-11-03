@@ -1651,8 +1651,8 @@ html[data-robys-season="halloween"] .menu-page-hero-inner{position:relative;z-in
   :is(.menu-page,.feed-page) :is(.menu-dialog[open] .menu-dialog-shell,.feed-cart[open] .feed-cart-shell){animation:none}
 }
 @media(prefers-reduced-motion:no-preference){
-  /* Avoid capturing the entire long catalog before navigation can start. */
-  #menu-root[data-ready=true]>.full-menu-panel:first-child,#feed[data-ready=true]>.feed-card:first-child{animation:menuViewFadeIn .1s ease-out both}
+  /* The first feed photo is the destination and should paint at full opacity. */
+  #menu-root[data-ready=true]>.full-menu-panel:first-child{animation:menuViewFadeIn .1s ease-out both}
   @keyframes menuViewFadeIn{from{opacity:0}}
 }
 
