@@ -340,7 +340,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=206dca9f16f0");
+    } else loading = import("./menu-order-ui.js?v=3e066fc080e1");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,

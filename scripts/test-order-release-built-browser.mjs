@@ -55,15 +55,15 @@ const persist = () => writeFileSync(join(output, "report.json"), JSON.stringify(
 const stored = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey);
 const expectedFamily = [{ id: "brew-hot:milk", quantity: 1 }, { id: "food:sesame-simit", quantity: 1 }];
 const names = {
-  tr: { milk: "Süt", simit: "Susamlı Simit", lime: "Cool Lime" },
-  en: { milk: "Milk", simit: "Sesame Simit", lime: "Cool Lime" },
-  ru: { milk: "Молоко", simit: "Симит с кунжутом", lime: "Cool Lime" }
+  tr: { milk: "Süt", simit: "Susamlı Simit", lime: "Cool Lime", macaron: "Makaron" },
+  en: { milk: "Milk", simit: "Sesame Simit", lime: "Cool Lime", macaron: "Macaron" },
+  ru: { milk: "Молоко", simit: "Симит с кунжутом", lime: "Cool Lime", macaron: "Макарон" }
 };
 const sortLines = lines => [...lines].sort((a, b) => a.id.localeCompare(b.id, "en"));
 
 async function contextFor(browser, width) {
-  const context = await browser.newContext({ viewport: { width, height: width === 390 ? 844 : 1000 },
-    hasTouch: width === 390, reducedMotion: "reduce", serviceWorkers: "block", ignoreHTTPSErrors: true });
+  const context = await browser.newContext({ viewport: { width, height: width <= 320 ? 667 : width <= 390 ? 844 : 1000 },
+    hasTouch: width <= 390, reducedMotion: "reduce", serviceWorkers: "block", ignoreHTTPSErrors: true });
   await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort("blockedbyclient"));
   return context;
 }
@@ -257,6 +257,7 @@ try {
             assert.equal(await page.locator("#menu-cart-count").textContent(), "0", "Preview changes do not add items");
             await preview.locator(".menu-family-add").click();
             await page.locator("#menu-cart-dialog[open]").waitFor(); await waitLines(page, expectedFamily);
+            assert.equal(await page.locator(".menu-cart-bump").isVisible(), false, "Unrelated orders have no offer");
             const canonicalRevision = await verifyCanonical(page, expectedFamily);
             const qr = await verifyQrAndCashier(page, context, language, 95, [names[language].milk, names[language].simit], `${engine}-${language}-${width}-family`);
             await clearCart(page); await page.close();
@@ -270,18 +271,54 @@ try {
             assert.equal(await page.locator('input[name="menu-dessert"][value="desserts:macaron"]').isChecked(), true);
             await page.locator("#menu-add-to-cart").click();
             await page.locator("#menu-cart-dialog[open]").waitFor();
-            await waitLines(page, [{ id: "refreshers:cool-lime", quantity: 1 }, { id: "desserts:macaron", quantity: 1 }]);
+            const drink = [{ id: "refreshers:cool-lime", quantity: 1 }];
+            const paired = [...drink, { id: "desserts:macaron", quantity: 1 }];
+            await waitLines(page, paired);
             assert.equal((await page.locator("#menu-cart-dialog-total").textContent()).trim(), "220 ₺");
+            const offer = page.locator(".menu-cart-bump");
+            assert.equal(await offer.isVisible(), false, "The existing paired macaron suppresses the offer");
             await page.locator(".menu-cart-edit").click();
             await page.locator('#menu-product-dialog[open] #menu-pairing-picker[data-ready="true"]').waitFor();
             await page.locator('input[name="menu-dessert"][value=""]').locator("..").click();
             await page.locator("#menu-add-to-cart").click();
             await page.locator("#menu-cart-dialog[open]").waitFor();
-            await waitLines(page, [{ id: "refreshers:cool-lime", quantity: 1 }]);
-            const canonicalRevision = await verifyCanonical(page, [{ id: "refreshers:cool-lime", quantity: 1 }]);
+            await waitLines(page, drink);
+            const canonicalRevision = await verifyCanonical(page, drink);
+            await offer.waitFor();
             const qr = await verifyQrAndCashier(page, context, language, 190, [names[language].lime], `${engine}-${language}-${width}-promo`);
+            const feed = await context.newPage();
+            await feed.goto(`${origin}/menu-feed.html?view=feed&lang=${language}`, { waitUntil: "domcontentloaded" });
+            await feed.locator("#menu-cart-trigger").click();
+            const feedOffer = feed.locator(".menu-cart-bump");
+            const feedAdd = feedOffer.getByRole("button", { name: /30 ₺/ });
+            await feedAdd.waitFor();
+            assert.equal(await feedOffer.evaluate(card => card.scrollWidth <= card.clientWidth), true, "The add-on fits the cart width");
+            await feed.locator("#menu-cart-dialog").screenshot({ path: join(output, `${engine}-${language}-${width}-cart-bump.png`) });
+            await feedAdd.click();
+            await feedOffer.waitFor({ state: "hidden" });
+            await offer.waitFor({ state: "hidden" });
+            assert.equal(await feed.locator("#menu-checkout-trigger").evaluate(button => button === document.activeElement), true);
+            await feed.reload({ waitUntil: "domcontentloaded" });
+            await feed.locator("#menu-cart-trigger").click();
+            await feed.locator("#menu-cart-dialog[open]").waitFor();
+            await verifyCanonical(feed, paired);
+            const bumpQr = await verifyQrAndCashier(feed, context, language, 220, [names[language].lime, names[language].macaron], `${engine}-${language}-${width}-bump`);
+            await feed.getByRole("article", { name: names[language].macaron, exact: true }).locator(".menu-cart-remove").click();
+            await feedAdd.waitFor();
+            await waitLines(feed, drink);
+            await offer.waitFor();
+            // Two open views may both attempt the same add before the peer update arrives.
+            await Promise.all([offer, feedOffer].map(card => card.locator("button").evaluate(button => {
+              button.click();
+              button.click();
+            })));
+            await feedOffer.waitFor({ state: "hidden" });
+            await offer.waitFor({ state: "hidden" });
+            await verifyCanonical(feed, paired);
+            await feed.close();
             await clearCart(page); await page.close();
-            return { width, language, removedMacaron: true, retainedDrinkQuantity: 1, canonicalRevision, ...qr };
+            return { width, language, removedMacaron: true, retainedDrinkQuantity: 1, canonicalRevision, ...qr,
+              cartBump: { feedAndList: true, duplicateSuppressed: true, concurrentAdd: true, ...bumpQr } };
           });
         } finally { await context.close(); }
       }
