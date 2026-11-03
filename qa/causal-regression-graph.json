@@ -280,7 +280,8 @@
       "paths": [
         ".github/workflows/order-reliability.yml",
         "menu-order-ui.js",
-        "src/menu-order-ui.js"
+        "src/menu-order-ui.js",
+        "scripts/test-order-release-built-browser.mjs"
       ],
       "dependsOn": [
         "order-model",
@@ -978,6 +979,25 @@
       ]
     },
     {
+      "id": "built-order-browser",
+      "label": "Delivered cart totals, concurrent additions and cashier QR round trips",
+      "kind": "browser",
+      "workflow": ".github/workflows/order-reliability.yml",
+      "command": "node scripts/test-order-release-built-browser.mjs",
+      "components": [
+        "order-ui",
+        "order-storage",
+        "checkout",
+        "ticket-qr"
+      ],
+      "execution": "existing-workflow",
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ]
+    },
+    {
       "id": "order-stress-browser",
       "label": "Ordering transactions and concurrent write stress",
       "kind": "browser",
@@ -1659,7 +1679,8 @@
       "checks": [
         "source-contracts",
         "menu-feed-browser",
-        "order-stress-browser"
+        "order-stress-browser",
+        "built-order-browser"
       ],
       "metrics": []
     },
@@ -1709,6 +1730,7 @@
         "source-contracts",
         "menu-feed-browser",
         "checkout-staleness-browser",
+        "built-order-browser",
         "counter-contracts"
       ],
       "metrics": []

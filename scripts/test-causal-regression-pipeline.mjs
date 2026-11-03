@@ -202,6 +202,13 @@ test('order browser diagnostics retain the family and actual workflow consumers 
   for (const id of ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser', 'family-browser', 'combos-browser', 'lazy-images-browser']) assert.ok(result.externalChecks.includes(id), id);
   const workflow = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
   for (const file of ['test-menu-lazy-images-browser.mjs', 'test-menu-combos-browser.mjs', 'test-menu-family-browser.mjs', 'test-menu-feed-browser.mjs', 'test-smart-choice-cart-focus-browser.mjs', 'test-home-navigation-browser.mjs']) assert.ok(workflow.includes(`node scripts/${file}`), file);
+  const builtOrderScript = 'scripts/test-order-release-built-browser.mjs';
+  const builtOrder = impactPlan(graph, [builtOrderScript]);
+  assert.deepEqual(builtOrder.directComponents, ['order-ui']);
+  assert.doesNotThrow(() => assertMappedPlan(builtOrder));
+  assert.ok(builtOrder.impactedJourneys.includes('cart-edit-remove'));
+  assert.ok(builtOrder.externalChecks.includes('built-order-browser'));
+  assert.ok(workflow.includes(`node ${builtOrderScript}`));
   const navigation = impactPlan(graph, ['scripts/test-home-navigation-browser.mjs']);
   assert.deepEqual(navigation.directComponents, ['home']);
   assert.doesNotThrow(() => assertMappedPlan(navigation));

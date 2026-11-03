@@ -221,6 +221,17 @@ async function assertPurchaseControlsReachable(page, index = 0) {
   }, index);
 }
 let browser;
+async function startMacWebKitGroup(name) {
+  if (engine !== "webkit" || process.platform !== "darwin") return;
+  // The native runner has crashed opening a fresh page after many closed
+  // contexts. Keep independent groups in fresh processes and still fail on
+  // any browser disconnect or assertion inside a group.
+  assert.ok(browser.isConnected(), `WebKit disconnected before ${name}`);
+  assert.equal(browser.contexts().length, 0, `Close all contexts before ${name}`);
+  await browser.close();
+  browser = await webkit.launch({ headless: true });
+  console.log(`Started fresh macOS WebKit for ${name}`);
+}
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
   // Only the alternate document may be warmed; initial menu browsing must
@@ -891,6 +902,7 @@ try {
       honestPersistenceCopy: true, noFalseReloadPersistence: true });
     await context.close();
   }
+  await startMacWebKitGroup("module recovery and navigation");
   for (const [kind, fileName] of [["product", "menu-order-ui"], ["combos", "menu-combos-ui"]]) {
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
@@ -1699,6 +1711,7 @@ try {
       languageCategoryAndSearchTravelInUrl: true, genericEntryStillUsable: true, consoleErrors: false });
     await context.close();
   }
+  await startMacWebKitGroup("Stories, Reels and shared links");
   await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
 
   for (const language of ["tr", "en", "ru"]) {
