@@ -23,7 +23,7 @@ const assets = ["menu.html", "menu-app.js", "menu-order-ui.js", "menu-family-ui.
   "src/order-draft.js", "src/menu-order-ui.js", "src/menu-app.js", "src/menu-promo-pair.js", "src/order-checkout.js",
   "src/order-storage.js", "src/order-storage-notice.js",
   "src/products/family-sets-v1/milk-cookie.webp", "src/products/family-sets-v1/simit-break.webp", "src/products/family-sets-v1/milk-roll.webp",
-  "src/products/family-sets-v1/kids-box.webp",
+  "src/products/family-sets-v1/kids-box.webp", "src/products/cart-offers-v1/pistachio-macaron.webp",
   "integrity-manifest.json", "package-lock.json", "scripts/test-order-release-built-browser.mjs"];
 const hashes = () => Object.fromEntries(assets.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const mime = { ".html": "text/html", ".js": "application/javascript", ".css": "text/css", ".json": "application/json",
@@ -292,6 +292,12 @@ try {
             const feedOffer = feed.locator(".menu-cart-bump");
             const feedAdd = feedOffer.getByRole("button", { name: /30 ₺/ });
             await feedAdd.waitFor();
+            const photo = feedOffer.locator(".menu-cart-bump-photo");
+            const photoSize = await photo.evaluate(async image => {
+              await image.decode();
+              return { decodedWidth: image.naturalWidth, renderedWidth: image.getBoundingClientRect().width };
+            });
+            assert.ok(photoSize.decodedWidth >= 512 && photoSize.renderedWidth >= 110, "The offer shows a decoded close-up, including on narrow screens");
             assert.equal(await feedOffer.evaluate(card => card.scrollWidth <= card.clientWidth), true, "The add-on fits the cart width");
             await feed.locator("#menu-cart-dialog").screenshot({ path: join(output, `${engine}-${language}-${width}-cart-bump.png`) });
             await feedAdd.click();

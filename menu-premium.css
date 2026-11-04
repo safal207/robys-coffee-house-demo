@@ -376,11 +376,21 @@ body.menu-dialog-open{overflow:hidden}
 .menu-cart-next-step{margin:10px 0 0;color:var(--muted);font-size:.84rem;line-height:1.45}
 .menu-cart-lines{min-height:0;overflow:auto;overscroll-behavior:contain;margin-top:18px;padding:2px}
 .menu-cart-footer{flex:none;margin-top:16px;padding-top:16px}
-.menu-cart-bump:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;border:1px solid rgba(47,39,37,.18);border-radius:14px;background:#fff8ed;color:var(--dark);font-size:.88rem}
-.menu-cart-bump strong{overflow-wrap:anywhere}
-.menu-cart-bump .button{min-height:44px;padding:6px 10px;border-color:rgba(47,39,37,.22)}
+.menu-cart-bump:not([hidden]){display:grid;grid-template-columns:minmax(0,40%) minmax(0,1fr);margin-bottom:12px;overflow:hidden;border:1px solid #e2d2b9;border-radius:16px;background:#fbf2e3;color:var(--dark)}
+.menu-cart-bump-photo:not([hidden]){display:block;width:100%;height:100%;min-height:112px;object-fit:cover;object-position:50% 50%}
+.menu-cart-bump-photo[hidden]{display:none}
+.menu-cart-bump-photo[hidden]+.menu-cart-bump-details{grid-column:1/-1}
+.menu-cart-bump-details{display:grid;align-content:center;justify-items:start;min-width:0;gap:6px;padding:10px 12px}
+.menu-cart-bump-pairing{color:#66553a;font-size:.71rem;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.menu-cart-bump strong{font-size:clamp(.86rem,2.6vw,1.08rem);line-height:1.15;overflow-wrap:anywhere}
+.menu-cart-bump .button{min-height:44px;max-width:100%;margin-top:2px;padding:6px 10px;border-color:#79352e;background:#79352e;color:#fff;font-size:.78rem;white-space:normal;line-height:1.2}
+.menu-cart-bump .button:hover:not(:disabled){background:#632720}
 .menu-cart-bump .button:disabled{opacity:.65;cursor:wait}
-@media(max-width:360px){.menu-cart-bump .button{max-inline-size:104px;white-space:normal;text-wrap:balance;line-height:1.15}}
+@media(max-width:480px){.menu-cart-bump:not([hidden]){grid-template-columns:minmax(0,44%) minmax(0,1fr)}}
+@media(max-width:480px) and (max-height:700px){
+  .menu-cart-shell:has(.menu-cart-bump:not([hidden])) .menu-cart-header h2{font-size:1.45rem}
+  .menu-cart-shell:has(.menu-cart-bump:not([hidden])) .menu-cart-next-step{display:none}
+}
 .menu-cart-footer .menu-checkout-trigger{margin:16px 0 0;white-space:normal;line-height:1.35}
 .menu-cart-continue{margin-top:10px;min-height:44px}
 .menu-cart-checkout-error{margin:12px 0 0;color:#a11824;font-size:.85rem;line-height:1.4}

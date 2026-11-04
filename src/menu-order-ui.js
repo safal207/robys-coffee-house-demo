@@ -155,9 +155,9 @@ const orderUiCopy = {
   ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Получить QR для кассы", continue: "Выбрать ещё", added: "Добавлено в заказ", next: "Уже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.", payment: "Дальше — QR для кассира. Оплата на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
 };
 const bumpCopy = {
-  tr: { offer: "Cool Lime’ın yanına fıstıklı makaron", add: price => `Ekle · ${price}` },
-  en: { offer: "Try a pistachio macaron with Cool Lime", add: price => `Add for ${price}` },
-  ru: { offer: "Фисташковый макарон к Cool Lime", add: price => `Добавить за ${price}` }
+  tr: { offer: "Fıstıklı makaron", pairing: "Cool Lime’ın yanına", add: price => `Ekle · ${price}` },
+  en: { offer: "Pistachio macaron", pairing: "With Cool Lime", add: price => `Add for ${price}` },
+  ru: { offer: "Фисташковый макарон", pairing: "К вашему Cool Lime", add: price => `Добавить за ${price}` }
 };
 const editCopy = {
   tr: { edit: "Seçimi değiştir", save: "Değişiklikleri kaydet", saved: "Seçimin güncellendi", stale: "Bu seçim başka bir yerde değiştirildi. Sepete dönüp güncel seçimi yeniden aç." },
@@ -184,11 +184,24 @@ if (!checkoutButton.isConnected) cartContinue.before(checkoutButton);
 const bumpOffer = document.createElement("div");
 bumpOffer.className = "menu-cart-bump";
 bumpOffer.hidden = true;
+const bumpImage = document.createElement("img");
+bumpImage.className = "menu-cart-bump-photo";
+bumpImage.alt = "";
+bumpImage.width = 768;
+bumpImage.height = 512;
+bumpImage.loading = "lazy";
+bumpImage.decoding = "async";
+bumpImage.addEventListener("error", () => { bumpImage.hidden = true; }, { once: true });
+const bumpDetails = document.createElement("div");
+bumpDetails.className = "menu-cart-bump-details";
+const bumpPairing = document.createElement("span");
+bumpPairing.className = "menu-cart-bump-pairing";
 const bumpLabel = document.createElement("strong");
 bumpLabel.id = "menu-cart-bump-label";
 const bumpButton = createButton("button button-light", "", addCartBump);
 bumpButton.setAttribute("aria-describedby", bumpLabel.id);
-bumpOffer.append(bumpLabel, bumpButton);
+bumpDetails.append(bumpPairing, bumpLabel, bumpButton);
+bumpOffer.append(bumpImage, bumpDetails);
 cartDialog.querySelector(".menu-cart-footer").prepend(bumpOffer);
 checkoutButton.addEventListener("click", async () => {
   if (checkoutOpening) return;
@@ -641,6 +654,8 @@ function renderCart(focusTarget = null) {
   const bump = eligibleCartBump(orderDraft);
   bumpOffer.hidden = !bump;
   if (bump) {
+    if (!bumpImage.hasAttribute("src")) bumpImage.src = "src/products/cart-offers-v1/pistachio-macaron.webp";
+    bumpPairing.textContent = bumpCopy[language].pairing;
     bumpLabel.textContent = bumpCopy[language].offer;
     bumpButton.textContent = bumpCopy[language].add(formatPrice(bump.item.price));
     bumpButton.disabled = checkoutOpening || cartWrites > 0;
