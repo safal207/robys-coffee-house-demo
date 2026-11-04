@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import sharp from "sharp";
 import { build, transformSync } from "esbuild";
 import ts from "typescript";
 import { compileMenuRuntime, compileMenuOrderRuntime, compileOrderStorageRuntime } from "./menu-runtime-source.mjs";
@@ -376,6 +377,12 @@ const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const mobileStylesRevision = revisionFor("mobile.css");
 const menuPreviewRevision = revisionFor("menu-preview.css");
+const christmasCover = "src/seasonal/christmas-latte.webp";
+mkdirSync("src/seasonal", { recursive: true });
+await sharp("scripts/assets/christmas-latte.png")
+  .resize({ width: 1152, withoutEnlargement: true })
+  .webp({ quality: 78 })
+  .toFile(christmasCover);
 const seasonalThemeRevision = revisionFor("seasonal-theme.js");
 const seasonalCssRevision = revisionFor("seasonal.css");
 const menuSecurityRevision = revisionFor("menu-security-v2.css");
@@ -501,6 +508,10 @@ feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
 feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRevision);
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);
+if (!feedHtml.includes('src="seasonal-theme.js')) {
+  feedHtml = feedHtml.replace("</head>", '  <script src="seasonal-theme.js"></script>\n</head>');
+}
+feedHtml = synchronizeBlockingScript(feedHtml, "seasonal-theme.js", seasonalThemeRevision);
 feedHtml = synchronizeMenuPreloads(feedHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-feed.js", menuFeedRevision]]);
 writeFileSync("menu-feed.html", feedHtml);
 const { menuShareProducts } = await import("./build-menu-share-pages.mjs");
@@ -617,7 +628,7 @@ serviceWorker = serviceWorker.replace(/-social-offer-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-shared-order-social-offer-${socialOfferRevision}-`);
 serviceWorker = serviceWorker.replace(/-coffee-paths-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-coffee-paths-${coffeePathsRevision}-shared-order-`);
-const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}`).digest("hex").slice(0, 12);
+const seasonalCacheRevision = createHash("sha256").update(`${seasonalThemeRevision}:${seasonalCssRevision}:${bootstrapRevision}:${revisionFor(christmasCover)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-halloween-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-halloween-${seasonalCacheRevision}-shared-order-`);
 const homeNavigationRevision = createHash("sha256")

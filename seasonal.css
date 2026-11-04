@@ -1,11 +1,16 @@
 /* A quiet October accent. Every visual change is scoped to the dated theme. */
 .robys-seasonal-mark{display:none}
-html[data-robys-season="halloween"] .robys-seasonal-mark{display:flex;align-items:center;gap:9px;width:fit-content;max-width:100%;margin:0 0 14px;padding:7px 12px;border:1px solid #d9b181;border-radius:999px;color:#81451f;background:#fff1dc;font:600 .65rem/1.4 var(--sans,system-ui,sans-serif);letter-spacing:.1em;overflow-wrap:anywhere;animation:none;transition:none;transform:none}
+html[data-robys-season="halloween"] .robys-seasonal-mark:not(.robys-christmas-only){display:flex;align-items:center;gap:9px;width:fit-content;max-width:100%;margin:0 0 14px;padding:7px 12px;border:1px solid #d9b181;border-radius:999px;color:#81451f;background:#fff1dc;font:600 .65rem/1.4 var(--sans,system-ui,sans-serif);letter-spacing:.1em;overflow-wrap:anywhere;animation:none;transition:none;transform:none}
 .robys-seasonal-mark .robys-seasonal-icon{position:relative;flex:none;width:18px;height:15px;border:1px solid currentColor;border-radius:45% 45% 42% 42%;background:#d68d4333}
 .robys-seasonal-icon::before{content:"";position:absolute;top:-5px;left:7px;width:4px;height:5px;border-left:2px solid currentColor;transform:rotate(18deg)}
 .robys-seasonal-icon::after{content:"";position:absolute;inset:-1px 4px;border-inline:1px solid currentColor;border-radius:50%}
 .robys-seasonal-mark>span[lang]{display:none}
-html[lang="tr"] .robys-seasonal-mark>span[lang="tr"],html[lang="en"] .robys-seasonal-mark>span[lang="en"],html[lang="ru"] .robys-seasonal-mark>span[lang="ru"]{display:inline}
+html[data-robys-season="halloween"][lang="tr"] .robys-seasonal-mark>span[lang="tr"]:not([data-season]),
+html[data-robys-season="halloween"][lang="en"] .robys-seasonal-mark>span[lang="en"]:not([data-season]),
+html[data-robys-season="halloween"][lang="ru"] .robys-seasonal-mark>span[lang="ru"]:not([data-season]),
+html[data-robys-season="christmas"][lang="tr"] .robys-seasonal-mark>span[lang="tr"][data-season="christmas"],
+html[data-robys-season="christmas"][lang="en"] .robys-seasonal-mark>span[lang="en"][data-season="christmas"],
+html[data-robys-season="christmas"][lang="ru"] .robys-seasonal-mark>span[lang="ru"][data-season="christmas"]{display:inline}
 html[data-robys-season="halloween"] .hero .robys-seasonal-mark,html[data-robys-season="halloween"] .story-scene .robys-seasonal-mark{color:#ffe0bc;background:#33251fef;border-color:#a66c41}
 html[data-robys-season="halloween"] .coffee-path,html[data-robys-season="halloween"] .full-menu-panel{border-color:#d8b592}
 html[data-robys-season="halloween"] .menu-page-hero{background:radial-gradient(ellipse at 100% 0%,#f7e2c7 0%,transparent 65%),var(--paper,#f7f1e8)}
@@ -25,3 +30,101 @@ html[data-robys-season="halloween"] .menu-page-hero::after{top:0;opacity:.85}
 html[data-robys-season="halloween"] .menu-page-hero-inner{position:relative;z-index:1}
 @media(max-height:700px){html[data-robys-season="halloween"] .hero-overlay::before,html[data-robys-season="halloween"] .hero-overlay::after{width:48px}}
 @media(forced-colors:active){html[data-robys-season="halloween"] .hero-overlay::before,html[data-robys-season="halloween"] .hero-overlay::after,html[data-robys-season="halloween"] .menu-page-hero::after{display:none}}
+
+/* Christmas combines a still coffee portrait with pine, cream and warm gold. */
+html[data-robys-season="christmas"] {
+  --robys-fir: #13251b;
+  --robys-gold: #e6c88b;
+  --robys-cream: #faf2e2;
+}
+html[data-robys-season="christmas"] .robys-seasonal-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 12px;
+  padding: 6px 11px;
+  border: 1px solid #a47c42;
+  border-radius: 999px;
+  background: var(--robys-fir);
+  color: var(--robys-cream);
+  font: 700 .72rem/1.35 var(--sans, system-ui, sans-serif);
+  letter-spacing: .035em;
+  overflow-wrap: anywhere;
+  animation: none;
+  transition: none;
+}
+html[data-robys-season="christmas"] .robys-seasonal-icon {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 0;
+  background: var(--robys-gold);
+  clip-path: polygon(50% 0, 62% 36%, 100% 50%, 62% 64%, 50% 100%, 38% 64%, 0 50%, 38% 36%);
+}
+html[data-robys-season="christmas"] .robys-seasonal-icon::before,
+html[data-robys-season="christmas"] .robys-seasonal-icon::after { display: none; }
+
+html[data-robys-season="christmas"] .hero--christmas-cover .hero-overlay {
+  background:
+    linear-gradient(90deg, #102017 0%, #102017cc 31%, #10201716 70%),
+    linear-gradient(0deg, #102017 0%, transparent 57%),
+    url("./src/seasonal/christmas-latte.webp") center 56% / cover no-repeat,
+    var(--robys-fir);
+}
+html[data-robys-season="christmas"] .hero--christmas-cover #hero-title em {
+  color: var(--robys-gold);
+}
+html[data-robys-season="christmas"] .hero--christmas-cover .hero-actions .button-primary {
+  border-color: var(--robys-gold);
+  background: var(--robys-gold);
+  color: var(--robys-fir);
+}
+html[data-robys-season="christmas"] .hero--christmas-cover .hero-actions .button-primary:hover {
+  background: var(--robys-cream);
+}
+html[data-robys-season="christmas"] .menu-page-hero,
+html[data-robys-season="christmas"] .feed-tools {
+  background: radial-gradient(ellipse at 100% 0%, #e0e9db 0%, transparent 75%), var(--robys-cream);
+}
+html[data-robys-season="christmas"] .coffee-path,
+html[data-robys-season="christmas"] .full-menu-panel,
+html[data-robys-season="christmas"] .combo-entry-link,
+html[data-robys-season="christmas"] .menu-family-link {
+  border-color: #b3bb9d;
+}
+html[data-robys-season="christmas"] .menu-category-chip.active {
+  border-color: #4d674b;
+  box-shadow: 0 0 0 2px #4d674b28;
+}
+html[data-robys-season="christmas"] .smart-shell > .robys-seasonal-mark {
+  margin-inline: auto;
+}
+html[data-robys-season="christmas"] .feed-tools > .robys-seasonal-mark {
+  margin: 0 auto 6px;
+}
+@media (max-width: 680px) {
+  html[data-robys-season="christmas"] .hero--christmas-cover .hero-overlay {
+    background:
+      linear-gradient(180deg, #10201796 0, transparent 78px, #10201766 155px, #102017 310px),
+      url("./src/seasonal/christmas-latte.webp") 67% top / auto 345px no-repeat,
+      var(--robys-fir);
+  }
+  html[data-robys-season="christmas"] .menu-page .menu-page-hero {
+    padding-block: 8px;
+  }
+  html[data-robys-season="christmas"] .menu-page .menu-page-hero-copy > .robys-seasonal-mark,
+  html[data-robys-season="christmas"] .feed-tools > .robys-seasonal-mark {
+    margin-bottom: 6px;
+    padding: 4px 9px;
+  }
+}
+@media (forced-colors: active) {
+  html[data-robys-season="christmas"] .robys-seasonal-mark {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+  html[data-robys-season="christmas"] .robys-seasonal-icon { background: CanvasText; }
+}

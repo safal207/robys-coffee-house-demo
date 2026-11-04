@@ -30,8 +30,8 @@ const server = createServer({ key: readFileSync(join(certificate, "key.pem")), c
 });
 await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
 const origin = `https://127.0.0.1:${server.address().port}`;
-const subjects = ["index.html", "menu.html", "discover.html", "smart-choice/index.html", "experience/index.html", "ru/coffee-gazipasa.html",
-  "src/seasonal-theme.ts", "src/bootstrap-v2.js", "bootstrap-v2.js", "seasonal-theme.js", "seasonal.css", "menu-runtime.css", "sw-core-v64.js", "integrity-manifest.json", "scripts/test-seasonal-theme-browser.mjs"];
+const subjects = ["index.html", "menu.html", "menu-feed.html", "discover.html", "smart-choice/index.html", "experience/index.html", "ru/coffee-gazipasa.html",
+  "src/seasonal/christmas-latte.webp", "src/seasonal-theme.ts", "src/bootstrap-v2.js", "bootstrap-v2.js", "seasonal-theme.js", "seasonal.css", "menu-runtime.css", "sw-core-v64.js", "integrity-manifest.json", "scripts/test-seasonal-theme-browser.mjs"];
 const hashes = () => Object.fromEntries(subjects.map(file => [file, createHash("sha256").update(readFileSync(file)).digest("hex")]));
 const report = { generatedAt: new Date().toISOString(), baseCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
   environment: "Unchanged built files; original CSP; local HTTPS; fresh contexts; external requests blocked; desktop browser engines with touch viewport emulation, not physical devices",
@@ -51,7 +51,7 @@ async function visit(browser, path, { width = 390, height = 844, language = "ru"
       if (rollover) await page.clock.install({ time: new Date(time) });
       else await page.clock.setFixedTime(new Date(time));
     }
-    const response = await page.goto(`${origin}/${path}?entry=off`, { waitUntil: "load" });
+    const response = await page.goto(`${origin}/${path}?entry=off${path === "menu-feed.html" ? `&lang=${language}` : ""}`, { waitUntil: "load" });
     assert.equal(response.status(), 200);
     await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
     await callback(page);
@@ -122,6 +122,41 @@ try {
       for (const path of ["discover.html", "smart-choice/index.html", "experience/index.html", "ru/coffee-gazipasa.html"]) {
         for (const language of path.startsWith("ru/") ? ["ru"] : ["tr", "en", "ru"]) {
           await run(`${name}/${path}/390/${language}`, () => visit(browser, path, { language }, page => checkBadge(page, { language })));
+        }
+      }
+      for (const path of ["index.html", "menu.html", "menu-feed.html"]) {
+        for (const [time, visible] of [
+          ["2026-11-30T23:59:59+03:00", false],
+          ["2026-12-01T00:00:00+03:00", true],
+          ["2027-01-07T23:59:59+03:00", true],
+          ["2027-01-08T00:00:00+03:00", false]
+        ]) {
+          await run(`${name}/${path}/christmas/date/${time}`, () => visit(browser, path, { time }, async page => {
+            await checkBadge(page, { visible });
+            assert.equal(await page.evaluate(() => document.documentElement.dataset.robysSeason), visible ? "christmas" : undefined);
+          }));
+        }
+        for (const [width, height] of [[320, 640], [390, 844], [1440, 900]]) {
+          for (const language of ["tr", "en", "ru"]) {
+            await run(`${name}/${path}/christmas/${width}/${language}`, () => visit(browser, path, {
+              time: "2026-12-25T12:00:00+03:00", width, height, language
+            }, async page => {
+              await checkBadge(page, { language });
+              if (path === "index.html") {
+                const background = await page.locator(".hero-overlay").evaluate(element => getComputedStyle(element).backgroundImage);
+                assert.match(background, /christmas-latte\.webp/);
+                await page.evaluate(async () => {
+                  const cover = new Image();
+                  cover.src = "src/seasonal/christmas-latte.webp";
+                  await cover.decode();
+                });
+                assert.equal(await page.locator(".hero-actions .button-primary").isVisible(), true);
+              }
+              if (name === "chromium" && language === "ru") {
+                await page.screenshot({ path: join(output, `christmas-${path.replace(".html", "")}-${width}-ru.png`), animations: "disabled" });
+              }
+            }));
+          }
         }
       }
       await run(`${name}/normal-motion-still-decoration`, () => visit(browser, "index.html", { reducedMotion: "no-preference" }, page => checkBadge(page)));

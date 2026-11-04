@@ -57,7 +57,9 @@
         "hero-balance.css",
         "final-qa*.css",
         "coffee-paths.css",
-        "seasonal.css"
+        "seasonal.css",
+        "scripts/assets/christmas-latte.png",
+        "src/seasonal/christmas-latte.webp"
       ],
       "dependsOn": [
         "build"
@@ -82,6 +84,7 @@
         "day-night-entry.js",
         "src/amenities.ts",
         "src/seasonal-theme.ts",
+        "scripts/test-seasonal-theme-browser.mjs",
         "seasonal-theme.js",
         "src/.parts/**"
       ],
