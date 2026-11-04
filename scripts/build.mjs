@@ -592,6 +592,7 @@ const familyPhotoAssets = [
 ];
 const comboPhotoAssets = ["student", "cycle", "rain", "tea", "refresh", "together", "family", "local", "go", "morning", "sweet", "hearty"]
   .map(id => `src/products/occasion-sets-v1/${id}.webp`);
+const cartBumpPhoto = "src/products/cart-offers-v1/pistachio-macaron.webp";
 const { menuCategories: storyCategories } = await import("../menu-catalog.js");
 const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js");
 const storyCatalog = storyProducts(storyCategories);
@@ -599,7 +600,7 @@ const storyCoverAssets = storyCategories.map(category => storyCatalog.find(produ
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
 for (const asset of ["menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
-  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
+  "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", cartBumpPhoto, ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
@@ -646,7 +647,7 @@ const combosCacheRevision = createHash("sha256")
 serviceWorker = serviceWorker.replace(/-occasion-combos-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-occasion-combos-${combosCacheRevision}-shared-order-`);
 const customPairingCacheRevision = createHash("sha256")
-  .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}`).digest("hex").slice(0, 12);
+  .update(`${menuAppRevision}:${menuOrderRevision}:${menuPremiumRevision}:${menuPairingRevision}:${revisionFor(cartBumpPhoto)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-custom-pair-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-custom-pair-${customPairingCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-menu-css-[a-f0-9]{12}/, "");
