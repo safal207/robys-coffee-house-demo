@@ -89,6 +89,8 @@ test("shared derived catalog and remaining direct consumers reject stale orderin
   assert.ok(directEdges > 0, "Negative control must mutate an actual direct ordering catalog import");
 });
 
+const cartOfferPhotoPath = "src/products/cart-offers-v1/pistachio-macaron.webp";
+
 function readPairingRevisionInputs() {
   const pairingBytes = readFileSync("menu-pairing.js", "utf8");
   const generatedPairing = buildSync({
@@ -102,11 +104,12 @@ function readPairingRevisionInputs() {
     menuRuntime: readFileSync("menu-app.js", "utf8"),
     premiumBytes: readFileSync("menu-premium.css"),
     bundleBytes: readFileSync("menu-runtime.css"),
+    cartOfferPhoto: readFileSync(cartOfferPhotoPath),
     worker: readFileSync("sw-core-v64.js", "utf8")
   };
 }
 
-function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, orderRuntime, menuRuntime, premiumBytes, bundleBytes, worker }) {
+function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, orderRuntime, menuRuntime, premiumBytes, bundleBytes, cartOfferPhoto, worker }) {
   assert.equal(pairingBytes, generatedPairing, "Pairing view bytes must match their readable source and bundled domain dependency");
   const pairingRevision = menuCatalogRevision(pairingBytes);
   const expectedUrl = `./menu-pairing.js?v=${pairingRevision}`;
@@ -118,16 +121,18 @@ function verifyPairingRevision({ pairingBytes, generatedPairing, orderSource, or
   assert.ok(precache, "Service worker precache list is missing");
   const cachedUrls = Array.from(precache.matchAll(/["'](\.\/menu-pairing\.js(?:\?[^"']*)?)["']/g), (match) => match[1]);
   assert.deepEqual(cachedUrls, [expectedUrl], "Service worker must precache only the pairing view's exact content revision");
+  assert.ok(precache.includes(`"./${cartOfferPhotoPath}"`), "Service worker must precache the cart offer photo");
   const cacheRevision = menuCatalogRevision([
     menuCatalogRevision(menuRuntime),
     menuCatalogRevision(orderRuntime),
     menuCatalogRevision(premiumBytes),
-    pairingRevision
+    pairingRevision,
+    menuCatalogRevision(cartOfferPhoto)
   ].join(":"));
   const cacheVersion = worker.match(/const CACHE_VERSION = "([^"]+)";/)?.[1];
   const cssRevision = menuCatalogRevision(bundleBytes);
   assert.ok(cacheVersion?.includes(`-custom-pair-${cacheRevision}-menu-css-${cssRevision}-shared-order-`),
-    "Custom pairing cache namespace must bind the actual menu runtime, stylesheet bundle and lazy view bytes");
+    "Custom pairing cache namespace must bind the menu runtime, stylesheet bundle, lazy view and cart offer photo bytes");
   return { expectedUrl, cacheRevision };
 }
 
@@ -149,6 +154,10 @@ test("reject stale lazy pairing loaders, precache, source/output bytes and cache
   for (const key of ["menuRuntime", "orderRuntime", "premiumBytes", "bundleBytes"]) {
     assert.throws(() => verifyPairingRevision({ ...current, [key]: current[key] + "\n" }), /cache namespace must bind/, key);
   }
+  const changedPhoto = Buffer.concat([current.cartOfferPhoto, Buffer.from([0])]);
+  assert.throws(() => verifyPairingRevision({ ...current, cartOfferPhoto: changedPhoto }), /cache namespace must bind/);
+  const workerWithoutPhoto = current.worker.replace(`"./${cartOfferPhotoPath}"`, '"./old-cart-offer.webp"');
+  assert.throws(() => verifyPairingRevision({ ...current, worker: workerWithoutPhoto }), /must precache the cart offer photo/);
   const staleNamespace = current.worker.replace(`-custom-pair-${cacheRevision}-`, "-custom-pair-000000000000-");
   assert.notEqual(staleNamespace, current.worker, "Cache namespace control must actually change the fixture");
   assert.throws(() => verifyPairingRevision({ ...current, worker: staleNamespace }), /cache namespace must bind/);
