@@ -187,13 +187,14 @@ try {
     summary: dialog.querySelector("#menu-cart-added-summary")?.textContent?.trim(),
     summaryVisible: !dialog.querySelector("#menu-cart-added-summary")?.hidden,
     checkout: dialog.querySelector("#menu-checkout-trigger")?.textContent?.trim(),
+    total: dialog.querySelector("#menu-cart-dialog-total")?.textContent?.trim(),
     more: dialog.querySelector(".menu-cart-continue")?.textContent?.trim(),
     automaticQr: Boolean(document.querySelector(".order-checkout-dialog[open]"))
   }));
   check("A11Y-CART-CONFIRM-001", addedEvidence.title === "Siparişine eklendi"
     && addedEvidence.summaryVisible && addedEvidence.summary?.includes("× 1")
-    && addedEvidence.checkout === "Kasa için QR oluştur" && addedEvidence.more === "Başka bir şey seç" && !addedEvidence.automaticQr,
-  "Adding opens a persistent order confirmation with explicit checkout or choose-more actions", addedEvidence);
+    && addedEvidence.checkout === `Kasada ödemeye geç · ${addedEvidence.total}` && addedEvidence.more === "Menüye dön" && !addedEvidence.automaticQr,
+  "Adding opens a persistent confirmation with the counter total and a return-to-menu action", addedEvidence);
   await menu.locator("#menu-cart-dialog .menu-cart-line .menu-cart-step").nth(1).click();
   // Observe the live-region text without evaluating a string under the page CSP.
   // It is visually hidden for accessibility, so wait for attachment, not visibility.
