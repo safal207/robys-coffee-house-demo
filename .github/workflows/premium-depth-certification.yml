@@ -47,7 +47,7 @@ jobs:
     # Keep the existing check name stable for branch protection. The step below
     # certifies the replacement takeaway design documented in the QA report.
     name: MOTION-DEPTH-001 hybrid premium 3D exact-head gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:

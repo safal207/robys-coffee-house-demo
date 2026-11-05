@@ -285,7 +285,7 @@ test('family photo and offline checks retain their relevant component owners', (
 
 test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
-    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser'];
+    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser', 'menu-nutrition-browser'];
   const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
     'family-browser', 'combos-browser', 'gallery-assets', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs', '.github/workflows/gallery-mobile.yml']) {

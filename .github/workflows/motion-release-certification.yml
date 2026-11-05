@@ -47,7 +47,7 @@ concurrency:
 jobs:
   certify:
     name: MOTION-RELEASE-001 release matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
