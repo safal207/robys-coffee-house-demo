@@ -606,6 +606,22 @@ body.menu-dialog-open{overflow:hidden}
 .menu-dialog-shell{overscroll-behavior:contain}
 /* Keep the next action visible while optional choices and order items scroll. */
 .menu-product-shell{display:flex;flex-direction:column;overflow:hidden}
+/* Nutrition stays compact in the list and expands inside the product dialog. */
+.menu-nutrition-link{display:block;max-width:100%;min-height:44px;margin-top:3px;padding:4px 0;border:0;background:transparent;color:#76513b;font:inherit;font-size:.7rem;line-height:1.45;text-align:start;cursor:pointer;overflow-wrap:anywhere}
+.menu-nutrition-link::after{content:" ⓘ"}
+.menu-nutrition-link:hover{text-decoration:underline}
+.menu-nutrition-link:focus-visible,.menu-nutrition-details summary:focus-visible{outline:2px solid var(--ruby);outline-offset:3px;border-radius:4px}
+.menu-calories{margin:8px 0;color:#76513b;font-size:.78rem;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
+.menu-nutrition{min-width:0;margin-top:12px;text-align:start}
+.menu-nutrition-details{border:1px solid #dfd3c7;border-radius:14px;background:#fffaf3;color:var(--dark)}
+.menu-nutrition-details summary{min-height:44px;padding:12px 14px;cursor:pointer;font-size:.85rem;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.menu-nutrition-body{padding:0 14px 14px;font-size:.8rem;line-height:1.55;overflow-wrap:anywhere}
+.menu-nutrition-body .menu-nutrition-portion{margin:0 0 12px;font-size:.75rem;color:#654d41}
+.menu-nutrition-body dl{margin:0}
+.menu-nutrition-body dt{margin:12px 0 3px;font-weight:800}
+.menu-nutrition-body dd{margin:0}
+.menu-nutrition-body .menu-nutrition-note{margin:14px 0 8px;padding-top:12px;border-top:1px solid #dfd3c7;color:#654d41;font-size:.73rem;line-height:1.5}
+.menu-nutrition-source{display:inline-block;min-height:24px;color:#76513b;font-size:.73rem;text-underline-offset:3px}
 .menu-product-main{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);min-height:0;overflow:auto;overscroll-behavior:contain}
 .menu-product-actions{flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:10px 24px;padding:16px 24px max(16px,env(safe-area-inset-bottom));background:#fffaf3;border-top:1px solid rgba(47,39,37,.14)}
 .menu-product-actions .menu-quantity-control{margin:0;padding:0;border:0}

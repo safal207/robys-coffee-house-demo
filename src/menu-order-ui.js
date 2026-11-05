@@ -3,6 +3,7 @@ import { getSweetProducts, isHotDrink, quoteMenuSelection } from "./src/menu-pai
 import { promoPairProducts, isEditablePairDrink } from "./src/menu-promo-pair.js";
 
 import { kidsComboForItems } from "./src/kids-menu.js";
+import { renderNutrition } from "./src/menu-nutrition.js";
 
 let checkoutModulePromise;
 let checkoutModuleRetry = 0;
@@ -81,6 +82,10 @@ const productDialogCategory = document.querySelector("#menu-product-category");
 const productDialogTitle = document.querySelector("#menu-product-title");
 const productDialogDescription = document.querySelector("#menu-product-description");
 const productDialogPrice = document.querySelector("#menu-product-price");
+const productNutrition = document.createElement("section");
+productNutrition.className = "menu-nutrition";
+productNutrition.id = "menu-product-nutrition";
+productDialogPrice.after(productNutrition);
 const productQuantityOutput = document.querySelector("#menu-product-quantity");
 const productDecrease = document.querySelector("#menu-quantity-decrease");
 const productIncrease = document.querySelector("#menu-quantity-increase");
@@ -947,6 +952,7 @@ function hydrateProductDialog() {
   const description = localized(product.item.description);
   productDialogDescription.textContent = description;
   productDialogDescription.hidden = !description;
+  renderNutrition(productNutrition, product, language, selectedProductVariant);
   const variants = variantsFor(product);
   variantField.hidden = variants.length === 0;
   variantLabel.textContent = orderUiCopy[language].flavor;
@@ -1069,6 +1075,9 @@ productIncrease.addEventListener("click", () => {
 
 variantSelect.addEventListener("change", () => {
   selectedProductVariant = variantSelect.value;
+  const expanded = productNutrition.querySelector("details")?.open;
+  renderNutrition(productNutrition, productIndex.get(selectedProductId), language, selectedProductVariant);
+  if (expanded) productNutrition.querySelector("details").open = true;
   updateProductQuantity();
   rememberSelection();
 });

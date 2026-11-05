@@ -4,6 +4,7 @@ import "./src/choice-help-entry.js";
 import "./src/menu-feedback-entry.js";
 import { canWarmMenu } from "./src/menu-view-prefetch.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
+import { calorieLabel } from "./src/menu-nutrition-summary.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
 function initializeMenu() {
@@ -340,7 +341,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=3e066fc080e1");
+    } else loading = import("./menu-order-ui.js?v=559401294c4a");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
@@ -621,6 +622,16 @@ function createItem(item, { priority = false, categoryId } = {}) {
   if (visual) {
     const id = productId(categoryId, item);
     row.dataset.productId = id;
+
+    const nutrition = document.createElement("button");
+    nutrition.type = "button";
+    nutrition.className = "menu-nutrition-link";
+    nutrition.textContent = calorieLabel(id, language);
+    const detailLabel = { tr: "İçerik ve vitaminler", en: "Ingredients & vitamins", ru: "Состав и витамины" }[language];
+    nutrition.setAttribute("aria-label", `${detailLabel}: ${localized(item.name)}. ${nutrition.textContent}`);
+    nutrition.title = detailLabel;
+    nutrition.addEventListener("click", event => openProduct(id, event.currentTarget));
+    copy.append(nutrition);
 
     const media = document.createElement("button");
     media.type = "button";

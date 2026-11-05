@@ -1,4 +1,5 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
+import { calorieLabel } from "./src/menu-nutrition-summary.js";
 import "./src/menu-feedback-entry.js";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";
@@ -405,6 +406,7 @@ function renderCard(product, index) {
   visual.append(social);
   const title = element("h3", "", localized(product.item.name)); title.id = titleId;
   heading.append(title, element("span", "feed-price", money(product.item.price))); content.append(heading);
+  content.append(element("p", "menu-calories", calorieLabel(product.id, language)));
   if (product.item.description) content.append(element("p", "feed-description", localized(product.item.description)));
   let variantSelect;
   if (product.item.variants?.length) {
