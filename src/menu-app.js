@@ -1,4 +1,4 @@
-import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
+import { menuCategories, menuCopy } from "./menu-catalog.js?v=3132b4dc1273";
 import "./menu-search-clear.js";
 import "./src/choice-help-entry.js";
 import "./src/menu-feedback-entry.js";
@@ -340,7 +340,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=3e066fc080e1");
+    } else loading = import("./menu-order-ui.js?v=dab2584fd043");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,

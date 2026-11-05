@@ -33,7 +33,7 @@ export async function verifyGeometry(page, label) {
 export async function verifyOrder(page, label) {
   const product = page.locator('.full-menu-item--product').first();
   const unitPrice = Number((await product.locator('.full-menu-price').innerText()).replace(/\D/g, ''));
-  const photo = product.locator('button');
+  const photo = product.locator('.full-menu-item-media');
   await photo.click();
   const dialog = page.locator('#menu-product-dialog');
   await dialog.waitFor({state:'visible'});

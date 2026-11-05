@@ -81,7 +81,7 @@ let suggestionData;
 async function canonicalSuggestion(context) {
   // The entry driver remains tiny; recipes/catalog are initialized only on an
   // eligible offer or an explicit request. Recipe import is bundled for offline.
-  suggestionData ??= Promise.all([import("./menu-catalog.js?v=05e7dac3c17b"), import("./src/menu-combos.js")])
+  suggestionData ??= Promise.all([import("./menu-catalog.js?v=3132b4dc1273"), import("./src/menu-combos.js")])
     .catch(error => { suggestionData = undefined; throw error; });
   const [catalog, combos] = await suggestionData;
   return quoteChoiceHelpSuggestion(catalog.menuCategories, combos.comboRecipes, combos.quoteComboSelection, context);

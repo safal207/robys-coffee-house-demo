@@ -147,7 +147,8 @@
         "shared-styles",
         "menu-view",
         "order-ui",
-        "product-dialog"
+        "product-dialog",
+        "menu-nutrition"
       ]
     },
     {
@@ -190,7 +191,8 @@
         "shared-styles",
         "menu-view",
         "order-ui",
-        "product-photos"
+        "product-photos",
+        "menu-nutrition"
       ]
     },
     {
@@ -236,13 +238,15 @@
         "menu-product-reveal.js",
         "menu-product-reveal-runtime.js",
         "menu-product-reveal.css",
-        "pairing-preview.css"
+        "pairing-preview.css",
+        "scripts/premium-ui-regression.mjs"
       ],
       "dependsOn": [
         "catalog",
         "product-photos",
         "shared-styles",
-        "build"
+        "build",
+        "menu-nutrition"
       ]
     },
     {
@@ -646,7 +650,15 @@
         ".github/workflows/ios-route-webkit.yml",
         ".github/workflows/contextual-entry-certification.yml",
         ".github/workflows/discover-deck-consolidated.yml",
-        ".github/workflows/gallery-mobile.yml"
+        ".github/workflows/gallery-mobile.yml",
+        ".github/workflows/adversarial-browser.yml",
+        ".github/workflows/premium-depth-certification.yml",
+        ".github/workflows/motion-release-certification.yml",
+        ".github/workflows/visual-regression.yml",
+        ".github/workflows/menu-scroll-clearance.yml",
+        ".github/workflows/premium-ui-regression.yml",
+        ".github/workflows/premium-feedback-contract.yml",
+        ".github/workflows/dependency-build-edges.yml"
       ],
       "dependsOn": []
     },
@@ -711,6 +723,23 @@
       "dependsOn": [
         "build"
       ]
+    },
+    {
+      "id": "menu-nutrition",
+      "label": "Example calorie portions, typical ingredients and qualified vitamin information in TR/EN/RU",
+      "paths": [
+        "src/menu-nutrition.js",
+        "src/menu-nutrition-summary.js",
+        "scripts/test-menu-nutrition.mjs",
+        "scripts/test-menu-nutrition-browser.mjs",
+        "docs/menu-nutrition.md",
+        ".github/workflows/menu-nutrition.yml",
+        "src/menu-nutrition-portions.js"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog"
+      ]
     }
   ],
   "checks": [
@@ -757,7 +786,8 @@
         "qa-registry",
         "browser-prerequisites",
         "browser-diagnostics",
-        "experience"
+        "experience",
+        "menu-nutrition"
       ],
       "execution": "pipeline",
       "always": true
@@ -1416,6 +1446,27 @@
         "checkout"
       ],
       "execution": "existing-workflow"
+    },
+    {
+      "id": "menu-nutrition-browser",
+      "label": "Nutrition disclosures, example portions, mobile reflow, variants and ordering",
+      "kind": "browser",
+      "workflow": ".github/workflows/menu-nutrition.yml",
+      "command": "node scripts/test-menu-nutrition-browser.mjs",
+      "components": [
+        "menu-nutrition",
+        "menu-list",
+        "menu-feed",
+        "product-dialog",
+        "order-ui",
+        "i18n",
+        "shared-styles",
+        "browser-prerequisites"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
     }
   ],
   "journeys": [
@@ -2149,6 +2200,22 @@
         "security-contracts",
         "counter-contracts",
         "counter-hosted-container"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "inspect-menu-nutrition",
+      "label": "Read calories, ingredients and vitamins, then add a product from list or feed",
+      "components": [
+        "menu-nutrition",
+        "menu-list",
+        "menu-feed",
+        "product-dialog",
+        "order-ui"
+      ],
+      "checks": [
+        "source-contracts",
+        "menu-nutrition-browser"
       ],
       "metrics": []
     }

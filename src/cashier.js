@@ -1,5 +1,5 @@
 import { decodeOrderTicket } from "./order-ticket.js";
-import { checkoutCopy, checkoutErrorMessage, renderTicketContent } from "./order-checkout.js?v=ede76ee31ffa";
+import { checkoutCopy, checkoutErrorMessage, renderTicketContent } from "./order-checkout.js?v=bc8d0193d64b";
 
 const root = document.querySelector("#cashier-ticket");
 const print = document.querySelector("#cashier-print");

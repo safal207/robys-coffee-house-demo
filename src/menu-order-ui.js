@@ -3,6 +3,7 @@ import { getSweetProducts, isHotDrink, quoteMenuSelection } from "./src/menu-pai
 import { promoPairProducts, isEditablePairDrink } from "./src/menu-promo-pair.js";
 
 import { kidsComboForItems } from "./src/kids-menu.js";
+import { renderNutrition } from "./src/menu-nutrition.js";
 
 let checkoutModulePromise;
 let checkoutModuleRetry = 0;
@@ -13,7 +14,7 @@ function loadCheckoutModule() {
       const retryUrl = new URL("./order-checkout.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(checkoutModuleRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./order-checkout.js?v=ede76ee31ffa");
+    } else loading = import("./order-checkout.js?v=bc8d0193d64b");
     // A browser remembers a failed module URL. Only a later checkout action
     // starts one fresh same-origin request; a failure never retries itself.
     checkoutModulePromise = loading.catch(error => {
@@ -81,6 +82,11 @@ const productDialogCategory = document.querySelector("#menu-product-category");
 const productDialogTitle = document.querySelector("#menu-product-title");
 const productDialogDescription = document.querySelector("#menu-product-description");
 const productDialogPrice = document.querySelector("#menu-product-price");
+const productNutrition = document.createElement("section");
+productNutrition.className = "menu-nutrition";
+productNutrition.id = "menu-product-nutrition";
+productDialogPrice.after(productNutrition);
+let nutritionSelectionKey = "";
 const productQuantityOutput = document.querySelector("#menu-product-quantity");
 const productDecrease = document.querySelector("#menu-quantity-decrease");
 const productIncrease = document.querySelector("#menu-quantity-increase");
@@ -875,6 +881,13 @@ function updateProductQuantity() {
   productDialogPrice.textContent = formatPrice(total);
   productDialogPrice.setAttribute("aria-label", `${ui.adding}: ${formatPrice(total)}`);
   productUnitPrice.textContent = `${products.length === 2 ? ui.pair : ui.each}: ${formatPrice(unitTotal)} · × ${selectedProductQuantity}`;
+  const nutritionKey = [language, selectedProductVariant, ...products.map(product => product.id)].join("|");
+  if (nutritionKey !== nutritionSelectionKey) {
+    const expanded = productNutrition.querySelector("details")?.open;
+    renderNutrition(productNutrition, products, language, selectedProductVariant);
+    if (expanded) productNutrition.querySelector("details").open = true;
+    nutritionSelectionKey = nutritionKey;
+  }
   const sweet = products[1];
   productVisual.classList.toggle("has-selected-pair", Boolean(sweet));
   pairImage.hidden = !sweet;
