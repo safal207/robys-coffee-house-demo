@@ -249,7 +249,7 @@ for (const mode of ["open", "closed", "reopened", "empty", "missing-variant", "l
   const context = {
     checkoutOpening: false, cartSession: 1, cart: new Map(), orderDraft: { groups: [{}] }, language: "en",
     readCart: () => new Map(), renderCart: () => {}, hasMissingVariant: () => mode === "missing-variant" && loadCount > 0,
-    cartDialog: { hasAttribute: () => cartOpen }, checkoutButton: { disabled: false },
+    cartDialog: { hasAttribute: () => cartOpen }, checkoutButton: { disabled: false, setAttribute() {} },
     cartCheckoutError: { hidden: true, textContent: "", focus: () => { focuses += 1; } },
     orderUiCopy: { en: { checkoutError: "Try again" } },
     loadCheckout: () => { loadCount += 1; return new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; }); }

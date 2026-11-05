@@ -156,14 +156,14 @@ const pairingActionCopy = {
   ru: { add: "Добавить пару в заказ", quantity: "Количество пар", loading: "Загружаем сладкое…", error: "Не удалось открыть выбор сладкого. Можно добавить только напиток.", retry: "Попробовать ещё раз" }
 };
 const orderUiCopy = {
-  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Kasa için QR oluştur", continue: "Başka bir şey seç", added: "Siparişine eklendi", next: "Seçimin tamam mı? Devam edebilir veya başka bir şey seçebilirsin.", payment: "Sonraki adımda kasa için QR kodunu al. Ödeme kasada yapılır.", checkoutError: "QR açılamadı. Seçimin burada duruyor; tekrar deneyebilirsin." },
-  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "Get QR for the counter", continue: "Choose something else", added: "Added to your order", next: "Happy with your choice? Continue when ready, or choose something else.", payment: "Next, get a QR code for the cashier. Payment is at the counter.", checkoutError: "Could not open the QR. Your selection is still here; please try again." },
-  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "Получить QR для кассы", continue: "Выбрать ещё", added: "Добавлено в заказ", next: "Уже всё, чего хотелось? Можно перейти к оформлению или выбрать ещё что-то.", payment: "Дальше — QR для кассира. Оплата на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
+  tr: { flavor: "Lezzet seçin", required: "Önce lezzet seçin", each: "Birim fiyat", pair: "Bir çiftin fiyatı", adding: "Seçilen adet toplamı", more: "Bir seçim daha ekle", checkout: "Kasada ödemeye geç", loading: "QR açılıyor…", updating: "Sipariş güncelleniyor…", continue: "Menüye dön", added: "Siparişine eklendi", next: "Seçimin tamam. Sıradaki adım: QR kodunu al, kasada öde.", payment: "Üyelik gerekmez. QR burada açılır; ödeme kasada yapılır.", checkoutError: "QR açılamadı. Seçimin burada duruyor; tekrar deneyebilirsin." },
+  en: { flavor: "Choose a flavor", required: "Choose a flavor first", each: "Price each", pair: "Price per pair", adding: "Total for this quantity", more: "Add another selection", checkout: "Continue to payment at counter", loading: "Opening your QR…", updating: "Updating your order…", continue: "Back to menu", added: "Added to your order", next: "Your selection is ready. Next: get your QR and pay at the counter.", payment: "No sign-up needed. Your QR opens here; payment is at the counter.", checkoutError: "Could not open the QR. Your selection is still here; please try again." },
+  ru: { flavor: "Выберите вкус", required: "Сначала выберите вкус", each: "Цена за штуку", pair: "Цена за одну пару", adding: "Сумма выбранного количества", more: "Добавить ещё", checkout: "К оплате на кассе", loading: "Открываем QR…", updating: "Обновляем заказ…", continue: "Вернуться к меню", added: "Добавлено в заказ", next: "Твой выбор собран. Осталось получить QR и оплатить на кассе.", payment: "Без регистрации. QR откроется здесь; оплата — на кассе.", checkoutError: "Не удалось открыть QR. Твой выбор сохранён здесь — попробуй ещё раз." }
 };
 const bumpCopy = {
-  tr: { offer: "Cool Lime’ın yanına fıstıklı makaron", add: price => `Ekle · ${price}` },
-  en: { offer: "Try a pistachio macaron with Cool Lime", add: price => `Add for ${price}` },
-  ru: { offer: "Фисташковый макарон к Cool Lime", add: price => `Добавить за ${price}` }
+  tr: { sweet: "İçeceğinin yanına küçük bir tatlı", warm: "Seçiminin yanına sıcak bir çay", after: price => `Eklersen toplam: ${price}`, add: price => `Ekle · +${price}` },
+  en: { sweet: "A little sweet with your drink", warm: "A warm tea with your selection", after: price => `Total with this extra: ${price}`, add: price => `Add · +${price}` },
+  ru: { sweet: "Маленькое сладкое к напитку", warm: "Тёплый чай к твоему выбору", after: price => `С добавкой — ${price}`, add: price => `Добавить · +${price}` }
 };
 const editCopy = {
   tr: { edit: "Seçimi değiştir", save: "Değişiklikleri kaydet", saved: "Seçimin güncellendi", stale: "Bu seçim başka bir yerde değiştirildi. Sepete dönüp güncel seçimi yeniden aç." },
@@ -187,15 +187,24 @@ checkoutButton.id = "menu-checkout-trigger";
 checkoutButton.type = "button";
 checkoutButton.className = "button button-primary menu-checkout-trigger";
 if (!checkoutButton.isConnected) cartContinue.before(checkoutButton);
+checkoutButton.setAttribute("aria-describedby", "menu-cart-draft-note");
 const bumpOffer = document.createElement("div");
 bumpOffer.className = "menu-cart-bump";
 bumpOffer.hidden = true;
+const bumpImage = document.createElement("img");
+bumpImage.alt = "";
+bumpImage.width = bumpImage.height = 128;
+bumpImage.decoding = "async";
+const bumpDetails = document.createElement("div");
+bumpDetails.className = "menu-cart-bump-details";
+const bumpContext = document.createElement("p");
 const bumpLabel = document.createElement("strong");
 bumpLabel.id = "menu-cart-bump-label";
+const bumpTotal = document.createElement("p");
 const bumpButton = createButton("button button-light", "", addCartBump);
 bumpButton.setAttribute("aria-describedby", bumpLabel.id);
-bumpOffer.append(bumpLabel, bumpButton);
-cartDialog.querySelector(".menu-cart-footer").prepend(bumpOffer);
+bumpDetails.append(bumpContext, bumpLabel, bumpTotal);
+bumpOffer.append(bumpImage, bumpDetails, bumpButton);
 checkoutButton.addEventListener("click", async () => {
   if (checkoutOpening) return;
   cart = readCart();
@@ -205,6 +214,8 @@ checkoutButton.addEventListener("click", async () => {
   checkoutOpening = true;
   const session = cartSession;
   checkoutButton.disabled = true;
+  checkoutButton.textContent = orderUiCopy[language].loading;
+  checkoutButton.setAttribute("aria-busy", "true");
   try {
     const { openOrderCheckout } = await loadCheckoutModule();
     if (!cartDialog.hasAttribute("open") || session !== cartSession) return;
@@ -269,15 +280,24 @@ function createButton(className, label, listener) {
 }
 
 function eligibleCartBump(draft) {
-  const pairId = "pairing-offers:cool-lime-macaron-pairing";
-  const [drink, dessert] = promoPairProducts(productIndex, pairId) ?? [];
-  if (!dessert || !orderProductIds.has(dessert.id) || variantsFor(dessert).length) return null;
-  const has = id => draft.lines.some(line => line.id === id);
-  return has(drink.id) && !has(dessert.id) && !has(pairId) ? dessert : null;
+  if (!draft.groups.length || draft.groups.some(group => group.items.some(item =>
+    variantsFor(productIndex.get(item.id)).length && !item.variant))) return null;
+  const selected = draft.lines.map(line => productIndex.get(line.id)).filter(Boolean);
+  const categories = new Set(selected.map(product => product.category.id));
+  const hasDrink = selected.some(product => !["food", "desserts"].includes(product.category.id));
+  const hasSweet = categories.has("desserts") || categories.has("pairing-offers");
+  const hasCoffeeOrRefresher = ["hot-coffee", "cold-coffee", "refreshers", "herbal-tea"].some(id => categories.has(id))
+    || selected.some(product => ["brew-hot:filter-coffee", "brew-hot:turkish-coffee", "brew-hot:black-tea"].includes(product.id));
+  const id = hasCoffeeOrRefresher && !hasSweet ? "desserts:macaron"
+    : !hasDrink && (hasSweet || categories.has("food")) ? "brew-hot:black-tea" : null;
+  const product = productIndex.get(id);
+  return product && orderProductIds.has(id) && !variantsFor(product).length
+    && !draft.lines.some(line => line.id === id) ? product : null;
 }
 
 async function addCartBump() {
   if (bumpOffer.hidden || bumpButton.disabled || !cartDialog.hasAttribute("open")) return;
+  const offeredId = bumpOffer.dataset.productId;
   const session = cartSession;
   const isCurrent = () => session === cartSession && cartDialog.hasAttribute("open");
   cartWrites += 1;
@@ -286,7 +306,7 @@ async function addCartBump() {
   try {
     result = await saveCart(draft => {
       const product = eligibleCartBump(draft);
-      return product
+      return product?.id === offeredId
         ? addOrderGroup(draft, [{ id: product.id, quantity: 1 }], 1, orderProductIds)
         : { draft, applied: false };
     });
@@ -632,7 +652,8 @@ function renderCart(focusTarget = null) {
   cartTitle.textContent = lastAddedSelection ? lastSelectionWasEdit ? editCopy[language].saved : ui.added : copy.cartTitle;
   cartAddedSummary.hidden = !lastAddedSelection;
   if (lastAddedSelection) cartAddedSummary.textContent = `${groupName(lastAddedSelection)} × ${lastAddedSelection.quantity} · ${formatPrice(groupUnitPrice(lastAddedSelection) * lastAddedSelection.quantity)}`;
-  cartNextStep.textContent = ui.next;
+  const missingVariant = hasMissingVariant();
+  cartNextStep.textContent = missingVariant ? ui.required : ui.next;
   cartNextStep.hidden = summary.quantity === 0;
   cartContinue.textContent = ui.continue;
   document.querySelector("#menu-cart-draft-note").textContent = ui.payment;
@@ -641,13 +662,18 @@ function renderCart(focusTarget = null) {
   cartTriggerTotal.textContent = formatPrice(summary.total);
   cartDialogTotal.textContent = formatPrice(summary.total);
   cartTrigger.classList.toggle("has-items", summary.quantity > 0);
-  const missingVariant = hasMissingVariant();
-  checkoutButton.textContent = missingVariant ? orderUiCopy[language].required : orderUiCopy[language].checkout;
+  checkoutButton.textContent = checkoutOpening ? ui.loading : cartWrites > 0 ? ui.updating
+    : missingVariant ? ui.required : `${ui.checkout}${summary.quantity ? ` · ${formatPrice(summary.total)}` : ""}`;
+  checkoutButton.setAttribute("aria-busy", String(checkoutOpening || cartWrites > 0));
   checkoutButton.disabled = checkoutOpening || cartWrites > 0 || summary.quantity === 0 || missingVariant;
   const bump = eligibleCartBump(orderDraft);
   bumpOffer.hidden = !bump;
   if (bump) {
-    bumpLabel.textContent = bumpCopy[language].offer;
+    bumpOffer.dataset.productId = bump.id;
+    bumpContext.textContent = bumpCopy[language][bump.category.id === "desserts" ? "sweet" : "warm"];
+    bumpLabel.textContent = localized(bump.item.name);
+    if (bumpImage.getAttribute("src") !== bump.image) bumpImage.src = bump.image;
+    bumpTotal.textContent = bumpCopy[language].after(formatPrice(summary.total + bump.item.price));
     bumpButton.textContent = bumpCopy[language].add(formatPrice(bump.item.price));
     bumpButton.disabled = checkoutOpening || cartWrites > 0;
   }
@@ -736,6 +762,9 @@ function renderCart(focusTarget = null) {
         : focusTarget.control === "increase" && !increase.disabled ? increase : decrease;
     }
   });
+
+  // Optional extras scroll with the items so the total and next step stay reachable.
+  cartLinesRoot.append(bumpOffer);
 
   if (focusTarget) {
     const fallback = cartLinesRoot.querySelector("button:not([disabled])")
