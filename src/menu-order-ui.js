@@ -86,6 +86,7 @@ const productNutrition = document.createElement("section");
 productNutrition.className = "menu-nutrition";
 productNutrition.id = "menu-product-nutrition";
 productDialogPrice.after(productNutrition);
+let nutritionSelectionKey = "";
 const productQuantityOutput = document.querySelector("#menu-product-quantity");
 const productDecrease = document.querySelector("#menu-quantity-decrease");
 const productIncrease = document.querySelector("#menu-quantity-increase");
@@ -880,6 +881,13 @@ function updateProductQuantity() {
   productDialogPrice.textContent = formatPrice(total);
   productDialogPrice.setAttribute("aria-label", `${ui.adding}: ${formatPrice(total)}`);
   productUnitPrice.textContent = `${products.length === 2 ? ui.pair : ui.each}: ${formatPrice(unitTotal)} · × ${selectedProductQuantity}`;
+  const nutritionKey = [language, selectedProductVariant, ...products.map(product => product.id)].join("|");
+  if (nutritionKey !== nutritionSelectionKey) {
+    const expanded = productNutrition.querySelector("details")?.open;
+    renderNutrition(productNutrition, products, language, selectedProductVariant);
+    if (expanded) productNutrition.querySelector("details").open = true;
+    nutritionSelectionKey = nutritionKey;
+  }
   const sweet = products[1];
   productVisual.classList.toggle("has-selected-pair", Boolean(sweet));
   pairImage.hidden = !sweet;
@@ -952,7 +960,6 @@ function hydrateProductDialog() {
   const description = localized(product.item.description);
   productDialogDescription.textContent = description;
   productDialogDescription.hidden = !description;
-  renderNutrition(productNutrition, product, language, selectedProductVariant);
   const variants = variantsFor(product);
   variantField.hidden = variants.length === 0;
   variantLabel.textContent = orderUiCopy[language].flavor;
@@ -1075,9 +1082,6 @@ productIncrease.addEventListener("click", () => {
 
 variantSelect.addEventListener("change", () => {
   selectedProductVariant = variantSelect.value;
-  const expanded = productNutrition.querySelector("details")?.open;
-  renderNutrition(productNutrition, productIndex.get(selectedProductId), language, selectedProductVariant);
-  if (expanded) productNutrition.querySelector("details").open = true;
   updateProductQuantity();
   rememberSelection();
 });

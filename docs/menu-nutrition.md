@@ -8,8 +8,12 @@ servings, laboratory results, supplier labels or allergy declarations.
 
 ## Data and assumptions
 
-- `src/menu-nutrition-summary.js`: complete ID-to-range index and example weights
+- `src/menu-nutrition-portions.js`: complete ID-to-range index and example weights
   or volumes. Pair ranges are the sum of the two component ranges.
+- `scripts/build-menu-nutrition.mjs` generates the compact eager numeric rows in
+  `src/menu-nutrition-ranges.js` from the current catalog and portion index.
+  `src/menu-nutrition-summary.js` maps these rows back to full product IDs. The
+  content tests check every generated range against the detailed source.
 - `src/menu-nutrition.js`: typical ingredient models, translations, explanations
   and the product-dialog renderer. Existing herbal blend descriptions are retained.
 - Black coffee and strained tea estimates exclude added sugar, milk and extras.
@@ -50,7 +54,9 @@ the supplier/recipe source and review date. Never relabel an example as verified
 
 The small calorie index is bundled with list/feed runtimes. Detailed copy loads
 with the existing product dialog. Both views use the same source and product IDs;
-ordering prices and product identity are unchanged. Details expand in the dialog's
+ordering prices and product identity are unchanged. Selecting a dessert recomputes
+calories, ingredients and vitamins for both components while retaining disclosure
+state. Quantity changes retain the explicitly labelled one-pair example portions. Details expand in the dialog's
 scrolling body while existing order controls retain their layout.
 
 `scripts/test-menu-nutrition.mjs` covers all catalog IDs and all languages, valid

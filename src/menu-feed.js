@@ -1,5 +1,6 @@
 import { menuCategories, menuCopy } from "./menu-catalog.js?v=05e7dac3c17b";
-import { calorieLabel } from "./src/menu-nutrition-summary.js";
+import { createCalorieLookup } from "./src/menu-nutrition-summary.js";
+const calorieLabel = createCalorieLookup(menuCategories);
 import "./src/menu-feedback-entry.js";
 import { feedProducts, filterFeed, quoteFeedOrder } from "./src/menu-feed-model.js";
 import { createFeedEngagement } from "./src/menu-feed-engagement.js";

@@ -4,7 +4,7 @@ import "./src/choice-help-entry.js";
 import "./src/menu-feedback-entry.js";
 import { canWarmMenu } from "./src/menu-view-prefetch.js";
 import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
-import { calorieLabel } from "./src/menu-nutrition-summary.js";
+import { createCalorieLookup } from "./src/menu-nutrition-summary.js";
 
 // Decide the generic entry before rendering cards or starting optional modules.
 function initializeMenu() {
@@ -169,6 +169,7 @@ function buildProductIndex() {
 }
 
 const productIndex = buildProductIndex();
+const calorieLabel = createCalorieLookup(menuCategories);
 const linkedProduct = productIndex.get(new URL(location.href).searchParams.get("product"));
 if (linkedProduct) {
   activeCategory = linkedProduct.category.id;
@@ -341,7 +342,7 @@ function loadOrderUi() {
       const retryUrl = new URL("./menu-order-ui.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(orderUiRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./menu-order-ui.js?v=559401294c4a");
+    } else loading = import("./menu-order-ui.js?v=41f4426e42e6");
     orderUiPromise = Promise.all([loading, loadOrderStorage()]).then(([{ createMenuOrderUi }]) => {
       orderUi = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
         initialLanguage: language, localized, formatPrice, formatItemCount, imageSlug,
@@ -631,7 +632,7 @@ function createItem(item, { priority = false, categoryId } = {}) {
     nutrition.setAttribute("aria-label", `${detailLabel}: ${localized(item.name)}. ${nutrition.textContent}`);
     nutrition.title = detailLabel;
     nutrition.addEventListener("click", event => openProduct(id, event.currentTarget));
-    copy.append(nutrition);
+    if (!pairing) copy.append(nutrition);
 
     const media = document.createElement("button");
     media.type = "button";
@@ -657,6 +658,7 @@ function createItem(item, { priority = false, categoryId } = {}) {
     details.className = "full-menu-item-details";
     details.append(copy, price);
     row.append(media, details);
+    if (pairing) row.append(nutrition);
     return row;
   }
 

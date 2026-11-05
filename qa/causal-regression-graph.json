@@ -238,7 +238,8 @@
         "menu-product-reveal.js",
         "menu-product-reveal-runtime.js",
         "menu-product-reveal.css",
-        "pairing-preview.css"
+        "pairing-preview.css",
+        "scripts/premium-ui-regression.mjs"
       ],
       "dependsOn": [
         "catalog",
@@ -732,7 +733,10 @@
         "scripts/test-menu-nutrition.mjs",
         "scripts/test-menu-nutrition-browser.mjs",
         "docs/menu-nutrition.md",
-        ".github/workflows/menu-nutrition.yml"
+        ".github/workflows/menu-nutrition.yml",
+        "src/menu-nutrition-portions.js",
+        "src/menu-nutrition-ranges.js",
+        "scripts/build-menu-nutrition.mjs"
       ],
       "dependsOn": [
         "build",

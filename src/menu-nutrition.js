@@ -1,4 +1,5 @@
-import { nutritionPortions, nutritionPairs, calorieLabel } from "./menu-nutrition-summary.js";
+import { nutritionPortions, nutritionPairs, calorieRange } from "./menu-nutrition-portions.js";
+import { formatCalorieLabel } from "./menu-nutrition-summary.js";
 
 const words = {
   coffee: ["Kahve", "Coffee", "Кофе"], water: ["Su", "Water", "Вода"], espresso: ["Espresso", "Espresso", "Эспрессо"],
@@ -158,7 +159,7 @@ export function nutritionDetails(product, language = "tr", variant = "") {
     : wordsString.split(" ").map(key => pick(words[key], language)).join(", ")).join(" + ");
   const selected = product.item.variants?.find(entry => entry.id === variant);
   return {
-    calorie: calorieLabel(product.id, language),
+    calorie: formatCalorieLabel(calorieRange(product.id), language),
     portion: keys.map(key => { const row = nutritionPortions[key]; return `${row[2]} ${copy[row[3]]}`; }).join(" + "),
     ingredients: ingredients + (selected ? ` · ${copy.variant}: ${selected.name[language] ?? selected.name.tr}` : ""),
     ingredientLabel: !pair && product.category.id === "herbal-tea" ? copy.menuIngredients : copy.ingredients,
@@ -169,13 +170,32 @@ export function nutritionDetails(product, language = "tr", variant = "") {
   };
 }
 
-export function renderNutrition(container, product, language, variant = "") {
-  const data = nutritionDetails(product, language, variant);
+export function nutritionSelectionDetails(products, language = "tr", variant = "") {
+  if (!Array.isArray(products) || !products.length) return null;
+  const entries = products.map((product, index) => nutritionDetails(product, language, index === 0 ? variant : ""));
+  if (entries.some(entry => !entry)) return null;
+  if (entries.length === 1) return entries[0];
+  const copy = nutritionCopy[language] ?? nutritionCopy.tr;
+  return {
+    calorie: formatCalorieLabel(calorieRange(products.map(product => product.id)), language),
+    portion: entries.map(entry => entry.portion).join(" + "),
+    ingredients: entries.map(entry => entry.ingredients).join(" + "),
+    ingredientLabel: copy.ingredients,
+    benefits: [...new Set(entries.map(entry => entry.benefits))].join(" "),
+    vitamins: [...new Set(entries.map(entry => entry.vitamins))].join(" "),
+    baseNote: "",
+    pair: true
+  };
+}
+
+export function renderNutrition(container, selection, language, variant = "") {
+  const products = Array.isArray(selection) ? selection : [selection];
+  const data = nutritionSelectionDetails(products, language, variant);
   container.replaceChildren();
   container.hidden = !data;
   if (!data) return;
   const copy = nutritionCopy[language] ?? nutritionCopy.tr;
-  container.dataset.nutritionProduct = product.id;
+  container.dataset.nutritionProduct = products.map(product => product.id).join("+");
   const node = (tag, className, value) => {
     const element = document.createElement(tag);
     if (className) element.className = className;

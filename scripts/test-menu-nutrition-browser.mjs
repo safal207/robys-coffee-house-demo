@@ -31,6 +31,8 @@ const cases = [
   { width: 390, height: 844, lang: "en", view: "feed", id: "hot-coffee:caffe-latte" },
   { width: 1280, height: 900, lang: "tr", view: "list", id: "brew-hot:milk" },
   { width: 390, height: 844, lang: "ru", view: "list", id: "desserts:macaron" },
+  { width: 390, height: 844, lang: "ru", view: "list", id: "pairing-offers:cool-lime-macaron-pairing",
+    selection: "refreshers:cool-lime+desserts:macaron" },
   { width: 320, height: 740, lang: "ru", view: "feed", id: "cold-coffee:milkshake", variant: "strawberry" },
   { width: 740, height: 360, lang: "en", view: "list", id: "brew-hot:black-tea" }
 ];
@@ -57,7 +59,9 @@ try {
       await card.locator(feed ? ".feed-details" : ".menu-nutrition-link").click();
       await page.locator("#menu-product-dialog[open]").waitFor();
       const panel = page.locator("#menu-product-nutrition");
-      assert.equal(await panel.getAttribute("data-nutrition-product"), entry.id);
+      if (entry.selection) await page.waitForFunction(expected =>
+        document.querySelector("#menu-product-nutrition")?.dataset.nutritionProduct === expected, entry.selection);
+      assert.equal(await panel.getAttribute("data-nutrition-product"), entry.selection ?? entry.id);
       const summary = panel.locator("summary");
       await summary.focus();
       await summary.press("Enter");
@@ -69,6 +73,10 @@ try {
         assert.match(await panel.locator("dd").first().innerText(), /Клубника/);
       }
       if (entry.id === "desserts:macaron") assert.match(await panel.innerText(), /20 г/);
+      if (entry.selection) {
+        assert.match(await panel.innerText(), /150–290/);
+        assert.match(await panel.innerText(), /350 мл \+ 20 г/);
+      }
       const geometry = await panel.evaluate(element => {
         const dialog = element.closest("dialog");
         return { pageWidth: document.documentElement.clientWidth, pageScroll: document.documentElement.scrollWidth,
@@ -79,6 +87,10 @@ try {
       assert.ok(geometry.panelScroll <= geometry.panelWidth + 1, "nutrition text reflows");
       const screenshot = `${entry.width}x${entry.height}-${entry.lang}-${entry.view}-${entry.id.split(":")[1]}.png`;
       await page.screenshot({ path: join(output, screenshot) });
+      if (entry.width <= 390) {
+        await panel.locator("dd").last().scrollIntoViewIfNeeded();
+        await page.screenshot({ path: join(output, `vitamins-${screenshot}`) });
+      }
       const add = page.locator("#menu-add-to-cart");
       await add.scrollIntoViewIfNeeded();
       const bounds = await add.boundingBox();

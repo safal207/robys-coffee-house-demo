@@ -98,7 +98,7 @@ export function createFeedOrder({ menuCopy, productIndex, orderProductIds,
         const url = new URL("./menu-order-ui.js", import.meta.url);
         url.searchParams.set("retry", String(uiRetry));
         loading = import(url.href);
-      } else loading = import("./menu-order-ui.js?v=559401294c4a");
+      } else loading = import("./menu-order-ui.js?v=41f4426e42e6");
       uiPromise = Promise.all([loading, loadStorage()]).then(([{ createMenuOrderUi }]) => {
         ui = createMenuOrderUi({ menuCopy, productIndex, orderProductIds,
           initialLanguage: getLanguage(), localized, formatPrice, formatItemCount, imageSlug,

@@ -609,6 +609,7 @@ body.menu-dialog-open{overflow:hidden}
 /* Nutrition stays compact in the list and expands inside the product dialog. */
 .menu-nutrition-link{display:block;max-width:100%;min-height:44px;margin-top:3px;padding:4px 0;border:0;background:transparent;color:#76513b;font:inherit;font-size:.7rem;line-height:1.45;text-align:start;cursor:pointer;overflow-wrap:anywhere}
 .menu-nutrition-link::after{content:" ⓘ"}
+.full-menu-item--visual>.menu-nutrition-link{grid-column:1/-1;width:100%;margin:0;padding:10px 12px;background:#2d2018;color:#fff4df;text-align:center;font-size:.72rem}
 .menu-nutrition-link:hover{text-decoration:underline}
 .menu-nutrition-link:focus-visible,.menu-nutrition-details summary:focus-visible{outline:2px solid var(--ruby);outline-offset:3px;border-radius:4px}
 .menu-calories{margin:8px 0;color:#76513b;font-size:.78rem;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
