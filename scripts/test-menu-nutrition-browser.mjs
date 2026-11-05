@@ -55,7 +55,9 @@ try {
       await page.goto(`${origin}/${feed ? "menu-feed.html" : "menu.html"}?${query}`, { waitUntil: "domcontentloaded" });
       await page.locator(feed ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
       const card = page.locator(`[data-product-id="${entry.id}"]`).first();
+      if (entry.selection && !feed) await card.locator(".full-menu-item-media[data-discover-pairing]").waitFor();
       await card.locator(feed ? ".feed-details" : ".full-menu-item-media").click();
+      if (entry.selection && !feed) await page.locator(".pairing-discovery-choose").click();
       await page.locator("#menu-product-dialog[open]").waitFor();
       const panel = page.locator("#menu-product-nutrition");
       if (entry.selection) await page.waitForFunction(expected =>
