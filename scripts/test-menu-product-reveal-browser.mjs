@@ -134,15 +134,18 @@ try {
   assert.equal(await page.locator("#menu-cart-title").innerText(), "Добавлено в заказ");
   assert.match(await page.locator("#menu-cart-added-summary").innerText(), /Айс латте \+ Чизкейк Сан-Себастьян.*× 1.*370\s*₺/i);
   await assertSavedEditablePair(page);
-  assert.equal(await page.getByRole("button", { name: "Получить QR для кассы", exact: true }).isVisible(), true);
-  assert.equal(await page.getByRole("button", { name: "Выбрать ещё", exact: true }).isVisible(), true);
+  const checkoutAction = page.locator("#menu-checkout-trigger");
+  assert.equal(await checkoutAction.isVisible(), true);
+  assert.equal(await checkoutAction.isEnabled(), true);
+  assert.equal(await checkoutAction.innerText(), "К оплате на кассе · 370 ₺");
+  assert.equal(await page.getByRole("button", { name: "Вернуться к меню", exact: true }).isVisible(), true);
   assert.equal(await page.locator(".order-checkout-dialog[open]").count(), 0, "Adding must not implicitly create a QR checkout");
   assert.equal(
     Number((await page.locator("#menu-cart-dialog-total").innerText()).replace(/\D/g, "")),
     370,
     "The editable pair must keep the verified 370 ₺ total without double-adding San Sebastian"
   );
-  await page.getByRole("button", { name: "Выбрать ещё", exact: true }).click();
+  await page.getByRole("button", { name: "Вернуться к меню", exact: true }).click();
   await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
   assert.equal(await page.locator('[data-product-id="pairing-offers:iced-san-sebastian-pairing"] .full-menu-item-media')
     .evaluate(node => document.activeElement === node), true, "Continue browsing returns focus to the chosen pairing");

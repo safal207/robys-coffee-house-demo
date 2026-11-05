@@ -166,12 +166,16 @@ async function clearCart(page) {
   await waitLines(page, []);
   await verifyCanonical(page, []);
   assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
+  assert.equal(await page.locator("#menu-checkout-trigger").isEnabled(), false, "Empty orders cannot proceed");
+  assert.equal(await page.locator("#menu-cart-next-step").isVisible(), false, "Empty orders do not claim to be ready");
+  assert.equal(await page.locator(".menu-cart-bump").isVisible(), false, "Empty orders have no extra");
   await page.locator('[data-menu-dialog-close="cart"]').first().click();
   await page.locator("#menu-cart-dialog[open]").waitFor({ state: "hidden" });
 }
 
 async function verifyQrAndCashier(page, context, language, expectedTotal, expectedNames, id) {
   assert.equal((await page.locator("#menu-cart-dialog-total").textContent()).trim(), `${expectedTotal} ₺`);
+  assert.ok((await page.locator("#menu-checkout-trigger").innerText()).includes(`${expectedTotal} ₺`), "The next-step button carries the current total");
   await page.locator("#menu-checkout-trigger").click();
   const checkout = page.locator(".order-checkout-dialog[open]");
   await checkout.waitFor();
@@ -262,6 +266,58 @@ try {
             const qr = await verifyQrAndCashier(page, context, language, 95, [names[language].milk, names[language].simit], `${engine}-${language}-${width}-family`);
             await clearCart(page); await page.close();
             return { width, language, removedCookie: true, exactLines: expectedFamily, canonicalRevision, clearedAfterQr: true, ...qr };
+          });
+          await runCase(`${engine}-${language}-${width}-cart-ready`, context, async () => {
+            const page = await context.newPage(); await openMenu(page, language);
+            await page.locator('[data-product-id="hot-coffee:caffe-latte"] .full-menu-item-media').click();
+            await page.locator("#menu-product-dialog[open]").waitFor();
+            const coffeeName = await page.locator("#menu-product-title").innerText();
+            await page.locator("#menu-add-to-cart").click();
+            await page.locator("#menu-cart-dialog[open]").waitFor();
+            await waitLines(page, [{ id: "hot-coffee:caffe-latte", quantity: 1 }]);
+            const offer = page.locator(".menu-cart-bump:not([hidden])");
+            await offer.waitFor();
+            assert.equal(await offer.getAttribute("data-product-id"), "desserts:macaron");
+            assert.match(await offer.innerText(), /210 ₺/, "The optional extra shows the complete resulting total");
+            assert.match(await offer.locator("button").innerText(), /\+30 ₺/, "The extra price is explicit");
+            await page.waitForFunction(() => {
+              const image = document.querySelector(".menu-cart-bump:not([hidden]) img");
+              return image?.complete && image.naturalWidth > 0;
+            });
+            assert.equal(await offer.evaluate(card => card.closest("#menu-cart-lines") !== null), true,
+              "The optional extra scrolls with the items, preserving space for the primary action");
+            const geometry = await page.locator("#menu-cart-dialog").evaluate(dialog => ({ width: dialog.clientWidth, scroll: dialog.scrollWidth }));
+            assert.ok(geometry.scroll <= geometry.width + 1, "The full order reflows without horizontal clipping");
+            const checkout = page.locator("#menu-checkout-trigger");
+            assert.match(await checkout.innerText(), /180 ₺/);
+            assert.equal(await checkout.isEnabled(), true, "The extra never blocks the next step");
+            await checkout.scrollIntoViewIfNeeded();
+            const action = await checkout.boundingBox();
+            assert.ok(action.y >= 0 && action.y + action.height <= (await page.viewportSize()).height + 1, "The next-step action is reachable");
+            await page.locator("#menu-cart-dialog").screenshot({ path: join(output, `${engine}-${language}-${width}-cart-ready.png`) });
+            const sweetName = await offer.locator("strong").innerText();
+            await offer.locator("button").click();
+            await page.waitForFunction(() => document.querySelector("#menu-cart-dialog-total")?.textContent.trim() === "210 ₺");
+            assert.equal(await page.locator(".menu-cart-bump").isVisible(), false, "A drink and dessert need no further extra");
+            assert.equal(await checkout.evaluate(button => button === document.activeElement), true, "Adding an extra returns focus to the next step");
+            await page.locator(".menu-cart-line").first().locator(".menu-cart-step").last().click();
+            await page.waitForFunction(() => document.querySelector("#menu-cart-dialog-total")?.textContent.trim() === "390 ₺");
+            const qr = await verifyQrAndCashier(page, context, language, 390, [coffeeName, sweetName], `${engine}-${language}-${width}-ready`);
+            await clearCart(page);
+            await page.locator('[data-product-id="desserts:cookie"] .full-menu-item-media').click();
+            await page.locator("#menu-product-dialog[open]").waitFor();
+            await page.locator("#menu-add-to-cart").click();
+            await page.locator("#menu-cart-dialog[open]").waitFor();
+            await offer.waitFor();
+            assert.equal(await offer.getAttribute("data-product-id"), "brew-hot:black-tea", "A dessert can be completed with tea");
+            assert.match(await offer.innerText(), /150 ₺/);
+            await offer.locator("button").click();
+            await waitLines(page, [{ id: "desserts:cookie", quantity: 1 }, { id: "brew-hot:black-tea", quantity: 1 }]);
+            assert.match(await checkout.innerText(), /150 ₺/);
+            assert.equal(await page.locator(".menu-cart-bump").isVisible(), false);
+            await clearCart(page); await page.close();
+            return { width, language, oneOptionalPhotoExtra: true, emptyStateChecked: true, geometry, coffeeAndDessert: qr,
+              dessertAndTeaTotal: 150, liveActionTotals: [180, 210, 390, 150] };
           });
           await runCase(`${engine}-${language}-${width}-promo`, context, async () => {
             const page = await context.newPage(); await openMenu(page, language);

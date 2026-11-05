@@ -238,6 +238,7 @@
         "menu-product-reveal.js",
         "menu-product-reveal-runtime.js",
         "menu-product-reveal.css",
+        "scripts/test-menu-product-reveal-browser.mjs",
         "pairing-preview.css",
         "scripts/premium-ui-regression.mjs"
       ],
@@ -285,6 +286,10 @@
         ".github/workflows/order-reliability.yml",
         "menu-order-ui.js",
         "src/menu-order-ui.js",
+        "scripts/verify-menu-order.mjs",
+        "scripts/premium-feedback-regression.mjs",
+        "scripts/test-menu-custom-pairing-browser.mjs",
+        "scripts/adversarial-browser.mjs",
         "scripts/test-order-release-built-browser.mjs"
       ],
       "dependsOn": [
@@ -355,6 +360,7 @@
         "order-checkout.css",
         "src/order-checkout.js",
         "src/order-checkout.d.ts",
+        "docs/order-checkout.md",
         "src/counter-checkout.js"
       ],
       "dependsOn": [

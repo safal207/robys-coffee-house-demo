@@ -9,9 +9,9 @@ const base = "http://127.0.0.1:4192/";
 const server = spawn("python3", ["-m", "http.server", "4192", "--bind", "127.0.0.1"], { stdio: "ignore" });
 const report = { boundary: "Real Chromium navigation with original CSP, emulated viewport; no physical-device/FPS/payment claim", checks: [], failures: [] };
 const nextStepCopy = {
-  tr: { added: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç", payment: "Ödeme kasada yapılır." },
-  en: { added: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else", payment: "Payment is at the counter." },
-  ru: { added: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё", payment: "Оплата на кассе." }
+  tr: { added: "Siparişine eklendi", checkout: "Kasada ödemeye geç", more: "Menüye dön", payment: "Üyelik gerekmez. QR burada açılır; ödeme kasada yapılır." },
+  en: { added: "Added to your order", checkout: "Continue to payment at counter", more: "Back to menu", payment: "No sign-up needed. Your QR opens here; payment is at the counter." },
+  ru: { added: "Добавлено в заказ", checkout: "К оплате на кассе", more: "Вернуться к меню", payment: "Без регистрации. QR откроется здесь; оплата — на кассе." }
 };
 let browser;
 function check(id, passed, evidence = null) {
@@ -103,7 +103,7 @@ try {
       && (await page.locator("#menu-cart-title").textContent()) === text.added
       && confirmation.includes((await first.locator(".full-menu-item-copy > strong").textContent()).trim())
       && confirmation.includes("× 2") && confirmation.split("·").at(-1).replace(/\D/g, "") === String(unit * 2), { confirmation });
-    check(`${lang}/explicit-next-actions`, await page.getByRole("button", { name: text.checkout, exact: true }).isVisible()
+    check(`${lang}/explicit-next-actions`, await page.getByRole("button", { name: `${text.checkout} · ${unit * 2} ₺`, exact: true }).isVisible()
       && await page.getByRole("button", { name: text.more, exact: true }).isVisible()
       && (await page.locator("#menu-cart-draft-note").textContent()).includes(text.payment));
     check(`${lang}/no-automatic-checkout`, await page.locator(".order-checkout-dialog[open]").count() === 0);

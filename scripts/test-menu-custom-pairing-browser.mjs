@@ -13,9 +13,9 @@ const copy = {
   ru: { legend: "Сладкое к напитку", drinkOnly: "Только напиток", addPair: "Добавить пару в заказ", quantity: "Количество пар" }
 };
 const confirmationCopy = {
-  tr: { title: "Siparişine eklendi", checkout: "Kasa için QR oluştur", more: "Başka bir şey seç" },
-  en: { title: "Added to your order", checkout: "Get QR for the counter", more: "Choose something else" },
-  ru: { title: "Добавлено в заказ", checkout: "Получить QR для кассы", more: "Выбрать ещё" }
+  tr: { title: "Siparişine eklendi", checkout: "Kasada ödemeye geç", more: "Menüye dön" },
+  en: { title: "Added to your order", checkout: "Continue to payment at counter", more: "Back to menu" },
+  ru: { title: "Добавлено в заказ", checkout: "К оплате на кассе", more: "Вернуться к меню" }
 };
 
 // Expectations come from the catalog, independently of the pairing domain/view.
@@ -125,7 +125,8 @@ async function addAndConfirm(page) {
   assert.equal(await page.locator("#menu-cart-added-summary").isVisible(), true);
   assert.equal(summary.includes(`${chosenName} × ${chosenQuantity}`), true, "confirmation preserves the chosen composition and quantity");
   assert.equal(money(summary), chosenTotal, "confirmation amount equals the explicit Add amount");
-  assert.equal(await page.getByRole("button", { name: text.checkout, exact: true }).isVisible(), true);
+  const cartTotal = (await page.locator("#menu-cart-dialog-total").innerText()).trim();
+  assert.equal(await page.getByRole("button", { name: `${text.checkout} · ${cartTotal}`, exact: true }).isVisible(), true);
   assert.equal(await page.getByRole("button", { name: text.more, exact: true }).isVisible(), true);
   await poll(() => page.locator("#menu-cart-title").evaluate(node => document.activeElement === node), Boolean,
     "confirmation heading receives focus after Add");
