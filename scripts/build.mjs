@@ -8,7 +8,6 @@ import { sharedPhotoPreviewsPlugin } from "./smart-choice-photos-external.mjs";
 import { MENU_STYLESHEET_FILE, MENU_STYLE_INPUTS, compileMenuStylesBundle, verifyMenuStylesBundle, readMenuStylesBundleInputs } from "./menu-styles-bundle.mjs";
 
 await import("./build-counter.mjs");
-await import("./build-menu-nutrition.mjs");
 
 const menuCatalogRevision = revisionFor("menu-catalog.js");
 writeFileSync("menu-feedback.js", compileMenuRuntime(readFileSync("src/menu-feedback.js", "utf8")));

@@ -1,4 +1,4 @@
-import{menuCategories}from"./menu-catalog.js?v=05e7dac3c17b";
+import{menuCategories}from"./menu-catalog.js?v=3132b4dc1273";
 import{copy,supportedLanguages}from"./discover-copy.js?v=748cea1d06ec";
 import{journeys,imageAlt}from"./discover-journeys-v2.js";
 const S={language:"robys-language",visitDate:"robys-discovery-last-date",visits:"robys-discovery-visits",discovered:"robys-discovery-pairs"};

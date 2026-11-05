@@ -1,8 +1,9 @@
 # Menu nutrition guide
 
-The menu has 61 individual products and two pairings. Each now has an editorial
+The menu has 61 individual products and two pairings. Each product dialog now has an editorial
 calorie range, an explicitly identified **example portion**, typical ingredients,
 a nutritional-contribution explanation and vitamin information in TR/EN/RU.
+Open a product photo in the list or the ingredients control in the photo feed.
 These are illustrative recipe models, not verified Roby's recipes, measured
 servings, laboratory results, supplier labels or allergy declarations.
 
@@ -10,10 +11,6 @@ servings, laboratory results, supplier labels or allergy declarations.
 
 - `src/menu-nutrition-portions.js`: complete ID-to-range index and example weights
   or volumes. Pair ranges are the sum of the two component ranges.
-- `scripts/build-menu-nutrition.mjs` generates the compact eager numeric rows in
-  `src/menu-nutrition-ranges.js` from the current catalog and portion index.
-  `src/menu-nutrition-summary.js` maps these rows back to full product IDs. The
-  content tests check every generated range against the detailed source.
 - `src/menu-nutrition.js`: typical ingredient models, translations, explanations
   and the product-dialog renderer. Existing herbal blend descriptions are retained.
 - Black coffee and strained tea estimates exclude added sugar, milk and extras.
@@ -52,8 +49,8 @@ the supplier/recipe source and review date. Never relabel an example as verified
 
 ## Delivery and regression coverage
 
-The small calorie index is bundled with list/feed runtimes. Detailed copy loads
-with the existing product dialog. Both views use the same source and product IDs;
+Nutrition data and copy load with the existing product dialog, keeping the
+initial list/feed scripts compact. Both views use the same source and product IDs;
 ordering prices and product identity are unchanged. Selecting a dessert recomputes
 calories, ingredients and vitamins for both components while retaining disclosure
 state. Quantity changes retain the explicitly labelled one-pair example portions. Details expand in the dialog's

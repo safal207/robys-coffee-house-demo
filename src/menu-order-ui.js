@@ -14,7 +14,7 @@ function loadCheckoutModule() {
       const retryUrl = new URL("./order-checkout.js", import.meta.url);
       retryUrl.searchParams.set("retry", String(checkoutModuleRetry));
       loading = import(retryUrl.href);
-    } else loading = import("./order-checkout.js?v=ede76ee31ffa");
+    } else loading = import("./order-checkout.js?v=bc8d0193d64b");
     // A browser remembers a failed module URL. Only a later checkout action
     // starts one fresh same-origin request; a failure never retries itself.
     checkoutModulePromise = loading.catch(error => {

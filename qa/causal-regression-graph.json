@@ -734,9 +734,7 @@
         "scripts/test-menu-nutrition-browser.mjs",
         "docs/menu-nutrition.md",
         ".github/workflows/menu-nutrition.yml",
-        "src/menu-nutrition-portions.js",
-        "src/menu-nutrition-ranges.js",
-        "scripts/build-menu-nutrition.mjs"
+        "src/menu-nutrition-portions.js"
       ],
       "dependsOn": [
         "build",

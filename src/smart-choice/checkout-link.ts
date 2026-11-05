@@ -9,7 +9,7 @@ let checkoutModuleRetry = 0;
 
 function loadQuickCheckout(): Promise<CheckoutModule> {
   if (!checkoutModule) {
-    const moduleUrl = new URL("../order-checkout.js?v=ede76ee31ffa", window.location.href);
+    const moduleUrl = new URL("../order-checkout.js?v=bc8d0193d64b", window.location.href);
     if (checkoutModuleRetry) moduleUrl.searchParams.set("retry", String(checkoutModuleRetry));
     // Failed imports are cached by URL. A later explicit checkout can recover
     // with one new URL, while concurrent actions share the in-flight request.

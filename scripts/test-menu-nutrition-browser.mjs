@@ -55,8 +55,7 @@ try {
       await page.goto(`${origin}/${feed ? "menu-feed.html" : "menu.html"}?${query}`, { waitUntil: "domcontentloaded" });
       await page.locator(feed ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
       const card = page.locator(`[data-product-id="${entry.id}"]`).first();
-      assert.match(await card.locator(feed ? ".menu-calories" : ".menu-nutrition-link").innerText(), /≈/);
-      await card.locator(feed ? ".feed-details" : ".menu-nutrition-link").click();
+      await card.locator(feed ? ".feed-details" : ".full-menu-item-media").click();
       await page.locator("#menu-product-dialog[open]").waitFor();
       const panel = page.locator("#menu-product-nutrition");
       if (entry.selection) await page.waitForFunction(expected =>

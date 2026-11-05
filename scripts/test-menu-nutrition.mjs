@@ -3,8 +3,7 @@ import test from "node:test";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
 import { calorieRange, nutritionPortions, nutritionPairs } from "../src/menu-nutrition-portions.js";
-import { createCalorieLookup, formatCalorieLabel } from "../src/menu-nutrition-summary.js";
-const calorieLabel = createCalorieLookup(menuCategories);
+import { formatCalorieLabel } from "../src/menu-nutrition-summary.js";
 import { nutritionDetails, nutritionSelectionDetails, nutritionRecipes, nutritionCopy } from "../src/menu-nutrition.js";
 
 const products = feedProducts(menuCategories);
@@ -16,7 +15,7 @@ test("every menu item and pairing has an explicit portion and nutrition in all t
   for (const product of products) {
     for (const language of ["tr", "en", "ru"]) {
       const data = nutritionDetails(product, language);
-      assert.equal(calorieLabel(product.id, language), formatCalorieLabel(calorieRange(product.id), language));
+      assert.equal(data.calorie, formatCalorieLabel(calorieRange(product.id), language));
       for (const field of ["calorie", "portion", "ingredients", "ingredientLabel", "benefits", "vitamins"]) {
         assert.equal(typeof data[field], "string", `${product.id}/${language}/${field}`);
         assert.ok(data[field].length > 2, `${product.id}/${language}/${field} must be populated`);
@@ -36,7 +35,7 @@ test("calories use bounded ranges and identified example portions, including the
   assert.deepEqual(calorieRange("pairing-offers:cool-lime-macaron-pairing"), [150, 290]);
   assert.deepEqual(calorieRange("pairing-offers:iced-san-sebastian-pairing"), [440, 670]);
   assert.equal(calorieRange("missing:product"), null);
-  assert.equal(calorieLabel("constructor"), "");
+  assert.equal(formatCalorieLabel(calorieRange("constructor")), "");
 });
 
 test("syrup flavours never imply fruit or nut vitamin content", () => {
