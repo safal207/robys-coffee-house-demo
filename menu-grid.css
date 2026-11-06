@@ -1,0 +1,12 @@
+/* Photo tiles reuse the same semantic product cards and ordering controls. */
+.menu-photo-grid .full-menu-grid[data-ready]{display:grid;grid-template-columns:minmax(0,1fr);columns:auto}
+.menu-photo-grid .full-menu-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.menu-photo-grid .full-menu-item--product{display:flex;flex-direction:column;gap:0;min-width:0;padding:0;overflow:hidden;border-radius:18px}
+.menu-photo-grid .full-menu-item--product .full-menu-item-media{width:100%;aspect-ratio:1;min-height:0;border-radius:0}
+.menu-photo-grid .full-menu-item--product .full-menu-item-details{flex:1;gap:12px;padding:12px}
+.menu-photo-grid .full-menu-item--product .full-menu-item-copy strong{font-size:1rem;line-height:1.3}
+.menu-photo-grid .full-menu-item--product .full-menu-item-copy p{font-size:.75rem;line-height:1.45}
+.menu-photo-grid .full-menu-price{font-size:1.05rem;align-self:flex-start}
+.menu-photo-grid .full-menu-panel{padding:20px}
+@media(max-width:760px){.menu-photo-grid .full-menu-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.menu-photo-grid .full-menu-panel{padding:14px 10px}.menu-photo-grid .full-menu-item--product{border-radius:13px}.menu-photo-grid .full-menu-item--product .full-menu-item-details{padding:10px;gap:10px}.menu-photo-grid .full-menu-item--product .full-menu-item-copy strong{font-size:.88rem}.menu-photo-grid .full-menu-item--product .full-menu-item-copy p{font-size:.7rem}}
+@media(min-width:1200px){.menu-photo-grid .full-menu-list{grid-template-columns:repeat(4,minmax(0,1fr))}}

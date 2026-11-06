@@ -79,7 +79,7 @@ try {
   await landing.locator("#hero-title").waitFor({ state: "visible" });
 
   const menu = await context.newPage();
-  await menu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
+  await menu.goto(new URL("menu.html?view=list", BASE_URL).href, { waitUntil: "domcontentloaded" });
   await menu.locator("#menu-root .full-menu-item").first().waitFor({ state: "visible", timeout: 15000 });
   recordBaselineNetwork = false;
 
@@ -221,7 +221,7 @@ try {
   const fallbackErrors = [];
   fallbackMenu.on("pageerror", (error) => fallbackErrors.push(error.message));
   try {
-    await fallbackMenu.goto(new URL("menu.html", BASE_URL).href, { waitUntil: "domcontentloaded" });
+    await fallbackMenu.goto(new URL("menu.html?view=list", BASE_URL).href, { waitUntil: "domcontentloaded" });
     await fallbackMenu.locator("#menu-root .full-menu-item--product .full-menu-item-media").first().waitFor({ state: "visible" });
     const initiallyHidden = await fallbackMenu.locator("#menu-product-dialog").evaluate(
       (dialog) => getComputedStyle(dialog).display === "none" && !dialog.hasAttribute("open")

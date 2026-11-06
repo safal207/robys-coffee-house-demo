@@ -290,10 +290,10 @@ async function verifyCase(browser, engine, width, language) {
     await toggle.click();
     await expectFocus(first, "Full-menu navigation starts inside the opened navigation");
     await nav.locator('a[href="menu.html"]').click();
-    await page.locator('#menu-root[data-ready="true"]').waitFor();
-    assert.equal(new URL(page.url()).pathname, "/menu.html", "Main-menu link reaches the actual catalog");
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(new URL(page.url()).pathname, "/menu-feed.html", "Main-menu link opens the feed by default");
     assert.equal(await page.locator("html").getAttribute("lang"), language, "Native menu navigation preserves the language");
-    facts.destinations.push({ path: "/menu.html", preservedLanguage: language });
+    facts.destinations.push({ path: "/menu-feed.html", preservedLanguage: language });
     assert.deepEqual(errors, [], "Navigation produces no uncaught runtime errors");
     await page.screenshot({ path: join(directory, `${id}-catalog.png`) });
     report.cases.push({ id, status: "PASS", facts });
@@ -399,10 +399,10 @@ async function verifyStandaloneCase(browser, { engine, width, id }) {
     await toggle.click();
     await expectFocus(first, "Standalone full-menu navigation begins at its first link");
     await page.keyboard.press("Enter");
-    await page.locator('#menu-root[data-ready="true"]').waitFor();
-    assert.equal(new URL(page.url()).pathname, "/menu.html", "Standalone menu link reaches the emitted catalog");
+    await page.locator('#feed[data-ready="true"]').waitFor();
+    assert.equal(new URL(page.url()).pathname, "/menu-feed.html", "Standalone menu link opens the feed by default");
     assert.equal(await page.locator("html").getAttribute("lang"), "ru", "Standalone menu link preserves Russian");
-    facts.destinations.push({ path: "/menu.html", preservedLanguage: "ru" });
+    facts.destinations.push({ path: "/menu-feed.html", preservedLanguage: "ru" });
     assert.deepEqual(errors, [], "Standalone navigation produces no uncaught runtime errors");
     await page.screenshot({ path: join(directory, `${id}-catalog.png`) });
     report.cases.push({ id, status: "PASS", facts });

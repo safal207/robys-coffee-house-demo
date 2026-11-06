@@ -21,7 +21,7 @@ function observeListStartup({ suffix = "", preference = "feed", state = null,
   const redirects = [], historyWrites = [];
   let startupReads = 0;
   const context = {
-    location: { href: url.href, search: url.search, hash: url.hash,
+    location: { href: url.href, pathname: url.pathname, search: url.search, hash: url.hash,
       replace: destination => redirects.push(destination) },
     history: { state, replaceState: next => historyWrites.push(JSON.parse(JSON.stringify(next))) },
     performance: timing,
@@ -46,7 +46,7 @@ test("explicit entries and navigation safeguards still enter list initialization
   const cases = [
     ...["?view=list", "?view=feed", "?lang=ru", "?q=latte", "?product=hot-coffee:espresso", "?utm_source=qr",
       "#desserts", "#menu-family", "#kids-menu", "#menu-combos", "#menu-combos-takeaway"].map(suffix => ({ suffix })),
-    ...["list", null, "invalid"].map(preference => ({ preference })),
+    { preference: "list" },
     ...["reload", "back_forward", "prerender"].map(type => ({
       timing: { getEntriesByType: () => [{ type }], navigation: { type: 0 } }
     })),
@@ -74,6 +74,7 @@ test("shipped menu view runtime matches its authored source", () => {
 
 test("remembered feed applies only to a fresh generic list entry", () => {
   assert.equal(shouldOpenPreferredFeed(base, "feed", "navigate"), true);
+  assert.equal(shouldOpenPreferredFeed(base, null, "navigate"), true, "First visits open the feed");
   assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", "menu"), "feed", "navigate"), true);
   assert.equal(shouldOpenPreferredFeed(base.replace("menu.html", ""), "feed", "navigate"), false);
   for (const suffix of ["?view=list", "?view=feed", "?lang=ru", "?q=latte", "?product=hot-coffee:espresso",
@@ -179,6 +180,8 @@ test("preference writes only known modes and tolerates unavailable storage", () 
   assert.equal(storeMenuViewPreference(storage, "feed"), true);
   assert.equal(map.get(MENU_VIEW_STORAGE_KEY), "feed");
   assert.equal(readMenuViewPreference(storage), "feed");
+  assert.equal(storeMenuViewPreference(storage, "grid"), true);
+  assert.equal(readMenuViewPreference(storage), "grid");
   assert.equal(storeMenuViewPreference(storage, "list"), true);
   assert.equal(storeMenuViewPreference(storage, "unknown"), false);
   assert.equal(readMenuViewPreference(storage), "list");
@@ -248,4 +251,46 @@ test('native warming respects browser support, data saving, visibility, connecti
   }
   const observed = observeWarm(); observed.load(); observed.hide(); observed.timers.forEach(fn => fn());
   assert.equal(observed.hints.length, 0);
+});
+
+
+test("fresh visitors start in feed and a saved photo grid opens without rendering the list", () => {
+  for (const preference of [null, "invalid"]) {
+    assert.deepEqual(observeListStartup({ preference }).redirects, ["menu-feed.html?view=feed"]);
+  }
+  const grid = observeListStartup({ preference: "grid" });
+  assert.deepEqual(grid, { redirects: ["menu-grid.html?view=grid"], historyWrites: [], startupReads: 0 });
+});
+
+test("photo-grid URLs preserve safe language, category, search and product context", () => {
+  const context = { language: "ru", category: "desserts", search: "Чизкейк" };
+  const grid = new URL(menuViewUrl(base, "grid", context, categories));
+  assert.equal(grid.pathname, "/cafe/menu-grid.html");
+  assert.equal(grid.searchParams.get("view"), "grid");
+  assert.equal(grid.searchParams.get("lang"), "ru");
+  assert.equal(grid.searchParams.get("q"), "Чизкейк");
+  assert.equal(grid.hash, "#desserts");
+  const product = new URL(menuViewUrl(base, "grid", { language: "en", productId: "hot-coffee:espresso" }, categories));
+  assert.equal(product.searchParams.get("product"), "hot-coffee:espresso");
+  assert.equal(product.searchParams.has("item"), false);
+});
+
+test("all menu surfaces present feed, photos and list in the requested order", () => {
+  for (const [file, current] of [["menu-feed.html", "feed"], ["menu-grid.html", "grid"], ["menu.html", "list"]]) {
+    const html = readFileSync(file, "utf8");
+    const nav = html.match(/<nav[^>]*class="(?:feed-view-switch|menu-view-switch)"[\s\S]*?<\/nav>/)?.[0];
+    assert.ok(nav, file);
+    assert.deepEqual([...nav.matchAll(/data-menu-view="([a-z]+)"/g)].map(match => match[1]), ["feed", "grid", "list"], file);
+    assert.match(nav, new RegExp(`data-menu-view="${current}"[^>]*aria-current="page"`));
+  }
+  const grid = readFileSync("menu-grid.html", "utf8");
+  assert.match(grid, /class="menu-page menu-photo-grid"/);
+  const list = readFileSync("menu.html", "utf8");
+  assert.equal(grid.replace(' menu-photo-grid', '').replace('data-menu-view="grid" aria-current="page"', 'data-menu-view="grid"')
+    .replace('data-menu-view="list"', 'data-menu-view="list" aria-current="page"')
+    .replace(/<link rel="stylesheet" href="menu-grid\.css\?v=[a-f0-9]+" \/>/, ''), list,
+    "Grid is generated from the final list document and uses its exact catalog/runtime/cache revisions");
+  const sw = readFileSync("sw-core-v64.js", "utf8");
+  for (const file of ["menu-grid.html", "menu-grid.css"]) assert.ok(sw.includes(`./${file}`));
+  assert.match(sw, /if \(isMenuGrid\) return cachedPage\("menu-grid.html"\)/);
 });

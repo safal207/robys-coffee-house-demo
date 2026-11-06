@@ -127,6 +127,9 @@
         "menu-interactions.js",
         "menu-ready.js",
         "menu-search-clear.js",
+        "scripts/menu-stability-cache-proof.mjs",
+        "scripts/menu-scroll-regression.mjs",
+        "scripts/test-menu-share-capture.mjs",
         "scripts/test-menu-photo-delivery.mjs",
         "scripts/test-menu-feed-browser.mjs",
         "scripts/test-menu-lazy-images-browser.mjs",
@@ -153,8 +156,12 @@
     },
     {
       "id": "menu-view",
-      "label": "List/feed navigation context, remembered view and optional shared feedback",
+      "label": "Feed/photos/list navigation context, remembered view and optional shared feedback",
       "paths": [
+        "menu-grid.html",
+        "menu-grid.css",
+        "scripts/test-menu-view-mode.mjs",
+        "scripts/test-mobile-navigation-browser.mjs",
         "src/menu-view-mode.js",
         "src/menu-view-prefetch.js",
         "menu-view-mode.js",

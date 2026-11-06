@@ -1,9 +1,9 @@
 import { initFeedListPrefetch } from "./src/menu-view-prefetch.js";
-// List and feed are two views of the same menu. Explicit links always win over
+// Feed, photo tiles and list are views of the same menu. Explicit links always win over
 // the remembered preference; only an unqualified menu entry can use it.
 export const MENU_VIEW_STORAGE_KEY = "robys-menu-view";
 const languages = new Set(["tr", "en", "ru"]);
-const views = new Set(["list", "feed"]);
+const views = new Set(["feed", "grid", "list"]);
 
 export function normalizeMenuSearch(value) {
   return typeof value === "string" ? Array.from(value.replace(/[\u0000-\u001f\u007f]/g, " ").trim()).slice(0, 120).join("") : "";
@@ -30,7 +30,7 @@ export function readMenuViewContext(href, categories) {
 
 export function menuViewUrl(href, view, context, categories) {
   const target = views.has(view) ? view : "list";
-  const url = new URL(target === "feed" ? "menu-feed.html" : "menu.html", href);
+  const url = new URL(target === "feed" ? "menu-feed.html" : target === "grid" ? "menu-grid.html" : "menu.html", href);
   url.searchParams.set("view", target);
   if (languages.has(context.language)) url.searchParams.set("lang", context.language);
   const search = normalizeMenuSearch(context.search);
@@ -72,7 +72,7 @@ export function readMenuNavigationType(timing) {
 
 export function shouldOpenPreferredFeed(href, preference, navigationType = null, historyState = null) {
   const url = new URL(href);
-  return preference === "feed" && navigationType === "navigate"
+  return (preference ?? "feed") === "feed" && navigationType === "navigate"
     && historyState?.robysMenuViewEntry !== "list"
     && /\/menu(?:\.html)?$/.test(url.pathname) && !url.search && !url.hash;
 }
@@ -81,14 +81,15 @@ function initializeMenuViews() {
   const feed = document.querySelector("#feed");
   const root = feed ?? document.querySelector("#menu-root");
   if (!root) return;
-  const view = feed ? "feed" : "list";
+  const view = feed ? "feed" : document.body.classList.contains("menu-photo-grid") ? "grid" : "list";
   const searchInput = document.querySelector(feed ? "#feed-search" : "#menu-search");
   const categoryRoot = document.querySelector(feed ? "#feed-categories" : "#menu-category-nav");
   let storage;
   try { storage = window.localStorage; } catch { /* Navigation also works without storage. */ }
   const navigationType = readMenuNavigationType(window.performance);
-  if (view === "list" && shouldOpenPreferredFeed(location.href, readMenuViewPreference(storage), navigationType, history.state)) {
-    location.replace(menuViewUrl(location.href, "feed", {}, []));
+  const preference = readMenuViewPreference(storage) ?? "feed";
+  if (view === "list" && preference !== "list" && shouldOpenPreferredFeed(location.href, "feed", navigationType, history.state)) {
+    location.replace(menuViewUrl(location.href, preference, {}, []));
     return;
   }
 
@@ -120,7 +121,7 @@ function initializeMenuViews() {
   };
   const restoreContext = (href = location.href) => {
     const context = readMenuViewContext(href, categories());
-    if (view === "list" && (context.language || context.hasSearch)) {
+    if (view !== "feed" && (context.language || context.hasSearch)) {
       document.dispatchEvent(new CustomEvent("robys:menu-view-context", { detail: {
         language: context.language,
         category: context.category,
