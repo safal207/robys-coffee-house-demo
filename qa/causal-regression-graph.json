@@ -161,6 +161,7 @@
         "menu-grid.html",
         "menu-grid.css",
         "scripts/test-menu-view-mode.mjs",
+        "scripts/test-mobile-navigation-browser.mjs",
         "src/menu-view-mode.js",
         "src/menu-view-prefetch.js",
         "menu-view-mode.js",

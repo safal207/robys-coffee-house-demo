@@ -116,7 +116,8 @@ try {
       assert(!boxesOverlap(linkBox, langBox) && !boxesOverlap(linkBox, brandBox), "full-menu link does not overlap brand or language controls");
       await page.screenshot({ path: join(output, `${id}-smart-choice.png`) });
       await link.click();
-      await page.locator('#menu-root[data-ready="true"]').waitFor();
+      await page.locator('#feed[data-ready="true"]').waitFor();
+      assert.equal(new URL(page.url()).pathname, "/menu-feed.html", "one-tap menu link opens the feed by default");
       assert.equal(await page.locator('html').getAttribute('lang'), language, "one-tap menu link preserves language");
       assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-order.v2")), before, "navigation preserves cart contents");
       await page.goto(`${origin}/index.html`);
