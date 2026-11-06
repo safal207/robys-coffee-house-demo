@@ -86,7 +86,7 @@ async function openMenu(page, language = "ru", { fallback = false, deepLink = fa
     localStorage.setItem("robys-language", language);
     if (fallback) HTMLDialogElement.prototype.showModal = undefined;
   }, { language, fallback });
-  await page.goto(`${origin}/menu.html${kidsDeepLink ? "#kids-menu" : deepLink ? "#menu-family" : ""}`);
+  await page.goto(`${origin}/menu.html${kidsDeepLink ? "#kids-menu" : deepLink ? "#menu-family" : "?view=list"}`);
   await page.locator('#menu-root[data-ready="true"]').waitFor();
   if (reveal) {
     if (!deepLink && !kidsDeepLink) await page.locator("#menu-family-trigger").click();
@@ -749,7 +749,7 @@ try {
       };
     });
     const gate = await context.newPage();
-    await gate.goto(`${origin}/menu.html`);
+    await gate.goto(`${origin}/menu.html?view=list`);
     const hold = async label => gate.evaluate(async label => {
       const request = indexedDB.open("robys-order-transactions.v1", 1);
       request.onupgradeneeded = () => request.result.createObjectStore("shared-order");

@@ -146,7 +146,9 @@ async function main() {
     });
     await page.screenshot({path:`${out}/home-390.png`});
     await page.locator('.hero-actions a[href="menu.html"]').click();
-    await page.waitForURL('**/menu.html');
+    await page.waitForURL(url => url.pathname === '/menu-feed.html');
+    await page.locator('.feed-view-switch [data-menu-view="list"]').click();
+    await page.waitForURL(url => url.pathname === '/menu.html');
     await page.locator('.full-menu-item--product').first().waitFor();
     const control = page.locator('#menu-cart-trigger');
     await page.waitForLoadState('networkidle');

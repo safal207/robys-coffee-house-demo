@@ -81,7 +81,7 @@ try {
   await page.reload({ waitUntil: "domcontentloaded" });
   await waitForControlledPage(page, "home page reload");
 
-  await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${baseUrl}/menu.html?view=list`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
   await page.locator("html[data-offline-ready='true']").waitFor({ state: "attached", timeout: 15000 });
   await waitForControlledPage(page, "menu page bootstrap");
@@ -110,7 +110,7 @@ try {
   await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
   assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
 
-  await page.goto(`${baseUrl}/menu.html`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${baseUrl}/menu.html?view=list`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
   // This panel was never opened online: every new photo must already be in
   // the installed worker's cache, not merely left in the HTTP/runtime cache.
@@ -138,13 +138,31 @@ try {
   assert.match(new URL(page.url()).pathname, /\/menu-feed\.html$/);
   assert.equal(await page.locator("#feed-search").inputValue(), "latte", "Offline feed keeps the current search context");
 
+  // The grid document and stylesheet have never been opened online in this
+  // context. Its first navigation must work entirely from the installed cache.
+  await page.locator('.feed-view-switch [data-menu-view="grid"]').click();
+  await page.locator('html[data-menu-view-ready="true"]').waitFor({ state: "attached", timeout: 15000 });
+  await page.locator('#menu-root[data-ready="true"] .full-menu-item--product').first().waitFor({ state: "visible", timeout: 15000 });
+  assert.match(new URL(page.url()).pathname, /\/menu-grid\.html$/);
+  assert.equal(await page.locator("#menu-search").inputValue(), "latte", "Offline grid keeps the current search context");
+  assert.equal(await page.locator("body").evaluate(node => node.classList.contains("menu-photo-grid")), true);
+  assert.ok(await page.locator(".full-menu-list").first().evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length >= 2),
+    "The uncached grid stylesheet must load from the installed worker");
+  const gridPhoto = page.locator(".full-menu-item--product .full-menu-item-media img").first();
+  await gridPhoto.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => {
+    const image = document.querySelector(".full-menu-item--product .full-menu-item-media img");
+    return image?.complete && image.naturalWidth > 0;
+  });
+  await gridPhoto.evaluate(node => node.decode());
+
   await page.goto(`${baseUrl}/smart-choice/`, { waitUntil: "domcontentloaded" });
   await page.locator("#smart-choice-app[aria-busy='false']").waitFor({ state: "visible", timeout: 15000 });
   assert.match(await page.title(), /Roby's Smart Choice/, "Offline Smart Choice route returned the wrong page");
 
   const fatalMessages = browserMessages.filter((message) => /pageerror|TrustedScript|offline mode could not start/i.test(message));
   assert.deepEqual(fatalMessages, [], `Browser emitted fatal offline errors: ${JSON.stringify(fatalMessages)}`);
-  console.log("✅ Offline browser gate passed: cached homepage, family reveal, menu search, feed navigation and Smart Choice remain usable without an install offer.");
+  console.log("✅ Offline browser gate passed: cached homepage, family reveal, menu search, feed/photo-grid navigation and Smart Choice remain usable without an install offer.");
 } finally {
   await context.setOffline(false).catch(() => {});
   await context.close();

@@ -1,5 +1,5 @@
 /* Photo tiles reuse the same semantic product cards and ordering controls. */
-.menu-photo-grid .full-menu-grid{grid-template-columns:minmax(0,1fr)}
+.menu-photo-grid .full-menu-grid[data-ready]{display:grid;grid-template-columns:minmax(0,1fr);columns:auto}
 .menu-photo-grid .full-menu-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .menu-photo-grid .full-menu-item--product{display:flex;flex-direction:column;gap:0;min-width:0;padding:0;overflow:hidden;border-radius:18px}
 .menu-photo-grid .full-menu-item--product .full-menu-item-media{width:100%;aspect-ratio:1;min-height:0;border-radius:0}

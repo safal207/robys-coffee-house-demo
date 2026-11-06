@@ -13,7 +13,7 @@ const browser = await chromium.launch({ headless: true });
 const server = spawn("python3", ["-m", "http.server", "4199", "--bind", "127.0.0.1"], { stdio: "ignore" });
 try {
   for (let attempt = 0; ; attempt++) {
-    try { if ((await fetch("http://127.0.0.1:4199/menu.html")).ok) break; } catch {}
+    try { if ((await fetch("http://127.0.0.1:4199/menu.html?view=list")).ok) break; } catch {}
     if (attempt >= 40) throw new Error("probe server not ready");
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
@@ -41,7 +41,7 @@ try {
       const context = await browser.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch, deviceScaleFactor: 1, reducedMotion: "reduce", bypassCSP: true, serviceWorkers: "block", locale: "tr-TR" });
       await context.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());
       const page = await context.newPage();
-      await page.goto("http://127.0.0.1:4199/menu.html", { waitUntil: "domcontentloaded" });
+      await page.goto("http://127.0.0.1:4199/menu.html?view=list", { waitUntil: "domcontentloaded" });
       await page.locator(".full-menu-item").first().waitFor();
       await page.evaluate(async () => { await document.fonts.ready; });
       await page.addStyleTag({ content: '*{animation:none!important;transition:none!important;scroll-behavior:auto!important}html{scrollbar-width:none!important}' });

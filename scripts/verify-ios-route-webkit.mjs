@@ -81,7 +81,7 @@ async function clickForRoutePopup(page, link, label) {
 
 async function verifyPage(pathname) {
   const page = await context.newPage();
-  const localUrl = new URL(pathname, `${baseUrl}/`).href;
+  const localUrl = new URL(pathname === "menu.html" ? "menu.html?view=list" : pathname, `${baseUrl}/`).href;
   await page.goto(localUrl, { waitUntil: "domcontentloaded" });
   // These authored, blocking styles must be loaded by DOMContentLoaded.
   // Use direct DOM inspection: waitForFunction internally compiles a string,

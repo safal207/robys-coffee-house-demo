@@ -102,7 +102,7 @@ self.addEventListener("fetch", event => event.respondWith((async () => {
         // waitForResponse fires for headers; await the entire emitted bundle.
         body: await response.body()
       }));
-    await page.goto(`${origin}/menu.html`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/menu.html?view=list`, { waitUntil: "domcontentloaded" });
     const { response: cssResponse, body: cssBody } = await cssResponsePromise;
     assert.equal(cssResponse.fromServiceWorker(), true, "The first menu navigation must still pass through the legacy worker");
     assert.equal(cssResponse.status(), 200, "The first menu bundle response must succeed");

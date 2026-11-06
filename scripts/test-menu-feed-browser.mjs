@@ -1575,6 +1575,9 @@ try {
     }
     const cards = page.locator('#hot-coffee .full-menu-list');
     assert.equal(await cards.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length), columns);
+    const sectionWidth = await cards.evaluate(node => ({ panel: node.closest(".full-menu-panel").getBoundingClientRect().width,
+      available: node.closest(".full-menu-grid").getBoundingClientRect().width }));
+    assert.ok(sectionWidth.panel >= sectionWidth.available * .95, `${width}/${language}: category fills the available content width`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${language}: no page overflow`);
     const photo = page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media');
     await photo.scrollIntoViewIfNeeded();
