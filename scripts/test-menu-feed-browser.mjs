@@ -63,7 +63,7 @@ async function captureScreenshot(page, options) {
 }
 async function waitForMenuMode(page, mode) {
   await page.locator('html[data-menu-view-ready="true"]').waitFor();
-  assert.equal(new URL(page.url()).pathname, mode === "feed" ? "/menu-feed.html" : "/menu.html");
+  assert.equal(new URL(page.url()).pathname, mode === "feed" ? "/menu-feed.html" : mode === "grid" ? "/menu-grid.html" : "/menu.html");
   await page.locator(mode === "feed" ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
 }
 const storedOrder = page => page.evaluate(async ids => {
@@ -1519,6 +1519,79 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu.html`);
+    await waitForMenuMode(page, "feed");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), null, "First entry defaults to feed without persisting a choice");
+    await page.locator('[data-lang="ru"]').click();
+    await page.locator('.feed-view-switch [data-menu-view="grid"]').click();
+    await waitForMenuMode(page, "grid");
+    assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "grid");
+    await assertStickySwitch(page, "grid");
+    await page.locator("#menu-search").fill("Эспрессо");
+    await page.locator('#menu-category-nav [data-category="hot-coffee"]').click();
+    await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media').click();
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    await page.locator("#menu-add-to-cart").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    await page.keyboard.press("Escape");
+    const expected = await storedOrder(page);
+    for (const mode of ["list", "feed", "grid"]) {
+      await page.locator(`nav [data-menu-view="${mode}"]`).click();
+      await waitForMenuMode(page, mode);
+      assert.equal(await page.locator("html").getAttribute("lang"), "ru");
+      assert.equal(new URL(page.url()).hash, "#hot-coffee");
+      assert.equal(await page.locator(mode === "feed" ? "#feed-search" : "#menu-search").inputValue(), "Эспрессо");
+      assert.deepEqual(await storedOrder(page), expected);
+      assert.equal(await page.locator("#menu-cart-count").textContent(), "1");
+      const nav = page.locator(mode === "feed" ? ".feed-view-switch" : ".menu-view-switch");
+      assert.deepEqual(await nav.locator("a[data-menu-view]").evaluateAll(links => links.map(link => link.dataset.menuView)), ["feed", "grid", "list"]);
+    }
+    await page.locator("#menu-cart-trigger").click();
+    await page.locator("#menu-cart-dialog[open]").waitFor();
+    await page.locator("#menu-checkout-trigger").click();
+    await page.locator(".order-ticket-qr").waitFor();
+    assert.equal(moneyValue(await page.locator(".order-ticket-total").textContent()), 110);
+    await page.goto(`${origin}/menu.html`);
+    await waitForMenuMode(page, "grid");
+    assert.equal(await page.locator("#menu-cart-count").textContent(), "1");
+    await page.reload();
+    await waitForMenuMode(page, "grid");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "feed-grid-list-order-and-shared-cart", result: "PASS", freshDefault: "feed",
+      modes: ["feed", "grid", "list"], searchLanguageCategoryPreserved: true, qrTotal: 110, gridPreferenceAndReload: true });
+    await context.close();
+  }
+  for (const [width, language, columns] of [[320,"tr",2],[390,"ru",2],[760,"en",2],[761,"en",3],[1199,"tr",3],[1200,"ru",4],[1280,"en",4]]) {
+    const context = await browser.newContext({ viewport: { width, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-grid.html?view=grid&lang=${language}#hot-coffee`);
+    await waitForMenuMode(page, "grid");
+    const nav = page.locator(".menu-view-switch");
+    for (const link of await nav.locator("a[data-menu-view]").all()) {
+      const box = await link.boundingBox();
+      assert.ok(box.width >= 44 && box.height >= 44 && box.x >= 0 && box.x + box.width <= width, `${width}/${language}: reachable mode tab`);
+    }
+    const cards = page.locator('#hot-coffee .full-menu-list');
+    assert.equal(await cards.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length), columns);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${language}: no page overflow`);
+    const photo = page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-media');
+    await photo.scrollIntoViewIfNeeded();
+    await photo.locator("img").evaluate(async img => { await img.decode(); });
+    const box = await photo.boundingBox();
+    assert.ok(Math.abs(box.width - box.height) <= 1, `${width}/${language}: square product photo`);
+    await page.locator('[data-product-id="hot-coffee:espresso"] .full-menu-item-copy strong').waitFor();
+    if ([320,390,1280].includes(width)) await captureScreenshot(page, { path: `${output}/${engine}-grid-${width}-${language}.png` });
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "photo-grid-responsive", result: "PASS", width, language, columns, realPhotoDecoded: true, switchReachable: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
     const query = "Эспрессо";
     await page.goto(`${origin}/menu.html?view=list&lang=ru#hot-coffee`);
     await waitForMenuMode(page, "list");
@@ -1567,6 +1640,11 @@ try {
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    // Seed a deliberate list choice before testing a generic list history entry.
+    // Fresh users now start in feed; this case protects remembered-list Back/reload.
+    await page.goto(`${origin}/menu.html?view=list`);
+    await waitForMenuMode(page, "list");
+    await page.evaluate(() => localStorage.setItem("robys-menu-view", "list"));
     // Record the history/reload boundary without changing the page's APIs or
     // navigation. Keep this evidence even when the original assertion fails.
     const historyTrace = report.menuModeHistory = { requests: [], snapshots: [] };

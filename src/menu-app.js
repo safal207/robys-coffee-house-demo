@@ -8,11 +8,12 @@ import { createMenuActionsLoader } from "./src/menu-actions-loader.js";
 // Decide the generic entry before rendering cards or starting optional modules.
 function initializeMenu() {
   try {
-    if (!location.search && !location.hash) {
-      const type = performance.getEntriesByType?.("navigation")?.[0]?.type, legacy = performance.navigation?.type;
+    if (!location.search && !location.hash && !location.pathname.endsWith("menu-grid.html")) {
+      const type = performance.getEntriesByType?.("navigation")?.[0]?.type, legacy = performance.navigation?.type, preference = localStorage.getItem("robys-menu-view");
       if (history.state?.robysMenuViewEntry !== "list" && !["reload", "back_forward", "prerender"].includes(type)
-        && legacy !== 1 && legacy !== 2 && (type === "navigate" || legacy === 0) && localStorage.getItem("robys-menu-view") === "feed") {
-        location.replace("menu-feed.html?view=feed");
+        && legacy !== 1 && legacy !== 2 && (type === "navigate" || legacy === 0) && preference !== "list") {
+        const view = preference === "grid" ? "grid" : "feed";
+        location.replace(`menu-${view}.html?view=${view}`);
         return;
       }
       history.replaceState({ ...history.state, robysMenuViewEntry: "list" }, "", location.href);
@@ -86,12 +87,13 @@ function updateMenuViews() {
   const query = menuSearch(searchTerm), product = new URL(location.href).searchParams.get("product");
   menuViewLinks.forEach(link => {
     const view = link.dataset.menuView;
-    const url = new URL(view === "feed" ? "menu-feed.html" : "menu.html", location.href);
-    url.searchParams.set("view", view); url.searchParams.set("lang", language);
-    if (query) url.searchParams.set("q", query);
+    const url = new URL(view === "list" ? "menu.html" : `menu-${view}.html`, location.href);
+    const params = url.searchParams;
+    params.set("view", view); params.set("lang", language);
+    if (query) params.set("q", query);
     if (activeCategory !== "all") url.hash = activeCategory;
     if (!query && productIndex.has(product) && (activeCategory === "all" || product.startsWith(activeCategory + ":"))) {
-      url.searchParams.set(view === "feed" ? "item" : "product", product);
+      params.set(view === "feed" ? "item" : "product", product);
     }
     link.href = url;
   });

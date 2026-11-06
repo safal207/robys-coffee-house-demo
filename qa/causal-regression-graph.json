@@ -153,8 +153,11 @@
     },
     {
       "id": "menu-view",
-      "label": "List/feed navigation context, remembered view and optional shared feedback",
+      "label": "Feed/photos/list navigation context, remembered view and optional shared feedback",
       "paths": [
+        "menu-grid.html",
+        "menu-grid.css",
+        "scripts/test-menu-view-mode.mjs",
         "src/menu-view-mode.js",
         "src/menu-view-prefetch.js",
         "menu-view-mode.js",
