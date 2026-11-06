@@ -131,7 +131,40 @@ jobs:
       - name: Editable combos, all views and gentle choice help
         run: node scripts/test-menu-combos-browser.mjs
       - name: Menu feed selection, shared cart and counter QR
-        run: node scripts/test-menu-feed-browser.mjs
+        shell: bash
+        run: |
+          # Only the native macOS WebKit launcher is eligible for a crash retry.
+          # Assertion/test failures remain release blockers. Preserve the first
+          # attempt output in the uploaded evidence rather than hiding the crash.
+          if [[ "${{ matrix.browser }}" != "webkit" ]]; then
+            node scripts/test-menu-feed-browser.mjs
+            exit
+          fi
+
+          mkdir -p .artifacts/order-reliability
+          first_log=".artifacts/order-reliability/menu-feed-webkit-first-attempt.log"
+          set +e
+          node scripts/test-menu-feed-browser.mjs 2>&1 | tee "$first_log"
+          statuses=("${PIPESTATUS[@]}")
+          set -e
+          if [[ "${statuses[1]}" -ne 0 ]]; then
+            echo "::error::Could not preserve the first-attempt WebKit log"
+            exit 1
+          fi
+          if [[ "${statuses[0]}" -eq 0 ]]; then
+            exit 0
+          fi
+
+          # GitHub Actions 42101709066: native WebKit SIGSEGV while newPage()
+          # was starting stories-localization-tr-390. Do not retry JS failures.
+          if grep -Fq 'Segmentation fault: 11' "$first_log" &&
+             grep -Fq 'browserContext.newPage: Target page, context or browser has been closed' "$first_log"; then
+            echo "::warning::Native WebKit SIGSEGV detected; retrying the complete menu-feed scenario once in a fresh process"
+            node scripts/test-menu-feed-browser.mjs
+          else
+            echo "::error::Menu-feed failed without the known native WebKit crash signature; refusing to retry"
+            exit "${statuses[0]}"
+          fi
       - name: Contextual offer cards and exact recipe navigation
         run: node scripts/test-combo-offer-cards-browser.mjs
       - name: Quick builder touch position, cancellation and saved selection
