@@ -421,11 +421,11 @@ try {
               })
             }));
             const viewUrls = initialMenu.viewLinks.map(link => new URL(link.href, page.url()));
-            assert.deepEqual(viewUrls.map(url => url.pathname.split("/").pop()), ["menu.html", "menu-feed.html"], "Both menu views remain available");
-            assert.deepEqual(viewUrls.map(url => url.searchParams.get("view")), ["list", "feed"], "View links explicitly select their destination");
-            assert.deepEqual(initialMenu.viewLinks.map(link => link.text), { tr: ["Liste", "Akış"], en: ["List", "Feed"], ru: ["Список", "Лента"] }[language],
+            assert.deepEqual(viewUrls.map(url => url.pathname.split("/").pop()), ["menu-feed.html", "menu-grid.html", "menu.html"], "All three menu views remain available in the requested order");
+            assert.deepEqual(viewUrls.map(url => url.searchParams.get("view")), ["feed", "grid", "list"], "View links explicitly select their destination");
+            assert.deepEqual(initialMenu.viewLinks.map(link => link.text), { tr: ["Akış", "Fotoğraf", "Liste"], en: ["Feed", "Photos", "List"], ru: ["Лента", "Фото", "Список"] }[language],
               "Menu view labels follow the selected language");
-            assert.deepEqual(initialMenu.viewLinks.map(link => link.current), ["page", null], "The list view is identified as the current page");
+            assert.deepEqual(initialMenu.viewLinks.map(link => link.current), [null, null, "page"], "The list view is identified as the current page");
             assert.equal(initialMenu.viewBeforeCombos, true, "View choice appears before the separate combo choices");
             assert.equal(initialMenu.pageOverflow, false, "Menu view and combo routes fit the narrow viewport");
             assert.deepEqual(initialMenu.heroLinks.map(link => link.href), ["#menu-combos-fallback", "#menu-combos-fallback", "#menu-family-fallback"],
