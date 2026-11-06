@@ -34,7 +34,11 @@ export async function withViewerSetupDiagnostics({ report, engine, caseName, pro
 // Runs inside the menu-feed harness, against built public bytes over HTTPS and
 // its real CSP. Pointer drags below use Playwright's mouse, not synthetic
 // dispatchEvent touch events; physical touch/OS share sheets remain untested.
-export async function runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog }) {
+export async function runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog, restartBrowserBetweenCases }) {
+  // The native macOS WebKit process can SIGSEGV when repeatedly creating pages
+  // after previous viewer contexts have closed. Keep every assertion, but run
+  // independent viewer journeys in fresh native processes when requested.
+  let viewerCaseCount = 0;
   const viewer = "#feed-viewer";
   const viewsKey = id => `robys-feed-views-v1:${id}`;
   const hot = catalog.filter(product => product.category.id === "hot-coffee");
@@ -73,6 +77,10 @@ export async function runFeedViewerCases({ browser, origin, engine, output, obse
     assert.deepEqual(hit, { size: true, inside: true, hit: true }, `${selector} remains a visible, unobscured 44px target`);
   }
   async function contextFor({ caseName, width = 390, height = 844, language = "en", reducedMotion = "reduce", nativeShare = false, batchViewerIntersections = false }) {
+    if (viewerCaseCount > 0 && restartBrowserBetweenCases) {
+      browser = await restartBrowserBetweenCases(caseName);
+    }
+    viewerCaseCount++;
     return withViewerSetupDiagnostics({ report, engine, caseName, profile: { width, height, language, reducedMotion } }, async ({ setStage, trackContext }) => {
       const context = await browser.newContext({ viewport: { width, height }, reducedMotion, ignoreHTTPSErrors: true, serviceWorkers: "block" });
       trackContext(context);

@@ -1712,7 +1712,15 @@ try {
     await context.close();
   }
   await startMacWebKitGroup("Stories, Reels and shared links");
-  await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog });
+  await runFeedViewerCases({ browser, origin, engine, output, observeErrors, captureScreenshot, report, catalog,
+    // On macOS WebKit, each viewer journey gets a fresh browser process. The
+    // failing main attempts both crashed at the fourth newPage in this block,
+    // even though the identical PR tree had previously passed.
+    restartBrowserBetweenCases: engine === "webkit" && process.platform === "darwin"
+      ? async caseName => {
+          await startMacWebKitGroup(`Stories/Reels: ${caseName}`);
+          return browser;
+        } : undefined });
 
   for (const language of ["tr", "en", "ru"]) {
     const sharedPath = `/share/${language}/desserts--san-sebastian-cheesecake.html`;
