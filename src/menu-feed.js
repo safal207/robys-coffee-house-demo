@@ -7,6 +7,7 @@ import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
 import { createLazyFeedViewer } from "./src/menu-feed-viewer-entry.js";
 import { formatFeedItemCount } from "./src/menu-feed-copy.js";
+import { initTasteWave } from "./src/menu-taste-wave.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -218,13 +219,14 @@ async function addProduct(product, variant, trigger) {
     await order.openProduct(product.id, trigger);
     return;
   }
-  if (busy) return;
+  if (busy) return false;
   busy = true;
   updateBadges();
   try {
     const result = await order.addProduct(product.id, variant, trigger);
     say(result.applied ? `${text().added}: ${localized(product.item.name)}` : text().limit);
-  } catch { say(text().error); }
+    return result.applied;
+  } catch { say(text().error); return false; }
   finally { busy = false; updateBadges(); }
 }
 
@@ -295,6 +297,15 @@ function updateBadges(cards = root.querySelectorAll(".feed-card")) {
   $("#menu-cart-count").textContent = draft.groups.reduce((sum, group) => sum + group.quantity, 0);
   $("#menu-cart-total").textContent = money(quote.total);
   $("#menu-cart-trigger").setAttribute("aria-label", `${text().order}: ${$("#menu-cart-count").textContent}, ${money(quote.total)}`);
+  const first = draft.lines.map(line => productIndex.get(line.id)).find(Boolean);
+  const preview = $("#feed-cart-preview"), previewName = $("#feed-cart-product");
+  previewName.textContent = first ? localized(first.item.name) : "";
+  if (first && preview.dataset.previewId !== first.id) {
+    preview.dataset.previewId = first.id; delete preview.dataset.failed; delete preview.dataset.fallback;
+    preview.hidden = false;
+    preview.src = first.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp");
+  } else if (first) preview.hidden = preview.dataset.failed === "true";
+  else { preview.hidden = true; delete preview.dataset.previewId; delete preview.dataset.failed; delete preview.dataset.fallback; preview.removeAttribute("src"); }
   const counts = new Map(draft.lines.map(line => [line.id, line.quantity]));
   cards.forEach(card => {
     const count = counts.get(card.dataset.productId) ?? 0;
@@ -475,7 +486,7 @@ function applyLanguage() {
   // layout variables afterwards would force the whole feed to lay out twice.
   renderCategories(); updateFeedLayout(); renderFeed(); order.refreshLanguage(); collections.refresh();
   $("#feed-reels-open").setAttribute("aria-label", `${text().reels} · ${text().feedTitle}`);
-  viewer?.renderStories(); viewer?.refresh();
+  viewer?.renderStories(); viewer?.refresh(); tasteWave?.refresh();
   scheduleLayout();
 }
 
@@ -603,6 +614,17 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("storage", event => {
   if (event.key === null || event.key.startsWith("robys-menu-order")) void refreshOrder();
   if (event.key === null || event.key.startsWith("robys-feed-")) syncEngagement(event.key);
+});
+const tasteWave = initTasteWave({ productIndex, getLanguage: () => language, localized, formatPrice: money,
+  addProduct: (product, trigger) => addProduct(product, undefined, trigger),
+  openProduct: (id, trigger) => order.openProduct(id, trigger),
+  onOpen: () => { order.cancelPending(); stopViews(); },
+  onClose: () => { scheduleActiveCard(); viewCandidates.forEach(scheduleView); }
+});
+$("#feed-cart-preview").addEventListener("error", event => {
+  const preview = event.currentTarget, product = productIndex.get(preview.dataset.previewId);
+  if (product && !preview.dataset.fallback) { preview.dataset.fallback = "true"; preview.src = product.image; }
+  else { preview.dataset.failed = "true"; preview.hidden = true; }
 });
 viewer = createLazyFeedViewer({ products, categories: menuCategories, engagement, getLanguage: () => language, formatPrice: money,
   getFiltered: () => filtered, getCurrentIndex: () => currentIndex,

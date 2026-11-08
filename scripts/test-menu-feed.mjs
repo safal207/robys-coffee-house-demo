@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts, filterFeed, quoteFeedOrder } from "../src/menu-feed-model.js";
+import { tasteWaveThemes } from "../src/menu-taste-wave.js";
 import { addOrderGroup, updateOrderGroupQuantity } from "../src/order-draft.js";
 import { validateTicketDraft, quoteOrderTicket } from "../src/order-ticket.js";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
@@ -12,6 +13,21 @@ import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 const products = feedProducts(menuCategories);
 const index = new Map(products.map(product => [product.id, product]));
 const ids = new Set(index.keys());
+
+test("taste-wave collections use existing, orderable catalog products", () => {
+  assert.deepEqual(tasteWaveThemes.map(theme => theme.id), ["morning", "sweet", "refresh", "takeaway"]);
+  for (const theme of tasteWaveThemes) {
+    assert.ok(theme.items.length >= 2, `${theme.id} offers another choice`);
+    assert.equal(new Set(theme.items).size, theme.items.length, `${theme.id} does not repeat products`);
+    for (const id of theme.items) {
+      const product = index.get(id);
+      assert.ok(product, `${theme.id}: ${id} exists`);
+      assert.notEqual(product.category.id, "pairing-offers", "Suggestions do not invent a combo SKU");
+      assert.ok(Number.isFinite(product.item.price) && product.item.price > 0, `${id} has a real catalog price`);
+      assert.ok(existsSync(product.image), `${id} has an approved local photograph`);
+    }
+  }
+});
 
 test("every menu item appears once and has a local photograph", () => {
   assert.equal(products.length, 63);

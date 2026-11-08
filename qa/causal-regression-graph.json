@@ -185,6 +185,7 @@
         "menu-feed.js",
         "menu-feed.css",
         "src/menu-feed.js",
+        "src/menu-taste-wave.js",
         "src/menu-feed-model.js",
         "src/menu-feed-navigation.js",
         "src/menu-feed-order.js",

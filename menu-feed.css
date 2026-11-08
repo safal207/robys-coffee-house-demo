@@ -112,3 +112,27 @@ html.feed-viewer-open{overflow:hidden}
 
 /* Keep focused purchase controls clear of the sticky tools and cart. */
 .feed-card :is(button,select,a){scroll-margin-top:calc(var(--feed-top-offset) + 12px);scroll-margin-bottom:100px}
+
+/* Taste choices reuse the story row, preserving space for the first photo. */
+.feed-taste-entry{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 62px;min-width:0;padding:2px 0;border:0;background:none;color:var(--ink);font-size:10px;line-height:1.2;text-align:center}
+.feed-taste-entry>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;height:24px;max-width:62px;overflow:hidden;overflow-wrap:anywhere}
+.feed-taste-ring{display:grid;place-items:center;width:50px;height:50px;flex-shrink:0;border:3px solid #fff5e6;border-radius:50%;background:linear-gradient(145deg,#e69a55,#a62e31 65%,#593746);box-shadow:0 0 0 2px #d5a678;color:#fff;font-size:24px;line-height:1}
+.feed-cart-bar{padding-block:8px}
+.feed-cart-preview{width:40px;height:40px;flex:0 0 40px;object-fit:cover;border-radius:12px;background:#e9ded2}
+.feed-cart-copy{display:grid;gap:2px;flex:1;min-width:0;text-align:left;line-height:1.2}
+.feed-cart-copy>span:first-child{white-space:nowrap}.feed-cart-product{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:10px}.feed-cart-product:empty{display:none}
+.feed-cart-count{flex:0 0 30px}
+html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
+.taste-wave{width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;border-radius:20px}
+.taste-wave::backdrop{background:#100c0abf}
+.taste-wave--fallback{position:fixed;inset:0;z-index:1200;margin:auto;box-shadow:0 0 0 100vmax #100c0abf}
+.taste-wave-shell{padding:20px}.taste-wave-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.taste-wave-header>div{min-width:0}
+.taste-wave-eyebrow{margin:0 0 5px;color:#9d2933;font-size:10px;font-weight:700;letter-spacing:.14em}.taste-wave-header h2{margin:0;font:700 26px/1.15 Arial,sans-serif;overflow-wrap:anywhere}
+.taste-wave-intro{margin:13px 0 12px;color:#6d5a51;font-size:13px;line-height:1.5}
+.taste-wave-themes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.taste-wave-theme{display:flex;align-items:center;gap:9px;min-width:0;min-height:68px;padding:5px;border:1px solid #decebf;border-radius:13px;background:#fff;color:var(--ink);text-align:left}
+.taste-wave-theme[aria-pressed=true]{border-color:#b91c29;box-shadow:0 0 0 1px #b91c29}.taste-wave-theme img{width:56px;height:56px;flex:0 0 56px;object-fit:cover;border-radius:9px}.taste-wave-theme span{min-width:0;font-size:12px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.taste-wave-feature{margin-top:14px;padding:12px;border:1px solid #e7d8ca;border-radius:15px;background:#fffaf3}.taste-wave-product{display:flex;align-items:center;gap:12px;min-width:0}.taste-wave-product>div{min-width:0}.taste-wave-product img{width:104px;height:104px;flex:0 0 104px;object-fit:cover;border-radius:11px;background:#e9ded2}
+.taste-wave-kicker{margin:0 0 5px;color:#9d2933;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.taste-wave-product h3{margin:0 0 7px;font:700 18px/1.2 Arial,sans-serif;overflow-wrap:anywhere}.taste-wave-product strong{font-size:16px}
+.taste-wave-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.taste-wave-actions button{flex:1 1 145px;min-height:44px;padding:10px 12px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.3}.taste-wave-primary{border:1px solid var(--accent);background:var(--accent);color:#fff}.taste-wave-secondary{border:1px solid #c8b9ab;background:#fff;color:var(--ink)}.taste-wave-status{margin:10px 0 0;color:#285f3c;font-size:12px;line-height:1.4}.taste-wave-status:empty{display:none}
+@media(max-width:360px){.taste-wave-shell{padding:15px}.taste-wave-theme{gap:6px}.taste-wave-theme img{width:48px;height:48px;flex-basis:48px}.taste-wave-theme span{font-size:11px}.taste-wave-product img{width:86px;height:86px;flex-basis:86px}.feed-cart-preview{width:36px;height:36px;flex-basis:36px}}

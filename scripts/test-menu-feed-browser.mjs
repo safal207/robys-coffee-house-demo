@@ -234,6 +234,72 @@ async function startMacWebKitGroup(name) {
 }
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+  for (const [width, height, language] of [[320, 568, "tr"], [390, 844, "ru"], [760, 900, "en"]]) {
+    const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=${language}`);
+    await waitForMenuMode(page, "feed");
+    const trigger = page.locator("#taste-wave-open"), dialog = page.locator("#taste-wave-dialog");
+    assert.equal(await trigger.isVisible(), true, "Taste wave is available without replacing the feed");
+    assert.equal(await page.locator("#feed-cart-preview").isVisible(), false, "Empty orders do not show a product thumbnail");
+    await trigger.click();
+    await dialog.locator('[data-wave-theme="morning"]').waitFor();
+    assert.equal(await dialog.locator("[data-wave-theme]").count(), 4);
+    for (const choice of await dialog.locator("[data-wave-theme]").all()) {
+      const box = await choice.boundingBox();
+      assert.ok(box.width >= 44 && box.height >= 44, "Every taste choice has a touch-sized target");
+    }
+    await dialog.locator('[data-wave-theme="morning"]').click();
+    assert.equal(await dialog.locator('[data-wave-theme="morning"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await dialog.locator("#taste-wave-name").textContent(), catalog.find(p => p.id === "hot-coffee:espresso").item.name[language]);
+    await dialog.locator("#taste-wave-image").evaluate(img => img.decode());
+    await dialog.locator("#taste-wave-next").click();
+    const product = catalog.find(p => p.id === "hot-coffee:cappuccino");
+    assert.equal(await dialog.locator("#taste-wave-name").textContent(), product.item.name[language]);
+    assert.equal(moneyValue(await dialog.locator("#taste-wave-price").textContent()), product.item.price);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    if (width <= 390) await captureScreenshot(page, { path: `${output}/${engine}-taste-wave-${width}-${language}.png` });
+    await dialog.locator("#taste-wave-add").click();
+    await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+    await dialog.locator("#taste-wave-status:not(:empty)").waitFor();
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+    await page.waitForFunction(() => document.activeElement === document.querySelector("#taste-wave-open"));
+    assert.equal(await page.locator("#feed-cart-product").textContent(), product.item.name[language]);
+    assert.equal(moneyValue(await page.locator("#menu-cart-total").textContent()), product.item.price);
+    await page.locator("#feed-cart-preview").evaluate(img => img.decode());
+    const draft = await storedOrder(page);
+    assert.deepEqual(draft.lines, [{ id: product.id, quantity: 1 }]);
+    await page.locator('.feed-view-switch [data-menu-view="grid"]').click();
+    await waitForMenuMode(page, "grid");
+    assert.deepEqual(await storedOrder(page), draft, "The shared cart survives a switch to photo tiles");
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "taste-wave-order", result: "PASS", width, height, language, themes: 4,
+      realCatalogPrice: product.item.price, anotherChoice: true, sharedCart: true, imageDecoded: true });
+    await context.close();
+  }
+  {
+    const context = await browser.newContext({ viewport: { width: 320, height: 568 }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await context.addInitScript(() => { HTMLDialogElement.prototype.showModal = undefined; });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    await page.goto(`${origin}/menu-feed.html?view=feed&lang=ru`);
+    await waitForMenuMode(page, "feed");
+    await page.locator("#taste-wave-open").click();
+    const dialog = page.locator("#taste-wave-dialog[open]");
+    assert.equal(await dialog.getAttribute("aria-modal"), "true");
+    await dialog.locator('[data-wave-theme="sweet"]').click();
+    assert.match(await dialog.locator("#taste-wave-name").textContent(), /Сан-Себастьян/);
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#taste-wave-dialog[open]").count(), 0);
+    assert.equal(await page.evaluate(() => document.activeElement === document.querySelector("#taste-wave-open")), true);
+    assert.deepEqual(errors, []);
+    report.cases.push({ case: "taste-wave-dialog-fallback", result: "PASS", keyboardCloseAndFocus: true });
+    await context.close();
+  }
   // Only the alternate document may be warmed; initial menu browsing must
   // not download or run the feed script, including in data-saving mode.
   for (const saveData of [false, true]) {
