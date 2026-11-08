@@ -50,6 +50,7 @@
         <p class="feed-swipe-hint"><span aria-hidden="true">↑</span><span data-copy="swipeHint">Sonraki ürün için yukarı kaydır</span></p>
       </div>
       <div class="feed-formats" hidden>
+        <button type="button" id="taste-wave-open" class="feed-taste-entry" aria-haspopup="dialog" aria-controls="taste-wave-dialog"><span class="feed-taste-ring" aria-hidden="true">✦</span><span data-wave-copy="entry">Lezzet dalgası</span></button>
         <button type="button" id="feed-reels-open" class="feed-reel-entry" aria-haspopup="dialog" aria-controls="feed-viewer">
           <span class="feed-reel-ring"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M3 9h18M8 3l4 6m3-6 4 6m-9 3 5 3-5 3Z" /></svg></span>
           <span data-copy="reels">Reels</span>
@@ -81,8 +82,20 @@
     </section>
     <aside class="feed-guide"><span class="feed-guide-line"></span><p data-copy="guide">Beğen.<br />Sonra karar ver.</p><span class="feed-guide-index">ROBY'S · COFFEE HOUSE</span></aside>
   </main>
-  <button class="feed-cart-bar" id="menu-cart-trigger" type="button" aria-haspopup="dialog" aria-controls="menu-cart-dialog" hidden><span class="feed-cart-count" id="menu-cart-count">0</span><span data-copy="order">Siparişim</span><strong id="menu-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
+  <button class="feed-cart-bar" id="menu-cart-trigger" type="button" aria-haspopup="dialog" aria-controls="menu-cart-dialog" hidden><img id="feed-cart-preview" class="feed-cart-preview" alt="" width="44" height="44" hidden /><span class="feed-cart-count" id="menu-cart-count">0</span><span class="feed-cart-copy"><span data-copy="order">Siparişim</span><span id="feed-cart-product" class="feed-cart-product"></span></span><strong id="menu-cart-total">0 ₺</strong><span aria-hidden="true">↗</span></button>
   <p id="feed-status" class="feed-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <dialog class="feed-cart taste-wave" id="taste-wave-dialog" aria-labelledby="taste-wave-title">
+    <div class="taste-wave-shell">
+      <header class="taste-wave-header"><div><p class="taste-wave-eyebrow">ROBY'S · COFFEE HOUSE</p><h2 id="taste-wave-title" data-wave-copy="title">Lezzet dalgası</h2></div><button type="button" id="taste-wave-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
+      <p class="taste-wave-intro" data-wave-copy="intro">Şu anda canın ne istiyor?</p>
+      <div id="taste-wave-themes" class="taste-wave-themes" role="group"></div>
+      <section id="taste-wave-feature" class="taste-wave-feature" hidden>
+        <div class="taste-wave-product"><img id="taste-wave-image" alt="" width="512" height="512" /><div><p id="taste-wave-theme-label" class="taste-wave-kicker"></p><div role="status" aria-live="polite" aria-atomic="true"><h3 id="taste-wave-name"></h3><strong id="taste-wave-price"></strong></div></div></div>
+        <div class="taste-wave-actions"><button type="button" id="taste-wave-add" class="taste-wave-primary" data-wave-copy="add">+ Siparişe ekle</button><button type="button" id="taste-wave-next" class="taste-wave-secondary" data-wave-copy="next">Başka bir öneri</button></div>
+      </section>
+      <p id="taste-wave-status" class="taste-wave-status" role="status" aria-live="polite" aria-atomic="true"></p>
+    </div>
+  </dialog>
   <dialog class="feed-cart feed-discover" id="feed-discover" aria-labelledby="feed-discover-title">
     <div class="feed-cart-shell">
       <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-discover-title" data-copy="discoverTitle">Ne istersin?</h2></div><button type="button" id="feed-discover-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
