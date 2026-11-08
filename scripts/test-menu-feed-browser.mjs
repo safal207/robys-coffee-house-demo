@@ -260,7 +260,7 @@ try {
     assert.equal(await dialog.locator("#taste-wave-name").textContent(), product.item.name[language]);
     assert.equal(moneyValue(await dialog.locator("#taste-wave-price").textContent()), product.item.price);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-    if (language === "ru") await captureScreenshot(page, { path: `${output}/${engine}-taste-wave-${width}.png` });
+    if (width <= 390) await captureScreenshot(page, { path: `${output}/${engine}-taste-wave-${width}-${language}.png` });
     await dialog.locator("#taste-wave-add").click();
     await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
     await dialog.locator("#taste-wave-status:not(:empty)").waitFor();

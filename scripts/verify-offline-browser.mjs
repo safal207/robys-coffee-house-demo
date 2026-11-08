@@ -138,6 +138,20 @@ try {
   assert.match(new URL(page.url()).pathname, /\/menu-feed\.html$/);
   assert.equal(await page.locator("#feed-search").inputValue(), "latte", "Offline feed keeps the current search context");
 
+  // The wave has not been opened online. Its suggestions, full photograph and
+  // shared-order update must all work from the installed offline cache.
+  await page.locator("#taste-wave-open").click();
+  await page.locator('#taste-wave-dialog[open] [data-wave-theme="morning"]').click();
+  await page.locator("#taste-wave-image").evaluate(image => image.decode());
+  await page.locator("#taste-wave-add").click();
+  await page.waitForFunction(() => document.querySelector("#menu-cart-count").textContent === "1");
+  await page.locator("#taste-wave-close").click();
+  assert.equal(await page.locator("#feed-search").inputValue(), "latte", "The wave does not replace the guest's search");
+  await page.waitForFunction(() => {
+    const image = document.querySelector("#feed-cart-preview");
+    return image && !image.hidden && image.complete && image.naturalWidth > 0;
+  });
+
   // The grid document and stylesheet have never been opened online in this
   // context. Its first navigation must work entirely from the installed cache.
   await page.locator('.feed-view-switch [data-menu-view="grid"]').click();
@@ -145,6 +159,7 @@ try {
   await page.locator('#menu-root[data-ready="true"] .full-menu-item--product').first().waitFor({ state: "visible", timeout: 15000 });
   assert.match(new URL(page.url()).pathname, /\/menu-grid\.html$/);
   assert.equal(await page.locator("#menu-search").inputValue(), "latte", "Offline grid keeps the current search context");
+  assert.equal(await page.locator("#menu-cart-count").textContent(), "1", "Wave selection survives the offline view switch");
   assert.equal(await page.locator("body").evaluate(node => node.classList.contains("menu-photo-grid")), true);
   assert.ok(await page.locator(".full-menu-list").first().evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length >= 2),
     "The uncached grid stylesheet must load from the installed worker");

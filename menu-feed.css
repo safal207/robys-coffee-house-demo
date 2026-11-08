@@ -117,6 +117,7 @@ html.feed-viewer-open{overflow:hidden}
 .feed-taste-entry{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 62px;min-width:0;padding:2px 0;border:0;background:none;color:var(--ink);font-size:10px;line-height:1.2;text-align:center}
 .feed-taste-entry>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;height:24px;max-width:62px;overflow:hidden;overflow-wrap:anywhere}
 .feed-taste-ring{display:grid;place-items:center;width:50px;height:50px;flex-shrink:0;border:3px solid #fff5e6;border-radius:50%;background:linear-gradient(145deg,#e69a55,#a62e31 65%,#593746);box-shadow:0 0 0 2px #d5a678;color:#fff;font-size:24px;line-height:1}
+.feed-cart-bar{padding-block:8px}
 .feed-cart-preview{width:40px;height:40px;flex:0 0 40px;object-fit:cover;border-radius:12px;background:#e9ded2}
 .feed-cart-copy{display:grid;gap:2px;flex:1;min-width:0;text-align:left;line-height:1.2}
 .feed-cart-copy>span:first-child{white-space:nowrap}.feed-cart-product{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:10px}.feed-cart-product:empty{display:none}

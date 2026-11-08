@@ -20,7 +20,7 @@ export function initTasteWave({ productIndex, getLanguage, localized, formatPric
   const status = document.querySelector("#taste-wave-status"), add = document.querySelector("#taste-wave-add");
   const next = document.querySelector("#taste-wave-next"), closeButton = document.querySelector("#taste-wave-close");
   const buttons = new Map();
-  let currentTheme = null, currentIndex = 0, fallback = false, adding = false, generation = 0;
+  let currentTheme = null, currentIndex = 0, fallback = false, adding = false, generation = 0, pendingProduct = null;
   const text = () => copy[getLanguage()] ?? copy.tr;
   const available = theme => theme.items.map(id => productIndex.get(id)).filter(Boolean);
   const selectedProduct = () => currentTheme ? available(currentTheme)[currentIndex] : null;
@@ -59,6 +59,7 @@ export function initTasteWave({ productIndex, getLanguage, localized, formatPric
     generation += 1; fallback = false; dialog.classList.remove("taste-wave--fallback");
     dialog.removeAttribute("aria-modal"); document.documentElement.classList.remove("taste-wave-open");
     trigger.focus({ preventScroll: true }); onClose();
+    if (pendingProduct) { const id = pendingProduct; pendingProduct = null; void openProduct(id, trigger); }
   }
   function close() {
     if (!dialog.hasAttribute("open")) return;
@@ -94,7 +95,7 @@ export function initTasteWave({ productIndex, getLanguage, localized, formatPric
   add.addEventListener("click", async () => {
     const product = selectedProduct();
     if (!product || adding) return;
-    if (product.item.variants?.length) { close(); void openProduct(product.id, trigger); return; }
+    if (product.item.variants?.length) { pendingProduct = product.id; close(); return; }
     const token = generation; adding = true; add.disabled = true;
     try { const added = await addProduct(product, add); if (token === generation && dialog.hasAttribute("open")) status.textContent = added ? text().added : text().unavailable; }
     finally { adding = false; add.disabled = false; }
