@@ -300,12 +300,12 @@ function updateBadges(cards = root.querySelectorAll(".feed-card")) {
   const first = draft.lines.map(line => productIndex.get(line.id)).find(Boolean);
   const preview = $("#feed-cart-preview"), previewName = $("#feed-cart-product");
   previewName.textContent = first ? localized(first.item.name) : "";
-  if (first && preview.dataset.productId !== first.id) {
-    preview.dataset.productId = first.id; delete preview.dataset.failed; delete preview.dataset.fallback;
+  if (first && preview.dataset.previewId !== first.id) {
+    preview.dataset.previewId = first.id; delete preview.dataset.failed; delete preview.dataset.fallback;
     preview.hidden = false;
     preview.src = first.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp");
   } else if (first) preview.hidden = preview.dataset.failed === "true";
-  else { preview.hidden = true; delete preview.dataset.productId; delete preview.dataset.failed; delete preview.dataset.fallback; preview.removeAttribute("src"); }
+  else { preview.hidden = true; delete preview.dataset.previewId; delete preview.dataset.failed; delete preview.dataset.fallback; preview.removeAttribute("src"); }
   const counts = new Map(draft.lines.map(line => [line.id, line.quantity]));
   cards.forEach(card => {
     const count = counts.get(card.dataset.productId) ?? 0;
@@ -622,7 +622,7 @@ const tasteWave = initTasteWave({ productIndex, getLanguage: () => language, loc
   onClose: () => { scheduleActiveCard(); viewCandidates.forEach(scheduleView); }
 });
 $("#feed-cart-preview").addEventListener("error", event => {
-  const preview = event.currentTarget, product = productIndex.get(preview.dataset.productId);
+  const preview = event.currentTarget, product = productIndex.get(preview.dataset.previewId);
   if (product && !preview.dataset.fallback) { preview.dataset.fallback = "true"; preview.src = product.image; }
   else { preview.dataset.failed = "true"; preview.hidden = true; }
 });
