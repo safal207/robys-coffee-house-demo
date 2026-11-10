@@ -402,7 +402,12 @@
         "counter/owner-catalog.mjs",
         "counter/owner-catalog-page.mjs",
         "counter/owner-photo-form.mjs",
-        "counter/OWNER_MENU.md"
+        "counter/OWNER_MENU.md",
+        "counter/owner-image-sanitize.mjs",
+        "counter/owner-release-gate.mjs",
+        "counter/owner-release-page.mjs",
+        "scripts/owner-release-bundle.mjs",
+        "scripts/owner-release-cli.mjs"
       ],
       "dependsOn": [
         "order-model",
@@ -420,7 +425,10 @@
         "counter/owner-page.mjs",
         "counter/owner-catalog.mjs",
         "counter/owner-catalog-page.mjs",
-        "counter/owner-photo-form.mjs"
+        "counter/owner-photo-form.mjs",
+        "counter/owner-image-sanitize.mjs",
+        "counter/owner-release-gate.mjs",
+        "counter/owner-release-page.mjs"
       ],
       "dependsOn": [
         "build"
