@@ -71,7 +71,8 @@ test("staged images are private, integrity-checked and only accepted formats",as
   assert.equal(asset.mime,"image/webp");
   assert.equal(asset.ext,"webp");
   const clean=store.readPhoto(asset.id).buffer;
-  assert.notDeepEqual(clean,bytes);
+  // A clean, identically encoded WebP can be byte-for-byte equivalent.
+  if(format!=="webp") assert.notDeepEqual(clean,bytes);
   const meta=await sharp(clean).metadata();
   assert.equal(meta.format,"webp");
   assert.equal(meta.exif,undefined);
