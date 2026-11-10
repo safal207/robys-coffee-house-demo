@@ -44,9 +44,9 @@ in the GitHub Pages counter-config.json.
   refund reconciliation or tax accounting.
 - Instagram/TikTok/QR attribution is NOT linked to paid Counter orders.
   Unknown sources stay unknown. QR display is NOT a sale.
-- This report does NOT provide photo management, a menu CMS, third-party
-  analytics, live visitor totals or marketing events. Those require
-  further implementation and privacy review.
+- The private owner menu draft editor is specified in OWNER_MENU.md;
+  it stages photo, translation and price changes but never publishes
+  them to guests. Third-party analytics and live visitor totals remain absent.
 - Source-only UTM/consent modules from PR #485 remain inactive here.
 
 ## Required QA and release gate
@@ -69,4 +69,5 @@ operation over HTTPS; do not relax red checks.
 3. Obtain consent and privacy review before any production behavior capture.
 4. Implement collector and server-side paid-to-UTM attribution with
    explicit unknown-source coverage.
-5. Then add owner photo/menu editing with validation, rollback and audit.
+5. Review owner photo/menu drafts in OWNER_MENU.md, then build a separate
+   verified publishing pipeline with photo sanitization and rollback.
