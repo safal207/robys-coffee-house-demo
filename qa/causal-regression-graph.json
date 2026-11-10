@@ -395,7 +395,10 @@
         "counter/test/*.test.mjs",
         "scripts/package-counter-runtime.mjs",
         "scripts/test-counter-hosted-container.mjs",
-        ".github/workflows/counter-service.yml"
+        ".github/workflows/counter-service.yml",
+        "counter/owner-store.mjs",
+        "counter/owner-page.mjs",
+        "counter/OWNER.md"
       ],
       "dependsOn": [
         "order-model",
@@ -408,7 +411,9 @@
       "label": "Counter roles, staff sessions and provisioning boundary",
       "paths": [
         "counter/auth.mjs",
-        "counter/provision.mjs"
+        "counter/provision.mjs",
+        "counter/owner-store.mjs",
+        "counter/owner-page.mjs"
       ],
       "dependsOn": [
         "build"
