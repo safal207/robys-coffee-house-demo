@@ -561,7 +561,14 @@
         "analytics.js",
         "scripts/marketing-attribution-v0.js",
         "scripts/test-marketing-attribution-v0.mjs",
-        "docs/marketing-attribution-v0.md"
+        "docs/marketing-attribution-v0.md",
+        "scripts/marketing-consent-v1.js",
+        "scripts/test-marketing-consent-v1.mjs",
+        "scripts/marketing-event-store-v1.mjs",
+        "scripts/test-marketing-event-store-v1.mjs",
+        "scripts/owner-paid-kpi-v1.mjs",
+        "scripts/test-owner-paid-kpi-v1.mjs",
+        "docs/marketing-analytics-v1.md"
       ],
       "dependsOn": [
         "home",
