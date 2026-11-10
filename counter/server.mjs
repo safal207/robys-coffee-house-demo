@@ -254,7 +254,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
         if(!Buffer.isBuffer(form.photo))fail(400,"invalid_photo");
         const current=ownerCatalog.get(id);
         if(current.revision!==revision)fail(409,"revision_conflict");
-        const photo=ownerCatalog.stagePhoto({buffer:form.photo,actor:owner.owner.username});
+        const photo=await ownerCatalog.stagePhoto({buffer:form.photo,actor:owner.owner.username});
         ownerCatalog.update({id,expectedRevision:revision,actor:owner.owner.username,
           content:{...current.draft,imageId:photo.id}});
       }
