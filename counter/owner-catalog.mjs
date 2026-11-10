@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { chmodSync, mkdirSync, readFileSync, writeFileSync, realpathSync, unlinkSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { menuCategories } from "../menu-catalog.js";
+import { sanitizeOwnerImage } from "./owner-image-sanitize.mjs";
 
 const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
   .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -188,18 +189,21 @@ export function openOwnerCatalog(dbPath,{now=Date.now}={}) {
       return writeRevision({id,expectedRevision,content:record.previous?JSON.parse(record.previous):baseDraft(product(id)),
         actor,action:"restored"});
     },
-    stagePhoto({buffer,actor}){
+    async stagePhoto({buffer,actor}){
       ensureActor(actor);
-      const photo=validateOwnerPhoto(buffer);
+      // Validate the transport signature before decoding; only the sanitized
+      // WebP leaves memory, never the original JPEG/PNG with EXIF/GPS data.
+      validateOwnerPhoto(buffer);
+      const {buffer:clean, ...photo}=await sanitizeOwnerImage(buffer);
       const imageId="p_"+randomBytes(16).toString("hex");
       mkdirSync(mediaDir,{recursive:true,mode:0o700});
       if (realpathSync(mediaDir)!==mediaDir)throw Error("Unsafe photo storage path");
       const path=join(mediaDir,imageId+"."+photo.ext);
-      writeFileSync(path,buffer,{flag:"wx",mode:0o600});
+      writeFileSync(path,clean,{flag:"wx",mode:0o600});
       try {
         db.prepare("INSERT INTO owner_menu_media(id,ext,mime,byte_length,sha256,created_by,created_at) VALUES(?,?,?,?,?,?,?)")
           .run(imageId,photo.ext,photo.mime,photo.bytes,
-            createHash("sha256").update(buffer).digest("hex"),actor,now());
+            createHash("sha256").update(clean).digest("hex"),actor,now());
         return {id:imageId,...photo};
       } catch(error){unlinkSync(path);throw error;}
     },

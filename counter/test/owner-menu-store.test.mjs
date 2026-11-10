@@ -66,14 +66,38 @@ test("staged images are private, integrity-checked and only accepted formats",as
  for(const format of ["png","jpeg","webp"]) {
   const bytes=await sharp({create:{width:128,height:96,channels:4,background:"#fa7654"}})
     .toFormat(format).toBuffer();
-  const mime=validateOwnerPhoto(bytes).mime;
-  const asset=store.stagePhoto({buffer:bytes,actor:"reyhan"});
-  assert.equal(asset.mime,mime);
-  assert.deepEqual(store.readPhoto(asset.id).buffer,bytes);
+  assert.equal(validateOwnerPhoto(bytes).mime,format==="jpeg"?"image/jpeg":"image/"+format);
+  const asset=await store.stagePhoto({buffer:bytes,actor:"reyhan"});
+  assert.equal(asset.mime,"image/webp");
+  assert.equal(asset.ext,"webp");
+  const clean=store.readPhoto(asset.id).buffer;
+  // A clean, identically encoded WebP can be byte-for-byte equivalent.
+  if(format!=="webp") assert.notDeepEqual(clean,bytes);
+  const meta=await sharp(clean).metadata();
+  assert.equal(meta.format,"webp");
+  assert.equal(meta.exif,undefined);
+  assert.equal(meta.xmp,undefined);
+  assert.equal(meta.iptc,undefined);
+  assert.equal(meta.icc,undefined);
  }
  for(const bad of [Buffer.alloc(128),Buffer.from("<svg><script/></svg>"),Buffer.alloc(4*1024*1024+1)])
-  assert.throws(()=>store.stagePhoto({buffer:bad,actor:"reyhan"}));
+  await assert.rejects(store.stagePhoto({buffer:bad,actor:"reyhan"}));
  assert.throws(()=>store.readPhoto("p_bad"),/Invalid/);
+});
+test("EXIF metadata is stripped and the normalized photo is bounded",async t=>{
+ const {store}=fixture(t);
+ const raw=await sharp({create:{width:1920,height:1280,channels:3,background:"#fabada"}})
+   .jpeg().withExif({IFD0:{Copyright:"Private Original Test Metadata"}}).toBuffer();
+ assert((await sharp(raw).metadata()).exif,"fixture must contain EXIF");
+ const image=await store.stagePhoto({buffer:raw,actor:"reyhan"});
+ const clean=store.readPhoto(image.id).buffer;
+ const info=await sharp(clean).metadata();
+ assert.equal(info.exif,undefined);
+ assert.equal(info.xmp,undefined);
+ assert.equal(info.icc,undefined);
+ assert(info.width<=1600 && info.height<=1600);
+ assert(image.bytes<=2*1024*1024);
+ assert(!clean.includes(Buffer.from("Private Original Test Metadata")));
 });
 test("draft and history persist after reopening the private database",t=>{
  const {store,dbPath}=fixture(t),x=store.list()[0];

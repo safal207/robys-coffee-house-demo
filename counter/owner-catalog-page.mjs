@@ -1,24 +1,24 @@
 // HTML-only owner CMS: no scripts, no public draft publication.
 const copy={
-  tr:{title:"Menüyü düzenle",sub:"Değişiklikler taslaktır; misafir menüsünü ve kasa fiyatını değiştirmez.",
+  tr:{title:"Menüyü düzenle", releases:"Yayın hazırlığı",sub:"Değişiklikler taslaktır; misafir menüsünü ve kasa fiyatını değiştirmez.",
     browse:"Menü ürünleri",edit:"Düzenle",back:"İşletme paneli",photo:"Fotoğraf",default:"Geçerli fotoğraf",
-    upload:"Yeni fotoğrafı taslağa ekle",photoInfo:"JPEG / PNG / WebP, en fazla 4 MB. Fotoğraf yalnızca sahibine gösterilir.",
+    upload:"Yeni fotoğrafı taslağa ekle",photoInfo:"JPEG / PNG / WebP, en fazla 4 MB. Meta veriler kaldırılır ve WebP olarak güvenle saklanır.",
     price:"Fiyat (TRY)",save:"Taslağı kaydet",name:"Ürün adı",history:"Değişiklik geçmişi",
     restore:"Önceki duruma döndür",empty:"Henüz değişiklik yok",edited:"Taslak düzenlendi",
     current:"Orijinal menü",tr:"Türkçe",en:"İngilizce",ru:"Rusça",original:"Orijinal fotoğraf",
     warning:"Bu sayfa taslak içindir. Değişiklikler müşterilere veya kasaya otomatik yansımaz.",
     pending:"Yayında değil"},
-  en:{title:"Edit menu",sub:"Changes are drafts and do not affect the guest menu or cashier prices.",
+  en:{title:"Edit menu", releases:"Prepare release",sub:"Changes are drafts and do not affect the guest menu or cashier prices.",
     browse:"Menu products",edit:"Edit",back:"Owner dashboard",photo:"Photo",default:"Current photo",
-    upload:"Stage replacement photo",photoInfo:"JPEG / PNG / WebP, up to 4 MB. Photo remains owner-only.",
+    upload:"Stage replacement photo",photoInfo:"JPEG / PNG / WebP, up to 4 MB. Metadata is removed and the photo is stored privately as WebP.",
     price:"Price (TRY)",save:"Save draft",name:"Product name",history:"Change history",
     restore:"Restore previous revision",empty:"No edits yet",edited:"Draft edited",
     current:"Original menu",tr:"Turkish",en:"English",ru:"Russian",original:"Original photo",
     warning:"Drafts only. Nothing is automatically published to customers or cashier pricing.",
     pending:"Not published"},
-  ru:{title:"Редактор меню",sub:"Все изменения остаются черновиками и не влияют на меню гостей и цены кассы.",
+  ru:{title:"Редактор меню", releases:"Подготовить публикацию",sub:"Все изменения остаются черновиками и не влияют на меню гостей и цены кассы.",
     browse:"Позиции меню",edit:"Изменить",back:"Кабинет хозяйки",photo:"Фотография",default:"Текущее фото",
-    upload:"Загрузить фото в черновик",photoInfo:"JPEG / PNG / WebP, до 4 МБ. Фото доступно только владельцу.",
+    upload:"Загрузить фото в черновик",photoInfo:"JPEG / PNG / WebP, до 4 МБ. Метаданные удаляются, фото сохраняется приватно в WebP.",
     price:"Цена (TRY)",save:"Сохранить черновик",name:"Название блюда",history:"История изменений",
     restore:"Восстановить предыдущую версию",empty:"Правок пока нет",edited:"Черновик изменён",
     current:"Исходное меню",tr:"Турецкий",en:"Английский",ru:"Русский",original:"Исходное фото",
@@ -57,7 +57,8 @@ function shell(lang,body) {
  '<header><nav><span class="eyebrow">ROBY’S COFFEE HOUSE</span>'+
  '<a href="/owner?lang='+lang+'">'+esc(t.back)+'</a>'+
  '<a href="/owner/catalog?lang=tr">TR</a><a href="/owner/catalog?lang=en">EN</a>'+
- '<a href="/owner/catalog?lang=ru">RU</a></nav></header><main class="wrap">'+body+'</main></body></html>';
+ '<a href="/owner/catalog?lang=ru">RU</a>'+
+ '<a href="/owner/releases?lang='+lang+'">'+esc(t.releases)+'</a></nav></header><main class="wrap">'+body+'</main></body></html>';
 }
 const productLink=(id,lang)=>"/owner/catalog/item?id="+encodeURIComponent(id)+"&lang="+lang;
 const assetLink=(entry)=>entry.draft.imageId ? "/owner/catalog/media/"+entry.draft.imageId :

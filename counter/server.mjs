@@ -11,6 +11,8 @@ import { ownerReportDates, renderOwnerLogin, renderOwnerDashboard } from "./owne
 import { openOwnerCatalog } from "./owner-catalog.mjs";
 import { renderOwnerCatalogList, renderOwnerCatalogItem } from "./owner-catalog-page.mjs";
 import { readOwnerPhotoForm } from "./owner-photo-form.mjs";
+import { openOwnerReleaseGate } from "./owner-release-gate.mjs";
+import { renderOwnerReleasePage } from "./owner-release-page.mjs";
 
 export { provisionUser, provisionOwner };
 const PREFIX = "/api/counter";
@@ -114,6 +116,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   const store = openCounterStore(storePath);
   const ownerStore = openOwnerStore(storePath);
   const ownerCatalog = openOwnerCatalog(storePath);
+  const ownerReleaseGate = openOwnerReleaseGate(storePath, { catalog:ownerCatalog, now });
   const ownerSessionTtlMs = 60 * 60 * 1000;
   const ownerCookieName = secureCookies ? "__Host-robys-owner-session" : "robys-owner-session";
   const ownerCookie = (token, maxAge) => `${ownerCookieName}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secureCookies ? "; Secure" : ""}`;
@@ -254,7 +257,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
         if(!Buffer.isBuffer(form.photo))fail(400,"invalid_photo");
         const current=ownerCatalog.get(id);
         if(current.revision!==revision)fail(409,"revision_conflict");
-        const photo=ownerCatalog.stagePhoto({buffer:form.photo,actor:owner.owner.username});
+        const photo=await ownerCatalog.stagePhoto({buffer:form.photo,actor:owner.owner.username});
         ownerCatalog.update({id,expectedRevision:revision,actor:owner.owner.username,
           content:{...current.draft,imageId:photo.id}});
       }
@@ -265,8 +268,58 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     }
     return ownerRedirect(response,id,lang);
   }
+  async function ownerReleaseRequest(request,response,url,origin) {
+    const ip=request.socket.remoteAddress??"unknown";
+    if(request.headers["sec-fetch-site"]==="cross-site"){apiLimit(ip);fail(403,"invalid_origin");}
+    const owner=ownerAuthentication(request);
+    if(!owner){apiLimit(ip);fail(401,"unauthorized");}
+    if(url.pathname==="/owner/releases" && request.method==="GET"){
+      readLimit(digest(owner.token));
+      if([...url.searchParams.keys()].some(k=>k!=="lang"||url.searchParams.getAll(k).length!==1))
+        fail(400,"invalid_query");
+      const lang=url.searchParams.get("lang")??"tr";
+      if(!LANGUAGES.has(lang))fail(400,"invalid_query");
+      let preview;
+      try{preview=ownerReleaseGate.preview();}catch{fail(409,"release_unready");}
+      return ownerHtml(response,200,renderOwnerReleasePage({
+        lang,csrf:owner.csrfToken,preview,history:ownerReleaseGate.list()
+      }));
+    }
+    if(request.method!=="POST" ||
+        !["/owner/releases/propose","/owner/releases/approve","/owner/releases/reject"].includes(url.pathname))
+      fail(404,"not_found");
+    if(url.search)fail(400,"invalid_query");
+    apiLimit(ip);createLimit(ip);
+    if(request.headers.origin!==origin)fail(403,"invalid_origin");
+    const form=await readOwnerForm(request,4096);
+    const needsId=url.pathname!=="/owner/releases/propose";
+    const needsRights=url.pathname==="/owner/releases/approve";
+    validateOwnerFields(form,needsId
+      ? (needsRights?["csrf","hash","lang","id","rights"]:["csrf","hash","lang","id"])
+      : ["csrf","hash","lang"]);
+    if(needsRights && form.get("rights")!=="yes")fail(400,"owner_rights_required");
+    if(!equalSecret(form.get("csrf"),owner.csrfToken))fail(403,"invalid_csrf");
+    const lang=form.get("lang"),hash=form.get("hash"),id=form.get("id");
+    if(!LANGUAGES.has(lang)||!/^[a-f0-9]{64}$/.test(hash)||
+       (needsId&&!/^r_[a-f0-9]{32}$/.test(id)))fail(400,"invalid_release_form");
+    try {
+      if(url.pathname==="/owner/releases/propose")
+        ownerReleaseGate.propose({expectedHash:hash,actor:owner.owner.username});
+      else if(url.pathname==="/owner/releases/approve")
+        ownerReleaseGate.approve({id,expectedHash:hash,actor:owner.owner.username,rightsAttested:true});
+      else ownerReleaseGate.reject({id,actor:owner.owner.username});
+    }catch(error){
+      if(/conflict|mismatch|cannot be approved|Cannot cancel|not been approved|Corrupted/i.test(error.message))
+        fail(409,"release_conflict");
+      fail(400,"invalid_release");
+    }
+    response.writeHead(303,{Location:"/owner/releases?lang="+lang,"Cache-Control":"no-store"});
+    return response.end();
+  }
   async function ownerPageRequest(request, response, url, origin) {
     const ip = request.socket.remoteAddress ?? "unknown";
+    if(url.pathname==="/owner/releases"||url.pathname.startsWith("/owner/releases/"))
+      return ownerReleaseRequest(request,response,url,origin);
     if(url.pathname==="/owner/catalog"||url.pathname.startsWith("/owner/catalog/"))
       return ownerCatalogRequest(request,response,url,origin);
     if (request.headers["sec-fetch-site"] === "cross-site") { apiLimit(ip); fail(403, "invalid_origin"); }
@@ -492,7 +545,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   server.requestTimeout = 10000;
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
-  server.on("close", () => { ownerCatalog.close(); ownerStore.close(); store.close(); });
+  server.on("close", () => { ownerReleaseGate.close(); ownerCatalog.close(); ownerStore.close(); store.close(); });
   server.provisionUser = user => store.provisionUser(user);
   server.provisionOwner = owner => ownerStore.provision(owner);
   return server;

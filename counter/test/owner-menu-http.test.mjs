@@ -119,9 +119,15 @@ test("photo upload stays private, typed and immutable, rejects fake uploads",asy
  assert.equal((await f.get("/owner/catalog/media/"+asset)).status,401);
  const preview=await f.get("/owner/catalog/media/"+asset,cookie);
  assert.equal(preview.status,200);
- assert.equal(preview.headers.get("content-type"),"image/png");
+ assert.equal(preview.headers.get("content-type"),"image/webp");
  assert.equal(preview.headers.get("cache-control"),"no-store");
- assert.deepEqual(Buffer.from(await preview.arrayBuffer()),image);
+ const clean=Buffer.from(await preview.arrayBuffer());
+ assert.notDeepEqual(clean,image,"raw upload must never be exposed");
+ const meta=await sharp(clean).metadata();
+ assert.equal(meta.format,"webp");
+ assert.equal(meta.exif,undefined);
+ assert.equal(meta.xmp,undefined);
+ assert.equal(meta.icc,undefined);
  const badForm=new FormData();
  for(const [k,v] of Object.entries({csrf:token,id:f.product.id,revision:"1",lang:"ru"}))
   badForm.set(k,v);
@@ -145,4 +151,58 @@ test("invalid CSRF, origins, duplicate product identifiers, bad prices are rejec
  const duplicated=new URLSearchParams(base);duplicated.append("id",f.product.id);
  assert.equal((await f.post("/owner/catalog/save",duplicated,cookie)).status,400);
  assert.equal((await f.get("/owner/catalog/item?id=bogus&lang=tr",cookie)).status,404);
+});
+
+
+test("owner-only release proposal and approval never publish to the guest catalogue",async t=>{
+ const f=await fixture(t);
+ assert.equal((await f.get("/owner/releases?lang=ru")).status,401);
+ const cookie=await f.login();
+ const before=await f.get("/owner/releases?lang=ru",cookie);
+ assert.equal(before.status,200);
+ const html=await before.text();
+ assert.match(html,/Подготовка публикации меню/);
+ assert.match(html,/НЕ изменяет меню гостей/);
+ assert.equal(before.headers.get("cache-control"),"no-store");
+ const token=csrf(html);
+ const hash=html.match(/name="hash" value="([a-f0-9]{64})"/)?.[1];
+ assert(hash);
+ assert.equal((await f.post("/owner/releases/propose",{csrf:"wrong",hash,lang:"ru"},cookie)).status,403);
+ assert.equal((await f.post("/owner/releases/propose",{csrf:token,hash,lang:"ru"},cookie,
+   {Origin:"https://invalid-origin.test"})).status,403);
+ const proposal=await f.post("/owner/releases/propose",{csrf:token,hash,lang:"ru"},cookie);
+ assert.equal(proposal.status,303);
+ const approvalPage=await (await f.get("/owner/releases?lang=ru",cookie)).text();
+ const id=approvalPage.match(/r_[a-f0-9]{32}/)?.[0];
+ assert(id);
+ assert.match(approvalPage,/Ожидает согласования/);
+ const noRights=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru"},cookie);
+ assert.equal(noRights.status,400);
+ const approved=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru",rights:"yes"},cookie);
+ assert.equal(approved.status,303);
+ const result=await (await f.get("/owner/releases?lang=ru",cookie)).text();
+ assert.match(result,/Одобрен · не опубликован/);
+ assert.equal((await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru",rights:"yes"},cookie)).status,409);
+ assert.equal((await f.get("/owner/releases",cookie)).status,200);
+});
+test("owner release approval detects edited drafts after proposal",async t=>{
+ const f=await fixture(t),cookie=await f.login();
+ const page=await (await f.get("/owner/releases?lang=en",cookie)).text();
+ const token=csrf(page),hash=page.match(/name="hash" value="([a-f0-9]{64})"/)?.[1];
+ assert(hash);
+ assert.equal((await f.post("/owner/releases/propose",{csrf:token,hash,lang:"en"},cookie)).status,303);
+ const after=await (await f.get("/owner/releases?lang=en",cookie)).text();
+ const id=after.match(/r_[a-f0-9]{32}/)?.[0];
+ assert(id);
+ const productPage=await (await f.get(f.itemPath,cookie)).text();
+ const edit={
+   csrf:csrf(productPage),id:f.product.id,revision:"0",lang:"ru",
+   nameTr:"Yeni Ürün",nameEn:"New Product",nameRu:"Новое блюдо",
+   priceTry:String(f.product.price+30),imageId:""
+ };
+ assert.equal((await f.post("/owner/catalog/save",edit,cookie)).status,303);
+ const blocked=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"en",rights:"yes"},cookie);
+ assert.equal(blocked.status,409);
+ const fresh=(await (await f.get("/owner/releases?lang=en",cookie)).text());
+ assert.match(fresh,/Pending approval/);
 });
