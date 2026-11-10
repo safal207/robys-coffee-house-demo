@@ -1,5 +1,6 @@
 // Explicit private operator CLI; never used by the public website or Counter route.
 import { exportSignedOwnerCandidate, verifySignedOwnerCandidate } from "./owner-release-bundle.mjs";
+import { stageDualCatalog, verifyDualCatalogStage } from "./dual-catalog-preflight.mjs";
 
 try {
   const args=process.argv.slice(2);
@@ -13,6 +14,16 @@ try {
     const r=await verifySignedOwnerCandidate({bundleDir,publicKeyPath});
     process.stdout.write("Trusted signature and package verified: "+r.candidateId+
       ", products="+r.products+", published=false\n");
+  } else if(args[0]==="stage" && args.length===4) {
+    const [,bundleDir,publicKeyPath,outputDir]=args;
+    const r=await stageDualCatalog({bundleDir,publicKeyPath,outputDir});
+    process.stdout.write("Both guest and Counter catalogues staged: "+r.releaseVersion+
+      ", products="+r.products+", published=false\n");
+  } else if(args[0]==="verify-stage" && args.length===4) {
+    const [,bundleDir,publicKeyPath,stageDir]=args;
+    const r=await verifyDualCatalogStage({bundleDir,publicKeyPath,stageDir});
+    process.stdout.write("Guest/Counter shared authority verified: "+r.releaseVersion+
+      ", published=false\n");
   } else throw new Error("Invalid operator invocation");
 } catch {
   process.stderr.write(
