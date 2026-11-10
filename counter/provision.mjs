@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { provisionUser } from "./store.mjs";
+import { provisionOwner } from "./owner-store.mjs";
 
 function hiddenPassword(label) {
   if (!process.stdin.isTTY || !process.stdout.isTTY) throw new Error("Run provisioning in an interactive terminal; passwords are never accepted as arguments");
@@ -31,12 +32,14 @@ function hiddenPassword(label) {
 
 try {
   const [username, role, ...extra] = process.argv.slice(2);
-  if (!username || !["cashier", "barista"].includes(role) || extra.length) throw new Error("Usage: node counter/provision.mjs <username> <cashier|barista>");
+  if (!username || !["cashier", "barista", "owner"].includes(role) || extra.length) throw new Error("Usage: node counter/provision.mjs <username> <cashier|barista|owner>");
   const password = await hiddenPassword("Password (12–256 characters, hidden): ");
   const repeated = await hiddenPassword("Repeat password (hidden): ");
   if (password !== repeated) throw new Error("Passwords do not match");
   const dbPath = process.env.COUNTER_DB ?? fileURLToPath(new URL("./data/counter.sqlite", import.meta.url));
-  const user = await provisionUser({ dbPath: resolve(dbPath), username, password, role });
+  const user = role === "owner"
+    ? await provisionOwner({ dbPath: resolve(dbPath), username, password })
+    : await provisionUser({ dbPath: resolve(dbPath), username, password, role });
   console.log(`Account provisioned: ${user.username} (${user.role}). Existing sessions were invalidated.`);
 } catch (error) {
   console.error(error.message);
