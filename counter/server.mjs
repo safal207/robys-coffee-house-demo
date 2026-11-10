@@ -175,7 +175,8 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   async function ownerCatalogRequest(request,response,url,origin) {
     const ip=request.socket.remoteAddress??"unknown";
     if(request.headers["sec-fetch-site"]==="cross-site"){apiLimit(ip);fail(403,"invalid_origin");}
-    const owner=ownerAuthentication(request,true);
+    const owner=ownerAuthentication(request);
+    if(!owner){apiLimit(ip);fail(401,"unauthorized");}
     if(request.method==="GET"){
       readLimit(digest(owner.token));
       if(url.pathname.startsWith("/owner/catalog/media/")){
