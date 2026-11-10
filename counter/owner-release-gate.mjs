@@ -68,7 +68,7 @@ export function openOwnerReleaseGate(dbPath,{catalog,now=Date.now}={}) {
     "id TEXT PRIMARY KEY, snapshot_json TEXT NOT NULL, snapshot_sha256 TEXT NOT NULL,",
     "status TEXT NOT NULL CHECK(status IN ('proposed','approved','rejected')),",
     "created_by TEXT NOT NULL, created_at INTEGER NOT NULL,",
-    "approved_by TEXT, approved_at INTEGER, rejected_by TEXT, rejected_at INTEGER);",
+    "approved_by TEXT, approved_at INTEGER, rights_attested INTEGER NOT NULL DEFAULT 0, rejected_by TEXT, rejected_at INTEGER);",
     "CREATE INDEX IF NOT EXISTS robys_owner_release_history",
     "ON robys_owner_release_candidates(created_at DESC,id DESC);"
   ].join(" "));
@@ -102,8 +102,8 @@ export function openOwnerReleaseGate(dbPath,{catalog,now=Date.now}={}) {
         return {id,hash:current.hash,status:"proposed"};
       });
     },
-    approve({id,actor,expectedHash}) {
-      if(!idOk(id)||!actorOk(actor))throw Error("Invalid release approval request");
+    approve({id,actor,expectedHash,rightsAttested=false}) {
+      if(!idOk(id)||!actorOk(actor)||rightsAttested!==true)throw Error("Owner must attest photo rights, translations and prices");
       return transaction(()=>{
         const record=lookup.get(id);
         if(!record || record.status!=="proposed")throw Error("Release cannot be approved");
@@ -111,7 +111,7 @@ export function openOwnerReleaseGate(dbPath,{catalog,now=Date.now}={}) {
         fresh(expectedHash);
         if(SHA(Buffer.from(record.snapshot_json))!==record.snapshot_sha256)
           throw Error("Corrupted immutable release candidate");
-        db.prepare("UPDATE robys_owner_release_candidates SET status='approved',approved_by=?,approved_at=? WHERE id=?")
+        db.prepare("UPDATE robys_owner_release_candidates SET status='approved',approved_by=?,approved_at=?,rights_attested=1 WHERE id=?")
           .run(actor,now(),id);
         return {id,hash:record.snapshot_sha256,status:"approved",published:false};
       });
@@ -129,7 +129,7 @@ export function openOwnerReleaseGate(dbPath,{catalog,now=Date.now}={}) {
     approvedSnapshot(id) {
       if(!idOk(id))throw Error("Invalid release ID");
       const record=lookup.get(id);
-      if(!record || record.status!=="approved")throw Error("Release has not been approved");
+      if(!record || record.status!=="approved" || record.rights_attested!==1)throw Error("Release has not been approved");
       if(SHA(Buffer.from(record.snapshot_json))!==record.snapshot_sha256)
         throw Error("Release candidate integrity failure");
       const snapshot=JSON.parse(record.snapshot_json);
