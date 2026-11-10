@@ -62,7 +62,7 @@ test("owner pages are no-store, script-free and unauthenticated visitors get no 
 
 test("login requires exact Origin and scoped owner credentials; no staff access",async t=>{
   const f=await fixture(t);
-  const bad=await f.form("/owner/login",{username:"reyhan",password:"invalid_password_123"},
+  const bad=await f.form("/owner/login",{username:"reyhan",password:secret()},
     "",{Origin:"https://evil.example"});
   assert.equal(bad.status,403);
   const noOwner=await f.form("/owner/login",{username:"cashier",password:secret()});
