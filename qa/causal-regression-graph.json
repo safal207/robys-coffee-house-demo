@@ -398,7 +398,11 @@
         ".github/workflows/counter-service.yml",
         "counter/owner-store.mjs",
         "counter/owner-page.mjs",
-        "counter/OWNER.md"
+        "counter/OWNER.md",
+        "counter/owner-catalog.mjs",
+        "counter/owner-catalog-page.mjs",
+        "counter/owner-photo-form.mjs",
+        "counter/OWNER_MENU.md"
       ],
       "dependsOn": [
         "order-model",
@@ -413,7 +417,10 @@
         "counter/auth.mjs",
         "counter/provision.mjs",
         "counter/owner-store.mjs",
-        "counter/owner-page.mjs"
+        "counter/owner-page.mjs",
+        "counter/owner-catalog.mjs",
+        "counter/owner-catalog-page.mjs",
+        "counter/owner-photo-form.mjs"
       ],
       "dependsOn": [
         "build"
