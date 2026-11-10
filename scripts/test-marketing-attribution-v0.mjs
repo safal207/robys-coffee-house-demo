@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   ATTRIBUTION_SCHEMA_VERSION, CAMPAIGN_SESSION_KEY, CAMPAIGN_TTL_MS,
   parseUtm, makeUtmLink, resolveUtm, clearUtm, makeClientFunnelEvent
-} from "../src/marketing-attribution-v0.js";
+} from "./marketing-attribution-v0.js";
 
 const url = "https://safal207.github.io/robys-coffee-house-demo/menu-feed.html?utm_source=Instagram&utm_medium=Social&utm_campaign=November_Menu&utm_content=Story_01&lang=ru";
 function storage() {
