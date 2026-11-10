@@ -21,6 +21,11 @@ monitoring service or a finished owner dashboard.
    average basket, grouped by local calendar day (Europe/Istanbul). Empty
    results are zero, not simulated. UTM attribution remains **unknown**.
 
+4. `scripts/render-owner-paid-kpi-v1.mjs`: renders a static, self-contained,
+   offline HTML summary in Turkish, English or Russian from validated paid
+   KPI data. No tracking scripts or public endpoints; zero sales yields an
+   explicit empty state, not placeholder metrics.
+
 ### Authoritative distinction
 
 - `checkout_qr_opened` = customer viewed a QR. Not evidence of an order.
@@ -46,7 +51,7 @@ The following remain missing and are hard blockers:
   independent consent enforcement, deduplication and deletion support.
   The event-store function `authorizedConsent` is a trusted-server interface,
   **not** a secure HTTP authorization mechanism by itself.
-- Authentication/authorization of an owner-only dashboard. The existing
+- Authentication/authorization of an owner-only **online** dashboard. The existing
   Counter roles are `cashier` and `barista`; neither should be promoted
   into unrestricted owner analytics access. No owner dashboard endpoint
   or remote UI is present.
