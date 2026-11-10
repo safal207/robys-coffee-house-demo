@@ -568,7 +568,9 @@
         "scripts/test-marketing-event-store-v1.mjs",
         "scripts/owner-paid-kpi-v1.mjs",
         "scripts/test-owner-paid-kpi-v1.mjs",
-        "docs/marketing-analytics-v1.md"
+        "docs/marketing-analytics-v1.md",
+        "scripts/render-owner-paid-kpi-v1.mjs",
+        "scripts/test-render-owner-paid-kpi-v1.mjs"
       ],
       "dependsOn": [
         "home",
