@@ -220,9 +220,10 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     }catch{fail(400,"invalid_form");}
     let id,lang,revision;
     if(url.pathname==="/owner/catalog/upload"){
-      id=form.id;lang="tr";
-      if(!form || Object.keys(form).sort().join(",")!=="csrf,id,photo,revision")
+      id=form.id;lang=form.lang;
+      if(!form || Object.keys(form).sort().join(",")!=="csrf,id,lang,photo,revision")
         fail(400,"invalid_form");
+      if(!LANGUAGES.has(lang))fail(400,"invalid_form");
       if(!equalSecret(form.csrf,owner.csrfToken))fail(403,"invalid_csrf");
       if(!/^\d{1,9}$/.test(form.revision))fail(400,"invalid_revision");
       revision=Number(form.revision);
