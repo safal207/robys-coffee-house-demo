@@ -176,11 +176,13 @@ test("owner-only release proposal and approval never publish to the guest catalo
  const id=approvalPage.match(/r_[a-f0-9]{32}/)?.[0];
  assert(id);
  assert.match(approvalPage,/Ожидает согласования/);
- const approved=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru"},cookie);
+ const noRights=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru"},cookie);
+ assert.equal(noRights.status,400);
+ const approved=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru",rights:"yes"},cookie);
  assert.equal(approved.status,303);
  const result=await (await f.get("/owner/releases?lang=ru",cookie)).text();
  assert.match(result,/Одобрен · не опубликован/);
- assert.equal((await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru"},cookie)).status,409);
+ assert.equal((await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"ru",rights:"yes"},cookie)).status,409);
  assert.equal((await f.get("/owner/releases",cookie)).status,200);
 });
 test("owner release approval detects edited drafts after proposal",async t=>{
@@ -199,7 +201,7 @@ test("owner release approval detects edited drafts after proposal",async t=>{
    priceTry:String(f.product.price+30),imageId:""
  };
  assert.equal((await f.post("/owner/catalog/save",edit,cookie)).status,303);
- const blocked=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"en"},cookie);
+ const blocked=await f.post("/owner/releases/approve",{csrf:token,hash,id,lang:"en",rights:"yes"},cookie);
  assert.equal(blocked.status,409);
  const fresh=(await (await f.get("/owner/releases?lang=en",cookie)).text());
  assert.match(fresh,/Pending approval/);
