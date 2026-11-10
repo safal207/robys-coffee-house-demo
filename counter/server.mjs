@@ -8,6 +8,9 @@ import { CounterError, openCounterStore, provisionUser } from "./store.mjs";
 import { csrfForSession, digest, equalSecret, normalizeUsername, randomSecret, validSecret, verifyPassword } from "./auth.mjs";
 import { openOwnerStore, provisionOwner } from "./owner-store.mjs";
 import { ownerReportDates, renderOwnerLogin, renderOwnerDashboard } from "./owner-page.mjs";
+import { openOwnerCatalog } from "./owner-catalog.mjs";
+import { renderOwnerCatalogList, renderOwnerCatalogItem } from "./owner-catalog-page.mjs";
+import { readOwnerPhotoForm } from "./owner-photo-form.mjs";
 
 export { provisionUser, provisionOwner };
 const PREFIX = "/api/counter";
@@ -110,6 +113,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   const storePath = dbPath ?? resolve(root, "counter/data/counter.sqlite");
   const store = openCounterStore(storePath);
   const ownerStore = openOwnerStore(storePath);
+  const ownerCatalog = openOwnerCatalog(storePath);
   const ownerSessionTtlMs = 60 * 60 * 1000;
   const ownerCookieName = secureCookies ? "__Host-robys-owner-session" : "robys-owner-session";
   const ownerCookie = (token, maxAge) => `${ownerCookieName}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secureCookies ? "; Secure" : ""}`;
@@ -152,13 +156,117 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     response.writeHead(status, {
       "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
       "X-Robots-Tag": "noindex, nofollow",
-      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
       "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
     });
     response.end(html);
   }
+  function validateOwnerFields(form,keys) {
+    if(!form || [...form.keys()].some(k=>!keys.includes(k)||form.getAll(k).length!==1) ||
+        keys.some(k=>form.getAll(k).length!==1))fail(400,"invalid_form");
+  }
+  function ownerRedirect(response,id,lang) {
+    response.writeHead(303, {
+      Location:"/owner/catalog/item?id="+encodeURIComponent(id)+"&lang="+lang,
+      "Cache-Control":"no-store"
+    });
+    response.end();
+  }
+  async function ownerCatalogRequest(request,response,url,origin) {
+    const ip=request.socket.remoteAddress??"unknown";
+    if(request.headers["sec-fetch-site"]==="cross-site"){apiLimit(ip);fail(403,"invalid_origin");}
+    const owner=ownerAuthentication(request,true);
+    if(request.method==="GET"){
+      readLimit(digest(owner.token));
+      if(url.pathname.startsWith("/owner/catalog/media/")){
+        if(url.search)fail(400,"invalid_query");
+        const id=url.pathname.slice("/owner/catalog/media/".length);
+        let photo;
+        try{photo=ownerCatalog.readPhoto(id);}
+        catch{fail(404,"not_found");}
+        response.writeHead(200,{
+          "Content-Type":photo.mime,"Content-Length":photo.buffer.length,
+          "Cache-Control":"no-store","X-Content-Type-Options":"nosniff",
+          "Cross-Origin-Resource-Policy":"same-origin",
+          "Content-Security-Policy":"default-src 'none'; sandbox"
+        });
+        return response.end(photo.buffer);
+      }
+      const keys=url.pathname==="/owner/catalog" ? ["lang"] : ["id","lang"];
+      if(!["/owner/catalog","/owner/catalog/item"].includes(url.pathname) ||
+          [...url.searchParams.keys()].some(k=>!keys.includes(k)||url.searchParams.getAll(k).length!==1))
+        fail(400,"invalid_query");
+      const lang=url.searchParams.get("lang")??"tr";
+      if(!LANGUAGES.has(lang))fail(400,"invalid_query");
+      if(url.pathname==="/owner/catalog")
+        return ownerHtml(response,200,renderOwnerCatalogList(ownerCatalog.list(),lang));
+      const id=url.searchParams.get("id");
+      if(!id)fail(400,"invalid_query");
+      let item,history;
+      try{item=ownerCatalog.get(id);history=ownerCatalog.history(id);}
+      catch{fail(404,"not_found");}
+      return ownerHtml(response,200,renderOwnerCatalogItem(item,history,owner.csrfToken,lang));
+    }
+    if(request.method!=="POST" || !["/owner/catalog/save","/owner/catalog/upload","/owner/catalog/restore"].includes(url.pathname))
+      fail(405,"method_not_allowed");
+    if(url.search)fail(400,"invalid_query");
+    apiLimit(ip);createLimit(ip);
+    if(request.headers.origin!==origin)fail(403,"invalid_origin");
+    let form;
+    try{
+      form=url.pathname==="/owner/catalog/upload"
+        ? await readOwnerPhotoForm(request)
+        : await readOwnerForm(request,4096);
+    }catch{fail(400,"invalid_form");}
+    let id,lang,revision;
+    if(url.pathname==="/owner/catalog/upload"){
+      id=form.id;lang="tr";
+      if(!form || Object.keys(form).sort().join(",")!=="csrf,id,photo,revision")
+        fail(400,"invalid_form");
+      if(!equalSecret(form.csrf,owner.csrfToken))fail(403,"invalid_csrf");
+      if(!/^\d{1,9}$/.test(form.revision))fail(400,"invalid_revision");
+      revision=Number(form.revision);
+    }else{
+      const keys=url.pathname==="/owner/catalog/save"
+        ? ["csrf","id","revision","lang","nameTr","nameEn","nameRu","priceTry","imageId"]
+        : ["csrf","id","revision","lang","auditId"];
+      validateOwnerFields(form,keys);
+      id=form.get("id");lang=form.get("lang");
+      if(!LANGUAGES.has(lang))fail(400,"invalid_form");
+      if(!equalSecret(form.get("csrf"),owner.csrfToken))fail(403,"invalid_csrf");
+      if(!/^\d{1,9}$/.test(form.get("revision")))fail(400,"invalid_revision");
+      revision=Number(form.get("revision"));
+    }
+    try{
+      if(url.pathname==="/owner/catalog/save"){
+        if(!/^[1-9][0-9]{0,3}$/.test(form.get("priceTry")))fail(400,"invalid_price");
+        ownerCatalog.update({id,expectedRevision:revision,actor:owner.owner.username,
+          content:{nameTr:form.get("nameTr"),nameEn:form.get("nameEn"),
+            nameRu:form.get("nameRu"),priceTry:Number(form.get("priceTry")),
+            imageId:form.get("imageId")||null}});
+      }else if(url.pathname==="/owner/catalog/restore"){
+        if(!/^\d{1,9}$/.test(form.get("auditId")))fail(400,"invalid_history");
+        ownerCatalog.restore({id,expectedRevision:revision,
+          auditId:Number(form.get("auditId")),actor:owner.owner.username});
+      }else{
+        if(!Buffer.isBuffer(form.photo))fail(400,"invalid_photo");
+        const current=ownerCatalog.get(id);
+        if(current.revision!==revision)fail(409,"revision_conflict");
+        const photo=ownerCatalog.stagePhoto({buffer:form.photo,actor:owner.owner.username});
+        ownerCatalog.update({id,expectedRevision:revision,actor:owner.owner.username,
+          content:{...current.draft,imageId:photo.id}});
+      }
+    }catch(error){
+      if(error instanceof CounterError)throw error;
+      if(error.message==="Revision conflict")fail(409,"revision_conflict");
+      fail(400,"invalid_owner_draft");
+    }
+    return ownerRedirect(response,id,lang);
+  }
   async function ownerPageRequest(request, response, url, origin) {
     const ip = request.socket.remoteAddress ?? "unknown";
+    if(url.pathname==="/owner/catalog"||url.pathname.startsWith("/owner/catalog/"))
+      return ownerCatalogRequest(request,response,url,origin);
     if (request.headers["sec-fetch-site"] === "cross-site") { apiLimit(ip); fail(403, "invalid_origin"); }
     if (url.pathname === "/owner" && request.method === "GET") {
       const owner = ownerAuthentication(request);
@@ -382,7 +490,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   server.requestTimeout = 10000;
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
-  server.on("close", () => { ownerStore.close(); store.close(); });
+  server.on("close", () => { ownerCatalog.close(); ownerStore.close(); store.close(); });
   server.provisionUser = user => store.provisionUser(user);
   server.provisionOwner = owner => ownerStore.provision(owner);
   return server;
