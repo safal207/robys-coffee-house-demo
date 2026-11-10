@@ -1,6 +1,6 @@
 // Operator-only, signed, immutable handoff package. NOT a live deploy command.
 // The trusted verification key MUST be supplied out of band, never read from bundle.
-import { readFileSync, writeFileSync, mkdirSync, rmSync, lstatSync, realpathSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, openSync, closeSync, readSync, fstatSync, constants } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { createHash, createPrivateKey, createPublicKey, sign, verify } from "node:crypto";
 import sharp from "sharp";
@@ -14,12 +14,34 @@ const FILE_SCHEMA = "robys.signed-catalog-candidate.v1";
 const RELATIVE = /^media\/p_[a-f0-9]{32}\.webp$/;
 const HASH = /^[a-f0-9]{64}$/;
 
+// Avoid check-then-use filesystem races: validate the *opened descriptor*.
+// O_NOFOLLOW prevents a replaced symlink from redirecting private key/media reads.
+function readOpenedRegular(file,maxSize) {
+ const flags=constants.O_RDONLY | constants.O_NONBLOCK | constants.O_NOFOLLOW;
+ if(!constants.O_NOFOLLOW)throw Error("Symlink-safe filesystem access unavailable");
+ let fd;
+ try {
+   fd=openSync(file,flags);
+   const stat=fstatSync(fd);
+   if(!stat.isFile()||!Number.isSafeInteger(stat.size)||
+       stat.size<1||stat.size>maxSize)throw Error("Unsafe file type or size");
+   const data=Buffer.alloc(stat.size);
+   let offset=0;
+   while(offset<data.length){
+     const read=readSync(fd,data,offset,data.length-offset,offset);
+     if(read<=0)throw Error("File changed while being read");
+     offset+=read;
+   }
+   if(fstatSync(fd).size!==stat.size)throw Error("File changed during verification");
+   return {data,mode:stat.mode};
+ } finally {if(fd!==undefined)closeSync(fd);}
+}
 function trustedKey(path) {
  if(typeof path!=="string"||!path)throw Error("Explicit private key path required");
- const item=statSync(path);
- if(!item.isFile() || (process.platform!=="win32" && (item.mode&0o077)!==0))
+ const {data,mode}=readOpenedRegular(path,16*1024);
+ if(process.platform!=="win32" && (mode&0o077)!==0)
    throw Error("Private signing key must not be accessible by other users");
- const key=createPrivateKey(readFileSync(path));
+ const key=createPrivateKey(data);
  if(key.asymmetricKeyType!=="ed25519")throw Error("Ed25519 signing key is required");
  return key;
 }
@@ -28,8 +50,7 @@ function safelyRead(root,rel) {
  const file=resolve(root,rel);
  if(!file.startsWith(resolve(root)+"/") && !file.startsWith(resolve(root)+"\\"))
    throw Error("Media path traversal");
- if(!lstatSync(file).isFile()||realpathSync(file)!==file)throw Error("Unsafe media file type");
- return readFileSync(file);
+ return readOpenedRegular(file,2*1024*1024).data;
 }
 
 export async function exportSignedOwnerCandidate({dbPath,candidateId,outputDir,privateKeyPath}) {
@@ -97,15 +118,11 @@ export async function verifySignedOwnerCandidate({bundleDir,publicKeyPath}) {
  if(typeof bundleDir!=="string" || !bundleDir || typeof publicKeyPath!=="string" || !publicKeyPath)
    throw Error("Explicit bundle and pinned trusted key required");
  const root=resolve(bundleDir);
- const pub=createPublicKey(readFileSync(publicKeyPath));
+ const pub=createPublicKey(readOpenedRegular(publicKeyPath,16*1024).data);
  if(pub.asymmetricKeyType!=="ed25519")throw Error("Wrong trusted verification key");
  const manifestFile=join(root,"manifest.json"),signatureFile=join(root,"manifest.sig");
- for(const file of [manifestFile,signatureFile])
-   if(!lstatSync(file).isFile() || realpathSync(file)!==file)
-     throw Error("Invalid signed release files");
- const body=readFileSync(manifestFile);
- if(body.length>250000)throw Error("Oversized manifest");
- const rawSig=readFileSync(signatureFile,"utf8");
+ const body=readOpenedRegular(manifestFile,250000).data;
+ const rawSig=readOpenedRegular(signatureFile,512).data.toString("utf8");
  if(!/^[a-zA-Z0-9_-]{86}$/.test(rawSig)||!verify(null,body,pub,Buffer.from(rawSig,"base64url")))
    throw Error("Untrusted or corrupted release signature");
  const manifest=JSON.parse(body);
