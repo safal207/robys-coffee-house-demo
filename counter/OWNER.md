@@ -34,7 +34,7 @@ For a hosted volume, provision from an authorized operational shell with
 the same private mount and service identity, not a public request.
 
 Start Counter with its documented configuration. Open locally at
-http://127.0.0.1:8787/owner, or on a reviewed private HTTPS Counter origin.
+[local owner dashboard](http://127.0.0.1:8787/owner), or on a reviewed private HTTPS Counter origin.
 GitHub Pages does not host this route. Public Counter remains disabled
 in the GitHub Pages counter-config.json.
 
