@@ -26,6 +26,7 @@ advertised as working marketing reporting.
 `https://safal207.github.io/robys-coffee-house-demo/menu-feed.html?utm_source=instagram&utm_medium=social&utm_campaign=november_menu&utm_content=story_01`
 
 Suggested naming:
+
 - Instagram story: source=instagram, medium=social, campaign=november_menu, content=story_01
 - TikTok video: source=tiktok, medium=social, campaign=november_menu, content=video_01
 - Table QR: source=table_qr, medium=qr, campaign=in_cafe, content=table_group_a
