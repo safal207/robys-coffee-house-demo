@@ -73,6 +73,40 @@ SHA-256 file hashes. The second command must be run with the PINNED
 public key, not a key contained in the candidate package. Both commands
 report published=false. Tampered files and unapproved candidates fail.
 
+## Offline guest/Counter synchronization preflight (not a deployment)
+
+A second, explicit operator step converts one independently verified
+Ed25519 owner candidate into **two byte-identical staging projections**.
+Use an absolute private destination that does not exist yet:
+
+    node scripts/owner-release-cli.mjs stage /private/release-candidate /private/trusted-public-key.pem /private/dual-catalog-stage
+    node scripts/owner-release-cli.mjs verify-stage /private/release-candidate /private/trusted-public-key.pem /private/dual-catalog-stage
+
+Outputs are `guest-catalog-stage.json`, `counter-catalog-stage.json`,
+and `preflight.json`. The projection schema is
+`robys.dual-catalog-stage.v1`. Both payloads are intentionally identical
+and preserve canonical item order, stable product IDs, multilingual names,
+variant identities, photo digest, **integer TRY minor-unit prices**, and
+a common `releaseVersion` and `priceAuthoritySha256`. The preflight
+validates the trusted signed candidate, source catalog hash, order-ticket
+ordinal fingerprint, each projection's contents and hash, and rejects
+price, identity or variant drift. Any difference is a hard NO-GO.
+
+The preflight report states `published=false` and
+`liveGuestObserved=false`/`liveCounterObserved=false`; it does **not**
+mark an order as paid, update GitHub Pages, update Counter quotes, or
+claim atomic publication. The current Counter and customer site still
+read the existing static `menu-catalog.js` prices. Neither staging
+projection is wired into either runtime. Never place staging artifacts,
+signing keys, or owner SQL data in public folders or CI artifacts.
+
+**Real release coordinator still required:** independently verified
+deployment observations from both hosts, a pinned release hash,
+a bounded failure/rollback path, and explicit rejection of stale client
+QR/tickets until quote authority matches. GitHub Pages and Counter are
+separate hosts, so one local file write cannot provide a cross-host
+atomic transaction. Production remains NO-GO.
+
 ## Deliberately missing: production deployment
 
 **DO NOT expose the signed candidate as a live menu.** The following
