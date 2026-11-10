@@ -184,7 +184,8 @@ try {
     assert.match(await page.locator(".menu-ingredient-chips").innerText(), new RegExp(scenario.label, "i"));
     assert.equal(await page.locator("html").getAttribute("lang"), scenario.lang);
     await assertSavedEditablePair(page);
-    await page.keyboard.press("Escape");
+    await page.locator('[data-menu-dialog-close="product"]').click();
+    await page.locator("#menu-product-dialog[open]").waitFor({ state: "hidden" });
   }
 
   await page.setViewportSize({ width: 320, height: 568 });
