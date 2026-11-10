@@ -119,9 +119,15 @@ test("photo upload stays private, typed and immutable, rejects fake uploads",asy
  assert.equal((await f.get("/owner/catalog/media/"+asset)).status,401);
  const preview=await f.get("/owner/catalog/media/"+asset,cookie);
  assert.equal(preview.status,200);
- assert.equal(preview.headers.get("content-type"),"image/png");
+ assert.equal(preview.headers.get("content-type"),"image/webp");
  assert.equal(preview.headers.get("cache-control"),"no-store");
- assert.deepEqual(Buffer.from(await preview.arrayBuffer()),image);
+ const clean=Buffer.from(await preview.arrayBuffer());
+ assert.notDeepEqual(clean,image,"raw upload must never be exposed");
+ const meta=await sharp(clean).metadata();
+ assert.equal(meta.format,"webp");
+ assert.equal(meta.exif,undefined);
+ assert.equal(meta.xmp,undefined);
+ assert.equal(meta.icc,undefined);
  const badForm=new FormData();
  for(const [k,v] of Object.entries({csrf:token,id:f.product.id,revision:"1",lang:"ru"}))
   badForm.set(k,v);
