@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync } from "node:crypto";
-import { mkdtempSync,rmSync,writeFileSync,readFileSync,readdirSync } from "node:fs";
+import { mkdtempSync,rmSync,writeFileSync,readFileSync,readdirSync,symlinkSync,renameSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import sharp from "sharp";
@@ -79,4 +79,17 @@ test("an untrusted verification key and an unsigned draft fail closed",async t=>
  const newCandidate=f.gate.propose({expectedHash:f.gate.preview().hash,actor:"reyhan"});
  await assert.rejects(exportSignedOwnerCandidate({dbPath:f.dbPath,candidateId:newCandidate.id,
    privateKeyPath:f.privateKeyPath,outputDir:join(f.root,"not-approved")}),/not been approved/);
+});
+
+test("verification rejects manifest symlinks instead of racing checked paths",async t=>{
+ if(process.platform==="win32")return t.skip("requires O_NOFOLLOW");
+ const f=await fixture(t,{withPhoto:false}),out=join(f.root,"safe-signed");
+ await exportSignedOwnerCandidate({dbPath:f.dbPath,candidateId:f.proposal.id,
+  privateKeyPath:f.privateKeyPath,outputDir:out});
+ const manifest=join(out,"manifest.json"),renamed=join(out,"manifest-safe.json");
+ renameSync(manifest,renamed);
+ symlinkSync(renamed,manifest);
+ await assert.rejects(verifySignedOwnerCandidate({
+   bundleDir:out,publicKeyPath:f.publicKeyPath
+ }),/ELOOP|symbolic link|symlink/i);
 });
