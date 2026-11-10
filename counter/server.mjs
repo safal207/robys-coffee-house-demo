@@ -6,8 +6,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { decodeOrderTicket, quoteOrderTicket, OrderTicketError } from "../src/order-ticket.js";
 import { CounterError, openCounterStore, provisionUser } from "./store.mjs";
 import { csrfForSession, digest, equalSecret, normalizeUsername, randomSecret, validSecret, verifyPassword } from "./auth.mjs";
+import { openOwnerStore, provisionOwner } from "./owner-store.mjs";
+import { ownerReportDates, renderOwnerLogin, renderOwnerDashboard } from "./owner-page.mjs";
 
-export { provisionUser };
+export { provisionUser, provisionOwner };
 const PREFIX = "/api/counter";
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "::1"]);
 const LANGUAGES = new Set(["tr", "en", "ru"]);
@@ -57,6 +59,30 @@ function readJson(request, limit = 8192) {
   });
 }
 
+function readOwnerForm(request, limit = 1024) {
+  if (!/^application\/x-www-form-urlencoded(?:;\s*charset=utf-8)?$/i.test(request.headers["content-type"] ?? ""))
+    fail(415, "form_required");
+  if (request.headers["content-encoding"] && request.headers["content-encoding"] !== "identity") fail(415, "unsupported_encoding");
+  if (Number(request.headers["content-length"]) > limit) { request.resume(); fail(413, "body_too_large"); }
+  return new Promise((resolveBody, reject) => {
+    let size = 0, chunks = [], exceeded = false;
+    request.on("data", chunk => {
+      size += chunk.length;
+      if (size > limit) { exceeded = true; chunks = []; reject(new CounterError(413, "body_too_large")); }
+      else if (!exceeded) chunks.push(chunk);
+    });
+    request.on("end", () => {
+      if (exceeded) return;
+      const raw = Buffer.concat(chunks).toString("utf8");
+      if (raw.includes("\0")) { reject(new CounterError(400,"invalid_form")); return; }
+      try { resolveBody(new URLSearchParams(raw)); }
+      catch { reject(new CounterError(400, "invalid_form")); }
+    });
+    request.on("error", () => reject(new CounterError(400, "invalid_request")));
+    request.on("aborted", () => reject(new CounterError(400, "invalid_request")));
+  });
+}
+
 export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   host = "127.0.0.1", secureCookies = !LOOPBACK.has(host), publicOrigin, healthcheckHost, now = Date.now,
   sessionTtlMs = 8 * 60 * 60 * 1000, rateLimits = {} } = {}) {
@@ -81,7 +107,12 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   staticFiles.set("/", resolve(root, "index.html"));
   staticFiles.set("/integrity-manifest.json", resolve(root, "integrity-manifest.json"));
   for (const asset of PUBLIC_ASSETS) staticFiles.set(`/counter/${asset}`, resolve(root, "counter/public", asset));
-  const store = openCounterStore(dbPath ?? resolve(root, "counter/data/counter.sqlite"));
+  const storePath = dbPath ?? resolve(root, "counter/data/counter.sqlite");
+  const store = openCounterStore(storePath);
+  const ownerStore = openOwnerStore(storePath);
+  const ownerSessionTtlMs = 60 * 60 * 1000;
+  const ownerCookieName = secureCookies ? "__Host-robys-owner-session" : "robys-owner-session";
+  const ownerCookie = (token, maxAge) => `${ownerCookieName}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secureCookies ? "; Secure" : ""}`;
   const cookieName = secureCookies ? "__Host-roby-counter-session" : "roby-counter-session";
   const apiLimit = rateLimiter({ max: 1200, ...rateLimits.api }, now);
   const readLimit = rateLimiter({ max: 90, ...rateLimits.read }, now);
@@ -94,6 +125,14 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     const user = validSecret(token) ? store.session(token, now()) : null;
     if (!user && required) fail(401, "unauthorized");
     return user ? { user, token, csrfToken: csrfForSession(token) } : null;
+  }
+  function ownerAuthentication(request, required = false) {
+    const matches = (request.headers.cookie ?? "").split(";").map(value => value.trim())
+      .filter(value => value.startsWith(`${ownerCookieName}=`));
+    const token = matches.length === 1 ? matches[0].slice(ownerCookieName.length + 1) : null;
+    const owner = validSecret(token) ? ownerStore.session(token, now()) : null;
+    if (!owner && required) fail(401, "unauthorized");
+    return owner ? { owner, token, csrfToken: csrfForSession(token) } : null;
   }
   function staffWrite(request) {
     const auth = authentication(request, true);
@@ -108,6 +147,75 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
       && request.url === `${PREFIX}/health` && request.headers.host?.toLowerCase() === healthcheckHost.toLowerCase();
     if (!healthProbe && !expectedHosts.includes(request.headers.host?.toLowerCase())) fail(403, "invalid_host");
     return configuredOrigin?.origin ?? `${secureCookies ? "https" : "http"}://${request.headers.host}`;
+  }
+  function ownerHtml(response, status, html) {
+    response.writeHead(status, {
+      "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store",
+      "X-Robots-Tag": "noindex, nofollow",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+      "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+    });
+    response.end(html);
+  }
+  async function ownerPageRequest(request, response, url, origin) {
+    const ip = request.socket.remoteAddress ?? "unknown";
+    if (request.headers["sec-fetch-site"] === "cross-site") { apiLimit(ip); fail(403, "invalid_origin"); }
+    if (url.pathname === "/owner" && request.method === "GET") {
+      const owner = ownerAuthentication(request);
+      if (!owner) {
+        apiLimit(ip);
+        if ([...url.searchParams.keys()].some(key => key !== "lang" || url.searchParams.getAll(key).length !== 1))
+          fail(400, "invalid_query");
+        const lang = url.searchParams.get("lang") ?? "tr";
+        if (!LANGUAGES.has(lang)) fail(400, "invalid_query");
+        return ownerHtml(response, 200, renderOwnerLogin(lang));
+      }
+      readLimit(digest(owner.token));
+      let range;
+      try { range = ownerReportDates(url.searchParams, now()); }
+      catch { fail(400, "invalid_query"); }
+      const summary = ownerStore.paidSummary(range);
+      return ownerHtml(response, 200, renderOwnerDashboard({
+        username: owner.owner.username, csrfToken: owner.csrfToken, range, summary
+      }));
+    }
+    if (request.method !== "POST" || !["/owner/login", "/owner/logout"].includes(url.pathname))
+      fail(404, "not_found");
+    if (url.search) fail(400, "invalid_query");
+    apiLimit(ip);
+    if (request.headers.origin !== origin) fail(403, "invalid_origin");
+    if (url.pathname === "/owner/login") loginLimit(ip);
+    const form = await readOwnerForm(request);
+    if (url.pathname === "/owner/login") {
+      if ([...form.keys()].some(key => !["username", "password"].includes(key) || form.getAll(key).length !== 1)
+          || form.getAll("username").length !== 1 || form.getAll("password").length !== 1)
+        fail(400, "invalid_form");
+      const username = normalizeUsername(form.get("username")), password = form.get("password");
+      if (!username || !password || password.length > 256) fail(400, "invalid_form");
+      const record = ownerStore.ownerByName(username);
+      if (!await verifyPassword(password, record?.password_hash) ||
+          ownerStore.ownerByName(username)?.password_hash !== record?.password_hash)
+        return ownerHtml(response, 401, renderOwnerLogin("tr", true));
+      const previous = ownerAuthentication(request);
+      if (previous) ownerStore.logout(previous.token);
+      const token = randomSecret();
+      ownerStore.createSession(token, record.id, now(), ownerSessionTtlMs);
+      response.writeHead(303, {
+        Location: "/owner", "Cache-Control": "no-store",
+        "Set-Cookie": ownerCookie(token, Math.floor(ownerSessionTtlMs / 1000))
+      });
+      return response.end();
+    }
+    if ([...form.keys()].some(key => key !== "csrf" || form.getAll(key).length !== 1) ||
+        form.getAll("csrf").length !== 1) fail(400, "invalid_form");
+    const owner = ownerAuthentication(request, true);
+    if (!equalSecret(form.get("csrf"), owner.csrfToken)) fail(403, "invalid_csrf");
+    ownerStore.logout(owner.token);
+    response.writeHead(303, {
+      Location: "/owner", "Cache-Control": "no-store",
+      "Set-Cookie": ownerCookie("", 0)
+    });
+    return response.end();
   }
   async function api(request, response, url, origin) {
     const ip = request.socket.remoteAddress ?? "unknown";
@@ -255,7 +363,10 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
       const origin = requestOrigin(request);
       const url = new URL(request.url, origin);
       if (url.origin !== origin) fail(403, "invalid_origin");
-      if (url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`)) {
+      if (url.pathname === "/owner" || url.pathname.startsWith("/owner/")) {
+        response.setHeader("Cache-Control", "no-store");
+        await ownerPageRequest(request, response, url, origin);
+      } else if (url.pathname === PREFIX || url.pathname.startsWith(`${PREFIX}/`)) {
         response.setHeader("Cache-Control", "no-store");
         await api(request, response, url, origin);
       } else await serveStatic(request, response, url.pathname);
@@ -269,8 +380,9 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
   server.requestTimeout = 10000;
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
-  server.on("close", () => store.close());
+  server.on("close", () => { ownerStore.close(); store.close(); });
   server.provisionUser = user => store.provisionUser(user);
+  server.provisionOwner = owner => ownerStore.provision(owner);
   return server;
 }
 
