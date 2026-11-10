@@ -12,6 +12,8 @@ const CLOCK_SKEW_MS = 2 * 60 * 1000;
 const MAX_EVENT_AGE_MS = 15 * 60 * 1000;
 const ALLOWED_KEYS = ["eventId", "schemaVersion", "name", "occurredAtMs", "campaign", "data"];
 
+const stableFields = value => value === null ? "null" : JSON.stringify(Object.keys(value).sort().map(key => [key, value[key]]));
+
 function assertEvent(entry, receivedAt) {
   if (!entry || typeof entry !== "object" || Array.isArray(entry) ||
       Object.keys(entry).sort().join(",") !== ALLOWED_KEYS.slice().sort().join(",")) throw Error("Invalid event envelope");
@@ -22,8 +24,8 @@ function assertEvent(entry, receivedAt) {
       entry.occurredAtMs > receivedAt + CLOCK_SKEW_MS) throw Error("Invalid event timestamp or schema");
   const valid = makeClientFunnelEvent(entry.name, entry.data,
     { consent: true, campaign: entry.campaign, now: entry.occurredAtMs });
-  if (!valid || JSON.stringify(valid.data) !== JSON.stringify(entry.data) ||
-      JSON.stringify(valid.campaign) !== JSON.stringify(entry.campaign)) throw Error("Noncanonical event values");
+  if (!valid || stableFields(valid.data) !== stableFields(entry.data) ||
+      stableFields(valid.campaign) !== stableFields(entry.campaign)) throw Error("Noncanonical event values");
   return valid;
 }
 
