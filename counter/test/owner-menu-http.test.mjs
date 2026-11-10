@@ -10,13 +10,13 @@ import { createCounterServer, provisionOwner } from "../server.mjs";
 import { ownerCatalogProducts } from "../owner-catalog.mjs";
 
 const randomPassword=()=>randomBytes(32).toString("base64url");
-async function fixture(t) {
+async function fixture(t,options={}) {
  const dir=mkdtempSync(resolve(tmpdir(),"robys-owner-menu-http-"));
  const rootDir=resolve(dir,"public"),dbPath=resolve(dir,"private","counter.sqlite");
  mkdirSync(rootDir,{recursive:true});
  writeFileSync(resolve(rootDir,"index.html"),"<!doctype html><title>Test</title>");
  writeFileSync(resolve(rootDir,"integrity-manifest.json"),JSON.stringify({files:[{path:"index.html"}]}));
- const server=createCounterServer({dbPath,rootDir});
+ const server=createCounterServer({dbPath,rootDir,...options});
  t.after(async()=>{
    await new Promise(resolveClose=>server.close(resolveClose));
    rmSync(dir,{recursive:true,force:true});
@@ -44,6 +44,16 @@ function csrf(html) {
  const token=html.match(/name="csrf" value="([A-Za-z0-9_-]{43})"/)?.[1];
  assert(token);return token;
 }
+test("unauthenticated catalog requests use shared abuse throttling", async t=>{
+ const f=await fixture(t,{rateLimits:{api:{max:2}}});
+ const path="/owner/catalog?lang=ru";
+ assert.equal((await f.get(path)).status,401);
+ assert.equal((await f.get(path)).status,401);
+ const throttled=await f.get(path);
+ assert.equal(throttled.status,429);
+ assert.equal(throttled.headers.get("retry-after"),"60");
+});
+
 test("owner menu requires isolated login; staff cookies cannot read drafts",async t=>{
  const f=await fixture(t);
  assert.equal((await f.get("/owner/catalog?lang=ru")).status,401);
