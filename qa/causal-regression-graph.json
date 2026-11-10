@@ -570,7 +570,9 @@
         "scripts/test-owner-paid-kpi-v1.mjs",
         "docs/marketing-analytics-v1.md",
         "scripts/render-owner-paid-kpi-v1.mjs",
-        "scripts/test-render-owner-paid-kpi-v1.mjs"
+        "scripts/test-render-owner-paid-kpi-v1.mjs",
+        "scripts/export-owner-paid-report-v1.mjs",
+        "scripts/test-export-owner-paid-report-v1.mjs"
       ],
       "dependsOn": [
         "home",
