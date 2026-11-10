@@ -1,7 +1,7 @@
 // Script-free, server-rendered dashboard on the private Counter host only.
 const words = {
   tr: {
-    title:"ROBY'S · İşletme paneli", eyebrow:"ROBY'S COFFEE HOUSE", login:"İşletme sahibi girişi",
+    title:"ROBY'S · İşletme paneli", menuEditor:"Menü ve fotoğrafları düzenle", eyebrow:"ROBY'S COFFEE HOUSE", login:"İşletme sahibi girişi",
     prompt:"Yalnızca yetkili işletme sahibi için.", username:"Kullanıcı adı", password:"Şifre",
     submit:"Giriş yap", logout:"Çıkış yap", invalid:"Giriş başarısız. Bilgileri kontrol edin.",
     orders:"Ödemesi onaylanan sipariş", gross:"Kasada onaylanan tutar", basket:"Ortalama sepet",
@@ -11,7 +11,7 @@ const words = {
     source:"Kampanya kaynağı: doğrulanmadı. QR gösterimi satış değildir."
   },
   en: {
-    title:"ROBY'S · Owner dashboard", eyebrow:"ROBY'S COFFEE HOUSE", login:"Owner sign-in",
+    title:"ROBY'S · Owner dashboard", menuEditor:"Edit menu and photos", eyebrow:"ROBY'S COFFEE HOUSE", login:"Owner sign-in",
     prompt:"Authorized café owner only.", username:"Username", password:"Password",
     submit:"Sign in", logout:"Sign out", invalid:"Sign-in failed. Check your credentials.",
     orders:"Cashier-acknowledged paid orders", gross:"Acknowledged gross", basket:"Average basket",
@@ -21,7 +21,7 @@ const words = {
     source:"Campaign source: unverified. Showing a QR is not a sale."
   },
   ru: {
-    title:"ROBY'S · Кабинет хозяйки", eyebrow:"ROBY'S COFFEE HOUSE", login:"Вход владельца",
+    title:"ROBY'S · Кабинет хозяйки", menuEditor:"Изменить меню и фото", eyebrow:"ROBY'S COFFEE HOUSE", login:"Вход владельца",
     prompt:"Только для уполномоченного владельца кафе.", username:"Логин", password:"Пароль",
     submit:"Войти", logout:"Выйти", invalid:"Не удалось войти. Проверьте данные.",
     orders:"Подтверждённые кассой заказы", gross:"Подтверждённая сумма", basket:"Средний чек",
@@ -60,6 +60,7 @@ const css = [
   ".day{display:grid;grid-template-columns:115px 1fr minmax(100px,auto);gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid #f3e8e7}",
   ".bar{height:11px;border-radius:99px;background:#f2e7e6;overflow:hidden}",
   ".bar span{display:block;height:100%;background:#a44d61;border-radius:99px}",
+  ".catalogLink{display:inline-block;background:#f1e1e7;color:#713749;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none}.catalogLink:hover{background:#e7c8d4}",
   ".note{font-size:13px;line-height:1.6;color:#71655f;margin-top:20px}",
   ".danger{color:#a02440}a{color:inherit}",
   "@media(max-width:560px){.shell{padding:22px 14px}.day{grid-template-columns:1fr auto;gap:8px}.bar{grid-column:1/-1;grid-row:2}.auth{padding:20px}}"
@@ -130,6 +131,7 @@ export function renderOwnerDashboard({ username, csrfToken, range, summary }) {
   ].join("");
   const body = [
     '<h1>',esc(t.title),'</h1><p class="muted">',esc(username),'</p>',
+    '<p><a class="catalogLink" href="/owner/catalog?lang=',esc(range.lang),'">',esc(t.menuEditor),'</a></p>',
     filters,'<div class="metrics">',metrics,'</div>',
     '<section class="days"><h2>',esc(t.days),'</h2>',rows || '<p class="muted">'+esc(t.empty)+'</p>','</section>',
     '<footer class="note"><p>',esc(t.details),'</p><p>',esc(t.source),'</p></footer>'
