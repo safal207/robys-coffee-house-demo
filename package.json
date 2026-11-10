@@ -90,12 +90,13 @@
     "test:ordering": "node --test scripts/test-kids-menu.mjs scripts/test-order-groups.mjs scripts/test-order-ticket.mjs && node scripts/test-quick-builder.mjs",
     "test:choice-funnel": "node scripts/verify-pairing-cta-static.mjs && node scripts/test-choice-funnel-browser.mjs",
     "test:menu-combos": "node --test scripts/test-menu-combos.mjs scripts/test-choice-help.mjs scripts/test-menu-styles-bundle.mjs scripts/test-combo-video-cache.mjs && node scripts/test-combo-offline.mjs --static",
-    "test:menu-feed": "node --test scripts/test-menu-feed.mjs scripts/test-menu-feed-engagement.mjs scripts/test-menu-feed-navigation.mjs scripts/test-menu-view-mode.mjs scripts/test-menu-share-pages.mjs scripts/test-menu-feedback.mjs scripts/test-menu-feed-viewer-entry.mjs scripts/test-menu-photo-delivery.mjs scripts/test-menu-feed-viewer-setup-diagnostics.mjs scripts/test-marketing-attribution-v0.mjs",
+    "test:menu-feed": "node --test scripts/test-menu-feed.mjs scripts/test-menu-feed-engagement.mjs scripts/test-menu-feed-navigation.mjs scripts/test-menu-view-mode.mjs scripts/test-menu-share-pages.mjs scripts/test-menu-feedback.mjs scripts/test-menu-feed-viewer-entry.mjs scripts/test-menu-photo-delivery.mjs scripts/test-menu-feed-viewer-setup-diagnostics.mjs scripts/test-marketing-attribution-v0.mjs && npm run test:marketing:v1",
     "verify:causal-regression": "node scripts/causal-regression.mjs validate",
     "test:causal-regression": "node --test scripts/test-causal-regression-pipeline.mjs scripts/test-journey-measurement.mjs",
     "qa:regression:plan": "node scripts/causal-regression.mjs plan",
     "qa:regression:collect": "node scripts/causal-regression.mjs collect",
-    "qa:journey-timings": "node scripts/measure-journey-responsiveness.mjs"
+    "qa:journey-timings": "node scripts/measure-journey-responsiveness.mjs",
+    "test:marketing:v1": "node --test scripts/test-marketing-consent-v1.mjs scripts/test-marketing-event-store-v1.mjs scripts/test-owner-paid-kpi-v1.mjs scripts/test-render-owner-paid-kpi-v1.mjs scripts/test-export-owner-paid-report-v1.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
