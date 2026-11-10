@@ -150,6 +150,8 @@ export async function verifyDualCatalogStage({bundleDir,publicKeyPath,stageDir})
       receipt.priceAuthoritySha256!==expected.priceAuthoritySha256 ||
       receipt.guestFileSha256!==sha(guest) ||
       receipt.counterFileSha256!==sha(counter) ||
+      receipt.guestFile!=="guest-catalog-stage.json" ||
+      receipt.counterFile!=="counter-catalog-stage.json" ||
       receipt.stageOnly!==true ||
       receipt.liveGuestObserved!==false || receipt.liveCounterObserved!==false ||
       receipt.published!==false)
