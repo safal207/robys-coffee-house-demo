@@ -26,6 +26,20 @@ monitoring service or a finished owner dashboard.
    KPI data. No tracking scripts or public endpoints; zero sales yields an
    explicit empty state, not placeholder metrics.
 
+### Local report export (operator-only)
+
+With a **private** Counter SQLite file and Node.js 24+:
+
+```shell
+node scripts/export-owner-paid-report-v1.mjs /private/counter.sqlite 2026-11-01T00:00:00+03:00 2026-12-01T00:00:00+03:00 tr /private/report-november.html
+```
+
+The command creates a non-overwriting, owner-held HTML report with restrictive
+file permissions. It never creates a public URL, uploads data, runs scripts or
+claims marketing ROI. Never place the resulting file into GitHub Pages,
+public folders, issue attachments or CI artifacts. Inspect only in the
+operator's trusted environment.
+
 ### Authoritative distinction
 
 - `checkout_qr_opened` = customer viewed a QR. Not evidence of an order.
