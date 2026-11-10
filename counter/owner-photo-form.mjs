@@ -24,13 +24,13 @@ export async function readOwnerPhotoForm(request) {
   let cursor=opener.length;
   const fields={};
   let done=false;
-  for(let i=0;i<4;i++){
+  for(let i=0;i<5;i++){
     const headEnd=body.indexOf(Buffer.from("\r\n\r\n"),cursor);
     if(headEnd<0||headEnd-cursor>512)throw Error("Invalid upload header");
     const header=body.subarray(cursor,headEnd).toString("latin1");
     const parts=header.split("\r\n");
     const disposition=parts.find(v=>/^content-disposition:/i.test(v));
-    const found=/^content-disposition: form-data; name="(csrf|id|revision|photo)"(?:; filename="[^"\r\n]{0,120}")?$/i.exec(disposition??"");
+    const found=/^content-disposition: form-data; name="(csrf|id|revision|lang|photo)"(?:; filename="[^"\r\n]{0,120}")?$/i.exec(disposition??"");
     if(!found || parts.length>2)throw Error("Unapproved multipart field");
     const name=found[1];
     if(Object.hasOwn(fields,name))throw Error("Duplicate multipart field");
@@ -52,7 +52,7 @@ export async function readOwnerPhotoForm(request) {
       throw Error("Invalid multipart continuation");
     cursor=suffix+2;
   }
-  if(!done || Object.keys(fields).sort().join(",")!=="csrf,id,photo,revision")
+  if(!done || Object.keys(fields).sort().join(",")!=="csrf,id,lang,photo,revision")
     throw Error("Incomplete photo form");
   return fields;
 }
