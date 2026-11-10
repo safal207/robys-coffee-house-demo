@@ -38,7 +38,8 @@ const esc = value => String(value).replace(/[&<>"']/g, c => ({
 const css = [
   ":root{font-family:ui-sans-serif,system-ui,Arial;color:#342b29;background:#f9f5ef}",
   "*{box-sizing:border-box}body{margin:0;min-height:100vh}",
-  "header{background:#321f26;color:#fff;padding:18px max(5vw,20px)}",
+  "header{display:flex;justify-content:space-between;gap:18px;align-items:center;background:#321f26;color:#fff;padding:18px max(5vw,20px)}",
+  "header nav{display:flex;gap:14px}header nav a{color:white;text-decoration:none;font-size:13px;font-weight:700}",
   ".shell{max-width:1000px;margin:auto;padding:30px 22px 80px}",
   ".brand{letter-spacing:.19em;font-size:12px;font-weight:700}",
   "h1{font-size:clamp(26px,4vw,43px);letter-spacing:-.03em;margin:12px 0 22px}",
@@ -92,6 +93,7 @@ export function renderOwnerLogin(lang = "tr", invalid = false) {
     '<section class="auth"><h1>',esc(t.login),'</h1><p class="muted">',esc(t.prompt),'</p>',
     invalid ? '<p role="alert" class="danger">'+esc(t.invalid)+'</p>' : "",
     '<form method="POST" action="/owner/login" autocomplete="on">',
+    '<input type="hidden" name="lang" value="',esc(lang),'">',
     '<label>',esc(t.username),'<input name="username" required maxlength="64" autocomplete="username"></label>',
     '<label>',esc(t.password),'<input name="password" type="password" required maxlength="256" autocomplete="current-password"></label>',
     '<button type="submit">',esc(t.submit),'</button></form></section>'
@@ -141,7 +143,8 @@ function shell(t,lang,body) {
     '<meta name="robots" content="noindex,nofollow">',
     '<meta name="referrer" content="no-referrer"><title>',esc(t.title),'</title>',
     '<style>',css,'</style></head><body>',
-    '<header><div class="brand">',esc(t.eyebrow),'</div></header>',
+    '<header><div class="brand">',esc(t.eyebrow),'</div>',
+    '<nav aria-label="Language"><a href="/owner?lang=tr">TR</a><a href="/owner?lang=en">EN</a><a href="/owner?lang=ru">RU</a></nav></header>',
     '<main class="shell">',body,'</main></body></html>'
   ].join("");
 }
