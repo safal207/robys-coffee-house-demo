@@ -3,19 +3,19 @@ const text={
   tr:{title:"Menü yayını için hazırlık",intro:"Taslak değişikliklerini gözden geçir ve onay için sabitle. Bu sayfa müşteri menüsünü veya kasayı GÜNCELLEMEZ.",
     alert:"Henüz yayında değil. Yayın için imzalı paket, eşzamanlı dağıtım ve bağımsız kontrol gerekir.",
     items:"Menüdeki ürünler",changed:"Değiştirilen ürünler",photos:"Yeni fotoğraflar",
-    prepare:"Yayın adayı oluştur",history:"Onay geçmişi",approve:"Adayı onayla",
+    prepare:"Yayın adayı oluştur",history:"Onay geçmişi",approve:"Adayı onayla", rights:"Fotoğraf kullanım hakkını, çevirileri ve fiyatları onaylıyorum.",
     proposed:"Onay bekliyor",approved:"Onaylandı · yayında değil",rejected:"İptal",
     back:"Menü düzenleyici",cancel:"Adayı iptal et",empty:"Henüz yayın adayı yok"},
   en:{title:"Prepare menu release",intro:"Review and lock draft edits for owner approval. This page DOES NOT update the guest menu or cashier prices.",
     alert:"Not published. A signed package, coordinated deployment and independent review are required.",
     items:"Menu products",changed:"Edited products",photos:"New photos",
-    prepare:"Create release candidate",history:"Approval history",approve:"Approve candidate",
+    prepare:"Create release candidate",history:"Approval history",approve:"Approve candidate", rights:"I confirm photo rights, translations and approved prices.",
     proposed:"Pending approval",approved:"Approved · not live",rejected:"Cancelled",
     back:"Menu editor",cancel:"Cancel candidate",empty:"No release candidates yet"},
   ru:{title:"Подготовка публикации меню",intro:"Проверь черновики и зафиксируй согласованную версию. Это НЕ изменяет меню гостей или цены кассы.",
     alert:"Не опубликовано. Требуются подписанный пакет, согласованное развёртывание и независимая проверка.",
     items:"Позиций в меню",changed:"Изменено",photos:"Новых фото",
-    prepare:"Создать кандидат релиза",history:"История согласований",approve:"Одобрить кандидат",
+    prepare:"Создать кандидат релиза",history:"История согласований",approve:"Одобрить кандидат", rights:"Подтверждаю права на фото, переводы и цены.",
     proposed:"Ожидает согласования",approved:"Одобрен · не опубликован",rejected:"Отменён",
     back:"Редактор меню",cancel:"Отменить кандидат",empty:"Кандидатов пока нет"}
 };
@@ -56,6 +56,7 @@ export function renderOwnerReleasePage({lang="tr",csrf,preview,history}) {
     if(item.status==="proposed"){
       const common=field("csrf",csrf)+field("id",item.id)+field("hash",item.snapshot_sha256)+field("lang",lang);
       action='<form method="POST" action="/owner/releases/approve">'+common+
+        '<label class="muted"><input type="checkbox" name="rights" value="yes" required> '+esc(t.rights)+'</label>'+
         '<button type="submit">'+esc(t.approve)+'</button></form>'+
         '<form method="POST" action="/owner/releases/reject">'+common+
         '<button class="secondary" type="submit">'+esc(t.cancel)+'</button></form>';
