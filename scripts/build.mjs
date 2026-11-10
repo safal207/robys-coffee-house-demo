@@ -498,6 +498,7 @@ writeFileSync("menu.html", menuHtml);
 
 let feedHtml = readFileSync("menu-feed.html", "utf8");
 feedHtml = synchronizeModuleScript(feedHtml, "menu-feed.js", menuFeedRevision);
+feedHtml = synchronizeModuleScript(feedHtml, "menu-product-reveal.js", menuProductRevealRevision);
 feedHtml = synchronizeModuleScript(feedHtml, "menu-view-mode.js", menuViewModeRevision);
 feedHtml = synchronizeStylesheet(feedHtml, "menu-feed.css", menuFeedCssRevision);
 feedHtml = synchronizeStylesheet(feedHtml, MENU_STYLESHEET_FILE, menuStylesRevision);

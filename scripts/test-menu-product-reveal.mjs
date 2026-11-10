@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { pairingOffer, resolveRevealConfig, revealCopy } from "../menu-product-reveal-runtime.js";
+import { pairingOffer, resolveRevealConfig, revealCopy, ingredientRevealProducts, resolveIngredientConfig } from "../menu-product-reveal-runtime.js";
+import { menuCategories } from "../menu-catalog.js";
+import { feedProducts } from "../src/menu-feed-model.js";
 import { menuCatalogRevision } from "./menu-catalog-revision.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -35,6 +37,18 @@ assert.equal(pairing.item.image, "src/products/sets-v1/iced-san-sebastian.webp")
 assert.equal(resolveRevealConfig("src/products/menu-v1/desserts--lotus-cheesecake.webp"), null, "Products without an explicit reveal mapping must remain unchanged");
 assert.equal(resolveRevealConfig("src/products/menu-v1/hot-coffee--caffe-latte.webp"), null, "Coffee products must not inherit the San Sebastian reveal");
 
+const products = new Map(feedProducts(menuCategories).map(product => [product.id, product]));
+assert.equal(ingredientRevealProducts.length, 9, "Only selected layered dishes opt into ingredient reveal");
+assert.equal(new Set(ingredientRevealProducts.map(product => product.id)).size, ingredientRevealProducts.length);
+for (const entry of ingredientRevealProducts) {
+  const product = products.get(entry.id);
+  assert.ok(product, `${entry.id}: every reveal item must exist in the actual menu`);
+  assert.equal(resolveIngredientConfig(product.image)?.id, entry.id, `${entry.id}: use its own catalog photo`);
+  assert.ok(entry.ingredients.length >= 2 && entry.ingredients.length <= 4);
+  assert.ok(existsSync(resolve(root, product.image)), `${entry.id}: catalog photo exists`);
+}
+assert.equal(resolveIngredientConfig("src/products/menu-v1/hot-coffee--caffe-latte.webp"), null);
+
 for (const language of ["tr", "en", "ru"]) {
   const copy = revealCopy(language);
   assert.ok(copy.label.length > 8, `${language}: accessible label is required`);
@@ -52,11 +66,16 @@ assert.doesNotMatch(searchHelper, /menu-product-reveal/, "Search helper must sta
 const loaderSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
 assert.ok(Buffer.byteLength(loaderSource, "utf8") < 1000, "Always-loaded reveal/product-route loader must stay under 1.0 KB");
 assert.match(loaderSource, /import\("\.\/menu-product-reveal-runtime\.js\?v=[a-f0-9]{12}"\)/, "Reveal runtime import must use the build revision");
-assert.match(loaderSource, /desserts--san-sebastian-cheesecake\.webp/, "Reveal loader must key lazy activation to San Sebastian only");
+assert.match(loaderSource, /san-sebastian-cheesecake/, "Reveal loader must still lazily activate on San Sebastian");
+for (const entry of ingredientRevealProducts) {
+  const slug = entry.file.replace(/^(desserts|food)--/, "").replace(/\.webp$/, "");
+  assert.ok(loaderSource.includes(slug), `${entry.id}: selected product must activate the lazy loader`);
+}
 assert.match(loaderSource, /searchParams\.get\("product"\)/, "Deck product links must use an explicit product query parameter");
 assert.match(loaderSource, /data-product-id/, "Product deep links must reuse the existing rendered product controls");
 assert.match(loaderSource, /\.full-menu-item-media/, "Product deep links must click the existing product media control");
 assert.match(loaderSource, /root\.dataset\.ready/, "Product deep links must wait for the real menu readiness marker");
+assert.match(readFileSync(resolve(root, "menu-feed.html"), "utf8"), /<script type="module" src="menu-product-reveal\.js\?v=[a-f0-9]{12}"><\/script>/, "The photo feed must load the same lazy product control");
 
 const runtimeSource = readFileSync(resolve(root, "menu-product-reveal-runtime.js"), "utf8");
 assert.ok(runtimeSource.indexOf('sourceImage.getAttribute("src")') < runtimeSource.indexOf("sourceImage.currentSrc"), "Reveal matching must prefer the newly assigned src attribute over possibly stale currentSrc");

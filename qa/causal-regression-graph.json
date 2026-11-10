@@ -246,6 +246,7 @@
         "menu-product-reveal.js",
         "menu-product-reveal-runtime.js",
         "menu-product-reveal.css",
+        "scripts/test-menu-product-reveal.mjs",
         "scripts/test-menu-product-reveal-browser.mjs",
         "pairing-preview.css",
         "scripts/premium-ui-regression.mjs"

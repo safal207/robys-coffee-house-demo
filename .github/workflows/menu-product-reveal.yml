@@ -58,3 +58,11 @@ jobs:
         run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Run Chromium reveal smoke
         run: node scripts/test-menu-product-reveal-browser.mjs
+      - name: Preserve mobile screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-product-reveal-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .artifacts/menu-product-reveal/
+          if-no-files-found: warn
+          retention-days: 14

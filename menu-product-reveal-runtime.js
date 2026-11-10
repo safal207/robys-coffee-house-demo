@@ -16,6 +16,48 @@ const PAIRING_ITEM_ID = "iced-san-sebastian-pairing";
 const PAIRING_PRODUCT_ID = `${PAIRING_CATEGORY_ID}:${PAIRING_ITEM_ID}`;
 const PAIRING_REVEAL_THRESHOLD = 50;
 
+// These are typical ingredients, not verified recipes. Keep this selection
+// bounded to layered menu items and never derive claims from an image.
+const INGREDIENT_WORDS = Object.freeze({
+  creamCheese: { tr: "Krem peynir", en: "Cream cheese", ru: "Сливочный сыр" },
+  cream: { tr: "Krema", en: "Cream", ru: "Сливки" },
+  egg: { tr: "Yumurta", en: "Egg", ru: "Яйцо" },
+  sugar: { tr: "Şeker", en: "Sugar", ru: "Сахар" },
+  lotus: { tr: "Lotus bisküvi", en: "Lotus biscuit", ru: "Печенье Lotus" },
+  biscuit: { tr: "Bisküvi", en: "Biscuit", ru: "Печенье" },
+  raspberry: { tr: "Frambuaz", en: "Raspberry", ru: "Малина" },
+  chocolate: { tr: "Çikolata", en: "Chocolate", ru: "Шоколад" },
+  flour: { tr: "Un", en: "Flour", ru: "Мука" },
+  mascarpone: { tr: "Mascarpone", en: "Mascarpone", ru: "Маскарпоне" },
+  ladyfingers: { tr: "Kedi dili bisküvi", en: "Ladyfinger biscuit", ru: "Печенье савоярди" },
+  coffee: { tr: "Kahve", en: "Coffee", ru: "Кофе" },
+  cocoa: { tr: "Kakao", en: "Cocoa", ru: "Какао" },
+  croissant: { tr: "Kruvasan", en: "Croissant", ru: "Круассан" },
+  cheese: { tr: "Peynir karışımı", en: "Cheese filling", ru: "Сырная начинка" },
+  nutella: { tr: "Nutella", en: "Nutella", ru: "Nutella" },
+  baguette: { tr: "Baget ekmek", en: "Baguette", ru: "Багет" },
+  whiteCheese: { tr: "Beyaz peynir", en: "White cheese", ru: "Белый сыр" },
+  beef: { tr: "Dana kontrfile", en: "Beef sirloin", ru: "Говяжье контрфиле" }
+});
+
+export const ingredientRevealProducts = Object.freeze([
+  { id: "desserts:san-sebastian-cheesecake", file: "desserts--san-sebastian-cheesecake.webp", ingredients: ["creamCheese", "cream", "egg", "sugar"] },
+  { id: "desserts:lotus-cheesecake", file: "desserts--lotus-cheesecake.webp", ingredients: ["lotus", "creamCheese", "cream"] },
+  { id: "desserts:raspberry-cheesecake", file: "desserts--raspberry-cheesecake.webp", ingredients: ["raspberry", "creamCheese", "biscuit"] },
+  { id: "desserts:chocolate-cake", file: "desserts--chocolate-cake.webp", ingredients: ["chocolate", "cream", "flour", "egg"] },
+  { id: "desserts:tiramisu", file: "desserts--tiramisu.webp", ingredients: ["cocoa", "mascarpone", "ladyfingers", "coffee"] },
+  { id: "food:three-cheese-croissant", file: "food--three-cheese-croissant.webp", ingredients: ["croissant", "cheese"] },
+  { id: "food:nutella-croissant", file: "food--nutella-croissant.webp", ingredients: ["croissant", "nutella"] },
+  { id: "food:white-cheese-baguette-sandwich", file: "food--white-cheese-baguette-sandwich.webp", ingredients: ["baguette", "whiteCheese"] },
+  { id: "food:beef-sirloin-baguette-sandwich", file: "food--beef-sirloin-baguette-sandwich.webp", ingredients: ["baguette", "beef"] }
+].map(Object.freeze));
+
+const INGREDIENT_COPY = Object.freeze({
+  tr: { title: "İçinde neler olabilir?", hint: "İçindekileri görmek için kaydır", label: "İçerik etiketlerini göster", value: "Etiketler yüzde %{percent} görünür", note: "Örnek içerik; tarif ve alerjenleri kafede doğrulayın.", illustration: "İllüstrasyon · örnek içerik" },
+  en: { title: "What's usually inside?", hint: "Slide to reveal the ingredients", label: "Reveal ingredient labels", value: "Ingredient labels %{percent} visible", note: "Typical ingredients; confirm the recipe and allergens with the café.", illustration: "Illustration · typical ingredients" },
+  ru: { title: "Что обычно внутри?", hint: "Передвиньте ползунок, чтобы увидеть состав", label: "Показать подписи ингредиентов", value: "Подписи видны на %{percent}", note: "Примерный состав; рецепт и аллергены уточняйте в кафе.", illustration: "Иллюстрация · примерный состав" }
+});
+
 const REVEAL_COPY = Object.freeze({
   tr: Object.freeze({
     label: "San Sebastian'ın alternatif görünümünü göster",
@@ -50,6 +92,11 @@ function pathnameFor(source) {
   } catch {
     return String(source).split(/[?#]/, 1)[0];
   }
+}
+
+export function resolveIngredientConfig(source) {
+  const pathname = pathnameFor(source);
+  return ingredientRevealProducts.find((product) => pathname.endsWith(`/src/products/menu-v1/${product.file}`)) ?? null;
 }
 
 export function resolveRevealConfig(source) {
@@ -147,7 +194,7 @@ function bootReveal() {
 
   const updatePairingBridge = (revealed = 0) => {
     const offer = pairingOffer();
-    if (!activeConfig || !offer || (activeConfig.hasAlternateView !== false && revealed < PAIRING_REVEAL_THRESHOLD)) {
+    if (!document.querySelector("#menu-root") || !activeConfig || !offer || (activeConfig.hasAlternateView !== false && revealed < PAIRING_REVEAL_THRESHOLD)) {
       pairingBridge.hidden = true;
       return;
     }
@@ -286,10 +333,81 @@ function bootReveal() {
   syncProduct();
 }
 
+function bootIngredientReveal() {
+  const image = document.querySelector("#menu-product-image");
+  const visual = image?.closest(".menu-product-visual");
+  const price = document.querySelector("#menu-product-price");
+  if (!image || !visual || !price || visual.dataset.ingredientsBooted) return;
+  visual.dataset.ingredientsBooted = "true";
+
+  const overlay = document.createElement("div");
+  overlay.className = "menu-ingredient-overlay";
+  overlay.setAttribute("aria-hidden", "true");
+  const control = document.createElement("input");
+  control.className = "menu-ingredient-control";
+  control.type = "range"; control.min = "0"; control.max = "100"; control.step = "1"; control.value = "38";
+  const divider = document.createElement("span");
+  divider.className = "menu-ingredient-divider";
+  divider.setAttribute("aria-hidden", "true");
+  const illustration = document.createElement("span");
+  illustration.className = "menu-ingredient-illustration";
+  visual.append(overlay, control, divider, illustration);
+
+  const summary = document.createElement("section");
+  summary.className = "menu-ingredient-summary";
+  const title = document.createElement("h3");
+  const hint = document.createElement("p"); hint.className = "menu-ingredient-hint";
+  const chips = document.createElement("ul"); chips.className = "menu-ingredient-chips";
+  const note = document.createElement("p"); note.className = "menu-ingredient-note";
+  summary.append(title, hint, chips, note);
+  price.insertAdjacentElement("afterend", summary);
+
+  const clipSupported = typeof CSS === "undefined" || typeof CSS.supports !== "function" || CSS.supports("clip-path", "inset(0 0 0 50%)");
+  let currentId = "";
+  const language = () => INGREDIENT_COPY[document.documentElement.lang] ? document.documentElement.lang : "tr";
+  const updatePosition = () => {
+    const position = Math.max(0, Math.min(100, Number(control.value)));
+    visual.style.setProperty("--ingredient-position", `${position}%`);
+    control.setAttribute("aria-valuetext", INGREDIENT_COPY[language()].value.replace("%{percent}", `${100 - position}%`));
+  };
+  const sync = () => {
+    const config = resolveIngredientConfig(image.getAttribute("src"));
+    const ready = config && !visual.classList.contains("has-selected-pair") && image.complete && image.naturalWidth > 0;
+    if (!ready) {
+      currentId = ""; visual.removeAttribute("data-ingredient-active");
+      visual.style.removeProperty("--ingredient-position");
+      overlay.hidden = control.hidden = divider.hidden = illustration.hidden = summary.hidden = true;
+      return;
+    }
+    const lang = language(), copy = INGREDIENT_COPY[lang];
+    if (currentId !== config.id) control.value = "38";
+    currentId = config.id;
+    title.textContent = copy.title; hint.textContent = copy.hint; note.textContent = copy.note;
+    illustration.textContent = copy.illustration; control.setAttribute("aria-label", copy.label);
+    const words = config.ingredients.map(key => INGREDIENT_WORDS[key][lang]);
+    overlay.replaceChildren(...words.map(word => { const tag = document.createElement("span"); tag.textContent = word; return tag; }));
+    chips.replaceChildren(...words.map(word => { const item = document.createElement("li"); item.textContent = word; return item; }));
+    summary.hidden = false; illustration.hidden = false;
+    overlay.hidden = control.hidden = divider.hidden = !clipSupported;
+    hint.hidden = !clipSupported;
+    if (clipSupported) { visual.dataset.ingredientActive = "true"; updatePosition(); }
+  };
+  control.addEventListener("input", updatePosition);
+  control.addEventListener("change", updatePosition);
+  image.addEventListener("load", sync);
+  image.addEventListener("error", sync);
+  new MutationObserver(sync).observe(image, { attributes: true, attributeFilter: ["src"] });
+  new MutationObserver(sync).observe(visual, { attributes: true, attributeFilter: ["class"] });
+  new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  sync();
+}
+
 if (typeof document !== "undefined") {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bootReveal, { once: true });
+    document.addEventListener("DOMContentLoaded", bootIngredientReveal, { once: true });
   } else {
     bootReveal();
+    bootIngredientReveal();
   }
 }
