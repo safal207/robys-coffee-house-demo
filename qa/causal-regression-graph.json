@@ -407,7 +407,8 @@
         "counter/owner-release-gate.mjs",
         "counter/owner-release-page.mjs",
         "scripts/owner-release-bundle.mjs",
-        "scripts/owner-release-cli.mjs"
+        "scripts/owner-release-cli.mjs",
+        "scripts/dual-catalog-preflight.mjs"
       ],
       "dependsOn": [
         "order-model",
