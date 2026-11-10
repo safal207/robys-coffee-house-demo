@@ -28,8 +28,8 @@ async function fixture(t,{withPhoto=true}={}){
     content:{...product.draft,priceTry:product.draft.priceTry+20,imageId:staged.id}});
  }
  const preview=gate.preview();
- const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan"});
- gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan"});
+ const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
+ gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
  return {root,dbPath,proposal,privateKeyPath,publicKeyPath,catalog,gate};
 }
 test("exports and verifies an approved signed snapshot without publishing anything",async t=>{
