@@ -558,7 +558,10 @@
       "id": "analytics",
       "label": "Best-effort event queue, privacy and destination boundary",
       "paths": [
-        "analytics.js"
+        "analytics.js",
+        "scripts/marketing-attribution-v0.js",
+        "scripts/test-marketing-attribution-v0.mjs",
+        "docs/marketing-attribution-v0.md"
       ],
       "dependsOn": [
         "home",
