@@ -187,6 +187,33 @@ try {
     await page.keyboard.press("Escape");
   }
 
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto(`${base}menu-feed.html?view=feed&lang=ru`, { waitUntil: "domcontentloaded" });
+  await page.locator('#feed[data-ready="true"]').waitFor();
+  await page.locator('[data-product-id="food:three-cheese-croissant"] .feed-details').click();
+  await ingredients.waitFor({ state: "visible" });
+  const sliderBox = await ingredients.boundingBox();
+  assert.ok(sliderBox && sliderBox.width >= 44 && sliderBox.height >= 44, "The control has a touch-sized target");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "The narrow screen has no horizontal overflow");
+  await page.mouse.move(sliderBox.x + sliderBox.width * .3, sliderBox.y + sliderBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(sliderBox.x + sliderBox.width * .75, sliderBox.y + sliderBox.height / 2, { steps: 5 });
+  await page.mouse.up();
+  assert.ok(Number(await ingredients.inputValue()) > 60, "Dragging the slider reveals and hides the ingredient overlay");
+  await page.mouse.click(sliderBox.x + sliderBox.width * .35, sliderBox.y + sliderBox.height / 2);
+  await page.screenshot({ path: ".artifacts/menu-product-reveal/croissant-feed-ru-320.png" });
+  await assertSavedEditablePair(page);
+  const addCroissant = page.locator("#menu-add-to-cart");
+  await addCroissant.scrollIntoViewIfNeeded();
+  await addCroissant.click();
+  await page.locator("#menu-cart-dialog[open]").waitFor();
+  assert.equal(Number(await page.locator("#menu-cart-count").textContent()), 2, "The selected dish remains addable on a short screen");
+  await page.keyboard.press("Escape");
+  await page.locator('[data-product-id="hot-coffee:espresso"] .feed-details').click();
+  await page.locator("#menu-product-dialog[open]").waitFor();
+  assert.equal(await ingredients.isHidden(), true, "An unrelated coffee must not inherit the previous dish's slider");
+  assert.equal(await page.locator(".menu-ingredient-summary").isHidden(), true);
+
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
   await context.close();
   console.log("menu product reveal + pairing browser smoke: PASS");
