@@ -53,7 +53,6 @@ test("owner pages are no-store, script-free and unauthenticated visitors get no 
   assert.equal(res.status,200);
   assert.match(html,/Вход владельца/);
   assert.equal(res.headers.get("cache-control"),"no-store");
-  assert.match(res.headers.get("content-security-policy"),/script/i); // default-src 'none'
   assert.match(res.headers.get("content-security-policy"),/default-src 'none'/);
   assert.match(res.headers.get("x-robots-tag"),/noindex/);
   assert.doesNotMatch(html,/<script/i);
