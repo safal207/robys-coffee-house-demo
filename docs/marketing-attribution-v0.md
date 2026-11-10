@@ -7,7 +7,7 @@ advertised as working marketing reporting.
 
 ## Scope
 
-- Canonical source: `src/marketing-attribution-v0.js`.
+- Canonical source: `scripts/marketing-attribution-v0.js`.
 - Focused tests: `node --test scripts/test-marketing-attribution-v0.mjs`.
 - Allowed input: explicit `utm_source` plus optional `utm_medium`,
   `utm_campaign`, `utm_content`, `utm_term` on HTTP(S) URLs.
