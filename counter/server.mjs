@@ -187,21 +187,23 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     if (url.pathname === "/owner/login") loginLimit(ip);
     const form = await readOwnerForm(request);
     if (url.pathname === "/owner/login") {
-      if ([...form.keys()].some(key => !["username", "password"].includes(key) || form.getAll(key).length !== 1)
+      if ([...form.keys()].some(key => !["username", "password", "lang"].includes(key) || form.getAll(key).length !== 1)
           || form.getAll("username").length !== 1 || form.getAll("password").length !== 1)
         fail(400, "invalid_form");
       const username = normalizeUsername(form.get("username")), password = form.get("password");
+      const loginLang = form.get("lang") ?? "tr";
+      if (!LANGUAGES.has(loginLang)) fail(400, "invalid_form");
       if (!username || !password || password.length > 256) fail(400, "invalid_form");
       const record = ownerStore.ownerByName(username);
       if (!await verifyPassword(password, record?.password_hash) ||
           ownerStore.ownerByName(username)?.password_hash !== record?.password_hash)
-        return ownerHtml(response, 401, renderOwnerLogin("tr", true));
+        return ownerHtml(response, 401, renderOwnerLogin(loginLang, true));
       const previous = ownerAuthentication(request);
       if (previous) ownerStore.logout(previous.token);
       const token = randomSecret();
       ownerStore.createSession(token, record.id, now(), ownerSessionTtlMs);
       response.writeHead(303, {
-        Location: "/owner", "Cache-Control": "no-store",
+        Location: "/owner?lang=" + loginLang, "Cache-Control": "no-store",
         "Set-Cookie": ownerCookie(token, Math.floor(ownerSessionTtlMs / 1000))
       });
       return response.end();
