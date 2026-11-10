@@ -69,6 +69,9 @@ test("login requires exact Origin and scoped owner credentials; no staff access"
   assert.equal(noOwner.status,401);
   const cookie=await f.login();
   assert.match(cookie,/^robys-owner-session=/);
+  const russianLogin=await f.form("/owner/login",{username:"reyhan",password:f.ownerPassword,lang:"ru"});
+  assert.equal(russianLogin.status,303);
+  assert.equal(russianLogin.headers.get("location"),"/owner?lang=ru");
   const res=await f.get("/owner?from=2026-11-10&to=2026-11-11&lang=ru",cookie);
   assert.equal(res.status,200);
   const html=await res.text();
