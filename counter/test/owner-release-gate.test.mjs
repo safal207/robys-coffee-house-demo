@@ -36,22 +36,22 @@ test("two explicit steps produce immutable approved candidate, never a live rele
  const preview=gate.preview();
  assert.notEqual(preview.hash,first.hash);
  assert.throws(()=>gate.propose({expectedHash:first.hash,actor:"reyhan"}),/conflict/);
- const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan"});
+ const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
  assert.equal(proposal.status,"proposed");
- assert.throws(()=>gate.approve({id:proposal.id,expectedHash:first.hash,actor:"reyhan"}),/mismatch/);
- const approved=gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan"});
+ assert.throws(()=>gate.approve({id:proposal.id,expectedHash:first.hash,actor:"reyhan",rightsAttested:true}),/mismatch/);
+ const approved=gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
  assert.equal(approved.status,"approved");assert.equal(approved.published,false);
  assert.equal(gate.approvedSnapshot(proposal.id).snapshot.entries[0].priceMinor,32100);
  assert.equal(quoteOrderTicket({groups:[{quantity:1,items:[{id,quantity:1}]}]}).totalMinor,quoteBefore);
- assert.throws(()=>gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan"}),/cannot be approved/);
+ assert.throws(()=>gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan",rightsAttested:true}),/cannot be approved/);
 });
 test("candidate approval fails closed if drafts changed after proposal",t=>{
  const {catalog,gate}=fixture(t),preview=gate.preview();
- const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan"});
+ const proposal=gate.propose({expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
  const product=catalog.list()[1];
  catalog.update({id:product.product.id,expectedRevision:0,actor:"reyhan",
    content:{...product.draft,nameTr:"Değiştirilmiş ürün"}});
- assert.throws(()=>gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan"}),/conflict/);
+ assert.throws(()=>gate.approve({id:proposal.id,expectedHash:preview.hash,actor:"reyhan",rightsAttested:true}),/conflict/);
  assert.equal(gate.list().find(x=>x.id===proposal.id).status,"proposed");
  const rejected=gate.reject({id:proposal.id,actor:"reyhan"});
  assert.equal(rejected.status,"rejected");
@@ -71,8 +71,8 @@ test("photo proof includes sanitized WebP digest and rejects corrupt media",asyn
  assert.equal(first.photo.id,photo.id);
  assert.match(first.photo.sha256,/^[a-f0-9]{64}$/);
  assert.equal(first.photo.bytes,catalog.readPhoto(photo.id).buffer.length);
- const proposed=gate.propose({expectedHash:preview.hash,actor:"reyhan"});
- gate.approve({id:proposed.id,expectedHash:preview.hash,actor:"reyhan"});
+ const proposed=gate.propose({expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
+ gate.approve({id:proposed.id,expectedHash:preview.hash,actor:"reyhan",rightsAttested:true});
  const db=new DatabaseSync(dbPath);
  db.prepare("UPDATE owner_menu_media SET mime='image/jpeg' WHERE id=?").run(photo.id);
  db.close();
@@ -80,8 +80,8 @@ test("photo proof includes sanitized WebP digest and rejects corrupt media",asyn
 });
 test("tampering with persisted proposal invalidates signed-export eligibility",t=>{
  const {dbPath,gate}=fixture(t);
- const p=gate.preview(),candidate=gate.propose({expectedHash:p.hash,actor:"reyhan"});
- gate.approve({id:candidate.id,expectedHash:p.hash,actor:"reyhan"});
+ const p=gate.preview(),candidate=gate.propose({expectedHash:p.hash,actor:"reyhan",rightsAttested:true});
+ gate.approve({id:candidate.id,expectedHash:p.hash,actor:"reyhan",rightsAttested:true});
  const db=new DatabaseSync(dbPath);
  db.prepare("UPDATE robys_owner_release_candidates SET snapshot_json=? WHERE id=?")
   .run('{"forged":true}',candidate.id);
