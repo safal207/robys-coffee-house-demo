@@ -69,6 +69,108 @@
   outline-offset: 3px;
 }
 
+/* An ingredient overlay on the existing photograph, not a second angle. */
+.menu-product-visual[data-ingredient-active="true"] {
+  --ingredient-position: 38%;
+  isolation: isolate;
+}
+
+.menu-ingredient-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  padding: 14px 12px;
+  background: linear-gradient(90deg, transparent 20%, rgba(32, 18, 14, .25));
+  clip-path: inset(0 0 0 var(--ingredient-position, 38%));
+  pointer-events: none;
+}
+.menu-ingredient-overlay span {
+  max-width: 70%;
+  padding: 4px 8px;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(39,22,18,.88);
+  font: 700 clamp(.65rem, 1.8vw, .83rem)/1.25 var(--sans);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.menu-ingredient-control {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: .001;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+.menu-ingredient-divider {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  left: var(--ingredient-position, 38%);
+  width: 2px;
+  transform: translateX(-1px);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(30, 18, 14, .2);
+  pointer-events: none;
+}
+.menu-ingredient-divider::after {
+  content: "↔";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(45, 20, 17, .35);
+  border-radius: 50%;
+  color: #4b2421;
+  background: #fffaf2;
+  box-shadow: 0 4px 14px rgba(30, 18, 14, .22);
+  font: 700 1.1rem/1 system-ui, sans-serif;
+}
+.menu-ingredient-control:focus-visible ~ .menu-ingredient-divider::after {
+  outline: 3px solid #e21b23;
+  outline-offset: 3px;
+}
+.menu-ingredient-illustration {
+  position: absolute;
+  z-index: 6;
+  left: 10px;
+  bottom: 10px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  color: #513e38;
+  background: rgba(255,250,242,.94);
+  font: 600 .65rem/1.2 var(--sans);
+  pointer-events: none;
+}
+.menu-ingredient-summary {
+  margin: 18px 0 4px;
+  padding: 14px;
+  border: 1px solid rgba(128,80,65,.2);
+  border-radius: 16px;
+  background: #fffaf4;
+}
+.menu-ingredient-summary h3 { margin: 0; color: #452d27; font: 800 .96rem/1.25 var(--sans); }
+.menu-ingredient-hint, .menu-ingredient-note { margin: 6px 0 0; color: #6b5a53; font: 500 .75rem/1.4 var(--sans); }
+.menu-ingredient-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.menu-ingredient-chips li { padding: 4px 8px; border: 1px solid #ddc8bb; border-radius: 999px; color: #66443a; font: 600 .72rem/1.3 var(--sans); }
+.menu-ingredient-note { margin-top: 9px; }
+.menu-ingredient-overlay[hidden], .menu-ingredient-control[hidden], .menu-ingredient-divider[hidden],
+.menu-ingredient-illustration[hidden], .menu-ingredient-summary[hidden] { display: none; }
+
 .menu-product-reveal-cue {
   position: absolute;
   z-index: 2;
@@ -155,6 +257,19 @@
 }
 
 @media (max-width: 720px) {
+  .menu-product-visual[data-ingredient-active="true"] {
+    display: block;
+    width: 100%;
+    max-height: none;
+    aspect-ratio: 1;
+  }
+  .menu-product-visual[data-ingredient-active="true"] #menu-product-image {
+    width: 100%;
+    height: auto;
+    max-width: none;
+    aspect-ratio: 1;
+    object-fit: contain;
+  }
   .menu-product-reveal-cue {
     bottom: 54px;
     max-width: calc(100% - 36px);

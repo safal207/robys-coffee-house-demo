@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const editablePairTitle = "Айс латте + Чизкейк Сан-Себастьян";
@@ -40,6 +41,7 @@ try {
     viewport: { width: 390, height: 844 },
     hasTouch: true,
     isMobile: true,
+    reducedMotion: "reduce",
     serviceWorkers: "block"
   });
   const page = await context.newPage();
@@ -110,6 +112,20 @@ try {
     "Non-mapped products must not retain reveal state"
   );
 
+  const ingredients = page.locator(".menu-ingredient-control");
+  await ingredients.waitFor({ state: "visible" });
+  assert.match(await page.locator(".menu-ingredient-summary").innerText(), /Примерный состав.*аллерген/i);
+  assert.match(await page.locator(".menu-ingredient-chips").innerText(), /Lotus/);
+  assert.match(await page.locator(".menu-ingredient-illustration").innerText(), /Иллюстрация.*примерный состав/i);
+  const beforePrice = await page.locator("#menu-product-price").innerText();
+  await ingredients.focus();
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await ingredients.inputValue(), "39", "The slider responds to keyboard input");
+  assert.equal(await page.locator(".menu-product-visual").evaluate(node => node.style.getPropertyValue("--ingredient-position").trim()), "39%");
+  assert.equal(await page.locator("#menu-product-price").innerText(), beforePrice, "The slider never mutates the price");
+  await mkdir(".artifacts/menu-product-reveal", { recursive: true });
+  await page.screenshot({ path: ".artifacts/menu-product-reveal/lotus-list-ru-390.png" });
+
   await page.keyboard.press("Escape");
   await page.locator("#menu-product-dialog").waitFor({ state: "hidden" });
 
@@ -126,6 +142,7 @@ try {
   assert.match(await page.locator("#menu-product-price").innerText(), /370\s*₺/);
   assert.equal(await control.isHidden(), true, "Pairing product must not inherit dessert reveal controls");
   assert.equal(await bridge.isHidden(), true, "Pairing product must not recursively show the pairing bridge");
+  assert.equal(await ingredients.isHidden(), true, "Pairing product must not inherit a single dessert's ingredients");
 
   await page.locator("#menu-add-to-cart").click();
   await page.locator("#menu-cart-dialog[open]").waitFor({ state: "visible" });
@@ -149,6 +166,26 @@ try {
   await page.locator("#menu-cart-dialog").waitFor({ state: "hidden" });
   assert.equal(await page.locator('[data-product-id="pairing-offers:iced-san-sebastian-pairing"] .full-menu-item-media')
     .evaluate(node => document.activeElement === node), true, "Continue browsing returns focus to the chosen pairing");
+
+  // The shared product dialog must expose the same feature from the feed and
+  // photo grid, in all three languages, without changing existing cart state.
+  for (const scenario of [
+    { url: "menu-feed.html?view=feed&lang=en", id: "food:three-cheese-croissant", lang: "en", label: "Cheese filling" },
+    { url: "menu-grid.html?view=grid&lang=tr", id: "food:nutella-croissant", lang: "tr", label: "Nutella" }
+  ]) {
+    await page.goto(`${base}${scenario.url}`, { waitUntil: "domcontentloaded" });
+    await page.locator(scenario.lang === "en" ? '#feed[data-ready="true"]' : '#menu-root[data-ready="true"]').waitFor();
+    const item = page.locator(`[data-product-id="${scenario.id}"]`);
+    const opener = scenario.lang === "en" ? item.locator(".feed-details") : item.locator(".full-menu-item-media");
+    await opener.scrollIntoViewIfNeeded();
+    await opener.click();
+    await page.locator("#menu-product-dialog[open]").waitFor();
+    await ingredients.waitFor({ state: "visible" });
+    assert.match(await page.locator(".menu-ingredient-chips").innerText(), new RegExp(scenario.label, "i"));
+    assert.equal(await page.locator("html").getAttribute("lang"), scenario.lang);
+    await assertSavedEditablePair(page);
+    await page.keyboard.press("Escape");
+  }
 
   assert.deepEqual(errors, [], `Unhandled browser errors: ${errors.join(" | ")}`);
   await context.close();
