@@ -293,7 +293,11 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     if(request.headers.origin!==origin)fail(403,"invalid_origin");
     const form=await readOwnerForm(request,4096);
     const needsId=url.pathname!=="/owner/releases/propose";
-    validateOwnerFields(form,needsId?["csrf","hash","lang","id"]:["csrf","hash","lang"]);
+    const needsRights=url.pathname==="/owner/releases/approve";
+    validateOwnerFields(form,needsId
+      ? (needsRights?["csrf","hash","lang","id","rights"]:["csrf","hash","lang","id"])
+      : ["csrf","hash","lang"]);
+    if(needsRights && form.get("rights")!=="yes")fail(400,"owner_rights_required");
     if(!equalSecret(form.get("csrf"),owner.csrfToken))fail(403,"invalid_csrf");
     const lang=form.get("lang"),hash=form.get("hash"),id=form.get("id");
     if(!LANGUAGES.has(lang)||!/^[a-f0-9]{64}$/.test(hash)||
@@ -302,7 +306,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
       if(url.pathname==="/owner/releases/propose")
         ownerReleaseGate.propose({expectedHash:hash,actor:owner.owner.username});
       else if(url.pathname==="/owner/releases/approve")
-        ownerReleaseGate.approve({id,expectedHash:hash,actor:owner.owner.username});
+        ownerReleaseGate.approve({id,expectedHash:hash,actor:owner.owner.username,rightsAttested:true});
       else ownerReleaseGate.reject({id,actor:owner.owner.username});
     }catch(error){
       if(/conflict|mismatch|cannot be approved|Cannot cancel|not been approved|Corrupted/i.test(error.message))
