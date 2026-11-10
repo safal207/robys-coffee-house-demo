@@ -7,23 +7,23 @@ advertised as working marketing reporting.
 
 ## Scope
 
-- Canonical source: \`src/marketing-attribution-v0.js\`.
-- Focused tests: \`node --test scripts/test-marketing-attribution-v0.mjs\`.
-- Allowed input: explicit \`utm_source\` plus optional \`utm_medium\`,
-  \`utm_campaign\`, \`utm_content\`, \`utm_term\` on HTTP(S) URLs.
+- Canonical source: `src/marketing-attribution-v0.js`.
+- Focused tests: `node --test scripts/test-marketing-attribution-v0.mjs`.
+- Allowed input: explicit `utm_source` plus optional `utm_medium`,
+  `utm_campaign`, `utm_content`, `utm_term` on HTTP(S) URLs.
 - Each campaign code is normalized to lowercase, max 64 characters, using
   ASCII letters/numbers/period/underscore/hyphen only. Duplicate, malformed,
   personally identifying/free-text values are rejected rather than sent.
-- \`resolveUtm\` only uses \`sessionStorage\` with **explicit analytics consent**;
+- `resolveUtm` only uses `sessionStorage` with **explicit analytics consent**;
   before consent it reads the current URL only and never accesses storage.
   Consented entries expire after 30 minutes in the same tab. Denied storage
-  does not block the menu. Withdrawal calls \`clearUtm\`.
+  does not block the menu. Withdrawal calls `clearUtm`.
 - No cookies, cross-device IDs, network calls, marketing vendor SDK, IP
   enrichment or external transmission.
 
 ## Example campaign link
 
-\`https://safal207.github.io/robys-coffee-house-demo/menu-feed.html?utm_source=instagram&utm_medium=social&utm_campaign=november_menu&utm_content=story_01\`
+`https://safal207.github.io/robys-coffee-house-demo/menu-feed.html?utm_source=instagram&utm_medium=social&utm_campaign=november_menu&utm_content=story_01`
 
 Suggested naming:
 - Instagram story: source=instagram, medium=social, campaign=november_menu, content=story_01
@@ -47,7 +47,7 @@ order secrets or sensitive values in UTM parameters.
 | route_clicked | browser, consented | Navigation intent, not a visit |
 | payment_confirmed | **Counter backend only** | Cashier-acknowledged payment; backend audit transition required |
 
-The client module deliberately rejects \`payment_confirmed\`. Calling the
+The client module deliberately rejects `payment_confirmed`. Calling the
 Counter API from a visitor page or showing a QR cannot mint a sale. Any
 future attribution join must be made server-side, verify the paid transition,
 deduplicate by immutable order/payment transition ID, and keep monetary
@@ -82,5 +82,5 @@ not falsely assigned to a campaign.
 - No UTM query propagation into guest bearer links, checkout tokens or logs.
 - Maintain existing Lighthouse, security, exact-head, integrity, WebKit
   and order-reliability release gates; never bypass a red check.
-- Existing \`main\` (as of 2026-11-10) has causal journey-timing failure,
+- Existing `main` (as of 2026-11-10) has causal journey-timing failure,
   and PR #483 has a separate JS-budget failure. This V0 does not fix them.
