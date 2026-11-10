@@ -66,10 +66,12 @@ assert.doesNotMatch(searchHelper, /menu-product-reveal/, "Search helper must sta
 const loaderSource = readFileSync(resolve(root, "menu-product-reveal.js"), "utf8");
 assert.ok(Buffer.byteLength(loaderSource, "utf8") < 1000, "Always-loaded reveal/product-route loader must stay under 1.0 KB");
 assert.match(loaderSource, /import\("\.\/menu-product-reveal-runtime\.js\?v=[a-f0-9]{12}"\)/, "Reveal runtime import must use the build revision");
-assert.match(loaderSource, /san-sebastian-cheesecake/, "Reveal loader must still lazily activate on San Sebastian");
-for (const entry of ingredientRevealProducts) {
-  const slug = entry.file.replace(/^(desserts|food)--/, "").replace(/\.webp$/, "");
-  assert.ok(loaderSource.includes(slug), `${entry.id}: selected product must activate the lazy loader`);
+const matcherLiteral = loaderSource.match(/^const T=(\/.*?\/),i=/)?.[1];
+assert.ok(matcherLiteral, "The lazy loader must expose its bounded image matcher");
+const loaderMatcher = new RegExp(matcherLiteral.slice(1, -1));
+const selectedIds = new Set(ingredientRevealProducts.map(entry => entry.id));
+for (const product of products.values()) {
+  assert.equal(loaderMatcher.test(`/${product.image}`), selectedIds.has(product.id), `${product.id}: lazy loader matches exactly the selected catalog`);
 }
 assert.match(loaderSource, /searchParams\.get\("product"\)/, "Deck product links must use an explicit product query parameter");
 assert.match(loaderSource, /data-product-id/, "Product deep links must reuse the existing rendered product controls");
