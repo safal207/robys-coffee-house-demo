@@ -12,7 +12,10 @@ COPY --from=build /runtime/ ./
 # Owner photo normalization requires pinned, native sharp at runtime.
 # Only locked production dependencies are installed; runtime source stays allowlisted.
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+RUN npm ci --omit=dev --no-audit --no-fund \
+ && printf '{"type":"module"}\n' > package.json \
+ && rm -f package-lock.json \
+ && npm cache clean --force
 # Startup initializes the root-owned volume and drops to uid/gid 1000 before
 # opening the database or accepting HTTP requests.
 CMD ["node", "counter/hosted.mjs"]
