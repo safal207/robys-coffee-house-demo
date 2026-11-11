@@ -105,7 +105,8 @@ export function evaluateCutoverClaims({stage,guest,counter,guestPublicKeyPem,
     if(observed.some(x=>!equalHash(x.releaseVersion,stage.releaseVersion) ||
        !equalHash(x.catalogSha256,stage.catalogSha256) ||
        !equalHash(x.priceAuthoritySha256,stage.priceAuthoritySha256) ||
-       !equalHash(x.checkoutCatalogVersion,stage.releaseVersion) ||
+       !equalHash(x.checkoutCatalogVersion,
+         x.phase==="prepared" ? previousReleaseVersion : stage.releaseVersion) ||
        !equalHash(x.previousReleaseVersion,previousReleaseVersion) ||
        x.ticketCatalogRevision!==stage.ticketCatalogRevision))
       return blocked("guest_counter_catalog_or_quote_drift",
