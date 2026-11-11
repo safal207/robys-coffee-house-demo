@@ -409,7 +409,11 @@
         "scripts/owner-release-bundle.mjs",
         "scripts/owner-release-cli.mjs",
         "scripts/dual-catalog-preflight.mjs",
-        "counter/test/dual-catalog-preflight.test.mjs"
+        "counter/test/dual-catalog-preflight.test.mjs",
+        "scripts/dual-host-cutover-guard.mjs",
+        "scripts/dual-host-cutover-cli.mjs",
+        "counter/test/dual-host-cutover-guard.test.mjs",
+        "counter/DUAL_HOST_CUTOVER.md"
       ],
       "dependsOn": [
         "order-model",
