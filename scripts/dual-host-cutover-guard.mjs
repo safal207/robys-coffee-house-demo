@@ -89,12 +89,19 @@ export function evaluateCutoverClaims({stage,guest,counter,guestPublicKeyPem,
       return blocked("same_key_cannot_attest_both_hosts");
     if(checkedOrigin(guestOrigin)===checkedOrigin(counterOrigin))
       return blocked("host_origins_must_differ");
-    const observed=[
-      verifyHostAttestation({receipt:guest,publicKeyPem:guestPublicKeyPem,
-        role:"guest",origin:guestOrigin,challenge,now}),
-      verifyHostAttestation({receipt:counter,publicKeyPem:counterPublicKeyPem,
-        role:"counter",origin:counterOrigin,challenge,now})
-    ];
+    const individual=[
+      {receipt:guest,publicKeyPem:guestPublicKeyPem,role:"guest",origin:guestOrigin},
+      {receipt:counter,publicKeyPem:counterPublicKeyPem,role:"counter",origin:counterOrigin}
+    ].map(args=>{
+      try{return {valid:true,claim:verifyHostAttestation({...args,challenge,now})};}
+      catch{return {valid:false,claim:null};}
+    });
+    if(individual.some(x=>!x.valid))
+      return blocked("missing_or_invalid_independent_host_proof",{
+        rollback:individual.some(x=>x.valid&&x.claim.phase==="active"),
+        releaseVersion:stage.releaseVersion
+      });
+    const observed=individual.map(x=>x.claim);
     if(observed.some(x=>!equalHash(x.releaseVersion,stage.releaseVersion) ||
        !equalHash(x.catalogSha256,stage.catalogSha256) ||
        !equalHash(x.priceAuthoritySha256,stage.priceAuthoritySha256) ||
