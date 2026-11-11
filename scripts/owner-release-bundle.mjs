@@ -170,5 +170,5 @@ export async function verifySignedOwnerCandidate({bundleDir,publicKeyPath}) {
  if(sha(bytes(recreated))!==manifest.snapshotSha256)
    throw Error("Signed snapshot differs from owner approval");
  return {valid:true,candidateId:manifest.candidateId,products:items.size,photos:count,
-   published:false,signatureAlgorithm:"Ed25519"};
+   published:false,signatureAlgorithm:"Ed25519",manifest};
 }
