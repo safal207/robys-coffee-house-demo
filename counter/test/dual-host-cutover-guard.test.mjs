@@ -62,6 +62,18 @@ test("partial dual-host cutover demands rollback, never successful publication",
  assert.equal(result.reason,"partial_dual_host_activation");
  assert.equal(result.rollbackExecuted,false);
 });
+test("absent counterpart proof after one active claim triggers rollback assessment",()=>{
+ const result=evaluateCutoverClaims({...options,
+   guest:observation("guest","active"),counter:null});
+ assert.equal(result.decision,"ROLLBACK_REQUIRED");
+ assert.equal(result.reason,"missing_or_invalid_independent_host_proof");
+ assert.equal(result.rollbackExecuted,false);
+});
+test("no valid host proof is NO-GO, never a release or completed rollback",()=>{
+ const result=evaluateCutoverClaims({...options,guest:null,counter:null});
+ assert.equal(result.decision,"NO_GO");
+ assert.equal(result.published,false);
+});
 test("active host with drifted pricing, release or order quote demands rollback",()=>{
  for(const change of [
   {priceAuthoritySha256:hash(305)},
