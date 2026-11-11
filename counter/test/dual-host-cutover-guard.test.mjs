@@ -30,7 +30,7 @@ function observation(role,phase="prepared",overrides={},key=role==="guest"?guest
    role,origin:origin[role],phase,
    releaseVersion:TO,catalogSha256:CATALOG,
    priceAuthoritySha256:PRICES,ticketCatalogRevision:ticket,
-   checkoutCatalogVersion:TO,previousReleaseVersion:FROM,
+   checkoutCatalogVersion:phase==="prepared"?FROM:TO,previousReleaseVersion:FROM,
    challenge:CHALLENGE,observedAt:TODAY,...overrides
  };
  return {statement,signature:sign(null,Buffer.from(JSON.stringify(statement)),
@@ -89,6 +89,12 @@ test("active host with drifted pricing, release or order quote demands rollback"
    assert.equal(result.decision,"ROLLBACK_REQUIRED",JSON.stringify(change));
    assert.equal(result.published,false);
  }
+});
+test("prepared hosts cannot pretend their checkout already switched",()=>{
+ const result=evaluateCutoverClaims({...options,
+   guest:observation("guest","prepared",{checkoutCatalogVersion:TO})});
+ assert.equal(result.decision,"NO_GO");
+ assert.equal(result.reason,"guest_counter_catalog_or_quote_drift");
 });
 test("wrong keys, origin, nonce, role and stale receipts do not authorize release",()=>{
  const invalid=[
