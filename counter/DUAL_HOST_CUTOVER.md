@@ -1,7 +1,7 @@
 # Robys dual-host activation guard — offline contract only
 
-**Status: Draft / NO-GO for live use.** This work follows #484, #485,
-#486, #487, #489 and #490. It does not modify `main`, change guest
+**Status: Draft / NO-GO for live use.** This work follows
+PRs #484, #485, #486, #487, #489 and #490. It does not modify `main`, change guest
 prices, restart Counter, change GitHub Pages or execute a rollback.
 
 ## Why another step is necessary
