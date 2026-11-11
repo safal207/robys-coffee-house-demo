@@ -47,7 +47,12 @@ Each host signs its own canonical JSON `statement` containing
 `origin`, `phase` (`prepared` or `active`), `releaseVersion`,
 `catalogSha256`, `priceAuthoritySha256`, `ticketCatalogRevision`,
 `checkoutCatalogVersion`, `previousReleaseVersion`, `challenge`
-and `observedAt` (Unix milliseconds). The detached Ed25519
+and `observedAt` (Unix milliseconds). In the `prepared` phase the
+`checkoutCatalogVersion` must equal the previously active release
+version; in the `active` phase it must equal the newly approved
+`releaseVersion`. The `priceAuthoritySha256` and `catalogSha256`
+identify the **staged target**, not necessarily the currently served
+prices before activation. The detached Ed25519
 `signature` covers `JSON.stringify(statement)` as UTF-8 bytes
 and is base64url encoded. These receipts need separate host keys, an
 exact matching challenge and origin, and a 5-minute freshness window.
