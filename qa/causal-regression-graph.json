@@ -419,7 +419,9 @@
         "scripts/dual-host-read-receipt.mjs",
         "scripts/guest-served-catalog-probe.mjs",
         "scripts/guest-served-catalog-cli.mjs",
-        "counter/test/guest-served-catalog-probe.test.mjs"
+        "counter/test/guest-served-catalog-probe.test.mjs",
+        "counter/checkout-release-gate.mjs",
+        "counter/test/server.test.mjs"
       ],
       "dependsOn": [
         "order-model",
