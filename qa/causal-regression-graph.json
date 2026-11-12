@@ -14,7 +14,8 @@
         "scripts/menu-runtime-source.mjs",
         "scripts/menu-styles-bundle.mjs",
         "scripts/test-menu-runtime-contract.mjs",
-        "scripts/test-menu-styles-bundle.mjs"
+        "scripts/test-menu-styles-bundle.mjs",
+        "scripts/generate-integrity-manifest.mjs"
       ],
       "dependsOn": []
     },
