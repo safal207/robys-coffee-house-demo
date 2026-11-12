@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync, randomBytes, sign } from "node:crypto";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { readHostReceipt } from "../../scripts/dual-host-read-receipt.mjs";
 import {
   CUTOVER_ATTESTATION_SCHEMA,verifyHostAttestation,
   evaluateCutoverClaims,checkVersionBoundQuote
@@ -74,6 +78,23 @@ test("no valid host proof is NO-GO, never a release or completed rollback",()=>{
  assert.equal(result.decision,"NO_GO");
  assert.equal(result.published,false);
 });
+test("active host receipt remains a rollback signal when counterpart file is missing or corrupt",t=>{
+ const dir=mkdtempSync(join(tmpdir(),"robys-missing-proof-"));
+ t.after(()=>rmSync(dir,{recursive:true,force:true}));
+ const guestPath=join(dir,"guest.json");
+ const badPath=join(dir,"counter.json");
+ writeFileSync(guestPath,JSON.stringify(observation("guest","active")),{mode:0o600});
+ assert.equal(readHostReceipt(join(dir,"missing.json")),null);
+ const guest=readHostReceipt(guestPath);
+ assert(guest);
+ for(const counter of [readHostReceipt(join(dir,"missing.json")),
+   (writeFileSync(badPath,"{broken json",{mode:0o600}),readHostReceipt(badPath))]){
+   const result=evaluateCutoverClaims({...options,guest,counter});
+   assert.equal(result.decision,"ROLLBACK_REQUIRED");
+   assert.equal(result.reason,"missing_or_invalid_independent_host_proof");
+   assert.equal(result.rollbackExecuted,false);
+ }
+});
 test("active host with drifted pricing, release or order quote demands rollback",()=>{
  for(const change of [
   {priceAuthoritySha256:hash(305)},
@@ -144,6 +165,8 @@ test("stale QR, missing release tag and mismatched quote authority fail closed",
   {clientReleaseVersion:FROM},
   {clientReleaseVersion:undefined},
   {guestPriceAuthoritySha256:hash(666)},
+  {orderTicketCatalogRevision:"",counterTicketCatalogRevision:""},
+  {orderTicketCatalogRevision:"0000",counterTicketCatalogRevision:"0000"},
   {orderTicketCatalogRevision:"fffefefe"}
  ]){
    const result=checkVersionBoundQuote({...base,...change});
