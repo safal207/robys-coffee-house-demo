@@ -134,7 +134,8 @@ export function checkVersionBoundQuote({clientReleaseVersion,counterReleaseVersi
   counterTicketCatalogRevision}) {
   if(!equalHash(clientReleaseVersion,counterReleaseVersion) ||
      !equalHash(guestPriceAuthoritySha256,counterPriceAuthoritySha256) ||
-     typeof orderTicketCatalogRevision!=="string" ||
+     !/^[a-f0-9]{8}$/.test(orderTicketCatalogRevision) ||
+     !/^[a-f0-9]{8}$/.test(counterTicketCatalogRevision) ||
      orderTicketCatalogRevision!==counterTicketCatalogRevision)
     return Object.freeze({allowed:false,reason:"stale_or_diverged_checkout",paid:false});
   return Object.freeze({allowed:true,reason:"version_and_price_authority_match",paid:false});
