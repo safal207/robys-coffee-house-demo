@@ -8,7 +8,7 @@ const destination = resolve(process.argv[2]);
 mkdirSync(destination);
 const manifest = JSON.parse(readFileSync("integrity-manifest.json", "utf8"));
 const files = new Set([...manifest.files.map(file => file.path), "integrity-manifest.json", "src/order-ticket.js",
-  ...["server.mjs", "store.mjs", "auth.mjs", "provision.mjs", "hosted.mjs", "owner-store.mjs", "owner-page.mjs", "owner-catalog.mjs", "owner-catalog-page.mjs", "owner-photo-form.mjs", "owner-image-sanitize.mjs", "owner-release-gate.mjs", "owner-release-page.mjs", "catalog-observation.mjs"].map(file => `counter/${file}`),
+  ...["server.mjs", "store.mjs", "auth.mjs", "provision.mjs", "hosted.mjs", "owner-store.mjs", "owner-page.mjs", "owner-catalog.mjs", "owner-catalog-page.mjs", "owner-photo-form.mjs", "owner-image-sanitize.mjs", "owner-release-gate.mjs", "owner-release-page.mjs", "catalog-observation.mjs", "checkout-release-gate.mjs"].map(file => `counter/${file}`),
   ...["guest.html", "guest.js", "guest.css", "staff.html", "staff.js", "staff.css"].map(file => `counter/public/${file}`)]);
 for (const file of files) {
   if (file.startsWith("/") || file.includes("\\") || file.split("/").some(part => !part || part === "." || part === "..")) throw new Error("Unsafe runtime path");
