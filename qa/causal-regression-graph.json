@@ -416,7 +416,10 @@
         "counter/DUAL_HOST_CUTOVER.md",
         "counter/catalog-observation.mjs",
         "src/order-ticket.js",
-        "scripts/dual-host-read-receipt.mjs"
+        "scripts/dual-host-read-receipt.mjs",
+        "scripts/guest-served-catalog-probe.mjs",
+        "scripts/guest-served-catalog-cli.mjs",
+        "counter/test/guest-served-catalog-probe.test.mjs"
       ],
       "dependsOn": [
         "order-model",
