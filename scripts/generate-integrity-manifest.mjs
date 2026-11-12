@@ -131,6 +131,15 @@ if (CHECK_MODE) {
     console.error("INTEGRITY-001 stale paths:", JSON.stringify({
       count: changes.length, changes: changes.slice(0, 16)
     }));
+    // Temporary diagnostic for public, generated assets only. The verifier still
+    // fails; no private data or off-tree files are ever displayed.
+    for (const changed of changes) {
+      if (["cashier.html", "cashier.js", "sw-core-v64.js"].includes(changed.path)
+          && changed.actual) {
+        console.error("INTEGRITY_PUBLIC_REBUILD:" + changed.path + ":" +
+          canonicalBytes(changed.path, readFileSync(path.join(ROOT, changed.path))).toString("base64"));
+      }
+    }
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);
