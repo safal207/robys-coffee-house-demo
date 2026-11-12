@@ -136,6 +136,33 @@ The command re-verifies the signed candidate and stage first, then
 both host signatures and versions. It never sends network requests or
 takes a deployment action. An invalid result exits nonzero.
 
+## Server-side stale QR guard — opt-in only, NOT activated
+
+Counter now supports the **explicitly opt-in**
+`createCounterServer({enforceCheckoutCatalogVersion:true})` setting,
+whose default is `false` and which is NOT configured by the hosted
+entrypoint. In opt-in test mode, new order creation requires the
+`catalogReleaseVersion` and `priceAuthoritySha256` fields alongside
+`ticketPayload` and `guestKey`; both must match the static server
+pricing authority returned by `GET /api/counter/catalog-authority`.
+The check happens **before** QR decoding and order persistence and
+returns HTTP `409 {"error":"stale_catalog"}` on a legacy QR request,
+a blank version, an incorrect release, or a different price hash.
+The cashier calculates the actual amount itself; client fields can
+never override it.
+
+Normal mode still accepts only the original two input fields and
+retains its existing quotation and idempotency. There is no automatic
+migration or silent acceptance of legacy QR after the opt-in switch.
+The observation reports `checkoutVersionEnforced` so a future
+coordinator can inspect whether this protection is enabled.
+**Do not enable this setting until both guest and Counter clients have
+been versioned and the complete two-host canary is green**: the
+current guest QR submission does not attach the required fields.
+This optional guard currently checks the **legacy static catalogue**.
+It does not activate the owner-signed dynamic menu or perform a
+rollback. Separate operational deploy and undo actions remain missing.
+
 ## Required for a production switch
 
 1. Independent security review of keys, attester identity, HTTPS,
