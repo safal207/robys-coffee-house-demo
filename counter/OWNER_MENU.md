@@ -100,6 +100,10 @@ read the existing static `menu-catalog.js` prices. Neither staging
 projection is wired into either runtime. Never place staging artifacts,
 signing keys, or owner SQL data in public folders or CI artifacts.
 
+The **separately signed host-observation contract** is described in
+[Dual-host cutover guard](DUAL_HOST_CUTOVER.md). It is an offline
+fail-closed assessment, not an actual two-host activation or rollback.
+
 **Real release coordinator still required:** independently verified
 deployment observations from both hosts, a pinned release hash,
 a bounded failure/rollback path, and explicit rejection of stale client

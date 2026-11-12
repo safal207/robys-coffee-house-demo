@@ -159,5 +159,7 @@ export async function verifyDualCatalogStage({bundleDir,publicKeyPath,stageDir})
   return {valid:true,candidateId:verified.candidateId,
     releaseVersion:expected.releaseVersion,products:expected.projection.items.length,
     priceAuthoritySha256:expected.priceAuthoritySha256,
+    catalogSha256:expected.catalogSha256,
+    ticketCatalogRevision:expected.projection.ticketCatalogRevision,
     staged:true,published:false};
 }
