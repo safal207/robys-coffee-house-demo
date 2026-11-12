@@ -113,6 +113,24 @@ if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
   if (committed !== serialized) {
+    // Diagnostic only. Never bypass integrity or rewrite the manifest in --check mode.
+    let previous;
+    try { previous = JSON.parse(committed); } catch { previous = null; }
+    const before = new Map((Array.isArray(previous?.files) ? previous.files : [])
+      .map(entry => [entry.path, entry]));
+    const after = new Map(files.map(entry => [entry.path, entry]));
+    const changes = [
+      ...files.filter(entry => {
+        const old = before.get(entry.path);
+        return !old || old.bytes !== entry.bytes || old.sha256 !== entry.sha256;
+      }).map(entry => ({ path: entry.path, previous: before.get(entry.path) ?? null, actual: entry })),
+      ...[...before.keys()].filter(file => !after.has(file)).map(file => ({
+        path: file, previous: before.get(file), actual: null
+      }))
+    ];
+    console.error("INTEGRITY-001 stale paths:", JSON.stringify({
+      count: changes.length, changes: changes.slice(0, 16)
+    }));
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);
