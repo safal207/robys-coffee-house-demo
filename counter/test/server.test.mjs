@@ -1,14 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve, sep } from "node:path";
 import { request as httpRequest } from "node:http";
 import { DatabaseSync } from "node:sqlite";
 import { createCounterServer, provisionUser } from "../server.mjs";
-import { encodeOrderTicket, getOrCreateOrderTicket, ORDER_TICKET_CATALOG_REVISION, quoteOrderTicket } from "../../src/order-ticket.js";
+import { encodeOrderTicket, getOrCreateOrderTicket, ORDER_TICKET_CATALOG_REVISION, quoteOrderTicket, orderTicketCatalogPricePairs } from "../../src/order-ticket.js";
 import { menuCategories } from "../../menu-catalog.js";
 
 const secret = () => randomBytes(32).toString("base64url");
@@ -597,4 +597,42 @@ test("both roles retain the oldest 200 active orders and only the latest 30 issu
   assert(!aged.some(order => order.id === issued[5].id));
   assert.equal((await f.api(`/orders/${issued[5].id}`, { auth: renewed })).body.order.status, "issued");
   assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).body.order.status, "issued");
+});
+
+
+test("Counter authority endpoint reports hash of actually quoted static prices without claiming activation",async t=>{
+  let clock=Date.parse("2026-11-12T10:00:00Z");
+  const f=await fixture(t,{now:()=>clock});
+  const res=await f.api("/catalog-authority");
+  assert.equal(res.status,200);
+  assert.equal(res.headers.get("cache-control"),"no-store");
+  assert.equal(res.body.schemaVersion,"robys.counter-catalog-observation.v1");
+  assert.equal(res.body.mode,"legacy_static");
+  assert.equal(res.body.checkoutAuthority,"static");
+  assert.equal(res.body.ownerCandidateActivated,false);
+  assert.equal(res.body.signed,false);
+  assert.equal(res.body.ticketCatalogRevision,ORDER_TICKET_CATALOG_REVISION);
+  assert.equal(res.body.observedAt,clock);
+  const prices=orderTicketCatalogPricePairs();
+  assert.equal(res.body.priceAuthoritySha256,createHash("sha256")
+    .update(JSON.stringify(prices)).digest("hex"));
+  assert.match(res.body.sourceCatalogSha256,/^[a-f0-9]{64}$/);
+  assert.match(res.body.releaseVersion,/^[a-f0-9]{64}$/);
+  const unit=quoteOrderTicket(makeTicket(),"tr").groups[0].items[0].unitPriceMinor;
+  assert.equal(unit,prices.find(([id])=>id===productId)[1]);
+  const order=await f.create();
+  assert.equal(order.status,201);
+  assert.equal(order.order.totalMinor,unit);
+  clock+=2000;
+  const updated=await f.api("/catalog-authority");
+  assert.equal(updated.status,200);
+  assert.equal(updated.body.observedAt,clock);
+  assert.equal(updated.body.priceAuthoritySha256,res.body.priceAuthoritySha256);
+  assert.equal(updated.body.releaseVersion,res.body.releaseVersion);
+  assert.equal((await f.api("/catalog-authority?lang=de")).status,400);
+  assert.equal((await f.api("/catalog-authority",{method:"POST",body:{}})).status,404);
+  await f.stop();await f.start();
+  const restored=await f.api("/catalog-authority");
+  assert.equal(restored.body.priceAuthoritySha256,res.body.priceAuthoritySha256);
+  assert.equal(restored.body.releaseVersion,res.body.releaseVersion);
 });

@@ -36,6 +36,12 @@ function catalogFingerprint() {
 }
 export const ORDER_TICKET_CATALOG_REVISION = catalogFingerprint();
 
+// Exact order and integer prices used by the cashier quote engine.
+// Exposed for read-only hash verification; never accept a price from a QR.
+export function orderTicketCatalogPricePairs() {
+  return products.map(product => [product.id, product.priceMinor]);
+}
+
 export function validateTicketDraft(draft) {
   if (!draft || draft.version !== 1) fail("invalid-draft");
   if (Object.hasOwn(draft, "groups") && !Array.isArray(draft.groups)) fail("invalid-draft");

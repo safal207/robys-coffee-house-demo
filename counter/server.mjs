@@ -4,6 +4,7 @@ import { readFileSync, realpathSync } from "node:fs";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { decodeOrderTicket, quoteOrderTicket, OrderTicketError } from "../src/order-ticket.js";
+import { observeCounterCatalog } from "./catalog-observation.mjs";
 import { CounterError, openCounterStore, provisionUser } from "./store.mjs";
 import { csrfForSession, digest, equalSecret, normalizeUsername, randomSecret, validSecret, verifyPassword } from "./auth.mjs";
 import { openOwnerStore, provisionOwner } from "./owner-store.mjs";
@@ -416,6 +417,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     else apiLimit(ip);
     if (request.method === "GET") {
       if (path === "/health") return json(response, 200, { ok: true });
+      if (path === "/catalog-authority") return json(response, 200, observeCounterCatalog(now()));
       if (path === "/session") {
         const { user, csrfToken } = pollingAuth;
         return json(response, 200, { user: { username: user.username, role: user.role }, csrfToken });

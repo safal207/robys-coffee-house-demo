@@ -32,6 +32,25 @@ Every result declares `published:false`,
 No automated process may interpret these decisions as an active
 production release.
 
+## Actual Counter price authority (read-only, unsigned)
+
+The Counter can now report its **real static quote price hash** through
+`GET /api/counter/catalog-authority` (with `Cache-Control: no-store`).
+The response is derived from the exact ordered integer TRY prices used by
+`quoteOrderTicket()` and the hash of the deployed `menu-catalog.js`
+file; it includes a source catalogue hash, ticket ordinal fingerprint,
+a stable legacy release identifier, and observation timestamp.
+
+This is intentionally a **public, rate-limited, read-only unsigned
+observation**. It explicitly reports `mode:legacy_static`,
+`checkoutAuthority:static`, `signed:false`, and
+`ownerCandidateActivated:false`; a live observer must not mistake it for
+a separately signed activation receipt or for approval of a new release.
+It never changes menu prices, orders, sessions, or the current static
+checkout. The guest GitHub Pages surface still needs its own independent
+served-byte observer and signed external proof. Until both observations
+are measured and trusted, the production cutover is NO-GO.
+
 ## Independent host attestation contract
 
 Host-side attesters must be separately deployed and provisioned with
