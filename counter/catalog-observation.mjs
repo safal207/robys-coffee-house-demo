@@ -20,11 +20,12 @@ const releaseVersion = sha(Buffer.from(JSON.stringify([
 ])));
 
 /** Unauthenticated status hash, never evidence of deployment by itself. */
-export function observeCounterCatalog(now=Date.now()) {
-  if(!Number.isSafeInteger(now) || now<=0)throw Error("Invalid observation timestamp");
+export function observeCounterCatalog(now=Date.now(), checkoutVersionEnforced=false) {
+  if(!Number.isSafeInteger(now) || now<=0 || typeof checkoutVersionEnforced!=="boolean")
+    throw Error("Invalid observation clock or checkout enforcement mode");
   return {
     schemaVersion:"robys.counter-catalog-observation.v1",
-    mode:"legacy_static", checkoutAuthority:"static",
+    mode:"legacy_static", checkoutAuthority:"static",checkoutVersionEnforced,
     releaseVersion,sourceCatalogSha256,priceAuthoritySha256,
     ticketCatalogRevision:ORDER_TICKET_CATALOG_REVISION,
     observedAt:now,
