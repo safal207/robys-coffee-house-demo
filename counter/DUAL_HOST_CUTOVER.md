@@ -51,6 +51,31 @@ checkout. The guest GitHub Pages surface still needs its own independent
 served-byte observer and signed external proof. Until both observations
 are measured and trusted, the production cutover is NO-GO.
 
+## Independent guest Pages asset observation (unsigned)
+
+`node scripts/guest-served-catalog-cli.mjs` verifies six **actual HTTPS
+assets** from `https://safal207.github.io/robys-coffee-house-demo/`:
+`menu-catalog.js`, `menu.html`, `menu-grid.html`,
+`menu-feed.html`, `menu-app.js`, `menu-feed.js`.
+
+The probe pins the HTTPS origin and repository subpath, rejects redirects,
+incorrect content types, empty or over-512-KiB responses, and checks exact
+bytes against this local checkout. It computes the same static order-ticket
+pricing hash as the read-only Counter authority endpoint and reports
+`signed:false`, `allClientsVerified:false`, and
+`publishedOwnerRelease:false`. Do not run it as a success-only deployment
+checker without comparing its result to an independently fetched
+`/api/counter/catalog-authority` response: the test suite uses bounded
+mocks and does not prove any external server was reached.
+
+**Critical limitations:** a probe only observes a handful of HTTPS assets
+at one instant. It cannot see individual guest devices, cached PWA assets,
+cross-origin or backend state, or prove owner-approved release activation.
+The static Counter remains on the old catalogue. Independent host
+attesters, a synchronized activation coordinator, server-side checkout
+version gate, owner confirmation, a tested actual rollback, and browser
+E2E proof are mandatory before a production `GO`.
+
 ## Independent host attestation contract
 
 Host-side attesters must be separately deployed and provisioned with
