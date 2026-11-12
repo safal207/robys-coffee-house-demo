@@ -5,6 +5,7 @@ import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { decodeOrderTicket, quoteOrderTicket, OrderTicketError } from "../src/order-ticket.js";
 import { observeCounterCatalog } from "./catalog-observation.mjs";
+import { checkoutCatalogVersionMatches } from "./checkout-release-gate.mjs";
 import { CounterError, openCounterStore, provisionUser } from "./store.mjs";
 import { csrfForSession, digest, equalSecret, normalizeUsername, randomSecret, validSecret, verifyPassword } from "./auth.mjs";
 import { openOwnerStore, provisionOwner } from "./owner-store.mjs";
@@ -91,7 +92,8 @@ function readOwnerForm(request, limit = 1024) {
 
 export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   host = "127.0.0.1", secureCookies = !LOOPBACK.has(host), publicOrigin, healthcheckHost, now = Date.now,
-  sessionTtlMs = 8 * 60 * 60 * 1000, rateLimits = {} } = {}) {
+  sessionTtlMs = 8 * 60 * 60 * 1000, rateLimits = {},
+  enforceCheckoutCatalogVersion = false } = {}) {
   const loopback = LOOPBACK.has(host);
   if (healthcheckHost !== undefined && !/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/i.test(healthcheckHost)) throw new Error("Invalid healthcheck host");
   if (!secureCookies && !loopback) throw new Error("Insecure cookies are allowed only on an explicit loopback host");
@@ -101,6 +103,8 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     throw new Error("Non-loopback service requires its explicit HTTPS publicOrigin");
   }
   if (!Number.isSafeInteger(sessionTtlMs) || sessionTtlMs < 1 || sessionTtlMs > 24 * 60 * 60 * 1000) throw new Error("Invalid session lifetime");
+  if(typeof enforceCheckoutCatalogVersion!=="boolean") throw new Error("Invalid checkout release gate setting");
+  const activeStaticAuthority=observeCounterCatalog(now(),enforceCheckoutCatalogVersion);
   const root = realpathSync(rootDir);
   const manifest = JSON.parse(readFileSync(resolve(root, "integrity-manifest.json"), "utf8"));
   const staticFiles = new Map();
@@ -417,7 +421,7 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
     else apiLimit(ip);
     if (request.method === "GET") {
       if (path === "/health") return json(response, 200, { ok: true });
-      if (path === "/catalog-authority") return json(response, 200, observeCounterCatalog(now()));
+      if (path === "/catalog-authority") return json(response, 200, observeCounterCatalog(now(),enforceCheckoutCatalogVersion));
       if (path === "/session") {
         const { user, csrfToken } = pollingAuth;
         return json(response, 200, { user: { username: user.username, role: user.role }, csrfToken });
@@ -455,7 +459,12 @@ export function createCounterServer({ dbPath, rootDir = resolve(dirname(fileURLT
       return json(response, 204);
     }
     if (path === "/orders") {
-      if (!exactKeys(body, ["ticketPayload", "guestKey"]) || !validSecret(body.guestKey)) fail(400, "invalid_request");
+      if(!exactKeys(body,enforceCheckoutCatalogVersion
+        ?["ticketPayload","guestKey","catalogReleaseVersion","priceAuthoritySha256"]
+        :["ticketPayload","guestKey"]) || !validSecret(body.guestKey))
+        fail(enforceCheckoutCatalogVersion?409:400,enforceCheckoutCatalogVersion?"stale_catalog":"invalid_request");
+      if(enforceCheckoutCatalogVersion && !checkoutCatalogVersionMatches(body,activeStaticAuthority))
+        fail(409,"stale_catalog");
       let ticket;
       try { ({ ticket } = decodeOrderTicket(body.ticketPayload)); }
       catch (error) { if (error instanceof OrderTicketError) fail(400, "invalid_ticket"); throw error; }
