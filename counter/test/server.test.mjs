@@ -636,3 +636,56 @@ test("Counter authority endpoint reports hash of actually quoted static prices w
   assert.equal(restored.body.priceAuthoritySha256,res.body.priceAuthoritySha256);
   assert.equal(restored.body.releaseVersion,res.body.releaseVersion);
 });
+
+
+test("opt-in checkout gate refuses legacy QR and stale price authority before storing any order",async t=>{
+ const f=await fixture(t,{enforceCheckoutCatalogVersion:true});
+ const authority=await f.api("/catalog-authority");
+ assert.equal(authority.status,200);
+ assert.equal(authority.body.checkoutVersionEnforced,true);
+ assert.equal(authority.body.mode,"legacy_static");
+ const ticket=makeTicket();
+ const payload=encodeOrderTicket(ticket,"tr");
+ const guestKey=secret();
+ const legacy=await f.api("/orders",{method:"POST",body:{ticketPayload:payload,guestKey}});
+ assert.equal(legacy.status,409);
+ assert.equal(legacy.body.error,"stale_catalog");
+ const base={ticketPayload:payload,guestKey,
+   catalogReleaseVersion:authority.body.releaseVersion,
+   priceAuthoritySha256:authority.body.priceAuthoritySha256};
+ for(const data of [
+   {...base,catalogReleaseVersion:""},
+   {...base,catalogReleaseVersion:"f".repeat(64)},
+   {...base,priceAuthoritySha256:"0".repeat(64)},
+   {...base,priceAuthoritySha256:""},
+   {...base,priceAuthoritySha256:undefined}
+ ]){
+   const answer=await f.api("/orders",{method:"POST",body:data});
+   assert.equal(answer.status,409);
+   assert.equal(answer.body.error,"stale_catalog");
+ }
+ const db=new DatabaseSync(f.dbPath);
+ assert.equal(db.prepare("SELECT COUNT(*) AS count FROM orders").get().count,0);
+ db.close();
+ const accepted=await f.api("/orders",{method:"POST",body:base});
+ assert.equal(accepted.status,201);
+ assert.equal(accepted.body.order.totalMinor,quoteOrderTicket(ticket).totalMinor);
+ const retry=await f.api("/orders",{method:"POST",body:base});
+ assert.equal(retry.status,200);
+ assert.equal(retry.body.order.id,accepted.body.order.id);
+ const only=new DatabaseSync(f.dbPath);
+ assert.equal(only.prepare("SELECT COUNT(*) AS count FROM orders").get().count,1);
+ only.close();
+});
+
+test("normal legacy checkout remains unchanged unless version gate is explicitly enabled",async t=>{
+ const f=await fixture(t);
+ assert.equal((await f.api("/catalog-authority")).body.checkoutVersionEnforced,false);
+ const original=await f.create();
+ assert.equal(original.status,201);
+ assert.equal(original.order.totalMinor,quoteOrderTicket(original.ticket).totalMinor);
+ assert.equal((await f.api("/orders",{method:"POST",body:{
+    ticketPayload:encodeOrderTicket(makeTicket()),guestKey:secret(),
+    catalogReleaseVersion:"f".repeat(64),priceAuthoritySha256:"f".repeat(64)
+ }})).status,400);
+});
