@@ -748,6 +748,7 @@ for (const [filePath, revision] of [
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
 writeFileSync("sw-core-v64.js", serviceWorker);
+console.log("DIAG_SW_CORE_V64_JSON="+JSON.stringify(serviceWorker));
 verifyMenuStylesBundle(readMenuStylesBundleInputs());
 
 console.log(

@@ -83,7 +83,8 @@
         "src/amenities.ts",
         "src/seasonal-theme.ts",
         "seasonal-theme.js",
-        "src/.parts/**"
+        "src/.parts/**",
+        "scripts/verify-pairing-cta-static.mjs"
       ],
       "dependsOn": [
         "build",
@@ -573,7 +574,9 @@
       "paths": [
         "qa/business-profile.json",
         "map-live.css",
-        "scripts/verify-ios-route-webkit.mjs"
+        "scripts/verify-ios-route-webkit.mjs",
+        "qa/reyhan-client-handoff.md",
+        "scripts/test-reyhan-handoff.mjs"
       ],
       "dependsOn": [
         "build"
@@ -732,7 +735,8 @@
         "scripts/measure-journey-responsiveness.mjs",
         "scripts/test-journey-measurement.mjs",
         "docs/qa/causal-regression-pipeline.md",
-        "scripts/test-causal-regression-pipeline.mjs"
+        "scripts/test-causal-regression-pipeline.mjs",
+        "scripts/verify-regression-contracts.mjs"
       ],
       "dependsOn": [
         "build"
