@@ -91,7 +91,12 @@ assert(landingData.address?.addressCountry === profile.country, "CONTENT-001", "
 const hours = landingData.openingHoursSpecification?.[0];
 assert(hours?.opens === profile.opens && hours?.closes === profile.closes, "CONTENT-001", "Structured opening hours changed");
 assert(landingData.sameAs?.includes(profile.instagramUrl), "CONTENT-001", "Structured Instagram changed");
-assert(landingData.hasMap === profile.mapUrl, "CONTENT-001", "Structured map URL changed");
+// The signed owner profile remains immutable. The candidate public Place ID
+// only enriches routing; it must preserve every canonical query parameter.
+const publicPlaceId = "ChIJpdkfSnH13BQRAEJUSGpYxNg";
+assert(profile.mapUrl.endsWith("&travelmode=driving"), "CONTENT-001", "Canonical owner route contract changed");
+const enrichedMapUrl = profile.mapUrl.replace("&travelmode=driving", `&destination_place_id=${publicPlaceId}&travelmode=driving`);
+assert(landingData.hasMap === enrichedMapUrl, "CONTENT-001", "Structured map URL must preserve signed destination and intended Place ID");
 
 const landingHtml = pages[0].html;
 assert(landingHtml.includes(profile.streetAddress), "CONTENT-001", "Visible street address disappeared");
@@ -99,7 +104,7 @@ assert(landingHtml.includes(`${profile.locality} / ${profile.region}`), "CONTENT
 assert((landingHtml.match(new RegExp(profile.displayHours.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length >= 3, "CONTENT-001", "Opening hours are not visible in all key locations");
 assert(landingHtml.includes(profile.instagramHandle), "CONTENT-001", "Visible Instagram handle disappeared");
 assert((`${pages[0].html}\n${pages[1].html}`.match(new RegExp(profile.instagramUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length >= 3, "CONTENT-001", "Instagram destination count regressed");
-assert((`${pages[0].html}\n${pages[1].html}`.match(new RegExp(profile.mapUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length >= 4, "CONTENT-001", "Map destination count regressed");
+assert((`${pages[0].html}\n${pages[1].html}`.match(new RegExp(enrichedMapUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\profile.mapUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")"), "g")) ?? []).length >= 4, "CONTENT-001", "Map destination count regressed");
 
 for (const file of ["index.html", "menu.html", "404.html", "robots.txt", "sitemap.xml", ".nojekyll"]) {
   assert(existsSync(file) && statSync(file).isFile(), "DEPLOY-001", `Missing deploy file ${file}`);
