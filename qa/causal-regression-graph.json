@@ -208,6 +208,8 @@
       "label": "Personal likes/views, sharing, Stories and Reels",
       "paths": [
         "src/menu-feed-engagement.js",
+        "docs/prototypes/coffee-club/**",
+        "scripts/test-coffee-club-prototype.mjs",
         "src/menu-feed-collections.js",
         "src/menu-feed-viewer.js",
         "src/menu-feed-viewer-entry.js",

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; form-action 'none'; object-src 'none'; base-uri 'none'">
+<title>Roby's Coffee Club · Prototype</title>
+<link rel="stylesheet" href="club.css">
+<script type="module" src="club.js"></script>
+</head>
+<body>
+<header><a class="brand" href="../../../index.html">ROBY’S <small>COFFEE HOUSE</small></a><nav aria-label="Language"><button type="button" data-lang="tr">TR</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></nav></header>
+<main>
+<p class="notice" data-copy="demo">Demo · Hesap, ödeme ve gerçek ödül yok.</p>
+<section class="hero"><div><span class="eyebrow">GAZİPAŞA · COFFEE CLUB</span><h1 data-copy="hello">Kahveyle güzel anlar.</h1><p data-copy="intro"></p><a class="primary" id="menu" href="../../../menu.html" data-copy="menu">Menüyü gör</a></div><img src="../../../src/products/menu-v1/hot-coffee--flat-white.webp" width="480" height="480" alt=""></section>
+<noscript><p>JavaScript diperlukan / JavaScript required / Требуется JavaScript.</p><a href="../../../menu.html">Menü · Menu · Меню</a></noscript>
+<section class="panel" aria-labelledby="favorites-title"><span class="eyebrow">01 · MY COFFEE</span><h2 id="favorites-title" data-copy="favorites"></h2><p class="muted" data-copy="favoriteNote"></p><div id="favorites" class="products"></div><p id="empty-favorites" data-copy="emptyFavorites"></p><a id="feed" href="../../../menu-feed.html" data-copy="feed"></a></section>
+<section class="panel" aria-labelledby="passport-title"><div class="section-head"><div><span class="eyebrow">02 · COFFEE PASSPORT</span><h2 id="passport-title" data-copy="passport"></h2></div><strong id="count" aria-live="polite">0 / 5</strong></div><progress id="progress" max="5" value="0" aria-labelledby="passport-title"></progress><p class="muted" data-copy="passportNote"></p><div id="passport" class="products"></div><p id="milestone" role="status" hidden data-copy="milestone"></p><button id="reset" type="button" data-copy="reset"></button></section>
+<section class="panel"><span class="eyebrow">03 · DISCOVER AGAIN</span><h2 data-copy="seen"></h2><p class="muted" data-copy="seenNote"></p><div id="seen" class="products"></div><p id="empty-seen" data-copy="emptySeen"></p><a id="choice" href="../../../smart-choice/" data-copy="choice"></a></section>
+<section class="panel"><span class="eyebrow">04 · ROBY’S STORIES</span><h2 data-copy="stories"></h2><div class="story"><img src="../../../src/products/menu-v1/desserts--lotus-cheesecake.webp" alt="" loading="lazy" width="220" height="220"><div><h3 data-copy="storyTitle"></h3><p data-copy="story"></p><a id="pairings" href="../../../menu.html#pairing-offers" data-copy="pairings"></a></div></div></section>
+<section class="panel"><span class="eyebrow">05 · MEMBERSHIP</span><h2 data-copy="membership"></h2><p data-copy="future"></p><p class="muted" data-copy="noConsent"></p></section>
+<p id="status" role="status" class="muted"></p>
+</main><footer>ROBY’S · COFFEE CLUB PROTOTYPE</footer>
+</body>
+</html>
