@@ -393,6 +393,8 @@
         "counter/HOSTING.md",
         "counter/README.md",
         "counter/test/*.test.mjs",
+        "counter/test/club-paid-link-fixture.mjs",
+        "docs/prototypes/club-paid-order-link.md",
         "scripts/package-counter-runtime.mjs",
         "scripts/test-counter-hosted-container.mjs",
         ".github/workflows/counter-service.yml"
