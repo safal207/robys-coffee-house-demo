@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { simulateRewards } from "../docs/prototypes/coffee-club-economics/reward-economics.mjs";
+import { simulateRewards } from "./club-reward-economics.mjs";
 
 const sample = {
   "paidOrders": 100,

@@ -449,6 +449,7 @@
         "scripts/test-smart-choice-cart-focus-browser.mjs",
         "docs/prototypes/coffee-club-economics/**",
         "scripts/test-club-reward-economics.mjs",
+        "scripts/club-reward-economics.mjs",
         "choice-help.js",
         "choice-help-entry.js",
         "choice-help.css",
