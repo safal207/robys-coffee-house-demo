@@ -24,7 +24,7 @@
     "test:smart-choice-decision-trace": "node scripts/test-smart-choice-decision-trace.mjs",
     "test:smart-choice-experiments": "node scripts/test-smart-choice-experiments.mjs",
     "test:smart-choice-release": "node scripts/test-smart-choice-release.mjs",
-    "test:smart-choice-revenue-simulator": "node scripts/test-smart-choice-revenue-simulator.mjs",
+    "test:smart-choice-revenue-simulator": "node scripts/test-smart-choice-revenue-simulator.mjs && node --test scripts/test-club-reward-economics.mjs",
     "test:smart-choice-page": "node scripts/test-smart-choice-page.mjs",
     "test:smart-choice": "npm run test:smart-choice-engine && npm run test:smart-choice-cart && npm run test:smart-choice-analytics && npm run test:smart-choice-decision-trace && npm run test:smart-choice-experiments && npm run test:smart-choice-release && npm run test:smart-choice-revenue-simulator && npm run test:smart-choice-page",
     "verify:instagram-tools": "node scripts/verify-instagram-tools.mjs",
