@@ -754,6 +754,29 @@
         "build",
         "catalog"
       ]
+    },
+    {
+      "id": "biteos-local-pilot",
+      "label": "Isolated opt-in analytics runner, real photo feed hooks, local export and tests",
+      "paths": [
+        ".github/workflows/biteos-pilot.yml",
+        "docs/biteos-live-analytics-pilot.md",
+        "scripts/biteos-live-pilot.mjs",
+        "scripts/biteos-pilot-browser.mjs",
+        "scripts/biteos-pilot-contract.mjs",
+        "scripts/biteos-pilot-patch.mjs",
+        "scripts/test-biteos-live-pilot.mjs",
+        "scripts/test-biteos-pilot-browser.mjs"
+      ],
+      "dependsOn": [
+        "build",
+        "catalog",
+        "menu-feed",
+        "feed-social",
+        "order-ui",
+        "analytics",
+        "browser-prerequisites"
+      ]
     }
   ],
   "checks": [
@@ -1476,6 +1499,31 @@
         "i18n",
         "shared-styles",
         "browser-prerequisites"
+      ],
+      "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "biteos-local-contract",
+      "label": "Opt-in local analytics event and isolated runner contracts",
+      "kind": "contract",
+      "workflow": ".github/workflows/biteos-pilot.yml",
+      "command": "node --test scripts/test-biteos-live-pilot.mjs",
+      "components": [
+        "biteos-local-pilot"
+      ],
+      "execution": "pipeline"
+    },
+    {
+      "id": "biteos-local-browser",
+      "label": "Real feed local opt-in, exported event and withdrawal",
+      "kind": "browser",
+      "workflow": ".github/workflows/biteos-pilot.yml",
+      "command": "node scripts/test-biteos-pilot-browser.mjs",
+      "components": [
+        "biteos-local-pilot"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -2230,6 +2278,22 @@
       "checks": [
         "source-contracts",
         "menu-nutrition-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "biteos-local-opt-in",
+      "label": "Explicitly record a local feed interaction, export and withdraw without public tracking",
+      "components": [
+        "biteos-local-pilot",
+        "menu-feed",
+        "feed-social"
+      ],
+      "checks": [
+        "source-contracts",
+        "security-contracts",
+        "biteos-local-contract",
+        "biteos-local-browser"
       ],
       "metrics": []
     }
