@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/biteos-*'
       - 'scripts/test-biteos-live-pilot.mjs'
+      - 'scripts/test-biteos-pilot-browser.mjs'
       - 'src/menu-feed*.js'
       - '.github/workflows/biteos-pilot.yml'
 permissions:
@@ -19,3 +20,6 @@ jobs:
           node-version: 24
       - run: npm ci --no-audit --no-fund
       - run: node --test scripts/test-biteos-live-pilot.mjs
+
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-biteos-pilot-browser.mjs

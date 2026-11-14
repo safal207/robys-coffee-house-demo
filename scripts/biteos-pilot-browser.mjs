@@ -25,7 +25,7 @@ export function installPilot({catalogIds,language,href,referrer,doc=document,ran
  return {current:()=>session,record(action,id=null,area=null,stamp=session){try{return !!stamp&&stamp===session&&stamp.record(action,id,area)}catch{return false}}};
 }
 export function wrapEngagement(model,pilot){
- return {...model,
+ return {...model,get persistent(){return model.persistent},
   recordView(id){const before=model.hasViewedThisVisit(id);const stamp=pilot.current();const result=model.recordView(id);if(!before&&model.hasViewedThisVisit(id))pilot.record("product_view",id,null,stamp);return result},
   setLiked(id,selected){const stamp=pilot.current();const changed=model.setLiked(id,selected);if(changed)pilot.record(selected?"product_like":"product_unlike",id,null,stamp);return changed}
  };
