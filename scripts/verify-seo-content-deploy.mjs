@@ -104,7 +104,8 @@ assert(landingHtml.includes(`${profile.locality} / ${profile.region}`), "CONTENT
 assert((landingHtml.match(new RegExp(profile.displayHours.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length >= 3, "CONTENT-001", "Opening hours are not visible in all key locations");
 assert(landingHtml.includes(profile.instagramHandle), "CONTENT-001", "Visible Instagram handle disappeared");
 assert((`${pages[0].html}\n${pages[1].html}`.match(new RegExp(profile.instagramUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ?? []).length >= 3, "CONTENT-001", "Instagram destination count regressed");
-assert((`${pages[0].html}\n${pages[1].html}`.match(new RegExp(enrichedMapUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\profile.mapUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")"), "g")) ?? []).length >= 4, "CONTENT-001", "Map destination count regressed");
+const mapReferences = `${pages[0].html}\n${pages[1].html}`.replaceAll("&amp;", "&");
+assert(mapReferences.split(enrichedMapUrl).length - 1 >= 4, "CONTENT-001", "Map destination count regressed");
 
 for (const file of ["index.html", "menu.html", "404.html", "robots.txt", "sitemap.xml", ".nojekyll"]) {
   assert(existsSync(file) && statSync(file).isFile(), "DEPLOY-001", `Missing deploy file ${file}`);
