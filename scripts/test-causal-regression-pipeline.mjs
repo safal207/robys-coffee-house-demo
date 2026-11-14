@@ -285,14 +285,14 @@ test('family photo and offline checks retain their relevant component owners', (
 
 test('Playwright prerequisites select their actual browser consumers without application or Lighthouse fanout', () => {
   const pipeline = ['source-contracts', 'security-contracts', 'menu-feed-browser', 'home-navigation-browser',
-    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser', 'menu-nutrition-browser'];
+    'product-reveal-browser', 'smart-cart-browser', 'discover-deck-browser', 'test-design-fixes-browser', 'adversarial-browser', 'menu-nutrition-browser', 'biteos-local-contract', 'biteos-local-browser'];
   const external = ['order-stress-browser', 'checkout-staleness-browser', 'order-storage-browser',
     'family-browser', 'combos-browser', 'gallery-assets', 'contextual-entry-browser', 'menu-interaction-comparison', 'ios-route-webkit', 'lazy-images-browser'];
   for (const path of ['scripts/ensure-playwright-browsers.mjs', 'scripts/test-playwright-prerequisites.mjs', '.github/workflows/gallery-mobile.yml']) {
     const result = impactPlan(graph, [path]);
     assert.deepEqual(result.directComponents, ['browser-prerequisites']);
-    assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
-    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.deepEqual(result.impactedComponents, ['biteos-local-pilot', 'browser-prerequisites']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity', 'biteos-local-opt-in']);
     assert.deepEqual(result.selectedChecks, pipeline); assert.deepEqual(result.externalChecks, external);
     assert.deepEqual(result.unmappedPaths, []);
   }
@@ -338,8 +338,8 @@ test('adopted setup workflows and canonical iOS assertions retain narrow ownersh
     '.github/workflows/contextual-entry-certification.yml', '.github/workflows/discover-deck-consolidated.yml']) {
     const result = impactPlan(graph, [path]);
     assert.deepEqual(result.directComponents, ['browser-prerequisites']);
-    assert.deepEqual(result.impactedComponents, ['browser-prerequisites']);
-    assert.deepEqual(result.impactedJourneys, ['source-generated-parity']);
+    assert.deepEqual(result.impactedComponents, ['biteos-local-pilot', 'browser-prerequisites']);
+    assert.deepEqual(result.impactedJourneys, ['source-generated-parity', 'biteos-local-opt-in']);
     assert.ok(result.selectedChecks.includes('product-reveal-browser'));
     assert.ok(result.selectedChecks.includes('discover-deck-browser'));
     assert.ok(result.externalChecks.includes('contextual-entry-browser'));
