@@ -577,7 +577,8 @@
         "scripts/verify-ios-route-webkit.mjs",
         "qa/reyhan-client-handoff.md",
         "scripts/test-reyhan-handoff.mjs",
-        "scripts/verify-seo-content-deploy.mjs"
+        "scripts/verify-seo-content-deploy.mjs",
+        "scripts/verify-critical-user-journeys.mjs"
       ],
       "dependsOn": [
         "build"
