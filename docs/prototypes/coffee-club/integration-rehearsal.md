@@ -2,6 +2,7 @@
 
 Source-snapshot test lane. Not a merge or release.
 Base: `59f127c69983eae57215868679d8fa46bab89931`
+
 - #497: `0ae479f42b122e2834c2cc6047e28b884da53fd2`
 - #498: `81b2315bb10f770eafe270878366b1b25f3e5ae8`
 - #499: `5d31b6c572b5864844c35136ed5613a7e5980b69`
@@ -31,3 +32,17 @@ review pending.
 - Original drafts remain open. This is not Git ancestry or replacement
   review evidence. Reconcile against current main and select one canonical
   lane before any merge. No live rewards or data collection.
+
+## Performance triage — first integrated head
+
+- Causal timing run 43731644499: 120 samples, three menu-switch-feed
+  violations (1014.1, 1020 and 1009.2 ms against the 999 ms ceiling).
+- Menu responsiveness run 43731644604: desktop feed median 215.4 ms
+  against 201.0 ms limit; other reported comparisons passed.
+- The integrated source snapshot changes no guest runtime or assets.
+  A causal link to the Club is not established; runner variance or existing
+  runtime behavior remains possible. Preserve all thresholds and compare
+  fresh exact-head results. If reproduced, profile navigation and first
+  photo delivery before optimizing the shared runtime in a separate PR.
+- Markdownlint reported two new issues in this document; fix formatting
+  only. Existing unrelated Markdown warnings are not modified.
