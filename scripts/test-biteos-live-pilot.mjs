@@ -1,11 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,realpathSync,mkdtempSync,mkdirSync,writeFileSync,symlinkSync,rmSync} from "node:fs";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
 import {createSession} from "./biteos-pilot-contract.mjs";
 import {wrapEngagement} from "./biteos-pilot-browser.mjs";
 import {createFeedEngagement} from "../src/menu-feed-engagement.js";
 import {patchFeed} from "./biteos-pilot-patch.mjs";
-import {createPilotServer} from "./biteos-live-pilot.mjs";
+import {createPilotServer,readPilotAsset} from "./biteos-live-pilot.mjs";
 const id="hot-coffee:espresso";
 test("real feed model records only qualified post-opt-in events",()=>{
  const model=createFeedEngagement({validIds:[id],getStorage:()=>{throw Error("blocked")}});
@@ -20,7 +22,7 @@ test("real feed model records only qualified post-opt-in events",()=>{
  assert.deepEqual(current.export().map(e=>e.action),["landing","product_unlike","product_like","product_view"]);
  current.withdraw();wrapped.setLiked(id,false);assert.deepEqual(current.export(),[]);
 });
-test("source hooks unique and actual in-memory bundle served only on local origin",async()=>{
+test("source hooks unique and actual in-memory bundle served only on local origin",{skip:process.platform!=="linux"},async()=>{
  const original=readFileSync("src/menu-feed.js","utf8"),patch=patchFeed(original);
  assert.ok(patch.includes("wrapEngagement"));assert.ok(patch.includes('record("cart_add"'));assert.throws(()=>patchFeed(original.replace("const engagement =","const different =")));
  const server=createPilotServer();await new Promise(ok=>server.listen(0,"127.0.0.1",ok));
@@ -33,4 +35,20 @@ test("source hooks unique and actual in-memory bundle served only on local origi
   assert.equal((await fetch(base+"/menu-feed.html")).headers.get("cache-control"),"no-store");
   assert.equal(readFileSync("src/menu-feed.js","utf8"),original);
  }finally{await new Promise(ok=>server.close(ok))}
+});
+
+test("asset reads use one descriptor and reject links, directories and root escape",{skip:process.platform!=="linux"},async()=>{
+ const dir=realpathSync(mkdtempSync(join(tmpdir(),"robys-pilot-asset-")));
+ try{
+  const root=join(dir,"public"),outside=join(dir,"private"),inside=join(root,"actual");
+  mkdirSync(root);mkdirSync(outside);mkdirSync(inside);
+  writeFileSync(join(root,"menu.html"),"public");writeFileSync(join(outside,"secret.txt"),"private");writeFileSync(join(inside,"photo.txt"),"photo");
+  symlinkSync(join(outside,"secret.txt"),join(root,"file-link.txt"));
+  symlinkSync(outside,join(root,"outside-link"));
+  symlinkSync(inside,join(root,"inside-link"));
+  assert.equal((await readPilotAsset(root,"menu.html")).toString(),"public");
+  for(const name of ["file-link.txt","outside-link/secret.txt","inside-link/photo.txt","actual","../private/secret.txt","missing.txt"]){
+   await assert.rejects(()=>readPilotAsset(root,name),name);
+  }
+ }finally{rmSync(dir,{recursive:true,force:true})}
 });
