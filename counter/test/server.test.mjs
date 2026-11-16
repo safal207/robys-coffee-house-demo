@@ -597,6 +597,14 @@ test("both roles retain the oldest 200 active orders and only the latest 30 issu
   assert(!aged.some(order => order.id === issued[5].id));
   assert.equal((await f.api(`/orders/${issued[5].id}`, { auth: renewed })).body.order.status, "issued");
   assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).body.order.status, "issued");
+  // Sliding window replenishes when an older active order completes.
+  const secondBarista = await f.login("barista");
+  assert.equal((await f.api(`/orders/${active[200]}`, { auth: secondBarista })).status, 200);
+  assert.equal((await f.api(`/orders/${active[0]}/status`, { method:"POST",auth:renewed,body:{version:2,status:"ready"} })).status,200);
+  assert.equal((await f.api(`/orders/${active[0]}/status`, { method:"POST",auth:renewed,body:{version:3,status:"issued"} })).status,200);
+  const replenished=(await f.api("/queue",{auth:secondBarista})).body.orders;
+  assert.deepEqual(replenished.map(order=>order.id),active.slice(1,201));
+  assert.equal(new Set(replenished.map(order=>order.id)).size,200);
 });
 
 

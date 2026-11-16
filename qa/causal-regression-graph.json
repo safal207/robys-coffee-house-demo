@@ -190,7 +190,8 @@
         "src/menu-feed-navigation.js",
         "src/menu-feed-order.js",
         "scripts/test-menu-feed.mjs",
-        "scripts/test-menu-feed-browser.mjs"
+        "scripts/test-menu-feed-browser.mjs",
+        ".github/qa/state-workbench.html"
       ],
       "dependsOn": [
         "build",

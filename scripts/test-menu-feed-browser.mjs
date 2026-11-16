@@ -2009,6 +2009,93 @@ try {
     await context.close();
   }
 
+
+  // Verify the full manual paging path, then native scroll paging separately.
+  for (const manual of [true, false]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 },
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    if (manual) await context.addInitScript(() => {
+      const Native = window.IntersectionObserver;
+      if (Native) window.IntersectionObserver = class extends Native {
+        observe(target) { if (target.id !== "feed-more-wrap") super.observe(target); }
+      };
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    try {
+      await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+      await waitForMenuMode(page, "feed");
+      const cards = page.locator(".feed-card"), more = page.locator("#feed-more"), end = page.locator("#feed-end");
+      const expected = catalog.map(product => product.id), counts = [];
+      async function prefix(count) {
+        const actual = await cards.evaluateAll(nodes => nodes.map(node => ({ id: node.dataset.productId, index: Number(node.dataset.index) })));
+        assert.deepEqual(actual, expected.slice(0, count).map((id,index) => ({ id,index })));
+        assert.equal(new Set(actual.map(row => row.id)).size, count);
+        counts.push(count);
+      }
+      if (manual) {
+        await prefix(8);
+        for (let i = 8; i < expected.length; i += 8) {
+          assert.equal(await more.isVisible(), true);
+          await more.click();
+          await prefix(Math.min(i+8, expected.length));
+        }
+        assert.deepEqual(counts, [8,16,24,32,40,48,56,63]);
+        assert.equal(await more.isVisible(), false);
+        assert.equal(await end.isVisible(), true);
+        await openDiscovery(page);
+        await page.locator("#feed-search").fill("missing-zx984");
+        await closeDiscovery(page);
+        assert.equal(await cards.count(), 0);
+        assert.equal(await page.locator("#feed-empty").isVisible(), true);
+        assert.equal(await more.isVisible(), false);
+        assert.equal(await end.isVisible(), false);
+        await page.locator("#feed-reset").click();
+        await prefix(8);
+        assert.equal(await page.locator("#feed-empty").isVisible(), false);
+        await more.click();
+        await prefix(16);
+      } else {
+        const before = await cards.count();
+        assert.ok(before >= 8 && before < expected.length);
+        await page.locator("#feed-more-wrap").evaluate(node => node.scrollIntoView({ block:"center",behavior:"instant" }));
+        await page.waitForFunction(count => document.querySelectorAll(".feed-card").length > count, before);
+        await prefix(await cards.count());
+      }
+      assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
+      assert.deepEqual(errors, []);
+      report.cases.push({ case: manual ? "pagination-manual-full-catalog-and-reset" : "pagination-native-observer", result:"PASS",counts });
+    } finally { await context.close(); }
+  }
+  {
+    const context = await browser.newContext({ viewport:{width:390,height:844},ignoreHTTPSErrors:true,serviceWorkers:"block" });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors=[]; page.on("pageerror",error=>errors.push(error.message));
+    try {
+      await page.goto(`${origin}/.github/qa/state-workbench.html`);
+      await page.locator("#role").selectOption("barista");
+      await page.locator("#pay").click();
+      assert.match(await page.locator("#result").textContent(),/403/);
+      assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      await page.locator("#role").selectOption("cashier");
+      await page.locator("#pay").click();
+      assert.equal(await page.locator("#current").textContent(),"preparing");
+      await page.locator("#issue").click();
+      assert.match(await page.locator("#result").textContent(),/409/);
+      await page.locator("#ready").click(); await page.locator("#issue").click();
+      assert.equal(await page.locator("#current").textContent(),"issued");
+      await page.locator("#reset").click();
+      assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      await page.locator("#filter").fill("PAG-");
+      assert.equal(await page.locator("#cases tr").count(),4);
+      await page.locator("#filter").fill("impossible-case");
+      assert.equal(await page.locator("#cases tr").count(),0);
+      assert.deepEqual(errors,[]);
+      report.cases.push({case:"qa-state-workbench-functional",result:"PASS",modelOnly:true});
+    } finally { await context.close(); }
+  }
+
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);
