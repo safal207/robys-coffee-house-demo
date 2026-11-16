@@ -396,6 +396,10 @@ test("QA runner isolates loopback and validates exact head and allowlisted selec
   const origin="http://127.0.0.1:"+server.address().port;
   const config=await (await fetch(origin+"/api/config")).json();
   assert.equal(config.head,head);
+  const graphResponse=await fetch(origin+"/api/graph");
+  assert.equal(graphResponse.status,200);
+  assert.equal(await graphResponse.text(),readFileSync(new URL("../qa/causal-regression-graph.json",import.meta.url),"utf8"));
+
   const post=(data,token=config.token,source=origin)=>fetch(origin+"/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":token,Origin:source},body:JSON.stringify(data)});
   assert.equal((await post({check:"counter-contracts",head},"wrong")).status,403);
   assert.equal((await post({check:"counter-contracts",head},config.token,"https://evil.test")).status,403);

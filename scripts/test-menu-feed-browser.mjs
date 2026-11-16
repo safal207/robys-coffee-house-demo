@@ -2091,11 +2091,26 @@ try {
       assert.equal(await page.locator("#cases tr").count(),4);
       const sha="a".repeat(40);
       await page.locator("#expected-head").fill(sha);
-      const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
+      const registryBytes=readFileSync("qa/causal-regression-graph.json");
+      const digest=createHash("sha256").update(registryBytes).digest("hex");
+      const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},registrySha256:digest,status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
+      await page.locator("#graph-file").setInputFiles({name:"graph.json",mimeType:"application/json",buffer:registryBytes});
+      await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("Реестр загружен"));
+      await page.locator("#impact-check").selectOption("menu-feed-browser");
       const upload=async report=>page.locator("#report-file").setInputFiles({name:"report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(report))});
       await upload(reportFixture);
       await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Импортирован"));
       assert.match(await page.locator("#cases tr").first().textContent(),/PASS.*импорт CI/);
+      assert.match(await page.locator("#graph-status").textContent(),/SHA-256 реестра совпадает/);
+      assert.equal(await page.locator('#impact-map [data-status="PASS"]').count(),1);
+      await upload({...reportFixture,status:"FAIL",checks:[{id:"menu-feed-browser",selected:true,status:"FAIL"}]});
+      await page.waitForFunction(()=>document.querySelector('#impact-map [data-status="FAIL"]'));
+      assert.ok(await page.locator('#impact-map [data-status="RISK"]').count()>0);
+      assert.ok((await page.locator("#impact-journeys").textContent()).includes("menu-search"));
+      await upload({...reportFixture,registrySha256:"0".repeat(64)});
+      await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("не совпадает"));
+      assert.equal(await page.locator('#impact-map [data-status="PASS"]').count(),0);
+
       await upload({...reportFixture,source:{revision:"b".repeat(40),dirty:false}});
       await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Отклонено"));
       assert.match(await page.locator("#cases tr").first().textContent(),/NOT_RUN/);

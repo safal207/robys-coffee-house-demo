@@ -1,10 +1,10 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Roby's QA Workbench</title><style>
 *{box-sizing:border-box}body{margin:0;background:#101820;color:#eef3f7;font:15px/1.5 system-ui,sans-serif}main{max-width:1040px;margin:auto;padding:24px}small,p{color:#b8c5d0}h1{font-size:clamp(24px,5vw,36px)}section{background:#1b2732;border:1px solid #354555;border-radius:16px;padding:18px;margin:16px 0}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}.step{border:1px solid #526473;border-radius:10px;padding:12px;overflow-wrap:anywhere}.active{border:2px solid #69d6ad;background:#15382e}.step small{display:block}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,input,select{font:inherit;color:inherit;background:#101820;border:1px solid #526473;border-radius:8px;padding:9px 12px}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #69d6ad}#result{border-left:3px solid #f3c681;padding-left:12px}#history{max-height:145px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:9px 5px;text-align:left;border-bottom:1px solid #354555;vertical-align:top}.table-wrap{overflow:auto}#filter{width:100%;margin:8px 0}@media(max-width:650px){main{padding:12px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}section{padding:14px}}
-</style></head><body><main><small>ROBY’S / QA LAB</small><h1>Диаграмма переходов состояний</h1><p>Локальная модель Counter. Нет реальных заказов, оплаты и сетевых запросов. Не является CI-доказательством.</p>
+.impact-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.impact-node{border:1px solid #526473;border-radius:8px;padding:8px;max-width:100%;overflow-wrap:anywhere}.impact-node[data-status="FAIL"]{border:2px solid #f48b8b;background:#421f28}.impact-node[data-status="PASS"]{border:2px solid #69d6ad}.impact-node[data-status="RISK"]{border-color:#f3c681}#impact-journeys,#observations{max-height:250px;overflow:auto;overflow-wrap:anywhere}#impact-map h3{margin:12px 0 4px}</style></head><body><main><small>ROBY’S / QA LAB</small><h1>Диаграмма переходов состояний</h1><p>Локальная модель Counter. Нет реальных заказов, оплаты и сетевых запросов. Не является CI-доказательством.</p>
 <section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
 <section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
 <label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
-<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор для расследования</label><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
 <script>
 "use strict";
 const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
@@ -27,7 +27,64 @@ function render(){
     }return tr;
   }));
 }
-function clearEvidence(){evidence.clear();byId("evidence-status").textContent="Нет доказательств.";render()}
+
+let registry=null, registryDigest=null, reportDigest=null, importedChecks=new Map(), observations=[], graphGeneration=0;
+const hex64=/^[a-f0-9]{64}$/;
+function addObservation(text){observations.unshift(new Date().toISOString()+" · "+text);observations=observations.slice(0,30);byId("observations").replaceChildren(...observations.map(value=>{const li=document.createElement("li");li.textContent=value;return li}))}
+function validateRegistry(value){
+  if(value?.schemaVersion!==1)throw Error("Версия реестра");
+  const index=(rows,name)=>{
+    if(!Array.isArray(rows)||!rows.length||rows.length>300)throw Error("Размер "+name);
+    const result=new Map();
+    for(const row of rows){if(!row||typeof row.id!=="string"||!(/^[a-z][a-z0-9-]{0,79}$/).test(row.id)||result.has(row.id)||typeof row.label!=="string"||row.label.length>500)throw Error("Некорректный ID "+name);result.set(row.id,row)}
+    return result;
+  };
+  const components=index(value.components,"components"), checks=index(value.checks,"checks"), journeys=index(value.journeys,"journeys");
+  const refs=(ids,map)=>Array.isArray(ids)&&ids.length<=300&&new Set(ids).size===ids.length&&ids.every(id=>map.has(id));
+  for(const row of components.values())if(!refs(row.dependsOn,components))throw Error("Ссылка компонента");
+  for(const row of checks.values())if(!refs(row.components,components))throw Error("Ссылка проверки");
+  for(const row of journeys.values())if(!refs(row.components,components)||!refs(row.checks,checks))throw Error("Ссылка сценария");
+  return {components,checks,journeys};
+}
+async function loadRegistry(bytes,generation){
+  if(bytes.byteLength>2_000_000||!globalThis.crypto?.subtle)throw Error("Реестр слишком большой или SHA-256 недоступен");
+  const graph=validateRegistry(JSON.parse(new TextDecoder().decode(bytes)));
+  const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+  if(generation!==graphGeneration)return;
+  registry=graph;registryDigest=digest;renderImpact();
+}
+function renderImpact(){
+  const select=byId("impact-check"),map=byId("impact-map"),list=byId("impact-journeys");
+  map.replaceChildren();list.replaceChildren();
+  if(!registry){select.replaceChildren();byId("graph-status").textContent="Реестр не загружен.";return}
+  const matched=Boolean(reportDigest&&reportDigest===registryDigest);
+  byId("graph-status").textContent=matched?"SHA-256 реестра совпадает с импортированным отчётом. Подлинность файла не проверена.":reportDigest?"SHA-256 реестра не совпадает: статусы скрыты.":"Реестр загружен, совместимый отчёт отсутствует.";
+  const previous=select.value;
+  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent=check.id+(matched&&importedChecks.has(check.id)?" · "+importedChecks.get(check.id):"");return option}));
+  if(registry.checks.has(previous))select.value=previous;
+  const check=registry.checks.get(select.value);if(!check)return;
+  const status=matched?importedChecks.get(check.id)??"NOT_RUN":"NOT_RUN";
+  function group(title,items,mark){const h=document.createElement("h3");h.textContent=title;const div=document.createElement("div");div.className="impact-row";for(const id of items){const n=document.createElement("span");n.className="impact-node";n.dataset.status=mark;n.textContent=id;div.append(n)}map.append(h,div)}
+  group("Результат набора (не отдельного теста)",[check.id+" · "+status],status);
+  group("Компоненты, связанные с проверкой",check.components,"NOT_RUN");
+  const distance=new Map(check.components.map(id=>[id,0])),parent=new Map(),queue=[...check.components];
+  for(let i=0;i<queue.length;i++){const id=queue[i];for(const c of registry.components.values())if(c.dependsOn.includes(id)&&!distance.has(c.id)){distance.set(c.id,distance.get(id)+1);parent.set(c.id,id);queue.push(c.id)}}
+  const indirect=queue.filter(id=>distance.get(id)>0);
+  group("Потенциальные зависимые компоненты ("+indirect.length+")",indirect,status==="FAIL"?"RISK":"NOT_RUN");
+  for(const journey of registry.journeys.values()){
+    const linked=journey.checks.includes(check.id), target=journey.components.filter(id=>distance.has(id)).sort((a,b)=>distance.get(a)-distance.get(b))[0];
+    if(!linked&&!target)continue;
+    const chain=[];let id=target;while(id){chain.unshift(id);id=parent.get(id)}
+    const li=document.createElement("li");li.textContent=journey.id+" · "+(linked?"прямая связь теста":"потенциальное влияние")+" · "+(chain.length?chain.join(" → "):"нет пути компонентов");list.append(li);
+  }
+}
+byId("impact-check").addEventListener("change",renderImpact);
+byId("graph-file").addEventListener("change",async()=>{
+  const generation=++graphGeneration,file=byId("graph-file").files[0];registry=null;registryDigest=null;renderImpact();if(!file)return;
+  try{if(file.size>2_000_000)throw Error("Лимит 2 МБ");await loadRegistry(await file.arrayBuffer(),generation);if(generation===graphGeneration)addObservation("Загружен реестр "+registryDigest.slice(0,12))}
+  catch(e){if(generation===graphGeneration)byId("graph-status").textContent="Реестр отклонён: "+e.message}
+});
+function clearEvidence(){evidence.clear();importedChecks.clear();reportDigest=null;byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
 function importReport(report){
   const expected=byId("expected-head").value.trim();
   if(!sha.test(expected)||report?.schemaVersion!==1||report.source?.revision!==expected||report.source?.dirty!==false||!["PASS","FAIL","INCOMPLETE"].includes(report.status)||!Array.isArray(report.checks)||report.checks.length>200) throw Error("Неверный SHA или формат отчёта");
@@ -36,7 +93,7 @@ function importReport(report){
     if(!check||typeof check.id!=="string"||seen.has(check.id)||!statuses.has(check.status)||typeof check.selected!=="boolean"||(check.status==="PASS"&&check.selected!==true)) throw Error("Некорректный или повторный результат");
     seen.add(check.id);if(allowedSuites.has(check.id))result.set(check.id,{status:check.status,origin:"импорт CI"});
   }
-  evidence=result;byId("evidence-status").textContent="Импортирован отчёт "+report.status+" · "+expected.slice(0,8)+" · подлинность файла не проверяется";render();
+  reportDigest=hex64.test(report.registrySha256??"")?report.registrySha256:null;importedChecks=new Map(report.checks.map(check=>[check.id,check.status]));evidence=result;addObservation("Импорт CI "+report.status+" · "+expected.slice(0,8));renderImpact();byId("evidence-status").textContent="Импортирован отчёт "+report.status+" · "+expected.slice(0,8)+" · подлинность файла не проверяется";render();
 }
 byId("expected-head").addEventListener("input",clearEvidence);
 byId("clear-evidence").onclick=()=>{byId("report-file").value="";clearEvidence()};
@@ -53,7 +110,7 @@ async function connect(){
   try{
     const response=await fetch("/api/config"),config=await response.json();
     if(!response.ok||!sha.test(config.head)||typeof config.token!=="string")throw Error("config");
-    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("run-status").textContent="Локальный runner подключён.";
+    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("run-status").textContent="Локальный runner подключён."; const generation=++graphGeneration;try{const graph=await fetch("/api/graph");if(graph.ok)await loadRegistry(await graph.arrayBuffer(),generation)}catch{/* manual import remains available */}
   }catch{byId("run-status").textContent="Runner недоступен."}
 }
 byId("run-check").onclick=async()=>{
@@ -65,7 +122,7 @@ byId("run-check").onclick=async()=>{
     const response=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify({check,head})}),result=await response.json();
     if(!response.ok||result.head!==head||result.check!==check||!["PASS","FAIL","INCOMPLETE"].includes(result.status))throw Error(result.error||"receipt");
     if(byId("expected-head").value.trim()===head){evidence.set(check,{status:result.status,origin:"локальный runner"});render()}
-    byId("run-status").textContent=result.status+" · "+check+" · "+result.artifact;
+    byId("run-status").textContent=result.status+" · "+check+" · "+result.artifact;addObservation("Локальный набор "+check+" · "+result.status+" · "+head.slice(0,8));
   }catch(e){byId("run-status").textContent="Не подтверждено: "+e.message}
   finally{byId("run-check").disabled=false}
 };

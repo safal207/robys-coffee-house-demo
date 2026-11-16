@@ -36,6 +36,10 @@ export function createWorkbenchServer({ getHead=gitHead, run=execute }={}) {
     const json=(status,obj)=>{res.writeHead(status,{"Content-Type":"application/json; charset=utf-8"});res.end(JSON.stringify(obj));};
     if(req.headers.host!==host) return json(403,{error:"host"});
     if(req.method==="GET"&&req.url==="/"){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});return res.end(readFileSync(new URL("./state-workbench.html",import.meta.url)));}
+    if(req.method==="GET"&&req.url==="/api/graph"){
+      res.writeHead(200,{"Content-Type":"application/json; charset=utf-8"});
+      return res.end(readFileSync(resolve(root,"qa/causal-regression-graph.json")));
+    }
     if(req.method==="GET"&&req.url==="/api/config") return json(200,{head:getHead(),token,allowed});
     if(req.method!=="POST"||req.url!=="/api/run") return json(404,{error:"not_found"});
     if(req.headers.origin!==origin||req.headers["x-qa-token"]!==token) return json(403,{error:"origin_or_token"});
