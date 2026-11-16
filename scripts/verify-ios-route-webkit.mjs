@@ -105,8 +105,11 @@ async function verifyPage(pathname) {
     await page.locator(".hero-actions [data-smart-choice-entry]").waitFor({ state: "attached" });
     const heroPrimary = page.locator(".hero-actions .button-primary");
     assert.equal(await heroPrimary.count(), 1, "enhanced hero must have exactly one primary CTA");
-    assert.equal(await heroPrimary.getAttribute("href"), "smart-choice/", "enhanced hero primary CTA must route to Smart Choice");
-    assert.equal(await heroPrimary.getAttribute("target"), null, "Smart Choice must stay in the current customer journey");
+    assert.equal(await heroPrimary.getAttribute("href"), "menu.html", "enhanced hero primary CTA must open the digital menu");
+    assert.equal(await heroPrimary.getAttribute("target"), null, "the digital menu must stay in the current customer journey");
+    const smartChoiceSecondary = page.locator(".hero-actions .button-ghost[data-smart-choice-entry]");
+    assert.equal(await smartChoiceSecondary.count(), 1, "Smart Choice must remain available as an optional secondary action");
+    assert.equal(await smartChoiceSecondary.getAttribute("href"), "smart-choice/", "optional Smart Choice route must remain functional");
     const pairing = page.locator('.hero-actions a[href="menu.html#pairing-offers"]');
     assert.equal(await pairing.count(), 1, "enhancement must retain the direct pairing CTA");
     assert.equal(await pairing.getAttribute("target"), null, "pairing CTA must stay in the current customer journey");
@@ -179,7 +182,7 @@ try {
     "utf8"
   );
 
-  console.log("✅ iOS WebKit route gate passed: styled hero offers Smart Choice and direct pairings; every named route CTA opens a non-blank Google Maps driving route.");
+  console.log("✅ iOS WebKit route gate passed: styled hero prioritizes the menu and retains optional Smart Choice and direct pairings; every named route CTA opens a non-blank Google Maps driving route.");
 } finally {
   await context.tracing.stop({ path: `${evidenceDir}/ios-route-trace.zip` });
   await context.close();
