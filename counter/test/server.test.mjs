@@ -692,3 +692,66 @@ test("MBT: every Counter state × actor × command preserves business invariants
   }
   assert.equal(covered.size, 48, "all declared state/actor/action cells must execute successfully");
 });
+
+
+// Temporal sequence oracle, using a fresh real HTTP/SQLite order per schedule.
+test("TEMPORAL: every arrival ordering of versioned actions and delayed retries converges without duplicate audit", async t => {
+  const f=await fixture(t);
+  const roles={cashier:await f.login("cashier"),barista:await f.login("barista")};
+  const events=[{action:"pay",version:1,role:"cashier"},{action:"ready",version:2,role:"barista"},{action:"issued",version:3,role:"barista"}];
+  const states=["awaiting_payment","preparing","ready","issued"];
+  const permutations=values=>values.length===0?[[]]:values.flatMap((value,index)=>permutations(values.filter((_,i)=>i!==index)).map(rest=>[value,...rest]));
+  const audit=id=>{const db=new DatabaseSync(f.dbPath);try{return db.prepare("SELECT action,from_version FROM audit WHERE order_id=? ORDER BY id").all(id)}finally{db.close()}};
+  for(const schedule of permutations(events)) await t.test(schedule.map(event=>event.action).join(" → "),async()=>{
+    const created=await f.create();assert.equal(created.status,201);
+    const {id}=created.order;let version=1;
+    async function send(event){
+      const before=await f.api(`/orders/${id}?lang=en`,{guestKey:created.guestKey});
+      assert.equal(before.status,200);assert.equal(before.body.order.version,version);
+      const expected=event.version<=version?200:409;
+      // Earlier versions got there only via their unique accepted action.
+      const response=await f.api(`/orders/${id}/${event.action==="pay"?"pay":"status"}?lang=en`,{method:"POST",auth:roles[event.role],body:event.action==="pay"?{version:event.version}:{version:event.version,status:event.action}});
+      assert.equal(response.status,expected);
+      if(event.version===version)version++;
+      const after=await f.api(`/orders/${id}?lang=en`,{guestKey:created.guestKey});
+      assert.equal(after.status,200);assert.equal(after.body.order.version,version);assert.equal(after.body.order.status,states[version-1]);
+      assert.equal(after.body.order.totalMinor,created.order.totalMinor);
+      assert.deepEqual(after.body.order.groups,created.order.groups);
+      assert.deepEqual(audit(id).map(row=>[row.action,row.from_version]),events.slice(0,version-1).map(event=>[event.action,event.version]));
+      if(expected===409)assert.deepEqual(after.body.order,before.body.order);
+      if(expected===200)assert.deepEqual(response.body.order,after.body.order);
+    }
+    for(const event of schedule)await send(event);
+    // Recover missing causal predecessors, then replay delayed requests.
+    for(const event of events)await send(event);
+    for(const event of [...schedule].reverse())await send(event);
+    assert.equal(version,4);
+  });
+});
+
+test("TEMPORAL: all acknowledged transitions survive restart and delayed retries preserve the original payment timestamp",async t=>{
+  let now=Date.now();
+  const f=await fixture(t,{now:()=>now});
+  const cashier=await f.login("cashier"),barista=await f.login("barista"),created=await f.create();
+  const id=created.order.id, events=[["pay",{version:1},cashier],["status",{version:2,status:"ready"},barista],["status",{version:3,status:"issued"},barista]];
+  let paidAt;
+  for(const [index,[path,body,auth]] of events.entries()){
+    now+=1000;
+    const response=await f.api(`/orders/${id}/${path}?lang=en`,{method:"POST",body,auth});
+    assert.equal(response.status,200);assert.equal(response.body.order.version,index+2);
+    if(index===0)paidAt=response.body.order.paidAt;
+    assert.equal(response.body.order.paidAt,paidAt);
+    await f.stop();now+=1000;await f.start();
+    const read=await f.api(`/orders/${id}?lang=en`,{guestKey:created.guestKey});
+    assert.equal(read.status,200);assert.deepEqual(read.body.order,response.body.order);
+  }
+  for(const [path,body,auth] of [...events].reverse()){
+    now+=1000;const retry=await f.api(`/orders/${id}/${path}?lang=en`,{method:"POST",body,auth});
+    assert.equal(retry.status,200);assert.equal(retry.body.order.version,4);assert.equal(retry.body.order.paidAt,paidAt);
+  }
+  const db=new DatabaseSync(f.dbPath);try{
+    const rows=db.prepare("SELECT action,from_version,at FROM audit WHERE order_id=? ORDER BY id").all(id);
+    assert.deepEqual(rows.map(row=>[row.action,row.from_version]),[["pay",1],["ready",2],["issued",3]]);
+    assert.equal(rows[0].at,paidAt);assert(rows.every((row,i)=>i===0||row.at>rows[i-1].at));
+  }finally{db.close()}
+});

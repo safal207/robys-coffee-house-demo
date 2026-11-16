@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseOrderInput, queueSections, visibleForRole, nextOrderAction, paymentStillCurrent, formatMoney } from "../src/staff-model.mjs";
+import { parseOrderInput, queueSections, visibleForRole, nextOrderAction, paymentStillCurrent, formatMoney, newestOrder } from "../src/staff-model.mjs";
 
 const base = "http://localhost:8787/counter/staff.html";
 const id = "abcdefghijklmnopABCDEFGHIJKLMN_-";
@@ -45,4 +45,21 @@ test("minor units retain the actual amount across all three locales", () => {
     assert.match(formatMoney(37000, lang), /370/);
     assert.match(formatMoney(37050, lang), /370[,.]50/);
   }
+});
+
+
+test("TEMPORAL: every delivery order of four versioned snapshots retains the newest state",()=>{
+  const snapshots=["awaiting_payment","preparing","ready","issued"].map((status,i)=>({...order(status),version:i+1}));
+  const permutations=values=>values.length===0?[[]]:values.flatMap((value,index)=>permutations(values.filter((_,i)=>i!==index)).map(rest=>[value,...rest]));
+  let cases=0;
+  for(const schedule of permutations(snapshots)){
+    let known=null,max=0;
+    for(const incoming of [...schedule,schedule[0],snapshots[0]]){
+      known=newestOrder(known,incoming);max=Math.max(max,incoming.version);
+      assert.deepEqual(known,snapshots[max-1]);
+      assert.equal(paymentStillCurrent(known,{id,version:1,totalMinor:37000}),max===1);
+    }
+    assert.equal(known.status,"issued");cases++;
+  }
+  assert.equal(cases,24);
 });

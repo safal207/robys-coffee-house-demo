@@ -2087,6 +2087,15 @@ try {
       assert.equal(await page.locator("#current").textContent(),"issued");
       await page.locator("#reset").click();
       assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      for(const button of ["temporal-late","temporal-retry","temporal-reverse"]){
+        await page.locator("#"+button).click();
+        assert.match(await page.locator("#temporal-result").textContent(),/v4.*issued/);
+        assert.equal(await page.locator("#temporal-events li").count(),4);
+        assert.ok(await page.locator('#temporal-track [data-status="RISK"]').count()>0);
+      }
+      await page.locator("#temporal-reset").click();
+      assert.match(await page.locator("#temporal-result").textContent(),/v0/);
+      assert.equal(await page.locator("#temporal-events li").count(),0);
       await page.locator("#filter").fill("PAG-");
       assert.equal(await page.locator("#cases tr").count(),4);
       const sha="a".repeat(40);
