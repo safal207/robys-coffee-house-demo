@@ -22,7 +22,7 @@ async function execute(check, head) {
   if (receipt.checkId !== check || receipt.source?.revision !== head) throw Error("Receipt identity mismatch");
   const status = code === 0 && receipt.complete === true && receipt.source.dirty === false && receipt.status === "PASS" ? "PASS"
     : receipt.status === "INCOMPLETE" ? "INCOMPLETE" : "FAIL";
-  return {check,head,status,durationMs:receipt.durationMs,artifact:dir.slice(root.length).replace(/^[/\\]/,"")};
+  return {check,head,status,registrySha256:receipt.registrySha256,durationMs:receipt.durationMs,artifact:dir.slice(root.length).replace(/^[/\\]/,"")};
 }
 
 // Loopback only. No shell, arbitrary command/path, CORS, or remote binding.

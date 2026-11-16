@@ -22,13 +22,14 @@ function render(){
   const term=byId("filter").value.toLowerCase();
   byId("cases").replaceChildren(...cases.filter(row=>row.join(" ").toLowerCase().includes(term)).map(row=>{
     const tr=document.createElement("tr"),suite=suiteFor(row[0]),entry=evidence.get(suite);
-    for(const value of [...row,suite+" · "+(entry?entry.status+" ("+entry.origin+"; набор)":"NOT_RUN")]){
+    const usable=entry&&!(entry.origin==="импорт CI"&&registryDigest&&reportDigest!==registryDigest);
+    for(const value of [...row,suite+" · "+(usable?entry.status+" ("+entry.origin+"; набор)":"NOT_RUN")]){
       const td=document.createElement("td");td.textContent=value;tr.append(td);
     }return tr;
   }));
 }
 
-let registry=null, registryDigest=null, reportDigest=null, importedChecks=new Map(), observations=[], graphGeneration=0;
+let registry=null, registryDigest=null, reportDigest=null, importedChecks=new Map(), localGraphChecks=new Map(), observations=[], graphGeneration=0;
 const hex64=/^[a-f0-9]{64}$/;
 function addObservation(text){observations.unshift(new Date().toISOString()+" · "+text);observations=observations.slice(0,30);byId("observations").replaceChildren(...observations.map(value=>{const li=document.createElement("li");li.textContent=value;return li}))}
 function validateRegistry(value){
@@ -51,21 +52,23 @@ async function loadRegistry(bytes,generation){
   const graph=validateRegistry(JSON.parse(new TextDecoder().decode(bytes)));
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
   if(generation!==graphGeneration)return;
-  registry=graph;registryDigest=digest;renderImpact();
+  registry=graph;registryDigest=digest;render();renderImpact();
 }
 function renderImpact(){
   const select=byId("impact-check"),map=byId("impact-map"),list=byId("impact-journeys");
   map.replaceChildren();list.replaceChildren();
   if(!registry){select.replaceChildren();byId("graph-status").textContent="Реестр не загружен.";return}
   const matched=Boolean(reportDigest&&reportDigest===registryDigest);
+  const localFor=id=>{const entry=localGraphChecks.get(id);return entry?.digest===registryDigest?entry.status:null};
+  const resultFor=id=>matched&&importedChecks.has(id)?importedChecks.get(id):localFor(id)??"NOT_RUN";
   byId("graph-status").textContent=matched?"SHA-256 реестра совпадает с импортированным отчётом. Подлинность файла не проверена.":reportDigest?"SHA-256 реестра не совпадает: статусы скрыты.":"Реестр загружен, совместимый отчёт отсутствует.";
   const previous=select.value;
-  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent=check.id+(matched&&importedChecks.has(check.id)?" · "+importedChecks.get(check.id):"");return option}));
+  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent=check.id+(resultFor(check.id)!=="NOT_RUN"?" · "+resultFor(check.id):"");return option}));
   if(registry.checks.has(previous))select.value=previous;
   const check=registry.checks.get(select.value);if(!check)return;
-  const status=matched?importedChecks.get(check.id)??"NOT_RUN":"NOT_RUN";
+  const status=resultFor(check.id);
   function group(title,items,mark){const h=document.createElement("h3");h.textContent=title;const div=document.createElement("div");div.className="impact-row";for(const id of items){const n=document.createElement("span");n.className="impact-node";n.dataset.status=mark;n.textContent=id;div.append(n)}map.append(h,div)}
-  group("Результат набора (не отдельного теста)",[check.id+" · "+status],status);
+  group("Результат набора (не отдельного теста)",[check.id+" · "+status+(matched&&importedChecks.has(check.id)?" · импорт CI":localFor(check.id)?" · локальный runner":"")],status);
   group("Компоненты, связанные с проверкой",check.components,"NOT_RUN");
   const distance=new Map(check.components.map(id=>[id,0])),parent=new Map(),queue=[...check.components];
   for(let i=0;i<queue.length;i++){const id=queue[i];for(const c of registry.components.values())if(c.dependsOn.includes(id)&&!distance.has(c.id)){distance.set(c.id,distance.get(id)+1);parent.set(c.id,id);queue.push(c.id)}}
@@ -80,11 +83,11 @@ function renderImpact(){
 }
 byId("impact-check").addEventListener("change",renderImpact);
 byId("graph-file").addEventListener("change",async()=>{
-  const generation=++graphGeneration,file=byId("graph-file").files[0];registry=null;registryDigest=null;renderImpact();if(!file)return;
+  const generation=++graphGeneration,file=byId("graph-file").files[0];registry=null;registryDigest=null;render();renderImpact();if(!file)return;
   try{if(file.size>2_000_000)throw Error("Лимит 2 МБ");await loadRegistry(await file.arrayBuffer(),generation);if(generation===graphGeneration)addObservation("Загружен реестр "+registryDigest.slice(0,12))}
   catch(e){if(generation===graphGeneration)byId("graph-status").textContent="Реестр отклонён: "+e.message}
 });
-function clearEvidence(){evidence.clear();importedChecks.clear();reportDigest=null;byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
+function clearEvidence(){evidence.clear();importedChecks.clear();localGraphChecks.clear();reportDigest=null;byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
 function importReport(report){
   const expected=byId("expected-head").value.trim();
   if(!sha.test(expected)||report?.schemaVersion!==1||report.source?.revision!==expected||report.source?.dirty!==false||!["PASS","FAIL","INCOMPLETE"].includes(report.status)||!Array.isArray(report.checks)||report.checks.length>200) throw Error("Неверный SHA или формат отчёта");
@@ -117,11 +120,11 @@ byId("run-check").onclick=async()=>{
   if(!localConfig)return;
   const check=byId("check-select").value,head=localConfig.head;
   if(byId("expected-head").value.trim()!==head){byId("run-status").textContent="SHA не совпадает с runner.";return}
-  byId("run-check").disabled=true;byId("run-status").textContent="Выполняется "+check+"…";evidence.delete(check);render();
+  byId("run-check").disabled=true;byId("run-status").textContent="Выполняется "+check+"…";evidence.delete(check);localGraphChecks.delete(check);render();renderImpact();
   try{
     const response=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify({check,head})}),result=await response.json();
     if(!response.ok||result.head!==head||result.check!==check||!["PASS","FAIL","INCOMPLETE"].includes(result.status))throw Error(result.error||"receipt");
-    if(byId("expected-head").value.trim()===head){evidence.set(check,{status:result.status,origin:"локальный runner"});render()}
+    if(byId("expected-head").value.trim()===head){evidence.set(check,{status:result.status,origin:"локальный runner"});if(hex64.test(result.registrySha256??""))localGraphChecks.set(check,{status:result.status,digest:result.registrySha256});render();renderImpact()}
     byId("run-status").textContent=result.status+" · "+check+" · "+result.artifact;addObservation("Локальный набор "+check+" · "+result.status+" · "+head.slice(0,8));
   }catch(e){byId("run-status").textContent="Не подтверждено: "+e.message}
   finally{byId("run-check").disabled=false}

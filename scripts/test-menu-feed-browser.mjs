@@ -2110,6 +2110,7 @@ try {
       await upload({...reportFixture,registrySha256:"0".repeat(64)});
       await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("не совпадает"));
       assert.equal(await page.locator('#impact-map [data-status="PASS"]').count(),0);
+      assert.match(await page.locator("#cases tr").first().textContent(),/NOT_RUN/);
 
       await upload({...reportFixture,source:{revision:"b".repeat(40),dirty:false}});
       await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Отклонено"));
