@@ -249,6 +249,29 @@ function captureName(capture, viewport) {
   return `${capture.id}__${viewport.id}.png`;
 }
 
+// Diagnostic evidence only. Keep the locator screenshot and comparison gate unchanged.
+// DOM rectangles are observations around capture, not Chromium's internal clip.
+async function socialOfferGeometry(locator) {
+  return locator.evaluate((element) => {
+    const rect = (node) => {
+      const r = node.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height,
+        documentX: r.x + scrollX, documentY: r.y + scrollY };
+    };
+    const style = getComputedStyle(element);
+    return {
+      viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
+      scroll: { x: scrollX, y: scrollY },
+      documentSize: { width: document.documentElement.scrollWidth, height: document.documentElement.scrollHeight },
+      target: rect(element),
+      offset: { width: element.offsetWidth, height: element.offsetHeight },
+      style: { display: style.display, position: style.position, boxSizing: style.boxSizing,
+        transform: style.transform, fontSize: style.fontSize, lineHeight: style.lineHeight },
+      children: Array.from(element.children, child => ({ tag: child.tagName, rect: rect(child) }))
+    };
+  });
+}
+
 async function captureMatrix(browser, baseUrl, destination) {
   const captures = [];
 
@@ -299,7 +322,24 @@ async function captureMatrix(browser, baseUrl, destination) {
         } else {
           await locator.scrollIntoViewIfNeeded();
           await page.waitForTimeout(80);
+          const diagnostic = capture.id === "social-offer";
+          const observe = async () => {
+            try { return await socialOfferGeometry(locator); }
+            catch (error) { return { error: String(error.message ?? error) }; }
+          };
+          const before = diagnostic ? await observe() : null;
           await locator.screenshot({ path: filePath, animations: "disabled" });
+          if (diagnostic) {
+            const after = await observe();
+            const image = PNG.sync.read(readFileSync(filePath));
+            writeFileSync(filePath.replace(/\.png$/, ".geometry.json"), `${JSON.stringify({
+              schema: "robys.visual.social-offer-geometry.v1",
+              capture: capture.id, viewport: viewport.id,
+              method: "locator.screenshot", before, after,
+              png: { width: image.width, height: image.height },
+              internalClipObserved: false
+            }, null, 2)}\n`);
+          }
         }
       } else {
         if (capture.id === "menu-full" && capture.fullPage) await captureStableCatalogPage(page, filePath);
