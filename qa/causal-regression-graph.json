@@ -263,7 +263,8 @@
       "label": "Shared draft, product groups and ordering invariants",
       "paths": [
         "src/order-draft.js",
-        "src/order-draft.d.ts"
+        "src/order-draft.d.ts",
+        "scripts/test-order-groups.mjs"
       ],
       "dependsOn": [
         "catalog",
