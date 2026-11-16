@@ -294,3 +294,92 @@ test("all menu surfaces present feed, photos and list in the requested order", (
   for (const file of ["menu-grid.html", "menu-grid.css"]) assert.ok(sw.includes(`./${file}`));
   assert.match(sw, /if \(isMenuGrid\) return cachedPage\("menu-grid.html"\)/);
 });
+
+
+// Deterministic strength-2 covering array. Validate coverage independently
+// against every value pair in the factor domains, not just the selected rows.
+function coveringRows(factors) {
+  const all = factors.reduce((rows, values) =>
+    rows.flatMap(row => values.map(value => [...row, value])), [[]]);
+  const key = (i, value, j, other) => JSON.stringify([i, value, j, other]);
+  const keys = row => row.flatMap((value, i) =>
+    row.slice(i + 1).map((other, j) => key(i, value, i + j + 1, other)));
+  const required = new Set();
+  for (let i = 0; i < factors.length; i++) for (let j = i + 1; j < factors.length; j++)
+    for (const value of factors[i]) for (const other of factors[j]) required.add(key(i, value, j, other));
+  const remaining = new Set(required);
+  const candidates = all.map(row => ({ row, keys: keys(row) }));
+  const selected = [];
+  while (remaining.size) {
+    let best, score = 0;
+    for (const candidate of candidates) {
+      const gain = candidate.keys.filter(pair => remaining.has(pair)).length;
+      if (gain > score) { best = candidate; score = gain; }
+    }
+    assert.ok(best, "covering array cannot leave any pair uncovered");
+    selected.push(best.row);
+    for (const pair of best.keys) remaining.delete(pair);
+  }
+  assert.deepEqual(new Set(selected.flatMap(keys)), required);
+  return { rows: selected, full: all.length, pairs: required.size };
+}
+
+test("PAIRWISE: fresh menu entry respects explicit intent, history, preference and timing", async t => {
+  const factors = [
+    ["generic", "lang", "search", "anchor"], ["feed", "list", "grid", null],
+    ["navigate", "reload", "back_forward", null], ["new", "visited"], ["list", "alias", "feed"]
+  ];
+  const { rows, full, pairs } = coveringRows(factors);
+  assert.equal(full, 384);
+  assert.equal(pairs, 114);
+  assert.equal(rows.length, 18);
+  const suffixes = { generic: "", lang: "?lang=ru", search: "?q=coffee", anchor: "#desserts" };
+  const paths = { list: "menu.html", alias: "menu", feed: "menu-feed.html" };
+  let positive = 0, negative = 0;
+  for (const [entry, preference, timing, history, path] of rows) {
+    await t.test(JSON.stringify([entry, preference, timing, history, path]), () => {
+      const href = new URL(paths[path] + suffixes[entry], base).href;
+      const historyState = history === "visited" ? { robysMenuViewEntry: "list" } : null;
+      // Expected by product contract: only a fresh, unqualified list entry can redirect.
+      const expected = entry === "generic" && ["feed", null].includes(preference)
+        && timing === "navigate" && history === "new" && path !== "feed";
+      assert.equal(shouldOpenPreferredFeed(href, preference, timing, historyState), expected);
+      if (expected) positive++; else negative++;
+    });
+  }
+  assert.ok(positive > 0 && negative > 0, "positive and denial controls are required");
+  t.diagnostic(`${rows.length}/${full} combinations; ${pairs}/${pairs} distinct factor pairs`);
+});
+
+test("PAIRWISE: language, view, category, Unicode search and product intent survive URL roundtrip", async t => {
+  const { rows, full, pairs } = coveringRows([
+    ["tr", "en", "ru"], ["feed", "grid", "list"], ["all", "desserts", "hot-coffee"],
+    ["", "Чай & кофе", "tatlı"], [null, "hot-coffee:espresso", "desserts:brownie"]
+  ]);
+  assert.equal(full, 243);
+  assert.equal(pairs, 90);
+  assert.equal(rows.length, 15);
+  const paths = { feed: "/cafe/menu-feed.html", grid: "/cafe/menu-grid.html", list: "/cafe/menu.html" };
+  for (const [language, view, category, search, productId] of rows) {
+    await t.test(JSON.stringify([language, view, category, search, productId]), () => {
+      const url = new URL(menuViewUrl(base, view, { language, category, search, productId }, categories));
+      const productCategory = productId?.split(":")[0];
+      const keepProduct = !search && productId !== null && (category === "all" || category === productCategory);
+      assert.equal(url.origin, new URL(base).origin);
+      assert.equal(url.pathname, paths[view]);
+      assert.equal(url.searchParams.get("view"), view);
+      assert.equal(url.searchParams.get("lang"), language);
+      assert.equal(url.searchParams.get("q"), search || null);
+      assert.equal(url.hash, category === "all" ? "" : "#" + category);
+      assert.equal(url.searchParams.get(view === "feed" ? "item" : "product"), keepProduct ? productId : null);
+      assert.equal(url.searchParams.has(view === "feed" ? "product" : "item"), false);
+      const restored = readMenuViewContext(url.href, categories);
+      assert.equal(restored.language, language);
+      assert.equal(restored.search, search);
+      assert.equal(restored.hasSearch, Boolean(search));
+      assert.equal(restored.category, keepProduct ? productCategory : category);
+      assert.equal(restored.productId, keepProduct ? productId : null);
+    });
+  }
+  t.diagnostic(`${rows.length}/${full} combinations; ${pairs}/${pairs} distinct factor pairs`);
+});

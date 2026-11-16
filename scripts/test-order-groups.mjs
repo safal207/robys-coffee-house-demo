@@ -459,3 +459,62 @@ test("MBT: cart quantity state × command × boundary preserves unrelated lines"
   }
   assert.equal(covered.size, 96, "all declared quantity/command/input cells must execute successfully");
 });
+
+
+// Targeted, in-memory mutation controls. Never overwrite a runtime file.
+// The original module must satisfy each oracle; a mutant only counts as killed
+// by its corresponding assertion, not by a syntax/import/runtime failure.
+test("MUTATION: cart business invariant oracles kill seven deliberate defects", async t => {
+  const source = readFileSync(new URL("../src/order-draft.js", import.meta.url), "utf8");
+  const load = code => import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
+  const baseline = await load(source);
+  const add = (module, raw, items, quantity) => module.addOrderGroup(raw, items, quantity, ids);
+  const mutations = [
+    { name: "accept quantity 100", from: "export const MAX_ORDER_QUANTITY = 99;",
+      to: "export const MAX_ORDER_QUANTITY = 100;",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 100).blocked, true) },
+    { name: "reject legal quantity 99", from: "export const MAX_ORDER_QUANTITY = 99;",
+      to: "export const MAX_ORDER_QUANTITY = 98;",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 99).applied, true) },
+    { name: "accept fractional quantity", from: "Number.isInteger(value) && value > 0",
+      to: "Number.isFinite(value) && value > 0",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 1.5).blocked, true) },
+    { name: "accept zero on add", from: "value > 0 && value <= MAX_ORDER_QUANTITY",
+      to: "value >= 0 && value <= MAX_ORDER_QUANTITY",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 0).blocked, true) },
+    { name: "bypass aggregate product cap", from: "if (!positive(group.quantity) || !withinLimit(groups)) return { draft, applied: false, blocked: true };",
+      to: "if (!positive(group.quantity)) return { draft, applied: false, blocked: true };",
+      oracle: m => {
+        const full = add(m, null, [line("tea")], 99).draft;
+        const attempt = add(m, full, [line("tea"), line("cake")], 1);
+        assert.equal(attempt.blocked, true);
+        assert.deepEqual(attempt.draft, full);
+      } },
+    { name: "omit group multiplier", from: "lines.set(item.id, (lines.get(item.id) ?? 0) + item.quantity * group.quantity);",
+      to: "lines.set(item.id, (lines.get(item.id) ?? 0) + item.quantity);",
+      oracle: m => assert.deepEqual(add(m, null, [line("tea"), line("cake")], 3).draft.lines, [line("cake", 3), line("tea", 3)]) },
+    { name: "retain removed group", from: "quantity ? [{ ...group, quantity }] : []",
+      to: "quantity ? [{ ...group, quantity }] : [group]",
+      oracle: m => {
+        const original = add(m, add(m, null, [line("cake")], 2).draft, [line("tea")], 1).draft;
+        const target = original.groups.find(group => group.items[0].id === "tea");
+        const result = m.updateOrderGroupQuantity(original, target.id, 0, ids);
+        assert.equal(result.applied, true);
+        assert.deepEqual(result.draft.lines, [line("cake", 2)]);
+      } }
+  ];
+  let killed = 0;
+  for (const { name, from, to, oracle } of mutations) {
+    await t.test(name, async () => {
+      assert.doesNotThrow(() => oracle(baseline), "unmodified source must pass the same oracle");
+      assert.equal(source.split(from).length, 2, "mutation anchor must occur exactly once");
+      const mutatedSource = source.replace(from, to);
+      assert.notEqual(mutatedSource, source);
+      const mutant = await load(mutatedSource);
+      assert.throws(() => oracle(mutant), { code: "ERR_ASSERTION" }, "surviving mutant or unrelated error");
+      killed++;
+    });
+  }
+  assert.equal(killed, mutations.length);
+  t.diagnostic(`${killed}/${mutations.length} targeted mutants killed; not a repository-wide mutation score`);
+});
