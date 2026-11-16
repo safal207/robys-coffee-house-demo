@@ -708,7 +708,7 @@ test("TEMPORAL: every arrival ordering of versioned actions and delayed retries 
     async function send(event){
       const before=await f.api(`/orders/${id}?lang=en`,{guestKey:created.guestKey});
       assert.equal(before.status,200);assert.equal(before.body.order.version,version);
-      const expected=event.version<=version?200:409;
+      const expected=version===1&&event.role==="barista"?404:event.version<=version?200:409;
       // Earlier versions got there only via their unique accepted action.
       const response=await f.api(`/orders/${id}/${event.action==="pay"?"pay":"status"}?lang=en`,{method:"POST",auth:roles[event.role],body:event.action==="pay"?{version:event.version}:{version:event.version,status:event.action}});
       assert.equal(response.status,expected);
@@ -718,7 +718,7 @@ test("TEMPORAL: every arrival ordering of versioned actions and delayed retries 
       assert.equal(after.body.order.totalMinor,created.order.totalMinor);
       assert.deepEqual(after.body.order.groups,created.order.groups);
       assert.deepEqual(audit(id).map(row=>[row.action,row.from_version]),events.slice(0,version-1).map(event=>[event.action,event.version]));
-      if(expected===409)assert.deepEqual(after.body.order,before.body.order);
+      if(expected!==200)assert.deepEqual(after.body.order,before.body.order);
       if(expected===200)assert.deepEqual(response.body.order,after.body.order);
     }
     for(const event of schedule)await send(event);
