@@ -421,3 +421,41 @@ test("a pending session write never rolls back a newer canonical draft from anot
     } finally { delete globalThis.localStorage; delete globalThis.sessionStorage; }
   }
 });
+
+
+// Model-based boundary sweep: one independent tea line and an unrelated cake
+// line. The oracle is the documented 1..99 cap; zero is removal on edit only.
+test("MBT: cart quantity state × command × boundary preserves unrelated lines", async t => {
+  const states = [0, 1, 2, 50, 98, 99];
+  const inputs = [-1, 0, 1, 2, 98, 99, 100, 1.5];
+  const covered = new Set();
+  for (const quantity of states) {
+    for (const command of ["add", "edit"]) {
+      for (const input of inputs) {
+        const label = `${quantity} / ${command} / ${input}`;
+        await t.test(label, () => {
+          let before = addOrderGroup(null, [line("cake")], 2, ids).draft;
+          if (quantity) before = addOrderGroup(before, [line("tea")], quantity, ids).draft;
+          const target = before.groups.find(group => group.items.some(item => item.id === "tea"));
+          const valid = Number.isInteger(input) && (command === "add"
+            ? input >= 1 && quantity + input <= 99
+            : quantity > 0 && input >= 0 && input <= 99);
+          const expected = valid ? (command === "add" ? quantity + input : input) : quantity;
+          const snapshot = JSON.parse(JSON.stringify(before));
+          const result = command === "add"
+            ? addOrderGroup(before, [line("tea")], input, ids)
+            : updateOrderGroupQuantity(before, target?.id ?? "__absent__", input, ids);
+          assert.equal(result.applied, valid);
+          assert.equal(result.blocked, !valid);
+          assert.deepEqual(before, snapshot, "input draft must not be mutated");
+          if (!valid) assert.deepEqual(result.draft, before);
+          assert.deepEqual(result.draft.lines, [line("cake", 2), ...(expected ? [line("tea", expected)] : [])]);
+          assert.equal(result.draft.groups.length, expected ? 2 : 1);
+          assert.deepEqual(normalizeOrderDraft(JSON.parse(JSON.stringify(result.draft)), ids), result.draft);
+          covered.add(label);
+        });
+      }
+    }
+  }
+  assert.equal(covered.size, 96, "all declared quantity/command/input cells must execute successfully");
+});

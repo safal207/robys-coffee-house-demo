@@ -598,3 +598,89 @@ test("both roles retain the oldest 200 active orders and only the latest 30 issu
   assert.equal((await f.api(`/orders/${issued[5].id}`, { auth: renewed })).body.order.status, "issued");
   assert.equal((await f.api(`/orders/${first.order.id}`, { guestKey: first.guestKey })).body.order.status, "issued");
 });
+
+
+// Independent, contract-derived oracle: current-version actions only.
+// A fresh order per row prevents a successful transition masking later rows.
+test("MBT: every Counter state × actor × command preserves business invariants", async t => {
+  const f = await fixture(t, { rateLimits: { create: { max: 100 } } });
+  const actors = { cashier: await f.login("cashier"), barista: await f.login("barista") };
+  const states = ["awaiting_payment", "preparing", "ready", "issued"];
+  const commands = ["pay", "ready", "issued"];
+  const rules = {
+    cashier: [[200, 409, 409], [409, 200, 409], [409, 409, 200], [409, 409, 409]],
+    barista: [[403, 404, 404], [403, 200, 409], [403, 409, 200], [403, 409, 409]],
+    guest: states.map(() => [401, 401, 401]),
+    anonymous: states.map(() => [401, 401, 401])
+  };
+  const next = { pay: "preparing", ready: "ready", issued: "issued" };
+  function request(id, actor, command, version, guestKey) {
+    return f.api(`/orders/${id}/${command === "pay" ? "pay" : "status"}?lang=en`, {
+      method: "POST", auth: actors[actor], guestKey: actor === "guest" ? guestKey : undefined,
+      body: command === "pay" ? { version } : { version, status: command }
+    });
+  }
+  async function read(id, guestKey) {
+    const response = await f.api(`/orders/${id}?lang=en`, { guestKey });
+    assert.equal(response.status, 200);
+    return response.body.order;
+  }
+  function audit(id) {
+    const db = new DatabaseSync(f.dbPath);
+    try {
+      return db.prepare("SELECT action,from_version,actor_role FROM audit WHERE order_id=? ORDER BY id").all(id);
+    } finally { db.close(); }
+  }
+  const covered = new Set();
+  for (const [index, state] of states.entries()) {
+    for (const [actor, rows] of Object.entries(rules)) {
+      for (const [column, command] of commands.entries()) {
+        const label = `${state} / ${actor} / ${command}`;
+        await t.test(label, async () => {
+          const created = await f.create();
+          assert.equal(created.status, 201);
+          const { id } = created.order, { guestKey } = created;
+          for (let i = 0; i < index; i++) {
+            const response = await request(id, "cashier", commands[i], i + 1, guestKey);
+            assert.equal(response.status, 200);
+            assert.equal(response.body.order.status, states[i + 1]);
+          }
+          const before = await read(id, guestKey), history = audit(id);
+          assert.equal(before.status, state);
+          assert.equal(before.version, index + 1);
+          assert.equal(history.length, index);
+          const expected = rows[index][column];
+          const response = await request(id, actor, command, before.version, guestKey);
+          assert.equal(response.status, expected, label);
+          const after = await read(id, guestKey), afterHistory = audit(id);
+          if (expected !== 200) {
+            assert.deepEqual(after, before, "denied command cannot mutate an order");
+            assert.deepEqual(afterHistory, history, "denied command cannot append an audit event");
+            assert.equal(response.body.error, expected === 401 ? "unauthorized" :
+              expected === 403 ? "forbidden" : expected === 404 ? "order_not_found" : "invalid_transition");
+            assert.equal(Object.hasOwn(response.body, "order"), false);
+          } else {
+            assert.deepEqual(response.body.order, after);
+            assert.equal(after.status, next[command]);
+            assert.equal(after.version, before.version + 1);
+            assert.equal(after.id, before.id);
+            assert.equal(after.number, before.number);
+            assert.equal(after.totalMinor, before.totalMinor);
+            assert.equal(after.currency, before.currency);
+            assert.deepEqual(after.groups, before.groups);
+            assert.equal(after.createdAt, before.createdAt);
+            if (command === "pay") assert.equal(typeof after.paidAt, "number");
+            else assert.equal(after.paidAt, before.paidAt);
+            assert.equal(afterHistory.length, history.length + 1);
+            assert.deepEqual(afterHistory.slice(0, -1), history);
+            assert.equal(afterHistory.at(-1).action, command);
+            assert.equal(afterHistory.at(-1).from_version, before.version);
+            assert.equal(afterHistory.at(-1).actor_role, actor);
+          }
+          covered.add(label);
+        });
+      }
+    }
+  }
+  assert.equal(covered.size, 48, "all declared state/actor/action cells must execute successfully");
+});
