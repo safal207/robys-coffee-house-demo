@@ -210,6 +210,7 @@
         "src/menu-feed-engagement.js",
         "docs/prototypes/coffee-club/**",
         "scripts/test-coffee-club-prototype.mjs",
+        "scripts/test-robys-sounds.mjs",
         "src/menu-feed-collections.js",
         "src/menu-feed-viewer.js",
         "src/menu-feed-viewer-entry.js",
