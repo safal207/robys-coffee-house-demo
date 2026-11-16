@@ -6,7 +6,7 @@ fresh, study, cozy and friends. This is visual atmosphere only;
 genre descriptions are not playlist titles or listening recommendations
 from either provider. No real audio, play control, embeds, links, accounts,
 OAuth, SDK, listening history, telemetry or new dependencies.
-Selection is in memory until reload.
+Selection stays in memory unless explicitly saved on this device.
 
 Spotify and Yandex Music remain disabled. Confirm commercial permissions,
 region, playlist URL ownership and owner approval before implementing
@@ -31,6 +31,20 @@ pairing. No device app detection, listening history, provider data, or
 external recommendations. All suggestions use existing catalog IDs and
 are not verified stock or personalized prices. Four presentations affect
 only the local Sounds shelf; ordinary full menu stays unchanged.
-Reset restores initial choices. No persistence, provider connection,
-identity or network submission. Automated model tests cover combinations,
+Reset restores initial choices. Provider connection, identity and network
+submission remain disabled. Automated model tests cover combinations,
 unknown fields and missing catalog items. Browser QA still required.
+
+## My Roby's — explicit device look
+
+Optional save stores only one versioned record: mood, music style, layout
+and save time in a dedicated browser key. It is restored on load when
+valid and under 30 days old. Invalid/expired records are ignored, not
+physically removed automatically; explicit Forget removes the key and
+resets the view. Reset alone changes the current view, not saved settings.
+No auto-save, browsing/track history, identity, network or synchronization.
+Shared-device notice and all controls use TR/EN/RU. Storage failure leaves
+session controls usable and reports failure without claiming persistence.
+This preference is separate from existing menu likes and BiteOS memory;
+it is not a unified account. No marketing consent or provider rights.
+Browser acceptance and exact-head CI remain required.
