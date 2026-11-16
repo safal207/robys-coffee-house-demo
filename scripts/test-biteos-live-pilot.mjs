@@ -52,3 +52,26 @@ test("asset reads use one descriptor and reject links, directories and root esca
   }
  }finally{rmSync(dir,{recursive:true,force:true})}
 });
+
+test("acquisition registry generates distinct planning-only links without changing v1 contract", async()=>{
+ const {planningLinks,matchPlannedLink}=await import("./biteos-acquisition-plan.mjs");
+ const {classifyEntry}=await import("./biteos-pilot-contract.mjs");
+ const links=planningLinks();
+ assert.equal(links.length,9);
+ assert.equal(new Set(links.map(x=>x.url)).size,9);
+ assert.equal(links.filter(x=>x.purpose==="acquisition").length,8);
+ for(const link of links){
+  assert.equal(matchPlannedLink(link.url).id,link.id);
+  assert.equal(link.collectionEnabled,false);
+  assert.equal(link.legacyPlacementSupported,false);
+  assert.equal(matchPlannedLink(link.url+"&utm_content=other"),null);
+  assert.equal(matchPlannedLink(link.url+"&email=private"),null);
+  assert.equal(matchPlannedLink(link.url.replace("https://","http://")),null);
+ }
+ const yandex=links.find(x=>x.source==="yandex");
+ assert.equal(yandex.v1Compatible,false);
+ assert.equal(classifyEntry(yandex.url).source,"unknown");
+ const tg=links.filter(x=>x.source==="telegram");
+ assert.equal(new Set(tg.map(x=>x.content)).size,4);
+ assert.deepEqual(classifyEntry(tg[0].url),classifyEntry(tg[1].url));
+});
