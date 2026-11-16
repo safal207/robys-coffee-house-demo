@@ -383,3 +383,27 @@ test("PAIRWISE: language, view, category, Unicode search and product intent surv
   }
   t.diagnostic(`${rows.length}/${full} combinations; ${pairs}/${pairs} distinct factor pairs`);
 });
+
+
+test("QA runner isolates loopback and validates exact head and allowlisted selection", async t => {
+  const { createWorkbenchServer } = await import("../.github/qa/local-runner.mjs");
+  const head="a".repeat(40), calls=[];
+  const server=createWorkbenchServer({getHead:()=>head,run:async(check,revision)=>{
+    calls.push([check,revision]);return {check,head:revision,status:"PASS",artifact:".artifacts/test-only"};
+  }});
+  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
+  t.after(()=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections?.()}));
+  const origin="http://127.0.0.1:"+server.address().port;
+  const config=await (await fetch(origin+"/api/config")).json();
+  assert.equal(config.head,head);
+  const post=(data,token=config.token,source=origin)=>fetch(origin+"/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":token,Origin:source},body:JSON.stringify(data)});
+  assert.equal((await post({check:"counter-contracts",head},"wrong")).status,403);
+  assert.equal((await post({check:"counter-contracts",head},config.token,"https://evil.test")).status,403);
+  assert.equal((await post({check:"arbitrary-command",head})).status,400);
+  assert.equal((await post({check:"counter-contracts",head,command:"not allowed"})).status,400);
+  assert.equal((await post({check:"counter-contracts",head:"b".repeat(40)})).status,409);
+  assert.deepEqual(calls,[]);
+  const good=await post({check:"counter-contracts",head});
+  assert.equal(good.status,200);assert.equal((await good.json()).status,"PASS");
+  assert.deepEqual(calls,[["counter-contracts",head]]);
+});

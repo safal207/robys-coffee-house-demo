@@ -2,7 +2,9 @@
 *{box-sizing:border-box}body{margin:0;background:#101820;color:#eef3f7;font:15px/1.5 system-ui,sans-serif}main{max-width:1040px;margin:auto;padding:24px}small,p{color:#b8c5d0}h1{font-size:clamp(24px,5vw,36px)}section{background:#1b2732;border:1px solid #354555;border-radius:16px;padding:18px;margin:16px 0}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}.step{border:1px solid #526473;border-radius:10px;padding:12px;overflow-wrap:anywhere}.active{border:2px solid #69d6ad;background:#15382e}.step small{display:block}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,input,select{font:inherit;color:inherit;background:#101820;border:1px solid #526473;border-radius:8px;padding:9px 12px}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #69d6ad}#result{border-left:3px solid #f3c681;padding-left:12px}#history{max-height:145px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:9px 5px;text-align:left;border-bottom:1px solid #354555;vertical-align:top}.table-wrap{overflow:auto}#filter{width:100%;margin:8px 0}@media(max-width:650px){main{padding:12px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}section{padding:14px}}
 </style></head><body><main><small>ROBY’S / QA LAB</small><h1>Диаграмма переходов состояний</h1><p>Локальная модель Counter. Нет реальных заказов, оплаты и сетевых запросов. Не является CI-доказательством.</p>
 <section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
-<section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
+<label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
 <script>
 "use strict";
 const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
@@ -12,6 +14,60 @@ function draw(){byId("current").textContent=states[state];byId("steps").replaceC
 function act(command){const role=byId("role").value,previous=state,code=rules[role][state][commands.indexOf(command)];if(code===200){state++;version++}const msg=code+" · "+states[previous]+" → "+states[state]+" · v"+version;byId("result").textContent=msg;const li=document.createElement("li");li.textContent=role+" / "+command+" / "+msg;byId("history").prepend(li);draw()}
 byId("pay").onclick=()=>act("pay");byId("ready").onclick=()=>act("ready");byId("issue").onclick=()=>act("issued");byId("reset").onclick=()=>{state=0;version=1;byId("history").replaceChildren();byId("result").textContent="Модель сброшена.";draw()};
 const cases=[["ST-01","Ожидание → приготовление","200, версия +1"],["ST-02","Ожидание → выдача","409, без изменений"],["ST-03","Бариста → оплата","403"],["ST-04","Повтор оплаты","Без дубля"],["PAG-01","8 → 16 → … → 63","Уникальные ID, последняя порция 7"],["PAG-02","Конец → пустой поиск → сброс","0 → 8"],["PAG-03","Scroll → автоматическая загрузка","Следующая порция"],["PAG-04","200 активных → выдача первого","Следующий заказ виден"],["CART-01","98 + 2","Отказ, остаётся 98"],["CART-02","Количество 0","Удалить выбранную группу"],["QR-01","Изменение после QR","Новый QR"]];
-function render(){const term=byId("filter").value.toLowerCase();byId("cases").replaceChildren(...cases.filter(row=>row.join(" ").toLowerCase().includes(term)).map(row=>{const tr=document.createElement("tr");for(const value of [...row,"CI: не загружено"]){const td=document.createElement("td");td.textContent=value;tr.append(td)}return tr}))}
-byId("filter").addEventListener("input",render);draw();render();
+const suiteFor=id=>id.startsWith("ST-")||id==="PAG-04"?"counter-contracts":id.startsWith("PAG-")?"menu-feed-browser":"source-contracts";
+const statuses=new Set(["PASS","FAIL","INCOMPLETE","STALE","NOT_RUN","NOT_SELECTED","SEE_TIMINGS"]);
+const allowedSuites=new Set(["counter-contracts","menu-feed-browser","source-contracts"]);
+const sha=/^[a-f0-9]{40}$/; let evidence=new Map(), localConfig=null;
+function render(){
+  const term=byId("filter").value.toLowerCase();
+  byId("cases").replaceChildren(...cases.filter(row=>row.join(" ").toLowerCase().includes(term)).map(row=>{
+    const tr=document.createElement("tr"),suite=suiteFor(row[0]),entry=evidence.get(suite);
+    for(const value of [...row,suite+" · "+(entry?entry.status+" ("+entry.origin+"; набор)":"NOT_RUN")]){
+      const td=document.createElement("td");td.textContent=value;tr.append(td);
+    }return tr;
+  }));
+}
+function clearEvidence(){evidence.clear();byId("evidence-status").textContent="Нет доказательств.";render()}
+function importReport(report){
+  const expected=byId("expected-head").value.trim();
+  if(!sha.test(expected)||report?.schemaVersion!==1||report.source?.revision!==expected||report.source?.dirty!==false||!["PASS","FAIL","INCOMPLETE"].includes(report.status)||!Array.isArray(report.checks)||report.checks.length>200) throw Error("Неверный SHA или формат отчёта");
+  const result=new Map(), seen=new Set();
+  for(const check of report.checks){
+    if(!check||typeof check.id!=="string"||seen.has(check.id)||!statuses.has(check.status)||typeof check.selected!=="boolean"||(check.status==="PASS"&&check.selected!==true)) throw Error("Некорректный или повторный результат");
+    seen.add(check.id);if(allowedSuites.has(check.id))result.set(check.id,{status:check.status,origin:"импорт CI"});
+  }
+  evidence=result;byId("evidence-status").textContent="Импортирован отчёт "+report.status+" · "+expected.slice(0,8)+" · подлинность файла не проверяется";render();
+}
+byId("expected-head").addEventListener("input",clearEvidence);
+byId("clear-evidence").onclick=()=>{byId("report-file").value="";clearEvidence()};
+byId("report-file").addEventListener("change",async()=>{
+  clearEvidence();const file=byId("report-file").files[0];if(!file)return;
+  const headAtStart=byId("expected-head").value;try{
+    if(file.size>2_000_000)throw Error("Лимит 2 МБ");
+    const report=JSON.parse(await file.text());if(headAtStart!==byId("expected-head").value||byId("report-file").files[0]!==file)return;
+    importReport(report);
+  }catch(e){clearEvidence();byId("evidence-status").textContent="Отклонено: "+e.message}
+});
+async function connect(){
+  if(location.protocol!=="http:"||location.hostname!=="127.0.0.1"||location.pathname!=="/")return;
+  try{
+    const response=await fetch("/api/config"),config=await response.json();
+    if(!response.ok||!sha.test(config.head)||typeof config.token!=="string")throw Error("config");
+    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("run-status").textContent="Локальный runner подключён.";
+  }catch{byId("run-status").textContent="Runner недоступен."}
+}
+byId("run-check").onclick=async()=>{
+  if(!localConfig)return;
+  const check=byId("check-select").value,head=localConfig.head;
+  if(byId("expected-head").value.trim()!==head){byId("run-status").textContent="SHA не совпадает с runner.";return}
+  byId("run-check").disabled=true;byId("run-status").textContent="Выполняется "+check+"…";evidence.delete(check);render();
+  try{
+    const response=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify({check,head})}),result=await response.json();
+    if(!response.ok||result.head!==head||result.check!==check||!["PASS","FAIL","INCOMPLETE"].includes(result.status))throw Error(result.error||"receipt");
+    if(byId("expected-head").value.trim()===head){evidence.set(check,{status:result.status,origin:"локальный runner"});render()}
+    byId("run-status").textContent=result.status+" · "+check+" · "+result.artifact;
+  }catch(e){byId("run-status").textContent="Не подтверждено: "+e.message}
+  finally{byId("run-check").disabled=false}
+};
+byId("filter").addEventListener("input",render);draw();render();void connect();
 </script></body></html>

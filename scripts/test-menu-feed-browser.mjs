@@ -2089,6 +2089,17 @@ try {
       assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
       await page.locator("#filter").fill("PAG-");
       assert.equal(await page.locator("#cases tr").count(),4);
+      const sha="a".repeat(40);
+      await page.locator("#expected-head").fill(sha);
+      const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
+      const upload=async report=>page.locator("#report-file").setInputFiles({name:"report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(report))});
+      await upload(reportFixture);
+      await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Импортирован"));
+      assert.match(await page.locator("#cases tr").first().textContent(),/PASS.*импорт CI/);
+      await upload({...reportFixture,source:{revision:"b".repeat(40),dirty:false}});
+      await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Отклонено"));
+      assert.match(await page.locator("#cases tr").first().textContent(),/NOT_RUN/);
+      assert.equal(await page.locator("#run-check").isDisabled(),true,"Standalone browser cannot execute host commands");
       await page.locator("#filter").fill("impossible-case");
       assert.equal(await page.locator("#cases tr").count(),0);
       assert.deepEqual(errors,[]);
