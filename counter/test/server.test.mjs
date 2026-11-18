@@ -770,7 +770,7 @@ test("PROPERTY: 12 deterministic Counter command streams enforce version, role a
     assert.equal(created.status,201);
     const history=[],initial=created.order,phase=i%4;
     const read=async()=>{const r=await f.api(`/orders/${id}?lang=en`,{guestKey});assert.equal(r.status,200);return r.body.order};
-    const audit=()=>{const db=new DatabaseSync(f.dbPath);try{return db.prepare("SELECT action,from_version,actor_role FROM audit WHERE order_id=? ORDER BY id").all(id)}finally{db.close()}};
+    const audit=()=>{const db=new DatabaseSync(f.dbPath);try{return db.prepare("SELECT action,from_version,actor_role FROM audit WHERE order_id=? ORDER BY id").all(id).map(row=>({...row}))}finally{db.close()}};
     for(let bootstrap=0;bootstrap<phase;bootstrap++){
       const action=commands[bootstrap],version=bootstrap+1;
       const r=await f.api(`/orders/${id}/${action==="pay"?"pay":"status"}`,{
@@ -842,7 +842,7 @@ test("CHAOS: network outage, lost reply and restart do not duplicate payment or 
     }
     const db=new DatabaseSync(f.dbPath);
     try{
-      assert.deepEqual(db.prepare("SELECT action,from_version FROM audit WHERE order_id=? ORDER BY id").all(id),
+      assert.deepEqual(db.prepare("SELECT action,from_version FROM audit WHERE order_id=? ORDER BY id").all(id).map(row=>({...row})),
         events.map(event=>({action:event.action,from_version:event.version})));
       assert.equal(db.prepare("SELECT COUNT(*) AS count FROM orders WHERE id=? AND paid_at IS NOT NULL").get(id).count,1);
     }finally{db.close()}
