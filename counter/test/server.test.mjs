@@ -755,3 +755,96 @@ test("TEMPORAL: all acknowledged transitions survive restart and delayed retries
     assert.equal(rows[0].at,paidAt);assert(rows.every((row,i)=>i===0||row.at>rows[i-1].at));
   }finally{db.close()}
 });
+
+
+// Seeded model-based sequences over the real HTTP service + SQLite audit.
+// Every step checks persisted state, not just the response code.
+test("PROPERTY: 12 deterministic Counter command streams enforce version, role and audit invariants", async t=>{
+  const seeded=seed=>{let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return x>>>0;}};
+  const states=["awaiting_payment","preparing","ready","issued"];
+  const commands=["pay","ready","issued"];
+  for(let i=0;i<12;i++)await t.test("seed="+(0xCAFE+i),async tc=>{
+    const random=seeded(0xCAFE+i),f=await fixture(tc);
+    const actors={cashier:await f.login("cashier"),barista:await f.login("barista")};
+    const created=await f.create(),id=created.order.id,guestKey=created.guestKey;
+    assert.equal(created.status,201);
+    const history=[],initial=created.order,phase=i%4;
+    const read=async()=>{const r=await f.api(`/orders/${id}?lang=en`,{guestKey});assert.equal(r.status,200);return r.body.order};
+    const audit=()=>{const db=new DatabaseSync(f.dbPath);try{return db.prepare("SELECT action,from_version,actor_role FROM audit WHERE order_id=? ORDER BY id").all(id)}finally{db.close()}};
+    for(let bootstrap=0;bootstrap<phase;bootstrap++){
+      const action=commands[bootstrap],version=bootstrap+1;
+      const r=await f.api(`/orders/${id}/${action==="pay"?"pay":"status"}`,{
+        method:"POST",auth:actors.cashier,body:action==="pay"?{version}:{version,status:action}
+      });
+      assert.equal(r.status,200);history.push({action,from_version:version,actor_role:"cashier"});
+    }
+    for(let step=0;step<18;step++){
+      const role=random()%2?"barista":"cashier",command=commands[random()%3];
+      const before=await read(),version=random()%3===0?before.version:1+(random()%5);
+      const duplicate=history.some(row=>row.action===command&&row.from_version===version);
+      const expected=command==="pay"&&role==="barista"?403
+        :before.status==="awaiting_payment"&&role==="barista"?404
+        :duplicate?200:version!==before.version?409
+        :(command==="pay"&&before.status==="awaiting_payment"
+          ||command==="ready"&&before.status==="preparing"
+          ||command==="issued"&&before.status==="ready")?200:409;
+      const acceptedNew=expected===200&&!duplicate;
+      const response=await f.api(`/orders/${id}/${command==="pay"?"pay":"status"}`,{
+        method:"POST",auth:actors[role],body:command==="pay"?{version}:{version,status:command}
+      });
+      assert.equal(response.status,expected,`seed=${0xCAFE+i}, step=${step}, role=${role}, action=${command}, version=${version}`);
+      const after=await read();
+      if(acceptedNew)history.push({action:command,from_version:version,actor_role:role});
+      assert.equal(after.version,1+history.length);
+      assert.equal(after.status,states[history.length]);
+      if(!acceptedNew)assert.deepEqual(after,before,"failed or duplicate requests must not mutate the order");
+      if(expected===200)assert.deepEqual(response.body.order,after);
+      else assert.equal(Object.hasOwn(response.body,"order"),false);
+      assert.equal(after.totalMinor,initial.totalMinor);assert.equal(after.currency,initial.currency);
+      assert.deepEqual(after.groups,initial.groups);assert.equal(after.createdAt,initial.createdAt);
+      assert.deepEqual(audit(),history);
+    }
+  });
+  t.diagnostic("216 deterministic HTTP command operations across 12 isolated SQLite fixtures");
+});
+
+test("CHAOS: network outage, lost reply and restart do not duplicate payment or reorder audit",async t=>{
+  const events=[{action:"pay",role:"cashier",version:1,state:"preparing"},
+    {action:"ready",role:"barista",version:2,state:"ready"},
+    {action:"issued",role:"barista",version:3,state:"issued"}];
+  // Each case has an isolated counter and database. No live network, real
+  // payment provider, disk corruption or production dependency is touched.
+  for(const outageAt of [0,1,2])await t.test("outage-before-"+events[outageAt].action,async tc=>{
+    const f=await fixture(tc),auth={cashier:await f.login("cashier"),barista:await f.login("barista")};
+    const created=await f.create(),id=created.order.id;let paidAt=null;
+    const write=event=>f.api(`/orders/${id}/${event.action==="pay"?"pay":"status"}`,{
+      method:"POST",auth:auth[event.role],body:event.action==="pay"?{version:event.version}:{version:event.version,status:event.action}});
+    for(const [i,event] of events.entries()){
+      if(i===outageAt){
+        await f.stop();
+        await assert.rejects(()=>write(event),"A disconnected service must reject the request");
+        await f.start();
+        const unchanged=await f.api(`/orders/${id}`,{guestKey:created.guestKey});
+        assert.equal(unchanged.body.order.version,event.version);
+      }
+      // Simulate a committed write whose HTTP response is not consumed by
+      // the client. A fresh session must reconcile before any retry.
+      const acknowledged=await write(event);
+      assert.equal(acknowledged.status,200);
+      if(i===0)paidAt=acknowledged.body.order.paidAt;
+      await f.stop();await f.start();
+      const observed=await f.api(`/orders/${id}`,{guestKey:created.guestKey});
+      assert.equal(observed.status,200);assert.equal(observed.body.order.version,event.version+1);
+      assert.equal(observed.body.order.status,event.state);assert.equal(observed.body.order.paidAt,paidAt);
+      assert.equal(observed.body.order.totalMinor,created.order.totalMinor);
+      const retry=await write(event);
+      assert.equal(retry.status,200);assert.deepEqual(retry.body.order,observed.body.order);
+    }
+    const db=new DatabaseSync(f.dbPath);
+    try{
+      assert.deepEqual(db.prepare("SELECT action,from_version FROM audit WHERE order_id=? ORDER BY id").all(id),
+        events.map(event=>({action:event.action,from_version:event.version})));
+      assert.equal(db.prepare("SELECT COUNT(*) AS count FROM orders WHERE id=? AND paid_at IS NOT NULL").get(id).count,1);
+    }finally{db.close()}
+  });
+});

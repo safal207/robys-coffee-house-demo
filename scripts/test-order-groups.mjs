@@ -518,3 +518,41 @@ test("MUTATION: cart business invariant oracles kill seven deliberate defects", 
   assert.equal(killed, mutations.length);
   t.diagnostic(`${killed}/${mutations.length} targeted mutants killed; not a repository-wide mutation score`);
 });
+
+
+// Dependency-free property-based sequences. Each seed deterministically
+// generates the same operations; the oracle is independent of the draft
+// implementation's group ID and normalization logic.
+test("PROPERTY: 32 seeded × 80 cart commands preserve quantities, unrelated lines, and atomic rejection", async t => {
+  const seeds=Array.from({length:32},(_,i)=>0x520000+i*109);
+  const products=["tea","coffee","cake"], boundaries=[-1,0,1,2,3,49,98,99,100,1.5,null];
+  const seeded=seed=>{let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return x>>>0;}};
+  for(const seed of seeds)await t.test("seed="+seed,()=>{
+    const random=seeded(seed), expected=new Map(products.map(id=>[id,0]));
+    let draft=normalizeOrderDraft(null,ids);
+    for(let step=0;step<80;step++){
+      const id=products[random()%products.length],input=boundaries[random()%boundaries.length];
+      const command=random()%3, before=JSON.parse(JSON.stringify(draft));
+      const previous=expected.get(id),target=draft.groups.find(g=>g.items.length===1&&g.items[0].id===id);
+      const valid=command===0?Number.isInteger(input)&&input>0&&input<=99&&previous+input<=99
+        :Number.isInteger(input)&&input>=0&&input<=99&&previous>0;
+      const next=command===0?previous+input:command===1?input:0;
+      const result=command===0?addOrderGroup(draft,[line(id)],input,ids)
+        :updateOrderGroupQuantity(draft,target?.id??"missing-group",command===2?0:input,ids);
+      const applied=command===2?previous>0:valid;
+      assert.equal(result.applied,applied,`seed=${seed}, step=${step}, cmd=${command}, id=${id}, input=${input}`);
+      assert.equal(result.blocked,!applied);
+      assert.deepEqual(draft,before,"updater may not mutate the previous snapshot");
+      if(applied)expected.set(id,command===2?0:next);
+      else assert.deepEqual(result.draft,draft,"rejected operation must be atomic");
+      draft=result.draft;
+      const lines=[...expected].filter(([,qty])=>qty>0).map(([key,quantity])=>line(key,quantity))
+        .sort((a,b)=>a.id.localeCompare(b.id,"en"));
+      assert.deepEqual(draft.lines,lines,`seed=${seed}, step=${step}`);
+      assert.equal(draft.groups.length,lines.length);
+      assert(draft.lines.every(entry=>Number.isInteger(entry.quantity)&&entry.quantity>0&&entry.quantity<=99));
+      assert.deepEqual(normalizeOrderDraft(JSON.parse(JSON.stringify(draft)),ids),draft);
+    }
+  });
+  t.diagnostic("2,560 generated cart operations; fixed seeds and independent line-quantity oracle");
+});
