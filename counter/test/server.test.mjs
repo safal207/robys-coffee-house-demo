@@ -789,7 +789,7 @@ test("PROPERTY: 12 deterministic Counter command streams enforce version, role a
           ||command==="ready"&&before.status==="preparing"
           ||command==="issued"&&before.status==="ready")?200:409;
       const acceptedNew=expected===200&&!duplicate;
-      const response=await f.api(`/orders/${id}/${command==="pay"?"pay":"status"}`,{
+      const response=await f.api(`/orders/${id}/${command==="pay"?"pay":"status"}?lang=en`,{
         method:"POST",auth:actors[role],body:command==="pay"?{version}:{version,status:command}
       });
       assert.equal(response.status,expected,`seed=${0xCAFE+i}, step=${step}, role=${role}, action=${command}, version=${version}`);
