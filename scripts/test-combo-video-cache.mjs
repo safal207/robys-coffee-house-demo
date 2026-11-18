@@ -49,7 +49,7 @@ test("on-demand combo and pairing videos preserve Range requests outside the cac
     const call = fetched.at(-1);
     assert.equal(call.request, request);
     assert.equal(call.request.headers.get("range"), "bytes=0-3");
-    assert.equal(call.options.cache, "no-store");
+    assert.equal(call.options, undefined, "Preview video must use normal browser caching without overriding Request cache policy");
   }
 });
 
