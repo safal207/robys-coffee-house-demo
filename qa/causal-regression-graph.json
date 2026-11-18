@@ -619,6 +619,7 @@
       "label": "Static route metadata, manifest and served digest identity",
       "paths": [
         "404.html",
+        "not-found.js",
         "robots.txt",
         "sitemap.xml",
         "ru/*.html",
