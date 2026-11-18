@@ -106,9 +106,14 @@ try {
     0,
     "Cached homepage must not revive the install offer"
   );
-  await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
-  await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
-  assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
+  // An unknown offline navigation must be an explicit unavailable response.
+  // A cached 404 page with HTTP 200 would disguise both network failures and
+  // real missing routes as a successful page.
+  const missing = await page.goto(`${baseUrl}/missing-offline-check?lang=ru`, { waitUntil: "domcontentloaded" });
+  assert.equal(missing?.status(), 503, "Unknown offline route must return 503, not a soft-404");
+  assert.match(await page.locator("body").innerText(), /Нет подключения к сети/i);
+  assert.equal(await page.locator(".offline-code").count(), 0,
+    "Unknown offline routes should not masquerade as a cached HTML error page");
 
   await page.goto(`${baseUrl}/menu.html?view=list`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
