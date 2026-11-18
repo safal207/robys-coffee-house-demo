@@ -2122,6 +2122,26 @@ try {
       const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},registrySha256:digest,status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
       await page.locator("#graph-file").setInputFiles({name:"graph.json",mimeType:"application/json",buffer:registryBytes});
       await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("Реестр загружен"));
+      const directEvidence={head:sha,engine:"chromium",runtimeSha256:"f".repeat(64),cases:[
+        {case:"pagination-manual-full-catalog-and-reset",result:"PASS"},
+        {case:"pagination-native-observer",result:"FAIL"}]};
+      const uploadCases=async result=>page.locator("#case-evidence-file").setInputFiles({
+        name:"chromium-report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(result))});
+      await uploadCases(directEvidence);
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("Импортировано"));
+      assert.match((await page.locator("#cases tr").first().textContent()),/CASE PASS/);
+      await page.locator("#impact-check").selectOption("case:PAG-03");
+      assert.equal(await page.locator('#impact-map [data-status="FAIL"]').count(),1);
+      assert.ok(await page.locator('#impact-map [data-status="RISK"]').count()>0);
+      await uploadCases({...directEvidence,head:"b".repeat(40)});
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("отклонён"));
+      assert.match((await page.locator("#cases tr").first().textContent()),/NOT_RUN/);
+      await uploadCases({...directEvidence,cases:[...directEvidence.cases,directEvidence.cases[0]]});
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("отклонён"));
+      await uploadCases(directEvidence);
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("Импортировано"));
+      await page.locator("#impact-check").selectOption("case:ST-01");
+      assert.equal(await page.locator('#impact-map [data-status="FAIL"]').count(),0);
       await page.locator("#impact-check").selectOption("menu-feed-browser");
       const upload=async report=>page.locator("#report-file").setInputFiles({name:"report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(report))});
       await upload(reportFixture);

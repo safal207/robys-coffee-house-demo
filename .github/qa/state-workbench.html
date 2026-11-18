@@ -4,7 +4,7 @@
 <section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
 <section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
 <label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
-<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор для расследования</label><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
 <script>
 "use strict";
 const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
@@ -17,13 +17,23 @@ const cases=[["ST-01","Ожидание → приготовление","200, в
 const suiteFor=id=>id.startsWith("ST-")||id==="PAG-04"||id==="PROP-API"||id.startsWith("CHAOS-")?"counter-contracts":id.startsWith("PAG-")?"menu-feed-browser":"source-contracts";
 const statuses=new Set(["PASS","FAIL","INCOMPLETE","STALE","NOT_RUN","NOT_SELECTED","SEE_TIMINGS"]);
 const allowedSuites=new Set(["counter-contracts","menu-feed-browser","source-contracts"]);
-const sha=/^[a-f0-9]{40}$/; let evidence=new Map(), localConfig=null;
+const caseWitnesses={"PAG-01":"pagination-manual-full-catalog-and-reset","PAG-02":"pagination-manual-full-catalog-and-reset","PAG-03":"pagination-native-observer"};
+const caseComponents={
+  "ST-01":["counter-service","counter-staff"],"ST-02":["counter-service","counter-staff"],
+  "ST-03":["counter-auth","counter-service"],"ST-04":["counter-service"],
+  "PAG-01":["menu-feed","catalog"],"PAG-02":["menu-feed","catalog"],"PAG-03":["menu-feed"],
+  "PAG-04":["counter-service","counter-staff"],
+  "CART-01":["order-model","order-ui"],"CART-02":["order-model","order-ui"],
+  "QR-01":["ticket-qr","checkout"],"PROP-CART":["order-model"],
+  "PROP-API":["counter-service"],"CHAOS-01":["counter-service","counter-auth"]
+};
+const sha=/^[a-f0-9]{40}$/; let evidence=new Map(), caseEvidence=new Map(), localConfig=null;
 function render(){
   const term=byId("filter").value.toLowerCase();
   byId("cases").replaceChildren(...cases.filter(row=>row.join(" ").toLowerCase().includes(term)).map(row=>{
-    const tr=document.createElement("tr"),suite=suiteFor(row[0]),entry=evidence.get(suite);
+    const tr=document.createElement("tr"),suite=suiteFor(row[0]),entry=evidence.get(suite),direct=caseEvidence.get(row[0]);
     const usable=entry&&!(entry.origin==="импорт CI"&&registryDigest&&reportDigest!==registryDigest);
-    for(const value of [...row,suite+" · "+(usable?entry.status+" ("+entry.origin+"; набор)":"NOT_RUN")]){
+    for(const value of [...row,suite+" · "+(direct?"CASE "+direct.result+" ("+direct.witness+"; импорт)":usable?"SUITE "+entry.status+" ("+entry.origin+"; не кейс)":"NOT_RUN")]){
       const td=document.createElement("td");td.textContent=value;tr.append(td);
     }return tr;
   }));
@@ -63,19 +73,22 @@ function renderImpact(){
   const resultFor=id=>matched&&importedChecks.has(id)?importedChecks.get(id):localFor(id)??"NOT_RUN";
   byId("graph-status").textContent=matched?"SHA-256 реестра совпадает с импортированным отчётом. Подлинность файла не проверена.":reportDigest?"SHA-256 реестра не совпадает: статусы скрыты.":"Реестр загружен, совместимый отчёт отсутствует.";
   const previous=select.value;
-  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent=check.id+(resultFor(check.id)!=="NOT_RUN"?" · "+resultFor(check.id):"");return option}));
-  if(registry.checks.has(previous))select.value=previous;
-  const check=registry.checks.get(select.value);if(!check)return;
-  const status=resultFor(check.id);
+  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent="SUITE · "+check.id+(resultFor(check.id)!=="NOT_RUN"?" · "+resultFor(check.id):"");return option}),
+    ...cases.map(row=>{const option=document.createElement("option");option.value="case:"+row[0];const direct=caseEvidence.get(row[0]);option.textContent="CASE · "+row[0]+" · "+(direct?direct.result:"NOT_RUN");return option}));
+  if(registry.checks.has(previous)||previous.startsWith("case:")&&cases.some(row=>row[0]===previous.slice(5)))select.value=previous;
+  const caseId=select.value.startsWith("case:")?select.value.slice(5):null;
+  const check=caseId?{id:caseId,components:(caseComponents[caseId]??[]).filter(id=>registry.components.has(id))}:registry.checks.get(select.value);if(!check)return;
+  const status=caseId?caseEvidence.get(caseId)?.result??"NOT_RUN":resultFor(check.id);
   function group(title,items,mark){const h=document.createElement("h3");h.textContent=title;const div=document.createElement("div");div.className="impact-row";for(const id of items){const n=document.createElement("span");n.className="impact-node";n.dataset.status=mark;n.textContent=id;div.append(n)}map.append(h,div)}
-  group("Результат набора (не отдельного теста)",[check.id+" · "+status+(matched&&importedChecks.has(check.id)?" · импорт CI":localFor(check.id)?" · локальный runner":"")],status);
+  group(caseId?"Конкретный сценарий (импорт браузерного отчёта)":"Результат набора (не отдельного теста)",
+    [check.id+" · "+status+(caseId&&caseEvidence.has(caseId)?" · "+caseEvidence.get(caseId).witness:matched&&importedChecks.has(check.id)?" · импорт CI":localFor(check.id)?" · локальный runner":"")],status);
   group("Компоненты, связанные с проверкой",check.components,"NOT_RUN");
   const distance=new Map(check.components.map(id=>[id,0])),parent=new Map(),queue=[...check.components];
   for(let i=0;i<queue.length;i++){const id=queue[i];for(const c of registry.components.values())if(c.dependsOn.includes(id)&&!distance.has(c.id)){distance.set(c.id,distance.get(id)+1);parent.set(c.id,id);queue.push(c.id)}}
   const indirect=queue.filter(id=>distance.get(id)>0);
   group("Потенциальные зависимые компоненты ("+indirect.length+")",indirect,status==="FAIL"?"RISK":"NOT_RUN");
   for(const journey of registry.journeys.values()){
-    const linked=journey.checks.includes(check.id), target=journey.components.filter(id=>distance.has(id)).sort((a,b)=>distance.get(a)-distance.get(b))[0];
+    const linked=!caseId&&journey.checks.includes(check.id), target=journey.components.filter(id=>distance.has(id)).sort((a,b)=>distance.get(a)-distance.get(b))[0];
     if(!linked&&!target)continue;
     const chain=[];let id=target;while(id){chain.unshift(id);id=parent.get(id)}
     const li=document.createElement("li");li.textContent=journey.id+" · "+(linked?"прямая связь теста":"потенциальное влияние")+" · "+(chain.length?chain.join(" → "):"нет пути компонентов");list.append(li);
@@ -87,7 +100,7 @@ byId("graph-file").addEventListener("change",async()=>{
   try{if(file.size>2_000_000)throw Error("Лимит 2 МБ");await loadRegistry(await file.arrayBuffer(),generation);if(generation===graphGeneration)addObservation("Загружен реестр "+registryDigest.slice(0,12))}
   catch(e){if(generation===graphGeneration)byId("graph-status").textContent="Реестр отклонён: "+e.message}
 });
-function clearEvidence(){evidence.clear();importedChecks.clear();localGraphChecks.clear();reportDigest=null;byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
+function clearEvidence(){evidence.clear();caseEvidence.clear();importedChecks.clear();localGraphChecks.clear();reportDigest=null;byId("case-evidence-file").value="";byId("case-evidence-status").textContent="Доказательств по отдельным сценариям нет.";byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
 function importReport(report){
   const expected=byId("expected-head").value.trim();
   if(!sha.test(expected)||report?.schemaVersion!==1||report.source?.revision!==expected||report.source?.dirty!==false||!["PASS","FAIL","INCOMPLETE"].includes(report.status)||!Array.isArray(report.checks)||report.checks.length>200) throw Error("Неверный SHA или формат отчёта");
@@ -98,6 +111,40 @@ function importReport(report){
   }
   reportDigest=hex64.test(report.registrySha256??"")?report.registrySha256:null;importedChecks=new Map(report.checks.map(check=>[check.id,check.status]));evidence=result;addObservation("Импорт CI "+report.status+" · "+expected.slice(0,8));renderImpact();byId("evidence-status").textContent="Импортирован отчёт "+report.status+" · "+expected.slice(0,8)+" · подлинность файла не проверяется";render();
 }
+
+function importCaseEvidence(report){
+  const expected=byId("expected-head").value.trim();
+  if(!sha.test(expected)||report?.head!==expected||report.engine!=="chromium"||!hex64.test(report.runtimeSha256??"")
+    ||!Array.isArray(report.cases)||report.cases.length>200)throw Error("Неверный SHA, движок или формат протокола");
+  const seen=new Set(),observed=new Map();
+  for(const row of report.cases){
+    if(!row||typeof row.case!=="string"||row.case.length>120||seen.has(row.case)
+      ||!["PASS","FAIL"].includes(row.result))throw Error("Дубликат или недопустимая запись сценария");
+    seen.add(row.case);for(const [id,witness]of Object.entries(caseWitnesses))if(row.case===witness)observed.set(id,{result:row.result,witness});
+  }
+  if(!observed.size)throw Error("Нет зарегистрированных свидетельств по сценариям");
+  caseEvidence=observed;
+  byId("case-evidence-status").textContent="Импортировано "+observed.size+" привязок · "+expected.slice(0,8)
+    +" · отдельные записи, файл не аутентифицирован";
+  addObservation("Протокол браузерных сценариев · "+observed.size+" привязок · "+expected.slice(0,8));
+  render();renderImpact();
+}
+byId("case-evidence-file").addEventListener("change",async()=>{
+  caseEvidence.clear();render();renderImpact();
+  const file=byId("case-evidence-file").files[0];if(!file)return;
+  const expected=byId("expected-head").value;
+  try{
+    if(file.size>2_000_000)throw Error("Лимит 2 МБ");
+    const data=JSON.parse(await file.text());
+    if(expected!==byId("expected-head").value||byId("case-evidence-file").files[0]!==file)return;
+    importCaseEvidence(data);
+  }catch(error){caseEvidence.clear();byId("case-evidence-status").textContent="Протокол отклонён: "+error.message;render();renderImpact()}
+});
+byId("clear-case-evidence").onclick=()=>{
+  byId("case-evidence-file").value="";caseEvidence.clear();
+  byId("case-evidence-status").textContent="Доказательств по отдельным сценариям нет.";
+  render();renderImpact();
+};
 byId("expected-head").addEventListener("input",clearEvidence);
 byId("clear-evidence").onclick=()=>{byId("report-file").value="";clearEvidence()};
 byId("report-file").addEventListener("change",async()=>{
