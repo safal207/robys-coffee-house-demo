@@ -29,7 +29,8 @@ assert(!/\.menu-share-status\s*\{[^}]*text-align\s*:\s*left/i.test(css), "A mobi
 assert(!/isAndroidWebView|androidShareIntent|android\.intent|menu_share_android_intent/i.test(runtime + menuPageRuntime), "Retired Android app share path must not return");
 assert(runtime.includes('typeof navigator.share === "function"'), "Web Share API path is missing");
 assert(runtime.includes("navigator.clipboard?.writeText"), "Copy-link fallback is missing");
-assert(runtime.includes("window.prompt(localized.copyPrompt, canonical)"), "Copy-link prompt fallback is missing");
+assert(runtime.includes("window.prompt(localized.copyPrompt, payload.url)"), "Copy-link prompt must use the active menu URL");
+assert(runtime.includes("url: currentMenuUrl()"), "Sharing must preserve current language and menu context");
 assert(runtime.includes('error?.name === "AbortError"'), "User-cancelled share must not show an error");
 assert(runtime.includes("export async function shareMenu"), "Share behavior must be callable from the interaction loader");
 assert(runtime.includes("export function completeNativeShare"), "Native share completion must preserve localized feedback and analytics");
