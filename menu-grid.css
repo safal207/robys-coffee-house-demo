@@ -10,3 +10,158 @@
 .menu-photo-grid .full-menu-panel{padding:20px}
 @media(max-width:760px){.menu-photo-grid .full-menu-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.menu-photo-grid .full-menu-panel{padding:14px 10px}.menu-photo-grid .full-menu-item--product{border-radius:13px}.menu-photo-grid .full-menu-item--product .full-menu-item-details{padding:10px;gap:10px}.menu-photo-grid .full-menu-item--product .full-menu-item-copy strong{font-size:.88rem}.menu-photo-grid .full-menu-item--product .full-menu-item-copy p{font-size:.7rem}}
 @media(min-width:1200px){.menu-photo-grid .full-menu-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* PHOTO-GRID MERCHANDISING · scoped to the photo view only.
+   Two editorial pairings, ordinary 2/3/4 product grid unchanged. */
+.menu-photo-grid .full-menu-panel--featured .full-menu-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(15px, 2vw, 24px);
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  color: #2f2725;
+  background: #fffdf9;
+  border: 1px solid rgba(89, 62, 43, .16);
+  border-radius: 22px;
+  box-shadow: 0 12px 32px rgba(36, 28, 27, .09);
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 38px rgba(36, 28, 27, .14);
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  container-type: normal;
+  border-radius: 0;
+  background: #3a2b24;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media img,
+.menu-photo-grid .full-menu-item--visual[data-pairing]:hover .full-menu-item-media img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: none;
+  filter: none;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media::before {
+  background: linear-gradient(180deg, rgba(20, 13, 9, .25), transparent 42%, transparent 70%, rgba(20, 13, 9, .28));
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media::after {
+  content: "Explore pairing";
+  inset: auto 14px 14px auto;
+  display: grid;
+  width: auto;
+  height: auto;
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 999px;
+  background: rgba(255, 251, 244, .96);
+  color: #372620;
+  border: 1px solid rgba(255, 241, 210, .85);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .18);
+  font: 750 .78rem/1.2 var(--sans);
+  letter-spacing: 0;
+}
+html[lang="tr"] .menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media::after { content: "Lezzeti keşfet"; }
+html[lang="ru"] .menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media::after { content: "О вкусе"; }
+.menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  min-height: 0;
+  padding: 14px;
+  pointer-events: none;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-kicker {
+  display: inline-flex;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
+  color: #372920;
+  background: rgba(255, 251, 244, .95);
+  border: 1px solid rgba(255, 241, 213, .84);
+  box-shadow: 0 4px 14px rgba(22, 13, 8, .1);
+  font-size: .66rem;
+  letter-spacing: .06em;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-title,
+.menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-price,
+.menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-bottom { display: none; }
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-details {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 15px;
+  min-width: 0;
+  padding: 20px;
+  background: #fffdf9;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-copy strong {
+  color: #2e2420;
+  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  line-height: 1.22;
+  text-wrap: balance;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-copy p {
+  max-width: 48ch;
+  margin-top: 8px;
+  color: #6c6058;
+  font-size: .89rem;
+  line-height: 1.55;
+}
+.menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-price {
+  display: block;
+  margin-top: auto;
+  color: #822c37;
+  font-size: 1.34rem;
+  line-height: 1.25;
+  font-weight: 750;
+}
+.menu-photo-grid .pairing-merch-choose {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 16px;
+  margin: 0;
+  border: 1px solid #852b37;
+  border-radius: 13px;
+  background: #852b37;
+  color: white;
+  font: 800 .92rem/1.3 var(--sans);
+  text-align: center;
+  cursor: pointer;
+  transition: background .18s ease;
+}
+.menu-photo-grid .pairing-merch-choose:hover { background: #6f222d; }
+.menu-photo-grid .pairing-merch-choose:focus-visible { outline: 3px solid #ac7a31; outline-offset: 3px; }
+.menu-photo-grid .full-menu-item--visual[data-pairing="cool-lime-macaron"] { border-color: rgba(102, 126, 79, .28); }
+.menu-photo-grid .full-menu-item--visual[data-pairing="iced-san-sebastian"] { border-color: rgba(133, 43, 55, .22); }
+@media (max-width: 900px) {
+  .menu-photo-grid .full-menu-panel--featured .full-menu-list { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 680px) {
+  .menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-media { aspect-ratio: 4 / 3; }
+  .menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-details { gap: 11px; padding: 16px; }
+  .menu-photo-grid .full-menu-item--visual[data-pairing] .full-menu-item-copy strong { font-size: clamp(1.15rem, 5vw, 1.45rem); }
+  .menu-photo-grid .full-menu-item--visual[data-pairing] .pairing-poster-overlay { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-photo-grid .full-menu-item--visual[data-pairing],
+  .menu-photo-grid .pairing-merch-choose { transition: none; }
+  .menu-photo-grid .full-menu-item--visual[data-pairing]:hover { transform: none; }
+}
