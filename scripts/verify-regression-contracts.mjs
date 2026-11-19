@@ -71,7 +71,7 @@ const iframe = mapFrames[0];
 // The real Google iframe is intentionally inert until the user clicks Show Map.
 // Matching an attribute name with a whitespace boundary prevents data-map-src
 // from being mistaken for an eagerly loaded src attribute.
-const mapSrc = iframe.match(/\sdata-map-src=["']([^"']+)["']/i)?.[1]?.replaceAll("&amp;", "&") ?? "";
+const mapSrc = iframe.match(/\sdata-map-src="([^"]+)"/i)?.[1]?.replaceAll("&amp;", "&") ?? "";
 assert(!/\ssrc=["']/i.test(iframe), "MAP-001", "Third-party map must not load before consent");
 assert(/^https:\/\/maps\.google\.com\/maps\?/i.test(mapSrc), "MAP-001", "Opt-in map must use the approved HTTPS Google Maps endpoint");
 assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Opt-in Google Maps URL must include output=embed");
