@@ -372,6 +372,10 @@ for (const file of ["discover-v2.js", "discover-rotation.js"]) {
   writeFileSync(file, source);
 }
 const appRevision = revisionFor("app.js");
+const mapRouteControllerRevision = revisionFor("map-route-controller.js");
+let mapRouteEntry = readFileSync("map-route.js", "utf8");
+mapRouteEntry = mapRouteEntry.replace(/map-route-controller\\.js(?:\\?v=[a-f0-9]{12})?/, `map-route-controller.js?v=${mapRouteControllerRevision}`);
+writeFileSync("map-route.js", mapRouteEntry);
 const mapRouteRevision = revisionFor("map-route.js");
 const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
