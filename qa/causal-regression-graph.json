@@ -575,7 +575,8 @@
         "map-live.css",
         "scripts/verify-ios-route-webkit.mjs",
         "map-route.js",
-        "scripts/test-map-route.mjs"
+        "scripts/test-map-route.mjs",
+        "scripts/verify-regression-contracts.mjs"
       ],
       "dependsOn": [
         "build"
