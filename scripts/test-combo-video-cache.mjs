@@ -49,7 +49,8 @@ test("on-demand combo and pairing videos preserve Range requests outside the cac
     const call = fetched.at(-1);
     assert.equal(call.request, request);
     assert.equal(call.request.headers.get("range"), "bytes=0-3");
-    assert.equal(call.options.cache, "no-store");
+    // No fetch override: preserve browser HTTP caching and native byte-range semantics.
+    assert.equal(call.options, undefined, "video fetch must not force a cache mode");
   }
 });
 
