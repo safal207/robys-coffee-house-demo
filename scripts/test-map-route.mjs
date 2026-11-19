@@ -5,6 +5,7 @@ import { runInNewContext } from "node:vm";
 
 const script = readFileSync("map-route.js", "utf8");
 const html = readFileSync("index.html", "utf8");
+const menuHtml = readFileSync("menu.html", "utf8");
 const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
 const destination = new URL(profile.mapUrl);
 const count = (haystack, needle) => haystack.split(needle).length - 1;
@@ -113,4 +114,19 @@ test("the embedded map loads from a restricted Google origin only on explicit cl
   invalid.reveal.click();
   assert.equal(invalid.frame.src, undefined);
   assert.equal(invalid.mapCard.active, false);
+});
+
+
+test("menu CTAs share the exact-place route controller while no-JS anchors remain intact", () => {
+  assert.match(menuHtml, /<script defer src="map-route\\.js\\?v=[a-f0-9]{12}"><\\/script>/);
+  const anchors = [...menuHtml.matchAll(/<a\\b[^>]*\\bdata-route-link\\b[^>]*>/g)].map(match => match[0]);
+  assert.equal(anchors.length, 2, "menu has two route links, both enhanced by the shared controller");
+  for (const tag of anchors) {
+    assert.match(tag, /href="https:\\/\\/www\\.google\\.com\\/maps\\/dir\\//);
+    assert.match(tag, /target="_blank"/);
+    assert.match(tag, /rel="noopener noreferrer"/);
+    assert.match(tag, /destination=Roby%27s\\+Coffee\\+House\\+Gazipasa/);
+  }
+  assert.equal(count(html, 'data-route-link'), 3, "landing retains three route links");
+  assert.equal(count(menuHtml, 'data-route-link'), 2, "menu retains two route links");
 });
