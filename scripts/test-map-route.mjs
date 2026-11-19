@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 
-const script = readFileSync("map-route.js", "utf8");
+import { createHash } from "node:crypto";
+const script = readFileSync("map-route-controller.js", "utf8");
+const bootstrap = readFileSync("map-route.js", "utf8");
+const bootstrapRevision = createHash("sha256").update(bootstrap).digest("hex").slice(0, 12);
 const html = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
 const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
@@ -119,7 +122,7 @@ test("the embedded map loads from a restricted Google origin only on explicit cl
 
 
 test("menu CTAs share the exact-place route controller while no-JS anchors remain intact", () => {
-  assert.ok(menuHtml.includes('<script defer src="map-route.js?v=7dd8867e875e"></script>'));
+  assert.ok(menuHtml.includes(`<script defer src="map-route.js?v=${bootstrapRevision}"></script>`));
   const anchors = menuHtml.split("<a ").slice(1).map(chunk => chunk.split(">")[0]).filter(tag => tag.includes("data-route-link"));
   assert.equal(anchors.length, 2, "menu has two route links, both enhanced by the shared controller");
   for (const tag of anchors) {
@@ -130,4 +133,13 @@ test("menu CTAs share the exact-place route controller while no-JS anchors remai
   }
   assert.equal(count(html, "data-route-link"), 3, "landing retains three route links");
   assert.equal(count(menuHtml, "data-route-link"), 2, "menu retains two route links");
+});
+
+test("small bootstrap pins destinations without loading GPS or a third-party iframe eagerly", () => {
+  assert.match(bootstrap, /IntersectionObserver/);
+  assert.match(bootstrap, /import\(\"\.\/map-route-controller\.js\?v=[a-f0-9]{12}\"\)/);
+  assert.match(bootstrap, /destination_place_id/);
+  assert.ok(bootstrap.indexOf('getCurrentPosition') < 0);
+  assert.ok(bootstrap.indexOf('frame.src') < 0);
+  assert.ok(html.includes(`src="map-route.js?v=${bootstrapRevision}"`));
 });
