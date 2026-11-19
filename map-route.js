@@ -35,6 +35,16 @@
     button.disabled = busy;
     button.setAttribute("aria-busy", String(busy));
   });
+  // Upgrade links to the verified place without changing the approved
+  // business-profile route or triggering a location request.
+  for (const link of routeLinks) {
+    const url = new URL(link.href);
+    if (url.protocol !== "https:" || url.hostname !== "www.google.com" ||
+        url.pathname !== "/maps/dir/" ||
+        url.searchParams.get("destination") !== "Roby's Coffee House Gazipasa") continue;
+    url.searchParams.set("destination_place_id", "ChIJpdkfSnH13BQRAEJUSGpYxNg");
+    link.href = url.href;
+  }
   const routeHref = routeLinks[0]?.href;
   let pending = false;
 

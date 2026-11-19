@@ -43,7 +43,7 @@ function fixture({ secure = true, hasGeo = true } = {}) {
     assign(value) { navigations.push(value); }
   } };
   runInNewContext(script, { document, navigator, window, URL });
-  return { navigations, callbacks, button, reveal, frame, mapCard, status };
+  return { navigations, callbacks, button, reveal, frame, mapCard, status, routeLink };
 }
 
 test("destination is an exact approved Roby's Google Place and all route anchors preserve it", () => {
@@ -51,7 +51,7 @@ test("destination is an exact approved Roby's Google Place and all route anchors
   assert.equal(destination.pathname, "/maps/dir/");
   assert.equal(destination.searchParams.get("api"), "1");
   assert.equal(destination.searchParams.get("destination"), "Roby's Coffee House Gazipasa");
-  assert.equal(destination.searchParams.get("destination_place_id"), "ChIJpdkfSnH13BQRAEJUSGpYxNg");
+  assert.equal(destination.searchParams.get("destination_place_id"), null, "The approved no-JS fallback remains unchanged");
   assert.equal(destination.searchParams.get("travelmode"), "driving");
   assert.equal(count(html, 'data-route-link'), 3);
   assert.equal(count(html, profile.mapUrl), 4); // JSON-LD and three route links
@@ -65,6 +65,7 @@ test("no permission request or third-party iframe before interaction", () => {
   assert.equal(f.frame.src, undefined);
   assert.equal(f.navigations.length, 0);
   assert.equal(f.button.hidden, false);
+  assert.equal(new URL(f.routeLink.href).searchParams.get("destination_place_id"), "ChIJpdkfSnH13BQRAEJUSGpYxNg", "Ordinary route links must be pinned to the exact venue without GPS");
   assert.equal(f.reveal.hidden, false);
 });
 
