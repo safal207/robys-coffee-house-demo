@@ -79,7 +79,7 @@ function syncCategoryHash(categoryId) {
     url.hash = categoryId === "all" ? "" : categoryId;
     url.searchParams.delete("product"); url.searchParams.delete("item");
   }
-  history.replaceState(history.state, "", url);
+  try { history.replaceState(history.state, "", url); } catch { /* Browser history throttling must not block the menu. */ }
 }
 
 const menuViewLinks = document.querySelectorAll("[data-menu-view]");
@@ -949,7 +949,7 @@ menuShareButton?.addEventListener("click", (event) => {
   const payload = {
     title: document.title,
     text: menuShareButton.getAttribute(`data-share-text-${language}`) ?? "",
-    url: document.querySelector('link[rel="canonical"]')?.href || window.location.href
+    url: window.location.href
   };
 
   try {
