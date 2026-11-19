@@ -201,6 +201,7 @@ async function verifyGpsAndMapConsent() {
     await page.goto(new URL("index.html?lang=ru", `${baseUrl}/`).href, { waitUntil: "domcontentloaded" });
     const frame = page.locator(".map-live-frame");
     assert.equal(await frame.getAttribute("src"), null, "Map iframe must not request Google before opt-in");
+    await page.locator("#visit").scrollIntoViewIfNeeded();
     await page.locator("[data-map-reveal]").click();
     assert.ok((await frame.getAttribute("src"))?.startsWith("https://maps.google.com/maps?"), "Google iframe must load after click");
     assert.equal(await page.locator(".map-card-live.map-active").count(), 1);
@@ -224,7 +225,9 @@ async function verifyGpsAndMapConsent() {
     const page = await deniedContext.newPage();
     await page.goto(new URL("index.html", `${baseUrl}/`).href, { waitUntil: "domcontentloaded" });
     assert.equal(await page.locator(".map-live-frame").getAttribute("src"), null);
+    await page.locator("#visit").scrollIntoViewIfNeeded();
     const routeButton = page.locator("[data-route-from-me]");
+    await routeButton.waitFor({ state: "visible" });
     await Promise.all([
       page.waitForURL(url => url.href.startsWith(routePrefix), { timeout: 15000 }),
       routeButton.click()
