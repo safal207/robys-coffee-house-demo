@@ -497,7 +497,7 @@ document.querySelectorAll("[data-lang]").forEach(node => node.addEventListener("
   try { localStorage.setItem("robys-language", language); } catch {}
   const url = new URL(location.href);
   url.searchParams.set("lang", language);
-  try { history.replaceState(history.state, "", url); } catch { /* Language still changes without URL mutation. */ }
+  history.replaceState(history.state, "", url);
   applyLanguage();
   const index = filtered.findIndex(product => product.id === anchor);
   if (index >= 0) requestAnimationFrame(() => moveToCard(index, { instant: true }));
