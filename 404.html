@@ -1,26 +1,25 @@
 <!doctype html>
-<html lang="ru">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#241c1b" />
-  <meta name="robots" content="noindex" />
+  <meta name="robots" content="noindex,follow" />
   <title>404 · Roby's Coffee House</title>
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="offline.css?v=20260627-1" />
-  <script defer src="pwa.js?v=web-only-20260923-1"></script>
+  <link rel="icon" href="/robys-coffee-house-demo/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/robys-coffee-house-demo/offline.css?v=20260627-1" />
+  <script defer src="/robys-coffee-house-demo/error-pages.js"></script>
 </head>
 <body>
   <main class="offline-card">
-    <img class="offline-mark" src="src/brand/robys-mark-master-v1.svg?v=20260721-master-1" width="76" height="76" alt="" aria-hidden="true" />
-    <p class="offline-code">404 · OFFLINE</p>
-    <h1>Нет интернета</h1>
-    <p>Страница сейчас недоступна, но меню Roby's сохранено на устройстве и продолжает работать без сети.</p>
+    <img class="offline-mark" src="/robys-coffee-house-demo/src/brand/robys-mark-master-v1.svg?v=20260721-master-1" width="76" height="76" alt="" aria-hidden="true" />
+    <p class="offline-code">404 · NOT FOUND</p>
+    <h1><span data-error-lang="tr">Sayfa bulunamadı</span><span data-error-lang="en" hidden>Page not found</span><span data-error-lang="ru" hidden>Страница не найдена</span></h1>
+    <p><span data-error-lang="tr">Bu adres mevcut değil. Menüye dönebilir veya bağlantıyı yeniden deneyebilirsiniz.</span><span data-error-lang="en" hidden>This address does not exist. Return to the menu or retry the link.</span><span data-error-lang="ru" hidden>Такой страницы нет. Откройте меню или повторите переход.</span></p>
     <div class="offline-actions">
-      <a class="offline-button" href="menu.html">Открыть офлайн-меню</a>
-      <a class="offline-button secondary" href="index.html">Повторить</a>
+      <a class="offline-button" data-error-menu href="/robys-coffee-house-demo/menu.html"><span data-error-lang="tr">Menüyü aç</span><span data-error-lang="en" hidden>Open menu</span><span data-error-lang="ru" hidden>Открыть меню</span></a>
+      <a class="offline-button secondary" data-error-retry href="/robys-coffee-house-demo/"><span data-error-lang="tr">Tekrar dene</span><span data-error-lang="en" hidden>Retry link</span><span data-error-lang="ru" hidden>Повторить переход</span></a>
     </div>
-    <p class="offline-status">Статус: <span data-connectivity-status>Offline</span></p>
   </main>
 </body>
 </html>
