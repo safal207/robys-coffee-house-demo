@@ -480,6 +480,7 @@ writeFileSync("discover.html", discoverHtml);
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
+menuHtml = synchronizeScript(menuHtml, "map-route.js", mapRouteRevision);
 const menuStyleLinks = [...menuHtml.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)];
 const linkedMenuStyles = menuStyleLinks.map(([tag]) => tag.match(/\bhref="([^"?]+)/)?.[1]);
 const originalMenuStyles = MENU_STYLE_INPUTS.map(({ delivered }) => delivered);
