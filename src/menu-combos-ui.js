@@ -561,6 +561,7 @@ export function createMenuCombosUi({ root, productIndex, orderProductIds, initia
     if (section) section.hidden = true;
     const trigger = document.querySelector("#menu-combos-trigger");
     trigger?.setAttribute("aria-expanded", "false");
+    document.querySelector("#menu-combos-takeaway-trigger")?.setAttribute("aria-expanded", "false");
     trigger?.focus({ preventScroll: true });
   });
   add.addEventListener("click", async () => {
