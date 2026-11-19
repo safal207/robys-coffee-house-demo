@@ -117,16 +117,17 @@ test("the embedded map loads from a restricted Google origin only on explicit cl
 });
 
 
+
 test("menu CTAs share the exact-place route controller while no-JS anchors remain intact", () => {
-  assert.match(menuHtml, /<script defer src="map-route\\.js\\?v=[a-f0-9]{12}"><\\/script>/);
-  const anchors = [...menuHtml.matchAll(/<a\\b[^>]*\\bdata-route-link\\b[^>]*>/g)].map(match => match[0]);
+  assert.ok(menuHtml.includes('<script defer src="map-route.js?v=7dd8867e875e"></script>'));
+  const anchors = menuHtml.split("<a ").slice(1).map(chunk => chunk.split(">")[0]).filter(tag => tag.includes("data-route-link"));
   assert.equal(anchors.length, 2, "menu has two route links, both enhanced by the shared controller");
   for (const tag of anchors) {
-    assert.match(tag, /href="https:\\/\\/www\\.google\\.com\\/maps\\/dir\\//);
-    assert.match(tag, /target="_blank"/);
-    assert.match(tag, /rel="noopener noreferrer"/);
-    assert.match(tag, /destination=Roby%27s\\+Coffee\\+House\\+Gazipasa/);
+    assert.ok(tag.includes('href="https://www.google.com/maps/dir/'));
+    assert.ok(tag.includes('target="_blank"'));
+    assert.ok(tag.includes('rel="noopener noreferrer"'));
+    assert.ok(tag.includes('destination=Roby%27s+Coffee+House+Gazipasa'));
   }
-  assert.equal(count(html, 'data-route-link'), 3, "landing retains three route links");
-  assert.equal(count(menuHtml, 'data-route-link'), 2, "menu retains two route links");
+  assert.equal(count(html, "data-route-link"), 3, "landing retains three route links");
+  assert.equal(count(menuHtml, "data-route-link"), 2, "menu retains two route links");
 });
