@@ -372,6 +372,8 @@ for (const file of ["discover-v2.js", "discover-rotation.js"]) {
   writeFileSync(file, source);
 }
 const appRevision = revisionFor("app.js");
+const mapRouteRevision = revisionFor("map-route.js");
+const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const mobileStylesRevision = revisionFor("mobile.css");
@@ -458,6 +460,8 @@ html = synchronizeStylesheet(html, "mobile.css", mobileStylesRevision);
 html = synchronizeStylesheet(html, "menu-preview.css", menuPreviewRevision);
 html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
+html = synchronizeScript(html, "map-route.js", mapRouteRevision);
+html = synchronizeStylesheet(html, "map-live.css", mapLiveCssRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 html = synchronizeModuleScript(html, "conversion.js", conversionRevision);
@@ -692,6 +696,8 @@ for (const [filePath, revision] of [
   ["mobile.css", mobileStylesRevision],
   ["menu-preview.css", menuPreviewRevision],
   ["app.js", appRevision],
+  ["map-route.js", mapRouteRevision],
+  ["map-live.css", mapLiveCssRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],

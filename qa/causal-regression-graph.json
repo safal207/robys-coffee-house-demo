@@ -573,7 +573,9 @@
       "paths": [
         "qa/business-profile.json",
         "map-live.css",
-        "scripts/verify-ios-route-webkit.mjs"
+        "scripts/verify-ios-route-webkit.mjs",
+        "map-route.js",
+        "scripts/test-map-route.mjs"
       ],
       "dependsOn": [
         "build"
