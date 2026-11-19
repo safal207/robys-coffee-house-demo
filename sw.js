@@ -57,7 +57,7 @@ self.addEventListener("fetch", (event) => {
         !url.pathname.endsWith(COMBO_WEBM_PATH))) return;
 
   event.stopImmediatePropagation();
-  event.respondWith(fetch(event.request, { cache: "no-store" }));
+  event.respondWith(fetch(event.request));
 });
 
 importScripts("./sw-core-v64.js");

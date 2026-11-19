@@ -360,15 +360,16 @@ async function navigationResponse(request) {
 
   try {
     const network = await fetch(request);
-    if (network.ok) {
-      if (isMenu || isMenuFeed || isMenuGrid || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
-        const cache = await caches.open(CACHE_VERSION);
-        cache.put(request, network.clone()).catch(() => {});
-      }
-      return network;
+    // Preserve real HTTP errors (including 404). The offline fallback is only
+    // for network failures, never for a reachable server returning an error.
+    if (!network.ok) return network;
+    if (isMenu || isMenuFeed || isMenuGrid || isCashier || isDiscover || isSmartChoice || isExperience || isHome) {
+      const cache = await caches.open(CACHE_VERSION);
+      cache.put(request, network.clone()).catch(() => {});
     }
+    return network;
   } catch {
-    // Fall through to a deterministic cached page.
+    // Network failure: serve a known cached route if one exists.
   }
 
   if (isMenu) return cachedPage("menu.html");
@@ -386,7 +387,15 @@ async function navigationResponse(request) {
   if (isSmartChoice) return cachedPage("smart-choice/index.html");
   if (isExperience) return cachedPage("experience/index.html");
   if (isHome) return cachedPage("index.html");
-  return cachedPage("404.html");
+  // Unknown offline routes are unavailable, not successful (soft-404) pages.
+  const fallbackLanguage = url.searchParams.get("lang");
+  const message = fallbackLanguage === "ru" ? "Нет подключения к сети."
+    : fallbackLanguage === "en" ? "You are offline."
+    : "İnternet bağlantısı yok.";
+  return new Response(message, {
+    status: 503,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }
+  });
 }
 
 self.addEventListener("fetch", (event) => {
