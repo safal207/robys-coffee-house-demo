@@ -6,7 +6,6 @@
   <!-- menu startup modules -->
   <link rel="modulepreload" href="menu-catalog.js?v=3132b4dc1273" />
   <link rel="modulepreload" href="menu-app.js?v=c4f58d338679" />
-  <link rel="preload" href="menu-feed.css?v=05335301d165" as="style" fetchpriority="low" />
   <script type="module" src="menu-app.js?v=c4f58d338679"></script>
   <!-- /menu startup modules -->
   <meta name="robys-build" content="20260904-1" />
@@ -96,14 +95,13 @@
       </span>
     </a>
     <div class="menu-page-hero-copy">
-      <p class="robys-seasonal-mark"><span class="robys-seasonal-icon" aria-hidden="true"></span><span lang="tr">Cadılar Bayramı havası</span><span lang="en">A little Halloween magic</span><span lang="ru">Немного магии Хэллоуина</span></p>
       <p class="eyebrow">ROBY'S COFFEE HOUSE · GAZİPAŞA</p>
       <h1 data-menu-copy="pageTitle">Tam Menü</h1>
       <p data-menu-copy="pageLead">Kahveler, soğuk içecekler, çaylar, tatlılar ve atıştırmalıklar.</p>
 
       <nav class="combo-entry-links" aria-label="Setler / Combos / Комбо">
         <a class="menu-family-link" id="menu-combos-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
-        <a class="menu-family-link" id="menu-combos-takeaway-trigger" href="#menu-combos-fallback" aria-controls="menu-combos">Al götür · 4</a>
+        <a class="menu-family-link" id="menu-combos-takeaway-trigger" href="#menu-combos-fallback" aria-controls="menu-combos" aria-expanded="false">Al götür · 4</a>
         <a class="menu-family-link" id="menu-family-trigger" href="#menu-family-fallback" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
       </nav>
       <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
@@ -143,7 +141,7 @@
         </div>
         <div class="menu-search">
           <label class="visually-hidden" for="menu-search" data-menu-copy="searchLabel">Menüde ara</label>
-          <input id="menu-search" type="search" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
+          <input id="menu-search" type="search" maxlength="120" autocomplete="off" placeholder="Kahve, tatlı veya içecek ara" />
         </div>
       </div>
     </section>
@@ -155,8 +153,8 @@
           <div class="menu-category-nav" id="menu-category-nav" aria-label="Menu categories"></div>
         </aside>
         <div class="menu-kiosk-content">
-          <div class="full-menu-grid" id="menu-root" aria-live="polite"></div>
-          <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" hidden>Aramanıza uygun ürün bulunamadı.</p>
+          <div class="full-menu-grid" id="menu-root"></div>
+          <p class="menu-empty" id="menu-empty" data-menu-copy="noResults" role="status" aria-live="polite" hidden>Aramanıza uygun ürün bulunamadı.</p>
           <noscript><p class="menu-empty">Bu menüyü görüntülemek için JavaScript'i etkinleştirin.</p></noscript>
           <p class="menu-page-note" data-menu-copy="priceNote">Fiyatlar fotoğraflanan basılı menüden alınmıştır ve değişebilir.</p>
         </div>
