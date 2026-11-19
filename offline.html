@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#241c1b" />
+  <meta name="robots" content="noindex,follow" />
+  <title>Offline · Roby's Coffee House</title>
+  <link rel="icon" href="/robys-coffee-house-demo/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/robys-coffee-house-demo/offline.css?v=20260627-1" />
+  <script defer src="/robys-coffee-house-demo/error-pages.js"></script>
+</head>
+<body>
+  <main class="offline-card">
+    <img class="offline-mark" src="/robys-coffee-house-demo/src/brand/robys-mark-master-v1.svg?v=20260721-master-1" width="76" height="76" alt="" aria-hidden="true" />
+    <p class="offline-code">OFFLINE · ROBY'S</p>
+    <h1><span data-error-lang="tr">Bağlantı yok</span><span data-error-lang="en" hidden>You're offline</span><span data-error-lang="ru" hidden>Нет подключения</span></h1>
+    <p><span data-error-lang="tr">İnternete bağlanılamadı. Daha önce açılmış menü sayfaları çevrimdışı kullanılabilir.</span><span data-error-lang="en" hidden>There is no internet connection. Previously opened menu pages may still work offline.</span><span data-error-lang="ru" hidden>Нет соединения с интернетом. Ранее открытые страницы меню могут работать без сети.</span></p>
+    <div class="offline-actions">
+      <a class="offline-button" data-error-menu href="/robys-coffee-house-demo/menu.html"><span data-error-lang="tr">Menüyü aç</span><span data-error-lang="en" hidden>Open menu</span><span data-error-lang="ru" hidden>Открыть меню</span></a>
+      <a class="offline-button secondary" data-error-retry href="/robys-coffee-house-demo/"><span data-error-lang="tr">Tekrar dene</span><span data-error-lang="en" hidden>Retry link</span><span data-error-lang="ru" hidden>Повторить переход</span></a>
+    </div>
+  </main>
+</body>
+</html>

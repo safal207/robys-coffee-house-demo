@@ -79,7 +79,7 @@ function syncCategoryHash(categoryId) {
     url.hash = categoryId === "all" ? "" : categoryId;
     url.searchParams.delete("product"); url.searchParams.delete("item");
   }
-  history.replaceState(history.state, "", url);
+  try { history.replaceState(history.state, "", url); } catch { /* Browser history throttling must not block the menu. */ }
 }
 
 const menuViewLinks = document.querySelectorAll("[data-menu-view]");
@@ -482,7 +482,7 @@ function loadCombosUi() {
       const url = new URL("./menu-combos-ui.js", import.meta.url);
       url.searchParams.set("retry", String(combosRetry));
       loading = import(url.href);
-    } else loading = import("./menu-combos-ui.js?v=7ceff359f5a2");
+    } else loading = import("./menu-combos-ui.js?v=e2fec5d432e5");
     combosUiPromise = loading.then(({ createMenuCombosUi }) => {
       combosUi = createMenuCombosUi({ root: document.querySelector("#menu-combos-content"),
         productIndex, orderProductIds, initialLanguage: language, localized, formatPrice,
@@ -515,6 +515,7 @@ async function openComboSuggestions(event, filter = "all", recipeId = "") {
     document.querySelector("#menu-combos").hidden = false;
     ui.reveal(filter);
     combosTrigger?.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-combos-takeaway-trigger")?.setAttribute("aria-expanded", "true");
     document.querySelector("#menu-combos").scrollIntoView({ block: "start" });
     if (recipeId) {
       // The quiet helper closes before navigation. Return focus to the matching
@@ -852,8 +853,8 @@ function renderMenu() {
 
 const menuActions = createMenuActionsLoader({
   loadModule(attempt) {
-    if (!attempt) return import("./menu-interactions.js?v=20260923-web-only-v4");
-    const retryUrl = new URL("./menu-interactions.js?v=20260923-web-only-v4", import.meta.url);
+    if (!attempt) return import("./menu-interactions.js?v=20135ebe64aa");
+    const retryUrl = new URL("./menu-interactions.js?v=20135ebe64aa", import.meta.url);
     retryUrl.searchParams.set("retry", String(attempt));
     return import(retryUrl.href);
   },
@@ -949,7 +950,7 @@ menuShareButton?.addEventListener("click", (event) => {
   const payload = {
     title: document.title,
     text: menuShareButton.getAttribute(`data-share-text-${language}`) ?? "",
-    url: document.querySelector('link[rel="canonical"]')?.href || window.location.href
+    url: window.location.href
   };
 
   try {

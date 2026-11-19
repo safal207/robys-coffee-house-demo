@@ -48,7 +48,8 @@ const copy = {
 
 const shareButton = document.querySelector("#menu-share-button");
 const shareStatus = document.querySelector("#menu-share-status");
-const canonical = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
+// The share target is the current view, not the search-engine canonical URL.
+const currentMenuUrl = () => window.location.href;
 
 function currentLanguage() {
   const language = document.documentElement.lang;
@@ -94,7 +95,7 @@ export async function shareMenu(event, { skipNative = false } = {}) {
   const payload = {
     title: document.title,
     text: localized.shareText,
-    url: canonical
+    url: currentMenuUrl()
   };
 
   try {
@@ -105,13 +106,13 @@ export async function shareMenu(event, { skipNative = false } = {}) {
     }
 
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(`${localized.shareText}\n${canonical}`);
+      await navigator.clipboard.writeText(`${localized.shareText}\n${currentMenuUrl()}`);
       if (shareStatus) shareStatus.textContent = localized.copied;
       track("menu_link_copy");
       return;
     }
 
-    window.prompt(localized.copyPrompt, canonical);
+    window.prompt(localized.copyPrompt, currentMenuUrl());
     track("menu_link_copy_prompt");
   } catch (error) {
     if (error?.name === "AbortError") return;

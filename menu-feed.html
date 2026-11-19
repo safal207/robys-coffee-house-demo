@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <!-- menu startup modules -->
   <link rel="modulepreload" href="menu-catalog.js?v=3132b4dc1273" />
-  <link rel="modulepreload" href="menu-feed.js?v=c25c1ac558ce" />
-  <script type="module" src="menu-feed.js?v=c25c1ac558ce"></script>
+  <link rel="modulepreload" href="menu-feed.js?v=b9a7ea011e82" />
+  <script type="module" src="menu-feed.js?v=b9a7ea011e82"></script>
   <!-- /menu startup modules -->
   <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
   <meta name="theme-color" content="#241c1b" />
@@ -59,7 +59,7 @@
       </div>
       <nav class="feed-collections" aria-label="Setler / Collections / Подборки">
         <a id="menu-combos-trigger" href="#menu-combos" aria-controls="menu-combos" aria-expanded="false">Setler · 12</a>
-        <a id="menu-combos-takeaway-trigger" href="#menu-combos-takeaway" aria-controls="menu-combos">Al götür · 4</a>
+        <a id="menu-combos-takeaway-trigger" href="#menu-combos-takeaway" aria-controls="menu-combos" aria-expanded="false">Al götür · 4</a>
         <a id="menu-family-trigger" href="#menu-family" aria-controls="menu-family" aria-expanded="false">Çocuklarla · 3 fikir</a>
       </nav>
       <div class="feed-choice-links">
@@ -99,7 +99,7 @@
   <dialog class="feed-cart feed-discover" id="feed-discover" aria-labelledby="feed-discover-title">
     <div class="feed-cart-shell">
       <header class="feed-cart-header"><div><p class="feed-eyebrow">ROBY'S COFFEE HOUSE</p><h2 id="feed-discover-title" data-copy="discoverTitle">Ne istersin?</h2></div><button type="button" id="feed-discover-close" class="feed-icon-button" aria-label="Kapat">×</button></header>
-      <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
+      <label class="feed-search"><span aria-hidden="true">⌕</span><span class="sr-only" data-copy="searchLabel">Menüde ara</span><input type="search" id="feed-search" maxlength="120" autocomplete="off" placeholder="Kahve, tatlı…" /><button type="button" id="feed-search-clear" hidden aria-label="Aramayı temizle">×</button></label>
       <nav id="feed-categories" class="feed-categories" aria-label="Menu categories"></nav>
       <div class="feed-personal"><span id="feed-seen-summary"></span><p class="feed-personal-note" id="feed-personal-note">Beğeniler ve görülenler bu cihazda saklanır.</p></div>
       <button type="button" id="feed-discover-done" class="feed-primary" data-copy="discoverDone">Akışa dön</button>

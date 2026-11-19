@@ -13,6 +13,9 @@ function stored(storage, key) {
 }
 
 function locale() {
+  // Explicit deep links win over saved language, even on a first visit.
+  const requested = new URLSearchParams(window.location.search).get("lang");
+  if (Object.hasOwn(COPY, requested)) return requested;
   return stored("localStorage", "robys-language") === "ru" ? "ru"
     : stored("localStorage", "robys-language") === "en" ? "en" : "tr";
 }

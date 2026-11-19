@@ -118,7 +118,15 @@ assert(sitemap.includes(`<loc>${profile.siteUrl}</loc>`), "DEPLOY-001", "Landing
 assert(sitemap.includes(`<loc>${profile.menuUrl}</loc>`), "DEPLOY-001", "Menu missing from sitemap");
 const notFound = readFileSync("404.html", "utf8");
 assert(meta(notFound, "robots").split(",").map((token) => token.trim().toLowerCase()).includes("noindex"), "DEPLOY-001", "404 page must remain noindex");
-assert(notFound.includes('href="index.html"') || notFound.includes(`href="${profile.siteUrl}"`), "DEPLOY-001", "404 recovery URL changed");
+const projectRoot = new URL(profile.siteUrl).pathname;
+const menuPath = new URL(profile.menuUrl).pathname;
+assert(
+  (notFound.includes('href="index.html"') || notFound.includes(`href="${profile.siteUrl}"`) ||
+    notFound.includes(`data-error-retry href="${projectRoot}"`)) &&
+  notFound.includes(`data-error-menu href="${menuPath}"`),
+  "DEPLOY-001",
+  "404 recovery links must target this GitHub Pages project root and menu"
+);
 
 for (const [id, minimum] of [["SEO-001", 8], ["CONTENT-001", 7], ["DEPLOY-001", 7]]) dashboardGate(id, minimum);
 
