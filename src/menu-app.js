@@ -515,6 +515,7 @@ async function openComboSuggestions(event, filter = "all", recipeId = "") {
     document.querySelector("#menu-combos").hidden = false;
     ui.reveal(filter);
     combosTrigger?.setAttribute("aria-expanded", "true");
+    document.querySelector("#menu-combos-takeaway-trigger")?.setAttribute("aria-expanded", "true");
     document.querySelector("#menu-combos").scrollIntoView({ block: "start" });
     if (recipeId) {
       // The quiet helper closes before navigation. Return focus to the matching
