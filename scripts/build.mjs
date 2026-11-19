@@ -493,7 +493,7 @@ menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
-menuHtml = synchronizeMenuPreloads(menuHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-app.js", menuAppRevision]]);
+menuHtml = synchronizeMenuPreloads(menuHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-app.js", menuAppRevision]], ["menu-feed.css", menuFeedCssRevision]);
 writeFileSync("menu.html", menuHtml);
 
 let feedHtml = readFileSync("menu-feed.html", "utf8");
