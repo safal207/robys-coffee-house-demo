@@ -98,6 +98,10 @@ try {
   assert.deepEqual(uncachedFamilyPhotos, [],
     "All family photos must be precached before the panel is first revealed");
 
+  // A reachable missing URL must retain HTTP 404, not look like a disconnection.
+  const onlineNotFound = await page.goto(`${baseUrl}/missing-online-check`, { waitUntil: "domcontentloaded" });
+  assert.equal(onlineNotFound?.status(), 404, "An online missing route must remain HTTP 404");
+
   await context.setOffline(true);
   await page.goto(`${baseUrl}/index.html`, { waitUntil: "domcontentloaded" });
   await page.locator(".hero-actions a[href='menu.html']").waitFor({ state: "visible", timeout: 15000 });
@@ -106,9 +110,18 @@ try {
     0,
     "Cached homepage must not revive the install offer"
   );
-  await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
+  const offlineFallback = await page.goto(`${baseUrl}/missing-offline-check`, { waitUntil: "domcontentloaded" });
+  const fallbackSnapshot = await page.evaluate(async () => ({
+    hasWorker: Boolean(navigator.serviceWorker?.controller),
+    offlineCached: Boolean(await caches.match(new URL("offline.html", navigator.serviceWorker?.controller?.scriptURL || location.href))),
+    title: document.title,
+    marker: document.querySelector(".offline-code")?.textContent ?? null,
+    bodyStart: document.body?.innerText?.slice(0, 200) ?? ""
+  }));
+  console.log("[OFFLINE-FALLBACK]", JSON.stringify({ status: offlineFallback?.status(), ...fallbackSnapshot }));
+  assert.equal(offlineFallback?.status(), 503, "An offline unknown route must return HTTP 503 instead of 404");
   await page.locator(".offline-code").waitFor({ state: "visible", timeout: 15000 });
-  assert.match(await page.locator("h1").textContent(), /Нет интернета/i);
+  assert.match(await page.locator("h1").textContent(), /Bağlantı yok/i);
 
   await page.goto(`${baseUrl}/menu.html?view=list`, { waitUntil: "domcontentloaded" });
   await page.locator("#menu-root > *").first().waitFor({ state: "visible", timeout: 15000 });
