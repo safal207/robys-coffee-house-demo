@@ -76,7 +76,11 @@ assert(!/\ssrc=["']/i.test(iframe), "MAP-001", "Third-party map must not load be
 assert(/^https:\/\/maps\.google\.com\/maps\?/i.test(mapSrc), "MAP-001", "Opt-in map must use the approved HTTPS Google Maps endpoint");
 assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Opt-in Google Maps URL must include output=embed");
 assert(/<button\b[^>]*\bdata-map-reveal\b[^>]*\bhidden\b/i.test(html), "MAP-001", "A hidden-by-default Show Map control must be available when JavaScript loads");
-const mapRouteRuntime = readFileSync("map-route.js", "utf8");
+const mapRouteBootstrap = readFileSync("map-route.js", "utf8");
+assert(mapRouteBootstrap.includes('destination_place_id') && mapRouteBootstrap.includes('IntersectionObserver')
+  && mapRouteBootstrap.includes('import("./map-route-controller.js?v='),
+  "MAP-001", "Route bootstrap must pin the Google Place and lazily load the consent controller");
+const mapRouteRuntime = readFileSync("map-route-controller.js", "utf8");
 assert(mapRouteRuntime.includes('reveal.addEventListener("click"') && mapRouteRuntime.includes("frame.src = url.href"),
   "MAP-001", "Only explicit user interaction may activate the third-party iframe");
 const mapLink = Array.from(html.matchAll(/<a\b[^>]*>/gi), (match) => match[0]).find((tag) => /\bclass=["'][^"']*\bmap-live-link\b[^"']*["']/i.test(tag)) ?? "";
