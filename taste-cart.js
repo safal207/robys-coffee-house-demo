@@ -41,9 +41,6 @@ function selectedIds() {
   return chosen;
 }
 if (root && dialog) {
-  const styles = make("link");
-  styles.rel = "stylesheet"; styles.href = "taste-cart.css";
-  document.head.append(styles);
   const dismissed = new Set();
   let busy = false, lastKey = "";
   function render() {
