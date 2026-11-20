@@ -359,7 +359,11 @@ writeFileSync("src/bootstrap-v2.js", bootstrapSource);
 const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
   minify: true, target: "es2020", legalComments: "none"
 }).code;
-writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${bootstrapSource}`);
+// The shared parser-blocking bootstrap already loads on the two Lighthouse
+// entry pages. Integrate the tiny route bootstrap here instead of issuing a
+// third first-party script request and breaching the 5% JS regression budget.
+// Emit minified output, but preserve the authored entry source for review.
+
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
 let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
@@ -377,6 +381,10 @@ let mapRouteEntry = readFileSync("map-route.js", "utf8");
 mapRouteEntry = mapRouteEntry.replace(/map-route-controller[.]js(?:[?]v=[a-f0-9]{12})?/, `map-route-controller.js?v=${mapRouteControllerRevision}`);
 writeFileSync("map-route.js", mapRouteEntry);
 const mapRouteRevision = revisionFor("map-route.js");
+const prepaintOptions = { minify: true, target: "es2020", legalComments: "none" };
+const entryPrepaint = transformSync(bootstrapSource, prepaintOptions).code;
+const routePrepaint = transformSync(mapRouteEntry, prepaintOptions).code;
+writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${entryPrepaint}\n${routePrepaint}`);
 const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
@@ -464,7 +472,8 @@ html = synchronizeStylesheet(html, "mobile.css", mobileStylesRevision);
 html = synchronizeStylesheet(html, "menu-preview.css", menuPreviewRevision);
 html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
-html = synchronizeScript(html, "map-route.js", mapRouteRevision);
+// The route logic is bundled into bootstrap-v2.js: do not request it again.
+html = html.replace(/^[ 	]*<script defer src="map-route[.]js[?]v=[a-f0-9]{12}"><\/script>\n/m, "");
 html = synchronizeStylesheet(html, "map-live.css", mapLiveCssRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
@@ -484,7 +493,7 @@ writeFileSync("discover.html", discoverHtml);
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
-menuHtml = synchronizeScript(menuHtml, "map-route.js", mapRouteRevision);
+menuHtml = menuHtml.replace(/^[ 	]*<script defer src="map-route[.]js[?]v=[a-f0-9]{12}"><\/script>\n/m, "");
 const menuStyleLinks = [...menuHtml.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)];
 const linkedMenuStyles = menuStyleLinks.map(([tag]) => tag.match(/\bhref="([^"?]+)/)?.[1]);
 const originalMenuStyles = MENU_STYLE_INPUTS.map(({ delivered }) => delivered);
