@@ -2009,6 +2009,266 @@ try {
     await context.close();
   }
 
+
+  // Verify the full manual paging path, then native scroll paging separately.
+  for (const manual of [true, false]) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 },
+      reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
+    await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    if (manual) await context.addInitScript(() => {
+      const Native = window.IntersectionObserver;
+      if (Native) window.IntersectionObserver = class extends Native {
+        observe(target) { if (target.id !== "feed-more-wrap") super.observe(target); }
+      };
+    });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors = []; observeErrors(page, errors);
+    try {
+      await page.goto(`${origin}/menu-feed.html?view=feed&lang=en`);
+      await waitForMenuMode(page, "feed");
+      const cards = page.locator(".feed-card"), more = page.locator("#feed-more"), end = page.locator("#feed-end");
+      const expected = catalog.map(product => product.id), counts = [];
+      async function prefix(count) {
+        const actual = await cards.evaluateAll(nodes => nodes.map(node => ({ id: node.dataset.productId, index: Number(node.dataset.index) })));
+        assert.deepEqual(actual, expected.slice(0, count).map((id,index) => ({ id,index })));
+        assert.equal(new Set(actual.map(row => row.id)).size, count);
+        counts.push(count);
+      }
+      if (manual) {
+        await prefix(8);
+        for (let i = 8; i < expected.length; i += 8) {
+          assert.equal(await more.isVisible(), true);
+          await more.click();
+          await prefix(Math.min(i+8, expected.length));
+        }
+        assert.deepEqual(counts, [8,16,24,32,40,48,56,63]);
+        assert.equal(await more.isVisible(), false);
+        assert.equal(await end.isVisible(), true);
+        await openDiscovery(page);
+        await page.locator("#feed-search").fill("missing-zx984");
+        await closeDiscovery(page);
+        assert.equal(await cards.count(), 0);
+        assert.equal(await page.locator("#feed-empty").isVisible(), true);
+        assert.equal(await more.isVisible(), false);
+        assert.equal(await end.isVisible(), false);
+        await page.locator("#feed-reset").click();
+        await prefix(8);
+        assert.equal(await page.locator("#feed-empty").isVisible(), false);
+        await more.click();
+        await prefix(16);
+      } else {
+        const before = await cards.count();
+        assert.ok(before >= 8 && before < expected.length);
+        await page.locator("#feed-more-wrap").evaluate(node => node.scrollIntoView({ block:"center",behavior:"instant" }));
+        await page.waitForFunction(count => document.querySelectorAll(".feed-card").length > count, before);
+        await prefix(await cards.count());
+      }
+      assert.equal(await page.locator("#menu-cart-count").textContent(), "0");
+      assert.deepEqual(errors, []);
+      report.cases.push({ case: manual ? "pagination-manual-full-catalog-and-reset" : "pagination-native-observer", result:"PASS",counts });
+    } finally { await context.close(); }
+  }
+  {
+    const context = await browser.newContext({ viewport:{width:390,height:844},ignoreHTTPSErrors:true,serviceWorkers:"block" });
+    const page = await context.newPage(); page.setDefaultTimeout(15000);
+    const errors=[]; page.on("pageerror",error=>errors.push(error.message));
+    try {
+      await page.goto(`${origin}/.github/qa/state-workbench.html`);
+      await page.locator("#role").selectOption("barista");
+      await page.locator("#pay").click();
+      assert.match(await page.locator("#result").textContent(),/403/);
+      assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      await page.locator("#role").selectOption("cashier");
+      await page.locator("#pay").click();
+      assert.equal(await page.locator("#current").textContent(),"preparing");
+      await page.locator("#issue").click();
+      assert.match(await page.locator("#result").textContent(),/409/);
+      await page.locator("#ready").click(); await page.locator("#issue").click();
+      assert.equal(await page.locator("#current").textContent(),"issued");
+      await page.locator("#reset").click();
+      assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      assert.equal(await page.locator("#hist-save").isDisabled(),true,"Standalone mode cannot claim persistent runner access");
+      const workflowReport={schemaVersion:1,type:"GITHUB_WORKFLOW_OBSERVATION_DIFF",
+        provenance:"GITHUB_ACTIONS_API_OBSERVATION_NOT_ATTESTATION",
+        beforeHead:"a".repeat(40),afterHead:"b".repeat(40),summary:{regressions:1,recovered:0,awaiting:1,missing:0},
+        rows:[{workflowId:41,name:"Counter service",from:"PASS",to:"FAIL",change:"REGRESSION",
+          beforeRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/1",
+          afterRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/2",afterRunId:2},
+          {workflowId:42,name:"Causal regression",from:"PASS",to:"PENDING",change:"AWAITING_CI",
+          beforeRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/3",
+          afterRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/4",afterRunId:4}]};
+      const ghaUpload=value=>page.locator("#gha-diff-file").setInputFiles({
+        name:"github-workflow-diff.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(value))});
+      await ghaUpload(workflowReport);
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("регрессий 1"));
+      assert.equal(await page.locator('#gha-diff-rows tr[data-workflow-change="REGRESSION"]').count(),1);
+      assert.equal(await page.locator('#gha-diff-rows tr[data-workflow-change="AWAITING_CI"]').count(),1);
+      assert.equal(await page.locator("#gha-diff-rows a").first().getAttribute("href"),
+        "https://github.com/safal207/robys-coffee-house-demo/actions/runs/2");
+      await ghaUpload({...workflowReport,rows:[{...workflowReport.rows[0],change:"UNCHANGED"},workflowReport.rows[1]]});
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("Отклонено"));
+      assert.equal(await page.locator("#gha-diff-rows tr").count(),0);
+      await ghaUpload({...workflowReport,rows:[{...workflowReport.rows[0],afterRun:"https://evil.test"},workflowReport.rows[1]]});
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("Отклонено"));
+      assert.equal(await page.locator("#gha-diff-rows tr").count(),0);
+      const snap=(head,checkStatus,caseStatus)=>{
+        const data={schemaVersion:1,head,registrySha256:null,
+          checks:[{id:"counter-contracts",status:checkStatus}],cases:[{id:"PAG-03",status:caseStatus}]};
+        return {...data,id:createHash("sha256").update(JSON.stringify(data)).digest("hex"),
+          recordedAt:"2026-11-18T10:00:00.000Z",trust:"LOCAL_UNVERIFIED_IMPORT"};
+      };
+      const snap1=snap("a".repeat(40),"PASS","FAIL"),snap2=snap("b".repeat(40),"FAIL","PASS");
+      const histUpload=items=>page.locator("#hist-import").setInputFiles(items.map((item,i)=>({
+        name:"snapshot-"+i+".json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(item))})));
+      await histUpload([snap1,snap2]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импортировано 2"));
+      await page.locator("#hist-from").selectOption(snap1.id);
+      await page.locator("#hist-to").selectOption(snap2.id);
+      assert.match(await page.locator("#hist-summary").textContent(),/регрессий 1.*восстановлений 1/);
+      assert.equal(await page.locator('#hist-diff tr[data-change="REGRESSION"]').count(),1);
+      assert.equal(await page.locator('#hist-diff tr[data-change="RECOVERED"]').count(),1);
+      assert.equal(await page.locator('#triage-cards article').count(),1,"only direct PASS to FAIL gets a triage candidate");
+      assert.match(await page.locator("#triage-summary").textContent(),/Кандидатов на расследование: 1.*нет совпадающего реестра/);
+      assert.match(await page.locator("#triage-cards").textContent(),/counter-contracts.*Severity не определена/);
+      const triageDownload=page.waitForEvent("download");
+      await page.locator("#triage-export").click();
+      const triageFile=await triageDownload;
+      assert.match(triageFile.suggestedFilename(),/^robys-qa-triage-b{8}\.json$/);
+      const triageStream=await triageFile.createReadStream(),triageParts=[];
+      for await(const part of triageStream)triageParts.push(part);
+      const triageData=JSON.parse(Buffer.concat(triageParts).toString("utf8"));
+      assert.equal(triageData.cards.length,1);
+      assert.equal(triageData.cards[0].testId,"counter-contracts");
+      assert.equal(triageData.cards[0].severity,"UNASSESSED");
+      assert.deepEqual(triageData.cards[0].linkedComponents,[]);
+      assert.equal(triageData.cards[0].evidence.provenance,"LOCAL_UNVERIFIED_IMPORT");
+      await histUpload([{...snap1,id:"0".repeat(64)}]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импорт отклонён"));
+      assert.equal(await page.locator("#hist-from option").count(),2,"bad digest must not enter history");
+      await page.locator("#hist-to").selectOption(snap2.id);
+      const downloadEvent=page.waitForEvent("download");
+      await page.locator("#hist-export").click();
+      const download=await downloadEvent;
+      assert.match(download.suggestedFilename(),/^qa-history-b{8}-[0-9a-f]{12}\.json$/);
+      const stream=await download.createReadStream(),chunks=[];
+      for await(const part of stream)chunks.push(part);
+      const exported=JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      assert.equal(exported.id,snap2.id);
+      assert.equal(exported.trust,"LOCAL_UNVERIFIED_IMPORT");
+      await page.locator("#property-run").click();
+      const seeded=await page.locator("#property-events li").allTextContents();
+      assert.equal(seeded.length,24);
+      assert.match(await page.locator("#property-summary").textContent(),/24 операций/);
+      await page.locator("#property-run").click();
+      assert.deepEqual(await page.locator("#property-events li").allTextContents(),seeded,"same seed is replayable");
+      await page.locator("#property-seed").fill("20261119");
+      await page.locator("#property-run").click();
+      assert.notDeepEqual(await page.locator("#property-events li").allTextContents(),seeded);
+      await page.locator("#property-seed").fill("0");
+      await page.locator("#property-run").click();
+      assert.match(await page.locator("#property-summary").textContent(),/Неверный seed/);
+      for(const mode of ["offline","lost","stale"]){
+        await page.locator("#chaos-"+mode).click();
+        assert.equal(await page.locator("#chaos-events li").count(),4);
+        assert.match(await page.locator("#chaos-summary").textContent(),/Модель:.*не реальный запуск/);
+      }
+      for(const button of ["temporal-late","temporal-retry","temporal-reverse"]){
+        await page.locator("#"+button).click();
+        assert.match(await page.locator("#temporal-result").textContent(),/v4.*issued/);
+        assert.equal(await page.locator("#temporal-events li").count(),4);
+        assert.ok(await page.locator('#temporal-track [data-status="RISK"]').count()>0);
+      }
+      await page.locator("#temporal-reset").click();
+      assert.match(await page.locator("#temporal-result").textContent(),/v0/);
+      assert.equal(await page.locator("#temporal-events li").count(),0);
+      await page.locator("#filter").fill("PAG-");
+      assert.equal(await page.locator("#cases tr").count(),4);
+      const sha="a".repeat(40);
+      await page.locator("#expected-head").fill(sha);
+      const registryBytes=readFileSync("qa/causal-regression-graph.json");
+      const digest=createHash("sha256").update(registryBytes).digest("hex");
+      const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},registrySha256:digest,status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
+      await page.locator("#graph-file").setInputFiles({name:"graph.json",mimeType:"application/json",buffer:registryBytes});
+      await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("Реестр загружен"));
+      const graphSnap=(head,checkStatus,caseStatus)=>{
+        const data={schemaVersion:1,head,registrySha256:digest,
+          checks:[{id:"counter-contracts",status:checkStatus}],cases:[{id:"PAG-03",status:caseStatus}]};
+        return {...data,id:createHash("sha256").update(JSON.stringify(data)).digest("hex"),
+          recordedAt:"2026-11-18T12:00:00.000Z",trust:"LOCAL_UNVERIFIED_IMPORT"};
+      };
+      const linkedBefore=graphSnap("c".repeat(40),"PASS","PASS"),linkedAfter=graphSnap("d".repeat(40),"FAIL","FAIL");
+      await histUpload([linkedBefore,linkedAfter]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импортировано 2"));
+      await page.locator("#hist-from").selectOption(linkedBefore.id);
+      await page.locator("#hist-to").selectOption(linkedAfter.id);
+      assert.equal(await page.locator("#triage-cards article").count(),2);
+      assert.match(await page.locator("#triage-summary").textContent(),/связи по совпадающему реестру/);
+      const caseCard=page.locator('[data-triage="PAG-03"]');
+      assert.match(await caseCard.textContent(),/menu-feed/);
+      await caseCard.getByRole("button",{name:"Открыть на карте влияния"}).click();
+      assert.equal(await page.locator("#impact-check").inputValue(),"case:PAG-03");
+      assert.ok(await page.locator("#impact-map .impact-node").count()>0);
+      const directEvidence={head:sha,engine:"chromium",runtimeSha256:"f".repeat(64),cases:[
+        {case:"pagination-manual-full-catalog-and-reset",result:"PASS"},
+        {case:"pagination-native-observer",result:"FAIL"}]};
+      const uploadCases=async result=>page.locator("#case-evidence-file").setInputFiles({
+        name:"chromium-report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(result))});
+      await uploadCases(directEvidence);
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("Импортировано"));
+      assert.match((await page.locator("#cases tr").first().textContent()),/CASE PASS/);
+      await page.locator("#impact-check").selectOption("case:PAG-03");
+      assert.equal(await page.locator('#impact-map [data-status="FAIL"]').count(),1);
+      assert.ok(await page.locator('#impact-map [data-status="RISK"]').count()>0);
+      await uploadCases({...directEvidence,head:"b".repeat(40)});
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("отклонён"));
+      assert.match((await page.locator("#cases tr").first().textContent()),/NOT_RUN/);
+      await uploadCases({...directEvidence,cases:[...directEvidence.cases,directEvidence.cases[0]]});
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("отклонён"));
+      await uploadCases(directEvidence);
+      await page.waitForFunction(()=>document.querySelector("#case-evidence-status").textContent.includes("Импортировано"));
+      await page.locator("#impact-check").selectOption("case:ST-03");
+      assert.equal(await page.locator("#role").inputValue(),"barista");
+      assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      await page.locator("#pay").click();
+      assert.match(await page.locator("#result").textContent(),/403/);
+      await page.locator("#impact-check").selectOption("case:ST-04");
+      assert.equal(await page.locator("#current").textContent(),"preparing");
+      assert.equal(await page.locator("#request-version").inputValue(),"1");
+      await page.locator("#pay").click();
+      assert.match(await page.locator("#result").textContent(),/200.*идемпотентный повтор/);
+      assert.equal(await page.locator("#current").textContent(),"preparing");
+      assert.equal(await page.locator("#request-version").inputValue(),"2");
+      await page.locator("#pay").click();
+      assert.match(await page.locator("#result").textContent(),/409/);
+      await page.locator("#impact-check").selectOption("case:ST-01");
+      assert.equal(await page.locator('#impact-map [data-status="FAIL"]').count(),0);
+      await page.locator("#impact-check").selectOption("menu-feed-browser");
+      const upload=async report=>page.locator("#report-file").setInputFiles({name:"report.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(report))});
+      await upload(reportFixture);
+      await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Импортирован"));
+      assert.match(await page.locator("#cases tr").first().textContent(),/PASS.*импорт CI/);
+      assert.match(await page.locator("#graph-status").textContent(),/SHA-256 реестра совпадает/);
+      assert.equal(await page.locator('#impact-map [data-status="PASS"]').count(),1);
+      await upload({...reportFixture,status:"FAIL",checks:[{id:"menu-feed-browser",selected:true,status:"FAIL"}]});
+      await page.waitForFunction(()=>document.querySelector('#impact-map [data-status="FAIL"]'));
+      assert.ok(await page.locator('#impact-map [data-status="RISK"]').count()>0);
+      assert.ok((await page.locator("#impact-journeys").textContent()).includes("menu-search"));
+      await upload({...reportFixture,registrySha256:"0".repeat(64)});
+      await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("не совпадает"));
+      assert.equal(await page.locator('#impact-map [data-status="PASS"]').count(),0);
+      assert.match(await page.locator("#cases tr").first().textContent(),/NOT_RUN/);
+
+      await upload({...reportFixture,source:{revision:"b".repeat(40),dirty:false}});
+      await page.waitForFunction(()=>document.querySelector("#evidence-status").textContent.includes("Отклонено"));
+      assert.match(await page.locator("#cases tr").first().textContent(),/NOT_RUN/);
+      assert.equal(await page.locator("#run-check").isDisabled(),true,"Standalone browser cannot execute host commands");
+      await page.locator("#filter").fill("impossible-case");
+      assert.equal(await page.locator("#cases tr").count(),0);
+      assert.deepEqual(errors,[]);
+      report.cases.push({case:"qa-state-workbench-functional",result:"PASS",modelOnly:true});
+    } finally { await context.close(); }
+  }
+
   const noJs = await browser.newContext({ javaScriptEnabled: false, ignoreHTTPSErrors: true });
   const fallback = await noJs.newPage(); await fallback.goto(`${origin}/menu-feed.html`);
   assert.equal(await fallback.locator(".feed-fallback").isVisible(), true);

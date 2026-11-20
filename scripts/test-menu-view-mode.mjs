@@ -300,3 +300,262 @@ test("all menu surfaces present feed, photos and list in the requested order", (
   for (const file of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js"]) assert.ok(sw.includes(`./${file}`));
   assert.match(sw, /if \(isMenuGrid\) return cachedPage\("menu-grid.html"\)/);
 });
+
+
+// Deterministic strength-2 covering array. Validate coverage independently
+// against every value pair in the factor domains, not just the selected rows.
+function coveringRows(factors) {
+  const all = factors.reduce((rows, values) =>
+    rows.flatMap(row => values.map(value => [...row, value])), [[]]);
+  const key = (i, value, j, other) => JSON.stringify([i, value, j, other]);
+  const keys = row => row.flatMap((value, i) =>
+    row.slice(i + 1).map((other, j) => key(i, value, i + j + 1, other)));
+  const required = new Set();
+  for (let i = 0; i < factors.length; i++) for (let j = i + 1; j < factors.length; j++)
+    for (const value of factors[i]) for (const other of factors[j]) required.add(key(i, value, j, other));
+  const remaining = new Set(required);
+  const candidates = all.map(row => ({ row, keys: keys(row) }));
+  const selected = [];
+  while (remaining.size) {
+    let best, score = 0;
+    for (const candidate of candidates) {
+      const gain = candidate.keys.filter(pair => remaining.has(pair)).length;
+      if (gain > score) { best = candidate; score = gain; }
+    }
+    assert.ok(best, "covering array cannot leave any pair uncovered");
+    selected.push(best.row);
+    for (const pair of best.keys) remaining.delete(pair);
+  }
+  assert.deepEqual(new Set(selected.flatMap(keys)), required);
+  return { rows: selected, full: all.length, pairs: required.size };
+}
+
+test("PAIRWISE: fresh menu entry respects explicit intent, history, preference and timing", async t => {
+  const factors = [
+    ["generic", "lang", "search", "anchor"], ["feed", "list", "grid", null],
+    ["navigate", "reload", "back_forward", null], ["new", "visited"], ["list", "alias", "feed"]
+  ];
+  const { rows, full, pairs } = coveringRows(factors);
+  assert.equal(full, 384);
+  assert.equal(pairs, 114);
+  assert.equal(rows.length, 18);
+  const suffixes = { generic: "", lang: "?lang=ru", search: "?q=coffee", anchor: "#desserts" };
+  const paths = { list: "menu.html", alias: "menu", feed: "menu-feed.html" };
+  let positive = 0, negative = 0;
+  for (const [entry, preference, timing, history, path] of rows) {
+    await t.test(JSON.stringify([entry, preference, timing, history, path]), () => {
+      const href = new URL(paths[path] + suffixes[entry], base).href;
+      const historyState = history === "visited" ? { robysMenuViewEntry: "list" } : null;
+      // Expected by product contract: only a fresh, unqualified list entry can redirect.
+      const expected = entry === "generic" && ["feed", null].includes(preference)
+        && timing === "navigate" && history === "new" && path !== "feed";
+      assert.equal(shouldOpenPreferredFeed(href, preference, timing, historyState), expected);
+      if (expected) positive++; else negative++;
+    });
+  }
+  assert.ok(positive > 0 && negative > 0, "positive and denial controls are required");
+  t.diagnostic(`${rows.length}/${full} combinations; ${pairs}/${pairs} distinct factor pairs`);
+});
+
+test("PAIRWISE: language, view, category, Unicode search and product intent survive URL roundtrip", async t => {
+  const { rows, full, pairs } = coveringRows([
+    ["tr", "en", "ru"], ["feed", "grid", "list"], ["all", "desserts", "hot-coffee"],
+    ["", "Чай & кофе", "tatlı"], [null, "hot-coffee:espresso", "desserts:brownie"]
+  ]);
+  assert.equal(full, 243);
+  assert.equal(pairs, 90);
+  assert.equal(rows.length, 15);
+  const paths = { feed: "/cafe/menu-feed.html", grid: "/cafe/menu-grid.html", list: "/cafe/menu.html" };
+  for (const [language, view, category, search, productId] of rows) {
+    await t.test(JSON.stringify([language, view, category, search, productId]), () => {
+      const url = new URL(menuViewUrl(base, view, { language, category, search, productId }, categories));
+      const productCategory = productId?.split(":")[0];
+      const keepProduct = !search && productId !== null && (category === "all" || category === productCategory);
+      assert.equal(url.origin, new URL(base).origin);
+      assert.equal(url.pathname, paths[view]);
+      assert.equal(url.searchParams.get("view"), view);
+      assert.equal(url.searchParams.get("lang"), language);
+      assert.equal(url.searchParams.get("q"), search || null);
+      assert.equal(url.hash, category === "all" ? "" : "#" + category);
+      assert.equal(url.searchParams.get(view === "feed" ? "item" : "product"), keepProduct ? productId : null);
+      assert.equal(url.searchParams.has(view === "feed" ? "product" : "item"), false);
+      const restored = readMenuViewContext(url.href, categories);
+      assert.equal(restored.language, language);
+      assert.equal(restored.search, search);
+      assert.equal(restored.hasSearch, Boolean(search));
+      assert.equal(restored.category, keepProduct ? productCategory : category);
+      assert.equal(restored.productId, keepProduct ? productId : null);
+    });
+  }
+  t.diagnostic(`${rows.length}/${full} combinations; ${pairs}/${pairs} distinct factor pairs`);
+});
+
+
+test("QA runner isolates loopback and validates exact head and allowlisted selection", async t => {
+  const { createWorkbenchServer } = await import("../.github/qa/local-runner.mjs");
+  const head="a".repeat(40), calls=[];
+  const server=createWorkbenchServer({getHead:()=>head,run:async(check,revision)=>{
+    calls.push([check,revision]);return {check,head:revision,status:"PASS",artifact:".artifacts/test-only"};
+  }});
+  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
+  t.after(()=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections?.()}));
+  const origin="http://127.0.0.1:"+server.address().port;
+  const config=await (await fetch(origin+"/api/config")).json();
+  assert.equal(config.head,head);
+  const graphResponse=await fetch(origin+"/api/graph");
+  assert.equal(graphResponse.status,200);
+  assert.equal(await graphResponse.text(),readFileSync(new URL("../qa/causal-regression-graph.json",import.meta.url),"utf8"));
+
+  const post=(data,token=config.token,source=origin)=>fetch(origin+"/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":token,Origin:source},body:JSON.stringify(data)});
+  assert.equal((await post({check:"counter-contracts",head},"wrong")).status,403);
+  assert.equal((await post({check:"counter-contracts",head},config.token,"https://evil.test")).status,403);
+  assert.equal((await post({check:"arbitrary-command",head})).status,400);
+  assert.equal((await post({check:"counter-contracts",head,command:"not allowed"})).status,400);
+  assert.equal((await post({check:"counter-contracts",head:"b".repeat(40)})).status,409);
+  assert.deepEqual(calls,[]);
+  const good=await post({check:"counter-contracts",head});
+  assert.equal(good.status,200);assert.equal((await good.json()).status,"PASS");
+  assert.deepEqual(calls,[["counter-contracts",head]]);
+});
+
+
+test("QA history: durable snapshots, deterministic diff, and corrupt-record rejection",async t=>{
+  const {mkdtempSync,rmSync,readFileSync,writeFileSync}=await import("node:fs");
+  const {tmpdir}=await import("node:os");
+  const {join}=await import("node:path");
+  const {createHistoryStore,compareHistorySnapshots}=await import("../.github/qa/history-store.mjs");
+  const dir=mkdtempSync(join(tmpdir(),"robys-qa-history-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const store=createHistoryStore(dir),h1="a".repeat(40),h2="b".repeat(40),digest="c".repeat(64);
+  const sample={head:h1,registrySha256:digest,checks:[{id:"counter-contracts",status:"PASS"}],
+    cases:[{id:"PAG-01",status:"PASS"},{id:"PAG-03",status:"FAIL"}]};
+  const first=store.save(sample);
+  assert.equal(first.id.length,64);
+  assert.equal(store.save(sample).id,first.id,"same snapshot cannot be duplicated");
+  assert.equal(createHistoryStore(dir).list().length,1,"persistent after reopening store");
+  const second=store.save({...sample,head:h2,checks:[{id:"counter-contracts",status:"FAIL"}],
+    cases:[{id:"PAG-01",status:"FAIL"},{id:"PAG-03",status:"PASS"}]});
+  const delta=compareHistorySnapshots(first,second);
+  assert.equal(delta.regressions,2);assert.equal(delta.recovered,1);assert.equal(delta.registryChanged,false);
+  assert.deepEqual(delta.rows.map(row=>[row.kind,row.id,row.change]),[
+    ["checks","counter-contracts","REGRESSION"],["cases","PAG-01","REGRESSION"],["cases","PAG-03","RECOVERED"]]);
+  assert.throws(()=>store.save({...sample,checks:[...sample.checks,...sample.checks]}),/invalid_checks/);
+  assert.throws(()=>store.save({...sample,head:"../escape"}),/invalid_snapshot/);
+  assert.throws(()=>store.save({...sample,cases:[{id:"PAG-03",status:"NOT_RUN"}]}),/invalid_cases/);
+  const filename=`snapshot-${first.head}-${first.id}.json`;
+  const data=JSON.parse(readFileSync(join(dir,filename),"utf8"));
+  writeFileSync(join(dir,filename),JSON.stringify({...data,checks:[{id:"counter-contracts",status:"FAIL"}]}));
+  assert.throws(()=>store.list(),/history_digest_mismatch/);
+  writeFileSync(join(dir,filename),JSON.stringify({...data,trust:"CI_ATTESTED"}));
+  assert.throws(()=>store.list(),/corrupt_history/);
+});
+
+
+test("QA history HTTP: token/origin, bounded writes, dedupe and cross-run listing",async t=>{
+  const {mkdtempSync,rmSync}=await import("node:fs");const {tmpdir}=await import("node:os");const {join}=await import("node:path");
+  const {createWorkbenchServer}=await import("../.github/qa/local-runner.mjs");
+  const dir=mkdtempSync(join(tmpdir(),"robys-qa-http-history-"));t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const head="a".repeat(40);
+  const server=createWorkbenchServer({getHead:()=>head,historyDir:dir,run:async()=>{throw Error("should not execute")}});
+  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
+  t.after(()=>new Promise(resolve=>{server.closeAllConnections?.();server.close(resolve)}));
+  const origin="http://127.0.0.1:"+server.address().port;
+  const cfg=await(await fetch(origin+"/api/config")).json();
+  const headers={"Content-Type":"application/json","X-QA-Token":cfg.token,Origin:origin};
+  const payload={head,registrySha256:null,checks:[],cases:[{id:"PAG-03",status:"FAIL"}]};
+  assert.equal((await fetch(origin+"/api/history")).status,403);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers:{...headers,Origin:"https://evil.test"},body:JSON.stringify(payload)})).status,403);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify({...payload,head:"b".repeat(40)})})).status,409);
+  const post=()=>fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify(payload)});
+  const one=await post();assert.equal(one.status,201);const stored=(await one.json()).snapshot;
+  assert.equal((await post()).status,201);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:"{"})).status,400);
+  assert.equal((await fetch(origin+"/api/run",{method:"POST",headers,body:"{"})).status,400);
+  const history=await fetch(origin+"/api/history",{headers:{"X-QA-Token":cfg.token}});
+  assert.equal(history.status,200);const list=(await history.json()).history;
+  assert.equal(list.length,1);assert.equal(list[0].id,stored.id);assert.equal(list[0].trust,"LOCAL_UNVERIFIED_IMPORT");
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify({...payload,cases:[{id:"PAG-03",status:"BOGUS"}]})})).status,400);
+});
+
+
+test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetical",async()=>{
+  const {buildRegressionCards}=await import("../.github/qa/regression-cards.mjs");
+  const {readFileSync}=await import("node:fs");
+  const {createHash}=await import("node:crypto");
+  const graphText=readFileSync(new URL("../qa/causal-regression-graph.json",import.meta.url));
+  const digest=createHash("sha256").update(graphText).digest("hex"),graph=JSON.parse(graphText);
+  const {normalizeHistorySnapshot}=await import("../.github/qa/history-store.mjs");
+  const make=(head,checks,cases,sha=digest)=>{
+    const canonical=normalizeHistorySnapshot({head,registrySha256:sha,checks,cases});
+    return {...canonical,id:createHash("sha256").update(JSON.stringify(canonical)).digest("hex"),
+      trust:"LOCAL_UNVERIFIED_IMPORT"};
+  };
+  const first=make("a".repeat(40),[{id:"counter-contracts",status:"PASS"},
+    {id:"source-contracts",status:"FAIL"}],[{id:"PAG-03",status:"PASS"},{id:"PAG-01",status:"FAIL"}]);
+  const second=make("b".repeat(40),[{id:"counter-contracts",status:"FAIL"},
+    {id:"source-contracts",status:"PASS"}],[{id:"PAG-03",status:"FAIL"},{id:"PAG-01",status:"NOT_RUN"}].filter(x=>x.status!=="NOT_RUN"));
+  const result=buildRegressionCards(first,second,graph,digest);
+  assert.equal(result.registryCompatible,true);
+  assert.equal(result.cards.length,2);
+  assert.deepEqual(result.cards.map(x=>x.testId),["counter-contracts","PAG-03"]);
+  const suiteCard=result.cards[0],caseCard=result.cards[1];
+  assert.deepEqual(caseCard.linkedComponents,["menu-feed"]);
+  assert(suiteCard.linkedComponents.includes("counter-service"));
+  assert(caseCard.potentialDownstream.length>0);
+  assert(result.cards.every(x=>x.severity==="UNASSESSED"&&x.review==="NEEDS_TRIAGE"
+    &&x.componentLinks==="HYPOTHESIS_ONLY"&&x.evidence.provenance==="LOCAL_UNVERIFIED_IMPORT"));
+  const mismatched=buildRegressionCards(first,{...second,registrySha256:"f".repeat(64)},graph,digest);
+  assert.equal(mismatched.registryCompatible,false);
+  assert(mismatched.cards.every(x=>!x.linkedComponents.length&&!x.potentialDownstream.length&&!x.relatedJourneys.length));
+  const noGraph=buildRegressionCards(first,second,null,null);
+  assert.equal(noGraph.registryCompatible,false);
+  assert.equal(noGraph.cards.length,2);
+  assert.throws(()=>buildRegressionCards({...first,trust:"CI_ATTESTED"},second,graph,digest),/untrusted_history_record/);
+  assert.throws(()=>buildRegressionCards({...first,checks:[{id:"counter-contracts",status:"FAIL"},...first.checks.slice(1)]},second,graph,digest),/history_digest_mismatch/);
+  assert.throws(()=>buildRegressionCards(first,{...second,id:"a".repeat(64)},graph,digest),/history_digest_mismatch/);
+  assert.deepEqual(buildRegressionCards(second,first,graph,digest).cards.map(x=>x.testId),["source-contracts"]);
+  const same=buildRegressionCards(first,first,graph,digest);
+  assert.equal(same.cards.length,0);
+});
+
+
+test("GitHub workflow diff: two real-head-shaped API responses never promote queued jobs to PASS",async()=>{
+  const {normalizeGithubWorkflows,compareGithubWorkflows,getGithubWorkflows}=await import("../.github/qa/github-workflow-diff.mjs");
+  const a="a".repeat(40),b="b".repeat(40),url=id=>"https://github.com/safal207/robys-coffee-house-demo/actions/runs/"+id;
+  const run=(id,workflowId,sha,status,conclusion)=>({
+    id,workflow_id:workflowId,run_attempt:1,name:"QA "+workflowId,head_sha:sha,
+    status,conclusion,html_url:url(id)
+  });
+  const prior={total_count:3,workflow_runs:[
+    run(5,41,a,"completed","success"),
+    run(6,42,a,"completed","failure"),
+    run(7,43,a,"completed","success")]};
+  const next={total_count:4,workflow_runs:[
+    run(8,41,b,"completed","failure"),
+    run(9,42,b,"completed","success"),
+    run(10,43,b,"queued",null),
+    run(11,44,b,"completed","cancelled")]};
+  const first=normalizeGithubWorkflows(prior,a),second=normalizeGithubWorkflows(next,b);
+  const result=compareGithubWorkflows(first,second);
+  assert.equal(result.summary.regressions,1);
+  assert.equal(result.summary.recovered,1);
+  assert.equal(result.summary.awaiting,1);
+  assert.deepEqual(result.rows.map(x=>x.change),["REGRESSION","RECOVERED","AWAITING_CI","NEW_WORKFLOW"]);
+  assert.equal(result.rows[0].afterRun,url(8));
+  assert.equal(result.rows[2].to,"PENDING");
+  assert.equal(result.rows[3].to,"INCOMPLETE");
+  const mockFetch=async request=>{assert.match(request,/head_sha=b{40}/);return {ok:true,json:async()=>next};};
+  const fromApi=await getGithubWorkflows(b,{fetcher:mockFetch,token:""});
+  assert.deepEqual(fromApi,second);
+  assert.throws(()=>normalizeGithubWorkflows({...next,total_count:101},b),/incomplete_github_workflow_page/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs,run(12,45,a,"completed","success")],total_count:5},b),/invalid_github_workflow_run/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs,run(12,45,b,"completed","success")],total_count:4},b),/incomplete_github_workflow_page/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs.slice(0,3),{...next.workflow_runs[3],html_url:"https://example.test/actions/runs/11"}]},b),/invalid_github_workflow_run/);
+  const reruns=normalizeGithubWorkflows({total_count:2,workflow_runs:[
+    run(14,41,b,"completed","success"),run(13,41,b,"completed","failure")
+  ]},b);
+  assert.equal(reruns.workflows.length,1);
+  assert.equal(reruns.workflows[0].verdict,"PASS");
+  const removed=compareGithubWorkflows(second,{...first,head:a});
+  assert.equal(removed.rows.find(x=>x.workflowId===44).change,"MISSING_WORKFLOW");
+});

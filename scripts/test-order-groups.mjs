@@ -421,3 +421,138 @@ test("a pending session write never rolls back a newer canonical draft from anot
     } finally { delete globalThis.localStorage; delete globalThis.sessionStorage; }
   }
 });
+
+
+// Model-based boundary sweep: one independent tea line and an unrelated cake
+// line. The oracle is the documented 1..99 cap; zero is removal on edit only.
+test("MBT: cart quantity state × command × boundary preserves unrelated lines", async t => {
+  const states = [0, 1, 2, 50, 98, 99];
+  const inputs = [-1, 0, 1, 2, 98, 99, 100, 1.5];
+  const covered = new Set();
+  for (const quantity of states) {
+    for (const command of ["add", "edit"]) {
+      for (const input of inputs) {
+        const label = `${quantity} / ${command} / ${input}`;
+        await t.test(label, () => {
+          let before = addOrderGroup(null, [line("cake")], 2, ids).draft;
+          if (quantity) before = addOrderGroup(before, [line("tea")], quantity, ids).draft;
+          const target = before.groups.find(group => group.items.some(item => item.id === "tea"));
+          const valid = Number.isInteger(input) && (command === "add"
+            ? input >= 1 && quantity + input <= 99
+            : quantity > 0 && input >= 0 && input <= 99);
+          const expected = valid ? (command === "add" ? quantity + input : input) : quantity;
+          const snapshot = JSON.parse(JSON.stringify(before));
+          const result = command === "add"
+            ? addOrderGroup(before, [line("tea")], input, ids)
+            : updateOrderGroupQuantity(before, target?.id ?? "__absent__", input, ids);
+          assert.equal(result.applied, valid);
+          assert.equal(result.blocked, !valid);
+          assert.deepEqual(before, snapshot, "input draft must not be mutated");
+          if (!valid) assert.deepEqual(result.draft, before);
+          assert.deepEqual(result.draft.lines, [line("cake", 2), ...(expected ? [line("tea", expected)] : [])]);
+          assert.equal(result.draft.groups.length, expected ? 2 : 1);
+          assert.deepEqual(normalizeOrderDraft(JSON.parse(JSON.stringify(result.draft)), ids), result.draft);
+          covered.add(label);
+        });
+      }
+    }
+  }
+  assert.equal(covered.size, 96, "all declared quantity/command/input cells must execute successfully");
+});
+
+
+// Targeted, in-memory mutation controls. Never overwrite a runtime file.
+// The original module must satisfy each oracle; a mutant only counts as killed
+// by its corresponding assertion, not by a syntax/import/runtime failure.
+test("MUTATION: cart business invariant oracles kill seven deliberate defects", async t => {
+  const source = readFileSync(new URL("../src/order-draft.js", import.meta.url), "utf8");
+  const load = code => import("data:text/javascript;base64," + Buffer.from(code).toString("base64"));
+  const baseline = await load(source);
+  const add = (module, raw, items, quantity) => module.addOrderGroup(raw, items, quantity, ids);
+  const mutations = [
+    { name: "accept quantity 100", from: "export const MAX_ORDER_QUANTITY = 99;",
+      to: "export const MAX_ORDER_QUANTITY = 100;",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 100).blocked, true) },
+    { name: "reject legal quantity 99", from: "export const MAX_ORDER_QUANTITY = 99;",
+      to: "export const MAX_ORDER_QUANTITY = 98;",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 99).applied, true) },
+    { name: "accept fractional quantity", from: "Number.isInteger(value) && value > 0",
+      to: "Number.isFinite(value) && value > 0",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 1.5).blocked, true) },
+    { name: "accept zero on add", from: "value > 0 && value <= MAX_ORDER_QUANTITY",
+      to: "value >= 0 && value <= MAX_ORDER_QUANTITY",
+      oracle: m => assert.equal(add(m, null, [line("tea")], 0).blocked, true) },
+    { name: "bypass aggregate product cap", from: "if (!positive(group.quantity) || !withinLimit(groups)) return { draft, applied: false, blocked: true };",
+      to: "if (!positive(group.quantity)) return { draft, applied: false, blocked: true };",
+      oracle: m => {
+        const full = add(m, null, [line("tea")], 99).draft;
+        const attempt = add(m, full, [line("tea"), line("cake")], 1);
+        assert.equal(attempt.blocked, true);
+        assert.deepEqual(attempt.draft, full);
+      } },
+    { name: "omit group multiplier", from: "lines.set(item.id, (lines.get(item.id) ?? 0) + item.quantity * group.quantity);",
+      to: "lines.set(item.id, (lines.get(item.id) ?? 0) + item.quantity);",
+      oracle: m => assert.deepEqual(add(m, null, [line("tea"), line("cake")], 3).draft.lines, [line("cake", 3), line("tea", 3)]) },
+    { name: "retain removed group", from: "quantity ? [{ ...group, quantity }] : []",
+      to: "quantity ? [{ ...group, quantity }] : [group]",
+      oracle: m => {
+        const original = add(m, add(m, null, [line("cake")], 2).draft, [line("tea")], 1).draft;
+        const target = original.groups.find(group => group.items[0].id === "tea");
+        const result = m.updateOrderGroupQuantity(original, target.id, 0, ids);
+        assert.equal(result.applied, true);
+        assert.deepEqual(result.draft.lines, [line("cake", 2)]);
+      } }
+  ];
+  let killed = 0;
+  for (const { name, from, to, oracle } of mutations) {
+    await t.test(name, async () => {
+      assert.doesNotThrow(() => oracle(baseline), "unmodified source must pass the same oracle");
+      assert.equal(source.split(from).length, 2, "mutation anchor must occur exactly once");
+      const mutatedSource = source.replace(from, to);
+      assert.notEqual(mutatedSource, source);
+      const mutant = await load(mutatedSource);
+      assert.throws(() => oracle(mutant), { code: "ERR_ASSERTION" }, "surviving mutant or unrelated error");
+      killed++;
+    });
+  }
+  assert.equal(killed, mutations.length);
+  t.diagnostic(`${killed}/${mutations.length} targeted mutants killed; not a repository-wide mutation score`);
+});
+
+
+// Dependency-free property-based sequences. Each seed deterministically
+// generates the same operations; the oracle is independent of the draft
+// implementation's group ID and normalization logic.
+test("PROPERTY: 32 seeded × 80 cart commands preserve quantities, unrelated lines, and atomic rejection", async t => {
+  const seeds=Array.from({length:32},(_,i)=>0x520000+i*109);
+  const products=["tea","coffee","cake"], boundaries=[-1,0,1,2,3,49,98,99,100,1.5,null];
+  const seeded=seed=>{let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return x>>>0;}};
+  for(const seed of seeds)await t.test("seed="+seed,()=>{
+    const random=seeded(seed), expected=new Map(products.map(id=>[id,0]));
+    let draft=normalizeOrderDraft(null,ids);
+    for(let step=0;step<80;step++){
+      const id=products[random()%products.length],input=boundaries[random()%boundaries.length];
+      const command=random()%3, before=JSON.parse(JSON.stringify(draft));
+      const previous=expected.get(id),target=draft.groups.find(g=>g.items.length===1&&g.items[0].id===id);
+      const valid=command===0?Number.isInteger(input)&&input>0&&input<=99&&previous+input<=99
+        :Number.isInteger(input)&&input>=0&&input<=99&&previous>0;
+      const next=command===0?previous+input:command===1?input:0;
+      const result=command===0?addOrderGroup(draft,[line(id)],input,ids)
+        :updateOrderGroupQuantity(draft,target?.id??"missing-group",command===2?0:input,ids);
+      const applied=command===2?previous>0:valid;
+      assert.equal(result.applied,applied,`seed=${seed}, step=${step}, cmd=${command}, id=${id}, input=${input}`);
+      assert.equal(result.blocked,!applied);
+      assert.deepEqual(draft,before,"updater may not mutate the previous snapshot");
+      if(applied)expected.set(id,command===2?0:next);
+      else assert.deepEqual(result.draft,draft,"rejected operation must be atomic");
+      draft=result.draft;
+      const lines=[...expected].filter(([,qty])=>qty>0).map(([key,quantity])=>line(key,quantity))
+        .sort((a,b)=>a.id.localeCompare(b.id,"en"));
+      assert.deepEqual(draft.lines,lines,`seed=${seed}, step=${step}`);
+      assert.equal(draft.groups.length,lines.length);
+      assert(draft.lines.every(entry=>Number.isInteger(entry.quantity)&&entry.quantity>0&&entry.quantity<=99));
+      assert.deepEqual(normalizeOrderDraft(JSON.parse(JSON.stringify(draft)),ids),draft);
+    }
+  });
+  t.diagnostic("2,560 generated cart operations; fixed seeds and independent line-quantity oracle");
+});

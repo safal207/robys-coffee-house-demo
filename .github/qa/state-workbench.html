@@ -1,0 +1,522 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Roby's QA Workbench</title><style>
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#eef3f7;font:15px/1.5 system-ui,sans-serif}main{max-width:1040px;margin:auto;padding:24px}small,p{color:#b8c5d0}h1{font-size:clamp(24px,5vw,36px)}section{background:#1b2732;border:1px solid #354555;border-radius:16px;padding:18px;margin:16px 0}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}.step{border:1px solid #526473;border-radius:10px;padding:12px;overflow-wrap:anywhere}.active{border:2px solid #69d6ad;background:#15382e}.step small{display:block}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,input,select{font:inherit;color:inherit;background:#101820;border:1px solid #526473;border-radius:8px;padding:9px 12px}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #69d6ad}#result{border-left:3px solid #f3c681;padding-left:12px}#history{max-height:145px;overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:9px 5px;text-align:left;border-bottom:1px solid #354555;vertical-align:top}.table-wrap{overflow:auto}#filter{width:100%;margin:8px 0}@media(max-width:650px){main{padding:12px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}section{padding:14px}}
+.impact-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.impact-node{border:1px solid #526473;border-radius:8px;padding:8px;max-width:100%;overflow-wrap:anywhere}.impact-node[data-status="FAIL"]{border:2px solid #f48b8b;background:#421f28}.impact-node[data-status="PASS"]{border:2px solid #69d6ad}.impact-node[data-status="RISK"]{border-color:#f3c681}#impact-journeys,#observations{max-height:250px;overflow:auto;overflow-wrap:anywhere}#impact-map h3{margin:12px 0 4px}</style></head><body><main><small>ROBY’S / QA LAB</small><h1>Диаграмма переходов состояний</h1><p>Локальная модель Counter. Нет реальных заказов, оплаты и сетевых запросов. Не является CI-доказательством.</p>
+<section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><label for="request-version">Версия запроса</label><input id="request-version" type="number" min="1" max="4" step="1" value="1" style="width:72px"><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
+<section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
+<label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Сравнение реальных GitHub Actions</h2><p>Сгенерируй отчёт: <code>node .github/qa/github-workflow-diff.mjs OLD_SHA NEW_SHA &gt; github-workflow-diff.json</code>. Импорт показывает результаты workflows GitHub API (не отдельные тесты). Локально загруженный файл не удостоверяется как CI-аттестация; PENDING и CANCELLED не считаются результатом PASS или FAIL.</p><label for="gha-diff-file">Сравнение двух коммитов (JSON)</label><input id="gha-diff-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="gha-diff-status" role="status">Отчёт не загружен.</p><div class="table-wrap"><table><thead><tr><th>Workflow</th><th>До</th><th>После</th><th>Изменение</th><th>Доказательство</th></tr></thead><tbody id="gha-diff-rows"></tbody></table></div></section><section><h2>История QA и сравнение коммитов</h2><p>Локальные снимки сохраняются в .artifacts/qa-workbench/history/ через runner. При автономном просмотре можно импортировать JSON-снимки. Контрольная сумма подтверждает целостность, но не подлинность CI; FAIL — наблюдение, не установленная причина.</p><div class="controls"><button id="hist-save" disabled>Сохранить снимок</button><button id="hist-refresh" disabled>Обновить архив</button></div><label for="hist-import">Импорт сохранённых снимков JSON</label><input id="hist-import" type="file" multiple accept=".json,application/json" style="max-width:100%"><p id="hist-status" role="status">Доступен автономный импорт; локальное сохранение требует runner.</p><div class="controls"><label for="hist-from">До</label><select id="hist-from"></select><label for="hist-to">После</label><select id="hist-to"></select><button id="hist-compare">Сравнить</button><button id="hist-export" disabled>Экспортировать снимок «После»</button></div><p id="hist-summary" role="status">Для сравнения нужны два снимка.</p><div class="table-wrap"><table><thead><tr><th>Уровень</th><th>ID</th><th>До</th><th>После</th><th>Изменение</th></tr></thead><tbody id="hist-diff"></tbody></table></div><h3>Карточки регрессионных наблюдений</h3><p>Формируются только при PASS → FAIL. Не подтверждают дефект, серьёзность или первопричину; связи с компонентами — гипотезы.</p><div class="controls"><button id="triage-export" disabled>Экспортировать карточки JSON</button></div><p id="triage-summary" role="status">Выбери два снимка.</p><div id="triage-cards" aria-label="Кандидаты для QA расследования"></div></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><p id="state-case-guidance" role="status">Для ST-сценариев диаграмма состояний выше будет настроена автоматически.</p><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<script>
+"use strict";
+const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
+const rules={cashier:[[200,409,409],[409,200,409],[409,409,200],[409,409,409]],barista:[[403,404,404],[403,200,409],[403,409,200],[403,409,409]],guest:states.map(()=>[401,401,401]),anonymous:states.map(()=>[401,401,401])};
+const byId=id=>document.getElementById(id);let state=0,version=1;const accepted=new Set();
+function draw(){byId("current").textContent=states[state];byId("steps").replaceChildren(...states.map((value,i)=>{const div=document.createElement("div");div.className="step"+(i===state?" active":"");if(i===state)div.setAttribute("aria-current","step");const b=document.createElement("b");b.textContent=(i+1)+". "+labels[i]+(i<3?" →":"");const s=document.createElement("small");s.textContent=value;div.append(b,s);return div}))}
+function act(command){
+  const role=byId("role").value,previous=state,requested=Number(byId("request-version").value);
+  const key=command+":"+requested,duplicate=accepted.has(key);
+  const code=role==="guest"||role==="anonymous"?401
+    :role==="barista"&&command==="pay"?403
+    :role==="barista"&&state===0?404
+    :!Number.isSafeInteger(requested)||requested<1?400
+    :duplicate?200
+    :requested!==version?409:rules[role][state][commands.indexOf(command)];
+  if(code===200&&!duplicate){accepted.add(key);state++;version++}
+  byId("request-version").value=String(version);
+  const msg=code+" · "+states[previous]+" → "+states[state]+" · v"+version+(duplicate?" · идемпотентный повтор":"");
+  byId("result").textContent=msg;
+  const li=document.createElement("li");li.textContent=role+" / "+command+" / "+msg;byId("history").prepend(li);
+  draw();
+}
+byId("pay").onclick=()=>act("pay");byId("ready").onclick=()=>act("ready");byId("issue").onclick=()=>act("issued");byId("reset").onclick=()=>{state=0;version=1;accepted.clear();byId("request-version").value="1";byId("history").replaceChildren();byId("result").textContent="Модель сброшена.";draw()};
+const cases=[["ST-01","Ожидание → приготовление","200, версия +1"],["ST-02","Ожидание → выдача","409, без изменений"],["ST-03","Бариста → оплата","403"],["ST-04","Повтор оплаты","Без дубля"],["PAG-01","8 → 16 → … → 63","Уникальные ID, последняя порция 7"],["PAG-02","Конец → пустой поиск → сброс","0 → 8"],["PAG-03","Scroll → автоматическая загрузка","Следующая порция"],["PAG-04","200 активных → выдача первого","Следующий заказ виден"],["CART-01","98 + 2","Отказ, остаётся 98"],["CART-02","Количество 0","Удалить выбранную группу"],["QR-01","Изменение после QR","Новый QR"],["PROP-CART","Seeded операции корзины","2 560 операций; лимит 99"],["PROP-API","Seeded HTTP переходы","216 команд; журнал и версии"],["CHAOS-01","Падение сервера на переходе","Состояние сохранено, 3 точки отказа"]];
+const suiteFor=id=>id.startsWith("ST-")||id==="PAG-04"||id==="PROP-API"||id.startsWith("CHAOS-")?"counter-contracts":id.startsWith("PAG-")?"menu-feed-browser":"source-contracts";
+const statuses=new Set(["PASS","FAIL","INCOMPLETE","STALE","NOT_RUN","NOT_SELECTED","SEE_TIMINGS"]);
+const allowedSuites=new Set(["counter-contracts","menu-feed-browser","source-contracts"]);
+const caseWitnesses={"PAG-01":"pagination-manual-full-catalog-and-reset","PAG-02":"pagination-manual-full-catalog-and-reset","PAG-03":"pagination-native-observer"};
+const caseComponents={
+  "ST-01":["counter-service","counter-staff"],"ST-02":["counter-service","counter-staff"],
+  "ST-03":["counter-auth","counter-service"],"ST-04":["counter-service"],
+  "PAG-01":["menu-feed","catalog"],"PAG-02":["menu-feed","catalog"],"PAG-03":["menu-feed"],
+  "PAG-04":["counter-service","counter-staff"],
+  "CART-01":["order-model","order-ui"],"CART-02":["order-model","order-ui"],
+  "QR-01":["ticket-qr","checkout"],"PROP-CART":["order-model"],
+  "PROP-API":["counter-service"],"CHAOS-01":["counter-service","counter-auth"]
+};
+const sha=/^[a-f0-9]{40}$/; let evidence=new Map(), caseEvidence=new Map(), localConfig=null;
+function render(){
+  const term=byId("filter").value.toLowerCase();
+  byId("cases").replaceChildren(...cases.filter(row=>row.join(" ").toLowerCase().includes(term)).map(row=>{
+    const tr=document.createElement("tr"),suite=suiteFor(row[0]),entry=evidence.get(suite),direct=caseEvidence.get(row[0]);
+    const usable=entry&&!(entry.origin==="импорт CI"&&registryDigest&&reportDigest!==registryDigest);
+    for(const value of [...row,suite+" · "+(direct?"CASE "+direct.result+" ("+direct.witness+"; импорт)":usable?"SUITE "+entry.status+" ("+entry.origin+"; не кейс)":"NOT_RUN")]){
+      const td=document.createElement("td");td.textContent=value;tr.append(td);
+    }return tr;
+  }));
+}
+
+let registry=null, registryDigest=null, reportDigest=null, importedChecks=new Map(), localGraphChecks=new Map(), observations=[], graphGeneration=0;
+const hex64=/^[a-f0-9]{64}$/;
+function addObservation(text){observations.unshift(new Date().toISOString()+" · "+text);observations=observations.slice(0,30);byId("observations").replaceChildren(...observations.map(value=>{const li=document.createElement("li");li.textContent=value;return li}))}
+function validateRegistry(value){
+  if(value?.schemaVersion!==1)throw Error("Версия реестра");
+  const index=(rows,name)=>{
+    if(!Array.isArray(rows)||!rows.length||rows.length>300)throw Error("Размер "+name);
+    const result=new Map();
+    for(const row of rows){if(!row||typeof row.id!=="string"||!(/^[a-z][a-z0-9-]{0,79}$/).test(row.id)||result.has(row.id)||typeof row.label!=="string"||row.label.length>500)throw Error("Некорректный ID "+name);result.set(row.id,row)}
+    return result;
+  };
+  const components=index(value.components,"components"), checks=index(value.checks,"checks"), journeys=index(value.journeys,"journeys");
+  const refs=(ids,map)=>Array.isArray(ids)&&ids.length<=300&&new Set(ids).size===ids.length&&ids.every(id=>map.has(id));
+  for(const row of components.values())if(!refs(row.dependsOn,components))throw Error("Ссылка компонента");
+  for(const row of checks.values())if(!refs(row.components,components))throw Error("Ссылка проверки");
+  for(const row of journeys.values())if(!refs(row.components,components)||!refs(row.checks,checks))throw Error("Ссылка сценария");
+  return {components,checks,journeys};
+}
+async function loadRegistry(bytes,generation){
+  if(bytes.byteLength>2_000_000||!globalThis.crypto?.subtle)throw Error("Реестр слишком большой или SHA-256 недоступен");
+  const graph=validateRegistry(JSON.parse(new TextDecoder().decode(bytes)));
+  const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
+  if(generation!==graphGeneration)return;
+  registry=graph;registryDigest=digest;render();renderImpact();renderTriageCards(archivedSnapshots.get(byId("hist-from").value),archivedSnapshots.get(byId("hist-to").value));
+}
+function renderImpact(){
+  const select=byId("impact-check"),map=byId("impact-map"),list=byId("impact-journeys");
+  map.replaceChildren();list.replaceChildren();
+  if(!registry){select.replaceChildren();byId("graph-status").textContent="Реестр не загружен.";return}
+  const matched=Boolean(reportDigest&&reportDigest===registryDigest);
+  const localFor=id=>{const entry=localGraphChecks.get(id);return entry?.digest===registryDigest?entry.status:null};
+  const resultFor=id=>matched&&importedChecks.has(id)?importedChecks.get(id):localFor(id)??"NOT_RUN";
+  byId("graph-status").textContent=matched?"SHA-256 реестра совпадает с импортированным отчётом. Подлинность файла не проверена.":reportDigest?"SHA-256 реестра не совпадает: статусы скрыты.":"Реестр загружен, совместимый отчёт отсутствует.";
+  const previous=select.value;
+  select.replaceChildren(...Array.from(registry.checks.values(),check=>{const option=document.createElement("option");option.value=check.id;option.textContent="SUITE · "+check.id+(resultFor(check.id)!=="NOT_RUN"?" · "+resultFor(check.id):"");return option}),
+    ...cases.map(row=>{const option=document.createElement("option");option.value="case:"+row[0];const direct=caseEvidence.get(row[0]);option.textContent="CASE · "+row[0]+" · "+(direct?direct.result:"NOT_RUN");return option}));
+  if(registry.checks.has(previous)||previous.startsWith("case:")&&cases.some(row=>row[0]===previous.slice(5)))select.value=previous;
+  const caseId=select.value.startsWith("case:")?select.value.slice(5):null;
+  const check=caseId?{id:caseId,components:(caseComponents[caseId]??[]).filter(id=>registry.components.has(id))}:registry.checks.get(select.value);if(!check)return;
+  const status=caseId?caseEvidence.get(caseId)?.result??"NOT_RUN":resultFor(check.id);
+  function group(title,items,mark){const h=document.createElement("h3");h.textContent=title;const div=document.createElement("div");div.className="impact-row";for(const id of items){const n=document.createElement("span");n.className="impact-node";n.dataset.status=mark;n.textContent=id;div.append(n)}map.append(h,div)}
+  group(caseId?"Конкретный сценарий (импорт браузерного отчёта)":"Результат набора (не отдельного теста)",
+    [check.id+" · "+status+(caseId&&caseEvidence.has(caseId)?" · "+caseEvidence.get(caseId).witness:matched&&importedChecks.has(check.id)?" · импорт CI":localFor(check.id)?" · локальный runner":"")],status);
+  group("Компоненты, связанные с проверкой",check.components,"NOT_RUN");
+  const distance=new Map(check.components.map(id=>[id,0])),parent=new Map(),queue=[...check.components];
+  for(let i=0;i<queue.length;i++){const id=queue[i];for(const c of registry.components.values())if(c.dependsOn.includes(id)&&!distance.has(c.id)){distance.set(c.id,distance.get(id)+1);parent.set(c.id,id);queue.push(c.id)}}
+  const indirect=queue.filter(id=>distance.get(id)>0);
+  group("Потенциальные зависимые компоненты ("+indirect.length+")",indirect,status==="FAIL"?"RISK":"NOT_RUN");
+  for(const journey of registry.journeys.values()){
+    const linked=!caseId&&journey.checks.includes(check.id), target=journey.components.filter(id=>distance.has(id)).sort((a,b)=>distance.get(a)-distance.get(b))[0];
+    if(!linked&&!target)continue;
+    const chain=[];let id=target;while(id){chain.unshift(id);id=parent.get(id)}
+    const li=document.createElement("li");li.textContent=journey.id+" · "+(linked?"прямая связь теста":"потенциальное влияние")+" · "+(chain.length?chain.join(" → "):"нет пути компонентов");list.append(li);
+  }
+}
+const guidedCases={
+  "ST-01":{state:0,role:"cashier",version:1,command:"pay"},
+  "ST-02":{state:0,role:"cashier",version:1,command:"issued"},
+  "ST-03":{state:0,role:"barista",version:1,command:"pay"},
+  "ST-04":{state:1,role:"cashier",version:1,command:"pay"}
+};
+function guideStateCase(id){
+  const scenario=guidedCases[id];
+  if(!scenario){byId("state-case-guidance").textContent="Для этого сценария используется граф компонентов; диаграмма Counter не изменена.";return}
+  state=scenario.state;version=state+1;accepted.clear();
+  if(state>=1)accepted.add("pay:1");
+  byId("role").value=scenario.role;byId("request-version").value=String(scenario.version);
+  byId("history").replaceChildren();draw();
+  byId("result").textContent="Сценарий "+id+" · выбери действие "+scenario.command+" (симуляция)";
+  byId("state-case-guidance").textContent=id+" → диаграмма настроена: "+states[state]+" / "+scenario.role+" / v"+scenario.version+" / "+scenario.command;
+}
+byId("impact-check").addEventListener("change",()=>{renderImpact();const value=byId("impact-check").value;if(value.startsWith("case:"))guideStateCase(value.slice(5))});
+byId("graph-file").addEventListener("change",async()=>{
+  const generation=++graphGeneration,file=byId("graph-file").files[0];registry=null;registryDigest=null;render();renderImpact();if(!file)return;
+  try{if(file.size>2_000_000)throw Error("Лимит 2 МБ");await loadRegistry(await file.arrayBuffer(),generation);if(generation===graphGeneration)addObservation("Загружен реестр "+registryDigest.slice(0,12))}
+  catch(e){if(generation===graphGeneration)byId("graph-status").textContent="Реестр отклонён: "+e.message}
+});
+function clearEvidence(){evidence.clear();caseEvidence.clear();importedChecks.clear();localGraphChecks.clear();reportDigest=null;byId("case-evidence-file").value="";byId("case-evidence-status").textContent="Доказательств по отдельным сценариям нет.";byId("evidence-status").textContent="Нет доказательств.";render();renderImpact()}
+function importReport(report){
+  const expected=byId("expected-head").value.trim();
+  if(!sha.test(expected)||report?.schemaVersion!==1||report.source?.revision!==expected||report.source?.dirty!==false||!["PASS","FAIL","INCOMPLETE"].includes(report.status)||!Array.isArray(report.checks)||report.checks.length>200) throw Error("Неверный SHA или формат отчёта");
+  const result=new Map(), seen=new Set();
+  for(const check of report.checks){
+    if(!check||typeof check.id!=="string"||seen.has(check.id)||!statuses.has(check.status)||typeof check.selected!=="boolean"||(check.status==="PASS"&&check.selected!==true)) throw Error("Некорректный или повторный результат");
+    seen.add(check.id);if(allowedSuites.has(check.id))result.set(check.id,{status:check.status,origin:"импорт CI"});
+  }
+  reportDigest=hex64.test(report.registrySha256??"")?report.registrySha256:null;importedChecks=new Map(report.checks.map(check=>[check.id,check.status]));evidence=result;addObservation("Импорт CI "+report.status+" · "+expected.slice(0,8));renderImpact();byId("evidence-status").textContent="Импортирован отчёт "+report.status+" · "+expected.slice(0,8)+" · подлинность файла не проверяется";render();
+}
+
+function importCaseEvidence(report){
+  const expected=byId("expected-head").value.trim();
+  if(!sha.test(expected)||report?.head!==expected||report.engine!=="chromium"||!hex64.test(report.runtimeSha256??"")
+    ||!Array.isArray(report.cases)||report.cases.length>200)throw Error("Неверный SHA, движок или формат протокола");
+  const seen=new Set(),observed=new Map();
+  for(const row of report.cases){
+    if(!row||typeof row.case!=="string"||row.case.length>120||seen.has(row.case)
+      ||!["PASS","FAIL"].includes(row.result))throw Error("Дубликат или недопустимая запись сценария");
+    seen.add(row.case);for(const [id,witness]of Object.entries(caseWitnesses))if(row.case===witness)observed.set(id,{result:row.result,witness});
+  }
+  if(!observed.size)throw Error("Нет зарегистрированных свидетельств по сценариям");
+  caseEvidence=observed;
+  byId("case-evidence-status").textContent="Импортировано "+observed.size+" привязок · "+expected.slice(0,8)
+    +" · отдельные записи, файл не аутентифицирован";
+  addObservation("Протокол браузерных сценариев · "+observed.size+" привязок · "+expected.slice(0,8));
+  render();renderImpact();
+}
+byId("case-evidence-file").addEventListener("change",async()=>{
+  caseEvidence.clear();render();renderImpact();
+  const file=byId("case-evidence-file").files[0];if(!file)return;
+  const expected=byId("expected-head").value;
+  try{
+    if(file.size>2_000_000)throw Error("Лимит 2 МБ");
+    const data=JSON.parse(await file.text());
+    if(expected!==byId("expected-head").value||byId("case-evidence-file").files[0]!==file)return;
+    importCaseEvidence(data);
+  }catch(error){caseEvidence.clear();byId("case-evidence-status").textContent="Протокол отклонён: "+error.message;render();renderImpact()}
+});
+byId("clear-case-evidence").onclick=()=>{
+  byId("case-evidence-file").value="";caseEvidence.clear();
+  byId("case-evidence-status").textContent="Доказательств по отдельным сценариям нет.";
+  render();renderImpact();
+};
+byId("expected-head").addEventListener("input",clearEvidence);
+byId("clear-evidence").onclick=()=>{byId("report-file").value="";clearEvidence()};
+byId("report-file").addEventListener("change",async()=>{
+  clearEvidence();const file=byId("report-file").files[0];if(!file)return;
+  const headAtStart=byId("expected-head").value;try{
+    if(file.size>2_000_000)throw Error("Лимит 2 МБ");
+    const report=JSON.parse(await file.text());if(headAtStart!==byId("expected-head").value||byId("report-file").files[0]!==file)return;
+    importReport(report);
+  }catch(e){clearEvidence();byId("evidence-status").textContent="Отклонено: "+e.message}
+});
+async function connect(){
+  if(location.protocol!=="http:"||location.hostname!=="127.0.0.1"||location.pathname!=="/")return;
+  try{
+    const response=await fetch("/api/config"),config=await response.json();
+    if(!response.ok||!sha.test(config.head)||typeof config.token!=="string")throw Error("config");
+    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("hist-save").disabled=false;byId("hist-refresh").disabled=false;byId("run-status").textContent="Локальный runner подключён.";void refreshHistory().catch(()=>{byId("hist-status").textContent="Не удалось загрузить архив";}); const generation=++graphGeneration;try{const graph=await fetch("/api/graph");if(graph.ok)await loadRegistry(await graph.arrayBuffer(),generation)}catch{/* manual import remains available */}
+  }catch{byId("run-status").textContent="Runner недоступен."}
+}
+byId("run-check").onclick=async()=>{
+  if(!localConfig)return;
+  const check=byId("check-select").value,head=localConfig.head;
+  if(byId("expected-head").value.trim()!==head){byId("run-status").textContent="SHA не совпадает с runner.";return}
+  byId("run-check").disabled=true;byId("run-status").textContent="Выполняется "+check+"…";evidence.delete(check);localGraphChecks.delete(check);render();renderImpact();
+  try{
+    const response=await fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify({check,head})}),result=await response.json();
+    if(!response.ok||result.head!==head||result.check!==check||!["PASS","FAIL","INCOMPLETE"].includes(result.status))throw Error(result.error||"receipt");
+    if(byId("expected-head").value.trim()===head){evidence.set(check,{status:result.status,origin:"локальный runner"});if(hex64.test(result.registrySha256??""))localGraphChecks.set(check,{status:result.status,digest:result.registrySha256});render();renderImpact()}
+    byId("run-status").textContent=result.status+" · "+check+" · "+result.artifact;addObservation("Локальный набор "+check+" · "+result.status+" · "+head.slice(0,8));
+  }catch(e){byId("run-status").textContent="Не подтверждено: "+e.message}
+  finally{byId("run-check").disabled=false}
+};
+
+
+function seededSequence(seed){let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return x>>>0}}
+function propertyRun(){
+  const seed=Number(byId("property-seed").value),events=byId("property-events");
+  events.replaceChildren();
+  if(!Number.isSafeInteger(seed)||seed<1||seed>4294967295){byId("property-summary").textContent="Неверный seed: допустимо целое от 1 до 4294967295";return}
+  const rng=seededSequence(seed),bounds=[-1,0,1,2,3,49,98,99,100],steps=24;
+  let quantity=0,passed=0,denied=0;
+  for(let i=0;i<steps;i++){
+    const command=rng()%2?"add":"edit",value=bounds[rng()%bounds.length],before=quantity;
+    const valid=command==="add"?Number.isInteger(value)&&value>=1&&value+quantity<=99:Number.isInteger(value)&&value>=0&&value<=99&&quantity>0;
+    if(valid){quantity=command==="add"?quantity+value:value;passed++}else denied++;
+    const li=document.createElement("li");li.textContent="t"+(i+1)+" · "+command+" "+value+" · "+before+" → "+quantity+(valid?" · применено":" · отклонено");events.append(li);
+  }
+  byId("property-summary").textContent="Модель: seed="+seed+" · "+steps+" операций · применено "+passed+" · отклонено "+denied+" · итог "+quantity;
+}
+const faults={
+  offline:{label:"Сервис отключён: запись не отправлена",events:["v1 · исходный заказ","OFFLINE · HTTP запрос не доставлен","v1 · после перезапуска состояние прежнее","v2 · повтор после восстановления принят"],audit:"1 событие"},
+  lost:{label:"Ответ потерян после фиксации оплаты",events:["v1 · ожидание оплаты","v2 · сервер зафиксировал оплату","TIMEOUT · клиент не получил ответ","v2 · повтор v1 возвращает существующее состояние"],audit:"1 событие"},
+  stale:{label:"Поздний старый снимок не откатывает заказ",events:["v1 · ожидание оплаты","v3 · получен новый снимок","v2 · устаревший снимок проигнорирован","v3 · клиент сохраняет актуальное состояние"],audit:"без новых записей"}
+};
+function chaosRun(kind){
+  const sample=faults[kind];const list=byId("chaos-events");
+  list.replaceChildren(...sample.events.map(value=>{const li=document.createElement("li");li.textContent=value;return li}));
+  byId("chaos-summary").textContent="Модель: "+sample.label+" · аудит: "+sample.audit+"; не реальный запуск";
+}
+byId("property-run").onclick=propertyRun;
+byId("chaos-offline").onclick=()=>chaosRun("offline");
+byId("chaos-lost").onclick=()=>chaosRun("lost");
+byId("chaos-stale").onclick=()=>chaosRun("stale");
+function temporalRun(sequence){
+  let latest=0;const track=byId("temporal-track"),list=byId("temporal-events");
+  track.replaceChildren();list.replaceChildren();
+  for(const [index,incoming] of sequence.entries()){
+    const previous=latest,ignored=incoming<=latest;latest=Math.max(latest,incoming);
+    const node=document.createElement("span");node.className="impact-node";node.dataset.status=ignored?"RISK":"PASS";node.textContent="t"+(index+1)+" · v"+incoming+(ignored?" · повтор/старый":" · принят");track.append(node);
+    const item=document.createElement("li");item.textContent="v"+previous+" → v"+latest+" · получен v"+incoming;list.append(item);
+  }
+  byId("temporal-result").textContent="Модель: v"+latest+(latest?" · "+states[latest-1]:"");
+}
+byId("temporal-late").onclick=()=>temporalRun([1,3,2,4]);
+byId("temporal-retry").onclick=()=>temporalRun([2,2,4,1]);
+byId("temporal-reverse").onclick=()=>temporalRun([4,3,2,1]);
+byId("temporal-reset").onclick=()=>temporalRun([]);
+
+
+const ghaStatus=new Set(["PASS","FAIL","PENDING","INCOMPLETE","NOT_PRESENT"]);
+const ghaChange=new Set(["REGRESSION","RECOVERED","AWAITING_CI","INCOMPLETE","NEW_WORKFLOW","MISSING_WORKFLOW","UNCHANGED","CHANGED"]);
+function ghaClassify(from,to){
+  return from==="PASS"&&to==="FAIL"?"REGRESSION":from==="FAIL"&&to==="PASS"?"RECOVERED":
+    to==="PENDING"?"AWAITING_CI":from==="NOT_PRESENT"?"NEW_WORKFLOW":
+    to==="INCOMPLETE"?"INCOMPLETE":to==="NOT_PRESENT"?"MISSING_WORKFLOW":
+    from===to?"UNCHANGED":"CHANGED";
+}
+function importGithubWorkflowDiff(report){
+  const list=byId("gha-diff-rows");list.replaceChildren();
+  if(report?.schemaVersion!==1||report.type!=="GITHUB_WORKFLOW_OBSERVATION_DIFF"||
+    report.provenance!=="GITHUB_ACTIONS_API_OBSERVATION_NOT_ATTESTATION"||
+    !sha.test(report.beforeHead)||!sha.test(report.afterHead)||
+    !Array.isArray(report.rows)||report.rows.length>100||
+    !report.summary||typeof report.summary!=="object")throw Error("Неверный формат GitHub workflow отчёта");
+  const seen=new Set(),counts={REGRESSION:0,RECOVERED:0,AWAITING_CI:0,MISSING_WORKFLOW:0},prepared=[];
+  for(const item of report.rows){
+    if(!Number.isSafeInteger(item.workflowId)||item.workflowId<1||seen.has(item.workflowId)||
+      typeof item.name!=="string"||!item.name.trim()||item.name.length>160||
+      !ghaStatus.has(item.from)||!ghaStatus.has(item.to)||!ghaChange.has(item.change)||
+      item.change!==ghaClassify(item.from,item.to))throw Error("Повтор/неверный статус workflow");
+    seen.add(item.workflowId);if(Object.hasOwn(counts,item.change))counts[item.change]++;
+    const link=item.afterRun;
+    if(link!==null&&(!Number.isSafeInteger(item.afterRunId)||item.afterRunId<1||
+      link!=="https://github.com/safal207/robys-coffee-house-demo/actions/runs/"+item.afterRunId))
+      throw Error("Недопустимая ссылка на запуск");
+    if(link===null&&item.to!=="NOT_PRESENT")throw Error("Нет ссылки на фактический запуск");
+    prepared.push(item);
+  }
+  if(Object.entries(counts).some(([key,value])=>report.summary[
+    key==="REGRESSION"?"regressions":key==="RECOVERED"?"recovered":key==="AWAITING_CI"?"awaiting":"missing"]!==value))
+    throw Error("Сводка не совпадает со строками");
+  for(const item of prepared){
+    const tr=document.createElement("tr");tr.dataset.workflowChange=item.change;
+    for(const content of [item.name,item.from,item.to,item.change]){
+      const td=document.createElement("td");td.textContent=content;tr.append(td);
+    }
+    const td=document.createElement("td");
+    if(item.afterRun){const anchor=document.createElement("a");anchor.href=item.afterRun;
+      anchor.textContent="GitHub #"+item.afterRunId;anchor.rel="noopener noreferrer";anchor.target="_blank";td.append(anchor)}
+    else td.textContent="Отсутствует";
+    tr.append(td);list.append(tr);
+  }
+  byId("gha-diff-status").textContent=report.beforeHead.slice(0,8)+" → "+report.afterHead.slice(0,8)+
+    " · регрессий "+counts.REGRESSION+" · исправлений "+counts.RECOVERED+
+    " · ожидают CI "+counts.AWAITING_CI+" · отсутствуют "+counts.MISSING_WORKFLOW+
+    " · Workflow ≠ тест-кейс · локальный файл не аттестован";
+}
+byId("gha-diff-file").onchange=async()=>{
+  const file=byId("gha-diff-file").files[0];byId("gha-diff-rows").replaceChildren();
+  if(!file)return;
+  try{
+    if(file.size>60000)throw Error("Лимит 60 КБ");
+    const value=JSON.parse(await file.text());
+    if(byId("gha-diff-file").files[0]!==file)return;
+    importGithubWorkflowDiff(value);
+  }catch(error){byId("gha-diff-rows").replaceChildren();
+    byId("gha-diff-status").textContent="Отклонено: "+error.message}
+};
+
+const archivedSnapshots=new Map();
+
+let triagePayload=null;
+function renderTriageCards(before,after){
+  const wrapper=byId("triage-cards"),exporter=byId("triage-export");
+  wrapper.replaceChildren();triagePayload=null;exporter.disabled=true;
+  if(!before||!after){byId("triage-summary").textContent="Выбери два снимка.";return}
+  const linked=Boolean(registry&&registryDigest&&before.registrySha256
+    &&before.registrySha256===after.registrySha256&&before.registrySha256===registryDigest);
+  const results=[];
+  for(const kind of ["checks","cases"]){
+    const earlier=new Map(before[kind].map(row=>[row.id,row.status]));
+    for(const current of after[kind]){
+      if(earlier.get(current.id)!=="PASS"||current.status!=="FAIL")continue;
+      const seeds=(kind==="checks"?registry?.checks.get(current.id)?.components:caseComponents[current.id])??[];
+      const components=linked?[...new Set(seeds.filter(id=>registry.components.has(id)))].sort():[];
+      const distances=new Set(components),queue=[...components];
+      if(linked)for(let i=0;i<queue.length;i++)for(const component of registry.components.values()){
+        if(component.dependsOn.includes(queue[i])&&!distances.has(component.id)){
+          distances.add(component.id);queue.push(component.id);
+        }
+      }
+      const downstream=linked?[...distances].filter(id=>!components.includes(id)).sort():[];
+      const journeys=linked?[...registry.journeys.values()].filter(journey=>
+        kind==="checks"&&journey.checks.includes(current.id)
+        || journey.components.some(id=>distances.has(id))).map(item=>item.id).sort():[];
+      results.push({
+        id:"REG-"+kind+"-"+current.id+"-"+after.id.slice(0,12),
+        type:"REGRESSION_OBSERVATION",review:"NEEDS_TRIAGE",severity:"UNASSESSED",
+        scope:kind==="checks"?"SUITE":"CASE",testId:current.id,
+        beforeStatus:"PASS",afterStatus:"FAIL",
+        evidence:{beforeHead:before.head,afterHead:after.head,beforeSnapshot:before.id,
+          afterSnapshot:after.id,provenance:"LOCAL_UNVERIFIED_IMPORT"},
+        linkedComponents:components,potentialDownstream:downstream,relatedJourneys:journeys,
+        componentLinks:"HYPOTHESIS_ONLY",
+        nextAction:"Re-run the exact scenario on the same head, inspect receipts, then assign cause and severity."
+      });
+    }
+  }
+  triagePayload={schemaVersion:1,type:"QA_REGRESSION_TRIAGE_DRAFT",beforeHead:before.head,
+    afterHead:after.head,registryCompatible:linked,
+    registryChanged:before.registrySha256!==after.registrySha256,
+    warning:"Imported observations are not authenticated CI attestations or confirmed product defects.",
+    cards:results};
+  exporter.disabled=!results.length;
+  byId("triage-summary").textContent="Кандидатов на расследование: "+results.length+
+    (linked?" · связи по совпадающему реестру": " · нет совпадающего реестра, связи не указаны")+
+    " · только переходы PASS → FAIL; без оценки severity";
+  for(const card of results){
+    const entry=document.createElement("article");entry.className="impact-node";entry.dataset.triage=card.testId;
+    const title=document.createElement("strong");title.textContent=card.scope+" · "+card.testId+" · PASS → FAIL";
+    const info=document.createElement("p");info.textContent="HEAD: "+before.head.slice(0,8)+" → "+
+      after.head.slice(0,8)+" · Severity не определена · Требует расследования";
+    const evidence=document.createElement("small");
+    evidence.textContent="Снимки: "+before.id.slice(0,12)+" → "+after.id.slice(0,12)+
+      " · импорт, не аттестация";
+    const impact=document.createElement("p");impact.textContent=linked?
+      "Связанные компоненты (гипотеза): "+(card.linkedComponents.join(", ")||"нет известных")+
+      " · потенциальные зависимые: "+card.potentialDownstream.length+
+      " · пользовательские сценарии: "+card.relatedJourneys.length:
+      "Связи с компонентами скрыты: реестр отсутствует или SHA-256 не совпадает.";
+    entry.append(title,info,evidence,impact);
+    if(linked){
+      const value=card.scope==="CASE"?"case:"+card.testId:card.testId;
+      if([...byId("impact-check").options].some(option=>option.value===value)){
+        const button=document.createElement("button");button.textContent="Открыть на карте влияния";
+        button.onclick=()=>{byId("impact-check").value=value;renderImpact();
+          if(card.scope==="CASE")guideStateCase(card.testId);byId("impact-map").scrollIntoView({block:"nearest"});};
+        entry.append(button);
+      }
+    }
+    wrapper.append(entry);
+  }
+}
+byId("triage-export").onclick=()=>{
+  if(!triagePayload?.cards?.length)return;
+  const name="robys-qa-triage-"+triagePayload.afterHead.slice(0,8)+".json";
+  const link=document.createElement("a");
+  const url=URL.createObjectURL(new Blob([JSON.stringify(triagePayload,null,2)+"\n"],{type:"application/json"}));
+  link.href=url;link.download=name;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  byId("triage-summary").textContent="Экспортированы кандидаты на расследование · "+name+" · неподтверждённые наблюдения";
+};
+
+const archiveId=/^[a-f0-9]{64}$/;
+const canonicalSort=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0;
+function classifyChange(from,to){
+  return from===to?"UNCHANGED":from==="PASS"&&to==="FAIL"?"REGRESSION":from==="FAIL"&&to==="PASS"?"RECOVERED":
+    ["NOT_RUN","NOT_SELECTED"].includes(to)?"LOST_EVIDENCE":
+    ["NOT_RUN","NOT_SELECTED"].includes(from)?"NEW_EVIDENCE":"CHANGED";
+}
+function compareSnapshots(){
+  const a=archivedSnapshots.get(byId("hist-from").value),b=archivedSnapshots.get(byId("hist-to").value);
+  const table=byId("hist-diff");table.replaceChildren();
+  if(!a||!b){byId("hist-summary").textContent="Для сравнения нужны два снимка.";renderTriageCards(null,null);return}
+  let regressions=0,recovered=0,lost=0;
+  for(const kind of ["checks","cases"]){
+    const before=new Map(a[kind].map(row=>[row.id,row.status])),after=new Map(b[kind].map(row=>[row.id,row.status]));
+    for(const id of [...new Set([...before.keys(),...after.keys()])].sort()){
+      const from=before.get(id)??"NOT_RUN",to=after.get(id)??"NOT_RUN",change=classifyChange(from,to);
+      if(change==="UNCHANGED")continue;
+      if(change==="REGRESSION")regressions++;
+      if(change==="RECOVERED")recovered++;
+      if(change==="LOST_EVIDENCE")lost++;
+      const tr=document.createElement("tr");tr.dataset.change=change;
+      for(const content of [kind==="checks"?"Набор":"Кейс",id,from,to,change]){
+        const td=document.createElement("td");td.textContent=content;tr.append(td);
+      }
+      table.append(tr);
+    }
+  }
+  byId("hist-summary").textContent=a.head.slice(0,8)+" → "+b.head.slice(0,8)+" · регрессий "+regressions+
+    " · восстановлений "+recovered+" · потеряно доказательств "+lost+
+    (a.registrySha256!==b.registrySha256?" · Реестр изменился":"")+" · наблюдения без аттестации";
+  renderTriageCards(a,b);
+}
+function refreshHistoryUI(){
+  const all=[...archivedSnapshots.values()].sort((a,b)=>a.recordedAt.localeCompare(b.recordedAt)||a.id.localeCompare(b.id));
+  const left=byId("hist-from"),right=byId("hist-to"),selectedLeft=left.value,selectedRight=right.value;
+  const option=item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.head.slice(0,8)+" · "+item.recordedAt+" · "+item.id.slice(0,8);return o};
+  left.replaceChildren(...all.map(option));right.replaceChildren(...all.map(option));
+  if(archivedSnapshots.has(selectedLeft))left.value=selectedLeft;else if(all.length)left.value=all[0].id;
+  if(archivedSnapshots.has(selectedRight))right.value=selectedRight;else if(all.length)right.value=all[all.length-1].id;
+  byId("hist-export").disabled=all.length===0;
+  compareSnapshots();
+}
+function addSnapshots(snapshots){
+  for(const snapshot of snapshots)if(archiveId.test(snapshot?.id??""))archivedSnapshots.set(snapshot.id,snapshot);
+  refreshHistoryUI();
+}
+async function refreshHistory(){
+  if(!localConfig)return;
+  const response=await fetch("/api/history",{headers:{"X-QA-Token":localConfig.token}});
+  if(!response.ok)throw Error("history "+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.history)||data.history.length>200)throw Error("bad history");
+  addSnapshots(data.history);
+}
+byId("hist-save").onclick=async()=>{
+  try{
+    const head=byId("expected-head").value.trim();
+    if(!localConfig||head!==localConfig.head||!sha.test(head))throw Error("Неверный HEAD");
+    if(registryDigest&&reportDigest&&registryDigest!==reportDigest)throw Error("Несовпадение реестра");
+    const checks=new Map(importedChecks);
+    for(const [id,record]of localGraphChecks)if(record.digest===registryDigest)checks.set(id,record.status);
+    const snapshot={head,registrySha256:registryDigest??reportDigest??null,
+      checks:[...checks].map(([id,status])=>({id,status})),
+      cases:[...caseEvidence].map(([id,record])=>({id,status:record.result}))};
+    if(!snapshot.checks.length&&!snapshot.cases.length)throw Error("Нет импортированных результатов");
+    const response=await fetch("/api/history",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify(snapshot)});
+    const result=await response.json();
+    if(!response.ok||!result.snapshot?.id)throw Error(result.error??"Ошибка записи");
+    addSnapshots([result.snapshot]);
+    byId("hist-status").textContent="Сохранён "+head.slice(0,8)+" · SHA-256 "+result.snapshot.id.slice(0,16)+" · без аттестации";
+  }catch(error){byId("hist-status").textContent="Не сохранено: "+error.message}
+};
+byId("hist-refresh").onclick=async()=>{try{await refreshHistory()}catch(error){byId("hist-status").textContent="Архив недоступен: "+error.message}};
+byId("hist-from").onchange=compareSnapshots;byId("hist-to").onchange=compareSnapshots;
+byId("hist-compare").onclick=compareSnapshots;
+byId("hist-export").onclick=()=>{
+  const record=archivedSnapshots.get(byId("hist-to").value);
+  if(!record){byId("hist-status").textContent="Нет выбранного снимка";return}
+  const name="qa-history-"+record.head.slice(0,8)+"-"+record.id.slice(0,12)+".json";
+  const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)+"\n"],{type:"application/json"}));
+  const link=document.createElement("a");link.href=url;link.download=name;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  byId("hist-status").textContent="Экспортирован "+name+" · импортируемая копия, не доказательство CI";
+};
+byId("hist-import").onchange=async()=>{
+  const files=[...byId("hist-import").files];
+  if(files.length>20){byId("hist-status").textContent="Лимит 20 файлов";return}
+  try{
+    const imported=[];
+    for(const file of files){
+      if(file.size>32000)throw Error("Лимит 32 КБ");
+      const record=JSON.parse(await file.text());
+      if(record?.schemaVersion!==1||record.trust!=="LOCAL_UNVERIFIED_IMPORT"||!sha.test(record.head)||!archiveId.test(record.id)
+        ||!(record.registrySha256===null||hex64.test(record.registrySha256))
+        ||typeof record.recordedAt!=="string"||!Number.isFinite(Date.parse(record.recordedAt)))throw Error("Неверный формат");
+      const validate=(rows,allowed)=>{
+        if(!Array.isArray(rows)||rows.length>120)throw Error("Размер таблицы");
+        const ids=new Set();
+        for(const row of rows){
+          if(!row||Object.keys(row).sort().join(",")!=="id,status"
+            ||typeof row.id!=="string"||!/^(?:[a-z][a-z0-9-]{0,79}|[A-Z][A-Z0-9-]{0,39})$/.test(row.id)
+            ||ids.has(row.id)||!allowed.has(row.status))throw Error("Неверная запись");
+          ids.add(row.id);
+        }
+      };
+      validate(record.checks,statuses);validate(record.cases,new Set(["PASS","FAIL"]));
+      if(!record.checks.length&&!record.cases.length||!crypto.subtle)throw Error("Нет данных или SHA-256");
+      const value={schemaVersion:1,head:record.head,registrySha256:record.registrySha256,
+        checks:record.checks.map(row=>({id:row.id,status:row.status})).sort(canonicalSort),
+        cases:record.cases.map(row=>({id:row.id,status:row.status})).sort(canonicalSort)};
+      const hashed=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(JSON.stringify(value)));
+      const digest=[...new Uint8Array(hashed)].map(x=>x.toString(16).padStart(2,"0")).join("");
+      if(digest!==record.id)throw Error("Контрольная сумма не совпадает");
+      imported.push(record);
+    }
+    addSnapshots(imported);
+    byId("hist-status").textContent="Импортировано "+imported.length+" снимков · целостность проверена, источник не удостоверен";
+  }catch(error){byId("hist-status").textContent="Импорт отклонён: "+error.message}
+};
+
+byId("filter").addEventListener("input",render);draw();render();void connect();
+</script></body></html>
