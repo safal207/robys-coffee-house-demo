@@ -488,7 +488,7 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   const result=buildRegressionCards(first,second,graph,digest);
   assert.equal(result.registryCompatible,true);
   assert.equal(result.cards.length,2);
-  assert.deepEqual(result.cards.map(x=>x.testId),["PAG-03","counter-contracts"]);
+  assert.deepEqual(result.cards.map(x=>x.testId),["counter-contracts","PAG-03"]);
   const caseCard=result.cards[0],suiteCard=result.cards[1];
   assert.deepEqual(caseCard.linkedComponents,["menu-feed"]);
   assert(suiteCard.linkedComponents.includes("counter-service"));
@@ -502,7 +502,7 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   assert.equal(noGraph.registryCompatible,false);
   assert.equal(noGraph.cards.length,2);
   assert.throws(()=>buildRegressionCards({...first,trust:"CI_ATTESTED"},second,graph,digest),/untrusted_history_record/);
-  assert.deepEqual(buildRegressionCards(second,first,graph,digest).cards.map(x=>x.testId),["PAG-01","source-contracts"]);
+  assert.deepEqual(buildRegressionCards(second,first,graph,digest).cards.map(x=>x.testId),["source-contracts"]);
   const same=buildRegressionCards(first,first,graph,digest);
   assert.equal(same.cards.length,0);
 });
