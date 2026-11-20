@@ -43,13 +43,13 @@ test("personal additions preserve the shared draft and Turkish cashier quote wit
 test("all three menu views install the optional visual cart and cashier stays Turkish", () => {
   for (const htmlName of ["menu.html", "menu-grid.html", "menu-feed.html"]) {
     const html = readFileSync(htmlName, "utf8");
-    if (htmlName === "menu-feed.html") assert.match(html, /taste-cart\\.css\\?v=1/);
+    assert.match(html, /<script type="module" src="taste-cart-entry\.js\?v=1"><\/script>/);
+    if (htmlName === "menu-feed.html") assert.match(html, /taste-cart\.css\?v=1/);
     else {
-      assert.doesNotMatch(html, /rel="stylesheet" href="taste-cart\\.css/);
+      assert.doesNotMatch(html, /rel="stylesheet" href="taste-cart\.css/);
       assert.equal((html.match(/<link rel="stylesheet"/g) || []).length,
         htmlName === "menu-grid.html" ? 2 : 1, "menu keeps one critical CSS bundle");
     }
-    assert.match(html, /taste-cart\.css\?v=1/);
     assert.match(html, /require-trusted-types-for 'script'/);
   }
   const cashier = readFileSync("cashier.html", "utf8");
@@ -67,7 +67,7 @@ test("taste cart does not invent a new price, write an independent basket or aut
   const css = readFileSync("taste-cart.css", "utf8");
   const entry = readFileSync("taste-cart-entry.js", "utf8");
   assert.match(entry, /dialog\.open/);
-  assert.match(entry, /style\\.href = "taste-cart\\.css\\?v=1"/);
+  assert.match(entry, /style\.href = "taste-cart\.css\?v=1"/);
   assert.match(entry, /new URL\("\.\/taste-cart\.js\?v=1", import\.meta\.url\)/);
   assert.match(entry, /await import\(url\.href\)/);
   assert.match(js, /transactStoredOrderDraft/);
