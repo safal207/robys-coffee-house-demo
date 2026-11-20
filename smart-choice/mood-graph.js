@@ -1,6 +1,6 @@
 import { menuCategories } from "../menu-catalog.js?v=3132b4dc1273";
 import { addOrderGroup, transactStoredOrderDraft } from "../order-storage.js";
-import { MOOD_GRAPH_VERSION, recommendMoodPair } from "./mood-graph-domain.js?v=1";
+import { MOOD_GRAPH_VERSION, recommendMoodPair } from "./mood-graph-domain.js?v=0a8dfc32bd32";
 
 const root = document.getElementById("mood-pair");
 if (root) {
