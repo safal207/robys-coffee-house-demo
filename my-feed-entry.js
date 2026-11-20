@@ -2,6 +2,11 @@
 const trigger = document.querySelector("#my-feed-toggle");
 if (trigger) {
   let experience, loading, retry = 0;
+  const failed = {
+    tr: "Açılamadı. Tekrar dene.",
+    en: "Could not open. Tap to retry.",
+    ru: "Не удалось открыть. Нажми ещё раз."
+  };
   trigger.addEventListener("click", async () => {
     if (experience) { experience.toggle(); return; }
     if (loading) return;
@@ -16,6 +21,12 @@ if (trigger) {
       experience?.toggle();
     } catch {
       retry += 1; // A failed module URL is cached by browsers; a later tap may retry.
+      const hint = trigger.querySelector(".my-feed-toggle-sub");
+      if (hint) {
+        const language = document.documentElement.lang;
+        hint.textContent = failed[language] ?? failed.tr;
+        hint.setAttribute("role", "status");
+      }
     } finally {
       loading = null;
       trigger.disabled = false;
