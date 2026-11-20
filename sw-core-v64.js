@@ -160,6 +160,7 @@ const CORE_ASSETS = [
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js?v=4358395df0b0",
   "./map-route.js?v=2ab213dd01a9",
+  "./map-route-controller.js?v=7dd8867e875e",
   "./map-live.css?v=33215e02ec01",
   "./conversion.js?v=a0e1928a38c0",
   "./menu-ready.js",
