@@ -40,3 +40,40 @@ Capture screenshots and inspect **320 × 568**, **360 × 800**, **390 × 844**, 
 - Visual regression and iOS/WebKit/Android mobile browser checks.
 - Rebuild the generated runtimes and commit a fresh `integrity-manifest.json` after any public asset change.
 - **Do not merge while any required CI check is running or failing.** Preserve existing origin, prices and QR semantics.
+
+## My Feed — acceptance criteria (same PR)
+
+The opt-in `Моя лента / My feed / Benim akışım` is an additional discovery rail,
+**not** a replacement for the original vertical feed or its order/engagement
+calculation. The initial personal module loads only on a deliberate tap.
+
+1. Clean profile: six actual menu items from diverse categories, correctly
+   labelled as *not yet viewed*; no invented ratings, trending scores or discounts.
+2. Like Iced Caffè Latte and Cookie, then tap My Feed: two favorites,
+   a real San Sebastian Cheesecake pairing and three discovery ideas. Verify that
+   no SKU repeats; each card uses the original catalog photograph and TRY price.
+3. Horizontally swipe the rail; vertically continue the original feed without
+   scroll traps, involuntary reorder, blocked touches or shifted photo boundaries.
+4. Like/unlike something while the rail is open: its position and already
+   rendered cards remain unchanged. Tap `Другие идеи` to deliberately refresh
+   from the latest local likes and views.
+5. Switch TR → EN → RU and back while scrolled halfway across the rail.
+   The same six product IDs remain in the same order and at the same scroll
+   position; only labels, localized names and prices' number format update.
+6. Tap an item; the existing feed navigation should open that product
+   (including a target past the initial eight-card lazy page) using its
+   official item link, preserving variant selection and checkout behavior.
+7. At 320, 360, 390 and 430 CSS px, verify a visible next-card preview,
+   44 px interaction targets, native horizontal momentum, no horizontal page
+   overflow, and focus outlines reachable with keyboard.
+8. With localStorage unavailable, personalisation falls back to cold-start
+   discoveries, without errors or network tracking. No previously viewed
+   product is falsely represented as unseen.
+9. With weak/offline connections: the standard feed and order remain usable;
+   an optional failed My Feed import can retry on a later explicit tap.
+10. Verify `prefers-reduced-motion`, high contrast, screen readers and BFCache.
+    Inspect real photographs and screenshots, not AI-generated mockups.
+
+Focused test: `node --test scripts/test-my-feed.mjs`. Full release gates remain
+`npm run check`, `npm run verify:security`, visual regression and fresh
+`integrity-manifest.json`. **No claim of mobile/browser acceptance without evidence.**
