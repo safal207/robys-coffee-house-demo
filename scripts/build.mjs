@@ -711,6 +711,7 @@ for (const [filePath, revision] of [
   ["menu-preview.css", menuPreviewRevision],
   ["app.js", appRevision],
   ["map-route.js", mapRouteRevision],
+  ["map-route-controller.js", mapRouteControllerRevision],
   ["map-live.css", mapLiveCssRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
