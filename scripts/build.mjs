@@ -396,10 +396,10 @@ const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const tasteJourneyCssRevision = revisionFor("pairing-taste-journey.css");
 let tasteJourneySource = readFileSync("src/pairing-taste-journey.js", "utf8");
-if (!/pairing-taste-journey\\.css\\?v=[a-f0-9]{12}/.test(tasteJourneySource)) {
+if (!/pairing-taste-journey\.css\?v=[a-f0-9]{12}/.test(tasteJourneySource)) {
   throw new Error("Taste journey stylesheet must be content-revisioned");
 }
-tasteJourneySource = tasteJourneySource.replace(/pairing-taste-journey\\.css\\?v=[a-f0-9]{12}/,
+tasteJourneySource = tasteJourneySource.replace(/pairing-taste-journey\.css\?v=[a-f0-9]{12}/,
   `pairing-taste-journey.css?v=${tasteJourneyCssRevision}`);
 writeFileSync("src/pairing-taste-journey.js", tasteJourneySource);
 writeFileSync("pairing-taste-journey.js", tasteJourneySource);
