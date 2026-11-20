@@ -4,6 +4,7 @@
 // Defer the permission and third-party map controller until the visit area
 // approaches the viewport. No location lookup or map request runs here.
 (() => {
+  function enhanceLinksAndObserve() {
   for (const link of document.querySelectorAll("a[data-route-link]")) {
     const url = new URL(link.href);
     if (url.protocol !== "https:" || url.hostname !== "www.google.com" ||
@@ -25,4 +26,10 @@
     load();
   }, { rootMargin: "250px 0px" });
   observer.observe(visit);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enhanceLinksAndObserve, { once: true });
+  } else {
+    enhanceLinksAndObserve();
+  }
 })();
