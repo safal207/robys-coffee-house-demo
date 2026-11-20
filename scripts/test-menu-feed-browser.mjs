@@ -2104,6 +2104,21 @@ try {
       assert.match(await page.locator("#hist-summary").textContent(),/регрессий 1.*восстановлений 1/);
       assert.equal(await page.locator('#hist-diff tr[data-change="REGRESSION"]').count(),1);
       assert.equal(await page.locator('#hist-diff tr[data-change="RECOVERED"]').count(),1);
+      assert.equal(await page.locator('#triage-cards article').count(),1,"only direct PASS to FAIL gets a triage candidate");
+      assert.match(await page.locator("#triage-summary").textContent(),/Кандидатов на расследование: 1.*нет совпадающего реестра/);
+      assert.match(await page.locator("#triage-cards").textContent(),/counter-contracts.*Severity не определена/);
+      const triageDownload=page.waitForEvent("download");
+      await page.locator("#triage-export").click();
+      const triageFile=await triageDownload;
+      assert.match(triageFile.suggestedFilename(),/^robys-qa-triage-b{8}\\.json$/);
+      const triageStream=await triageFile.createReadStream(),triageParts=[];
+      for await(const part of triageStream)triageParts.push(part);
+      const triageData=JSON.parse(Buffer.concat(triageParts).toString("utf8"));
+      assert.equal(triageData.cards.length,1);
+      assert.equal(triageData.cards[0].testId,"counter-contracts");
+      assert.equal(triageData.cards[0].severity,"UNASSESSED");
+      assert.deepEqual(triageData.cards[0].linkedComponents,[]);
+      assert.equal(triageData.cards[0].evidence.provenance,"LOCAL_UNVERIFIED_IMPORT");
       await histUpload([{...snap1,id:"0".repeat(64)}]);
       await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импорт отклонён"));
       assert.equal(await page.locator("#hist-from option").count(),2,"bad digest must not enter history");
@@ -2152,6 +2167,24 @@ try {
       const reportFixture={schemaVersion:1,source:{revision:sha,dirty:false},registrySha256:digest,status:"PASS",checks:[{id:"menu-feed-browser",selected:true,status:"PASS"}]};
       await page.locator("#graph-file").setInputFiles({name:"graph.json",mimeType:"application/json",buffer:registryBytes});
       await page.waitForFunction(()=>document.querySelector("#graph-status").textContent.includes("Реестр загружен"));
+      const graphSnap=(head,checkStatus,caseStatus)=>{
+        const data={schemaVersion:1,head,registrySha256:digest,
+          checks:[{id:"counter-contracts",status:checkStatus}],cases:[{id:"PAG-03",status:caseStatus}]};
+        return {...data,id:createHash("sha256").update(JSON.stringify(data)).digest("hex"),
+          recordedAt:"2026-11-18T12:00:00.000Z",trust:"LOCAL_UNVERIFIED_IMPORT"};
+      };
+      const linkedBefore=graphSnap("c".repeat(40),"PASS","PASS"),linkedAfter=graphSnap("d".repeat(40),"FAIL","FAIL");
+      await histUpload([linkedBefore,linkedAfter]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импортировано 2"));
+      await page.locator("#hist-from").selectOption(linkedBefore.id);
+      await page.locator("#hist-to").selectOption(linkedAfter.id);
+      assert.equal(await page.locator("#triage-cards article").count(),2);
+      assert.match(await page.locator("#triage-summary").textContent(),/связи по совпадающему реестру/);
+      const caseCard=page.locator('[data-triage="PAG-03"]');
+      assert.match(await caseCard.textContent(),/menu-feed/);
+      await caseCard.getByRole("button",{name:"Открыть на карте влияния"}).click();
+      assert.equal(await page.locator("#impact-check").inputValue(),"case:PAG-03");
+      assert.ok(await page.locator("#impact-map .impact-node").count()>0);
       const directEvidence={head:sha,engine:"chromium",runtimeSha256:"f".repeat(64),cases:[
         {case:"pagination-manual-full-catalog-and-reset",result:"PASS"},
         {case:"pagination-native-observer",result:"FAIL"}]};
