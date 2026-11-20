@@ -80,13 +80,13 @@
           </span>
           <span class="my-feed-toggle-chevron" aria-hidden="true">⌄</span>
         </button>
-        <div id="my-feed-stage" class="my-feed-stage" hidden>
+        <section id="my-feed-stage" class="my-feed-stage" aria-labelledby="my-feed-title" hidden>
           <header class="my-feed-head">
             <p id="my-feed-label" class="my-feed-eyebrow">Benim akışım · Roby's</p>
             <h3 id="my-feed-title">Senin için seçtiklerin</h3>
             <p id="my-feed-intro" class="my-feed-intro">Sevdiklerin, yeni tatlar ve menüden gerçek eşleşmeler.</p>
           </header>
-          <div id="my-feed-track" class="my-feed-track" aria-label="Kişisel ürünler / Personal discoveries / Личные открытия"></div>
+          <div id="my-feed-track" class="my-feed-track" role="list" aria-label="Kişisel ürünler / Personal discoveries / Личные открытия"></div>
           <div class="my-feed-foot">
             <p id="my-feed-status" class="my-feed-status" role="status" aria-live="polite"></p>
             <div class="my-feed-controls">
@@ -95,7 +95,7 @@
             </div>
           </div>
           <p id="my-feed-hint" class="my-feed-note">Beğendiklerin burada yerini bulur. Kalbe dokun, sonra yenile.</p>
-        </div>
+        </section>
       </section>
       <section class="menu-combos-section" id="menu-combos" hidden><span id="menu-combos-takeaway" aria-hidden="true"></span><div id="menu-combos-content"></div></section>
       <section class="menu-family-section" id="menu-family" hidden><div id="menu-family-content"></div></section>
