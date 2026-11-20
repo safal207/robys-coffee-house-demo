@@ -4,6 +4,7 @@ import { readFileSync, mkdirSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { resolve } from "node:path";
+import { createHistoryStore } from "./history-store.mjs";
 
 const root = fileURLToPath(new URL("../..", import.meta.url));
 const allowed = ["counter-contracts", "menu-feed-browser", "source-contracts"];
@@ -27,7 +28,8 @@ async function execute(check, head) {
 
 // Loopback only. No shell, arbitrary command/path, CORS, or remote binding.
 // The existing causal runner owns command timeout, log and clean-head checks.
-export function createWorkbenchServer({ getHead=gitHead, run=execute }={}) {
+export function createWorkbenchServer({ getHead=gitHead, run=execute, historyDir=resolve(root,".artifacts/qa-workbench/history") }={}) {
+  const history=createHistoryStore(historyDir);
   const token=randomBytes(32).toString("hex"); let busy=false;
   const server=createServer(async(req,res)=>{
     const address=server.address(), host="127.0.0.1:"+address.port, origin="http://"+host;
@@ -41,14 +43,25 @@ export function createWorkbenchServer({ getHead=gitHead, run=execute }={}) {
       return res.end(readFileSync(resolve(root,"qa/causal-regression-graph.json")));
     }
     if(req.method==="GET"&&req.url==="/api/config") return json(200,{head:getHead(),token,allowed});
-    if(req.method!=="POST"||req.url!=="/api/run") return json(404,{error:"not_found"});
+    if(req.method==="GET"&&req.url==="/api/history"){
+      if(req.headers["x-qa-token"]!==token)return json(403,{error:"token"});
+      try{return json(200,{history:history.list()})}
+      catch{return json(500,{error:"history_integrity"})}
+    }
+    if(req.method!=="POST"||!["/api/run","/api/history"].includes(req.url))return json(404,{error:"not_found"});
     if(req.headers.origin!==origin||req.headers["x-qa-token"]!==token) return json(403,{error:"origin_or_token"});
     if(req.headers["content-type"]!=="application/json") return json(415,{error:"content_type"});
     if(busy) return json(409,{error:"already_running"});
     let size=0,body="";
     try {
-      for await(const chunk of req){size+=chunk.length;if(size>1024){return json(413,{error:"body_limit"});}body+=chunk.toString("utf8");}
+      for await(const chunk of req){size+=chunk.length;if(size>(req.url==="/api/history"?16000:1024)){return json(413,{error:"body_limit"});}body+=chunk.toString("utf8");}
       const data=JSON.parse(body);
+      if(req.url==="/api/history"){
+        // Save exactly the current checkout only; older revisions remain in the archive.
+        if(data?.head!==getHead())return json(409,{error:"stale_head"});
+        try{return json(201,{snapshot:history.save(data)})}
+        catch{return json(400,{error:"invalid_snapshot"})}
+      }
       if(!data||Object.keys(data).sort().join(",")!=="check,head"||!allowed.includes(data.check)||!shaPattern.test(data.head)) return json(400,{error:"invalid_selection"});
       if(data.head!==getHead()) return json(409,{error:"stale_head"});
       if(busy) return json(409,{error:"already_running"});

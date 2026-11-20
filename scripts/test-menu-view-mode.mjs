@@ -411,3 +411,58 @@ test("QA runner isolates loopback and validates exact head and allowlisted selec
   assert.equal(good.status,200);assert.equal((await good.json()).status,"PASS");
   assert.deepEqual(calls,[["counter-contracts",head]]);
 });
+
+
+test("QA history: durable snapshots, deterministic diff, and corrupt-record rejection",async t=>{
+  const {mkdtempSync,rmSync,readFileSync,writeFileSync}=await import("node:fs");
+  const {tmpdir}=await import("node:os");
+  const {join}=await import("node:path");
+  const {createHistoryStore,compareHistorySnapshots}=await import("../.github/qa/history-store.mjs");
+  const dir=mkdtempSync(join(tmpdir(),"robys-qa-history-"));
+  t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const store=createHistoryStore(dir),h1="a".repeat(40),h2="b".repeat(40),digest="c".repeat(64);
+  const sample={head:h1,registrySha256:digest,checks:[{id:"counter-contracts",status:"PASS"}],
+    cases:[{id:"PAG-01",status:"PASS"},{id:"PAG-03",status:"FAIL"}]};
+  const first=store.save(sample);
+  assert.equal(first.id.length,64);
+  assert.equal(store.save(sample).id,first.id,"same snapshot cannot be duplicated");
+  assert.equal(createHistoryStore(dir).list().length,1,"persistent after reopening store");
+  const second=store.save({...sample,head:h2,checks:[{id:"counter-contracts",status:"FAIL"}],
+    cases:[{id:"PAG-01",status:"FAIL"},{id:"PAG-03",status:"PASS"}]});
+  const delta=compareHistorySnapshots(first,second);
+  assert.equal(delta.regressions,2);assert.equal(delta.recovered,1);assert.equal(delta.registryChanged,false);
+  assert.deepEqual(delta.rows.map(row=>[row.kind,row.id,row.change]),[
+    ["checks","counter-contracts","REGRESSION"],["cases","PAG-01","REGRESSION"],["cases","PAG-03","RECOVERED"]]);
+  assert.throws(()=>store.save({...sample,checks:[...sample.checks,...sample.checks]}),/invalid_checks/);
+  assert.throws(()=>store.save({...sample,head:"../escape"}),/invalid_snapshot/);
+  assert.throws(()=>store.save({...sample,cases:[{id:"PAG-03",status:"NOT_RUN"}]}),/invalid_cases/);
+  const filename=`snapshot-${first.head}-${first.id}.json`;
+  const data=JSON.parse(readFileSync(join(dir,filename),"utf8"));
+  writeFileSync(join(dir,filename),JSON.stringify({...data,checks:[{id:"counter-contracts",status:"FAIL"}]}));
+  assert.throws(()=>store.list(),/history_digest_mismatch/);
+});
+
+
+test("QA history HTTP: token/origin, bounded writes, dedupe and cross-run listing",async t=>{
+  const {mkdtempSync,rmSync}=await import("node:fs");const {tmpdir}=await import("node:os");const {join}=await import("node:path");
+  const {createWorkbenchServer}=await import("../.github/qa/local-runner.mjs");
+  const dir=mkdtempSync(join(tmpdir(),"robys-qa-http-history-"));t.after(()=>rmSync(dir,{recursive:true,force:true}));
+  const head="a".repeat(40);
+  const server=createWorkbenchServer({getHead:()=>head,historyDir:dir,run:async()=>{throw Error("should not execute")}});
+  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
+  t.after(()=>new Promise(resolve=>{server.closeAllConnections?.();server.close(resolve)}));
+  const origin="http://127.0.0.1:"+server.address().port;
+  const cfg=await(await fetch(origin+"/api/config")).json();
+  const headers={"Content-Type":"application/json","X-QA-Token":cfg.token,Origin:origin};
+  const payload={head,registrySha256:null,checks:[],cases:[{id:"PAG-03",status:"FAIL"}]};
+  assert.equal((await fetch(origin+"/api/history")).status,403);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers:{...headers,Origin:"https://evil.test"},body:JSON.stringify(payload)})).status,403);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify({...payload,head:"b".repeat(40)})})).status,409);
+  const post=()=>fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify(payload)});
+  const one=await post();assert.equal(one.status,201);const stored=(await one.json()).snapshot;
+  assert.equal((await post()).status,201);
+  const history=await fetch(origin+"/api/history",{headers:{"X-QA-Token":cfg.token}});
+  assert.equal(history.status,200);const list=(await history.json()).history;
+  assert.equal(list.length,1);assert.equal(list[0].id,stored.id);assert.equal(list[0].trust,"LOCAL_UNVERIFIED_IMPORT");
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify({...payload,cases:[{id:"PAG-03",status:"BOGUS"}]})})).status,400);
+});
