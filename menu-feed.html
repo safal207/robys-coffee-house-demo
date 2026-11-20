@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="taste-cart.css?v=1" />
   <script type="module" src="taste-cart-entry.js?v=1"></script>
   <script type="module" src="taste-memory.js?v=1"></script>
+  <script type="module" src="my-feed-entry.js?v=1"></script>
   <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -19,6 +20,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="menu-runtime.css?v=4ba3cebf5c09" />
   <link rel="stylesheet" href="menu-feed.css?v=05335301d165" />
+  <link rel="stylesheet" href="my-feed.css?v=1" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
 <body class="feed-page">
@@ -69,6 +71,32 @@
         <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
         <a href="smart-choice/" class="feed-smart-choice" data-menu-copy="smartChoice">Akıllı seçim</a>
       </div>
+      <section class="my-feed-entry" aria-label="Kişisel akış / My feed / Моя лента">
+        <button id="my-feed-toggle" class="my-feed-toggle" type="button" aria-controls="my-feed-stage" aria-expanded="false" aria-pressed="false">
+          <span class="my-feed-toggle-symbol" aria-hidden="true">♥</span>
+          <span class="my-feed-toggle-copy">
+            <span class="my-feed-toggle-title" data-localized data-tr="Benim akışım" data-en="My feed" data-ru="Моя лента">Benim akışım</span>
+            <span class="my-feed-toggle-sub" data-localized data-tr="Sevdiklerin · Yeni tatlar" data-en="Favorites · New tastes" data-ru="Любимое · Открытия">Sevdiklerin · Yeni tatlar</span>
+          </span>
+          <span class="my-feed-toggle-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div id="my-feed-stage" class="my-feed-stage" hidden>
+          <header class="my-feed-head">
+            <p id="my-feed-label" class="my-feed-eyebrow">Benim akışım · Roby's</p>
+            <h3 id="my-feed-title">Senin için seçtiklerin</h3>
+            <p id="my-feed-intro" class="my-feed-intro">Sevdiklerin, yeni tatlar ve menüden gerçek eşleşmeler.</p>
+          </header>
+          <div id="my-feed-track" class="my-feed-track" aria-label="Kişisel ürünler / Personal discoveries / Личные открытия"></div>
+          <div class="my-feed-foot">
+            <p id="my-feed-status" class="my-feed-status" role="status" aria-live="polite"></p>
+            <div class="my-feed-controls">
+              <button type="button" id="my-feed-refresh">Başka tatlar</button>
+              <button type="button" id="my-feed-all">Tüm akışa dön</button>
+            </div>
+          </div>
+          <p id="my-feed-hint" class="my-feed-note">Beğendiklerin burada yerini bulur. Kalbe dokun, sonra yenile.</p>
+        </div>
+      </section>
       <section class="menu-combos-section" id="menu-combos" hidden><span id="menu-combos-takeaway" aria-hidden="true"></span><div id="menu-combos-content"></div></section>
       <section class="menu-family-section" id="menu-family" hidden><div id="menu-family-content"></div></section>
       <p id="feed-results" class="sr-only" role="status" aria-live="polite"></p>
