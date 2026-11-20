@@ -141,7 +141,12 @@
         "menu-premium.css",
         "menu-stability*.css",
         "menu-security-v2.css",
-        "menu-runtime.css"
+        "menu-runtime.css",
+        "pairing-taste-journey.js",
+        "src/pairing-taste-journey.js",
+        "pairing-taste-journey.css",
+        "scripts/test-photo-taste-journey.mjs",
+        "scripts/test-photo-taste-journey-browser.mjs"
       ],
       "dependsOn": [
         "build",

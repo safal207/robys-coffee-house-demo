@@ -8,6 +8,12 @@ on:
       - "menu-grid.css"
       - "menu-grid-merchandising.js"
       - "menu-grid-prepaint.js"
+      - "pairing-taste-journey.js"
+      - "pairing-taste-journey.css"
+      - "src/pairing-taste-journey.js"
+      - "scripts/test-photo-taste-journey.mjs"
+      - "scripts/test-photo-taste-journey-dom.mjs"
+      - "scripts/test-photo-taste-journey-browser.mjs"
       - "menu-product-reveal.js"
       - "menu-product-reveal-runtime.js"
       - "menu-product-reveal.css"
@@ -57,21 +63,31 @@ jobs:
           node --check scripts/test-menu-product-reveal-browser.mjs
           node --check scripts/test-menu-grid-merchandising-browser.mjs
           node --check menu-grid-prepaint.js
+          node --check pairing-taste-journey.js
+          node --check scripts/test-photo-taste-journey.mjs
+          node --check scripts/test-photo-taste-journey-dom.mjs
+          node --check scripts/test-photo-taste-journey-browser.mjs
       - name: Install test dependencies
         run: npm ci --ignore-scripts
       - name: Verify reveal contract
         run: node scripts/test-menu-product-reveal.mjs
+      - name: Verify photo taste source, URLs and offline revisions
+        run: node --test scripts/test-photo-taste-journey.mjs scripts/test-photo-taste-journey-dom.mjs
       - name: Install test browser
         run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Run Chromium reveal smoke
         run: node scripts/test-menu-product-reveal-browser.mjs
       - name: Verify photo-grid pairing merchandising at mobile and desktop sizes
         run: node scripts/test-menu-grid-merchandising-browser.mjs
+      - name: Verify personal view/heart, share or skip, friend link and cart in browsers
+        run: node scripts/test-photo-taste-journey-browser.mjs
       - name: Upload pairing merchandising screenshots and evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: menu-grid-merchandising-${{ github.event.pull_request.head.sha || github.sha }}
-          path: .artifacts/menu-grid-merch/
+          path: |
+            .artifacts/menu-grid-merch/
+            .artifacts/photo-taste-journey/
           if-no-files-found: warn
           retention-days: 14

@@ -1,0 +1,22 @@
+/* Taste → voluntary social sharing → cart, enhanced over the existing pairing panel. */
+.pairing-journey{display:grid;gap:14px;padding:17px 19px;border:1px solid rgba(181,147,73,.28);border-radius:17px;background:#fffdf8;min-width:0}
+.pairing-journey-stats{display:flex;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;color:#726155;font:750 .8rem/1.4 var(--sans,system-ui)}
+.pairing-journey-like{display:inline-flex;justify-self:start;align-items:center;gap:8px;min-height:44px;padding:10px 18px;background:#fff;border:1px solid #d3c2b4;border-radius:999px;color:#695044;font:800 .9rem/1.3 var(--sans,system-ui);cursor:pointer}
+.pairing-journey-like[aria-pressed="true"]{background:#fcecef;color:#a22c49;border-color:#df9aa7}
+.pairing-journey-controls{display:grid;gap:9px;min-width:0}
+.pairing-journey-question{font:800 clamp(1.1rem,2vw,1.4rem)/1.3 var(--sans,system-ui);margin:0;color:#362620}
+.pairing-journey-lead{font-size:.92rem;line-height:1.55;margin:0;color:#6c5c51}
+.pairing-journey-buttons{display:flex;flex-wrap:wrap;gap:10px}
+.pairing-journey-buttons .button{flex:1 1 180px;min-height:48px;display:inline-flex;justify-content:center;align-items:center;padding:12px 18px;border-radius:12px;font-weight:800;white-space:normal;text-align:center;cursor:pointer}
+.pairing-journey-share{background:#674237;color:#fff;border:1px solid #674237}
+.pairing-journey-skip{background:#fff;color:#624b3f;border:1px solid #d2b8aa}
+.pairing-journey-share:disabled{opacity:.65;cursor:wait}
+.pairing-journey-status{margin:0;color:#36563f;font-size:.86rem;min-height:0}
+.pairing-journey-status:empty{display:none}
+.pairing-journey-fallback{display:grid;gap:7px;min-width:0;color:#69564a;font-weight:750;font-size:.86rem}
+.pairing-journey-url{width:100%;min-height:44px;border:1px solid #c9ac96;border-radius:9px;padding:10px;background:#fff;color:#32231e;font-size:.84rem}
+.pairing-journey [hidden]{display:none!important}
+.pairing-journey-like:focus-visible,.pairing-journey-buttons .button:focus-visible,.pairing-journey-url:focus-visible{outline:3px solid #925426;outline-offset:3px}
+.pairing-discovery-actions .pairing-journey-direct{background:#fffdf6;color:#744e19;border:1px solid rgba(181,147,73,.6)}
+@media(max-width:680px){.pairing-journey{padding:15px 13px;border-radius:14px}.pairing-journey-buttons{display:grid;grid-template-columns:1fr}.pairing-journey-buttons .button{width:100%}}
+@media(prefers-reduced-motion:reduce){.pairing-journey *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
