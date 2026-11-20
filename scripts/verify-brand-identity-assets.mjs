@@ -112,8 +112,13 @@ const preloads = new Map([
 for (const [path, preload] of preloads) {
   const html = read(path);
   if (path === "menu.html") {
-    assert(JSON.stringify(MENU_STYLE_INPUTS.slice(-3).map(({ source }) => source)) ===
-      JSON.stringify(["menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"]),
+    // The brand/security/checkout sequence is fixed, but later optional CSS
+    // layers (e.g. the visual cart) must not invalidate the approved identity.
+    const menuLayers = MENU_STYLE_INPUTS.map(({ source }) => source);
+    const securityLayer = menuLayers.indexOf("menu-security-v2.css");
+    assert(securityLayer >= 0 &&
+      menuLayers[securityLayer + 1] === "brand-photo-logo.css" &&
+      menuLayers[securityLayer + 2] === "order-checkout.css",
     "menu must preserve the approved brand layer after security and before checkout");
     verifyMenuStylesBundle(readMenuStylesBundleInputs());
   } else {
