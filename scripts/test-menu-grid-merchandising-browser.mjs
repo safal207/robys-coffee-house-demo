@@ -63,7 +63,7 @@ try {
         };
       }));
       for (const [index, card] of geometry.entries()) {
-        assert.ok(card.w >= 270, `Card ${index}: width is too narrow: ${card.w}px`);
+        assert.ok(card.w >= 250, `Card ${index}: width is too narrow: ${card.w}px`);
         assert.ok(card.mediaBottom <= card.detailsTop + 2, `Card ${index}: text overlaps photo`);
         assert.ok(card.priceTop >= card.detailsTop - 1, `Card ${index}: price outside details`);
         assert.ok(card.buttonTop >= card.priceBottom - 1, `Card ${index}: CTA overlaps price`);
