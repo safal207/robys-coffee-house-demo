@@ -2088,6 +2088,29 @@ try {
       await page.locator("#reset").click();
       assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
       assert.equal(await page.locator("#hist-save").isDisabled(),true,"Standalone mode cannot claim persistent runner access");
+      const workflowReport={schemaVersion:1,type:"GITHUB_WORKFLOW_OBSERVATION_DIFF",
+        provenance:"GITHUB_ACTIONS_API_OBSERVATION_NOT_ATTESTATION",
+        beforeHead:"a".repeat(40),afterHead:"b".repeat(40),summary:{regressions:1,recovered:0,awaiting:1,missing:0},
+        rows:[{workflowId:41,name:"Counter service",from:"PASS",to:"FAIL",change:"REGRESSION",
+          beforeRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/1",
+          afterRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/2",afterRunId:2},
+          {workflowId:42,name:"Causal regression",from:"PASS",to:"PENDING",change:"AWAITING_CI",
+          beforeRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/3",
+          afterRun:"https://github.com/safal207/robys-coffee-house-demo/actions/runs/4",afterRunId:4}]};
+      const ghaUpload=value=>page.locator("#gha-diff-file").setInputFiles({
+        name:"github-workflow-diff.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(value))});
+      await ghaUpload(workflowReport);
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("регрессий 1"));
+      assert.equal(await page.locator('#gha-diff-rows tr[data-workflow-change="REGRESSION"]').count(),1);
+      assert.equal(await page.locator('#gha-diff-rows tr[data-workflow-change="AWAITING_CI"]').count(),1);
+      assert.equal(await page.locator("#gha-diff-rows a").first().getAttribute("href"),
+        "https://github.com/safal207/robys-coffee-house-demo/actions/runs/2");
+      await ghaUpload({...workflowReport,rows:[{...workflowReport.rows[0],change:"UNCHANGED"},workflowReport.rows[1]]});
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("Отклонено"));
+      assert.equal(await page.locator("#gha-diff-rows tr").count(),0);
+      await ghaUpload({...workflowReport,rows:[{...workflowReport.rows[0],afterRun:"https://evil.test"},workflowReport.rows[1]]});
+      await page.waitForFunction(()=>document.querySelector("#gha-diff-status").textContent.includes("Отклонено"));
+      assert.equal(await page.locator("#gha-diff-rows tr").count(),0);
       const snap=(head,checkStatus,caseStatus)=>{
         const data={schemaVersion:1,head,registrySha256:null,
           checks:[{id:"counter-contracts",status:checkStatus}],cases:[{id:"PAG-03",status:caseStatus}]};
