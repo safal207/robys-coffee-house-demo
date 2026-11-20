@@ -62,7 +62,8 @@ test("taste cart does not invent a new price, write an independent basket or aut
   const css = readFileSync("taste-cart.css", "utf8");
   const entry = readFileSync("taste-cart-entry.js", "utf8");
   assert.match(entry, /dialog\.open/);
-  assert.match(entry, /import\("\.\/taste-cart\.js\?v=1"\)/);
+  assert.match(entry, /new URL\("\.\/taste-cart\.js\?v=1", import\.meta\.url\)/);
+  assert.match(entry, /await import\(url\.href\)/);
   assert.match(js, /transactStoredOrderDraft/);
   assert.match(js, /storage\.addOrderGroup/);
   assert.match(js, /origin: "taste-cart"/);
