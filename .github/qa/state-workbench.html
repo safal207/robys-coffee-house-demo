@@ -4,7 +4,7 @@
 <section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><label for="request-version">Версия запроса</label><input id="request-version" type="number" min="1" max="4" step="1" value="1" style="width:72px"><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
 <section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
 <label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
-<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>История QA и сравнение коммитов</h2><p>Локальные снимки сохраняются в .artifacts/qa-workbench/history/ через runner. При автономном просмотре можно импортировать JSON-снимки. Контрольная сумма подтверждает целостность, но не подлинность CI; FAIL — наблюдение, не установленная причина.</p><div class="controls"><button id="hist-save" disabled>Сохранить снимок</button><button id="hist-refresh" disabled>Обновить архив</button></div><label for="hist-import">Импорт сохранённых снимков JSON</label><input id="hist-import" type="file" multiple accept=".json,application/json" style="max-width:100%"><p id="hist-status" role="status">Доступен автономный импорт; локальное сохранение требует runner.</p><div class="controls"><label for="hist-from">До</label><select id="hist-from"></select><label for="hist-to">После</label><select id="hist-to"></select><button id="hist-compare">Сравнить</button><button id="hist-export" disabled>Экспортировать снимок «После»</button></div><p id="hist-summary" role="status">Для сравнения нужны два снимка.</p><div class="table-wrap"><table><thead><tr><th>Уровень</th><th>ID</th><th>До</th><th>После</th><th>Изменение</th></tr></thead><tbody id="hist-diff"></tbody></table></div></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><p id="state-case-guidance" role="status">Для ST-сценариев диаграмма состояний выше будет настроена автоматически.</p><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>История QA и сравнение коммитов</h2><p>Локальные снимки сохраняются в .artifacts/qa-workbench/history/ через runner. При автономном просмотре можно импортировать JSON-снимки. Контрольная сумма подтверждает целостность, но не подлинность CI; FAIL — наблюдение, не установленная причина.</p><div class="controls"><button id="hist-save" disabled>Сохранить снимок</button><button id="hist-refresh" disabled>Обновить архив</button></div><label for="hist-import">Импорт сохранённых снимков JSON</label><input id="hist-import" type="file" multiple accept=".json,application/json" style="max-width:100%"><p id="hist-status" role="status">Доступен автономный импорт; локальное сохранение требует runner.</p><div class="controls"><label for="hist-from">До</label><select id="hist-from"></select><label for="hist-to">После</label><select id="hist-to"></select><button id="hist-compare">Сравнить</button><button id="hist-export" disabled>Экспортировать снимок «После»</button></div><p id="hist-summary" role="status">Для сравнения нужны два снимка.</p><div class="table-wrap"><table><thead><tr><th>Уровень</th><th>ID</th><th>До</th><th>После</th><th>Изменение</th></tr></thead><tbody id="hist-diff"></tbody></table></div><h3>Карточки регрессионных наблюдений</h3><p>Формируются только при PASS → FAIL. Не подтверждают дефект, серьёзность или первопричину; связи с компонентами — гипотезы.</p><div class="controls"><button id="triage-export" disabled>Экспортировать карточки JSON</button></div><p id="triage-summary" role="status">Выбери два снимка.</p><div id="triage-cards" aria-label="Кандидаты для QA расследования"></div></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><p id="state-case-guidance" role="status">Для ST-сценариев диаграмма состояний выше будет настроена автоматически.</p><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
 <script>
 "use strict";
 const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
@@ -77,7 +77,7 @@ async function loadRegistry(bytes,generation){
   const graph=validateRegistry(JSON.parse(new TextDecoder().decode(bytes)));
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)),b=>b.toString(16).padStart(2,"0")).join("");
   if(generation!==graphGeneration)return;
-  registry=graph;registryDigest=digest;render();renderImpact();
+  registry=graph;registryDigest=digest;render();renderImpact();renderTriageCards(archivedSnapshots.get(byId("hist-from").value),archivedSnapshots.get(byId("hist-to").value));
 }
 function renderImpact(){
   const select=byId("impact-check"),map=byId("impact-map"),list=byId("impact-journeys");
@@ -254,6 +254,89 @@ byId("temporal-reverse").onclick=()=>temporalRun([4,3,2,1]);
 byId("temporal-reset").onclick=()=>temporalRun([]);
 
 const archivedSnapshots=new Map();
+
+let triagePayload=null;
+function renderTriageCards(before,after){
+  const wrapper=byId("triage-cards"),exporter=byId("triage-export");
+  wrapper.replaceChildren();triagePayload=null;exporter.disabled=true;
+  if(!before||!after){byId("triage-summary").textContent="Выбери два снимка.";return}
+  const linked=Boolean(registry&&registryDigest&&before.registrySha256
+    &&before.registrySha256===after.registrySha256&&before.registrySha256===registryDigest);
+  const results=[];
+  for(const kind of ["checks","cases"]){
+    const earlier=new Map(before[kind].map(row=>[row.id,row.status]));
+    for(const current of after[kind]){
+      if(earlier.get(current.id)!=="PASS"||current.status!=="FAIL")continue;
+      const seeds=(kind==="checks"?registry?.checks.get(current.id)?.components:caseComponents[current.id])??[];
+      const components=linked?[...new Set(seeds.filter(id=>registry.components.has(id)))].sort():[];
+      const distances=new Set(components),queue=[...components];
+      if(linked)for(let i=0;i<queue.length;i++)for(const component of registry.components.values()){
+        if(component.dependsOn.includes(queue[i])&&!distances.has(component.id)){
+          distances.add(component.id);queue.push(component.id);
+        }
+      }
+      const downstream=linked?[...distances].filter(id=>!components.includes(id)).sort():[];
+      const journeys=linked?[...registry.journeys.values()].filter(journey=>
+        kind==="checks"&&journey.checks.includes(current.id)
+        || journey.components.some(id=>distances.has(id))).map(item=>item.id).sort():[];
+      results.push({
+        id:"REG-"+kind+"-"+current.id+"-"+after.id.slice(0,12),
+        type:"REGRESSION_OBSERVATION",review:"NEEDS_TRIAGE",severity:"UNASSESSED",
+        scope:kind==="checks"?"SUITE":"CASE",testId:current.id,
+        beforeStatus:"PASS",afterStatus:"FAIL",
+        evidence:{beforeHead:before.head,afterHead:after.head,beforeSnapshot:before.id,
+          afterSnapshot:after.id,provenance:"LOCAL_UNVERIFIED_IMPORT"},
+        linkedComponents:components,potentialDownstream:downstream,relatedJourneys:journeys,
+        componentLinks:"HYPOTHESIS_ONLY",
+        nextAction:"Re-run the exact scenario on the same head, inspect receipts, then assign cause and severity."
+      });
+    }
+  }
+  triagePayload={schemaVersion:1,type:"QA_REGRESSION_TRIAGE_DRAFT",beforeHead:before.head,
+    afterHead:after.head,registryCompatible:linked,
+    registryChanged:before.registrySha256!==after.registrySha256,
+    warning:"Imported observations are not authenticated CI attestations or confirmed product defects.",
+    cards:results};
+  exporter.disabled=!results.length;
+  byId("triage-summary").textContent="Кандидатов на расследование: "+results.length+
+    (linked?" · связи по совпадающему реестру": " · нет совпадающего реестра, связи не указаны")+
+    " · только переходы PASS → FAIL; без оценки severity";
+  for(const card of results){
+    const entry=document.createElement("article");entry.className="impact-node";entry.dataset.triage=card.testId;
+    const title=document.createElement("strong");title.textContent=card.scope+" · "+card.testId+" · PASS → FAIL";
+    const info=document.createElement("p");info.textContent="HEAD: "+before.head.slice(0,8)+" → "+
+      after.head.slice(0,8)+" · Severity не определена · Требует расследования";
+    const evidence=document.createElement("small");
+    evidence.textContent="Снимки: "+before.id.slice(0,12)+" → "+after.id.slice(0,12)+
+      " · импорт, не аттестация";
+    const impact=document.createElement("p");impact.textContent=linked?
+      "Связанные компоненты (гипотеза): "+(card.linkedComponents.join(", ")||"нет известных")+
+      " · потенциальные зависимые: "+card.potentialDownstream.length+
+      " · пользовательские сценарии: "+card.relatedJourneys.length:
+      "Связи с компонентами скрыты: реестр отсутствует или SHA-256 не совпадает.";
+    entry.append(title,info,evidence,impact);
+    if(linked){
+      const value=card.scope==="CASE"?"case:"+card.testId:card.testId;
+      if([...byId("impact-check").options].some(option=>option.value===value)){
+        const button=document.createElement("button");button.textContent="Открыть на карте влияния";
+        button.onclick=()=>{byId("impact-check").value=value;renderImpact();
+          if(card.scope==="CASE")guideStateCase(card.testId);byId("impact-map").scrollIntoView({block:"nearest"});};
+        entry.append(button);
+      }
+    }
+    wrapper.append(entry);
+  }
+}
+byId("triage-export").onclick=()=>{
+  if(!triagePayload?.cards?.length)return;
+  const name="robys-qa-triage-"+triagePayload.afterHead.slice(0,8)+".json";
+  const link=document.createElement("a");
+  const url=URL.createObjectURL(new Blob([JSON.stringify(triagePayload,null,2)+"\n"],{type:"application/json"}));
+  link.href=url;link.download=name;document.body.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  byId("triage-summary").textContent="Экспортированы кандидаты на расследование · "+name+" · неподтверждённые наблюдения";
+};
+
 const archiveId=/^[a-f0-9]{64}$/;
 const canonicalSort=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0;
 function classifyChange(from,to){
@@ -264,7 +347,7 @@ function classifyChange(from,to){
 function compareSnapshots(){
   const a=archivedSnapshots.get(byId("hist-from").value),b=archivedSnapshots.get(byId("hist-to").value);
   const table=byId("hist-diff");table.replaceChildren();
-  if(!a||!b){byId("hist-summary").textContent="Для сравнения нужны два снимка.";return}
+  if(!a||!b){byId("hist-summary").textContent="Для сравнения нужны два снимка.";renderTriageCards(null,null);return}
   let regressions=0,recovered=0,lost=0;
   for(const kind of ["checks","cases"]){
     const before=new Map(a[kind].map(row=>[row.id,row.status])),after=new Map(b[kind].map(row=>[row.id,row.status]));
@@ -284,6 +367,7 @@ function compareSnapshots(){
   byId("hist-summary").textContent=a.head.slice(0,8)+" → "+b.head.slice(0,8)+" · регрессий "+regressions+
     " · восстановлений "+recovered+" · потеряно доказательств "+lost+
     (a.registrySha256!==b.registrySha256?" · Реестр изменился":"")+" · наблюдения без аттестации";
+  renderTriageCards(a,b);
 }
 function refreshHistoryUI(){
   const all=[...archivedSnapshots.values()].sort((a,b)=>a.recordedAt.localeCompare(b.recordedAt)||a.id.localeCompare(b.id));
