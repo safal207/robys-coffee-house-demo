@@ -1,5 +1,9 @@
 // Progressive enhancement for the existing pairing story. No second cart, public
 // popularity counts, automatic likes, background tracking or compulsory sharing.
+const tasteJourneyCss = document.createElement("link");
+tasteJourneyCss.rel = "stylesheet";
+tasteJourneyCss.href = "pairing-taste-journey.css?v=a6929261e393";
+document.head.append(tasteJourneyCss);
 const COPY = {
   ru: {
     progress:"Вкусов открыто",views:"Твои просмотры",like:"Нравится",
