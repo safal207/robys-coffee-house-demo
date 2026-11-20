@@ -154,6 +154,11 @@ if (root && toolActions && formats) {
     trigger.setAttribute("aria-expanded", String(!panel.hidden));
     if (!panel.hidden) { render(); panel.focus({ preventScroll: true }); }
   });
+  document.addEventListener("click", event => {
+    if (panel.hidden || panel.contains(event.target) || trigger.contains(event.target)) return;
+    panel.hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+  });
   enabled.addEventListener("change", () => {
     preferences.enabled = enabled.checked; save();
     if (!preferences.enabled) hideReminder();
@@ -263,6 +268,10 @@ if (root && toolActions && formats) {
     }
   });
   document.querySelector("#menu-cart-trigger")?.addEventListener("click", hideReminder);
+  const dialogGuard = new MutationObserver(() => {
+    if (reminderNode && document.querySelector("dialog[open]")) hideReminder();
+  });
+  dialogGuard.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["open"] });
   window.addEventListener("pagehide", hideReminder);
   render();
 }
