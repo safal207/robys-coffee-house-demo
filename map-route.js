@@ -7,16 +7,16 @@
   function enhanceLinksAndObserve() {
   for (const link of document.querySelectorAll("a[data-route-link]")) {
     const url = new URL(link.href);
-    if (url.protocol !== "https:" || url.hostname !== "www.google.com" ||
+    if (url.origin !== "https://www.google.com" ||
         url.pathname !== "/maps/dir/" ||
         url.searchParams.get("destination") !== "Roby's Coffee House Gazipasa") continue;
     url.searchParams.set("destination_place_id", "ChIJpdkfSnH13BQRAEJUSGpYxNg");
-    link.href = url.href;
+    link.href = url;
   }
   const visit = document.querySelector("#visit");
   if (!visit) return; // Menu surfaces need pinned anchor links only.
   const load = () => import("./map-route-controller.js?v=7dd8867e875e");
-  if (!("IntersectionObserver" in window)) {
+  if (!window.IntersectionObserver) {
     load();
     return;
   }
@@ -28,7 +28,7 @@
   observer.observe(visit);
   }
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", enhanceLinksAndObserve, { once: true });
+    document.addEventListener("DOMContentLoaded", enhanceLinksAndObserve);
   } else {
     enhanceLinksAndObserve();
   }
