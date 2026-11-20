@@ -161,6 +161,7 @@
       "paths": [
         "menu-grid.html",
         "menu-grid.css",
+        "menu-grid-merchandising.js",
         "scripts/test-menu-view-mode.mjs",
         "scripts/test-mobile-navigation-browser.mjs",
         "src/menu-view-mode.js",
@@ -170,7 +171,9 @@
         "src/menu-feedback.js",
         "menu-feedback.js",
         "menu-feedback.css",
-        "scripts/test-menu-feedback.mjs"
+        "scripts/test-menu-feedback.mjs",
+        "scripts/test-menu-grid-merchandising-browser.mjs",
+        "menu-grid-prepaint.js"
       ],
       "dependsOn": [
         "build",
