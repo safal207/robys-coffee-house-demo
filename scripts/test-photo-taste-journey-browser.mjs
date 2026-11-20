@@ -61,14 +61,15 @@ try {
         assert.deepEqual([...link.searchParams.keys()].sort(),["lang","pair","view"],
           "Do not leak mood or visitor identity in shared link");
         await page.waitForFunction(()=>document.querySelector(".pairing-journey-question")?.textContent==="Want to try this pairing?");
-        const receiver=await context.newPage();
+        const receiverContext=await browser.newContext({serviceWorkers:"block"});
+        const receiver=await receiverContext.newPage();
         try {
           await receiver.goto(shared,{waitUntil:"domcontentloaded"});
           const opened=receiver.locator('.pairing-discovery-panel[data-pairing-id="cool-lime-macaron"]');
           await opened.waitFor({state:"visible",timeout:20000});
           await opened.locator(".pairing-journey").waitFor({state:"visible"});
           assert.match(await opened.locator(".pairing-journey-stats").innerText(),/1/);
-        }finally{await receiver.close()}
+        }finally{await receiverContext.close()}
       }else if(lang==="ru"){
         await journey.locator('[data-taste-action="skip"]').click();
         assert.equal(await journey.locator(".pairing-journey-question").innerText(),"Хочешь попробовать эту пару?");
