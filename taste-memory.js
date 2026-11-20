@@ -2,6 +2,7 @@
 // All preferences and verified link-copy counts stay on this device.
 import { menuCategories } from "./menu-catalog.js?v=3132b4dc1273";
 import { feedProducts } from "./src/menu-feed-model.js";
+import { choosePersonalPair, chooseRememberedProduct } from "./taste-memory-policy.js";
 
 const products = feedProducts(menuCategories);
 const byId = new Map(products.map(product => [product.id, product]));
@@ -9,16 +10,7 @@ const LIKE = "robys-feed-like-v1:";
 const SEEN = "robys-feed-seen-v1:";
 const VIEWS = "robys-feed-views-v1:";
 const KEY = "robys-taste-memory-v1";
-const WAIT_MS = 90000;
-const PRODUCT_COOLDOWN = 7 * 86400000;
-const GLOBAL_COOLDOWN = 86400000;
 const MAX_COUNT = 999999999;
-const PAIRS = [
-  ["refreshers:cool-lime", "desserts:macaron"],
-  ["cold-coffee:iced-caffe-latte", "desserts:san-sebastian-cheesecake"],
-  ["hot-coffee:caffe-latte", "desserts:san-sebastian-cheesecake"],
-  ["desserts:san-sebastian-cheesecake", "cold-coffee:iced-caffe-latte"]
-];
 const translations = {
   tr: { open: "Benim lezzetim", title: "Lezzet geçmişim", views: "Görüntüleme", likes: "Beğendiğin", shares: "Kopyalanan bağlantı", note: "Sayılar yalnızca bu cihazı gösterir. Bağlantı kopyalama sayılır; başka uygulamada gönderim doğrulanamaz.", reminder: "Sessiz hatırlatmalar", clear: "Bu cihazdaki geçmişi sil", question: "Beğenileri, görüntülemeleri ve paylaşım geçmişini bu cihazdan silmek istiyor musun?", pair: "Beğendiğine yakışır", pairAction: "Ürünü keşfet", fromYou: "Bunu daha önce beğenmiştin", remember: "Hâlâ burada. Yeniden bakmak ister misin?", return: "Yeniden keşfet", dismiss: "Hatırlatmayı kapat", close: "Kapat", off: "Hatırlatmalar kapalı", on: "Hatırlatmalar açık" },
   en: { open: "My taste", title: "Your taste history", views: "Views", likes: "Liked", shares: "Links copied", note: "These are this-device totals only. Copying a link counts; sending it in another app cannot be verified.", reminder: "Quiet reminders", clear: "Clear this device's history", question: "Delete likes, views and sharing history on this device?", pair: "Pairs with your favorite", pairAction: "Explore pairing", fromYou: "You liked this before", remember: "Still here, if you want another look.", return: "Rediscover", dismiss: "Dismiss reminder", close: "Close", off: "Reminders off", on: "Reminders on" },
@@ -76,11 +68,7 @@ function stats() {
   return { views, seen, likes: liked().length, shares: Object.values(preferences.copies).reduce((n, v) => n + v, 0) };
 }
 function selectedPair() {
-  const saved = new Set(liked().map(product => product.id));
-  for (const [source, target] of PAIRS) if (saved.has(source) && !saved.has(target) && byId.has(target)) {
-    return { source: byId.get(source), target: byId.get(target) };
-  }
-  return null;
+  return choosePersonalPair(new Set(liked().map(product => product.id)), byId);
 }
 function stat(label) {
   const wrap = make("div", "taste-memory-stat");
@@ -119,6 +107,7 @@ if (root && toolActions && formats) {
   toolActions.prepend(trigger);
   formats.after(panel);
   const formatNumber = n => new Intl.NumberFormat(lang() === "tr" ? "tr-TR" : lang() === "ru" ? "ru-RU" : "en-US").format(n);
+  let renderedPairKey = "";
   function render() {
     const total = stats();
     trigger.textContent = t("open");
@@ -131,9 +120,12 @@ if (root && toolActions && formats) {
     enabled.checked = preferences.enabled;
     enabled.setAttribute("aria-label", preferences.enabled ? t("on") : t("off"));
     clear.textContent = t("clear");
-    suggestion.replaceChildren();
     const pair = selectedPair();
+    const key = pair ? pair.source.id + "|" + pair.target.id + "|" + lang() : "";
     suggestion.hidden = !pair;
+    if (key !== renderedPairKey) {
+      renderedPairKey = key;
+      suggestion.replaceChildren();
     if (pair) {
       const photo = make("img");
       photo.src = pair.target.image;
@@ -147,8 +139,10 @@ if (root && toolActions && formats) {
       details.append(link);
       suggestion.append(photo, details);
     }
+    }
     if (reminderNode) {
       reminderNode.querySelector(".taste-memory-reminder-kicker").textContent = t("fromYou");
+      reminderNode.querySelector(".taste-memory-reminder-content strong").textContent = name(byId.get(reminderNode.dataset.productId));
       reminderNode.querySelector(".taste-memory-reminder-copy").textContent = t("remember");
       reminderNode.querySelector(".taste-memory-reminder-link").textContent = t("return");
       reminderNode.querySelector(".taste-memory-reminder-close").setAttribute("aria-label", t("dismiss"));
@@ -178,6 +172,7 @@ if (root && toolActions && formats) {
   function showReminder(product) {
     const card = make("aside", "taste-memory-reminder");
     card.setAttribute("aria-label", t("fromYou"));
+    card.dataset.productId = product.id;
     const photo = make("img"); photo.src = product.image; photo.alt = ""; photo.width = 88; photo.height = 88;
     const content = make("div", "taste-memory-reminder-content");
     const kicker = make("span", "taste-memory-reminder-kicker", t("fromYou"));
@@ -193,12 +188,14 @@ if (root && toolActions && formats) {
     reminderNode = card;
   }
   function maybeRemember() {
-    if (prompted || !interacted || !preferences.enabled || document.hidden || !document.hasFocus() ||
-      Date.now() - sessionStarted < WAIT_MS || Date.now() - preferences.lastShown < GLOBAL_COOLDOWN ||
-      document.querySelector("dialog[open]") || document.querySelector(".order-checkout-dialog[open]") ||
-      Number(document.querySelector("#menu-cart-count")?.textContent || "0") > 0) return;
-    const candidate = products.find(product => oldLikes.has(product.id) && local(LIKE + product.id) === "1" &&
-      Date.now() - (preferences.shown[product.id] || 0) >= PRODUCT_COOLDOWN);
+    const candidate = chooseRememberedProduct({
+      products, priorLiked: oldLikes, currentLiked: new Set(liked().map(product => product.id)),
+      shown: preferences.shown, lastShown: preferences.lastShown, now: Date.now(),
+      sessionStarted, interacted, enabled: preferences.enabled, prompted,
+      busy: document.hidden || !document.hasFocus() || !panel.hidden ||
+        Boolean(document.querySelector("dialog[open]")) ||
+        Number(document.querySelector("#menu-cart-count")?.textContent || "0") > 0
+    });
     if (!candidate) return;
     prompted = true;
     preferences.lastShown = Date.now();
