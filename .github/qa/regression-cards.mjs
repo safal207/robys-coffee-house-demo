@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { normalizeHistorySnapshot, compareHistorySnapshots } from "./history-store.mjs";
 
 // These links guide triage. They are not evidence of causality or severity.
@@ -15,8 +16,11 @@ const sortStrings=(a,b)=>a<b?-1:a>b?1:0;
 const order=(value)=>value.sort(sortStrings);
 const normalizeRecord=record=>{
   if(record?.trust!=="LOCAL_UNVERIFIED_IMPORT"||!HEX64.test(record.id??""))throw Error("untrusted_history_record");
-  return normalizeHistorySnapshot({head:record.head,registrySha256:record.registrySha256,
+  const canonical=normalizeHistorySnapshot({head:record.head,registrySha256:record.registrySha256,
     checks:record.checks,cases:record.cases});
+  const computed=createHash("sha256").update(JSON.stringify(canonical)).digest("hex");
+  if(computed!==record.id)throw Error("history_digest_mismatch");
+  return canonical;
 };
 export function buildRegressionCards(beforeRecord,afterRecord,registry,registrySha256){
   const before=normalizeRecord(beforeRecord),after=normalizeRecord(afterRecord);

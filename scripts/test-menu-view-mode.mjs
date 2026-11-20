@@ -478,9 +478,12 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   const {createHash}=await import("node:crypto");
   const graphText=readFileSync(new URL("../qa/causal-regression-graph.json",import.meta.url));
   const digest=createHash("sha256").update(graphText).digest("hex"),graph=JSON.parse(graphText);
-  const make=(head,checks,cases,sha=digest)=>({head,registrySha256:sha,checks,cases,
-    id:createHash("sha256").update(JSON.stringify({head,checks,cases,sha})).digest("hex"),
-    trust:"LOCAL_UNVERIFIED_IMPORT"});
+  const {normalizeHistorySnapshot}=await import("../.github/qa/history-store.mjs");
+  const make=(head,checks,cases,sha=digest)=>{
+    const canonical=normalizeHistorySnapshot({head,registrySha256:sha,checks,cases});
+    return {...canonical,id:createHash("sha256").update(JSON.stringify(canonical)).digest("hex"),
+      trust:"LOCAL_UNVERIFIED_IMPORT"};
+  };
   const first=make("a".repeat(40),[{id:"counter-contracts",status:"PASS"},
     {id:"source-contracts",status:"FAIL"}],[{id:"PAG-03",status:"PASS"},{id:"PAG-01",status:"FAIL"}]);
   const second=make("b".repeat(40),[{id:"counter-contracts",status:"FAIL"},
@@ -502,6 +505,8 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   assert.equal(noGraph.registryCompatible,false);
   assert.equal(noGraph.cards.length,2);
   assert.throws(()=>buildRegressionCards({...first,trust:"CI_ATTESTED"},second,graph,digest),/untrusted_history_record/);
+  assert.throws(()=>buildRegressionCards({...first,checks:[{id:"counter-contracts",status:"FAIL"},...first.checks.slice(1)]},second,graph,digest),/history_digest_mismatch/);
+  assert.throws(()=>buildRegressionCards(first,{...second,id:"a".repeat(64)},graph,digest),/history_digest_mismatch/);
   assert.deepEqual(buildRegressionCards(second,first,graph,digest).cards.map(x=>x.testId),["source-contracts"]);
   const same=buildRegressionCards(first,first,graph,digest);
   assert.equal(same.cards.length,0);

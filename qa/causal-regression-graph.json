@@ -736,7 +736,8 @@
         "scripts/measure-journey-responsiveness.mjs",
         "scripts/test-journey-measurement.mjs",
         "docs/qa/causal-regression-pipeline.md",
-        "scripts/test-causal-regression-pipeline.mjs"
+        "scripts/test-causal-regression-pipeline.mjs",
+        ".github/qa/regression-cards.mjs"
       ],
       "dependsOn": [
         "build"
