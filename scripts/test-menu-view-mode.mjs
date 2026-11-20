@@ -489,7 +489,7 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   assert.equal(result.registryCompatible,true);
   assert.equal(result.cards.length,2);
   assert.deepEqual(result.cards.map(x=>x.testId),["counter-contracts","PAG-03"]);
-  const caseCard=result.cards[0],suiteCard=result.cards[1];
+  const suiteCard=result.cards[0],caseCard=result.cards[1];
   assert.deepEqual(caseCard.linkedComponents,["menu-feed"]);
   assert(suiteCard.linkedComponents.includes("counter-service"));
   assert(caseCard.potentialDownstream.length>0);

@@ -2110,7 +2110,7 @@ try {
       const triageDownload=page.waitForEvent("download");
       await page.locator("#triage-export").click();
       const triageFile=await triageDownload;
-      assert.match(triageFile.suggestedFilename(),/^robys-qa-triage-b{8}\\.json$/);
+      assert.match(triageFile.suggestedFilename(),/^robys-qa-triage-b{8}\.json$/);
       const triageStream=await triageFile.createReadStream(),triageParts=[];
       for await(const part of triageStream)triageParts.push(part);
       const triageData=JSON.parse(Buffer.concat(triageParts).toString("utf8"));
