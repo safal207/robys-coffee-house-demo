@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
 import { WAIT_MS, PRODUCT_COOLDOWN, GLOBAL_COOLDOWN, PAIRS,
-  choosePersonalPair, chooseRememberedProduct } from "../taste-memory-policy.js";
+  choosePersonalPair, chooseRememberedProduct, productIdFromShareUrl } from "../taste-memory-policy.js";
 
 const products = feedProducts(menuCategories);
 const catalog = new Map(products.map(p => [p.id, p]));
@@ -57,4 +57,19 @@ test("social memory remains an external, scoped enhancement without inventing pu
   assert.match(js, /document\.querySelector\("dialog\[open\]"\)/);
   assert.match(css, /prefers-reduced-motion/);
   assert.doesNotMatch(js, /\b(?:fetch|sendBeacon|XMLHttpRequest)\s*\(/);
+});
+
+test("share counts resolve genuine static share URLs in TR, EN and RU, not empty ?item= links", () => {
+  for (const language of ["tr", "en", "ru"]) {
+    const id = "desserts:san-sebastian-cheesecake";
+    const url = "https://safal207.github.io/robys-coffee-house-demo/share/" + language +
+      "/desserts--san-sebastian-cheesecake.html";
+    assert.equal(productIdFromShareUrl(url, catalog), id);
+  }
+  assert.equal(productIdFromShareUrl("https://example.com/menu-feed.html?item=desserts:cookie", catalog), null);
+  assert.equal(productIdFromShareUrl("not a link", catalog), null);
+  assert.equal(productIdFromShareUrl("https://example.com/share/ru/desserts--unknown.html", catalog), null);
+  assert.equal(productIdFromShareUrl("https://example.com/share/xx/desserts--cookie.html", catalog), null);
+  const ui = readFileSync("taste-memory.js", "utf8");
+  assert.match(ui, /productIdFromShareUrl\(shareUrl\.value, byId\)/);
 });
