@@ -420,8 +420,14 @@ const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
 const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
 const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-trace.css");
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
-const moodGraphRevision = revisionFor("smart-choice/mood-graph.js");
 const moodGraphDomainRevision = revisionFor("smart-choice/mood-graph-domain.js");
+const moodGraphFile = "smart-choice/mood-graph.js";
+const moodGraphSource = readFileSync(moodGraphFile, "utf8").replace(
+  /from "\.\/mood-graph-domain\.js(?:\?v=[^"]*)?"/,
+  `from "./mood-graph-domain.js?v=${moodGraphDomainRevision}"`
+);
+writeFileSync(moodGraphFile, moodGraphSource);
+const moodGraphRevision = revisionFor(moodGraphFile);
 const moodGraphCssRevision = revisionFor("smart-choice/mood-graph.css");
 const kidsMenuCssRevision = revisionFor("kids-menu.css");
 
