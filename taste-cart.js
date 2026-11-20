@@ -51,7 +51,8 @@ if (root && dialog) {
     let old = root.querySelector(".taste-cart-recommendation");
     if (!match || dismissed.has(match.product.id)) {
       if (old) old.remove();
-      if (bump && !bump.hidden && old) bump.hidden = false;
+      // A guest's explicit dismissal suppresses other add-on prompts in this cart session.
+      if (bump && match && dismissed.has(match.product.id)) bump.hidden = true;
       lastKey = "";
       return;
     }
@@ -82,7 +83,12 @@ if (root && dialog) {
     add.type = "button";
     const dismiss = make("button", "taste-cart-dismiss", copy("dismiss"));
     dismiss.type = "button";
-    dismiss.addEventListener("click", () => { dismissed.add(product.id); card.remove(); lastKey = ""; });
+    dismiss.addEventListener("click", () => {
+      dismissed.add(product.id); card.remove(); lastKey = "";
+      const genericOffer = root.querySelector(".menu-cart-bump");
+      if (genericOffer) genericOffer.hidden = true;
+      document.querySelector("#menu-checkout-trigger")?.focus({ preventScroll: true });
+    });
     add.addEventListener("click", async () => {
       if (busy || !dialog.open) return;
       busy = true; add.disabled = true; dismiss.disabled = true;
@@ -101,6 +107,11 @@ if (root && dialog) {
           status.textContent = copy("added");
           const notice = document.querySelector("#menu-cart-status");
           if (notice) notice.textContent = name(product) + " · " + copy("added");
+          // The official cart renderer replaces this card after a committed edit.
+          // Move keyboard focus to the real next step rather than a detached button.
+          requestAnimationFrame(() => {
+            if (dialog.open) document.querySelector("#menu-checkout-trigger")?.focus({ preventScroll: true });
+          });
         } else status.textContent = copy("changed");
       } catch {
         status.textContent = copy("error");
