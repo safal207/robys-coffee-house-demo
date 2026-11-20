@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const OUTPUT = "integrity-manifest.json";
@@ -125,6 +126,21 @@ if (CHECK_MODE) {
       }).map(file => file.path);
       const removed = (earlier.files || []).filter(file => !current.has(file.path)).map(file => file.path);
       console.error("INTEGRITY-001 changed public paths:", JSON.stringify({ drifted, removed, earlierCount: earlier.files?.length, nowCount: files.length }));
+      if (drifted.includes("sw-core-v64.js")) {
+        try {
+          const before = execFileSync("git", ["show", "HEAD:sw-core-v64.js"], {
+            encoding: "utf8", timeout: 3000, maxBuffer: 200000
+          }).split("\n");
+          const after = readFileSync("sw-core-v64.js", "utf8").split("\n");
+          const changedLines = [];
+          for (let i = 0; i < Math.max(before.length, after.length); i++) {
+            if (before[i] === after[i]) continue;
+            changedLines.push({ line: i + 1, before: before[i]?.slice(0, 700),
+              after: after[i]?.slice(0, 700) });
+          }
+          console.error("INTEGRITY-001 service-worker build drift:", JSON.stringify(changedLines.slice(0, 12)));
+        } catch (error) { console.error("INTEGRITY-001 worker drift inspection unavailable:", String(error)); }
+      }
     } catch (error) { console.error("INTEGRITY-001 cannot parse committed manifest:", String(error)); }
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
