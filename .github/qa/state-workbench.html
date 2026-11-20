@@ -4,7 +4,7 @@
 <section><h2>Жизненный цикл заказа</h2><p>Текущее состояние: <strong id="current">awaiting_payment</strong></p><div class="steps" id="steps" aria-label="Состояния заказа"></div><div class="controls"><label for="role">Роль</label><select id="role"><option value="cashier">Кассир</option><option value="barista">Бариста</option><option value="guest">Гость</option><option value="anonymous">Аноним</option></select><label for="request-version">Версия запроса</label><input id="request-version" type="number" min="1" max="4" step="1" value="1" style="width:72px"><button id="pay">Оплата →</button><button id="ready">Готов →</button><button id="issue">Выдан →</button><button id="reset">Сбросить</button></div><p id="result" role="status">Модель готова.</p><ol id="history" aria-label="Журнал переходов"></ol></section>
 <section><h2>Исполнение и доказательства</h2><p>Проверка выбранного набора через локальный runner (Linux/WSL). Без runner можно загрузить report.json из Causal Regression. Это импортированный результат набора, не отдельного тест-кейса.</p><p><code>node .github/qa/local-runner.mjs</code></p>
 <label for="expected-head">Ожидаемый SHA (40 символов)</label><input id="expected-head" placeholder="SHA из PR или git rev-parse HEAD" style="width:100%;margin:8px 0"><label for="report-file">Отчёт CI (JSON)</label><input id="report-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-evidence">Очистить</button><p id="evidence-status" role="status">Нет доказательств.</p>
-<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><p id="state-case-guidance" role="status">Для ST-сценариев диаграмма состояний выше будет настроена автоматически.</p><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
+<div class="controls"><select id="check-select" aria-label="Набор тестов"><option value="counter-contracts">Counter HTTP</option><option value="menu-feed-browser">Feed browser</option><option value="source-contracts">Source contracts</option></select><button id="run-check" disabled>Запустить набор</button></div><p id="run-status" role="status">Runner не подключён.</p><label for="case-evidence-file">Протокол отдельных браузерных сценариев (chromium-report.json)</label><input id="case-evidence-file" type="file" accept=".json,application/json" style="max-width:100%"><button id="clear-case-evidence">Очистить протокол сценариев</button><p id="case-evidence-status" role="status">Доказательств по отдельным сценариям нет. PASS набора не подтверждает каждую строку.</p><p><a href="https://github.com/safal207/robys-coffee-house-demo/actions/workflows/causal-regression.yml" style="color:#69d6ad">Открыть GitHub Actions</a></p></section><section><h2>История QA и сравнение коммитов</h2><p>Локальные снимки сохраняются в .artifacts/qa-workbench/history/ через runner. При автономном просмотре можно импортировать JSON-снимки. Контрольная сумма подтверждает целостность, но не подлинность CI; FAIL — наблюдение, не установленная причина.</p><div class="controls"><button id="hist-save" disabled>Сохранить снимок</button><button id="hist-refresh" disabled>Обновить архив</button></div><label for="hist-import">Импорт сохранённых снимков JSON</label><input id="hist-import" type="file" multiple accept=".json,application/json" style="max-width:100%"><p id="hist-status" role="status">Доступен автономный импорт; локальное сохранение требует runner.</p><div class="controls"><label for="hist-from">До</label><select id="hist-from"></select><label for="hist-to">После</label><select id="hist-to"></select><button id="hist-compare">Сравнить</button></div><p id="hist-summary" role="status">Для сравнения нужны два снимка.</p><div class="table-wrap"><table><thead><tr><th>Уровень</th><th>ID</th><th>До</th><th>После</th><th>Изменение</th></tr></thead><tbody id="hist-diff"></tbody></table></div></section><section><h2>Property & Chaos · симуляции</h2><p>Генерация воспроизводимых операций по seed. Это обучающая модель, не реальное тестирование HTTP или отказоустойчивости: подтверждённые проверки запускаются отдельно через Counter и Ordering CI.</p><div class="controls"><label for="property-seed">Seed</label><input id="property-seed" type="number" min="1" max="4294967295" step="1" value="20261118" aria-label="Seed генератора"><button id="property-run">Сгенерировать 24 шага корзины</button></div><p id="property-summary" role="status">Сценарий ещё не запущен.</p><ol id="property-events" style="max-height:180px;overflow:auto"></ol><h3>Chaos Timeline</h3><div class="controls"><button id="chaos-offline">Отключение сети</button><button id="chaos-lost">Потеря ответа</button><button id="chaos-stale">Устаревшее событие</button></div><p id="chaos-summary" role="status">Выбери отказ для моделирования.</p><ol id="chaos-events"></ol></section><section><h2>Temporal Testing · порядок событий</h2><p>Синтетическая модель доставки версионных снимков одного заказа. Шкала показывает порядок получения, а не реальную сетевую задержку. Старые снимки не должны откатывать версию.</p><div class="controls"><button id="temporal-late">V1 → V3 → V2 → V4</button><button id="temporal-retry">V2 → V2 → V4 → V1</button><button id="temporal-reverse">V4 → V3 → V2 → V1</button><button id="temporal-reset">Сбросить</button></div><p id="temporal-result" role="status">Модель: v0</p><div id="temporal-track" class="impact-row" aria-label="Временная шкала доставки"></div><ol id="temporal-events"></ol></section><section><h2>Карта влияния и дефектов</h2><p>Связи берутся из существующего causal-regression-graph.json. Красный статус относится к набору тестов, а не к доказанной причине. Зависимые сценарии показывают гипотезы для расследования.</p><label for="graph-file">Реестр зависимостей из того же коммита (JSON)</label><input id="graph-file" type="file" accept=".json,application/json" style="max-width:100%"><p id="graph-status" role="status">Реестр не загружен.</p><label for="impact-check">Набор или конкретный сценарий для расследования</label><p id="state-case-guidance" role="status">Для ST-сценариев диаграмма состояний выше будет настроена автоматически.</p><select id="impact-check" style="max-width:100%"></select><div id="impact-map" aria-label="Карта влияния"></div><h3>Связанные пользовательские сценарии</h3><ol id="impact-journeys"></ol><h3>История наблюдений</h3><ol id="observations"></ol></section><section><h2>Функциональные тесты</h2><p>Каталог ожидаемых результатов. PASS требует доказательства exact-head CI.</p><label for="filter">Поиск сценариев</label><input id="filter" type="search" placeholder="PAG-, ST-, CART-…"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Сценарий</th><th>Ожидание</th><th>Evidence</th></tr></thead><tbody id="cases"></tbody></table></div></section></main>
 <script>
 "use strict";
 const states=["awaiting_payment","preparing","ready","issued"],labels=["Ожидает оплаты","Готовится","Готов","Выдан"],commands=["pay","ready","issued"];
@@ -191,7 +191,7 @@ async function connect(){
   try{
     const response=await fetch("/api/config"),config=await response.json();
     if(!response.ok||!sha.test(config.head)||typeof config.token!=="string")throw Error("config");
-    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("run-status").textContent="Локальный runner подключён."; const generation=++graphGeneration;try{const graph=await fetch("/api/graph");if(graph.ok)await loadRegistry(await graph.arrayBuffer(),generation)}catch{/* manual import remains available */}
+    localConfig=config;byId("expected-head").value=config.head;byId("run-check").disabled=false;byId("hist-save").disabled=false;byId("hist-refresh").disabled=false;byId("run-status").textContent="Локальный runner подключён.";void refreshHistory().catch(()=>{byId("hist-status").textContent="Не удалось загрузить архив";}); const generation=++graphGeneration;try{const graph=await fetch("/api/graph");if(graph.ok)await loadRegistry(await graph.arrayBuffer(),generation)}catch{/* manual import remains available */}
   }catch{byId("run-status").textContent="Runner недоступен."}
 }
 byId("run-check").onclick=async()=>{
@@ -252,5 +252,116 @@ byId("temporal-late").onclick=()=>temporalRun([1,3,2,4]);
 byId("temporal-retry").onclick=()=>temporalRun([2,2,4,1]);
 byId("temporal-reverse").onclick=()=>temporalRun([4,3,2,1]);
 byId("temporal-reset").onclick=()=>temporalRun([]);
+
+const archivedSnapshots=new Map();
+const archiveId=/^[a-f0-9]{64}$/;
+const canonicalSort=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0;
+function classifyChange(from,to){
+  return from===to?"UNCHANGED":from==="PASS"&&to==="FAIL"?"REGRESSION":from==="FAIL"&&to==="PASS"?"RECOVERED":
+    ["NOT_RUN","NOT_SELECTED"].includes(to)?"LOST_EVIDENCE":
+    ["NOT_RUN","NOT_SELECTED"].includes(from)?"NEW_EVIDENCE":"CHANGED";
+}
+function compareSnapshots(){
+  const a=archivedSnapshots.get(byId("hist-from").value),b=archivedSnapshots.get(byId("hist-to").value);
+  const table=byId("hist-diff");table.replaceChildren();
+  if(!a||!b){byId("hist-summary").textContent="Для сравнения нужны два снимка.";return}
+  let regressions=0,recovered=0,lost=0;
+  for(const kind of ["checks","cases"]){
+    const before=new Map(a[kind].map(row=>[row.id,row.status])),after=new Map(b[kind].map(row=>[row.id,row.status]));
+    for(const id of [...new Set([...before.keys(),...after.keys()])].sort()){
+      const from=before.get(id)??"NOT_RUN",to=after.get(id)??"NOT_RUN",change=classifyChange(from,to);
+      if(change==="UNCHANGED")continue;
+      if(change==="REGRESSION")regressions++;
+      if(change==="RECOVERED")recovered++;
+      if(change==="LOST_EVIDENCE")lost++;
+      const tr=document.createElement("tr");tr.dataset.change=change;
+      for(const content of [kind==="checks"?"Набор":"Кейс",id,from,to,change]){
+        const td=document.createElement("td");td.textContent=content;tr.append(td);
+      }
+      table.append(tr);
+    }
+  }
+  byId("hist-summary").textContent=a.head.slice(0,8)+" → "+b.head.slice(0,8)+" · регрессий "+regressions+
+    " · восстановлений "+recovered+" · потеряно доказательств "+lost+
+    (a.registrySha256!==b.registrySha256?" · Реестр изменился":"")+" · наблюдения без аттестации";
+}
+function refreshHistoryUI(){
+  const all=[...archivedSnapshots.values()].sort((a,b)=>a.recordedAt.localeCompare(b.recordedAt)||a.id.localeCompare(b.id));
+  const left=byId("hist-from"),right=byId("hist-to"),selectedLeft=left.value,selectedRight=right.value;
+  const option=item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.head.slice(0,8)+" · "+item.recordedAt+" · "+item.id.slice(0,8);return o};
+  left.replaceChildren(...all.map(option));right.replaceChildren(...all.map(option));
+  if(archivedSnapshots.has(selectedLeft))left.value=selectedLeft;else if(all.length)left.value=all[0].id;
+  if(archivedSnapshots.has(selectedRight))right.value=selectedRight;else if(all.length)right.value=all[all.length-1].id;
+  compareSnapshots();
+}
+function addSnapshots(snapshots){
+  for(const snapshot of snapshots)if(archiveId.test(snapshot?.id??""))archivedSnapshots.set(snapshot.id,snapshot);
+  refreshHistoryUI();
+}
+async function refreshHistory(){
+  if(!localConfig)return;
+  const response=await fetch("/api/history",{headers:{"X-QA-Token":localConfig.token}});
+  if(!response.ok)throw Error("history "+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data.history)||data.history.length>200)throw Error("bad history");
+  addSnapshots(data.history);
+}
+byId("hist-save").onclick=async()=>{
+  try{
+    const head=byId("expected-head").value.trim();
+    if(!localConfig||head!==localConfig.head||!sha.test(head))throw Error("Неверный HEAD");
+    if(registryDigest&&reportDigest&&registryDigest!==reportDigest)throw Error("Несовпадение реестра");
+    const checks=new Map(importedChecks);
+    for(const [id,record]of localGraphChecks)if(record.digest===registryDigest)checks.set(id,record.status);
+    const snapshot={head,registrySha256:registryDigest??reportDigest??null,
+      checks:[...checks].map(([id,status])=>({id,status})),
+      cases:[...caseEvidence].map(([id,record])=>({id,status:record.result}))};
+    if(!snapshot.checks.length&&!snapshot.cases.length)throw Error("Нет импортированных результатов");
+    const response=await fetch("/api/history",{method:"POST",headers:{"Content-Type":"application/json","X-QA-Token":localConfig.token},body:JSON.stringify(snapshot)});
+    const result=await response.json();
+    if(!response.ok||!result.snapshot?.id)throw Error(result.error??"Ошибка записи");
+    addSnapshots([result.snapshot]);
+    byId("hist-status").textContent="Сохранён "+head.slice(0,8)+" · SHA-256 "+result.snapshot.id.slice(0,16)+" · без аттестации";
+  }catch(error){byId("hist-status").textContent="Не сохранено: "+error.message}
+};
+byId("hist-refresh").onclick=async()=>{try{await refreshHistory()}catch(error){byId("hist-status").textContent="Архив недоступен: "+error.message}};
+byId("hist-from").onchange=compareSnapshots;byId("hist-to").onchange=compareSnapshots;
+byId("hist-compare").onclick=compareSnapshots;
+byId("hist-import").onchange=async()=>{
+  const files=[...byId("hist-import").files];
+  if(files.length>20){byId("hist-status").textContent="Лимит 20 файлов";return}
+  try{
+    const imported=[];
+    for(const file of files){
+      if(file.size>32000)throw Error("Лимит 32 КБ");
+      const record=JSON.parse(await file.text());
+      if(record?.schemaVersion!==1||!sha.test(record.head)||!archiveId.test(record.id)
+        ||!(record.registrySha256===null||hex64.test(record.registrySha256))
+        ||typeof record.recordedAt!=="string"||!Number.isFinite(Date.parse(record.recordedAt)))throw Error("Неверный формат");
+      const validate=(rows,allowed)=>{
+        if(!Array.isArray(rows)||rows.length>120)throw Error("Размер таблицы");
+        const ids=new Set();
+        for(const row of rows){
+          if(!row||Object.keys(row).sort().join(",")!=="id,status"
+            ||typeof row.id!=="string"||!/^(?:[a-z][a-z0-9-]{0,79}|[A-Z][A-Z0-9-]{0,39})$/.test(row.id)
+            ||ids.has(row.id)||!allowed.has(row.status))throw Error("Неверная запись");
+          ids.add(row.id);
+        }
+      };
+      validate(record.checks,statuses);validate(record.cases,new Set(["PASS","FAIL"]));
+      if(!record.checks.length&&!record.cases.length||!crypto.subtle)throw Error("Нет данных или SHA-256");
+      const value={schemaVersion:1,head:record.head,registrySha256:record.registrySha256,
+        checks:record.checks.map(row=>({id:row.id,status:row.status})).sort(canonicalSort),
+        cases:record.cases.map(row=>({id:row.id,status:row.status})).sort(canonicalSort)};
+      const hashed=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(JSON.stringify(value)));
+      const digest=[...new Uint8Array(hashed)].map(x=>x.toString(16).padStart(2,"0")).join("");
+      if(digest!==record.id)throw Error("Контрольная сумма не совпадает");
+      imported.push(record);
+    }
+    addSnapshots(imported);
+    byId("hist-status").textContent="Импортировано "+imported.length+" снимков · целостность проверена, источник не удостоверен";
+  }catch(error){byId("hist-status").textContent="Импорт отклонён: "+error.message}
+};
+
 byId("filter").addEventListener("input",render);draw();render();void connect();
 </script></body></html>
