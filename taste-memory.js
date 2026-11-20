@@ -36,7 +36,7 @@ function loadPreferences() {
 let preferences = loadPreferences();
 const save = () => store(KEY, JSON.stringify(preferences));
 const oldLikes = new Set(products.filter(product => local(LIKE + product.id) === "1").map(product => product.id));
-const sessionStarted = Date.now();
+let sessionStarted = Date.now();
 let interacted = false, prompted = false, reminderNode = null;
 const root = document.querySelector("#feed"), toolActions = document.querySelector(".feed-tool-actions"), formats = document.querySelector(".feed-formats");
 const lang = () => ["tr", "en", "ru"].includes(document.documentElement.lang) ? document.documentElement.lang : "tr";
@@ -207,7 +207,17 @@ if (root && toolActions && formats) {
     if (event.isTrusted && !event.target.closest(".taste-memory-panel, .taste-memory-reminder")) interacted = true;
   };
   document.addEventListener("click", touch, { passive: true });
-  window.addEventListener("scroll", () => { interacted = true; }, { passive: true });
+  document.addEventListener("pointerdown", touch, { passive: true });
+  document.addEventListener("keydown", event => { if (event.isTrusted) interacted = true; });
+  document.addEventListener("wheel", event => { if (event.isTrusted) interacted = true; }, { passive: true });
+  document.addEventListener("touchstart", event => { if (event.isTrusted) interacted = true; }, { passive: true });
+  function resetForegroundWindow() {
+    sessionStarted = Date.now();
+    interacted = false;
+  }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) hideReminder(); else resetForegroundWindow(); });
+  window.addEventListener("focus", resetForegroundWindow);
+  window.addEventListener("pageshow", event => { if (event.persisted) resetForegroundWindow(); });
   window.setInterval(() => {
     if (!panel.hidden) render();
     maybeRemember();
