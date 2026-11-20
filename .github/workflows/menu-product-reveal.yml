@@ -12,6 +12,7 @@ on:
       - "pairing-taste-journey.css"
       - "src/pairing-taste-journey.js"
       - "scripts/test-photo-taste-journey.mjs"
+      - "scripts/test-photo-taste-journey-dom.mjs"
       - "scripts/test-photo-taste-journey-browser.mjs"
       - "menu-product-reveal.js"
       - "menu-product-reveal-runtime.js"
@@ -64,13 +65,14 @@ jobs:
           node --check menu-grid-prepaint.js
           node --check pairing-taste-journey.js
           node --check scripts/test-photo-taste-journey.mjs
+          node --check scripts/test-photo-taste-journey-dom.mjs
           node --check scripts/test-photo-taste-journey-browser.mjs
       - name: Install test dependencies
         run: npm ci --ignore-scripts
       - name: Verify reveal contract
         run: node scripts/test-menu-product-reveal.mjs
       - name: Verify photo taste source, URLs and offline revisions
-        run: node --test scripts/test-photo-taste-journey.mjs
+        run: node --test scripts/test-photo-taste-journey.mjs scripts/test-photo-taste-journey-dom.mjs
       - name: Install test browser
         run: node scripts/ensure-playwright-browsers.mjs chromium
       - name: Run Chromium reveal smoke
