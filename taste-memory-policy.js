@@ -25,3 +25,18 @@ export function chooseRememberedProduct({ products, priorLiked, currentLiked, sh
   return products.find(product => priorLiked.has(product.id) && currentLiked.has(product.id) &&
     now - (shown[product.id] || 0) >= PRODUCT_COOLDOWN) ?? null;
 }
+
+/**
+ * Share links are static SEO documents such as /share/ru/desserts--cookie.html,
+ * not ?item=... links. Never infer an interaction from a share-sheet opening.
+ */
+export function productIdFromShareUrl(value, validIds) {
+  if (typeof value !== "string") return null;
+  try {
+    const path = new URL(value).pathname;
+    const match = path.match(/\/share\/(?:tr|en|ru)\/([a-z0-9-]+)--([a-z0-9-]+)\.html$/);
+    if (!match) return null;
+    const id = match[1] + ":" + match[2];
+    return validIds.has(id) ? id : null;
+  } catch { return null; }
+}
