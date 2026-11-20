@@ -226,8 +226,70 @@ if (root) {
     field.append(legend,options);
     return field;
   }
+  function renderTasteJourney(pair, labels, language) {
+    resetJourneyIfChanged(pair);
+    const panel = node("section","mood-taste-journey");
+    panel.setAttribute("aria-label",labels.storyTitle);
+    const summary = node("div","mood-taste-stats");
+    const discovered = Object.keys(taste.discovered).filter(id => knownPairIds.has(id) && taste.discovered[id] === true).length;
+    const personalViews = Number(taste.views[pair.id]) || 0;
+    summary.append(node("span","",`${labels.progress}: ${discovered}/${knownPairIds.size}`),
+      node("span","",`${labels.views}: ${Math.max(0,personalViews)}`));
+    panel.append(summary);
+    if(journey.phase === "intro") {
+      const start = node("button","mood-discover",labels.discover);
+      start.type="button";start.dataset.choiceKey="discover";
+      start.addEventListener("click",()=>openTaste(pair));
+      panel.append(start);
+      return panel;
+    }
+    const story = node("div","mood-taste-story");
+    story.append(node("p","mood-eyebrow",labels.storyTitle),node("p","",labels.storyLine));
+    for (const product of [pair.drink,pair.snack]) {
+      const description = product.description?.[language];
+      if (description) story.append(node("p","mood-small",description));
+    }
+    const like = node("button","mood-like",`♥  ${labels.like}`);
+    like.type="button";like.dataset.choiceKey="like";
+    like.setAttribute("aria-pressed", String(taste.liked[pair.id] === true));
+    like.addEventListener("click",()=>{
+      taste.liked[pair.id] = taste.liked[pair.id] !== true;
+      saveTaste();
+      record(taste.liked[pair.id] ? "taste-liked" : "taste-unliked",pair);
+      render("like");
+    });
+    story.append(like);
+    panel.append(story);
+    const shareBox = node("div","mood-share-stage");
+    if (journey.phase === "share") {
+      shareBox.append(node("h4","",labels.shareTitle),node("p","mood-small",labels.shareLead));
+      const buttons = node("div","mood-share-actions");
+      const share = node("button","mood-secondary",labels.share);
+      share.type="button";share.dataset.choiceKey="share";
+      share.addEventListener("click",()=>{void sharePair(pair)});
+      const skip = node("button","mood-secondary",labels.skip);
+      skip.type="button";skip.dataset.choiceKey="skip";
+      skip.addEventListener("click",()=>{journey.phase="offer";journey.notice="";journey.fallbackLink="";record("share-skipped",pair);render("add")});
+      buttons.append(share,skip);
+      shareBox.append(buttons);
+      if(journey.fallbackLink){
+        const label = node("label","mood-link-label",labels.copyLink);
+        const field = node("input","mood-share-link");
+        field.type="text";field.readOnly=true;field.value=journey.fallbackLink;
+        field.addEventListener("focus",()=>field.select());
+        label.append(field);
+        shareBox.append(node("p","mood-small",journey.notice),label);
+      }
+    } else {
+      shareBox.append(node("h4","",labels.offerTitle));
+      if(journey.notice)shareBox.append(node("p","mood-small",journey.notice));
+    }
+    panel.append(shareBox);
+    return panel;
+  }
   function render(focusKey="") {
     const language = lang(),copy=text[language],pair=recommendMoodPair(state);
+    resetJourneyIfChanged(pair);
     root.replaceChildren();
     root.hidden = false;
     root.setAttribute("aria-label",copy.title);
@@ -290,10 +352,11 @@ if (root) {
         try{localStorage.setItem(triedKey,JSON.stringify(state.tried))}catch{}
         state.offset=0;message="";record("marked-tried",pair);render("tried");
       });
-      const add=node("button","mood-primary",copy.add);
+      const add=node("button","mood-primary",journey.phase === "offer" ? copy.add : copy.direct);
       add.type="button";add.dataset.choiceKey="add";add.disabled=busy;
       add.addEventListener("click",async()=>{
         if(busy)return;
+        if(journey.phase !== "offer") record("direct-pair-choice",pair);
         const drinkId=sourceToMenu.get(pair.drink.id),snackId=sourceToMenu.get(pair.snack.id);
         if(!drinkId||!snackId){message=copy.failure;render("add");return;}
         busy=true;add.disabled=true;add.textContent=copy.adding;
@@ -306,7 +369,7 @@ if (root) {
         finally{busy=false;render("open-order")}
       });
       actions.append(next,tried,add);
-      result.append(lead,itemNames,detail,gallery,graph,actions);
+      result.append(lead,itemNames,detail,gallery,renderTasteJourney(pair,copy,language),graph,actions);
       if(message===copy.success) {
         const open=node("button","mood-secondary",copy.openOrder);
         open.type="button";open.dataset.choiceKey="open-order";
@@ -325,6 +388,17 @@ if (root) {
     if(focusKey)root.querySelectorAll("[data-choice-key]").forEach(el=>{if(el.dataset.choiceKey===focusKey)el.focus({preventScroll:true})});
   }
   new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+  if (knownPairIds.has(sharedPairId)) {
+    state.tried = state.tried.filter(id => id !== sharedPairId);
+    for (let index=0; index<knownPairIds.size; index++) {
+      const candidate=recommendMoodPair({...state,offset:index});
+      if(candidate?.id === sharedPairId) { state.offset=index; break; }
+    }
+  }
   render();
+  if (knownPairIds.has(sharedPairId)) {
+    const shared=recommendMoodPair(state);
+    if(shared?.id === sharedPairId) openTaste(shared);
+  }
   record("recommendation-viewed",recommendMoodPair(state));
 }
