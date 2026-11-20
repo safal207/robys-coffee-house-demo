@@ -394,6 +394,16 @@ const menuPremiumRevision = revisionFor("menu-premium.css");
 writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
+const tasteJourneyCssRevision = revisionFor("pairing-taste-journey.css");
+let tasteJourneySource = readFileSync("src/pairing-taste-journey.js", "utf8");
+if (!/pairing-taste-journey\\.css\\?v=[a-f0-9]{12}/.test(tasteJourneySource)) {
+  throw new Error("Taste journey stylesheet must be content-revisioned");
+}
+tasteJourneySource = tasteJourneySource.replace(/pairing-taste-journey\\.css\\?v=[a-f0-9]{12}/,
+  `pairing-taste-journey.css?v=${tasteJourneyCssRevision}`);
+writeFileSync("src/pairing-taste-journey.js", tasteJourneySource);
+writeFileSync("pairing-taste-journey.js", tasteJourneySource);
+const tasteJourneyRevision = revisionFor("pairing-taste-journey.js");
 const menuAppRevision = revisionFor("menu-app.js");
 const menuProductRevealRevision = revisionFor("menu-product-reveal.js");
 const menuProductRevealCssRevision = revisionFor("menu-product-reveal.css");
@@ -493,6 +503,7 @@ menuHtml = menuHtml.replace(/^[\t ]+$/gm, "");
 menuHtml = synchronizeModuleScript(menuHtml, "menu-product-reveal.js", menuProductRevealRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "menu-app.js", menuAppRevision);
 menuHtml = synchronizeModuleScript(menuHtml, "pairing-posters.js", pairingPostersRevision);
+menuHtml = synchronizeModuleScript(menuHtml, "pairing-taste-journey.js", tasteJourneyRevision);
 menuHtml = synchronizeMenuPreloads(menuHtml, [["menu-catalog.js", menuCatalogRevision], ["menu-app.js", menuAppRevision]], ["menu-feed.css", menuFeedCssRevision]);
 writeFileSync("menu.html", menuHtml);
 
@@ -611,18 +622,23 @@ const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js"
 const storyCatalog = storyProducts(storyCategories);
 const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
-for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "pairing-taste-journey.js", "pairing-taste-journey.css", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
 const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+const tasteJourneyCacheRevision = createHash("sha256")
+  .update(`${tasteJourneyRevision}:${tasteJourneyCssRevision}:${revisionFor("menu-grid.html")}`)
+  .digest("hex").slice(0,12);
 const shareCacheRevision = createHash("sha256").update(`${menuShareEntryRevision}:${menuShareStyleRevision}:${JSON.stringify(menuShareProducts)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-menu-share-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-share-${shareCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-menu-feed-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-feed-${feedCacheRevision}-shared-order-`);
+serviceWorker = serviceWorker.replace(/-taste-journey-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-taste-journey-${tasteJourneyCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlowRevision}-shared-order-`);
 // Offer prices must refresh for returning visitors, including their cached home.
@@ -705,6 +721,8 @@ for (const [filePath, revision] of [
   ["kids-menu.css", kidsMenuCssRevision],
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
+  ["pairing-taste-journey.js", tasteJourneyRevision],
+  ["pairing-taste-journey.css", tasteJourneyCssRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-feed.js", menuFeedRevision],
   ["menu-feedback.js", menuFeedbackRevision],
