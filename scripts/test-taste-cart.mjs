@@ -43,7 +43,8 @@ test("personal additions preserve the shared draft and Turkish cashier quote wit
 test("all three menu views install the optional visual cart and cashier stays Turkish", () => {
   for (const htmlName of ["menu.html", "menu-grid.html", "menu-feed.html"]) {
     const html = readFileSync(htmlName, "utf8");
-    assert.match(html, /<script type="module" src="taste-cart\.js\?v=1"><\/script>/, htmlName);
+    assert.match(html, /<script type="module" src="taste-cart-entry\.js\?v=1"><\/script>/, htmlName);
+    assert.match(html, /taste-cart\.css\?v=1/);
     assert.match(html, /require-trusted-types-for 'script'/);
   }
   const cashier = readFileSync("cashier.html", "utf8");
@@ -59,6 +60,9 @@ test("all three menu views install the optional visual cart and cashier stays Tu
 test("taste cart does not invent a new price, write an independent basket or auto-charge", () => {
   const js = readFileSync("taste-cart.js", "utf8");
   const css = readFileSync("taste-cart.css", "utf8");
+  const entry = readFileSync("taste-cart-entry.js", "utf8");
+  assert.match(entry, /dialog\.open/);
+  assert.match(entry, /import\("\.\/taste-cart\.js\?v=1"\)/);
   assert.match(js, /transactStoredOrderDraft/);
   assert.match(js, /storage\.addOrderGroup/);
   assert.match(js, /origin: "taste-cart"/);
