@@ -123,7 +123,7 @@ const CORE_ASSETS = [
   "./src/products/quick-v1/menu-v1/food--three-cheese-croissant-256.webp",
   "./src/products/family-sets-v1/kids-box-kinder-v1.webp",
   "./menu-grid.html",
-  "./menu-grid.css",
+  "./menu-grid.css?v=583f61640f41",
   "./menu-grid-merchandising.js?v=8b17ef6b6534",
   "./menu.html",
   "./discover.html",
@@ -167,7 +167,7 @@ const CORE_ASSETS = [
   "./menu-product-reveal.js?v=380bf5e9897b",
   "./menu-product-reveal-runtime.js?v=d96af1f2de0c",
   "./pairing-posters.js?v=4fc1610c3f10",
-  "./menu-pwa.js?v=pairing-video-fix-20260916-2",
+  "./menu-pwa.js?v=grid-cache-refresh-20261120-1",
   "./menu-catalog.js?v=3132b4dc1273",
   "./menu-search-clear.js",
   "./menu-interactions.js?v=20260923-web-only-v4",
@@ -249,6 +249,8 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/seasonal-theme.js") ||
     url.pathname.endsWith("/seasonal.css") ||
     url.pathname.endsWith("/menu-runtime.css") ||
+    url.pathname.endsWith("/menu-grid.css") ||
+    url.pathname.endsWith("/menu-grid-merchandising.js") ||
     url.pathname.endsWith("/menu-family-ui.js") ||
     url.pathname.endsWith("/menu-family.css") ||
     url.pathname.endsWith("/kids-menu.css") ||
