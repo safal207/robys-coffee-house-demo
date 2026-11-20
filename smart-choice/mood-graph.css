@@ -26,3 +26,19 @@
 .mood-photo{min-width:0;margin:0;overflow:hidden;border:1px solid #ebdfd4;border-radius:14px;background:#f5f1eb}
 .mood-photo img{display:block;aspect-ratio:1.45;width:100%;height:auto;object-fit:cover}
 .mood-photo figcaption{padding:10px 12px;color:#3c312c;font-size:.83rem;font-weight:750;line-height:1.35;overflow-wrap:anywhere}
+
+.mood-taste-journey{margin:18px 0;padding:16px;border-radius:16px;border:1px solid #e4d4bf;background:linear-gradient(145deg,rgba(249,239,228,.92),rgba(255,253,249,.98))}
+.mood-taste-stats{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;font-size:.78rem;color:#756154;font-weight:750}
+.mood-discover{margin-top:16px;display:block;width:100%;min-height:48px;padding:12px 16px;border:1px solid #b47d5f;border-radius:12px;background:#fff8ee;color:#59342c;font:800 .96rem/1.3 var(--sans,system-ui);cursor:pointer}
+.mood-taste-story{margin-top:16px;padding-top:14px;border-top:1px solid #e6d5c2;line-height:1.55}
+.mood-taste-story>p{margin:6px 0 10px}
+.mood-like{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid #c8b7ac;border-radius:999px;background:#fff;color:#624338;font-weight:750;cursor:pointer}
+.mood-like[aria-pressed="true"]{background:#fff0f0;color:#a22843;border-color:#d58798}
+.mood-share-stage{margin-top:17px;border-top:1px solid #e6d5c2;padding-top:15px}
+.mood-share-stage h4{margin:0;font-size:1.05rem;line-height:1.35}
+.mood-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.mood-share-actions>*{flex:1 1 150px}
+.mood-link-label{display:grid;gap:7px;color:#664f42;font-weight:750;font-size:.85rem}
+.mood-share-link{width:100%;min-height:44px;padding:10px;border:1px solid #d1b9a3;border-radius:8px;background:#fff;font-size:.82rem;color:#2b2620}
+.mood-discover:focus-visible,.mood-like:focus-visible,.mood-share-link:focus-visible{outline:3px solid #a35b39;outline-offset:3px}
+@media(max-width:600px){.mood-taste-journey{padding:13px}.mood-taste-stats{font-size:.75rem}.mood-share-actions>*{flex:1 1 auto}}
