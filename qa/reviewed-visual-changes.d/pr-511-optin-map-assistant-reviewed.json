@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "reviewedChanges": [
+    {
+      "id": "ROBY-MAP-OPTIN-511-assistant-visual-review",
+      "reviewUrl": "https://github.com/safal207/robys-coffee-house-demo/pull/511#issuecomment-7039000455",
+      "reviewKind": "assistant-visual-inspection-not-human-attestation",
+      "sourceHead": "c9f2852bdcd727b2d2a683113889f3084fa33cb3",
+      "baselineHead": "59f127c69983eae57215868679d8fa46bab89931",
+      "evidenceKind": "locked-GitHub-Actions-comparison-attempts",
+      "evidenceRun": "https://github.com/safal207/robys-coffee-house-demo/actions/runs/44570269604",
+      "evidenceArtifactId": "14554489812",
+      "evidenceArtifactSha256": "4baf645a106aa304f422cc26fc95bd8b65928f231b45e1a89a4cd5662ea1555b",
+      "contentBindings": {
+        "map-live.css": "f890db6977a737539bb07462ac11bb6aadb362d0",
+        "map-route-controller.js": "714009d705635c0a721fc09f8c4b4023a6c65eb8"
+      },
+      "summary": "Assistant inspected paired visual evidence: default TR home top/visit/footer + full-page overviews, complete visit-map regions at 390/1366/1440 and daily-offer regions at 320/360/390/768. Eleven repeatable comparison differences are bounded below: ten height mismatches from added GPS/Map controls or ±1px raster sizing, one 1.2058% daily-offer pixel change. Original cards, prices, map pin, location, Instagram/Maps CTAs, hero and footer remain present. No new overlap observed in viewed regions. Not user/human sign-off, hardware GPS, other locales or interaction verification.",
+      "scope": "Exact screenshot signatures on the original CSS/controller for head c9f2852b. Only 43 default Turkish screenshots; this review is not permission to waive checks or accept later broader changes. Fresh exact-head functional/WebKit/Lighthouse tests and mobile hardware acceptance remain required.",
+      "repeatability": {
+        "attempt1Failures": 11,
+        "attempt2Failures": 11,
+        "totalComparisons": 43,
+        "identicalFailureMetrics": true
+      },
+      "expectedFailures": [
+        {
+          "capture": "landing-full",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x8645 vs 320x8778"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-320",
+          "reason": "dimension mismatch 320x270 vs 320x271"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-360-short",
+          "reason": "dimension mismatch 360x245 vs 360x246"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x8979 vs 390x9093"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x1314 vs 390x1429"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "phone-390",
+          "reason": "dimension mismatch 390x246 vs 390x245"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "tablet-768",
+          "reason": "dimension mismatch 768x7800 vs 768x7847"
+        },
+        {
+          "capture": "social-offer",
+          "viewport": "tablet-768",
+          "totalPixels": 168192,
+          "maxDiffPixelRatio": 0.012057648401826484
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "laptop-1366",
+          "reason": "dimension mismatch 1366x906 vs 1366x953"
+        },
+        {
+          "capture": "landing-full",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x7354 vs 1440x7401"
+        },
+        {
+          "capture": "visit-map",
+          "viewport": "desktop-1440",
+          "reason": "dimension mismatch 1440x990 vs 1440x1037"
+        }
+      ]
+    }
+  ]
+}
