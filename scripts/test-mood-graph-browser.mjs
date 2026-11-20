@@ -29,7 +29,7 @@ try{
       await root.locator("details.mood-trace summary").click();
       assert.equal(await root.locator(".mood-score").count(),3,"Causal score must expose each input dimension");
       const price=await root.locator(".mood-price").innerText();
-      assert.match(price,/\\d/);
+      assert.match(price,/\d/);
       const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
       assert.ok(overflow<=1,`Horizontal overflow at ${width}px: ${overflow}`);
       await root.screenshot({path:`${dir}/mood-${language}-${width}.png`,animations:"disabled"});
@@ -82,4 +82,4 @@ try{
       console.log(`PASS mood graph ${language} ${width}px`);
     }finally{await context.close()}
   }
-}finally{await browser?.close();server.kill();writeFileSync(`${dir}/report.json`,JSON.stringify(report,null,2)+"\\n")}
+}finally{await browser?.close();server.kill();writeFileSync(`${dir}/report.json`,JSON.stringify(report,null,2)+"\n")}
