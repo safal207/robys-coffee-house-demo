@@ -584,3 +584,90 @@ test('transition URLs must match the declared local HTTPS origin and the journey
   }
   assert.equal(evaluateTimings(timingReport(), plan(), graph).status, 'PASS');
 });
+
+test('Taste Memory, My Feed, visual basket, cashier and brand additions have explicit causal owners', () => {
+  const ownership = {
+    "cashier-visual.css": [
+      "ticket-qr"
+    ],
+    "cashier-visual.js": [
+      "ticket-qr"
+    ],
+    "docs/taste-memory-release-qa.md": [
+      "feed-social"
+    ],
+    "my-feed-entry.js": [
+      "feed-social"
+    ],
+    "my-feed.css": [
+      "feed-social"
+    ],
+    "my-feed.js": [
+      "feed-social"
+    ],
+    "src/my-feed-policy.js": [
+      "feed-social"
+    ],
+    "scripts/test-my-feed.mjs": [
+      "feed-social"
+    ],
+    "taste-memory-policy.js": [
+      "feed-social",
+      "order-ui"
+    ],
+    "taste-memory.css": [
+      "feed-social"
+    ],
+    "taste-memory.js": [
+      "feed-social"
+    ],
+    "scripts/test-taste-memory.mjs": [
+      "feed-social"
+    ],
+    "taste-cart-entry.js": [
+      "order-ui"
+    ],
+    "taste-cart-policy.js": [
+      "order-ui"
+    ],
+    "taste-cart.css": [
+      "order-ui"
+    ],
+    "taste-cart.js": [
+      "order-ui"
+    ],
+    "scripts/test-taste-cart.mjs": [
+      "order-ui"
+    ],
+    "scripts/test-brand-wordmark.mjs": [
+      "media",
+      "shared-styles"
+    ],
+    "scripts/verify-brand-identity-assets.mjs": [
+      "media",
+      "shared-styles"
+    ]
+  };
+  for (const [path, owners] of Object.entries(ownership)) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.directComponents, owners, path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.selectedChecks.includes('source-contracts'), path);
+    if (owners.includes('feed-social')) {
+      assert.ok(result.selectedChecks.includes('menu-feed-browser'), path);
+      assert.ok(result.impactedJourneys.includes('feed-likes-views'), path);
+    }
+    if (owners.includes('order-ui')) {
+      assert.ok(result.impactedJourneys.includes('cart-edit-remove'), path);
+    }
+    if (owners.includes('ticket-qr')) {
+      assert.ok(result.impactedJourneys.includes('cashier-static-ticket'), path);
+      assert.ok(result.selectedChecks.includes('counter-contracts'), path);
+    }
+  }
+  // Do not silently accept unregistered siblings when a new feature is added.
+  for (const path of ['taste-memory-unregistered.js', 'my-feed-unregistered.js',
+    'taste-cart-unregistered.js', 'cashier-visual-unregistered.js']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
+  }
+});

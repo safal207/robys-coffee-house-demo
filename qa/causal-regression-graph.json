@@ -57,7 +57,9 @@
         "hero-balance.css",
         "final-qa*.css",
         "coffee-paths.css",
-        "seasonal.css"
+        "seasonal.css",
+        "scripts/test-brand-wordmark.mjs",
+        "scripts/verify-brand-identity-assets.mjs"
       ],
       "dependsOn": [
         "build"
@@ -217,7 +219,17 @@
         "menu-feed-viewer.js",
         "scripts/test-menu-feed-viewer-entry.mjs",
         "scripts/menu-feed-viewer-browser-cases.mjs",
-        "scripts/test-menu-feed-viewer-setup-diagnostics.mjs"
+        "scripts/test-menu-feed-viewer-setup-diagnostics.mjs",
+        "docs/taste-memory-release-qa.md",
+        "my-feed-entry.js",
+        "my-feed.css",
+        "my-feed.js",
+        "src/my-feed-policy.js",
+        "scripts/test-my-feed.mjs",
+        "taste-memory-policy.js",
+        "taste-memory.css",
+        "taste-memory.js",
+        "scripts/test-taste-memory.mjs"
       ],
       "dependsOn": [
         "menu-feed",
@@ -301,7 +313,13 @@
         "scripts/premium-feedback-regression.mjs",
         "scripts/test-menu-custom-pairing-browser.mjs",
         "scripts/adversarial-browser.mjs",
-        "scripts/test-order-release-built-browser.mjs"
+        "scripts/test-order-release-built-browser.mjs",
+        "taste-cart-entry.js",
+        "taste-cart-policy.js",
+        "taste-cart.css",
+        "taste-cart.js",
+        "scripts/test-taste-cart.mjs",
+        "taste-memory-policy.js"
       ],
       "dependsOn": [
         "order-model",
@@ -354,7 +372,9 @@
         "src/order-ticket.js",
         "cashier.html",
         "cashier.js",
-        "src/cashier.js"
+        "src/cashier.js",
+        "cashier-visual.js",
+        "cashier-visual.css"
       ],
       "dependsOn": [
         "order-model",
@@ -593,7 +613,9 @@
         "src/*.b64",
         "src/brand/**",
         "icon.svg",
-        "community-reel*.css"
+        "community-reel*.css",
+        "scripts/test-brand-wordmark.mjs",
+        "scripts/verify-brand-identity-assets.mjs"
       ],
       "dependsOn": [
         "build"
