@@ -136,3 +136,22 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
 .taste-wave-kicker{margin:0 0 5px;color:#9d2933;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.taste-wave-product h3{margin:0 0 7px;font:700 18px/1.2 Arial,sans-serif;overflow-wrap:anywhere}.taste-wave-product strong{font-size:16px}
 .taste-wave-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.taste-wave-actions button{flex:1 1 145px;min-height:44px;padding:10px 12px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.3}.taste-wave-primary{border:1px solid var(--accent);background:var(--accent);color:#fff}.taste-wave-secondary{border:1px solid #c8b9ab;background:#fff;color:var(--ink)}.taste-wave-status{margin:10px 0 0;color:#285f3c;font-size:12px;line-height:1.4}.taste-wave-status:empty{display:none}
 @media(max-width:360px){.taste-wave-shell{padding:15px}.taste-wave-theme{gap:6px}.taste-wave-theme img{width:48px;height:48px;flex-basis:48px}.taste-wave-theme span{font-size:11px}.taste-wave-product img{width:86px;height:86px;flex-basis:86px}.feed-cart-preview{width:36px;height:36px;flex-basis:36px}}
+
+/* First-fold mobile feed: preserve full-size product photos and touch targets
+   while keeping Stories, collections, choice help and My Feed discoverable. */
+@media(max-width:760px){
+  .feed-page .feed-tools{padding-block:2px}
+  .feed-page .feed-formats{padding-block:0;gap:5px}
+  .feed-page .feed-reel-entry,.feed-page .feed-story{gap:2px}
+  .feed-page .feed-reel-ring,.feed-page .feed-story-ring{width:44px;height:44px}
+  .feed-page .feed-story-ring img{width:38px;height:38px}
+  .feed-page .feed-reel-entry>span:last-child,.feed-page .feed-story-label{height:22px;min-height:22px;line-height:1.1}
+  .feed-page .feed-collections{padding-top:0}
+  .feed-page .feed-choice-links{padding-block:0}
+  .feed-page .my-feed-entry{margin:4px 12px 6px}
+  .feed-page .my-feed-toggle{min-height:44px;padding:4px 10px;gap:8px}
+  .feed-page .my-feed-toggle-symbol{width:34px;height:34px;flex-basis:34px;font-size:20px}
+  .feed-page .my-feed-toggle-title{font-size:13px}
+  .feed-page .my-feed-toggle-sub{font-size:10px}
+  .feed-page .feed-card-header{padding-block:6px}
+}
