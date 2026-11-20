@@ -168,3 +168,12 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
   .feed-page .my-feed-entry{margin:2px 12px}
   .feed-page .feed-card-header{padding-block:4px}
 }
+
+/* On ordinary mobile widths keep the approved photo-first single row. At 320px
+   the flexible, wrapping controls above still support genuine 200% text. */
+@media(min-width:361px) and (max-width:760px){
+  .feed-page .feed-tools{flex-wrap:nowrap}
+  .feed-page .feed-view-switch{min-width:0;max-width:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .feed-page .feed-view-switch::-webkit-scrollbar{display:none}
+  .feed-page .feed-view-switch a{flex:0 0 auto;white-space:nowrap;padding-inline:10px}
+}
