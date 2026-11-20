@@ -1,5 +1,5 @@
 /* Mood discovery stays inside Smart Choice, without new overlays or forced steps. */
-.mood-pair{margin:0 0 26px;padding:clamp(18px,3.2vw,34px);border-radius:24px;border:1px solid rgba(224,182,111,.34);background:linear-gradient(130deg,#fffbf4,#f6ede3);color:#2e2520;box-shadow:0 13px 38px rgba(36,28,27,.1)}
+.mood-pair{margin:0 0 26px;padding:clamp(18px,3.2vw,34px);border-radius:24px;border:1px solid rgba(224,182,111,.34);background:linear-gradient(135deg,var(--mood-wash,#fffbf4),#fff7ed);color:#2e2520;box-shadow:0 13px 38px rgba(36,28,27,.1)}
 .mood-heading{margin-bottom:18px}.mood-eyebrow{display:block;color:#8e4b32;font-size:.7rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
 .mood-title{margin:7px 0 9px;font-size:clamp(1.5rem,3.4vw,2.4rem);line-height:1.14;font-weight:800;letter-spacing:-.025em}.mood-intro{margin:0;color:#685b53;line-height:1.55}
 .mood-controls{min-width:0;margin:18px 0;padding:0;border:0}.mood-label{margin-bottom:10px;font-size:.96rem;font-weight:800}
@@ -20,3 +20,9 @@
 .mood-status{min-height:1.3em;font-size:.88rem;color:#365d3b;margin:12px 0 0}.mood-status[role="alert"]{color:#a32626}
 @media(max-width:600px){.mood-pair{border-radius:18px}.mood-options{gap:7px}.mood-option{flex:1 1 auto}.mood-colors .mood-option{flex:1 1 calc(50% - 7px)}.mood-actions{display:grid;grid-template-columns:1fr 1fr}.mood-primary{grid-column:1/-1}.mood-actions>*{min-width:0;white-space:normal}}
 @media(prefers-reduced-motion:reduce){.mood-pair *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+.mood-pair[data-tone="green"]{--mood-wash:#e5f1e6}.mood-pair[data-tone="coral"]{--mood-wash:#fbe8e4}.mood-pair[data-tone="blue"]{--mood-wash:#e6edf8}.mood-pair[data-tone="amber"]{--mood-wash:#f7ecd7}
+.mood-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:17px 0}
+.mood-photo{min-width:0;margin:0;overflow:hidden;border:1px solid #ebdfd4;border-radius:14px;background:#f5f1eb}
+.mood-photo img{display:block;aspect-ratio:1.45;width:100%;height:auto;object-fit:cover}
+.mood-photo figcaption{padding:10px 12px;color:#3c312c;font-size:.83rem;font-weight:750;line-height:1.35;overflow-wrap:anywhere}
