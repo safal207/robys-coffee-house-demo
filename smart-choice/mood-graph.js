@@ -128,6 +128,8 @@ if (root) {
   function render(focusKey="") {
     const language = lang(),copy=text[language],pair=recommendMoodPair(state);
     root.replaceChildren();
+    root.hidden = false;
+    root.setAttribute("aria-label",copy.title);
     const header = node("div","mood-heading");
     header.append(node("p","mood-eyebrow",copy.eyebrow),node("h2","mood-title",copy.title),node("p","mood-intro",copy.intro));
     root.append(header,
