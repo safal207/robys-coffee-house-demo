@@ -44,7 +44,12 @@ function verifyDiscoverWordmarkStylesheet(discoverGuard) {
 function verifyAccessibleBrandCopy(html, page) {
   assert.match(html, /class=["'][^"']*brand-copy[^"']*["'][^>]*>[\s\S]*?<strong>ROBY'S<\/strong>[\s\S]*?<small>COFFEE HOUSE<\/small>/i, `${page} must preserve accessible brand text`);
   if (page === "menu.html") {
-    assert.deepEqual(MENU_STYLE_INPUTS.slice(-3).map(({ source }) => source),
+    // Preserve the reviewed brand cascade even when later non-brand styles
+    // are appended to the single menu bundle (for example, taste-cart.css).
+    const menuLayers = MENU_STYLE_INPUTS.map(({ source }) => source);
+    const securityIndex = menuLayers.indexOf("menu-security-v2.css");
+    assert.ok(securityIndex >= 0, "menu must include the reviewed security CSS layer");
+    assert.deepEqual(menuLayers.slice(securityIndex, securityIndex + 3),
       ["menu-security-v2.css", "brand-photo-logo.css", "order-checkout.css"],
       "menu must preserve the approved brand layer after security and before checkout");
     verifyMenuStylesBundle(readMenuStylesBundleInputs(root));
