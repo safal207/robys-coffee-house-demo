@@ -156,14 +156,14 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
   .feed-page .feed-card-header{padding-block:6px}
 }
 
-/* Keep mobile view switching on one reachable, horizontally scrollable row:
-   the former wrapped two-row toolbar obscured the first 390px photo. */
+/* Mobile photo-first toolbar: keep the normal row compact, but allow it to
+   reflow when 200% text can no longer fit beside the 44px actions. */
 @media(max-width:760px){
-  .feed-page .feed-tools{flex-wrap:nowrap;gap:5px;padding:2px 9px 3px}
-  .feed-page .feed-view-switch{flex:1 1 auto;min-width:0;width:auto;max-width:none;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
-  .feed-page .feed-view-switch::-webkit-scrollbar{display:none}
-  .feed-page .feed-view-switch a{flex:0 0 auto;white-space:nowrap;padding-inline:10px}
-  .feed-page .feed-tool-actions{flex:0 0 auto;gap:5px;margin-left:0}
+  .feed-page .feed-tools{flex-wrap:wrap;gap:5px;padding:2px 9px 3px}
+  .feed-page .feed-view-switch{flex:1 1 auto;min-width:190px;width:auto;max-width:100%;flex-wrap:nowrap;overflow:visible}
+  .feed-page .feed-view-switch a{flex:0 1 auto;min-width:44px;white-space:normal;overflow-wrap:anywhere;text-align:center;line-height:1.15;padding-inline:6px}
+  .feed-page .feed-view-switch .menu-sound-toggle{flex:0 0 44px;min-width:44px}
+  .feed-page .feed-tool-actions{flex:0 0 auto;gap:5px;margin-left:auto}
   .feed-page .feed-tool-button{min-width:44px;padding:7px}
   .feed-page .my-feed-entry{margin:2px 12px}
   .feed-page .feed-card-header{padding-block:4px}
