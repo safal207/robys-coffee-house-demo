@@ -679,6 +679,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   [MENU_STYLESHEET_FILE, menuStylesRevision],
+  ["menu-grid.css", revisionFor("menu-grid.css")],
   ["menu-grid-merchandising.js", revisionFor("menu-grid-merchandising.js")],
   ["social-offer.js", socialOfferRevision],
   ["coffee-paths.css", coffeePathsRevision],
