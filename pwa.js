@@ -1,4 +1,4 @@
-const SERVICE_WORKER_URL = "sw.js?v=pairing-video-fix-20260916-2";
+const SERVICE_WORKER_URL = "sw.js?v=grid-cache-refresh-20261120-1";
 const root = document.documentElement;
 let workerPolicy;
 

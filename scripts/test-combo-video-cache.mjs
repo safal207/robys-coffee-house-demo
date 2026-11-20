@@ -32,7 +32,7 @@ function loadWorker(paths = []) {
       fetched.push({ request, options });
       return new Response("part", { status: 206, headers: { "content-range": "bytes 0-3/100" } });
     },
-    importScripts(file) { assert.equal(file, "./sw-core-v64.js"); }
+    importScripts(file) { assert.equal(file, "./sw-core-v64.js?v=grid-cache-refresh-20261120-1"); }
   });
   return { handlers, deleted, fetched };
 }

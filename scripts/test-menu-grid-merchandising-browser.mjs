@@ -115,6 +115,59 @@ try {
       await context.close();
     }
   }
+  // Regression: PWA upgrade must not reuse old CSS/JS by pathname alone.
+  const offlineContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    reducedMotion: "reduce", serviceWorkers: "allow"
+  });
+  try {
+    const pwaPage = await offlineContext.newPage();
+    const pwaErrors = [];
+    pwaPage.on("pageerror", error => pwaErrors.push(error.message));
+    await pwaPage.goto(base + "menu-grid.html?view=grid&lang=ru&entry=off", { waitUntil: "domcontentloaded" });
+    await pwaPage.waitForFunction(() => !!navigator.serviceWorker?.controller, null, { timeout: 30000 });
+    const cacheName = await pwaPage.evaluate(async () => {
+      const names = (await caches.keys()).filter(name => name.startsWith("robys-offline-v64"));
+      if (names.length !== 1) throw new Error("Expected one current Roby's offline cache: " + names.length);
+      const cache = await caches.open(names[0]);
+      const cssUrl = new URL("menu-grid.css", location.href);
+      const jsUrl = new URL("menu-grid-merchandising.js", location.href);
+      for (const req of await cache.keys()) {
+        const path = new URL(req.url).pathname;
+        if (path === cssUrl.pathname || path === jsUrl.pathname) await cache.delete(req);
+      }
+      cssUrl.search = "?v=old-pre-merge";
+      jsUrl.search = "?v=old-pre-merge";
+      await cache.put(cssUrl.href, new Response(
+        '.menu-photo-grid .full-menu-panel--featured .full-menu-list{grid-template-columns:repeat(2,minmax(0,1fr))}',
+        { headers: { "Content-Type": "text/css" } }
+      ));
+      await cache.put(jsUrl.href, new Response(
+        'throw new Error("STALE_MERCH_JS_REUSED");',
+        { headers: { "Content-Type": "application/javascript" } }
+      ));
+      return names[0];
+    });
+    await pwaPage.reload({ waitUntil: "domcontentloaded" });
+    const featured = pwaPage.locator(".full-menu-panel--featured .full-menu-item--visual[data-pairing]");
+    await featured.first().locator(".pairing-merch-choose").waitFor({ state: "visible", timeout: 15000 });
+    const boxes = await featured.evaluateAll(nodes => nodes.map(card => {
+      const rect = card.getBoundingClientRect();
+      return { x: rect.x, y: rect.y, height: rect.height,
+        details: getComputedStyle(card.querySelector(".full-menu-item-details")).display,
+        title: getComputedStyle(card.querySelector(".pairing-poster-title")).display };
+    }));
+    assert.equal(boxes.length, 2);
+    assert.ok(boxes[1].y >= boxes[0].y + boxes[0].height - 2,
+      "Stale cached CSS cannot force featured cards into two phone-width columns");
+    assert.ok(boxes.every(x => x.details === "flex" && x.title === "none"),
+      "Stale poster CSS cannot hide details or expose the huge poster titles");
+    assert.deepEqual(pwaErrors, [], "Stale JS cannot replace revisioned merchandising module");
+    report.cases.push({ label: "PWA upgrade with obsolete CSS/JS cache entries", passed: true, cache: cacheName });
+    console.log("PASS PHOTO-GRID PWA exact-revision cache regression");
+  } finally {
+    await offlineContext.close();
+  }
   console.log("menu grid merchandising: PASS");
 } finally {
   await browser?.close();

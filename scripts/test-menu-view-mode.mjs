@@ -295,6 +295,17 @@ test("all menu surfaces present feed, photos and list in the requested order", (
     .replace(/  <script type="module" src="menu-grid-merchandising\.js\?v=[a-f0-9]{12}"><\/script>\n/, ''), list,
     "Grid is generated from the final list document and uses its exact catalog/runtime/cache revisions");
   const sw = readFileSync("sw-core-v64.js", "utf8");
+  console.info("PWA-DIAG BUILT CACHE:", sw.split("\n")[0]);
   for (const file of ["menu-grid.html", "menu-grid.css", "menu-grid-merchandising.js"]) assert.ok(sw.includes(`./${file}`));
+  assert.match(sw, /url\.pathname\.endsWith\("\/menu-grid\.css"\)/, "Photo CSS must enforce exact cache revisions");
+  assert.match(sw, /url\.pathname\.endsWith\("\/menu-grid-merchandising\.js"\)/, "Merchandising JS must enforce exact cache revisions");
+  assert.match(sw, /"\.\/menu-grid\.css\?v=[a-f0-9]{12}"/, "Offline CSS must be precached with its full revisioned URL");
+  const serviceWorkerEntry = readFileSync("sw.js", "utf8");
+  assert.match(serviceWorkerEntry, /importScripts\("\.\/sw-core-v64\.js\?v=grid-cache-refresh-20261120-1"\)/,
+    "Worker import must refresh when cache policy changes");
+  const menuPwa = readFileSync("menu-pwa.js", "utf8");
+  assert.match(menuPwa, /sw\.js\?v=grid-cache-refresh-20261120-1/,
+    "The menu must register the repaired worker revision");
+
   assert.match(sw, /if \(isMenuGrid\) return cachedPage\("menu-grid.html"\)/);
 });

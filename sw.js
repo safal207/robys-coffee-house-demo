@@ -60,4 +60,4 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(fetch(event.request, { cache: "no-store" }));
 });
 
-importScripts("./sw-core-v64.js");
+importScripts("./sw-core-v64.js?v=grid-cache-refresh-20261120-1");
