@@ -40,7 +40,15 @@ test("personal pairings reference real orderable photographed catalog SKUs", () 
     assert.ok(recommendation.target.image.startsWith("src/products/"));
     assert.ok(Number.isFinite(recommendation.target.item.price));
     assert.notEqual(recommendation.target.category.id, "pairing-offers");
-    assert.equal(choosePersonalPair(new Set([likedId, targetId]), catalog), null);
+    // Liking the offered pair prevents duplicate targets. A different,
+    // still-unliked SKU may remain a valid recommendation from another pair.
+    const updatedLikes = new Set([likedId, targetId]);
+    const next = choosePersonalPair(updatedLikes, catalog);
+    if (next) {
+      assert.ok(updatedLikes.has(next.source.id), "new pair must originate from a liked product");
+      assert.ok(!updatedLikes.has(next.target.id), "never re-recommend an already liked product");
+      assert.ok(catalog.has(next.target.id), "new pair must remain a real catalog SKU");
+    }
   }
   assert.equal(choosePersonalPair(new Set(["unknown"]), catalog), null);
 });
