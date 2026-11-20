@@ -20,7 +20,11 @@ if (root) {
       success:"Пара добавлена в черновик заказа. Оплата и подтверждение — только в кафе.",
       failure:"Не получилось сохранить заказ. Проверь хранилище браузера и повтори попытку.",
       empty:"Все варианты отмечены как попробованные. Сбрось отметки, чтобы выбрать снова.",
-      reset:"Сбросить отметки",price:"Итого по меню",checkoutNote:"Проверяй наличие и актуальную цену на кассе."
+      reset:"Сбросить отметки",price:"Итого по меню",checkoutNote:"Проверяй наличие и актуальную цену на кассе.",
+      discover:"Познакомиться со вкусом",storyTitle:"Ты открыл этот вкус",storyLine:"Посмотри на сочетание и представь, как эти два продукта дополняют друг друга.",
+      progress:"Вкусов открыто",views:"Твоих просмотров",like:"Нравится",shareTitle:"С кем бы ты попробовал эту пару?",shareLead:"Поделись этим сочетанием с другом. Можно просто пропустить.",
+      share:"Поделиться с другом",skip:"Пропустить",offerTitle:"Хочешь попробовать эту пару?",
+      copied:"Ссылка скопирована — теперь её можно отправить другу.",shareFallback:"Скопируй ссылку вручную или пропусти этот шаг.",copyLink:"Ссылка на сочетание",direct:"Сразу выбрать пару"
     },
     en: {
       eyebrow:"YOUR ROBY’S TODAY",title:"Choose a color. Discover a new pairing.",intro:"Your mood and the weather help match a real menu drink with something to eat.",
@@ -37,7 +41,11 @@ if (root) {
       success:"Pairing added to your order draft. Payment and confirmation happen at the café.",
       failure:"Could not save the order. Check browser storage and try again.",
       empty:"All pairings are marked as tried. Reset the list to choose again.",
-      reset:"Reset tried pairings",price:"Menu total",checkoutNote:"Confirm availability and price at the counter."
+      reset:"Reset tried pairings",price:"Menu total",checkoutNote:"Confirm availability and price at the counter.",
+      discover:"Discover the taste",storyTitle:"Taste discovered",storyLine:"Explore this pairing and imagine how the two products go together.",
+      progress:"Tastes discovered",views:"Your views",like:"Like",shareTitle:"Who would you try this with?",shareLead:"Share this exact pairing with a friend, or simply skip.",
+      share:"Share with a friend",skip:"Not now",offerTitle:"Want to try this pairing?",
+      copied:"Link copied. You can now send it to a friend.",shareFallback:"Copy this link manually, or skip this step.",copyLink:"Pairing link",direct:"Choose this pair now"
     },
     tr: {
       eyebrow:"BUGÜNKÜ ROBY’S",title:"Bir renk seç. Yeni bir lezzet keşfet.",intro:"Ruh halin ve hava durumu, gerçek menüden içecek ve tatlı seçmene yardımcı olsun.",
@@ -54,7 +62,11 @@ if (root) {
       success:"İkili sipariş taslağına eklendi. Ödeme ve onay kafede yapılır.",
       failure:"Sipariş kaydedilemedi. Tarayıcı depolamasını kontrol edip tekrar deneyin.",
       empty:"Tüm ikilileri denedin olarak işaretledin. Yeniden başlamak için sıfırla.",
-      reset:"İşaretleri sıfırla",price:"Menü toplamı",checkoutNote:"Stok ve güncel fiyatı kasada doğrulayın."
+      reset:"İşaretleri sıfırla",price:"Menü toplamı",checkoutNote:"Stok ve güncel fiyatı kasada doğrulayın.",
+      discover:"Lezzeti keşfet",storyTitle:"Bu lezzeti keşfettin",storyLine:"Bu ikiliyi keşfet ve iki ürünün birlikte nasıl bir tat vereceğini hayal et.",
+      progress:"Keşfedilen lezzet",views:"Kendi görüntülemelerin",like:"Beğen",shareTitle:"Bu ikiliyi kiminle denemek istersin?",shareLead:"Bu ikiliyi arkadaşınla paylaş veya bu adımı geç.",
+      share:"Arkadaşınla paylaş",skip:"Şimdi değil",offerTitle:"Bu ikiliyi denemek ister misin?",
+      copied:"Bağlantı kopyalandı. Arkadaşına gönderebilirsin.",shareFallback:"Bağlantıyı elle kopyala veya geç.",copyLink:"İkili bağlantısı",direct:"İkiliyi hemen seç"
     }
   };
   const colorNames = ["green","coral","blue","amber"];
@@ -62,6 +74,25 @@ if (root) {
   const weatherNames = ["hot","cool","rain"];
   const triedKey = "robys-mood-pairs-tried.v1";
   const traceKey = "robys-mood-pair-trace.v1";
+  const tasteKey = "robys-mood-taste-journey.v1";
+  const taste = (() => {
+    try {
+      const data = JSON.parse(localStorage.getItem(tasteKey) || "{}");
+      return {
+        views: data && typeof data.views === "object" && !Array.isArray(data.views) ? data.views : {},
+        liked: data && typeof data.liked === "object" && !Array.isArray(data.liked) ? data.liked : {},
+        discovered: data && typeof data.discovered === "object" && !Array.isArray(data.discovered) ? data.discovered : {}
+      };
+    } catch { return { views:{}, liked:{}, discovered:{} }; }
+  })();
+  const journey = { pairId:"", phase:"intro", notice:"", fallbackLink:"" };
+  const saveTaste = () => {
+    try { localStorage.setItem(tasteKey, JSON.stringify(taste)); } catch { /* optional storage */ }
+  };
+  const sharedPairId = new URLSearchParams(location.search).get("pair");
+  const knownPairIds = new Set(["lime-macaron","lime-lotus","iced-cheesecake","iced-macaron","mocha-lotus",
+    "latte-macaron","caramel-cheesecake","chocolate-macaron","chocolate-lotus","tea-macaron","tea-nutella","flatwhite-cheese"]);
+
   const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
     .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   const products = menuCategories.flatMap(category => (category.items ??
@@ -82,6 +113,67 @@ if (root) {
   const state = { color:"green", mood:"fresh", weather:"hot", tried:safeRead(), offset:0 };
   let busy = false;
   let message = "";
+
+  function resetJourneyIfChanged(pair) {
+    if (journey.pairId === (pair?.id ?? "")) return;
+    journey.pairId = pair?.id ?? "";
+    journey.phase = "intro";
+    journey.notice = "";
+    journey.fallbackLink = "";
+  }
+  function openTaste(pair) {
+    resetJourneyIfChanged(pair);
+    if (journey.phase === "intro") {
+      journey.phase = "share";
+      const count = Number(taste.views[pair.id]);
+      taste.views[pair.id] = Number.isSafeInteger(count) && count >= 0
+        ? Math.min(count + 1, 99999) : 1;
+      taste.discovered[pair.id] = true;
+      saveTaste();
+      record("taste-opened",pair);
+    }
+    render("like");
+  }
+  function pairShareUrl(pair) {
+    const url = new URL("index.html", location.href);
+    url.search = "";
+    url.searchParams.set("pair",pair.id);
+    url.hash = "quick";
+    return url.href;
+  }
+  async function sharePair(pair) {
+    const language = lang(), labels = text[language], url = pairShareUrl(pair);
+    journey.notice = "";
+    journey.fallbackLink = "";
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({title:pair.drink.name[language]+" + "+pair.snack.name[language],url});
+        journey.phase = "offer";
+        record("share-sheet-resolved",pair);
+        render("add");
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          record("share-cancelled",pair);
+          render("share");
+          return;
+        }
+      }
+    }
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("No clipboard");
+      await navigator.clipboard.writeText(url);
+      journey.notice = labels.copied;
+      journey.phase = "offer";
+      record("share-link-copied",pair);
+      render("add");
+    } catch {
+      journey.notice = labels.shareFallback;
+      journey.fallbackLink = url;
+      record("share-fallback-shown",pair);
+      render("skip");
+    }
+  }
   const lang = () => ["ru","en","tr"].includes(document.documentElement.lang)
     ? document.documentElement.lang : "tr";
   const node = (tag, className, content) => {
