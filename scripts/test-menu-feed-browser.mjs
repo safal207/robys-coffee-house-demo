@@ -2087,6 +2087,26 @@ try {
       assert.equal(await page.locator("#current").textContent(),"issued");
       await page.locator("#reset").click();
       assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
+      assert.equal(await page.locator("#hist-save").isDisabled(),true,"Standalone mode cannot claim persistent runner access");
+      const snap=(head,checkStatus,caseStatus)=>{
+        const data={schemaVersion:1,head,registrySha256:null,
+          checks:[{id:"counter-contracts",status:checkStatus}],cases:[{id:"PAG-03",status:caseStatus}]};
+        return {...data,id:createHash("sha256").update(JSON.stringify(data)).digest("hex"),
+          recordedAt:"2026-11-18T10:00:00.000Z",trust:"LOCAL_UNVERIFIED_IMPORT"};
+      };
+      const snap1=snap("a".repeat(40),"PASS","FAIL"),snap2=snap("b".repeat(40),"FAIL","PASS");
+      const histUpload=items=>page.locator("#hist-import").setInputFiles(items.map((item,i)=>({
+        name:"snapshot-"+i+".json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(item))})));
+      await histUpload([snap1,snap2]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импортировано 2"));
+      await page.locator("#hist-from").selectOption(snap1.id);
+      await page.locator("#hist-to").selectOption(snap2.id);
+      assert.match(await page.locator("#hist-summary").textContent(),/регрессий 1.*восстановлений 1/);
+      assert.equal(await page.locator('#hist-diff tr[data-change="REGRESSION"]').count(),1);
+      assert.equal(await page.locator('#hist-diff tr[data-change="RECOVERED"]').count(),1);
+      await histUpload([{...snap1,id:"0".repeat(64)}]);
+      await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импорт отклонён"));
+      assert.equal(await page.locator("#hist-from option").count(),2,"bad digest must not enter history");
       await page.locator("#property-run").click();
       const seeded=await page.locator("#property-events li").allTextContents();
       assert.equal(seeded.length,24);
