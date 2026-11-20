@@ -472,7 +472,15 @@ try {
       });
       assert.ok(geometry.centerOffset <= 1, `The feed is centered at ${width}px: ${JSON.stringify(geometry)}`);
       assert.ok(geometry.width <= 460 && geometry.width >= Math.min(geometry.clientWidth, 460) - 1);
-      assert.equal(geometry.overflow, false);
+      if (geometry.overflow) {
+        const offenders = await page.evaluate(() => [...document.querySelectorAll("body *")].map(node => {
+          const box = node.getBoundingClientRect();
+          return { element: node.tagName.toLowerCase(), classes: typeof node.className === "string" ? node.className.slice(0, 100) : "",
+            left: Math.round(box.left), right: Math.round(box.right), width: Math.round(box.width) };
+        }).filter(box => box.right > innerWidth + 1 || box.left < -1).slice(0, 16));
+        console.error(`FEED_OVERFLOW_GEOMETRY ${width} ${JSON.stringify(offenders)}`);
+      }
+      assert.equal(geometry.overflow, false, `No page overflow at ${width}px`);
       assert.ok(Math.abs(geometry.photoRatio - geometry.sourceRatio) < .01, "The complete square photograph keeps its source proportions");
       assert.equal(geometry.objectFit, "contain");
       await assertPhotoActions(page.locator(".feed-card").first());

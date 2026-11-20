@@ -173,7 +173,7 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
    the flexible, wrapping controls above still support genuine 200% text. */
 @media(min-width:361px) and (max-width:760px){
   .feed-page .feed-tools{flex-wrap:nowrap}
-  .feed-page .feed-view-switch{min-width:0;max-width:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .feed-page .feed-view-switch{flex:1 1 0;width:0;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
   .feed-page .feed-view-switch::-webkit-scrollbar{display:none}
   .feed-page .feed-view-switch a{flex:0 0 auto;white-space:nowrap;padding-inline:10px}
 }
