@@ -650,7 +650,7 @@ test('Taste Memory, My Feed, visual basket, cashier and brand additions have exp
   };
   for (const [path, owners] of Object.entries(ownership)) {
     const result = impactPlan(graph, [path]);
-    assert.deepEqual(result.directComponents, owners, path);
+    assert.deepEqual([...result.directComponents].sort(), owners, path);
     assert.deepEqual(result.unmappedPaths, [], path);
     assert.ok(result.selectedChecks.includes('source-contracts'), path);
     if (owners.includes('feed-social')) {
