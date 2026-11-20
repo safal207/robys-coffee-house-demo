@@ -35,7 +35,7 @@ try {
       const text=await story.innerText();
       assert.match(text,/cool lime|lime|лайм|макарон|makaron/i);
       const progress=await journey.locator(".pairing-journey-stats").innerText();
-      assert.match(progress,/1\\/2/);
+      assert.ok(progress.includes("1/2"),"Progress shows one discovered taste out of two");
       assert.match(progress,/1/);
       assert.equal(await story.locator(".pairing-discovery-mark").count(),0,
         "Original mark button should be replaced by automatic discovery and reversible like");
