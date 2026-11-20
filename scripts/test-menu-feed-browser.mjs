@@ -2088,14 +2088,14 @@ try {
       await page.locator("#reset").click();
       assert.equal(await page.locator("#current").textContent(),"awaiting_payment");
       await page.locator("#property-run").click();
-      const seeded=await page.locator("#property-events").allTextContents();
+      const seeded=await page.locator("#property-events li").allTextContents();
       assert.equal(seeded.length,24);
       assert.match(await page.locator("#property-summary").textContent(),/24 операций/);
       await page.locator("#property-run").click();
-      assert.deepEqual(await page.locator("#property-events").allTextContents(),seeded,"same seed is replayable");
+      assert.deepEqual(await page.locator("#property-events li").allTextContents(),seeded,"same seed is replayable");
       await page.locator("#property-seed").fill("20261119");
       await page.locator("#property-run").click();
-      assert.notDeepEqual(await page.locator("#property-events").allTextContents(),seeded);
+      assert.notDeepEqual(await page.locator("#property-events li").allTextContents(),seeded);
       await page.locator("#property-seed").fill("0");
       await page.locator("#property-run").click();
       assert.match(await page.locator("#property-summary").textContent(),/Неверный seed/);
