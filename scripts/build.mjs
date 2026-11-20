@@ -356,9 +356,9 @@ bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", 
 writeFileSync("src/bootstrap-v2.js", bootstrapSource);
 // Reuse the existing blocking request and gzip stream on the three entry pages.
 // Preserve the entry handoff source verbatim, including its guarded recovery.
-const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
-  minify: true, target: "es2020", legalComments: "none"
-}).code;
+// Halloween 2026 ended on November 1, 2026. Retire its now-inert
+// blocking prepaint from customer entry pages; keep the season source and
+// stylesheets in the repository for historical QA and future season work.
 // The shared parser-blocking bootstrap already loads on the two Lighthouse
 // entry pages. Integrate the tiny route bootstrap here instead of issuing a
 // third first-party script request and breaching the 5% JS regression budget.
@@ -382,11 +382,9 @@ mapRouteEntry = mapRouteEntry.replace(/map-route-controller[.]js(?:[?]v=[a-f0-9]
 writeFileSync("map-route.js", mapRouteEntry);
 const mapRouteRevision = revisionFor("map-route.js");
 const prepaintOptions = { minify: true, target: "es2020", legalComments: "none" };
-// Keep the handoff semantics but permit esbuild to mangle otherwise long
-// top-level helper names. They were never a public API.
-const entryPrepaint = transformSync(`(() => {\n${bootstrapSource}\n})();`, prepaintOptions).code;
+const entryPrepaint = transformSync(bootstrapSource, prepaintOptions).code;
 const routePrepaint = transformSync(mapRouteEntry, prepaintOptions).code;
-writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${entryPrepaint}\n${routePrepaint}`);
+writeFileSync("bootstrap-v2.js", `${entryPrepaint}\n${routePrepaint}`);
 const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
