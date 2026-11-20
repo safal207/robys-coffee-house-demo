@@ -356,9 +356,8 @@ bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", 
 writeFileSync("src/bootstrap-v2.js", bootstrapSource);
 // Reuse the existing blocking request and gzip stream on the three entry pages.
 // Preserve the entry handoff source verbatim, including its guarded recovery.
-const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
-  minify: true, target: "es2020", legalComments: "none"
-}).code;
+// Halloween 2026 ended on November 1; keep the archived module, but avoid
+// shipping its expired timer in the parser-blocking bootstrap.
 // The shared parser-blocking bootstrap already loads on the two Lighthouse
 // entry pages. Integrate the tiny route bootstrap here instead of issuing a
 // third first-party script request and breaching the 5% JS regression budget.
@@ -384,7 +383,7 @@ const mapRouteRevision = revisionFor("map-route.js");
 const prepaintOptions = { minify: true, target: "es2020", legalComments: "none" };
 const entryPrepaint = transformSync(bootstrapSource, prepaintOptions).code;
 const routePrepaint = transformSync(mapRouteEntry, prepaintOptions).code;
-writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${entryPrepaint}\n${routePrepaint}`);
+writeFileSync("bootstrap-v2.js", `${entryPrepaint}\n${routePrepaint}`);
 const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
