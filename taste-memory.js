@@ -90,6 +90,7 @@ if (root && toolActions && formats) {
   panel.id = "taste-memory-panel";
   panel.hidden = true;
   panel.setAttribute("aria-labelledby", "taste-memory-heading");
+  panel.tabIndex = -1;
   const heading = make("h3", "", t("title")); heading.id = "taste-memory-heading";
   const numbers = make("div", "taste-memory-numbers");
   const viewed = stat(t("views")), likes = stat(t("likes")), shared = stat(t("shares"));
@@ -151,7 +152,7 @@ if (root && toolActions && formats) {
   trigger.addEventListener("click", () => {
     panel.hidden = !panel.hidden;
     trigger.setAttribute("aria-expanded", String(!panel.hidden));
-    if (!panel.hidden) render();
+    if (!panel.hidden) { render(); panel.focus({ preventScroll: true }); }
   });
   enabled.addEventListener("change", () => {
     preferences.enabled = enabled.checked; save();
@@ -166,7 +167,9 @@ if (root && toolActions && formats) {
     erase(KEY);
     window.location.reload(); // Sync the existing feed's in-memory like state.
   });
+  let reminderTimeout;
   function hideReminder() {
+    clearTimeout(reminderTimeout);
     reminderNode?.remove(); reminderNode = null;
   }
   function showReminder(product) {
@@ -186,6 +189,7 @@ if (root && toolActions && formats) {
     card.append(photo, content, close);
     document.body.append(card);
     reminderNode = card;
+    reminderTimeout = window.setTimeout(hideReminder, 11000);
   }
   function maybeRemember() {
     const candidate = chooseRememberedProduct({
@@ -251,6 +255,14 @@ if (root && toolActions && formats) {
       if (!preferences.enabled) hideReminder();
     }
   });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !panel.hidden) {
+      panel.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus({ preventScroll: true });
+    }
+  });
+  document.querySelector("#menu-cart-trigger")?.addEventListener("click", hideReminder);
   window.addEventListener("pagehide", hideReminder);
   render();
 }
