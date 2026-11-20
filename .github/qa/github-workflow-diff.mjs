@@ -61,8 +61,8 @@ export function compareGithubWorkflows(before,after){
     const change=from==="PASS"&&to==="FAIL"?"REGRESSION":
       from==="FAIL"&&to==="PASS"?"RECOVERED":
       to==="PENDING"?"AWAITING_CI":
-      to==="INCOMPLETE"?"INCOMPLETE":
       from==="NOT_PRESENT"?"NEW_WORKFLOW":
+      to==="INCOMPLETE"?"INCOMPLETE":
       to==="NOT_PRESENT"?"MISSING_WORKFLOW":
       from===to?"UNCHANGED":"CHANGED";
     return {workflowId:id,name:b?.name??a?.name??"unknown",from,to,change,
