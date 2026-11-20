@@ -287,14 +287,16 @@ test("all menu surfaces present feed, photos and list in the requested order", (
   assert.match(grid, /class="menu-page menu-photo-grid"/);
   const list = readFileSync("menu.html", "utf8");
   // Only the photo grid adds a merchandising module; all shared runtime stays identical.
+  assert.match(grid, /<script src="menu-grid-prepaint\.js\?v=[a-f0-9]{12}"><\/script>/);
   assert.match(grid, /<script type="module" src="menu-grid-merchandising\.js\?v=[a-f0-9]{12}"><\/script>/);
   assert.ok(!list.includes("menu-grid-merchandising.js"));
   assert.equal(grid.replace(' menu-photo-grid', '').replace('data-menu-view="grid" aria-current="page"', 'data-menu-view="grid"')
     .replace('data-menu-view="list"', 'data-menu-view="list" aria-current="page"')
     .replace(/<link rel="stylesheet" href="menu-grid\.css\?v=[a-f0-9]+" \/>/, '')
+    .replace(/<script src="menu-grid-prepaint\.js\?v=[a-f0-9]{12}"><\/script>\n  /, '')
     .replace(/  <script type="module" src="menu-grid-merchandising\.js\?v=[a-f0-9]{12}"><\/script>\n/, ''), list,
     "Grid is generated from the final list document and uses its exact catalog/runtime/cache revisions");
   const sw = readFileSync("sw-core-v64.js", "utf8");
-  for (const file of ["menu-grid.html", "menu-grid.css", "menu-grid-merchandising.js"]) assert.ok(sw.includes(`./${file}`));
+  for (const file of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js"]) assert.ok(sw.includes(`./${file}`));
   assert.match(sw, /if \(isMenuGrid\) return cachedPage\("menu-grid.html"\)/);
 });

@@ -171,7 +171,8 @@
         "menu-feedback.js",
         "menu-feedback.css",
         "scripts/test-menu-feedback.mjs",
-        "scripts/test-menu-grid-merchandising-browser.mjs"
+        "scripts/test-menu-grid-merchandising-browser.mjs",
+        "menu-grid-prepaint.js"
       ],
       "dependsOn": [
         "build",
