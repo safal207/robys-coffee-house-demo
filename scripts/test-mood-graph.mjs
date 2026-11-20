@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { SMART_CHOICE_CATALOG } from "../smart-choice/catalog.js";
 import { MOOD_GRAPH_VERSION, PAIR_RULES, recommendMoodPair } from "../smart-choice/mood-graph-domain.js";
 
@@ -50,4 +51,13 @@ test("invalid input, unconfirmed and unavailable products are never recommended"
   assert.equal(recommendMoodPair(hot,unavailable),null);
   const unconfirmed = {...SMART_CHOICE_CATALOG,items:SMART_CHOICE_CATALOG.items.map(item=>({...item,sourceStatus:"provisional"}))};
   assert.equal(recommendMoodPair(hot,unconfirmed),null);
+});
+
+test("photo and list menu both expose the same localized mood-picker entry", () => {
+  for(const file of ["menu.html","menu-grid.html"]){
+    const html=readFileSync(file,"utf8");
+    assert.match(html,/class="menu-family-link mood-pair-entry" href="smart-choice\/#quick"/);
+    assert.match(html,/<span lang="ru">Цвет \+ настроение<\/span>/);
+    assert.match(html,/<span lang="tr">Renk \+ ruh hali<\/span>/);
+  }
 });
