@@ -420,6 +420,15 @@ const smartChoiceCssRevision = revisionFor("smart-choice/style.css");
 const smartChoiceCartCssRevision = revisionFor("smart-choice/cart.css");
 const smartChoiceDecisionTraceCssRevision = revisionFor("smart-choice/decision-trace.css");
 const smartChoiceReleaseQaCssRevision = revisionFor("smart-choice/release-qa.css");
+const moodGraphDomainRevision = revisionFor("smart-choice/mood-graph-domain.js");
+const moodGraphFile = "smart-choice/mood-graph.js";
+const moodGraphSource = readFileSync(moodGraphFile, "utf8").replace(
+  /from "\.\/mood-graph-domain\.js(?:\?v=[^"]*)?"/,
+  `from "./mood-graph-domain.js?v=${moodGraphDomainRevision}"`
+);
+writeFileSync(moodGraphFile, moodGraphSource);
+const moodGraphRevision = revisionFor(moodGraphFile);
+const moodGraphCssRevision = revisionFor("smart-choice/mood-graph.css");
 const kidsMenuCssRevision = revisionFor("kids-menu.css");
 
 const experienceEnvironmentFiles = [
@@ -535,10 +544,12 @@ smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "cart-v2.js", smartCh
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "experiments-v2.js", smartChoiceExperimentsRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "analytics-v2.js", smartChoiceAnalyticsRevision);
 smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "decision-trace-v2.js", smartChoiceDecisionTraceRevision);
+smartChoiceHtml = synchronizeModuleScript(smartChoiceHtml, "mood-graph.js", moodGraphRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "style.css", smartChoiceCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "cart.css", smartChoiceCartCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "../order-checkout.css", orderCheckoutCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "decision-trace.css", smartChoiceDecisionTraceCssRevision);
+smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "mood-graph.css", moodGraphCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "release-qa.css", smartChoiceReleaseQaCssRevision);
 smartChoiceHtml = synchronizeStylesheet(smartChoiceHtml, "../kids-menu.css", kidsMenuCssRevision);
 writeFileSync("smart-choice/index.html", smartChoiceHtml);
@@ -611,18 +622,21 @@ const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js"
 const storyCatalog = storyProducts(storyCategories);
 const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
-for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", "smart-choice/mood-graph.js", "smart-choice/mood-graph-domain.js", "smart-choice/mood-graph.css", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
 const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+const moodCacheRevision = createHash("sha256").update(`${moodGraphRevision}:${moodGraphDomainRevision}:${moodGraphCssRevision}:${revisionFor("smart-choice/index.html")}`).digest("hex").slice(0, 12);
 const shareCacheRevision = createHash("sha256").update(`${menuShareEntryRevision}:${menuShareStyleRevision}:${JSON.stringify(menuShareProducts)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-menu-share-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-share-${shareCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-menu-feed-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-feed-${feedCacheRevision}-shared-order-`);
+serviceWorker = serviceWorker.replace(/-mood-pair-[a-f0-9]{12}/, "");
+serviceWorker = serviceWorker.replace("-shared-order-", `-mood-pair-${moodCacheRevision}-shared-order-`);
 serviceWorker = serviceWorker.replace(/-quick-order-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-quick-order-${orderFlowRevision}-shared-order-`);
 // Offer prices must refresh for returning visitors, including their cached home.
@@ -734,6 +748,9 @@ for (const [filePath, revision] of [
   ["smart-choice/app-v2.js", smartChoiceAppRevision],
   ["smart-choice/photo-previews.js", photoPreviewsRevision],
   ["smart-choice/catalog.js", smartChoiceCatalogRevision],
+  ["smart-choice/mood-graph.js", moodGraphRevision],
+  ["smart-choice/mood-graph-domain.js", moodGraphDomainRevision],
+  ["smart-choice/mood-graph.css", moodGraphCssRevision],
   ["smart-choice/cart-v2.js", smartChoiceCartRevision],
   ["smart-choice/experiments-v2.js", smartChoiceExperimentsRevision],
   ["smart-choice/analytics-v2.js", smartChoiceAnalyticsRevision],

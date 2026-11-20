@@ -454,7 +454,9 @@
         "choice-help-entry.js",
         "choice-help.css",
         "src/choice-help.js",
-        "src/choice-help-entry.js"
+        "src/choice-help-entry.js",
+        "scripts/test-mood-graph.mjs",
+        "scripts/test-mood-graph-browser.mjs"
       ],
       "dependsOn": [
         "catalog",
