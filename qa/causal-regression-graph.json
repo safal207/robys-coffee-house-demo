@@ -160,6 +160,7 @@
       "paths": [
         "menu-grid.html",
         "menu-grid.css",
+        "menu-grid-merchandising.js",
         "scripts/test-menu-view-mode.mjs",
         "scripts/test-mobile-navigation-browser.mjs",
         "src/menu-view-mode.js",
