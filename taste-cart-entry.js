@@ -1,14 +1,6 @@
 // The cart stays on the existing eager path; optional personal suggestions load only on opening.
 const dialog = document.querySelector("#menu-cart-dialog");
 if (dialog) {
-  // Personal cart styling is optional and must not introduce a second blocking
-  // menu stylesheet. The baseline menu keeps its single reviewed CSS bundle.
-  if (!document.querySelector('link[href^="taste-cart.css"]')) {
-    const style = document.createElement("link");
-    style.rel = "stylesheet";
-    style.href = "taste-cart.css?v=1";
-    document.head.append(style);
-  }
   let loaded = false, pending = false, retry = 0;
   async function load() {
     if (loaded || pending || !dialog.open) return;
