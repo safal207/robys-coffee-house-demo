@@ -750,6 +750,14 @@ for (const [filePath, revision] of [
 ]) {
   serviceWorker = synchronizeServiceWorkerAsset(serviceWorker, filePath, revision);
 }
+const priorWorker = readFileSync("sw-core-v64.js", "utf8");
+const priorLines = priorWorker.split("\\n");
+const builtLines = serviceWorker.split("\\n");
+for (let line = 0; line < builtLines.length; line += 1) {
+  if (builtLines[line] !== priorLines[line]) {
+    console.info("PWA-BUILD-DIFF", line + 1, "old=" + priorLines[line]?.slice(0, 1000), "new=" + builtLines[line]?.slice(0, 1000));
+  }
+}
 writeFileSync("sw-core-v64.js", serviceWorker);
 verifyMenuStylesBundle(readMenuStylesBundleInputs());
 
