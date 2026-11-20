@@ -4,9 +4,11 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 
 import { createHash } from "node:crypto";
+import { transformSync } from "esbuild";
 const script = readFileSync("map-route-controller.js", "utf8");
 const bootstrap = readFileSync("map-route.js", "utf8");
-const bootstrapRevision = createHash("sha256").update(bootstrap).digest("hex").slice(0, 12);
+const deployedBootstrap = readFileSync("bootstrap-v2.js", "utf8");
+const bootstrapRevision = createHash("sha256").update(deployedBootstrap).digest("hex").slice(0, 12);
 const html = readFileSync("index.html", "utf8");
 const menuHtml = readFileSync("menu.html", "utf8");
 const profile = JSON.parse(readFileSync("qa/business-profile.json", "utf8"));
@@ -122,7 +124,8 @@ test("the embedded map loads from a restricted Google origin only on explicit cl
 
 
 test("menu CTAs share the exact-place route controller while no-JS anchors remain intact", () => {
-  assert.ok(menuHtml.includes(`<script defer src="map-route.js?v=${bootstrapRevision}"></script>`));
+  assert.ok(menuHtml.includes(`<script src="bootstrap-v2.js?v=${bootstrapRevision}"></script>`));
+  assert.ok(!menuHtml.includes('src="map-route.js?'), "menu no longer downloads the extra route script");
   const anchors = menuHtml.split("<a ").slice(1).map(chunk => chunk.split(">")[0]).filter(tag => tag.includes("data-route-link"));
   assert.equal(anchors.length, 2, "menu has two route links, both enhanced by the shared controller");
   for (const tag of anchors) {
@@ -141,5 +144,9 @@ test("small bootstrap pins destinations without loading GPS or a third-party ifr
   assert.match(bootstrap, /destination_place_id/);
   assert.ok(bootstrap.indexOf('getCurrentPosition') < 0);
   assert.ok(bootstrap.indexOf('frame.src') < 0);
-  assert.ok(html.includes(`src="map-route.js?v=${bootstrapRevision}"`));
+  assert.ok(html.includes(`src="bootstrap-v2.js?v=${bootstrapRevision}"`));
+  assert.ok(!html.includes('src="map-route.js?'), "home no longer downloads the extra route script");
+  assert.ok(deployedBootstrap.includes(transformSync(bootstrap, {
+    minify: true, target: "es2020", legalComments: "none"
+  }).code.trim()), "the route logic must be delivered in the shared bootstrap");
 });
