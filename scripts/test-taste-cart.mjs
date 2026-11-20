@@ -44,8 +44,8 @@ test("all three menu views install the optional visual cart and cashier stays Tu
   for (const htmlName of ["menu.html", "menu-grid.html", "menu-feed.html"]) {
     const html = readFileSync(htmlName, "utf8");
     assert.match(html, /<script type="module" src="taste-cart-entry\.js\?v=1"><\/script>/);
-    assert.match(html, /menu-runtime\\.css\\?v=[a-f0-9]{12}/);
-    assert.doesNotMatch(html, /rel="stylesheet" href="taste-cart\\.css/);
+    assert.match(html, /menu-runtime\.css\?v=[a-f0-9]{12}/);
+    assert.doesNotMatch(html, /rel="stylesheet" href="taste-cart\.css/);
     if (htmlName === "menu.html") assert.equal((html.match(/<link rel="stylesheet"/g) || []).length, 1);
     if (htmlName === "menu-grid.html") assert.equal((html.match(/<link rel="stylesheet"/g) || []).length, 2);
     assert.match(html, /require-trusted-types-for 'script'/);
@@ -65,8 +65,8 @@ test("taste cart does not invent a new price, write an independent basket or aut
   const css = readFileSync("taste-cart.css", "utf8");
   const entry = readFileSync("taste-cart-entry.js", "utf8");
   assert.match(entry, /dialog\.open/);
-  assert.doesNotMatch(entry, /createElement\\("link"\\)/);
-  assert.ok(readFileSync("menu-runtime.css", "utf8").endsWith("\\n" + css));
+  assert.doesNotMatch(entry, /createElement\("link"\)/);
+  assert.ok(readFileSync("menu-runtime.css", "utf8").endsWith("\n" + css));
   assert.match(entry, /new URL\("\.\/taste-cart\.js\?v=1", import\.meta\.url\)/);
   assert.match(entry, /await import\(url\.href\)/);
   assert.match(js, /transactStoredOrderDraft/);
