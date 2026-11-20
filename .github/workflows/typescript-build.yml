@@ -78,6 +78,9 @@ jobs:
       - name: Build generated runtime
         run: npm run build
 
+      - name: Regenerate public file checksums for inspected build
+        run: npm run integrity:generate
+
       - name: Upload generated runtime for inspection
         uses: actions/upload-artifact@v4
         with:
@@ -90,6 +93,13 @@ jobs:
             discover-rotation-v3.js
             discover.html
             sw.js
+            bootstrap-v2.js
+            map-route.js
+            map-route-controller.js
+            menu.html
+            menu-grid.html
+            sw-core-v64.js
+            integrity-manifest.json
           retention-days: 3
 
       - name: Verify JavaScript syntax

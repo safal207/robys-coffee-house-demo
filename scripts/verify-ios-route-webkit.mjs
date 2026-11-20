@@ -9,6 +9,7 @@ const baseOrigin = new URL(baseUrl);
 assert.equal(baseOrigin.protocol, "https:", "WebKit route evidence requires HTTPS with the production CSP");
 const routePrefix = "https://www.google.com/maps/dir/";
 const expectedDestination = "Roby's Coffee House Gazipasa";
+const expectedPlaceId = "ChIJpdkfSnH13BQRAEJUSGpYxNg";
 const evidenceDir = "qa-artifacts";
 const menuStylesInputs = readMenuStylesBundleInputs();
 const { revision: menuStylesRevision } = verifyMenuStylesBundle(menuStylesInputs);
@@ -137,6 +138,7 @@ async function verifyPage(pathname) {
     assert.equal(destination.searchParams.get("api"), "1", `${pathname}: route link must use Maps URL API v1`);
     assert.equal(destination.searchParams.get("destination"), expectedDestination, `${pathname}: wrong route destination`);
     assert.equal(destination.searchParams.get("travelmode"), "driving", `${pathname}: route must default to driving`);
+    assert.equal(destination.searchParams.get("destination_place_id"), expectedPlaceId, `${pathname}: enhanced route must pin the exact Google place`);
 
     console.log(`Checking ${pathname} route ${index + 1}/${count}: ${await link.getAttribute("class")}`);
     if (await link.evaluate(node => Boolean(node.closest(".mobile-cta")))) {
@@ -169,9 +171,80 @@ async function verifyPage(pathname) {
   await page.close();
 }
 
+// Exercise the dedicated GPS button in the iPhone WebKit engine rather than
+// counting ordinary anchor popups as proof of location permission behavior.
+async function verifyGpsAndMapConsent() {
+  async function setupContext(permissions, geolocation) {
+    const scenarioContext = await browser.newContext({
+      ...devices["iPhone 13"],
+      locale: "tr-TR", timezoneId: "Europe/Istanbul",
+      ignoreHTTPSErrors: ["127.0.0.1", "localhost"].includes(baseOrigin.hostname),
+      permissions,
+      ...(geolocation ? { geolocation } : {})
+    });
+    await scenarioContext.grantPermissions(permissions);
+    await scenarioContext.route(`${routePrefix}**`, route => route.fulfill({
+      status: 200, contentType: "text/html", body: "<title>Directions handoff</title>"
+    }));
+    // Consent-controlled iframe is handled by a local response, not a real Google request.
+    await scenarioContext.route("https://maps.google.com/maps?**", route => route.fulfill({
+      status: 200, contentType: "text/html", body: "<title>Map embed</title>"
+    }));
+    return scenarioContext;
+  }
+
+  const grantedContext = await setupContext(["geolocation"], {
+    latitude: 36.2675839, longitude: 32.3082694, accuracy: 24
+  });
+  try {
+    const page = await grantedContext.newPage();
+    await page.goto(new URL("index.html?lang=ru", `${baseUrl}/`).href, { waitUntil: "domcontentloaded" });
+    const frame = page.locator(".map-live-frame");
+    assert.equal(await frame.getAttribute("src"), null, "Map iframe must not request Google before opt-in");
+    await page.locator("#visit").scrollIntoViewIfNeeded();
+    await page.locator("[data-map-reveal]").click();
+    assert.ok((await frame.getAttribute("src"))?.startsWith("https://maps.google.com/maps?"), "Google iframe must load after click");
+    assert.equal(await page.locator(".map-card-live.map-active").count(), 1);
+    const routeButton = page.locator("[data-route-from-me]");
+    await routeButton.waitFor({ state: "visible" });
+    await Promise.all([
+      page.waitForURL(url => url.href.startsWith(routePrefix), { timeout: 15000 }),
+      routeButton.click()
+    ]);
+    const directions = new URL(page.url());
+    assert.equal(directions.searchParams.get("origin"), "36.26758,32.30827", "GPS origin must be forwarded precisely");
+    assert.equal(directions.searchParams.get("destination_place_id"), expectedPlaceId);
+    assert.equal(directions.searchParams.get("dir_action"), "navigate");
+    evidence.push({ pathname: "index.html", scenario: "gps-granted", passed: true, placeId: expectedPlaceId });
+  } finally {
+    await grantedContext.close();
+  }
+
+  const deniedContext = await setupContext([]);
+  try {
+    const page = await deniedContext.newPage();
+    await page.goto(new URL("index.html", `${baseUrl}/`).href, { waitUntil: "domcontentloaded" });
+    assert.equal(await page.locator(".map-live-frame").getAttribute("src"), null);
+    await page.locator("#visit").scrollIntoViewIfNeeded();
+    const routeButton = page.locator("[data-route-from-me]");
+    await routeButton.waitFor({ state: "visible" });
+    await Promise.all([
+      page.waitForURL(url => url.href.startsWith(routePrefix), { timeout: 15000 }),
+      routeButton.click()
+    ]);
+    const directions = new URL(page.url());
+    assert.equal(directions.searchParams.has("origin"), false, "Denied GPS must let user choose origin in Maps");
+    assert.equal(directions.searchParams.get("destination_place_id"), expectedPlaceId);
+    evidence.push({ pathname: "index.html", scenario: "gps-denied", passed: true, placeId: expectedPlaceId });
+  } finally {
+    await deniedContext.close();
+  }
+}
+
 try {
   await verifyPage("index.html");
   await verifyPage("menu.html");
+  await verifyGpsAndMapConsent();
 
   await writeFile(
     `${evidenceDir}/ios-route-webkit.json`,

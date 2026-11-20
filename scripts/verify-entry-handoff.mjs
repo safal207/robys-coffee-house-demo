@@ -2,8 +2,15 @@ import { readMenuStylesBundleInputs, verifyMenuStylesBundle } from "./menu-style
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { transformSync } from "esbuild";
 
 const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
+const entrySource = readFileSync("src/bootstrap-v2.js", "utf8");
+const mapRouteSource = readFileSync("map-route.js", "utf8");
+const minifyOptions = { minify: true, target: "es2020", legalComments: "none" };
+assert(bootstrap.includes(transformSync(entrySource, minifyOptions).code.trim())
+  && bootstrap.includes(transformSync(mapRouteSource, minifyOptions).code.trim()),
+  "Deployed entry bootstrap must contain the exact minified reviewed entry and route source");
 const takeaway = readFileSync("takeaway-entry.js", "utf8");
 const styles = readFileSync("styles-v2.css", "utf8");
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
@@ -13,20 +20,20 @@ const pendingMarker = "document.documentElement.dataset.robysEntryPending = scen
 const hiddenMarker = 'document.documentElement.style.visibility = "hidden"';
 const prepaintMarker = 'document.documentElement.style.backgroundColor = "#241c1b"';
 const importMarker = 'const entryImport = import("./takeaway-entry.js';
-assert(bootstrap.includes(pendingMarker), "Entry bootstrap must mark the pre-paint handoff");
-assert(!bootstrap.includes(hiddenMarker), "Slow entry delivery must keep the product document paintable");
-assert(bootstrap.includes(prepaintMarker), "Entry bootstrap must apply the branded pre-paint surface");
+assert(entrySource.includes(pendingMarker), "Entry bootstrap must mark the pre-paint handoff");
+assert(!entrySource.includes(hiddenMarker), "Slow entry delivery must keep the product document paintable");
+assert(entrySource.includes(prepaintMarker), "Entry bootstrap must apply the branded pre-paint surface");
 assert(
-  bootstrap.indexOf(pendingMarker) < bootstrap.indexOf(importMarker) &&
-    bootstrap.indexOf(prepaintMarker) < bootstrap.indexOf(importMarker),
+  entrySource.indexOf(pendingMarker) < entrySource.indexOf(importMarker) &&
+    entrySource.indexOf(prepaintMarker) < entrySource.indexOf(importMarker),
   "Pending state and branded pre-paint must be applied before the async scene import"
 );
 assert(
-  bootstrap.includes("if (document.documentElement.dataset.robysEntryPending)"),
+  entrySource.includes("if (document.documentElement.dataset.robysEntryPending)"),
   "Entry timeout must recover only a genuinely pending handoff"
 );
 assert(
-  bootstrap.includes("delete document.documentElement.dataset.robysEntryPending"),
+  entrySource.includes("delete document.documentElement.dataset.robysEntryPending"),
   "Entry failure recovery must release the hero animation"
 );
 

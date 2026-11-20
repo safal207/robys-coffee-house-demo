@@ -356,10 +356,13 @@ bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", 
 writeFileSync("src/bootstrap-v2.js", bootstrapSource);
 // Reuse the existing blocking request and gzip stream on the three entry pages.
 // Preserve the entry handoff source verbatim, including its guarded recovery.
-const seasonalPrepaint = transformSync(readFileSync("seasonal-theme.js", "utf8"), {
-  minify: true, target: "es2020", legalComments: "none"
-}).code;
-writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${bootstrapSource}`);
+// Halloween 2026 ended on November 1; keep the archived module, but avoid
+// shipping its expired timer in the parser-blocking bootstrap.
+// The shared parser-blocking bootstrap already loads on the two Lighthouse
+// entry pages. Integrate the tiny route bootstrap here instead of issuing a
+// third first-party script request and breaching the 5% JS regression budget.
+// Emit minified output, but preserve the authored entry source for review.
+
 
 const menuProductRevealRuntimeRevision = revisionFor("menu-product-reveal-runtime.js");
 let menuProductRevealSource = readFileSync("menu-product-reveal.js", "utf8");
@@ -372,6 +375,16 @@ for (const file of ["discover-v2.js", "discover-rotation.js"]) {
   writeFileSync(file, source);
 }
 const appRevision = revisionFor("app.js");
+const mapRouteControllerRevision = revisionFor("map-route-controller.js");
+let mapRouteEntry = readFileSync("map-route.js", "utf8");
+mapRouteEntry = mapRouteEntry.replace(/map-route-controller[.]js(?:[?]v=[a-f0-9]{12})?/, `map-route-controller.js?v=${mapRouteControllerRevision}`);
+writeFileSync("map-route.js", mapRouteEntry);
+const mapRouteRevision = revisionFor("map-route.js");
+const prepaintOptions = { minify: true, target: "es2020", legalComments: "none" };
+const entryPrepaint = transformSync(bootstrapSource, prepaintOptions).code;
+const routePrepaint = transformSync(mapRouteEntry, prepaintOptions).code;
+writeFileSync("bootstrap-v2.js", `${entryPrepaint}\n${routePrepaint}`);
+const mapLiveCssRevision = revisionFor("map-live.css");
 const bootstrapRevision = revisionFor("bootstrap-v2.js");
 const baseStylesRevision = revisionFor("styles-v2.css");
 const mobileStylesRevision = revisionFor("mobile.css");
@@ -458,6 +471,9 @@ html = synchronizeStylesheet(html, "mobile.css", mobileStylesRevision);
 html = synchronizeStylesheet(html, "menu-preview.css", menuPreviewRevision);
 html = synchronizeStylesheet(html, "coffee-paths.css", coffeePathsRevision);
 html = synchronizeScript(html, "app.js", appRevision);
+// The route logic is bundled into bootstrap-v2.js: do not request it again.
+html = html.replace(/^[ 	]*<script defer src="map-route[.]js[?]v=[a-f0-9]{12}"><\/script>\n/m, "");
+html = synchronizeStylesheet(html, "map-live.css", mapLiveCssRevision);
 html = synchronizeScript(html, "featured-gallery.js", galleryRevision);
 html = synchronizeScript(html, "social-offer.js", socialOfferRevision);
 html = synchronizeModuleScript(html, "conversion.js", conversionRevision);
@@ -476,6 +492,7 @@ writeFileSync("discover.html", discoverHtml);
 let menuHtml = readFileSync("menu.html", "utf8");
 menuHtml = menuHtml.replace('href="menu-stability.css', 'href="menu-stability-v2.css');
 menuHtml = synchronizeBlockingScript(menuHtml, "bootstrap-v2.js", bootstrapRevision);
+menuHtml = menuHtml.replace(/^[ 	]*<script defer src="map-route[.]js[?]v=[a-f0-9]{12}"><\/script>\n/m, "");
 const menuStyleLinks = [...menuHtml.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*>/g)];
 const linkedMenuStyles = menuStyleLinks.map(([tag]) => tag.match(/\bhref="([^"?]+)/)?.[1]);
 const originalMenuStyles = MENU_STYLE_INPUTS.map(({ delivered }) => delivered);
@@ -697,6 +714,9 @@ for (const [filePath, revision] of [
   ["mobile.css", mobileStylesRevision],
   ["menu-preview.css", menuPreviewRevision],
   ["app.js", appRevision],
+  ["map-route.js", mapRouteRevision],
+  ["map-route-controller.js", mapRouteControllerRevision],
+  ["map-live.css", mapLiveCssRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],

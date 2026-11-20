@@ -68,9 +68,26 @@ const mapFrames = Array.from(html.matchAll(/<iframe\b[^>]*>/gi))
   .filter((tag) => /\bclass=["'][^"']*\bmap-live-frame\b[^"']*["']/i.test(tag));
 assert(mapFrames.length === 1, "MAP-001", `Expected exactly one compatibility .map-live-frame iframe, found ${mapFrames.length}`);
 const iframe = mapFrames[0];
-const mapSrc = iframe.match(/\bsrc=["']([^"']+)["']/i)?.[1] ?? "";
-assert(/^https:\/\/(?:www\.|maps\.)?google\.[^/]+\/maps/i.test(mapSrc), "MAP-001", "Compatibility iframe must keep an HTTPS Google Maps URL");
-assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Compatibility iframe URL must include output=embed");
+// The real Google iframe is intentionally inert until the user clicks Show Map.
+// Matching an attribute name with a whitespace boundary prevents data-map-src
+// from being mistaken for an eagerly loaded src attribute.
+const mapSrc = iframe.match(/\sdata-map-src="([^"]+)"/i)?.[1]?.replaceAll("&amp;", "&") ?? "";
+assert(!/\ssrc=["']/i.test(iframe), "MAP-001", "Third-party map must not load before consent");
+assert(/^https:\/\/maps\.google\.com\/maps\?/i.test(mapSrc), "MAP-001", "Opt-in map must use the approved HTTPS Google Maps endpoint");
+assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Opt-in Google Maps URL must include output=embed");
+assert(/<button\b[^>]*\bdata-map-reveal\b[^>]*\bhidden\b/i.test(html), "MAP-001", "A hidden-by-default Show Map control must be available when JavaScript loads");
+const mapRouteBootstrap = readFileSync("map-route.js", "utf8");
+const deployedEntryBootstrap = readFileSync("bootstrap-v2.js", "utf8");
+assert(!html.includes('src="map-route.js?')
+  && deployedEntryBootstrap.includes('destination_place_id')
+  && deployedEntryBootstrap.includes('map-route-controller.js?v='),
+  "MAP-001", "The reviewed route bootstrap must reuse the existing first-party entry request");
+assert(mapRouteBootstrap.includes('destination_place_id') && mapRouteBootstrap.includes('IntersectionObserver')
+  && mapRouteBootstrap.includes('import("./map-route-controller.js?v='),
+  "MAP-001", "Route bootstrap must pin the Google Place and lazily load the consent controller");
+const mapRouteRuntime = readFileSync("map-route-controller.js", "utf8");
+assert(mapRouteRuntime.includes('reveal.addEventListener("click"') && mapRouteRuntime.includes("frame.src = url.href"),
+  "MAP-001", "Only explicit user interaction may activate the third-party iframe");
 const mapLink = Array.from(html.matchAll(/<a\b[^>]*>/gi), (match) => match[0]).find((tag) => /\bclass=["'][^"']*\bmap-live-link\b[^"']*["']/i.test(tag)) ?? "";
 assert(Boolean(mapLink), "MAP-001", "Static map must expose one .map-live-link anchor");
 assert(/href=["']https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=Roby%27s\+Coffee\+House\+Gazipasa&travelmode=driving["']/i.test(mapLink), "MAP-001", "Static map link must target Roby's Coffee House Gazipaşa");
@@ -79,7 +96,9 @@ const frameRule = cssRules(mapCss, ".map-live-frame", "MAP-001")[0];
 const linkRule = cssRules(mapCss, ".map-live-link", "MAP-001")[0];
 const badgeRule = cssRules(mapCss, ".map-live-badge", "MAP-001")[0];
 const bottomRule = cssRules(mapCss, ".map-live-bottom", "MAP-001")[0];
-assert(frameRule.includes("display:none"), "MAP-001", "Blocked external map pixels must remain hidden");
+assert(frameRule.includes("display:none"), "MAP-001", "Before consent the Google iframe must remain hidden");
+const activeFrameRule = cssRules(mapCss, ".map-card-live.map-active .map-live-frame", "MAP-001")[0];
+assert(activeFrameRule.includes("display:block"), "MAP-001", "After consent the real map must be visible");
 assert(linkRule.includes("pointer-events:auto"), "MAP-001", "Static map card must remain clickable");
 assert(badgeRule.includes("pointer-events:none"), "MAP-001", "Map badge must delegate clicks to the card link");
 assert(bottomRule.includes("pointer-events:none"), "MAP-001", "Map route panel must delegate clicks to the card link");
