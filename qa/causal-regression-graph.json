@@ -170,7 +170,8 @@
         "src/menu-feedback.js",
         "menu-feedback.js",
         "menu-feedback.css",
-        "scripts/test-menu-feedback.mjs"
+        "scripts/test-menu-feedback.mjs",
+        "scripts/test-menu-grid-merchandising-browser.mjs"
       ],
       "dependsOn": [
         "build",
