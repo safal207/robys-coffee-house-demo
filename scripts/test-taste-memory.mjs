@@ -57,7 +57,14 @@ test("social memory remains an external, scoped enhancement without inventing pu
   const html = readFileSync("menu-feed.html", "utf8");
   const js = readFileSync("taste-memory.js", "utf8");
   const css = readFileSync("taste-memory.css", "utf8");
-  assert.match(html, /<script type="module" src="taste-memory\.js\?v=1"><\/script>/);
+  const entry = readFileSync("my-feed-entry.js", "utf8");
+  assert.match(html, /class="taste-memory-trigger" aria-controls="taste-memory-panel"/);
+  assert.doesNotMatch(html, /<script type="module" src="taste-memory\\.js/);
+  assert.match(entry, /photo\\.decode\\(\\)/);
+  assert.match(entry, /requestIdleCallback/);
+  assert.match(entry, /import\\("\\.\\/taste-memory\\.js\\?v=[a-f0-9]{12}"\\)/);
+  assert.match(entry, /memoryTrigger\\.click\\(\\)/);
+  assert.match(js, /querySelector\\("\\.taste-memory-trigger"\\)/);
   assert.match(html, /require-trusted-types-for 'script'/);
   assert.match(js, /robys-feed-like-v1:/);
   assert.match(js, /robys-feed-views-v1:/);

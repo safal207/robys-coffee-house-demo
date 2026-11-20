@@ -66,7 +66,12 @@ test("My Feed is opt-in, mounted only on intent, and cannot mutate the core scro
   assert.match(html, /id="my-feed-stage" class="my-feed-stage" aria-labelledby="my-feed-title" hidden/);
   assert.match(html, /id="my-feed-track" class="my-feed-track" role="list"/);
   assert.match(html, /aria-controls="my-feed-stage" aria-expanded="false" aria-pressed="false"/);
-  assert.match(html, /my-feed-entry\.js\?v=1/);
+  assert.match(html, /my-feed-entry\\.js\\?v=[a-f0-9]{12}/);
+  // The personal-deck entry stays available; its optional history dependency
+  // must not compete with the first full-size product photograph.
+  assert.match(entry, /photo\\.decode\\(\\)/);
+  assert.match(entry, /requestIdleCallback/);
+  assert.match(entry, /import\\("\\.\\/taste-memory\\.js\\?v=[a-f0-9]{12}"\\)/);
   assert.match(html, /my-feed\.css\?v=1/);
   assert.match(entry, /import\(url\.href\)/);
   assert.match(entry, /retry \+= 1/);
