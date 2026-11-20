@@ -382,7 +382,9 @@ mapRouteEntry = mapRouteEntry.replace(/map-route-controller[.]js(?:[?]v=[a-f0-9]
 writeFileSync("map-route.js", mapRouteEntry);
 const mapRouteRevision = revisionFor("map-route.js");
 const prepaintOptions = { minify: true, target: "es2020", legalComments: "none" };
-const entryPrepaint = transformSync(bootstrapSource, prepaintOptions).code;
+// Keep the handoff semantics but permit esbuild to mangle otherwise long
+// top-level helper names. They were never a public API.
+const entryPrepaint = transformSync(`(() => {\n${bootstrapSource}\n})();`, prepaintOptions).code;
 const routePrepaint = transformSync(mapRouteEntry, prepaintOptions).code;
 writeFileSync("bootstrap-v2.js", `${seasonalPrepaint}\n${entryPrepaint}\n${routePrepaint}`);
 const mapLiveCssRevision = revisionFor("map-live.css");
