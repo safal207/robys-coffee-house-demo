@@ -14,7 +14,8 @@
         "scripts/menu-runtime-source.mjs",
         "scripts/menu-styles-bundle.mjs",
         "scripts/test-menu-runtime-contract.mjs",
-        "scripts/test-menu-styles-bundle.mjs"
+        "scripts/test-menu-styles-bundle.mjs",
+        "scripts/verify-entry-handoff.mjs"
       ],
       "dependsOn": []
     },
@@ -736,7 +737,8 @@
         "scripts/measure-journey-responsiveness.mjs",
         "scripts/test-journey-measurement.mjs",
         "docs/qa/causal-regression-pipeline.md",
-        "scripts/test-causal-regression-pipeline.mjs"
+        "scripts/test-causal-regression-pipeline.mjs",
+        "qa/reviewed-visual-changes.d/**"
       ],
       "dependsOn": [
         "build"
