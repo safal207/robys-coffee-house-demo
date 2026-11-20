@@ -511,3 +511,45 @@ test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetica
   const same=buildRegressionCards(first,first,graph,digest);
   assert.equal(same.cards.length,0);
 });
+
+
+test("GitHub workflow diff: two real-head-shaped API responses never promote queued jobs to PASS",async()=>{
+  const {normalizeGithubWorkflows,compareGithubWorkflows,getGithubWorkflows}=await import("../.github/qa/github-workflow-diff.mjs");
+  const a="a".repeat(40),b="b".repeat(40),url=id=>"https://github.com/safal207/robys-coffee-house-demo/actions/runs/"+id;
+  const run=(id,workflowId,sha,status,conclusion)=>({
+    id,workflow_id:workflowId,run_attempt:1,name:"QA "+workflowId,head_sha:sha,
+    status,conclusion,html_url:url(id)
+  });
+  const prior={total_count:3,workflow_runs:[
+    run(5,41,a,"completed","success"),
+    run(6,42,a,"completed","failure"),
+    run(7,43,a,"completed","success")]};
+  const next={total_count:4,workflow_runs:[
+    run(8,41,b,"completed","failure"),
+    run(9,42,b,"completed","success"),
+    run(10,43,b,"queued",null),
+    run(11,44,b,"completed","cancelled")]};
+  const first=normalizeGithubWorkflows(prior,a),second=normalizeGithubWorkflows(next,b);
+  const result=compareGithubWorkflows(first,second);
+  assert.equal(result.summary.regressions,1);
+  assert.equal(result.summary.recovered,1);
+  assert.equal(result.summary.awaiting,1);
+  assert.deepEqual(result.rows.map(x=>x.change),["REGRESSION","RECOVERED","AWAITING_CI","NEW_WORKFLOW"]);
+  assert.equal(result.rows[0].afterRun,url(8));
+  assert.equal(result.rows[2].to,"PENDING");
+  assert.equal(result.rows[3].to,"INCOMPLETE");
+  const mockFetch=async request=>{assert.match(request,/head_sha=b{40}/);return {ok:true,json:async()=>next};};
+  const fromApi=await getGithubWorkflows(b,{fetcher:mockFetch,token:""});
+  assert.deepEqual(fromApi,second);
+  assert.throws(()=>normalizeGithubWorkflows({...next,total_count:101},b),/incomplete_github_workflow_page/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs,run(12,45,a,"completed","success")],total_count:5},b),/invalid_github_workflow_run/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs,run(12,45,b,"completed","success")],total_count:4},b),/incomplete_github_workflow_page/);
+  assert.throws(()=>normalizeGithubWorkflows({...next,workflow_runs:[...next.workflow_runs.slice(0,3),{...next.workflow_runs[3],html_url:"https://example.test/actions/runs/11"}]},b),/invalid_github_workflow_run/);
+  const reruns=normalizeGithubWorkflows({total_count:2,workflow_runs:[
+    run(14,41,b,"completed","success"),run(13,41,b,"completed","failure")
+  ]},b);
+  assert.equal(reruns.workflows.length,1);
+  assert.equal(reruns.workflows[0].verdict,"PASS");
+  const removed=compareGithubWorkflows(second,{...first,head:a});
+  assert.equal(removed.rows.find(x=>x.workflowId===44).change,"MISSING_WORKFLOW");
+});
