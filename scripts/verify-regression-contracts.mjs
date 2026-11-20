@@ -77,6 +77,11 @@ assert(/^https:\/\/maps\.google\.com\/maps\?/i.test(mapSrc), "MAP-001", "Opt-in 
 assert(/[?&]output=embed(?:&|$)/i.test(mapSrc), "MAP-001", "Opt-in Google Maps URL must include output=embed");
 assert(/<button\b[^>]*\bdata-map-reveal\b[^>]*\bhidden\b/i.test(html), "MAP-001", "A hidden-by-default Show Map control must be available when JavaScript loads");
 const mapRouteBootstrap = readFileSync("map-route.js", "utf8");
+const deployedEntryBootstrap = readFileSync("bootstrap-v2.js", "utf8");
+assert(!html.includes('src="map-route.js?')
+  && deployedEntryBootstrap.includes('destination_place_id')
+  && deployedEntryBootstrap.includes('map-route-controller.js?v='),
+  "MAP-001", "The reviewed route bootstrap must reuse the existing first-party entry request");
 assert(mapRouteBootstrap.includes('destination_place_id') && mapRouteBootstrap.includes('IntersectionObserver')
   && mapRouteBootstrap.includes('import("./map-route-controller.js?v='),
   "MAP-001", "Route bootstrap must pin the Google Place and lazily load the consent controller");
