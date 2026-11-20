@@ -583,7 +583,7 @@ for (const file of choiceSurfaces) {
 // The photo grid shares the catalog, search, order model and dialog runtime.
 // Generate its document from the list so cache revisions cannot diverge.
 const gridHtml = readFileSync("menu.html", "utf8")
-  .replace(/(<script src="bootstrap-v2\\.js\\?v=[a-f0-9]+"><\\/script>)/,
+  .replace(/(<script src="bootstrap-v2\.js\?v=[a-f0-9]+"><\/script>)/,
     `<script src="menu-grid-prepaint.js?v=${revisionFor("menu-grid-prepaint.js")}"></script>\n  $1`)
   .replace('<body class="menu-page">', '<body class="menu-page menu-photo-grid">')
   .replace('data-menu-view="list" aria-current="page"', 'data-menu-view="list"')
@@ -681,6 +681,7 @@ serviceWorker = synchronizeServiceWorker(
 );
 for (const [filePath, revision] of [
   [MENU_STYLESHEET_FILE, menuStylesRevision],
+  ["menu-grid-prepaint.js", revisionFor("menu-grid-prepaint.js")],
   ["menu-grid-merchandising.js", revisionFor("menu-grid-merchandising.js")],
   ["social-offer.js", socialOfferRevision],
   ["coffee-paths.css", coffeePathsRevision],
