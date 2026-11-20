@@ -2107,6 +2107,16 @@ try {
       await histUpload([{...snap1,id:"0".repeat(64)}]);
       await page.waitForFunction(()=>document.querySelector("#hist-status").textContent.includes("Импорт отклонён"));
       assert.equal(await page.locator("#hist-from option").count(),2,"bad digest must not enter history");
+      await page.locator("#hist-to").selectOption(snap2.id);
+      const downloadEvent=page.waitForEvent("download");
+      await page.locator("#hist-export").click();
+      const download=await downloadEvent;
+      assert.match(download.suggestedFilename(),/^qa-history-b{8}-[0-9a-f]{12}\.json$/);
+      const stream=await download.createReadStream(),chunks=[];
+      for await(const part of stream)chunks.push(part);
+      const exported=JSON.parse(Buffer.concat(chunks).toString("utf8"));
+      assert.equal(exported.id,snap2.id);
+      assert.equal(exported.trust,"LOCAL_UNVERIFIED_IMPORT");
       await page.locator("#property-run").click();
       const seeded=await page.locator("#property-events li").allTextContents();
       assert.equal(seeded.length,24);

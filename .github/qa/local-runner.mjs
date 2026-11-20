@@ -68,7 +68,7 @@ export function createWorkbenchServer({ getHead=gitHead, run=execute, historyDir
       busy=true;
       try {const result=await run(data.check,data.head);return json(200,result);}
       finally{busy=false;}
-    } catch {return json(500,{error:"execution_or_input_error"});}
+    } catch(error) {return json(error instanceof SyntaxError?400:500,{error:error instanceof SyntaxError?"invalid_json":"execution_or_input_error"});}
   });
   return server;
 }

@@ -440,6 +440,8 @@ test("QA history: durable snapshots, deterministic diff, and corrupt-record reje
   const data=JSON.parse(readFileSync(join(dir,filename),"utf8"));
   writeFileSync(join(dir,filename),JSON.stringify({...data,checks:[{id:"counter-contracts",status:"FAIL"}]}));
   assert.throws(()=>store.list(),/history_digest_mismatch/);
+  writeFileSync(join(dir,filename),JSON.stringify({...data,trust:"CI_ATTESTED"}));
+  assert.throws(()=>store.list(),/corrupt_history/);
 });
 
 
@@ -461,6 +463,8 @@ test("QA history HTTP: token/origin, bounded writes, dedupe and cross-run listin
   const post=()=>fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify(payload)});
   const one=await post();assert.equal(one.status,201);const stored=(await one.json()).snapshot;
   assert.equal((await post()).status,201);
+  assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:"{"})).status,400);
+  assert.equal((await fetch(origin+"/api/run",{method:"POST",headers,body:"{"})).status,400);
   const history=await fetch(origin+"/api/history",{headers:{"X-QA-Token":cfg.token}});
   assert.equal(history.status,200);const list=(await history.json()).history;
   assert.equal(list.length,1);assert.equal(list[0].id,stored.id);assert.equal(list[0].trust,"LOCAL_UNVERIFIED_IMPORT");

@@ -15,7 +15,7 @@ function rows(value,label,statuses){
       throw Error("invalid_"+label);
     seen.add(entry.id);result.push({id:entry.id,status:entry.status});
   }
-  return result.sort((a,b)=>a.id.localeCompare(b.id));
+  return result.sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
 }
 export function normalizeHistorySnapshot(input){
   if(!input||typeof input!=="object"||Array.isArray(input)
@@ -32,7 +32,8 @@ export function createHistoryStore(directory){
     const match=validFile.exec(name);if(!match)throw Error("invalid_history_name");
     const record=JSON.parse(readFileSync(join(directory,name),"utf8"));
     if(record?.schemaVersion!==1||record?.head!==match[1]||record?.id!==match[2]
-      ||typeof record.recordedAt!=="string"||!Number.isFinite(Date.parse(record.recordedAt)))
+      ||typeof record.recordedAt!=="string"||!Number.isFinite(Date.parse(record.recordedAt))
+      ||record.trust!=="LOCAL_UNVERIFIED_IMPORT")
       throw Error("corrupt_history");
     const data=normalizeHistorySnapshot({head:record.head,registrySha256:record.registrySha256,checks:record.checks,cases:record.cases});
     if(hash(JSON.stringify(data))!==record.id)throw Error("history_digest_mismatch");
