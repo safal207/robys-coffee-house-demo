@@ -68,6 +68,9 @@ test("taste cart does not invent a new price, write an independent basket or aut
   assert.match(js, /storage\.addOrderGroup/);
   assert.match(js, /origin: "taste-cart"/);
   assert.match(js, /currentIds\.has\(match\.sourceId\)/);
+  assert.match(js, /requestAnimationFrame\(\(\) =>/);
+  assert.match(js, /document\.querySelector\("#menu-checkout-trigger"\)\?\.focus/);
+  assert.match(js, /dismissed\.add\(product\.id\)/);
   assert.doesNotMatch(js, /(?:Math\.random|fetch\s*\(|new\s+WebSocket|PaymentRequest)/);
   assert.match(css, /max-width:390px/);
   assert.match(css, /min-height:44px/);
