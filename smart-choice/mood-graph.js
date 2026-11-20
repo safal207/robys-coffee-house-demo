@@ -67,9 +67,11 @@ if (root) {
   const products = menuCategories.flatMap(category => (category.items ??
     category.groups?.flatMap(group => group.items) ?? []).map(item => ({
       id:`${category.id}:${item.id ?? slug(item.name.en)}`,
-      sourceId:`${category.id}--${item.id ?? slug(item.name.en)}`
+      sourceId:`${category.id}--${item.id ?? slug(item.name.en)}`,
+      image: item.image ?? `src/products/menu-v1/${category.id}--${slug(item.name.en)}.webp`
     })));
   const sourceToMenu = new Map(products.map(p => [p.sourceId,p.id]));
+  const sourceToDetail = new Map(products.map(p => [p.sourceId,p]));
   const validIds = new Set(products.map(p => p.id));
   const safeRead = () => {
     try {
@@ -92,13 +94,20 @@ if (root) {
     language==="ru"?"ru-RU":language==="en"?"en-US":"tr-TR",
     {style:"currency",currency:"TRY",maximumFractionDigits:0}).format(n/100);
   function record(event, pair) {
-    // Local diagnostic record, no network telemetry or customer identifier.
+    // Mechanism-only causal decision graph, local and bounded. No remote telemetry.
     try {
+      const stored = JSON.parse(sessionStorage.getItem(traceKey) || "{}");
+      const events = Array.isArray(stored.events) ? stored.events.slice(-49) : [];
+      events.push({
+        sequence: events.length ? events[events.length - 1].sequence + 1 : 1,
+        event, occurredAt: new Date().toISOString(),
+        ...(pair ? { pairId:pair.id,totalMinor:pair.totalMinor,inputs:pair.trace.inputs,
+          scoring:pair.trace.scoring,selectedIds:pair.trace.selectedIds }: {})
+      });
       sessionStorage.setItem(traceKey,JSON.stringify({
-        version:MOOD_GRAPH_VERSION,
-        event, occurredAt:new Date().toISOString(),
-        ...(pair ? {trace:pair.trace,pairId:pair.id,totalMinor:pair.totalMinor}:{}),
-        claimLevel:"mechanism-only"
+        version:MOOD_GRAPH_VERSION, catalogVersion:pair?.trace.catalogVersion ?? null,
+        claimLevel:"mechanism-only", randomizedExperimentRequiredForSalesEffect:true,
+        latestRecommendation:pair?.trace ?? null, events
       }));
     } catch { /* optional */ }
   }
@@ -130,6 +139,7 @@ if (root) {
     root.replaceChildren();
     root.hidden = false;
     root.setAttribute("aria-label",copy.title);
+    root.dataset.tone = state.color;
     const header = node("div","mood-heading");
     header.append(node("p","mood-eyebrow",copy.eyebrow),node("h2","mood-title",copy.title),node("p","mood-intro",copy.intro));
     root.append(header,
@@ -149,6 +159,21 @@ if (root) {
       lead.append(node("span","mood-eyebrow",copy.recommended),node("strong","mood-price",money(pair.totalMinor,language)));
       const itemNames=node("h3","mood-pair-title",`${pair.drink.name[language]} + ${pair.snack.name[language]}`);
       const detail=node("p","mood-small",copy.newPair);
+      const gallery=node("div","mood-gallery");
+      for(const part of [pair.drink,pair.snack]) {
+        const product=sourceToDetail.get(part.id);
+        if(!product) continue;
+        const figure=node("figure","mood-photo");
+        const img=node("img");
+        img.src="../"+product.image;
+        img.alt=part.name[language];
+        img.loading="lazy";
+        img.decoding="async";
+        img.width=img.height=320;
+        img.addEventListener("error",()=>img.remove(),{once:true});
+        figure.append(img,node("figcaption","",part.name[language]));
+        gallery.append(figure);
+      }
       const graph=node("details","mood-trace");
       graph.append(node("summary","",copy.why));
       const list=node("ol","mood-trace-list");
@@ -189,7 +214,7 @@ if (root) {
         finally{busy=false;render("open-order")}
       });
       actions.append(next,tried,add);
-      result.append(lead,itemNames,detail,graph,actions);
+      result.append(lead,itemNames,detail,gallery,graph,actions);
       if(message===copy.success) {
         const open=node("button","mood-secondary",copy.openOrder);
         open.type="button";open.dataset.choiceKey="open-order";
