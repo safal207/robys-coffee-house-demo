@@ -82,8 +82,9 @@ if (root && toolActions && formats) {
   css.rel = "stylesheet";
   css.href = "taste-memory.css";
   document.head.append(css);
-  const trigger = make("button", "taste-memory-trigger", t("open"));
+  const trigger = toolActions.querySelector(".taste-memory-trigger") ?? make("button", "taste-memory-trigger", t("open"));
   trigger.type = "button";
+  trigger.textContent = t("open");
   trigger.setAttribute("aria-controls", "taste-memory-panel");
   trigger.setAttribute("aria-expanded", "false");
   const panel = make("section", "taste-memory-panel");
@@ -105,7 +106,7 @@ if (root && toolActions && formats) {
   controls.append(toggleLabel, clear);
   const suggestion = make("div", "taste-memory-pair"); suggestion.hidden = true;
   panel.append(heading, numbers, description, controls, suggestion);
-  toolActions.prepend(trigger);
+  if (!trigger.isConnected) toolActions.prepend(trigger);
   formats.after(panel);
   const formatNumber = n => new Intl.NumberFormat(lang() === "tr" ? "tr-TR" : lang() === "ru" ? "ru-RU" : "en-US").format(n);
   let renderedPairKey = "";

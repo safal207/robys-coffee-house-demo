@@ -178,3 +178,9 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
   .feed-page .feed-view-switch::-webkit-scrollbar{display:none}
   .feed-page .feed-view-switch a{flex:0 0 auto;white-space:nowrap;padding-inline:10px}
 }
+
+
+/* The button is present in HTML before optional Taste Memory JS arrives. */
+.feed-page .taste-memory-trigger{min-height:44px;padding:9px 12px;border:1px solid #cdb9a4;border-radius:999px;background:#fffaf5;color:#342820;font:600 13px/1.2 system-ui,sans-serif;cursor:pointer}
+.feed-page .taste-memory-trigger:focus-visible{outline:3px solid #a92842;outline-offset:3px}
+@media(max-width:480px){.feed-page .taste-memory-trigger{font-size:12px;padding:8px 10px}}

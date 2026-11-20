@@ -34,3 +34,50 @@ if (trigger) {
     }
   });
 }
+
+
+// Keep the personal-history control visible, but do not compete with the
+// first product photograph for bandwidth on slow mobile connections.
+// A direct tap always loads it immediately, even if the photograph fails.
+const memoryTrigger = document.querySelector(".taste-memory-trigger");
+const feedRoot = document.querySelector("#feed");
+if (memoryTrigger && feedRoot) {
+  let memoryLoad = null, memoryReady = false, clickQueued = false;
+  function loadMemory() {
+    if (!memoryLoad) {
+      memoryLoad = import("./taste-memory.js?v=2c971696743e").then(() => {
+        memoryReady = true;
+        memoryTrigger.removeEventListener("click", openMemory);
+      }).catch(() => { memoryLoad = null; });
+    }
+    return memoryLoad;
+  }
+  function openMemory(event) {
+    if (memoryReady) return;
+    event.stopImmediatePropagation();
+    if (clickQueued) return;
+    clickQueued = true;
+    void loadMemory().then(() => {
+      if (memoryReady && memoryTrigger.isConnected) memoryTrigger.click();
+    }).finally(() => { clickQueued = false; });
+  }
+  memoryTrigger.addEventListener("click", openMemory);
+  function afterFirstPhoto(photo) {
+    void photo.decode().catch(() => {}).then(() => {
+      const start = () => { void loadMemory(); };
+      if ("requestIdleCallback" in window) requestIdleCallback(start, { timeout: 1500 });
+      else setTimeout(start, 0);
+    });
+  }
+  const first = feedRoot.querySelector(".feed-photo>img");
+  if (first) afterFirstPhoto(first);
+  else {
+    const observer = new MutationObserver(() => {
+      const photo = feedRoot.querySelector(".feed-photo>img");
+      if (!photo) return;
+      observer.disconnect();
+      afterFirstPhoto(photo);
+    });
+    observer.observe(feedRoot, { subtree: true, childList: true });
+  }
+}

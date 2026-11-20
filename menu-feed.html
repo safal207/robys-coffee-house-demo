@@ -9,8 +9,7 @@
   <script type="module" src="menu-feed.js?v=c25c1ac558ce"></script>
   <!-- /menu startup modules -->
   <script type="module" src="taste-cart-entry.js?v=1"></script>
-  <script type="module" src="taste-memory.js?v=1"></script>
-  <script type="module" src="my-feed-entry.js?v=1"></script>
+  <script type="module" src="my-feed-entry.js?v=e050720bc7e6"></script>
   <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -18,7 +17,7 @@
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="menu-runtime.css?v=102e729b9428" />
-  <link rel="stylesheet" href="menu-feed.css?v=3081729e983f" />
+  <link rel="stylesheet" href="menu-feed.css?v=bb2ea956908e" />
   <link rel="stylesheet" href="my-feed.css?v=1" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
@@ -48,6 +47,7 @@
         <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu-feed.html?view=feed" data-menu-view="feed" aria-current="page" data-copy="photoView">Akış</a><a href="menu-grid.html?view=grid" data-menu-view="grid" data-copy="gridView">Fotoğraf</a><a href="menu.html?view=list" data-menu-view="list" data-copy="listView">Liste</a><button type="button" class="menu-sound-toggle" aria-label="Ses / Sound / Звук" title="Ses / Sound / Звук" aria-pressed="false">♪</button></nav>
         <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Fotoğraflı menü</h2><span id="feed-counter"></span></div>
         <div class="feed-tool-actions">
+          <button type="button" class="taste-memory-trigger" aria-controls="taste-memory-panel" aria-expanded="false">Benim lezzetim</button>
           <button type="button" id="feed-liked-filter" class="feed-tool-button" aria-pressed="false" aria-controls="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span id="feed-liked-count" aria-hidden="true">0</span><span id="feed-liked-label" class="sr-only">Beğendiklerim</span></button>
           <button type="button" id="feed-discover-open" class="feed-tool-button" aria-haspopup="dialog" aria-controls="feed-discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><span class="sr-only" data-copy="discover">Ara ve keşfet</span></button>
         </div>
