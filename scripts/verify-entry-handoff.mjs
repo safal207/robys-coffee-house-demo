@@ -8,7 +8,7 @@ const bootstrap = readFileSync("bootstrap-v2.js", "utf8");
 const entrySource = readFileSync("src/bootstrap-v2.js", "utf8");
 const mapRouteSource = readFileSync("map-route.js", "utf8");
 const minifyOptions = { minify: true, target: "es2020", legalComments: "none" };
-assert(bootstrap.includes(transformSync(`(() => {\n${entrySource}\n})();`, minifyOptions).code.trim())
+assert(bootstrap.includes(transformSync(entrySource, minifyOptions).code.trim())
   && bootstrap.includes(transformSync(mapRouteSource, minifyOptions).code.trim()),
   "Deployed entry bootstrap must contain the exact minified reviewed entry and route source");
 const takeaway = readFileSync("takeaway-entry.js", "utf8");
