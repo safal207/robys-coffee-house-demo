@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { menuCategories } from "../menu-catalog.js";
 import { feedProducts } from "../src/menu-feed-model.js";
+import { feedShareUrl } from "../src/menu-feed-navigation.js";
 import { WAIT_MS, PRODUCT_COOLDOWN, GLOBAL_COOLDOWN, PAIRS,
   choosePersonalPair, chooseRememberedProduct, productIdFromShareUrl } from "../taste-memory-policy.js";
 
@@ -62,8 +63,7 @@ test("social memory remains an external, scoped enhancement without inventing pu
 test("share counts resolve genuine static share URLs in TR, EN and RU, not empty ?item= links", () => {
   for (const language of ["tr", "en", "ru"]) {
     const id = "desserts:san-sebastian-cheesecake";
-    const url = "https://safal207.github.io/robys-coffee-house-demo/share/" + language +
-      "/desserts--san-sebastian-cheesecake.html";
+    const url = feedShareUrl("https://safal207.github.io/robys-coffee-house-demo/menu-feed.html", id, language);
     assert.equal(productIdFromShareUrl(url, catalog), id);
   }
   assert.equal(productIdFromShareUrl("https://example.com/menu-feed.html?item=desserts:cookie", catalog), null);
