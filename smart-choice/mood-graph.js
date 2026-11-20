@@ -1,6 +1,6 @@
 import { menuCategories } from "../menu-catalog.js?v=3132b4dc1273";
 import { addOrderGroup, transactStoredOrderDraft } from "../order-storage.js";
-import { MOOD_GRAPH_VERSION, recommendMoodPair } from "./mood-graph-domain.js?v=0a8dfc32bd32";
+import { MOOD_GRAPH_VERSION, PAIR_RULES, recommendMoodPair } from "./mood-graph-domain.js?v=0a8dfc32bd32";
 
 const root = document.getElementById("mood-pair");
 if (root) {
@@ -90,8 +90,7 @@ if (root) {
     try { localStorage.setItem(tasteKey, JSON.stringify(taste)); } catch { /* optional storage */ }
   };
   const sharedPairId = new URLSearchParams(location.search).get("pair");
-  const knownPairIds = new Set(["lime-macaron","lime-lotus","iced-cheesecake","iced-macaron","mocha-lotus",
-    "latte-macaron","caramel-cheesecake","chocolate-macaron","chocolate-lotus","tea-macaron","tea-nutella","flatwhite-cheese"]);
+  const knownPairIds = new Set(PAIR_RULES.map(rule => rule.id));
 
   const slug = value => value.normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
     .toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
