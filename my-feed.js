@@ -103,6 +103,7 @@ if (button && stage && track && next && all && label && intro && heading && stat
       const product = catalog.get(entry.id);
       if (!product) continue;
       const card = make("article", "my-feed-card");
+      card.setAttribute("role", "listitem");
       card.dataset.productId = entry.id;
       const image = make("img", "my-feed-image");
       image.src = product.image; image.alt = ""; image.width = 320; image.height = 320;
