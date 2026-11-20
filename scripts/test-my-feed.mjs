@@ -63,12 +63,15 @@ test("My Feed is opt-in, mounted only on intent, and cannot mutate the core scro
   const entry = readFileSync("my-feed-entry.js", "utf8");
   const ui = readFileSync("my-feed.js", "utf8");
   const stylesheet = readFileSync("my-feed.css", "utf8");
-  assert.match(html, /id="my-feed-stage" class="my-feed-stage" hidden/);
+  assert.match(html, /id="my-feed-stage" class="my-feed-stage" aria-labelledby="my-feed-title" hidden/);
+  assert.match(html, /id="my-feed-track" class="my-feed-track" role="list"/);
   assert.match(html, /aria-controls="my-feed-stage" aria-expanded="false" aria-pressed="false"/);
   assert.match(html, /my-feed-entry\.js\?v=1/);
   assert.match(html, /my-feed\.css\?v=1/);
   assert.match(entry, /import\(url\.href\)/);
   assert.match(entry, /retry \+= 1/);
+  assert.match(entry, /Could not open\. Tap to retry\./);
+  assert.match(ui, /card\.setAttribute\("role", "listitem"\)/);
   assert.match(ui, /export function mountMyFeed\(\)/);
   assert.match(ui, /makeMyFeedPlan\(/);
   assert.match(ui, /new PopStateEvent\("popstate"\)/);
