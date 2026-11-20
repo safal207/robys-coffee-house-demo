@@ -48,7 +48,7 @@ const localFallback = new Map();
 const language = () => ["tr","en","ru"].includes(document.documentElement.lang)
   ? document.documentElement.lang : "tr";
 function stored(key) {
-  try { return localStorage.getItem(key); }
+  try { return localStorage.getItem(key) ?? localFallback.get(key) ?? null; }
   catch { return localFallback.get(key) ?? null; }
 }
 function store(key,value) {
@@ -169,13 +169,15 @@ function enhance(panel) {
         note("pair_share_sheet_completed",pair);
         status.textContent="";
         showOffer(true);
+        sharing=false;share.disabled=false;
         return;
       }catch(error){
         if(error?.name==="AbortError"){
           note("pair_share_cancelled",pair);
+          sharing=false;share.disabled=false;
           return;
         }
-      }finally{sharing=false;share.disabled=false}
+      }
     }
     try {
       if(!navigator.clipboard?.writeText)throw new Error("clipboard-unavailable");
