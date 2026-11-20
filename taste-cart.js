@@ -117,10 +117,11 @@ if (root && dialog) {
     root.append(card);
   }
   const observer = new MutationObserver(mutations => {
-    if (mutations.some(m => Array.from(m.addedNodes).some(n => n.nodeType === 1 && (
-      n.classList?.contains("menu-cart-line") || n.classList?.contains("menu-cart-bump"))) ||
-      mutations.some(m => Array.from(m.removedNodes).some(n => n.nodeType === 1 && (
-        n.classList?.contains("menu-cart-line") || n.classList?.contains("menu-cart-bump")))) render();
+    const relevant = mutations.some(mutation =>
+      [...mutation.addedNodes, ...mutation.removedNodes].some(node =>
+        node.nodeType === 1 && (node.classList?.contains("menu-cart-line") ||
+          node.classList?.contains("menu-cart-bump"))));
+    if (relevant) render();
   });
   observer.observe(root, { childList: true });
   dialog.addEventListener("close", () => { dismissed.clear(); lastKey = ""; });
