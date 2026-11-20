@@ -3,6 +3,7 @@
 Status: implementation on draft PR #515; this checklist **does not imply visual or production acceptance**.
 
 ## Primary user journey (RU -> Turkish cashier)
+
 1. Open `menu-feed.html?view=feed&lang=ru` in a clean browser profile.
 2. Like San Sebastian Cheesecake; check that `Мой вкус` shows 1 liked item. Scroll a card fully into view for a continuous 1 second: view count increases once per product per visit, not for preloaded/offscreen media.
 3. Select Iced Caffè Latte and add to the shared order; do **not** like any unrelated product.
@@ -12,6 +13,7 @@ Status: implementation on draft PR #515; this checklist **does not imply visual 
 7. Confirm cancel, insufficient storage, or conflict never mark the order as paid.
 
 ## Negative / time-based cases
+
 - Unliked product / new session: no personal pop-up; only a previous like is eligible.
 - Return after 90 active seconds: at most one reminder per page session; global 24-hour and product 7-day cool-downs.
 - Background/hidden tab, open dialog or active basket: no reminder.
@@ -23,7 +25,9 @@ Status: implementation on draft PR #515; this checklist **does not imply visual 
 - Cross-tab changes and stale state while an add request is running: no duplication or stale override.
 
 ## Mobile visual and accessibility acceptance
+
 Capture screenshots and inspect **320 × 568**, **360 × 800**, **390 × 844**, **430 × 932** CSS pixels and 200% browser zoom:
+
 - Product names, prices, photo cards and the main checkout CTA stay in view, with no horizontal overflow.
 - Quantity, remove, replace and Add controls have at least 44 × 44 px touch targets.
 - Taste Memory panel opens from a sticky toolbar regardless of scroll depth and supports Escape/keyboard focus.
@@ -33,6 +37,7 @@ Capture screenshots and inspect **320 × 568**, **360 × 800**, **390 × 844**, 
 - Confirm product photos are real approved local assets, not remote or AI substitutions.
 
 ## Technical release gates
+
 - `npm run check`
 - `npm run verify:security`
 - `npm run test:menu-feed`
