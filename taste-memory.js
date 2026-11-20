@@ -2,7 +2,7 @@
 // All preferences and verified link-copy counts stay on this device.
 import { menuCategories } from "./menu-catalog.js?v=3132b4dc1273";
 import { feedProducts } from "./src/menu-feed-model.js";
-import { choosePersonalPair, chooseRememberedProduct } from "./taste-memory-policy.js";
+import { choosePersonalPair, chooseRememberedProduct, productIdFromShareUrl } from "./taste-memory-policy.js";
 
 const products = feedProducts(menuCategories);
 const byId = new Map(products.map(product => [product.id, product]));
@@ -238,9 +238,8 @@ if (root && toolActions && formats) {
   if (copyButton && copyHelp && shareUrl && typeof MutationObserver !== "undefined") {
     let pending = null;
     copyButton.addEventListener("click", () => {
-      let id = null;
-      try { id = new URL(shareUrl.value).searchParams.get("item"); } catch {}
-      pending = byId.has(id) ? { id, expires: Date.now() + 8000 } : null;
+      const id = productIdFromShareUrl(shareUrl.value, byId);
+      pending = id ? { id, expires: Date.now() + 8000 } : null;
     }, true);
     const observer = new MutationObserver(() => {
       if (!pending || Date.now() > pending.expires) { pending = null; return; }
