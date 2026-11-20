@@ -60,6 +60,9 @@ function viewProduct(event, id) {
   history.pushState(null, "", url.pathname + url.search);
   dispatchEvent(new PopStateEvent("popstate"));
 }
+let mountedExperience;
+export function mountMyFeed() {
+if (mountedExperience) return mountedExperience;
 if (button && stage && track && next && all && label && intro && heading && status && note) {
   let plan = null, refreshes = 0;
   const showText = kind => ({ favorite: phrase("favorites"), discover: phrase("discover"),
@@ -119,14 +122,14 @@ if (button && stage && track && next && all && label && intro && heading && stat
     track.scrollLeft = 0;
     translate();
   }
-  button.addEventListener("click", () => {
+  function toggle() {
     const opened = stage.hidden;
     stage.hidden = !opened;
     button.setAttribute("aria-expanded", String(opened));
     button.setAttribute("aria-pressed", String(opened));
     if (opened && !plan) rebuild();
     translate();
-  });
+  }
   next.addEventListener("click", () => {
     refreshes += 1;
     rebuild(); // An explicit request is the only in-session reranking action.
@@ -142,4 +145,7 @@ if (button && stage && track && next && all && label && intro && heading && stat
   document.querySelectorAll("[data-lang]").forEach(language => language.addEventListener("click", () => queueMicrotask(translate)));
   window.addEventListener("pageshow", event => { if (event.persisted) translate(); });
   translate();
+  mountedExperience = { toggle };
+}
+return mountedExperience;
 }
