@@ -29,6 +29,46 @@ try {
   }
   assert.ok(online, "Local menu server did not start");
   browser = await chromium.launch({ headless: true });
+  // Freeze the deferred catalog module: the static page must already be
+  // localized while its network request is still pending (pre-first-paint).
+  for (const [language, expectedTitle, expectedCombo] of [
+    ["ru", "Полное меню", "Комбо · 12"],
+    ["en", "Full Menu", "Combos · 12"]
+  ]) {
+    const context = await browser.newContext({ serviceWorkers: "block" });
+    const page = await context.newPage();
+    let releaseModule;
+    const moduleGate = new Promise(resolve => { releaseModule = resolve; });
+    await page.route("**/menu-app.js?*", route => moduleGate.then(() => route.continue()));
+    try {
+      await page.goto(`${base}menu-grid.html?view=grid&lang=${language}&entry=off`, { waitUntil: "commit" });
+      await page.waitForFunction(({ language, expectedTitle }) => {
+        return document.documentElement.lang === language &&
+          document.querySelector('[data-menu-copy="pageTitle"]')?.textContent === expectedTitle;
+      }, { language, expectedTitle }, { timeout: 4000 });
+      assert.equal(await page.locator("#menu-combos-trigger").textContent(), expectedCombo,
+        `${language}: prepaint combo entry must not remain Turkish`);
+      assert.equal(await page.locator(`.lang-button[data-lang="${language}"]`).getAttribute("aria-pressed"), "true",
+        `${language}: prepaint language toggle must be active`);
+      assert.equal(await page.locator("#menu-search").getAttribute("placeholder"),
+        language === "ru" ? "Найти кофе, десерт или напиток" : "Search coffee, dessert or drink");
+      console.log(`PASS PHOTO-GRID PREPAINT ${language}: localized before menu-app module resolves`);
+    } finally {
+      releaseModule();
+      await context.close();
+    }
+  }
+
+  // If scripts are disabled, the original static Turkish fallback remains visible.
+  {
+    const context = await browser.newContext({ javaScriptEnabled: false, serviceWorkers: "block" });
+    try {
+      const page = await context.newPage();
+      await page.goto(`${base}menu-grid.html?view=grid&lang=ru&entry=off`, { waitUntil: "domcontentloaded" });
+      assert.equal(await page.locator('[data-menu-copy="pageTitle"]').textContent(), "Tam Menü",
+        "With JS disabled, keep a readable static fallback");
+    } finally { await context.close(); }
+  }
   for (const testCase of cases) {
     const context = await browser.newContext({
       viewport: { width: testCase.width, height: testCase.height },
