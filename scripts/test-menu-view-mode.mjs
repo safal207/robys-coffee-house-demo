@@ -470,3 +470,39 @@ test("QA history HTTP: token/origin, bounded writes, dedupe and cross-run listin
   assert.equal(list.length,1);assert.equal(list[0].id,stored.id);assert.equal(list[0].trust,"LOCAL_UNVERIFIED_IMPORT");
   assert.equal((await fetch(origin+"/api/history",{method:"POST",headers,body:JSON.stringify({...payload,cases:[{id:"PAG-03",status:"BOGUS"}]})})).status,400);
 });
+
+
+test("QA regression cards: exact PASS-to-FAIL only; graph links stay hypothetical",async()=>{
+  const {buildRegressionCards}=await import("../.github/qa/regression-cards.mjs");
+  const {readFileSync}=await import("node:fs");
+  const {createHash}=await import("node:crypto");
+  const graphText=readFileSync(new URL("../qa/causal-regression-graph.json",import.meta.url));
+  const digest=createHash("sha256").update(graphText).digest("hex"),graph=JSON.parse(graphText);
+  const make=(head,checks,cases,sha=digest)=>({head,registrySha256:sha,checks,cases,
+    id:createHash("sha256").update(JSON.stringify({head,checks,cases,sha})).digest("hex"),
+    trust:"LOCAL_UNVERIFIED_IMPORT"});
+  const first=make("a".repeat(40),[{id:"counter-contracts",status:"PASS"},
+    {id:"source-contracts",status:"FAIL"}],[{id:"PAG-03",status:"PASS"},{id:"PAG-01",status:"FAIL"}]);
+  const second=make("b".repeat(40),[{id:"counter-contracts",status:"FAIL"},
+    {id:"source-contracts",status:"PASS"}],[{id:"PAG-03",status:"FAIL"},{id:"PAG-01",status:"NOT_RUN"}].filter(x=>x.status!=="NOT_RUN"));
+  const result=buildRegressionCards(first,second,graph,digest);
+  assert.equal(result.registryCompatible,true);
+  assert.equal(result.cards.length,2);
+  assert.deepEqual(result.cards.map(x=>x.testId),["PAG-03","counter-contracts"]);
+  const caseCard=result.cards[0],suiteCard=result.cards[1];
+  assert.deepEqual(caseCard.linkedComponents,["menu-feed"]);
+  assert(suiteCard.linkedComponents.includes("counter-service"));
+  assert(caseCard.potentialDownstream.length>0);
+  assert(result.cards.every(x=>x.severity==="UNASSESSED"&&x.review==="NEEDS_TRIAGE"
+    &&x.componentLinks==="HYPOTHESIS_ONLY"&&x.evidence.provenance==="LOCAL_UNVERIFIED_IMPORT"));
+  const mismatched=buildRegressionCards(first,{...second,registrySha256:"f".repeat(64)},graph,digest);
+  assert.equal(mismatched.registryCompatible,false);
+  assert(mismatched.cards.every(x=>!x.linkedComponents.length&&!x.potentialDownstream.length&&!x.relatedJourneys.length));
+  const noGraph=buildRegressionCards(first,second,null,null);
+  assert.equal(noGraph.registryCompatible,false);
+  assert.equal(noGraph.cards.length,2);
+  assert.throws(()=>buildRegressionCards({...first,trust:"CI_ATTESTED"},second,graph,digest),/untrusted_history_record/);
+  assert.deepEqual(buildRegressionCards(second,first,graph,digest).cards.map(x=>x.testId),["PAG-01","source-contracts"]);
+  const same=buildRegressionCards(first,first,graph,digest);
+  assert.equal(same.cards.length,0);
+});
