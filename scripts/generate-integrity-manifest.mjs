@@ -113,6 +113,19 @@ if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
   if (committed !== serialized) {
+    // Diagnostics do not relax the gate: list the *actual* divergent public paths
+    // so a source/generated mismatch is repaired instead of bypassing integrity.
+    try {
+      const earlier = JSON.parse(committed);
+      const prior = new Map((earlier.files || []).map(file => [file.path, file]));
+      const current = new Set(files.map(file => file.path));
+      const drifted = files.filter(file => {
+        const before = prior.get(file.path);
+        return !before || before.sha256 !== file.sha256 || before.bytes !== file.bytes;
+      }).map(file => file.path);
+      const removed = (earlier.files || []).filter(file => !current.has(file.path)).map(file => file.path);
+      console.error("INTEGRITY-001 changed public paths:", JSON.stringify({ drifted, removed, earlierCount: earlier.files?.length, nowCount: files.length }));
+    } catch (error) { console.error("INTEGRITY-001 cannot parse committed manifest:", String(error)); }
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);
