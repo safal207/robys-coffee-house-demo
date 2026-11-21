@@ -1,0 +1,32 @@
+name: PR 515 one-shot generated runtime sync
+on:
+  push:
+    branches:
+      - feat/taste-memory-social-20261120
+    paths:
+      - .github/workflows/pr515-generate-once.yml
+permissions:
+  contents: write
+jobs:
+  build-and-clean-up:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm run integrity:generate
+      - run: node --test scripts/test-performance-delivery-regression.mjs
+      - name: Commit deterministic generated assets and remove this one-time workflow
+        run: |
+          git rm .github/workflows/pr515-generate-once.yml
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build: synchronize performance assets for PR 515'
+          git push origin HEAD:feat/taste-memory-social-20261120

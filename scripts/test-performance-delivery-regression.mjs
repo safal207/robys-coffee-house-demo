@@ -9,7 +9,7 @@ const read = name => readFileSync(new URL(`../${name}`, import.meta.url), "utf8"
 
 test("the default feed's earliest photograph has an exact responsive preload", () => {
   const first = feedProducts(menuCategories)[0];
-  const compact = first.image.replace("/products/", "/products/quick-v1/").replace(/\\.webp$/, "-512.webp");
+  const compact = first.image.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-512.webp");
   const html = read("menu-feed.html");
   assert.ok(html.includes(`href="${first.image}"`));
   assert.ok(html.includes(`imagesrcset="${compact} 512w, ${first.image} 1024w"`));
