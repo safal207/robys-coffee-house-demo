@@ -13,16 +13,6 @@ function ensureHeroBalanceStyles() {
   doc.head.append(link);
 }
 
-// Below-the-fold sections must not hold up the header and initial hero paint.
-// Print-media stylesheets still fetch normally and become active once loaded.
-function activateDeferredHomeStyles() {
-  for (const link of doc.querySelectorAll('link[data-deferred-style="home-below-fold"]')) {
-    const activate = () => { link.media = "all"; };
-    if (link.sheet) activate();
-    else link.addEventListener("load", activate, { once: true });
-  }
-}
-
 function requestHeroPlayback(video) {
   if (!video || doc.hidden) return;
 
@@ -94,7 +84,6 @@ function loadQaEnhancements() {
 }
 
 function initQa() {
-  activateDeferredHomeStyles();
   ensureHeroBalanceStyles();
   scheduleHeroPlayback();
   applyImmediateA11yFixes();
