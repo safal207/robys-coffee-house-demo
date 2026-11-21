@@ -87,8 +87,19 @@ async function one(browser, mode, entry) {
     assert.equal(replaced, 1);
     if (entry.id === "search") assert.equal(baseline.query, "latte");
     if (entry.id === "category") assert.equal(baseline.hash, "#desserts");
-    if (entry.id === "product") assert.ok(
-      baseline.ids.includes("pairing-offers:iced-san-sebastian-pairing"));
+    if (entry.id === "product") {
+      assert.ok(baseline.ids.includes("pairing-offers:iced-san-sebastian-pairing"));
+      // A product deep link is supposed to open a modal. Background controls
+      // must not be clickable until a customer closes that modal.
+      await page.locator("#menu-product-dialog[open]").waitFor({ timeout: 20000 });
+      const shown = save("deep-link-product-modal-open", await snapshot(page));
+      assert.ok(shown.ids.includes("pairing-offers:iced-san-sebastian-pairing"));
+      await page.keyboard.press("Escape");
+      await page.waitForFunction(() =>
+        !document.querySelector("#menu-product-dialog")?.hasAttribute("open"),
+        null, { timeout: 10000 });
+      save("deep-link-product-modal-close", await snapshot(page));
+    }
 
     // A rapid succession of inputs tests cancellation of work scheduled by
     // an earlier render. The last search must win, without stale product cards.
