@@ -76,7 +76,7 @@ function applyImmediateA11yFixes() {
 let enhancementsPromise;
 function loadQaEnhancements() {
   if (enhancementsPromise) return;
-  enhancementsPromise = import("./qa-enhancements.js?v=1").then(({ initQaEnhancements }) => {
+  enhancementsPromise = import("./qa-enhancements.js?v=d960d8ca4a45").then(({ initQaEnhancements }) => {
     initQaEnhancements();
     for (const type of ["pointerover", "pointerdown", "keydown", "focusin"])
       window.removeEventListener(type, loadQaEnhancements);
