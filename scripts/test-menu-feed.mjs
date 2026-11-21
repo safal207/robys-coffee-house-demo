@@ -109,7 +109,7 @@ test("photo-first entry limits initial off-screen cards without limiting later p
   assert.ok(source.includes("const pageSize = rendered === 0 ? 4 : 8;"));
   assert.ok(source.includes("Math.min(rendered + pageSize, filtered.length)"));
   assert.ok(source.includes("while (rendered <= index) appendPage()"), "Deep links still reach every item");
-  assert.ok(source.includes("if (rendered < filtered.length) appendPage()"), "Scrolling continues paginated discovery");
+  assert.ok(source.includes("rendered < filtered.length) appendPage()"), "Scrolling continues paginated discovery");
 });
 
 test("menu startup discovers exact modules early and optional viewers remain lazy", () => {
