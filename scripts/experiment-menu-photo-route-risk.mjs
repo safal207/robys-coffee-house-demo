@@ -32,14 +32,26 @@ async function inspect(browser, scenario, variant) {
   const page = await context.newPage();
   const errors = [];
   const photoRequests = [];
-  let interceptedMenuDocuments = 0;
+  const interceptedMenuRequests = [];
+  let navigatedMenuDocuments = 0;
   let injectedDocuments = 0;
   page.on("pageerror", error => errors.push(error.message));
   page.on("request", request => {
     if (new URL(request.url()).pathname.endsWith("/" + PHOTO)) photoRequests.push(request.url());
   });
   await page.route(url => url.pathname.endsWith("/menu.html"), async route => {
-    interceptedMenuDocuments++;
+    const request = route.request();
+    const mainNavigation = request.isNavigationRequest() && request.frame() === page.mainFrame();
+    interceptedMenuRequests.push({
+      url: request.url(), resourceType: request.resourceType(), mainNavigation
+    });
+    // The feed can prefetch menu.html for a future return. This is not another
+    // customer navigation and must never receive the speculative hint.
+    if (!mainNavigation) {
+      await route.continue();
+      return;
+    }
+    navigatedMenuDocuments++;
     const response = await route.fetch();
     assert.equal(response.status(), 200, "Published menu HTML must load");
     let html = await response.text();
@@ -79,10 +91,11 @@ async function inspect(browser, scenario, variant) {
       };
     }, scenario.product ?? null);
     assert.deepEqual(errors, [], "Browser JS errors on " + scenario.name + "/" + variant);
-    const expectedInterceptions = scenario.path.startsWith("menu.html") ? 1 : 0;
-    assert.equal(interceptedMenuDocuments, expectedInterceptions, "Document interception scope changed");
-    assert.equal(injectedDocuments, variant === "late-head-static" ? expectedInterceptions : 0,
-      "Static preload injection scope changed");
+    const expectedNavigations = scenario.path.startsWith("menu.html") ? 1 : 0;
+    assert.equal(navigatedMenuDocuments, expectedNavigations,
+      "Top-level menu navigation count changed; background prefetch is not a navigation");
+    assert.equal(injectedDocuments, variant === "late-head-static" ? navigatedMenuDocuments : 0,
+      "Static preload injection must be scoped to actual top-level menu navigations");
     assert.equal(state.hintCount, variant === "late-head-static" && scenario.view === "list" ? 1 : 0,
       "Final document hint count must match navigation");
     if (scenario.language) assert.equal(state.documentLanguage, scenario.language, "Language route broken");
@@ -94,10 +107,13 @@ async function inspect(browser, scenario, variant) {
       "Default list first photo changed");
     return {
       scenario: scenario.name, variant, initialRoute: scenario.path, view: scenario.view,
-      ...state, injectedDocuments, photoRequestCount: photoRequests.length,
+      ...state, navigatedMenuDocuments, injectedDocuments, interceptedMenuRequests,
+      backgroundMenuRequests: interceptedMenuRequests.filter(request => !request.mainNavigation).length,
+      photoRequestCount: photoRequests.length,
       // A risk flag, not proof of wasted bytes. A visible product may still use this photo.
       potentialOffTargetPreload: variant === "late-head-static" && !scenario.defaultProduct &&
         injectedDocuments > 0,
+      firstPhotoMismatch: Boolean(state.firstPhotoPath && !state.firstPhotoPath.endsWith("/" + PHOTO)),
       errors
     };
   } finally {
@@ -120,6 +136,21 @@ async function main() {
     await browser.close();
   }
   const risks = samples.filter(sample => sample.potentialOffTargetPreload);
+  const paired = cases.map(scenario => {
+    const control = samples.find(sample => sample.scenario === scenario.name && sample.variant === "control");
+    const candidate = samples.find(sample => sample.scenario === scenario.name && sample.variant === "late-head-static");
+    assert.ok(control && candidate, "Missing paired route: " + scenario.name);
+    return {
+      scenario: scenario.name,
+      controlPhotoRequests: control.photoRequestCount,
+      candidatePhotoRequests: candidate.photoRequestCount,
+      addedPhotoRequests: candidate.photoRequestCount - control.photoRequestCount,
+      firstPhotoMismatch: candidate.firstPhotoMismatch,
+      redirected: new URL(candidate.finalUrl).pathname !== new URL(scenario.path, BASE).pathname,
+      navigatedMenuDocuments: candidate.navigatedMenuDocuments,
+      backgroundMenuRequests: candidate.backgroundMenuRequests
+    };
+  });
   const report = {
     schema: "robys.first-photo-route-risk.v1", synthetic: true,
     source: "Published GitHub Pages; test-only document interception",
@@ -127,10 +158,11 @@ async function main() {
       "This simulates a static late-head hint on every list document and does not deploy it",
       "Fragments (#category) are not transmitted in HTTP requests; static HTML cannot scope an image hint by fragment",
       "A requested image is not necessarily wasted bandwidth; inspect actual selected products and complete network data",
-      "Photo request counts are snapshots 500ms after route readiness, not final page-transfer totals"
+      "Photo request counts are snapshots 500ms after route readiness, not final page-transfer totals",
+      "Background prefetches of the list are tracked separately and left unchanged; this harness only injects into actual menu navigations"
     ],
     scenarios: cases.length, variants: 2, potentialOffTargetRoutes: risks.map(r => r.scenario),
-    productionApproved: false, samples
+    productionApproved: false, paired, samples
   };
   mkdirSync(".artifacts/menu-first-photo-experiment", { recursive: true });
   writeFileSync(OUTPUT, JSON.stringify(report, null, 2) + "\n");
