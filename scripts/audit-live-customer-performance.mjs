@@ -6,8 +6,8 @@ import { chromium } from "playwright";
 
 export const ROUTES = Object.freeze([
   { id: "home", path: "/", selector: "#hero-title", imageSelector: null },
-  { id: "menu-list", path: "/menu.html?view=list", selector: "#menu-root [data-product-id]", imageSelector: "#menu-root img" },
-  { id: "photo-feed", path: "/menu-feed.html", selector: "#feed .feed-card", imageSelector: "#feed .feed-card img" }
+  { id: "menu-list", path: "/menu.html?view=list", selector: "#menu-root [data-product-id]", imageSelector: "#menu-root .full-menu-item-media img" },
+  { id: "photo-feed", path: "/menu-feed.html", selector: "#feed .feed-card", imageSelector: "#feed .feed-card .feed-photo img" }
 ]);
 export const REPETITIONS = 3;
 
@@ -21,7 +21,7 @@ export function percentile(values, percentileValue) {
 }
 export function summarize(samples) {
   assert.ok(samples.length === REPETITIONS);
-  const metrics = ["fcpMs", "lcpMs", "semanticReadyMs", "firstPhotoReadyMs", "imageTransferBytes", "scriptTransferBytes", "stylesheetTransferBytes", "resourceCount"];
+  const metrics = ["fcpMs", "lcpMs", "semanticReadyMs", "firstPhotoReadyMs", "imageTransferBytes", "scriptTransferBytes", "stylesheetTransferBytes", "resourceCount", "firstPhotoRequestStartMs", "firstPhotoResponseEndMs", "firstPhotoNetworkMs", "firstPhotoRenderGapMs"];
   const result = {};
   for (const metric of metrics) {
     const values = samples.map(sample => sample[metric]).filter(value => Number.isFinite(value));
@@ -91,7 +91,7 @@ async function measure(page, url, route, cacheState) {
   }
   // The fixed settle window is for resource accounting only, never readiness timings.
   await page.waitForTimeout(500);
-  const result = await page.evaluate(({ kind }) => {
+  const result = await page.evaluate(({ imageSelector, firstPhotoReadyMs }) => {
     const resources = performance.getEntriesByType("resource");
     const sum = type => resources.filter(entry => type.test(entry.initiatorType)).reduce((total, entry) => total + entry.transferSize, 0);
     const images = [...document.images].filter(img => img.complete && img.naturalWidth > 0);
@@ -104,8 +104,10 @@ async function measure(page, url, route, cacheState) {
       .slice(0, 7).map(entry => ({ path: new URL(entry.name).pathname, bytes: entry.transferSize, durationMs: entry.duration }));
     const fcp = performance.getEntriesByType("paint").find(item => item.name === "first-contentful-paint");
     const navigation = performance.getEntriesByType("navigation")[0];
-    const primary = kind === "photo-feed" ? document.querySelector("#feed .feed-card img")
-      : kind === "menu-list" ? document.querySelector("#menu-root img") : null;
+    // Measure exactly the product photograph used by the readiness wait, never an avatar/logo.
+    const primary = imageSelector ? document.querySelector(imageSelector) : null;
+    const photoUrl = primary?.currentSrc || primary?.src;
+    const photoResource = photoUrl ? resources.find(entry => entry.name === photoUrl) : null;
     return {
       fcpMs: fcp?.startTime ?? null,
       lcpMs: window.__robysAuditMetrics?.lcpMs ?? null,
@@ -117,15 +119,21 @@ async function measure(page, url, route, cacheState) {
       resourceCount: resources.length,
       imagesLoaded: images.length,
       imagesVisible: visible.length,
+      firstPhotoRequestStartMs: photoResource?.startTime ?? null,
+      firstPhotoResponseEndMs: photoResource?.responseEnd ?? null,
+      firstPhotoNetworkMs: photoResource?.duration ?? null,
+      firstPhotoRenderGapMs: photoResource ? Math.max(0, firstPhotoReadyMs - photoResource.responseEnd) : null,
       firstPhoto: primary ? {
-        path: new URL(primary.currentSrc || primary.src).pathname,
+        path: new URL(photoUrl).pathname,
         naturalWidth: primary.naturalWidth,
         displayedWidth: Math.round(primary.getBoundingClientRect().width),
-        loading: primary.loading
+        loading: primary.loading,
+        resourceTransferBytes: photoResource?.transferSize ?? null,
+        resourceDecodedBodyBytes: photoResource?.decodedBodySize ?? null
       } : null,
       largestImageRequests: largest
     };
-  }, { kind: route.id });
+  }, { imageSelector: route.imageSelector, firstPhotoReadyMs });
   return { route: route.id, state: cacheState, ...result, semanticReadyMs, firstPhotoReadyMs };
 }
 export async function runAudit() {
@@ -174,9 +182,14 @@ export async function runAudit() {
             try {
               const sample = await measure(page, url, route, state);
               assert.ok(sample.semanticReadyMs > 0 && sample.semanticReadyMs < timeoutMs, "Readiness invalid for " + route.id);
-              if (route.imageSelector) assert.ok(sample.firstPhotoReadyMs > 0, "First photo did not load for " + route.id);
+              if (route.imageSelector) {
+                assert.ok(sample.firstPhotoReadyMs > 0, "First photo did not load for " + route.id);
+                assert.match(sample.firstPhoto?.path ?? "", /\/src\/products\/.*\.webp$/,
+                  "Measured image must be a product photograph, not a brand avatar or icon: " + route.id);
+                assert.ok(sample.firstPhoto.naturalWidth >= 256, "Measured product photo is too small: " + route.id);
+              }
               samples.push({ ...sample, iteration });
-              console.log(JSON.stringify({ route: route.id, iteration, state, semanticReadyMs: Math.round(sample.semanticReadyMs), firstPhotoReadyMs: sample.firstPhotoReadyMs && Math.round(sample.firstPhotoReadyMs), imageTransferBytes: sample.imageTransferBytes }));
+              console.log(JSON.stringify({ route: route.id, iteration, state, semanticReadyMs: Math.round(sample.semanticReadyMs), firstPhotoReadyMs: sample.firstPhotoReadyMs && Math.round(sample.firstPhotoReadyMs), firstPhotoPath: sample.firstPhoto?.path, imageTransferBytes: sample.imageTransferBytes }));
             } catch (error) {
               routeFailed = true;
               const snapshot = await page.evaluate(selector => ({
