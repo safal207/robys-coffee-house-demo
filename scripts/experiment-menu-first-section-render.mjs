@@ -6,8 +6,11 @@ import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 // Only test code is committed. Candidate JS replaces the PUBLISHED compiled
 // runtime in a disposable browser context; the source build and site stay intact.
 const BASE = "https://safal207.github.io/robys-coffee-house-demo/";
-const OUTPUT = ".artifacts/menu-first-photo-experiment/first-section-render.json";
-const REPEATS = 3;
+const CONFIRM = process.env.ROBY_FIRST_SECTION_CONFIRM === "1";
+const OUTPUT = CONFIRM
+  ? ".artifacts/menu-first-photo-experiment/first-section-confirmation.json"
+  : ".artifacts/menu-first-photo-experiment/first-section-render.json";
+const REPEATS = CONFIRM ? 8 : 3;
 const FIRST_IMAGE = "#menu-root .full-menu-item-media img";
 const cases = [
   { id: "default", path: "menu.html?view=list" },
@@ -16,7 +19,9 @@ const cases = [
   { id: "product", path: "menu.html?view=list&product=pairing-offers:iced-san-sebastian-pairing",
     product: "pairing-offers:iced-san-sebastian-pairing" }
 ];
-const modes = ["control", "first-section", "first-section-eager", "default-list-only"];
+const modes = CONFIRM
+  ? ["control", "default-list-only"]
+  : ["control", "first-section", "first-section-eager", "default-list-only"];
 
 const source = readFileSync("src/menu-app.js", "utf8");
 const publishedBuild = readFileSync("menu-app.js", "utf8");
@@ -277,7 +282,8 @@ async function main() {
     };
   }));
   const report = {
-    schema: "robys.first-section-render-lab.v1",
+    schema: CONFIRM ? "robys.first-section-render-lab.confirmation.v1" : "robys.first-section-render-lab.v1",
+    confirmation: CONFIRM,
     source: "Published GitHub Pages with test-only compiled menu-app.js replacement",
     synthetic: true, productionApproved: false,
     viewport: "390×844, DPR 2, 150ms RTT, 1.6Mbps, CPU 4×",
@@ -285,7 +291,7 @@ async function main() {
       "First-photo readiness requires Playwright scrollIntoView and image decode; not passive viewport paint",
       "All variants intercept and fulfill the production JS request, potentially changing realistic JS network timing",
       "The candidate JS bundle differs in size from the control; compare request timing and CPU costs before shipping",
-      "Only three cold pairs per route and variant: directional lab evidence, not field user data or revenue impact",
+      `${REPEATS} cold pairs per route and variant: lab evidence only, not field user data or revenue impact`,
       "The full-menu time is an upper bound measured after photo decoding and waiting for dataset.ready",
       "Candidate changes are compiled in CI only; no production source, generated JS, HTML or images are changed",
       "Rapid search-churn/empty-state recovery is smoke-tested for all candidates; additional language, cart and a11y regression remains necessary"
@@ -298,7 +304,7 @@ async function main() {
   if (process.env.GITHUB_STEP_SUMMARY) {
     const { appendFileSync } = await import("node:fs");
     appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-      "## Source-first staged catalog rendering (not deployed)\n\n" +
+      (CONFIRM ? "## Eight-pair default-list-only confirmation (not deployed)\n\n" : "## Source-first staged catalog rendering (not deployed)\n\n") +
       "| Route | Candidate | Paired photo gain, ms | Paired FCP penalty, ms | FCP slower pairs |\n" +
       "|---|---|---:|---:|---:|\n" +
       summary.map(x => "| " + x.case + " | " + x.mode + " | " +
@@ -307,6 +313,6 @@ async function main() {
         x.slowerFcpPairs + "/" + x.n + " |").join("\n") +
       "\n\nThis is a synthetic browser experiment, not a production change or ship decision.\n");
   }
-  console.log("FIRST_SECTION_SUMMARY " + JSON.stringify(summary));
+  console.log((CONFIRM ? "FIRST_SECTION_CONFIRMATION " : "FIRST_SECTION_SUMMARY ") + JSON.stringify(summary));
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
