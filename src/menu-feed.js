@@ -443,7 +443,10 @@ function renderCard(product, index) {
 }
 
 function appendPage() {
-  const end = Math.min(rendered + 8, filtered.length), cards = [];
+  // Four photo cards cover first sight; the rest stream in pages of eight.
+  // Avoid constructing off-screen social buttons before the first image paints.
+  const pageSize = rendered === 0 ? 4 : 8;
+  const end = Math.min(rendered + pageSize, filtered.length), cards = [];
   const fragment = document.createDocumentFragment();
   for (; rendered < end; rendered++) {
     const card = renderCard(filtered[rendered], rendered); fragment.append(card); cards.push(card);

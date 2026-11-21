@@ -104,6 +104,14 @@ test("taste-wave code and images are isolated from the photo-first critical modu
   assert.ok(authored.includes("tasteWaveTrigger.click()"), "First tap must open the chooser after loading");
 });
 
+test("photo-first entry limits initial off-screen cards without limiting later pagination", () => {
+  const source = readFileSync("src/menu-feed.js", "utf8");
+  assert.ok(source.includes("const pageSize = rendered === 0 ? 4 : 8;"));
+  assert.ok(source.includes("Math.min(rendered + pageSize, filtered.length)"));
+  assert.ok(source.includes("while (rendered <= index) appendPage()"), "Deep links still reach every item");
+  assert.ok(source.includes("if (rendered < filtered.length) appendPage()"), "Scrolling continues paginated discovery");
+});
+
 test("menu startup discovers exact modules early and optional viewers remain lazy", () => {
   for (const [page, entry] of [["menu.html", "menu-app.js"], ["menu-feed.html", "menu-feed.js"]]) {
     const html = readFileSync(page, "utf8"), head = html.split("</head>")[0];
