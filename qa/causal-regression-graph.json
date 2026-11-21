@@ -83,7 +83,9 @@
         "src/amenities.ts",
         "src/seasonal-theme.ts",
         "seasonal-theme.js",
-        "src/.parts/**"
+        "src/.parts/**",
+        "scripts/experiment-home-feed-intent-prefetch.mjs",
+        ".github/workflows/home-feed-intent-prefetch-experiment.yml"
       ],
       "dependsOn": [
         "build",
