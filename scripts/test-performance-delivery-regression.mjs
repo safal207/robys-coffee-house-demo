@@ -71,6 +71,21 @@ test("featured pairing artwork remains eager while its detailed story is an on-d
   assert.ok(read("sw-core-v64.js").includes(`"./pairing-discovery.js?v=${revision}"`));
 });
 
+test("below-fold home styles cannot block first paint and become active after delivery", () => {
+  const home = read("index.html");
+  const source = read("src/qa.js");
+  const names = ["gallery-clean.css", "map-live.css", "menu-preview.css", "featured-strip.css", "social-offer.css", "community-reel-v2.css"];
+  for (const name of names) {
+    const escaped = name.replaceAll(".", "\\.");
+    assert.match(home, new RegExp(`<link rel="stylesheet" href="${escaped}\\?v=[^"]+" media="print" data-deferred-style="home-below-fold"`), name);
+    assert.match(home, new RegExp(`<noscript>[\\s\\S]*<link rel="stylesheet" href="${escaped}\\?v=`), `${name}: CSS must survive disabled JS`);
+  }
+  assert.ok(source.includes("function activateDeferredHomeStyles()"));
+  assert.ok(source.includes('link.addEventListener("load", activate, { once: true })'));
+  assert.ok(source.includes("if (link.sheet) activate()"), "Cached styles also become active");
+  assert.ok(source.includes("activateDeferredHomeStyles();"), "Startup must register the CSS handoff");
+});
+
 test("render-critical CSS is discovered before menu module preloads", () => {
   for (const [file, finalStyle] of [
     ["menu.html", "menu-runtime.css"],
