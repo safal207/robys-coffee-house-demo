@@ -135,3 +135,17 @@ test("both pinned Ubuntu workflows use the helper before their unchanged media a
     assert(workflow.indexOf(lighthouse) > workflow.indexOf("npm run verify:media"));
   }
 });
+
+test("Lighthouse npx dependency cutoff preserves the reviewed CLI and strict performance gate", () => {
+  const runner = readFileSync(new URL("./run-lighthouse-profile.mjs", import.meta.url), "utf8");
+  assert.match(runner, /const version = process\\.env\\.LHCI_VERSION \\?\\? "0\\.15\\.1";/);
+  assert.match(runner, /const npmBefore = "2026-11-18T00:00:00\\.000Z";/);
+  assert.ok(runner.includes("const lhciArgs = command => [\"--yes\", `--before=\${npmBefore}`, `@lhci/cli@\${version}`"),
+    "Every Lighthouse command must share the transient dependency cutoff and the reviewed CLI version");
+  for (const command of ["collect", "assert", "upload"]) {
+    assert.ok(runner.includes(`run("npx", lhciArgs("${command}"))`), `${command} must use pinned dependency resolution`);
+  }
+  assert.match(runner, /if \\(process\\.env\\.LIGHTHOUSE_ENFORCE !== "true"\\)/);
+  assert.ok(runner.includes("[collectExit, hardAssertExit, summaryExit, regressionExit].some(code => code !== 0)"),
+    "Failed collection, thresholds, summary or regression remains a release blocker");
+});
