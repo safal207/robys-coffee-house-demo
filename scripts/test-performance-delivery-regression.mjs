@@ -70,3 +70,18 @@ test("featured pairing artwork remains eager while its detailed story is an on-d
   assert.ok(!html.includes('src="pairing-discovery.js'), "The detailed story must not be an eager module");
   assert.ok(read("sw-core-v64.js").includes(`"./pairing-discovery.js?v=${revision}"`));
 });
+
+test("render-critical CSS is discovered before menu module preloads", () => {
+  for (const [file, finalStyle] of [
+    ["menu.html", "menu-runtime.css"],
+    ["menu-feed.html", "my-feed.css"]
+  ]) {
+    const html = read(file);
+    const critical = html.indexOf(`<link rel="stylesheet" href="${finalStyle}?v=`);
+    const modules = html.indexOf('<link rel="modulepreload"');
+    assert.ok(critical > 0 && modules > critical, `${file}: critical CSS must precede module discovery`);
+  }
+  const home = read("index.html");
+  assert.ok(home.indexOf('href="combo-entry.css?v=') < home.indexOf('href="styles-v2.css?v='), "Preserve the authored home cascade");
+  assert.ok(home.indexOf('href="styles-v2.css?v=') < home.indexOf('<link rel="preload" href="src/robys-hero-poster.jpg"'), "Load render-critical CSS before speculative hero artwork");
+});
