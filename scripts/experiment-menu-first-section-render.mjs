@@ -16,7 +16,7 @@ const cases = [
   { id: "product", path: "menu.html?view=list&product=pairing-offers:iced-san-sebastian-pairing",
     product: "pairing-offers:iced-san-sebastian-pairing" }
 ];
-const modes = ["control", "first-section", "first-section-eager"];
+const modes = ["control", "first-section", "first-section-eager", "default-list-only"];
 
 const source = readFileSync("src/menu-app.js", "utf8");
 const publishedBuild = readFileSync("menu-app.js", "utf8");
@@ -28,7 +28,7 @@ function replaceExactly(haystack, needle, replacement) {
   return haystack.replace(needle, replacement);
 }
 
-function buildCandidate(eagerFirst) {
+function buildCandidate(eagerFirst, defaultListOnly = false) {
   let candidate = source;
   const renderStart = candidate.indexOf("function renderMenu() {");
   const renderEnd = candidate.indexOf("\n\nconst menuActions = createMenuActionsLoader", renderStart);
@@ -57,6 +57,15 @@ function buildCandidate(eagerFirst) {
     "    syncMenuCartState();",
     "    updateMenuViews();",
     "  };",
+    ...(defaultListOnly ? [
+      "  // Restrict progressive rendering to the unfiltered explicit list entry.",
+      "  const entry = new URL(location.href);",
+      '  const safeDefaultList = entry.pathname.endsWith("/menu.html") &&',
+      '    entry.searchParams.get("view") === "list" && !entry.hash &&',
+      '    !entry.searchParams.has("q") && !entry.searchParams.has("product") &&',
+      '    !entry.searchParams.has("item") && activeCategory === "all" && !searchTerm;',
+      "  if (!safeDefaultList) { categories.forEach(append); finish(); return; }"
+    ] : []),
     "  let cursor = 0;",
     "  // Make the first category that contains filtered products available before",
     "  // doing work for other categories. Yield exactly one event-loop task.",
@@ -89,7 +98,8 @@ function buildCandidate(eagerFirst) {
 const compiled = {
   control: publishedBuild,
   "first-section": buildCandidate(false),
-  "first-section-eager": buildCandidate(true)
+  "first-section-eager": buildCandidate(true),
+  "default-list-only": buildCandidate(false, true)
 };
 
 function median(values) {
@@ -162,6 +172,30 @@ async function navigate(browser, testCase, mode, pair) {
         fullMenuReadyUpperBoundMs: performance.now()
       };
     }, FIRST_IMAGE);
+    // Exercise generation cancellation: two input events in one JS task must
+    // never let stale delayed categories repopulate an empty search.
+    if (testCase.id === "default" && pair === 1 && mode !== "control") {
+      await page.evaluate(() => {
+        const input = document.querySelector("#menu-search");
+        input.value = "latte";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.value = "zzzxxyy-no-products";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      await page.waitForTimeout(100);
+      const emptyCards = await page.locator("#menu-root [data-product-id]").count();
+      assert.equal(emptyCards, 0, "Stale delayed sections leaked into empty search");
+      assert.equal(await page.locator("#menu-empty").isVisible(), true,
+        "Empty-state UI disappeared after quick search churn");
+      await page.evaluate(() => {
+        const input = document.querySelector("#menu-search");
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+      await page.waitForTimeout(100);
+      assert.equal(await page.locator("#menu-root [data-product-id]").count(), settled.ids.length,
+        "Resetting rapid search must restore the full original catalog");
+    }
     assert.equal(runtimeRoutes.length, 1, "Exactly one published runtime expected");
     assert.deepEqual(jsErrors, [], "No JavaScript errors allowed");
     assert.ok(settled.photoPath?.includes("/src/products/"), "First image must be a real product");
@@ -254,7 +288,7 @@ async function main() {
       "Only three cold pairs per route and variant: directional lab evidence, not field user data or revenue impact",
       "The full-menu time is an upper bound measured after photo decoding and waiting for dataset.ready",
       "Candidate changes are compiled in CI only; no production source, generated JS, HTML or images are changed",
-      "Asynchronous category rendering must additionally pass search churn, language, cart and a11y regression tests"
+      "Rapid search-churn/empty-state recovery is smoke-tested for all candidates; additional language, cart and a11y regression remains necessary"
     ],
     compiledBytes: Object.fromEntries(modes.map(mode => [mode, Buffer.byteLength(compiled[mode])])),
     pairCount: REPEATS, summary, pairs, samples
