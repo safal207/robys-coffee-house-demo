@@ -105,7 +105,7 @@ function createTitle(main, accent) {
 }
 
 function enhancePairingCards() {
-  const lang = currentLanguage();
+  const lang = document.documentElement.lang;
   const copy = experienceCopy[lang] ?? experienceCopy.tr;
 
   document.querySelectorAll(".full-menu-panel--featured .full-menu-item--visual").forEach((card) => {
@@ -206,7 +206,7 @@ if (menuRoot) {
     void loadDiscovery().then((module) => {
       trigger.removeAttribute("aria-busy");
       if (!trigger.isConnected) return;
-      if (module) module.renderExperience(card, trigger, { currentLanguage, experienceCopy, priceMeta });
+      if (module) module.renderExperience(card, trigger, { currentLanguage: () => document.documentElement.lang, experienceCopy, priceMeta });
       else {
         // A failed optional story must still let guests choose the product.
         trigger.dataset.inlineChoiceBypass = "true";
