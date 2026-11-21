@@ -6,8 +6,8 @@ This Draft PR adds **measurement only**. It does not modify production HTML, Jav
 
 The published-home Lighthouse run on main commit 6997ba193eff1b292e5c076af185a525324b199e reported mobile **Performance 98**, FCP **1177 ms**, LCP **1606 ms**, TBT **123 ms**, CLS **0**. The separate local CI Lighthouse run on the same commit reported mobile **Performance 94**, FCP **1815 ms**, LCP **2826 ms**, TBT **45 ms**. They use different networks and conditions: the scores must not be subtracted to claim a production improvement.
 
-- Published run: https://github.com/safal207/robys-coffee-house-demo/actions/runs/44774836164
-- Local run: https://github.com/safal207/robys-coffee-house-demo/actions/runs/44774836149
+- [Published run](https://github.com/safal207/robys-coffee-house-demo/actions/runs/44774836164)
+- [Local run](https://github.com/safal207/robys-coffee-house-demo/actions/runs/44774836149)
 
 Local opportunities are estimates, not measured savings: approximately 420 KiB from image sizing, 370 ms from render-blocking resources, and 630 KiB from image delivery in one Lighthouse run. Optimizations must be tested independently without changing approved image content.
 
