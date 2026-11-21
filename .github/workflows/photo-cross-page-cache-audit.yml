@@ -32,5 +32,5 @@ jobs:
         with:
           name: photo-cross-page-cache-evidence
           path: .artifacts/photo-cross-page-cache/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
