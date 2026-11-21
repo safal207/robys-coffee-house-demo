@@ -68,22 +68,6 @@ async function configureMobile(page) {
   return session;
 }
 async function measure(page, url, route, cacheState) {
-  await page.addInitScript(() => {
-    window.__robysAuditMetrics = { lcpMs: null, cls: 0 };
-    try {
-      new PerformanceObserver(list => {
-        const entries = list.getEntries();
-        if (entries.length) window.__robysAuditMetrics.lcpMs = entries.at(-1).startTime;
-      }).observe({ type: "largest-contentful-paint", buffered: true });
-    } catch {}
-    try {
-      new PerformanceObserver(list => {
-        for (const entry of list.getEntries()) {
-          if (!entry.hadRecentInput) window.__robysAuditMetrics.cls += entry.value;
-        }
-      }).observe({ type: "layout-shift", buffered: true });
-    } catch {}
-  });
   const response = cacheState === "cold"
     ? await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs })
     : await page.reload({ waitUntil: "domcontentloaded", timeout: timeoutMs });
@@ -158,6 +142,22 @@ export async function runAudit() {
         });
         try {
           const page = await context.newPage();
+          await page.addInitScript(() => {
+            window.__robysAuditMetrics = { lcpMs: null, cls: 0 };
+            try {
+              new PerformanceObserver(list => {
+                const entries = list.getEntries();
+                if (entries.length) window.__robysAuditMetrics.lcpMs = entries.at(-1).startTime;
+              }).observe({ type: "largest-contentful-paint", buffered: true });
+            } catch {}
+            try {
+              new PerformanceObserver(list => {
+                for (const entry of list.getEntries()) {
+                  if (!entry.hadRecentInput) window.__robysAuditMetrics.cls += entry.value;
+                }
+              }).observe({ type: "layout-shift", buffered: true });
+            } catch {}
+          });
           const cdp = await configureMobile(page);
           const url = new URL(route.path.replace(/^\//, ""), origin).href;
           for (const state of ["cold", "warm"]) {
