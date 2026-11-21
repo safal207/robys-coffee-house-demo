@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { transformSync } from "esbuild";
+import { runInNewContext } from "node:vm";
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url), "utf8");
 
@@ -79,6 +80,36 @@ test("home first-paint styles stay enabled until a measured safe alternative exi
     assert.doesNotMatch(tag, /media="print"|data-deferred-style=/, name);
   }
   assert.doesNotMatch(source, /activateDeferredHomeStyles/);
+});
+
+test("personal-feed styles do not block the first photo and activate on load or from cache", () => {
+  const html = read("menu-feed.html");
+  const source = read("my-feed-entry.js");
+  const tag = html.match(/<link rel="stylesheet" href="my-feed\.css\?v=[^"]+"[^>]*>/)?.[0];
+  assert.ok(tag);
+  assert.match(tag, /media="print"/);
+  assert.match(tag, /data-personal-feed-style="deferred"/);
+  assert.match(html, /<noscript><link rel="stylesheet" href="my-feed\.css\?v=[^"]+"\s*\/><\/noscript>/);
+  const revision = createHash("sha256").update(source).digest("hex").slice(0, 12);
+  assert.ok(html.includes(`src="my-feed-entry.js?v=${revision}"`), "Built page must invalidate an older entry module");
+
+  const boundary = source.indexOf("// Only an intentional tap");
+  assert.ok(boundary > 0);
+  for (const cached of [false, true]) {
+    const handlers = new Map();
+    const sheet = { media: "print", sheet: cached ? {} : null,
+      addEventListener(type, fn, options) { assert.equal(type, "load"); assert.equal(options.once, true); handlers.set(type, fn); }
+    };
+    runInNewContext(source.slice(0, boundary), { document: { querySelector: () => sheet } });
+    if (cached) {
+      assert.equal(sheet.media, "all", "Previously cached CSS is enabled immediately");
+      assert.equal(handlers.size, 0);
+    } else {
+      assert.equal(sheet.media, "print", "Unloaded CSS stays off the render-blocking path");
+      handlers.get("load")();
+      assert.equal(sheet.media, "all", "Loaded CSS becomes active");
+    }
+  }
 });
 
 test("list CSS wins first paint, while the feed discovers its photo runtime early", () => {

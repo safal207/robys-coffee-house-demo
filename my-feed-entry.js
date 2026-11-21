@@ -1,3 +1,12 @@
+// The personal deck is below the first photo. Its CSS can load without
+// blocking the feed's initial frame, but must activate on a cache hit or load.
+const personalStyle = document.querySelector('link[data-personal-feed-style="deferred"]');
+if (personalStyle) {
+  const activatePersonalStyle = () => { personalStyle.media = "all"; };
+  if (personalStyle.sheet) activatePersonalStyle();
+  else personalStyle.addEventListener("load", activatePersonalStyle, { once: true });
+}
+
 // Only an intentional tap fetches the larger personal-deck/catalog module.
 const trigger = document.querySelector("#my-feed-toggle");
 if (trigger) {
