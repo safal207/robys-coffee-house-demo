@@ -20,6 +20,10 @@ test("mobile audit covers home, list, and photo feed without changing production
   assert.match(source, /Measured image must be a product photograph/);
   assert.match(source, /firstPhotoResponseEndMs/);
   assert.match(source, /firstPhotoRenderGapMs/);
+  assert.match(source, /initiatorType="link"/, "Preloads must be accounted for as images");
+  assert.match(source, /imageTransferBytes: bytesFor/);
+  assert.match(source, /stylesheetTransferBytes: bytesFor/);
+  assert.doesNotMatch(source, /sum\(\/\^\(css\|link\)/, "A product image preload must never count as CSS");
   assert.match(source, /cacheState === "cold"/);
 });
 
