@@ -1,19 +1,20 @@
-const q = selector => document.querySelector(selector);
+const doc = document; // Shared DOM reference keeps first-paint JS compact.
+const q = selector => doc.querySelector(selector);
 const HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1";
 const HERO_BALANCE_STYLES = "hero-balance.css?v=20260622-1";
-const enhancementEvents = ["pointerover", "pointerdown", "keydown", "focusin"];
+const events = ["pointerover", "pointerdown", "keydown", "focusin"];
 
 function ensureHeroBalanceStyles() {
-  if (document.querySelector('link[data-hero-balance="true"]')) return;
-  const link = document.createElement("link");
+  if (q('link[data-hero-balance="true"]')) return;
+  const link = doc.createElement("link");
   link.rel = "stylesheet";
   link.href = HERO_BALANCE_STYLES;
   link.dataset.heroBalance = "true";
-  document.head.append(link);
+  doc.head.append(link);
 }
 
 function requestHeroPlayback(video) {
-  if (!video || document.hidden) return;
+  if (!video || doc.hidden) return;
 
   const playback = video.play();
   if (!playback || typeof playback.then !== "function") return;
@@ -48,10 +49,10 @@ function enableHeroVideo() {
   video.addEventListener("loadeddata", retryPlayback, { once: true });
   video.addEventListener("canplay", retryPlayback);
   video.addEventListener("pause", () => {
-    if (!document.hidden && !video.ended) window.setTimeout(retryPlayback, 180);
+    if (!doc.hidden && !video.ended) window.setTimeout(retryPlayback, 180);
   });
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) retryPlayback();
+  doc.addEventListener("visibilitychange", () => {
+    if (!doc.hidden) retryPlayback();
   });
   window.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
 
@@ -64,9 +65,9 @@ function scheduleHeroPlayback() {
 }
 
 function applyImmediateA11yFixes() {
-  document.documentElement.style.setProperty("--ruby", "#b24753");
+  doc.documentElement.style.setProperty("--ruby", "#b24753");
 
-  document.querySelectorAll(".brand").forEach(link => link.removeAttribute("aria-label"));
+  doc.querySelectorAll(".brand").forEach(link => link.removeAttribute("aria-label"));
   q(".map-live-link")?.removeAttribute("aria-label");
 
   q(".back-top")?.setAttribute("aria-label", "↑ Back to top");
@@ -77,7 +78,7 @@ function loadQaEnhancements() {
   if (enhancementsPromise) return;
   enhancementsPromise = import("./qa-enhancements.js?v=d960d8ca4a45").then(({ initQaEnhancements }) => {
     initQaEnhancements();
-    for (const type of enhancementEvents)
+    for (const type of events)
       window.removeEventListener(type, loadQaEnhancements);
   }).catch(() => { enhancementsPromise = null; });
 }
@@ -86,10 +87,10 @@ function initQa() {
   ensureHeroBalanceStyles();
   scheduleHeroPlayback();
   applyImmediateA11yFixes();
-  for (const type of enhancementEvents)
-    window.addEventListener(type, loadQaEnhancements, { passive: type.startsWith("pointer") });
+  for (const type of events)
+    window.addEventListener(type, loadQaEnhancements, { passive: type[0] === "p" });
 }
 
-document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", initQa, { once: true })
+doc.readyState === "loading"
+  ? doc.addEventListener("DOMContentLoaded", initQa, { once: true })
   : initQa();

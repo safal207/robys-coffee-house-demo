@@ -1,0 +1,31 @@
+name: PR515 compact QA byte sync
+on:
+  push:
+    branches: [feat/taste-memory-social-20261120]
+    paths: [.github/workflows/pr515-compact-qa-sync-once.yml]
+permissions:
+  contents: write
+jobs:
+  regenerate:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with: {persist-credentials: true}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with: {node-version: '22', cache: npm}
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm run integrity:generate
+      - run: node --test scripts/test-performance-delivery-regression.mjs
+      - run: node scripts/test-hero-playback.mjs
+      - run: node scripts/verify-p1-interface-contracts.mjs
+      - run: node scripts/verify-regression-contracts.mjs
+      - run: node -e "console.log('QA_JS_BYTES='+require('node:fs').statSync('qa.js').size)"
+      - name: Commit generated runtime and remove the one-time workflow
+        run: |
+          git rm .github/workflows/pr515-compact-qa-sync-once.yml
+          git add -A
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build: sync compact QA runtime'
+          git push origin HEAD:feat/taste-memory-social-20261120
