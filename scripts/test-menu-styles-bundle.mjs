@@ -14,7 +14,7 @@ const expectedInputs = [
   ["seasonal.css", "seasonal.css"],
   ["menu-feedback.css", "menu-feedback.css"],
   ["menu-security-v2.css", "menu-security-v2.css"], ["brand-photo-logo.css", "brand-photo-logo.css"],
-  ["order-checkout.css", "order-checkout.css"]
+  ["order-checkout.css", "order-checkout.css"], ["taste-cart.css", "taste-cart.css"]
 ];
 
 function fixture() {

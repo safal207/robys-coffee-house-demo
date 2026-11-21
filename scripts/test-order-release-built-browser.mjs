@@ -173,13 +173,17 @@ async function clearCart(page) {
   await page.locator("#menu-cart-dialog[open]").waitFor({ state: "hidden" });
 }
 
-async function verifyQrAndCashier(page, context, language, expectedTotal, expectedNames, id) {
+async function verifyQrAndCashier(page, context, language, expectedTotal, expectedNames, id, expectedCashierNames) {
   assert.equal((await page.locator("#menu-cart-dialog-total").textContent()).trim(), `${expectedTotal} ₺`);
   assert.ok((await page.locator("#menu-checkout-trigger").innerText()).includes(`${expectedTotal} ₺`), "The next-step button carries the current total");
   await page.locator("#menu-checkout-trigger").click();
   const checkout = page.locator(".order-checkout-dialog[open]");
   await checkout.waitFor();
   assert.equal((await checkout.locator(".order-ticket-total strong").textContent()).trim(), `${expectedTotal} ₺`);
+  const guestLines = await checkout.locator(".order-ticket-item-name").allTextContents();
+  assert.equal(guestLines.length, expectedNames.length);
+  for (const name of expectedNames) assert.ok(guestLines.some(line => line.includes(name)),
+    `Guest checkout in ${language} includes ${name}`);
   const bytes = await checkout.locator(".order-ticket-qr").screenshot({ path: join(output, `${id}-qr.png`) });
   const png = PNG.sync.read(bytes);
   const decoded = jsQR(new Uint8ClampedArray(png.data), png.width, png.height, { inversionAttempts: "attemptBoth" });
@@ -193,15 +197,21 @@ async function verifyQrAndCashier(page, context, language, expectedTotal, expect
   try {
     await cashier.goto(decoded.data, { waitUntil: "domcontentloaded" });
     await cashier.locator("#cashier-ticket .order-ticket-line").first().waitFor();
-    assert.equal(await cashier.locator("html").getAttribute("lang"), language);
+    // The companion renderer deliberately switches staff-facing tickets to TR,
+    // while the customer's QR preview remains in their selected language.
+    await cashier.locator(".cashier-turkish-note").waitFor();
+    await cashier.waitForFunction(() => document.documentElement.lang === "tr"
+      && document.querySelector('[data-cashier-language="tr"]')?.getAttribute("aria-pressed") === "true");
+    assert.equal(await cashier.locator("html").getAttribute("lang"), "tr");
     assert.equal((await cashier.locator(".order-ticket-total strong").textContent()).trim(), `${expectedTotal} ₺`);
     const lines = await cashier.locator(".order-ticket-item-name").allTextContents();
-    assert.equal(lines.length, expectedNames.length);
-    for (const name of expectedNames) assert.ok(lines.some(line => line.includes(name)), `Cashier includes ${name}`);
+    assert.equal(lines.length, expectedCashierNames.length);
+    for (const name of expectedCashierNames) assert.ok(lines.some(line => line.includes(name)), `Turkish cashier includes ${name}`);
     assert.equal(await cashier.locator(".order-ticket-error").count(), 0);
     await cashier.screenshot({ path: join(output, `${id}-cashier.png`) });
     await checkout.screenshot({ path: join(output, `${id}-checkout.png`) });
-    return { total: expectedTotal, decodedQrMatchesCashierLink: true, cashierLanguage: language, cashierLines: lines };
+    return { total: expectedTotal, decodedQrMatchesCashierLink: true, guestLanguage: language,
+      guestLines, cashierLanguage: "tr", cashierLines: lines };
   } finally {
     await cashier.close();
     await checkout.locator(".order-checkout-close").click();
@@ -263,7 +273,7 @@ try {
             await page.locator("#menu-cart-dialog[open]").waitFor(); await waitLines(page, expectedFamily);
             assert.equal(await page.locator(".menu-cart-bump").isVisible(), false, "Unrelated orders have no offer");
             const canonicalRevision = await verifyCanonical(page, expectedFamily);
-            const qr = await verifyQrAndCashier(page, context, language, 95, [names[language].milk, names[language].simit], `${engine}-${language}-${width}-family`);
+            const qr = await verifyQrAndCashier(page, context, language, 95, [names[language].milk, names[language].simit], `${engine}-${language}-${width}-family`, [names.tr.milk, names.tr.simit]);
             await clearCart(page); await page.close();
             return { width, language, removedCookie: true, exactLines: expectedFamily, canonicalRevision, clearedAfterQr: true, ...qr };
           });
@@ -302,7 +312,7 @@ try {
             assert.equal(await checkout.evaluate(button => button === document.activeElement), true, "Adding an extra returns focus to the next step");
             await page.locator(".menu-cart-line").first().locator(".menu-cart-step").last().click();
             await page.waitForFunction(() => document.querySelector("#menu-cart-dialog-total")?.textContent.trim() === "390 ₺");
-            const qr = await verifyQrAndCashier(page, context, language, 390, [coffeeName, sweetName], `${engine}-${language}-${width}-ready`);
+            const qr = await verifyQrAndCashier(page, context, language, 390, [coffeeName, sweetName], `${engine}-${language}-${width}-ready`, ["Caffè Latte", names.tr.macaron]);
             await clearCart(page);
             await page.locator('[data-product-id="desserts:cookie"] .full-menu-item-media').click();
             await page.locator("#menu-product-dialog[open]").waitFor();
@@ -341,7 +351,7 @@ try {
             await waitLines(page, drink);
             const canonicalRevision = await verifyCanonical(page, drink);
             await offer.waitFor();
-            const qr = await verifyQrAndCashier(page, context, language, 190, [names[language].lime], `${engine}-${language}-${width}-promo`);
+            const qr = await verifyQrAndCashier(page, context, language, 190, [names[language].lime], `${engine}-${language}-${width}-promo`, [names.tr.lime]);
             const feed = await context.newPage();
             await feed.goto(`${origin}/menu-feed.html?view=feed&lang=${language}`, { waitUntil: "domcontentloaded" });
             await feed.locator("#menu-cart-trigger").click();
@@ -358,7 +368,7 @@ try {
             await feed.locator("#menu-cart-trigger").click();
             await feed.locator("#menu-cart-dialog[open]").waitFor();
             await verifyCanonical(feed, paired);
-            const bumpQr = await verifyQrAndCashier(feed, context, language, 220, [names[language].lime, names[language].macaron], `${engine}-${language}-${width}-bump`);
+            const bumpQr = await verifyQrAndCashier(feed, context, language, 220, [names[language].lime, names[language].macaron], `${engine}-${language}-${width}-bump`, [names.tr.lime, names.tr.macaron]);
             await feed.getByRole("article", { name: names[language].macaron, exact: true }).locator(".menu-cart-remove").click();
             await feedAdd.waitFor();
             await waitLines(feed, drink);

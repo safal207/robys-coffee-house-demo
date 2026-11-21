@@ -160,17 +160,37 @@ async function secondCardPosition(page) {
 async function assertLandingPhotoFits(page) {
   // Instagram posts are continuous content: the full-width photograph leads
   // the first screen, while the purchase controls may follow below it.
-  await page.waitForFunction(() => {
-    const card = document.querySelector(".feed-card");
-    const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
-      document.querySelector(".feed-tools").getBoundingClientRect().bottom);
-    const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
-    return [".feed-card-header", ".feed-photo>img"].every(selector => {
-      const node = card.querySelector(selector), box = node.getBoundingClientRect();
-      const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
-      return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit));
+  try {
+    await page.waitForFunction(() => {
+      const card = document.querySelector(".feed-card");
+      const top = Math.max(document.querySelector(".feed-header").getBoundingClientRect().bottom,
+        document.querySelector(".feed-tools").getBoundingClientRect().bottom);
+      const bottom = document.querySelector("#menu-cart-trigger").getBoundingClientRect().top;
+      return [".feed-card-header", ".feed-photo>img"].every(selector => {
+        const node = card.querySelector(selector), box = node.getBoundingClientRect();
+        const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+        return box.width > 0 && box.top >= top - 1 && box.bottom <= bottom + 1 && (node === hit || node.contains(hit));
+      });
     });
-  });
+  } catch (error) {
+    const geometry = await page.evaluate(() => {
+      const selectors = [".feed-header", ".feed-tools", ".feed-formats", ".feed-collections",
+        ".feed-choice-links", ".my-feed-entry", ".feed-card", ".feed-card-header",
+        ".feed-photo", ".feed-photo>img", "#menu-cart-trigger"];
+      return { viewport: { width: innerWidth, height: innerHeight, scrollY },
+        elements: Object.fromEntries(selectors.map(selector => {
+          const node = document.querySelector(selector);
+          if (!node) return [selector, null];
+          const r = node.getBoundingClientRect();
+          const hit = document.elementFromPoint(r.left + r.width / 2, Math.max(0, Math.min(innerHeight - 1, r.top + r.height / 2)));
+          return [selector, { top: Math.round(r.top), bottom: Math.round(r.bottom),
+            height: Math.round(r.height), width: Math.round(r.width),
+            hidden: node.hidden, hit: hit?.className?.baseVal ?? hit?.className ?? null }];
+        })) };
+    }).catch(e => ({ observationError: e.message }));
+    console.error("LANDING_PHOTO_GEOMETRY " + JSON.stringify(geometry));
+    throw error;
+  }
 }
 async function assertPhotoActions(card) {
   const layout = await card.evaluate(node => {
@@ -452,7 +472,15 @@ try {
       });
       assert.ok(geometry.centerOffset <= 1, `The feed is centered at ${width}px: ${JSON.stringify(geometry)}`);
       assert.ok(geometry.width <= 460 && geometry.width >= Math.min(geometry.clientWidth, 460) - 1);
-      assert.equal(geometry.overflow, false);
+      if (geometry.overflow) {
+        const offenders = await page.evaluate(() => [...document.querySelectorAll("body *")].map(node => {
+          const box = node.getBoundingClientRect();
+          return { element: node.tagName.toLowerCase(), classes: typeof node.className === "string" ? node.className.slice(0, 100) : "",
+            left: Math.round(box.left), right: Math.round(box.right), width: Math.round(box.width) };
+        }).filter(box => box.right > innerWidth + 1 || box.left < -1).slice(0, 16));
+        console.error(`FEED_OVERFLOW_GEOMETRY ${width} ${JSON.stringify(offenders)}`);
+      }
+      assert.equal(geometry.overflow, false, `No page overflow at ${width}px`);
       assert.ok(Math.abs(geometry.photoRatio - geometry.sourceRatio) < .01, "The complete square photograph keeps its source proportions");
       assert.equal(geometry.objectFit, "contain");
       await assertPhotoActions(page.locator(".feed-card").first());

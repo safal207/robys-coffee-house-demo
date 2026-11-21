@@ -22,7 +22,8 @@ export const MENU_STYLE_INPUTS = Object.freeze([
   { source: "menu-feedback.css", delivered: "menu-feedback.css" },
   { source: "menu-security-v2.css", delivered: "menu-security-v2.css" },
   { source: "brand-photo-logo.css", delivered: "brand-photo-logo.css" },
-  { source: "order-checkout.css", delivered: "order-checkout.css" }
+  { source: "order-checkout.css", delivered: "order-checkout.css" },
+  { source: "taste-cart.css", delivered: "taste-cart.css" }
 ].map(Object.freeze));
 
 export function readMenuStylesSources(root = process.cwd()) {

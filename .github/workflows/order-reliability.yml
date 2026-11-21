@@ -32,7 +32,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npm run build && git diff --exit-code && npm run verify:integrity
       - run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
       - name: Returning visitor navigation asset revisions
         run: node --test scripts/test-home-navigation-cache.mjs
@@ -91,7 +91,7 @@ jobs:
       - name: Verify native crash report collection
         if: matrix.browser == 'webkit'
         run: node --test scripts/test-macos-webkit-crashes.mjs
-      - run: npm run build && npm run verify:integrity && git diff --exit-code
+      - run: npm run build && git diff --exit-code && npm run verify:integrity
       - if: matrix.browser != 'webkit'
         run: node scripts/ensure-playwright-browsers.mjs ${{ matrix.browser }}
       - name: Install and validate the locked native WebKit

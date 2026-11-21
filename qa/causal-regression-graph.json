@@ -57,7 +57,9 @@
         "hero-balance.css",
         "final-qa*.css",
         "coffee-paths.css",
-        "seasonal.css"
+        "seasonal.css",
+        "scripts/test-brand-wordmark.mjs",
+        "scripts/verify-brand-identity-assets.mjs"
       ],
       "dependsOn": [
         "build"
@@ -78,12 +80,15 @@
         "src/conversion.js",
         "conversion.js",
         "takeaway-entry.js",
+        "scripts/test-takeaway-entry.mjs",
         "morning-entry-v2.js",
         "day-night-entry.js",
         "src/amenities.ts",
         "src/seasonal-theme.ts",
         "seasonal-theme.js",
-        "src/.parts/**"
+        "src/.parts/**",
+        "src/qa.js",
+        "qa-enhancements.js"
       ],
       "dependsOn": [
         "build",
@@ -136,7 +141,9 @@
         "scripts/verify-pairing-cta.mjs",
         "src/menu-actions-loader.js",
         "src/pairing-posters.js",
+        "src/pairing-discovery.js",
         "pairing-posters.js",
+        "pairing-discovery.js",
         "pairing-posters.css",
         "menu-premium.css",
         "menu-stability*.css",
@@ -217,7 +224,17 @@
         "menu-feed-viewer.js",
         "scripts/test-menu-feed-viewer-entry.mjs",
         "scripts/menu-feed-viewer-browser-cases.mjs",
-        "scripts/test-menu-feed-viewer-setup-diagnostics.mjs"
+        "scripts/test-menu-feed-viewer-setup-diagnostics.mjs",
+        "docs/taste-memory-release-qa.md",
+        "my-feed-entry.js",
+        "my-feed.css",
+        "my-feed.js",
+        "src/my-feed-policy.js",
+        "scripts/test-my-feed.mjs",
+        "taste-memory-policy.js",
+        "taste-memory.css",
+        "taste-memory.js",
+        "scripts/test-taste-memory.mjs"
       ],
       "dependsOn": [
         "menu-feed",
@@ -301,7 +318,13 @@
         "scripts/premium-feedback-regression.mjs",
         "scripts/test-menu-custom-pairing-browser.mjs",
         "scripts/adversarial-browser.mjs",
-        "scripts/test-order-release-built-browser.mjs"
+        "scripts/test-order-release-built-browser.mjs",
+        "taste-cart-entry.js",
+        "taste-cart-policy.js",
+        "taste-cart.css",
+        "taste-cart.js",
+        "scripts/test-taste-cart.mjs",
+        "taste-memory-policy.js"
       ],
       "dependsOn": [
         "order-model",
@@ -354,7 +377,9 @@
         "src/order-ticket.js",
         "cashier.html",
         "cashier.js",
-        "src/cashier.js"
+        "src/cashier.js",
+        "cashier-visual.js",
+        "cashier-visual.css"
       ],
       "dependsOn": [
         "order-model",
@@ -478,6 +503,7 @@
         "src/discover-rotation.ts",
         "src/pairings-data/**",
         "src/pairing-posters.js",
+        "src/pairing-discovery.js",
         "scripts/verify-pairing-cta.mjs",
         "pairing-posters.js",
         "pairing-posters.css"
@@ -593,7 +619,9 @@
         "src/*.b64",
         "src/brand/**",
         "icon.svg",
-        "community-reel*.css"
+        "community-reel*.css",
+        "scripts/test-brand-wordmark.mjs",
+        "scripts/verify-brand-identity-assets.mjs"
       ],
       "dependsOn": [
         "build"
@@ -729,13 +757,19 @@
         ".github/workflows/dependency-build-edges.yml",
         "scripts/visual-regression.mjs",
         "qa.js",
+        "src/qa.js",
         ".github/workflows/causal-regression.yml",
         "qa/journey-latency-budgets.json",
         "scripts/causal-regression.mjs",
         "scripts/measure-journey-responsiveness.mjs",
         "scripts/test-journey-measurement.mjs",
         "docs/qa/causal-regression-pipeline.md",
-        "scripts/test-causal-regression-pipeline.mjs"
+        "scripts/test-causal-regression-pipeline.mjs",
+        "qa-enhancements.js",
+        "qa/evidence/pr515-mission8-performance-20261121.md",
+        "scripts/test-performance-delivery-regression.mjs",
+        "scripts/verify-p1-interface-contracts.mjs",
+        "scripts/verify-regression-contracts.mjs"
       ],
       "dependsOn": [
         "build"
