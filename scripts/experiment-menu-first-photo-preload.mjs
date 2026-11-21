@@ -7,6 +7,7 @@ const PHOTO = "src/products/sets-v1/cool-lime-macaron.webp";
 const SMALL = "src/products/quick-v1/sets-v1/cool-lime-macaron-512.webp";
 const OUTPUT = ".artifacts/menu-first-photo-experiment/report.json";
 const RUNS_PER_VARIANT = 4;
+const OBSERVATION_TAIL_MS = 500;
 const HINT = '<link data-perf-experiment="first-photo" rel="preload" as="image" href="' + PHOTO +
   '" imagesrcset="' + SMALL + ' 512w, ' + PHOTO + ' 1024w" imagesizes="(max-width: 460px) 100vw, 460px" fetchpriority="high" />';
 
@@ -54,7 +55,7 @@ async function one(browser, variant, pair) {
     await image.evaluate(img => img.decode());
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const readyMs = await page.evaluate(() => performance.now());
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(OBSERVATION_TAIL_MS);
     const network = await page.evaluate(() => {
       const img = document.querySelector("#menu-root .full-menu-item-media img");
       const source = img.currentSrc || img.src;
@@ -67,7 +68,7 @@ async function one(browser, variant, pair) {
         imageResponseEndMs: resource?.responseEnd ?? null,
         imageNetworkMs: resource?.duration ?? null,
         imageTransferBytes: resource?.transferSize ?? null,
-        totalImageTransferBytes: entries.filter(r => /\.(?:webp|avif|jpe?g|png|gif|svg)(?:\?|$)/i.test(r.name))
+        observedImageTransferBytes: entries.filter(r => /\.(?:webp|avif|jpe?g|png|gif|svg)(?:\?|$)/i.test(r.name))
           .reduce((total, r) => total + r.transferSize, 0),
         fcpMs: performance.getEntriesByType("paint").find(p => p.name === "first-contentful-paint")?.startTime ?? null,
         hintCount: document.querySelectorAll('link[data-perf-experiment="first-photo"]').length
@@ -112,24 +113,45 @@ async function main() {
     readyMs: median(set.map(s => s.readyMs)),
     requestStartMs: median(set.map(s => s.imageRequestStartMs)),
     networkMs: median(set.map(s => s.imageNetworkMs)),
-    totalImageBytes: median(set.map(s => s.totalImageTransferBytes)),
+    photoBytes: median(set.map(s => s.imageTransferBytes)),
+    observedImageBytes: median(set.map(s => s.observedImageTransferBytes)),
     fcpMs: median(set.map(s => s.fcpMs))
   });
   const baseline = stats(control), candidate = stats(preload), candidateLow = stats(preloadLow);
   const improvementMsLow = baseline.readyMs - candidateLow.readyMs;
   const fcpPenaltyMsLow = candidateLow.fcpMs - baseline.fcpMs;
+  const pairwise = Array.from({ length: RUNS_PER_VARIANT }, (_, index) => {
+    const pair = index + 1;
+    const current = samples.filter(sample => sample.pair === pair);
+    const controlRun = current.find(sample => sample.variant === "control");
+    const highRun = current.find(sample => sample.variant === "preload");
+    const lowRun = current.find(sample => sample.variant === "preload-low");
+    assert.ok(controlRun && highRun && lowRun, `All variants required for pair ${pair}`);
+    return {
+      pair,
+      highPhotoGainMs: controlRun.readyMs - highRun.readyMs,
+      highFcpPenaltyMs: highRun.fcpMs - controlRun.fcpMs,
+      lowPhotoGainMs: controlRun.readyMs - lowRun.readyMs,
+      lowFcpPenaltyMs: lowRun.fcpMs - controlRun.fcpMs
+    };
+  });
+  const lowFcpSlowerPairs = pairwise.filter(pair => pair.lowFcpPenaltyMs > 0).length;
   const report = {
     schema: "robys.first-photo-preload-experiment.v1",
     source: "published GitHub Pages; intercepted HTML only, no production changes",
     synthetic: true,
     caveats: [
-      "Playwright document interception introduces overhead in both conditions",
+      "Playwright document interception introduces overhead in all conditions; the intercepted HTML response may not obey browser network throttling",
+      "The harness scrolls the first product card into view after DOMContentLoaded; readyMs is not passive first-screen paint",
+      "Observed image bytes are a resource-timing snapshot 500ms after first-photo readiness, not complete page-transfer bytes",
       "One early preload can waste bytes on filtered and feed-redirect routes; do not ship unconditionally",
       "Four controlled cold paired runs per variant; not production field data or proof of revenue impact"
     ],
     network: "150ms RTT / 1.6Mbps / 4x CPU / DPR 2 / 390x844",
+    observationTailMs: OBSERVATION_TAIL_MS,
     baseline, candidate, candidateLow, improvementMs: baseline.readyMs - candidate.readyMs,
-    improvementMsLow, fcpPenaltyMsHigh: candidate.fcpMs - baseline.fcpMs, fcpPenaltyMsLow, samples
+    improvementMsLow, fcpPenaltyMsHigh: candidate.fcpMs - baseline.fcpMs, fcpPenaltyMsLow,
+    lowFcpSlowerPairs, pairwise, samples
   };
   mkdirSync(".artifacts/menu-first-photo-experiment", { recursive: true });
   writeFileSync(OUTPUT, JSON.stringify(report, null, 2) + "\n");
@@ -140,10 +162,12 @@ async function main() {
       "| Metric | Control | High-priority preload | Low-priority preload |\n|---|---:|---:|---:|\n" +
       "| Decoded photo ready, ms | " + Math.round(baseline.readyMs) + " | " + Math.round(candidate.readyMs) + " | " + Math.round(candidateLow.readyMs) + " |\n" +
       "| Photo request start, ms | " + Math.round(baseline.requestStartMs) + " | " + Math.round(candidate.requestStartMs) + " | " + Math.round(candidateLow.requestStartMs) + " |\n" +
-      "| Image transfer, KiB | " + Math.round(baseline.totalImageBytes / 1024) + " | " + Math.round(candidate.totalImageBytes / 1024) + " | " + Math.round(candidateLow.totalImageBytes / 1024) + " |\n" +
+      "| First photo transfer, KiB | " + Math.round(baseline.photoBytes / 1024) + " | " + Math.round(candidate.photoBytes / 1024) + " | " + Math.round(candidateLow.photoBytes / 1024) + " |\n" +
       "| First Contentful Paint, ms | " + Math.round(baseline.fcpMs) + " | " + Math.round(candidate.fcpMs) + " | " + Math.round(candidateLow.fcpMs) + " |\n\n" +
+      "Low-priority preload had slower FCP in " + lowFcpSlowerPairs + "/" + RUNS_PER_VARIANT + " pairs. " +
+      "Observed page-image bytes in JSON are partial snapshots, not complete transfers.\n\n" +
       "Synthetic paired, non-deployed experiment; inspect artifact before shipping.\n");
   }
-  console.log("SUMMARY " + JSON.stringify({ baseline, candidate, candidateLow, improvementMs: report.improvementMs, improvementMsLow, fcpPenaltyMsLow }));
+  console.log("SUMMARY " + JSON.stringify({ baseline, candidate, candidateLow, improvementMs: report.improvementMs, improvementMsLow, fcpPenaltyMsLow, lowFcpSlowerPairs }));
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
