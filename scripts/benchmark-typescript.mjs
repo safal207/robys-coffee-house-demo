@@ -18,7 +18,7 @@ const candidates = [
   {
     id: "typescript-6-compat",
     label: "TypeScript 6 compatibility",
-    binary: resolve(projectRoot, `.typescript-bench/ts6/node_modules/.bin/tsc6${binarySuffix}`)
+    binary: resolve(projectRoot, `.typescript-bench/ts6/node_modules/.bin/tsc${binarySuffix}`)
   },
   {
     id: "typescript-7-native",

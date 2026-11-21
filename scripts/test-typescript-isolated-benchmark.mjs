@@ -22,7 +22,7 @@ test("each compiler is an isolated and strictly identified executable", () => {
   ]) {
     assert.ok(source.includes(`["${id}", "${version}"]`), `Missing compiler identity: ${id}`);
   }
-  assert.match(source, /\.typescript-bench\/ts6\/node_modules\/\.bin\/tsc6/);
+  assert.match(source, /\.typescript-bench\/ts6\/node_modules\/\.bin\/tsc/);
   assert.match(source, /\.typescript-bench\/ts7\/node_modules\/\.bin\/tsc/);
   assert.match(source, /versions\.set\(candidate\.id, reported\)/);
   assert.match(source, /\["--noEmit", "--pretty", "false"\]/);
@@ -38,7 +38,7 @@ test("workflow is read-only, compares three OS, and records real samples", () =>
   assert.match(workflow, /npm run typecheck/);
   assert.match(workflow, /npm run build/);
   assert.match(workflow, /git diff --exit-code -- \./);
-  assert.match(workflow, /@typescript\/typescript6@6\.0\.3/);
+  assert.match(workflow, /run: npm install --prefix \.typescript-bench\/ts6 .* typescript@6\.0\.3/);
   assert.match(workflow, /typescript@7\.0\.2/);
   assert.match(workflow, /node scripts\/benchmark-typescript\.mjs/);
   assert.match(workflow, /actions\/upload-artifact@v4/);

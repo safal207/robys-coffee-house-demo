@@ -47,7 +47,7 @@ jobs:
           npm run build
           git diff --exit-code -- .
       - name: Install pinned TypeScript 6 side by side
-        run: npm install --prefix .typescript-bench/ts6 --no-save --package-lock=false --no-audit --no-fund @typescript/typescript6@6.0.3
+        run: npm install --prefix .typescript-bench/ts6 --no-save --package-lock=false --no-audit --no-fund typescript@6.0.3
       - name: Install pinned TypeScript 7 side by side
         run: npm install --prefix .typescript-bench/ts7 --no-save --package-lock=false --no-audit --no-fund typescript@7.0.2
       - name: Benchmark 2 warmups and 9 rotating samples
