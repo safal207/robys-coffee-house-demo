@@ -136,15 +136,22 @@ export async function runAudit() {
   const evidence = await validatePublishedBuild(origin);
   const browser = await chromium.launch({ headless: true });
   const samples = [];
+  const failures = [];
   try {
     for (const route of ROUTES) {
+      let routeFailed = false;
       for (let iteration = 1; iteration <= REPETITIONS; iteration++) {
+        if (routeFailed) break;
         const context = await browser.newContext({
           viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true,
           hasTouch: true, serviceWorkers: "block", locale: "tr-TR"
         });
         try {
           const page = await context.newPage();
+          const browserErrors = [];
+          page.on("pageerror", error => browserErrors.push(String(error.message).slice(0, 800)));
+          page.on("console", message => { if (message.type() === "error") browserErrors.push(message.text().slice(0, 800)); });
+          page.on("requestfailed", request => browserErrors.push(("REQUEST " + request.url() + ": " + request.failure()?.errorText).slice(0, 800)));
           await page.addInitScript(() => {
             window.__robysAuditMetrics = { lcpMs: null, cls: 0 };
             try {
@@ -164,11 +171,32 @@ export async function runAudit() {
           const cdp = await configureMobile(page);
           const url = new URL(route.path.replace(/^\//, ""), origin).href;
           for (const state of ["cold", "warm"]) {
-            const sample = await measure(page, url, route, state);
-            assert.ok(sample.semanticReadyMs > 0 && sample.semanticReadyMs < timeoutMs, "Readiness invalid for " + route.id);
-            if (route.imageSelector) assert.ok(sample.firstPhotoReadyMs > 0, "First photo did not load for " + route.id);
-            samples.push({ ...sample, iteration });
-            console.log(JSON.stringify({ route: route.id, iteration, state, semanticReadyMs: Math.round(sample.semanticReadyMs), firstPhotoReadyMs: sample.firstPhotoReadyMs && Math.round(sample.firstPhotoReadyMs), imageTransferBytes: sample.imageTransferBytes }));
+            try {
+              const sample = await measure(page, url, route, state);
+              assert.ok(sample.semanticReadyMs > 0 && sample.semanticReadyMs < timeoutMs, "Readiness invalid for " + route.id);
+              if (route.imageSelector) assert.ok(sample.firstPhotoReadyMs > 0, "First photo did not load for " + route.id);
+              samples.push({ ...sample, iteration });
+              console.log(JSON.stringify({ route: route.id, iteration, state, semanticReadyMs: Math.round(sample.semanticReadyMs), firstPhotoReadyMs: sample.firstPhotoReadyMs && Math.round(sample.firstPhotoReadyMs), imageTransferBytes: sample.imageTransferBytes }));
+            } catch (error) {
+              routeFailed = true;
+              const snapshot = await page.evaluate(selector => ({
+                url: location.href,
+                readyState: document.readyState,
+                selectorCount: document.querySelectorAll(selector).length,
+                menuRootCards: document.querySelectorAll("#menu-root [data-product-id]").length,
+                feedCards: document.querySelectorAll("#feed .feed-card").length,
+                menuEmpty: document.querySelector("#menu-empty")?.textContent?.trim() || null,
+                menuHTML: document.querySelector("#menu-root")?.innerHTML?.slice(0, 900) || null,
+                scripts: performance.getEntriesByType("resource").filter(entry => /\\.js(?:[?#]|$)/i.test(entry.name))
+                  .slice(0, 20).map(entry => ({ url: entry.name, durationMs: entry.duration, transferSize: entry.transferSize }))
+              }), route.selector).catch(e => ({ captureError: String(e) }));
+              const failure = { route: route.id, iteration, state, error: String(error), snapshot, browserErrors: browserErrors.slice(-15) };
+              failures.push(failure);
+              mkdirSync(resolve(outputFile, ".."), { recursive: true });
+              await page.screenshot({ path: resolve(outputFile, "..", route.id + "-failure.png"), fullPage: true }).catch(() => {});
+              console.error("AUDIT_ROUTE_FAILURE " + JSON.stringify(failure));
+              break;
+            }
           }
           await cdp.detach();
         } finally {
@@ -177,9 +205,13 @@ export async function runAudit() {
       }
     }
   } finally { await browser.close(); }
+  const summarizeRoute = (route, state) => {
+    const subset = samples.filter(sample => sample.route === route && sample.state === state);
+    return subset.length === REPETITIONS ? summarize(subset) : { unavailable: true, observed: subset.length };
+  };
   const routes = Object.fromEntries(ROUTES.map(route => [route.id, {
-    cold: summarize(samples.filter(s => s.route === route.id && s.state === "cold")),
-    warm: summarize(samples.filter(s => s.route === route.id && s.state === "warm"))
+    cold: summarizeRoute(route.id, "cold"),
+    warm: summarizeRoute(route.id, "warm")
   }]));
   const report = {
     schema: "robys.live-customer-performance.v1",
@@ -190,6 +222,8 @@ export async function runAudit() {
     verifiedMenuSha256: evidence.menuSha256,
     synthetic: true,
     environment: { browser: "chromium", viewport: "390x844", network: "150ms RTT; 1.6 Mbps download; 0.75 Mbps upload", cpuThrottling: "4x", serviceWorkers: "blocked", coldWarm: "fresh browser context then same-page reload", repetitions: REPETITIONS },
+    status: failures.length ? "FAIL" : "PASS",
+    failures,
     routes,
     samples
   };
@@ -200,11 +234,12 @@ export async function runAudit() {
     for (const route of ROUTES) {
       const item = routes[route.id];
       const format = value => Number.isFinite(value) ? Math.round(value) : "n/a";
-      lines.push("| " + route.id + " | " + format(item.cold.firstPhotoReadyMs.median) + " | " + format(item.warm.firstPhotoReadyMs.median) + " | " + format(item.cold.imageTransferBytes.median / 1024) + " |");
+      lines.push("| " + route.id + " | " + format(item.cold.firstPhotoReadyMs?.median) + " | " + format(item.warm.firstPhotoReadyMs?.median) + " | " + format(item.cold.imageTransferBytes?.median / 1024) + " |");
     }
     const { appendFileSync } = await import("node:fs");
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
   }
+  if (failures.length) throw new Error("Live customer audit found " + failures.length + " route failures. See uploaded report.json and screenshots.");
   return report;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
