@@ -1,0 +1,36 @@
+name: Home feed intent prefetch experiment
+on:
+  pull_request:
+    paths:
+      - "scripts/experiment-home-feed-intent-prefetch.mjs"
+      - ".github/workflows/home-feed-intent-prefetch-experiment.yml"
+permissions:
+  contents: read
+concurrency:
+  group: home-feed-intent-experiment-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  home-to-feed:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate browser experiment syntax
+        run: node --check scripts/experiment-home-feed-intent-prefetch.mjs
+      - name: Run paired live homepage to feed navigation
+        run: node scripts/experiment-home-feed-intent-prefetch.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: home-feed-intent-prefetch
+          path: .artifacts/home-feed-intent-prefetch/
+          if-no-files-found: warn
+          retention-days: 14
