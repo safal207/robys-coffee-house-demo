@@ -69,7 +69,7 @@ async function inspect(browser, scenario, variant) {
     assert.ok(navigation?.ok(), "Initial route must load: " + scenario.name);
     if (scenario.view === "feed") {
       await page.waitForURL(url => url.pathname.endsWith("/menu-feed.html"), { timeout: 20000 });
-      await page.locator("#feed .feed-card img").first().waitFor({ state: "attached", timeout: 20000 });
+      await page.locator("#feed .feed-card .feed-photo img").first().waitFor({ state: "attached", timeout: 20000 });
     } else {
       await page.waitForURL(url => url.pathname.endsWith(scenario.view === "grid" ? "/menu-grid.html" : "/menu.html"),
         { timeout: 20000 });
@@ -78,7 +78,7 @@ async function inspect(browser, scenario, variant) {
     await page.waitForTimeout(500);
     const state = await page.evaluate(productId => {
       const first = document.querySelector("#menu-root .full-menu-item-media img") ??
-        document.querySelector("#feed .feed-card img");
+        document.querySelector("#feed .feed-card .feed-photo img");
       const source = first?.currentSrc || first?.src || null;
       return {
         finalUrl: location.href,
@@ -90,6 +90,8 @@ async function inspect(browser, scenario, variant) {
           .some(element => element.dataset.productId === productId) : null
       };
     }, scenario.product ?? null);
+    assert.ok(state.firstPhotoPath?.includes("/src/products/"),
+      "A brand avatar/logo must never be recorded as the first product photo");
     assert.deepEqual(errors, [], "Browser JS errors on " + scenario.name + "/" + variant);
     const expectedNavigations = scenario.path.startsWith("menu.html") ? 1 : 0;
     assert.equal(navigatedMenuDocuments, expectedNavigations,
@@ -159,7 +161,8 @@ async function main() {
       "Fragments (#category) are not transmitted in HTTP requests; static HTML cannot scope an image hint by fragment",
       "A requested image is not necessarily wasted bandwidth; inspect actual selected products and complete network data",
       "Photo request counts are snapshots 500ms after route readiness, not final page-transfer totals",
-      "Background prefetches of the list are tracked separately and left unchanged; this harness only injects into actual menu navigations"
+      "Background prefetches of the list are tracked separately and left unchanged; this harness only injects into actual menu navigations",
+      "All first-photo selectors target catalog product photographs, not feed avatars or brand marks"
     ],
     scenarios: cases.length, variants: 2, potentialOffTargetRoutes: risks.map(r => r.scenario),
     productionApproved: false, paired, samples
