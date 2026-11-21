@@ -12,6 +12,7 @@ test("mobile audit covers home, list, and photo feed without changing production
   assert.match(source, /newCDPSession/);
   assert.match(source, /validatePublishedBuild/);
   assert.match(source, /firstPhotoReadyMs/);
+  assert.match(source, /scrollIntoViewIfNeeded/);
   assert.match(source, /cacheState === "cold"/);
 });
 

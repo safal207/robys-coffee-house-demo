@@ -15,7 +15,7 @@ Local opportunities are estimates, not measured savings: approximately 420 KiB f
 
 The workflow checks the **deployed** GitHub Pages build and exact menu integrity hash against the branch's version before measuring. It visits homepage, list menu, and photographic feed through Chromium with a 390x844 viewport, simulated 150 ms latency, 1.6 Mbps download and 4x CPU throttling, and service workers disabled.
 
-Three independent cold browser contexts and a same-page warm reload are measured for each route. It records initial semantic readiness, first visible product photograph decoded (menu and feed), FCP, LCP when observable, CSS/JS/image transfer bytes, representative image widths, and resource timings. Warm reload retains the browser HTTP cache. Median and p90 are recorded alongside raw samples; missing values are explicitly labelled **unavailable**. The 500 ms settle window only covers resource accounting, not readiness.
+Three independent cold browser contexts and a same-page warm reload are measured for each route. It records initial semantic readiness, first viewport-visible product photograph decoded (scroll to the first card if necessary in the list; menu and feed), FCP, LCP when observable, CSS/JS/image transfer bytes, representative image widths, and resource timings. Warm reload retains the browser HTTP cache. Median and p90 are recorded alongside raw samples; missing values are explicitly labelled **unavailable**. The 500 ms settle window only covers resource accounting, not readiness.
 
 This is **synthetic laboratory evidence**, not real visitor Web Vitals; it does not establish field INP or ordering completion time. An existing causal journey suite separately measures cart and selection actions.
 

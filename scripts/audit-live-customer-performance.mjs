@@ -79,10 +79,13 @@ async function measure(page, url, route, cacheState) {
   const semanticReadyMs = await page.evaluate(() => performance.now());
   let firstPhotoReadyMs = null;
   if (route.imageSelector) {
+    const firstPhoto = page.locator(route.imageSelector).first();
+    await firstPhoto.scrollIntoViewIfNeeded({ timeout: timeoutMs });
     await page.waitForFunction(({ selector }) => {
       const img = document.querySelector(selector);
-      return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0
-        && img.getBoundingClientRect().width > 0 && img.getBoundingClientRect().height > 0;
+      if (!(img instanceof HTMLImageElement) || !img.complete || img.naturalWidth <= 0) return false;
+      const rect = img.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0 && rect.top < innerHeight && rect.bottom > 0;
     }, { selector: route.imageSelector }, { timeout: timeoutMs });
     firstPhotoReadyMs = await page.evaluate(() => performance.now());
   }
