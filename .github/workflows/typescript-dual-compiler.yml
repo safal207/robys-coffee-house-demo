@@ -1,0 +1,66 @@
+name: TypeScript 7 dual compiler contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/typescript-dual-compiler.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'scripts/build.mjs'
+      - 'scripts/verify-typescript-toolchain.mjs'
+      - 'scripts/test-typescript-toolchain.mjs'
+      - 'src/**/*.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: TS7 checker + TS6 API (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout exact head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Node 22
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate exact compiler routes
+        run: npm run verify:typescript-toolchain
+      - name: Run migration contract unit tests
+        run: npm run test:typescript-toolchain
+      - name: Type check with TS7
+        run: npm run typecheck
+      - name: Type check with compatibility TS6
+        run: npm run typecheck:compat
+      - name: Build with the preserved TS6 compiler API
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run build
+      - name: Reject generated runtime drift
+        if: matrix.os == 'ubuntu-latest'
+        run: >-
+          git diff --exit-code --
+          app.js
+          menu-feed.js
+          menu-app.js
+          index.html
+          menu-feed.html
+          discover.html
+          discover-rotation.js
+          discover-rotation-v2.js
+          discover-rotation-v3.js
+          sw.js
+          integrity-manifest.json
