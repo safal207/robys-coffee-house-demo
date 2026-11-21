@@ -62,6 +62,8 @@ function setupLightboxAccessibility() {
     new MutationObserver(() => {
       setInert(node.classList.contains("is-open"));
     }).observe(node, { attributes: true, attributeFilter: ["class"] });
+    // The lazy module may arrive after the first click already opened the lightbox.
+    setInert(node.classList.contains("is-open"));
   };
 
   attach(q(".lightbox"));

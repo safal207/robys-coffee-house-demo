@@ -351,9 +351,9 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
 const qaEnhancementsRevision = revisionFor("qa-enhancements.js");
-let qaRuntime = readFileSync("qa.js", "utf8");
+let qaRuntime = readFileSync("src/qa.js", "utf8");
 qaRuntime = qaRuntime.replace(/(import\("\.\/qa-enhancements\.js)(?:\?v=[^"]*)?("\))/, `$1?v=${qaEnhancementsRevision}$2`);
-writeFileSync("qa.js", qaRuntime);
+writeFileSync("qa.js", transformSync(qaRuntime, { minify: true, charset: "utf8", target: "es2020", legalComments: "none" }).code);
 const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
