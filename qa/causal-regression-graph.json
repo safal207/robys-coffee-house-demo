@@ -143,6 +143,7 @@
         "menu-security-v2.css",
         "menu-runtime.css",
         "scripts/experiment-menu-first-photo-preload.mjs",
+        "scripts/experiment-menu-photo-route-risk.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
