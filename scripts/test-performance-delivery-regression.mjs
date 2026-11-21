@@ -54,6 +54,8 @@ test("featured pairing artwork remains eager while its detailed story is an on-d
   const chunk = read("pairing-discovery.js");
   const revision = createHash("sha256").update(chunk).digest("hex").slice(0, 12);
   assert.ok(source.includes("function enhancePairingCards()"));
+  assert.ok(source.includes("const lang = document.documentElement.lang;"), "Pairing cards must not call an undefined global language helper");
+  assert.ok(source.includes("currentLanguage: () => document.documentElement.lang"), "Lazy discovery must receive a defined language reader");
   assert.ok(source.includes("pairing-poster-overlay"));
   assert.ok(source.includes('menuRoot.addEventListener("pointerover", warmOnIntent'));
   assert.ok(source.includes('menuRoot.addEventListener("focusin", warmOnIntent'));
