@@ -166,6 +166,20 @@ export function browserProbe() {
     return false;
   };
 }
+// A normal locator.click() waits for the navigation lifecycle after the
+// trusted click. That is unrelated to the semantic ready + two-frame metric.
+// Hover retains Playwright's actionability checks; a real mouse click then
+// waits only for the new document's commit, not its final load event.
+export async function clickJourneyNavigation(page, selector, expectedPath) {
+  const link = page.locator(selector);
+  await link.hover();
+  const box = await link.boundingBox();
+  if (!box || !(box.width > 0 && box.height > 0)) throw Error("Navigation target is not visible");
+  const committed = page.waitForURL(url => url.pathname === expectedPath, { waitUntil: "commit" });
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await committed;
+}
+
 export async function measureJourney(page, { journeyId, profile, attempt, selector, event = "click", outcome, action }) {
   const id = randomUUID();
   try {
@@ -237,8 +251,10 @@ export async function runJourneyProbe({ output = resolve(process.env.ROBYS_JOURN
         await page.goto(`${origin}/menu.html?view=list&lang=${profile.language}`, { waitUntil: "domcontentloaded" });
         await page.waitForFunction(() => window.__robysJourneyReady({ kind: "list" }));
         const count = await page.locator("#menu-root [data-product-id]").count();
-        await run("menu-switch-feed", '.menu-view-switch [data-menu-view="feed"]', { kind: "feed", language: profile.language });
-        await run("menu-switch-list", '.feed-view-switch [data-menu-view="list"]', { kind: "list" });
+        await run("menu-switch-feed", '.menu-view-switch [data-menu-view="feed"]', { kind: "feed", language: profile.language },
+          () => clickJourneyNavigation(page, '.menu-view-switch [data-menu-view="feed"]', "/menu-feed.html"));
+        await run("menu-switch-list", '.feed-view-switch [data-menu-view="list"]', { kind: "list" },
+          () => clickJourneyNavigation(page, '.feed-view-switch [data-menu-view="list"]', "/menu.html"));
         await run("menu-search", "#menu-search", { kind: "search", count }, () => page.locator("#menu-search").fill("Espresso"), "input");
         await run("menu-clear", ".menu-search-clear", { kind: "clear", count });
         await run("menu-category", '#menu-category-nav [data-category="hot-coffee"]', { kind: "category" });
