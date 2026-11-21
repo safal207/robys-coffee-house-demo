@@ -350,6 +350,10 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
+const qaEnhancementsRevision = revisionFor("qa-enhancements.js");
+let qaRuntime = readFileSync("qa.js", "utf8");
+qaRuntime = qaRuntime.replace(/(import\("\.\/qa-enhancements\.js)(?:\?v=[^"]*)?("\))/, `$1?v=${qaEnhancementsRevision}$2`);
+writeFileSync("qa.js", qaRuntime);
 const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
@@ -611,7 +615,7 @@ const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js"
 const storyCatalog = storyProducts(storyCategories);
 const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
-for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["qa-enhancements.js", "menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
@@ -697,6 +701,7 @@ for (const [filePath, revision] of [
   ["mobile.css", mobileStylesRevision],
   ["menu-preview.css", menuPreviewRevision],
   ["app.js", appRevision],
+  ["qa-enhancements.js", qaEnhancementsRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],
