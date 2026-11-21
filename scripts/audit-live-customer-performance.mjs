@@ -187,7 +187,7 @@ export async function runAudit() {
                 feedCards: document.querySelectorAll("#feed .feed-card").length,
                 menuEmpty: document.querySelector("#menu-empty")?.textContent?.trim() || null,
                 menuHTML: document.querySelector("#menu-root")?.innerHTML?.slice(0, 900) || null,
-                scripts: performance.getEntriesByType("resource").filter(entry => /\\.js(?:[?#]|$)/i.test(entry.name))
+                scripts: performance.getEntriesByType("resource").filter(entry => /\.js(?:[?#]|$)/i.test(entry.name))
                   .slice(0, 20).map(entry => ({ url: entry.name, durationMs: entry.duration, transferSize: entry.transferSize }))
               }), route.selector).catch(e => ({ captureError: String(e) }));
               const failure = { route: route.id, iteration, state, error: String(error), snapshot, browserErrors: browserErrors.slice(-15) };
