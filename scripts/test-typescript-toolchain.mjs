@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 const read = file => readFileSync(new URL("../" + file, import.meta.url), "utf8");
 
 test("TS7 is the primary checker while the JS build API stays on TS6", () => {
@@ -49,5 +52,28 @@ test("graph tracks compiler workflow, verifier and its tests without wildcard ow
     "docs/qa/typescript7-dual-compiler.md"
   ]) {
     assert.deepEqual(graph.components.filter(c => c.paths.includes(path)).map(c => c.id), ["qa-registry"]);
+  }
+});
+
+test("both compilers reject deliberate TS2322 without depending on a specific exit code", () => {
+  const root = resolve(import.meta.dirname, "..");
+  const temp = mkdtempSync(join(tmpdir(), "robys-ts7-negative-"));
+  try {
+    const bad = join(temp, "intentional-error.ts");
+    writeFileSync(bad, "const mustBeString: string = 123;\\n", "utf8");
+    for (const name of ["tsc", "tsc6"]) {
+      const binary = join(root, "node_modules", ".bin", process.platform === "win32" ? name + ".cmd" : name);
+      const result = spawnSync(binary, [
+        "--noEmit", "--pretty", "false", "--strict", "--skipLibCheck",
+        "--target", "es2020", "--module", "esnext", bad
+      ], { cwd: root, encoding: "utf8", shell: process.platform === "win32" });
+      assert.ifError(result.error);
+      assert.notEqual(result.status, null, name + ": compiler did not exit normally");
+      assert.notEqual(result.status, 0, name + ": type errors must fail the CI gate");
+      assert.match((result.stdout || "") + (result.stderr || ""), /TS2322:/,
+        name + ": failure must be a real type-assignment diagnostic");
+    }
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
   }
 });
