@@ -104,6 +104,13 @@ async function navigate(browser, testCase, mode, pair) {
     isMobile: true, hasTouch: true, locale: "tr-TR", serviceWorkers: "block"
   });
   const page = await context.newPage();
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Network.enable");
+  await cdp.send("Network.emulateNetworkConditions", {
+    offline: false, latency: 150, downloadThroughput: 1600000 / 8,
+    uploadThroughput: 750000 / 8, connectionType: "cellular3g"
+  });
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
   const jsErrors = [], runtimeRoutes = [], requestUrls = [];
   page.on("pageerror", error => jsErrors.push(error.message));
   page.on("request", request => {
