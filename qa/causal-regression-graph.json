@@ -141,7 +141,9 @@
         "menu-premium.css",
         "menu-stability*.css",
         "menu-security-v2.css",
-        "menu-runtime.css"
+        "menu-runtime.css",
+        "scripts/experiment-menu-first-photo-preload.mjs",
+        ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
         "build",
