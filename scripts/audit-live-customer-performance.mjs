@@ -93,7 +93,10 @@ async function measure(page, url, route, cacheState) {
   await page.waitForTimeout(500);
   const result = await page.evaluate(({ imageSelector, firstPhotoReadyMs }) => {
     const resources = performance.getEntriesByType("resource");
-    const sum = type => resources.filter(entry => type.test(entry.initiatorType)).reduce((total, entry) => total + entry.transferSize, 0);
+    // Preloaded product images have initiatorType="link"; classify by the fetched
+    // asset rather than initiator so image bytes are not misreported as CSS.
+    const bytesFor = type => resources.filter(entry => type.test(new URL(entry.name).pathname))
+      .reduce((total, entry) => total + entry.transferSize, 0);
     const images = [...document.images].filter(img => img.complete && img.naturalWidth > 0);
     const visible = images.filter(img => {
       const rect = img.getBoundingClientRect();
@@ -113,9 +116,9 @@ async function measure(page, url, route, cacheState) {
       lcpMs: window.__robysAuditMetrics?.lcpMs ?? null,
       cls: window.__robysAuditMetrics?.cls ?? null,
       ttfbMs: navigation ? navigation.responseStart - navigation.requestStart : null,
-      imageTransferBytes: sum(/^(img|image)$/),
-      scriptTransferBytes: sum(/script/),
-      stylesheetTransferBytes: sum(/^(css|link)$/),
+      imageTransferBytes: bytesFor(/\.(?:webp|avif|jpe?g|png|gif|svg)$/i),
+      scriptTransferBytes: bytesFor(/\.js$/i),
+      stylesheetTransferBytes: bytesFor(/\.css$/i),
       resourceCount: resources.length,
       imagesLoaded: images.length,
       imagesVisible: visible.length,
