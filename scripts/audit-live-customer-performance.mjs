@@ -87,6 +87,9 @@ async function measure(page, url, route, cacheState) {
       const rect = img.getBoundingClientRect();
       return rect.width > 0 && rect.height > 0 && rect.top < innerHeight && rect.bottom > 0;
     }, { selector: route.imageSelector }, { timeout: timeoutMs });
+    // complete/naturalWidth alone do not guarantee the bitmap has been decoded.
+    await firstPhoto.evaluate(image => image.decode());
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     firstPhotoReadyMs = await page.evaluate(() => performance.now());
   }
   // The fixed settle window is for resource accounting only, never readiness timings.
