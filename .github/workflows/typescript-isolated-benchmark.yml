@@ -1,0 +1,65 @@
+name: TypeScript 7 isolated Robys benchmark
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/typescript-isolated-benchmark.yml"
+      - "scripts/benchmark-typescript.mjs"
+      - "scripts/test-typescript-isolated-benchmark.mjs"
+      - "qa/causal-regression-graph.json"
+      - "tsconfig.json"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**/*.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: TS5 vs TS6 vs TS7 (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Node 22
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install unchanged production dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate isolation and causal test ownership
+        run: node --test scripts/test-typescript-isolated-benchmark.mjs
+      - name: Verify unmodified TypeScript 5 baseline
+        run: npm run typecheck
+      - name: Verify production build and byte parity on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- .
+      - name: Install pinned TypeScript 6 side by side
+        run: npm install --prefix .typescript-bench/ts6 --no-save --package-lock=false --no-audit --no-fund @typescript/typescript6@6.0.3
+      - name: Install pinned TypeScript 7 side by side
+        run: npm install --prefix .typescript-bench/ts7 --no-save --package-lock=false --no-audit --no-fund typescript@7.0.2
+      - name: Benchmark 2 warmups and 9 rotating samples
+        env:
+          TS_BENCH_WARMUPS: "2"
+          TS_BENCH_SAMPLES: "9"
+        run: node scripts/benchmark-typescript.mjs
+      - name: Retain per-OS evidence, even if comparison fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript7-isolated-${{ matrix.os }}
+          path: .artifacts/typescript-benchmark.json
+          if-no-files-found: warn
+          retention-days: 14
