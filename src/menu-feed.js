@@ -7,7 +7,6 @@ import { createFeedOrder } from "./src/menu-feed-order.js";
 import { initFeedCollections } from "./src/menu-feed-collections.js";
 import { createLazyFeedViewer } from "./src/menu-feed-viewer-entry.js";
 import { formatFeedItemCount } from "./src/menu-feed-copy.js";
-import { initTasteWave } from "./src/menu-taste-wave.js";
 
 const copy = {
   tr: { title: "Gözünle seç.\nTadını çıkar.", lead: "Bir kahve, bir tatlı, belki de ikisi. Beğendiklerini kaydet, hazır olunca siparişine ekle.",
@@ -487,6 +486,8 @@ function applyLanguage() {
   renderCategories(); updateFeedLayout(); renderFeed(); order.refreshLanguage(); collections.refresh();
   $("#feed-reels-open").setAttribute("aria-label", `${text().reels} · ${text().feedTitle}`);
   viewer?.renderStories(); viewer?.refresh(); tasteWave?.refresh();
+  const waveLabel = document.querySelector('#taste-wave-open [data-wave-copy="entry"]');
+  if (waveLabel) waveLabel.textContent = ({ tr: "Lezzet dalgası", en: "Taste wave", ru: "Волна вкуса" })[language];
   scheduleLayout();
 }
 
@@ -615,12 +616,36 @@ window.addEventListener("storage", event => {
   if (event.key === null || event.key.startsWith("robys-menu-order")) void refreshOrder();
   if (event.key === null || event.key.startsWith("robys-feed-")) syncEngagement(event.key);
 });
-const tasteWave = initTasteWave({ productIndex, getLanguage: () => language, localized, formatPrice: money,
-  addProduct: (product, trigger) => addProduct(product, undefined, trigger),
-  openProduct: (id, trigger) => order.openProduct(id, trigger),
-  onOpen: () => { order.cancelPending(); stopViews(); },
-  onClose: () => { scheduleActiveCard(); viewCandidates.forEach(scheduleView); }
-});
+// The taste chooser is optional: its catalog decorations and event wiring
+// should not compete with the first visible feed photograph.
+let tasteWave;
+const tasteWaveTrigger = $("#taste-wave-open");
+let tasteWaveLoading = false;
+async function openTasteWaveOnDemand() {
+  if (tasteWaveLoading || tasteWave) return;
+  tasteWaveLoading = true;
+  tasteWaveTrigger.disabled = true;
+  tasteWaveTrigger.setAttribute("aria-busy", "true");
+  try {
+    const { initTasteWave } = await import("./src/menu-taste-wave.js");
+    tasteWave = initTasteWave({ productIndex, getLanguage: () => language, localized, formatPrice: money,
+      addProduct: (product, trigger) => addProduct(product, undefined, trigger),
+      openProduct: (id, trigger) => order.openProduct(id, trigger),
+      onOpen: () => { order.cancelPending(); stopViews(); },
+      onClose: () => { scheduleActiveCard(); viewCandidates.forEach(scheduleView); }
+    });
+    tasteWaveTrigger.removeEventListener("click", openTasteWaveOnDemand);
+  } catch {
+    // The next tap retries the import; the current menu and ordering remain usable.
+    say(text().error);
+  } finally {
+    tasteWaveLoading = false;
+    tasteWaveTrigger.disabled = false;
+    tasteWaveTrigger.removeAttribute("aria-busy");
+  }
+  if (tasteWave && tasteWaveTrigger.isConnected) tasteWaveTrigger.click();
+}
+tasteWaveTrigger.addEventListener("click", openTasteWaveOnDemand);
 $("#feed-cart-preview").addEventListener("error", event => {
   const preview = event.currentTarget, product = productIndex.get(preview.dataset.previewId);
   if (product && !preview.dataset.fallback) { preview.dataset.fallback = "true"; preview.src = product.image; }

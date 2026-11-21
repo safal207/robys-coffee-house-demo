@@ -87,8 +87,10 @@ for (const [file, dependencies] of [
   }
   writeFileSync(file, source);
 }
+const tasteWaveRevision = revisionFor("src/menu-taste-wave.js");
 let feedSource = readFileSync("src/menu-feed.js", "utf8");
 feedSource = feedSource.replace(/from "\.\/menu-catalog\.js(?:\?v=[^"]*)?"/, `from "./menu-catalog.js?v=${menuCatalogRevision}"`);
+feedSource = synchronizeModuleImport(feedSource, "src/menu-taste-wave.js", tasteWaveRevision);
 writeFileSync("src/menu-feed.js", feedSource);
 writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
 const menuFeedRevision = revisionFor("menu-feed.js");
@@ -634,7 +636,7 @@ for (const asset of ["pairing-discovery.js", "qa-enhancements.js", "menu-grid.ht
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
-const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${tasteWaveRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
 const shareCacheRevision = createHash("sha256").update(`${menuShareEntryRevision}:${menuShareStyleRevision}:${JSON.stringify(menuShareProducts)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-menu-share-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-share-${shareCacheRevision}-shared-order-`);
@@ -726,6 +728,7 @@ for (const [filePath, revision] of [
   ["pairing-discovery.js", pairingDiscoveryRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-feed.js", menuFeedRevision],
+  ["src/menu-taste-wave.js", tasteWaveRevision],
   ["menu-feedback.js", menuFeedbackRevision],
   ["menu-feed-viewer.js", menuFeedViewerRevision],
   ["menu-view-mode.js", menuViewModeRevision],

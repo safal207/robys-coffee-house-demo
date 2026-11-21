@@ -87,6 +87,23 @@ test("shipped feed matches authored source and content-derived cache revisions",
   assert.match(html, /<noscript>/);
 });
 
+test("taste-wave code and images are isolated from the photo-first critical module", () => {
+  const waveSource = readFileSync("src/menu-taste-wave.js", "utf8");
+  const revision = createHash("sha256").update(waveSource).digest("hex").slice(0, 12);
+  const runtime = readFileSync("menu-feed.js", "utf8");
+  const authored = readFileSync("src/menu-feed.js", "utf8");
+  assert.ok(authored.includes('import("./src/menu-taste-wave.js?v=' + revision + '")'));
+  assert.ok(runtime.includes('import("./src/menu-taste-wave.js?v=' + revision + '")'));
+  assert.ok(!runtime.includes("Curated suggestions reference the existing catalog"));
+  assert.ok(!runtime.includes("taste-wave-theme-label"), "Dialog decorations must be loaded only on chooser intent");
+  const worker = readFileSync("sw-core-v64.js", "utf8");
+  assert.ok(worker.includes(`"./src/menu-taste-wave.js?v=${revision}"`), "Offline chooser keeps an exact revision");
+  assert.ok(worker.includes('url.pathname.endsWith("/src/menu-taste-wave.js")'));
+  assert.ok(authored.includes('tasteWaveTrigger.addEventListener("click", openTasteWaveOnDemand)'));
+  assert.ok(authored.includes('tasteWaveTrigger.removeEventListener("click", openTasteWaveOnDemand)'));
+  assert.ok(authored.includes("tasteWaveTrigger.click()"), "First tap must open the chooser after loading");
+});
+
 test("menu startup discovers exact modules early and optional viewers remain lazy", () => {
   for (const [page, entry] of [["menu.html", "menu-app.js"], ["menu-feed.html", "menu-feed.js"]]) {
     const html = readFileSync(page, "utf8"), head = html.split("</head>")[0];

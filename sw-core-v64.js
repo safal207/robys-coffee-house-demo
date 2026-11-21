@@ -107,6 +107,7 @@ const CORE_ASSETS = [
   "./smart-choice/catalog.js?v=528b93ac0a04",
   "./menu-feed.html",
   "./menu-feed.js?v=c25c1ac558ce",
+  "./src/menu-taste-wave.js?v=000000000000",
   "./menu-feed.css?v=bb2ea956908e",
   "./menu-view-mode.js?v=b6da8e94eb94",
   "./menu-share-entry.js?v=a7a7ede8582e",
@@ -281,6 +282,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/src/menu-taste-wave.js") ||
     url.pathname.endsWith("/menu-feedback.js") ||
     url.pathname.endsWith("/menu-feed-viewer.js") ||
     url.pathname.endsWith("/menu-view-mode.js") ||
