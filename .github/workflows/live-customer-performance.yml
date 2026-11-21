@@ -1,0 +1,46 @@
+name: Published customer journey performance baseline
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/live-customer-performance.yml'
+      - 'scripts/audit-live-customer-performance.mjs'
+      - 'scripts/test-live-customer-performance.mjs'
+      - 'docs/qa/live-customer-performance-baseline.md'
+      - 'qa/causal-regression-graph.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  published-baseline:
+    name: Published home, menu and photo feed (mobile)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout proposed audit harness
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install exact dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run baseline parser and scope tests
+        run: node --test scripts/test-live-customer-performance.mjs
+      - name: Install pinned Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Collect cold and warm published customer journeys
+        run: node scripts/audit-live-customer-performance.mjs
+      - name: Upload immutable route-level evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: live-customer-performance
+          path: .artifacts/live-customer-performance/report.json
+          if-no-files-found: warn
+          retention-days: 21
