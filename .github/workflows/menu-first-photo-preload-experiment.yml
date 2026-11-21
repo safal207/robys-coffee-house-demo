@@ -4,6 +4,7 @@ on:
     paths:
       - "scripts/experiment-menu-first-photo-preload.mjs"
       - "scripts/experiment-menu-photo-route-risk.mjs"
+      - "scripts/experiment-menu-first-section-render.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -28,10 +29,13 @@ jobs:
         run: |
           node --check scripts/experiment-menu-first-photo-preload.mjs
           node --check scripts/experiment-menu-photo-route-risk.mjs
+          node --check scripts/experiment-menu-first-section-render.mjs
       - name: Compare paired published-menu navigation
         run: node scripts/experiment-menu-first-photo-preload.mjs
       - name: Probe feed, search, product and category preload risks
         run: node scripts/experiment-menu-photo-route-risk.mjs
+      - name: Compare staged first-section rendering with unchanged product selection
+        run: node scripts/experiment-menu-first-section-render.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
