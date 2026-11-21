@@ -828,13 +828,19 @@ try {
     await page.goto(`${origin}/menu-feed.html`);
     await page.locator('#feed[data-ready="true"]').waitFor();
     await page.evaluate(() => document.fonts.ready);
-    const first = page.locator(".feed-card").nth(0), shortVisit = page.locator(".feed-card").nth(1), delayedPhoto = page.locator(".feed-card").nth(2);
+    const first = page.locator(".feed-card").nth(0), shortVisit = page.locator(".feed-card").nth(1),
+      delayedPhoto = page.locator(".feed-card").nth(2), belowFold = page.locator(".feed-card").nth(3);
+    // Production intentionally paints only four cards on entry, then loads
+    // eight more per page. The offscreen regression must target a mounted card.
+    assert.equal(await page.locator(".feed-card").count(), 4, "The first feed page mounts four cards before pagination");
     await first.locator(".feed-photo>img").evaluate(async image => { image.scrollIntoView({ block: "center", behavior: "instant" }); await image.decode(); });
     // This bounded wait is the measured exposure requirement, not an arbitrary
     // readiness delay: hidden or sub-second exposure must never mark a view.
     await page.waitForTimeout(1200);
     assert.equal(await first.locator(".feed-seen").getAttribute("data-seen"), "false");
-    assert.equal(await page.locator(".feed-card").nth(5).locator(".feed-seen").getAttribute("data-seen"), "false");
+    assert.ok(await belowFold.locator(".feed-photo>img").evaluate(image => image.getBoundingClientRect().top >= innerHeight),
+      "The fourth photo is still outside the initial viewport");
+    assert.equal(await belowFold.locator(".feed-seen").getAttribute("data-seen"), "false");
     assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*0\s*\/\s*63/i);
     await page.evaluate(async () => {
       window.__feedTestHidden = false; document.dispatchEvent(new Event("visibilitychange"));
@@ -897,7 +903,9 @@ try {
     assert.equal(await page.evaluate(id => localStorage.getItem(`robys-feed-seen-v1:${id}`), delayedId), "1");
     await page.waitForTimeout(1200);
     assert.match(await page.locator("#feed-seen-summary").textContent(), /Viewed by you:\s*2\s*\/\s*63/i);
-    assert.equal(await page.locator(".feed-card").nth(5).locator(".feed-seen").getAttribute("data-seen"), "false");
+    assert.ok(await belowFold.locator(".feed-photo>img").evaluate(image => image.getBoundingClientRect().top >= innerHeight),
+      "The fourth photo is still outside the initial viewport");
+    assert.equal(await belowFold.locator(".feed-seen").getAttribute("data-seen"), "false");
     assert.deepEqual(errors, []);
     report.cases.push({ case: "personal-views", result: "PASS", controlledVisibilityGuard: true, subSecondExposureExcluded: true,
       controlledPersistedPageRestore: true, failedImageExcluded: true, recoveredImageCounted: true, belowFoldExcluded: true, uniqueProductCount: 2 });
