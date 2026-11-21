@@ -52,6 +52,17 @@ function timingReport() {
       evidence: { id: `transition-${i}`, start: RUN_START + i * 1000 + 1, end: RUN_START + i * 1000 + 101, correct: true, url: `${ORIGIN}/${sample.journeyId === 'menu-switch-feed' ? 'menu-feed.html' : 'menu.html'}` } })) };
 }
 
+test('takeaway animation regressions stay mapped to home entry contracts', () => {
+  const checks = ['takeaway-entry.js', 'scripts/test-takeaway-entry.mjs'];
+  for (const path of checks) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.directComponents.includes('home'), path);
+    assert.ok(result.selectedChecks.includes('source-contracts'), path);
+    assert.ok(result.selectedChecks.includes('contextual-entry-browser'), path);
+  }
+});
+
 test('paths stay inside the repository and slash-aware globs do not overselect siblings', () => {
   for (const path of ['../secret', '/etc/passwd', 'src/../secret', 'src\\a.js', 'src//a.js']) assert.equal(safePath(path), false);
   assert.equal(safePath('.github/workflows/causal-regression.yml'), true);

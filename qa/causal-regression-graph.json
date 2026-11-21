@@ -80,6 +80,7 @@
         "src/conversion.js",
         "conversion.js",
         "takeaway-entry.js",
+        "scripts/test-takeaway-entry.mjs",
         "morning-entry-v2.js",
         "day-night-entry.js",
         "src/amenities.ts",
