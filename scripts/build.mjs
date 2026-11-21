@@ -259,9 +259,12 @@ function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   const [entry, revision] = modules.at(-1);
   const script = new RegExp(`\\s*<script\\b[^>]*src="${entry.replaceAll(".", "\\.")}\\?v=[^"]*"[^>]*><\\/script>`);
   html = html.replace(script, "");
-  // Keep normal deferred execution and incremental painting; no render-blocking
-  // snapshots or timers stand between a tap and the next document.
-  return html.replace(/(<meta name="viewport"[^>]*>)/, `$1\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
+  // Discovery hints follow the already-required critical styles. This avoids
+  // competing with CSS on slow mobile links, while preserving deferred module
+  // execution and the existing order of all stylesheet cascade layers.
+  const criticalStyle = [...html.matchAll(/<link\\b[^>]*\\brel="stylesheet"[^>]*\\bhref="(?:menu-runtime|menu-feed|my-feed)\\.css(?:\\?v=[^"]*)?"[^>]*>/g)].at(-1)?.[0];
+  if (!criticalStyle) throw new Error("Menu startup requires a reviewed critical stylesheet");
+  return html.replace(criticalStyle, `${criticalStyle}\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
 }
 
 function synchronizeScript(html, fileName, revision) {
