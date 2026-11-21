@@ -1,0 +1,25 @@
+name: BiteOS local analytics pilot
+on:
+  pull_request:
+    paths:
+      - 'scripts/biteos-*'
+      - 'scripts/test-biteos-live-pilot.mjs'
+      - 'scripts/test-biteos-pilot-browser.mjs'
+      - 'src/menu-feed*.js'
+      - '.github/workflows/biteos-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  local-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - run: node --test scripts/test-biteos-live-pilot.mjs
+
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-biteos-pilot-browser.mjs

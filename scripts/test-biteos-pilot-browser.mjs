@@ -1,0 +1,35 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+import {chromium} from "playwright";
+import {createPilotServer} from "./biteos-live-pilot.mjs";
+const server=createPilotServer();
+await new Promise(ok=>server.listen(0,"127.0.0.1",ok));
+const base="http://127.0.0.1:"+server.address().port;
+let browser;
+try {
+ browser=await chromium.launch({headless:true});
+ const context=await browser.newContext({viewport:{width:1280,height:900},acceptDownloads:true,serviceWorkers:"block"});
+ await context.route("**/*",route=>route.request().url().startsWith(base+"/")?route.continue():route.abort());
+ const page=await context.newPage();
+ const errors=[];page.on("pageerror",e=>errors.push(e.message));
+ await page.goto(base+"/menu-feed.html?lang=en&item=hot-coffee%3Aespresso&utm_source=instagram&utm_medium=social&utm_campaign=story");
+ const enable=page.getByRole("button",{name:"Enable test-event recording"}),stop=page.getByRole("button",{name:"Stop and erase"}),exportButton=page.getByRole("button",{name:"Export JSON"});
+ await enable.waitFor();
+ assert.equal(await exportButton.isEnabled(),false);
+ await enable.click();
+ const card=page.locator('.feed-card[data-product-id="hot-coffee:espresso"]');
+ await card.locator(".feed-like").click();
+ const downloadPromise=page.waitForEvent("download");await exportButton.click();
+ const downloaded=await downloadPromise;
+ const events=JSON.parse(await readFile(await downloaded.path(),"utf8"));
+ assert.equal(events[0].action,"landing");assert.equal(events[0].source,"instagram");
+ assert.ok(events.some(e=>e.action==="product_like"&&e.productId==="hot-coffee:espresso"));
+ assert.ok(events.every(e=>e.schema==="robys.engagement.v1"));
+ await stop.click();assert.equal(await exportButton.isEnabled(),false);
+ await enable.click();
+ const next=page.waitForEvent("download");await exportButton.click();
+ const fresh=JSON.parse(await readFile(await (await next).path(),"utf8"));
+ assert.ok(fresh.every(e=>e.sessionId!==events[0].sessionId));assert.ok(!fresh.some(e=>e.action==="product_like"));
+ assert.deepEqual(errors,[]);
+ console.log("Robys actual feed local opt-in, like, export, withdrawal and new session verified");
+}finally{if(browser)await browser.close();await new Promise(ok=>server.close(ok))}
