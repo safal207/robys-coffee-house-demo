@@ -21,3 +21,12 @@
 - A fresh PR check run is required on the exact final head to establish whether the two performance failures are resolved.
 
 No merge or approval is performed by this evidence file.
+
+## Follow-up fix and generated-runtime evidence
+
+- `e8fbb1c`: removed unconditional first-photo preload, preserving the sole context-specific runtime preload for category, search and product deep links.
+- `2e0d6de`: repaired the ASSET-001 guard to require the exact approved hero path in both authored QA source and minified shipped runtime.
+- `9b86749`: deterministic generated runtime and integrity-manifest update from one-shot GitHub Actions run 44871941811 (SUCCESS); the temporary workflow removed itself.
+- The one-shot run passed npm build, integrity generation, both performance-delivery contract tests, and P1 mobile/CTA/accessibility/asset contracts.
+- Shipped `qa.js` was reduced from 3,161 to 2,339 UTF-8 characters with the reviewed source retained in `src/qa.js`.
+- Previous baseline performance and browser failures are not marked resolved until checks complete on the final human-authored exact HEAD.
