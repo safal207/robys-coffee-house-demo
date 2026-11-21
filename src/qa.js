@@ -1,7 +1,7 @@
-const q = (selector, root = document) => root.querySelector(selector);
-const qa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+const q = selector => document.querySelector(selector);
 const HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1";
 const HERO_BALANCE_STYLES = "hero-balance.css?v=20260622-1";
+const enhancementEvents = ["pointerover", "pointerdown", "keydown", "focusin"];
 
 function ensureHeroBalanceStyles() {
   if (document.querySelector('link[data-hero-balance="true"]')) return;
@@ -32,8 +32,8 @@ function requestHeroPlayback(video) {
 function enableHeroVideo() {
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const video = q(".hero-video");
-  const source = video ? q("source", video) : null;
-  if (!video || !source) return;
+  const source = video?.querySelector("source");
+  if (!source) return;
 
   video.autoplay = true;
   video.loop = true;
@@ -66,11 +66,10 @@ function scheduleHeroPlayback() {
 function applyImmediateA11yFixes() {
   document.documentElement.style.setProperty("--ruby", "#b24753");
 
-  qa(".brand").forEach((link) => link.removeAttribute("aria-label"));
+  document.querySelectorAll(".brand").forEach(link => link.removeAttribute("aria-label"));
   q(".map-live-link")?.removeAttribute("aria-label");
 
-  const backTop = q(".back-top");
-  if (backTop) backTop.setAttribute("aria-label", "↑ Back to top");
+  q(".back-top")?.setAttribute("aria-label", "↑ Back to top");
 }
 
 let enhancementsPromise;
@@ -78,7 +77,7 @@ function loadQaEnhancements() {
   if (enhancementsPromise) return;
   enhancementsPromise = import("./qa-enhancements.js?v=d960d8ca4a45").then(({ initQaEnhancements }) => {
     initQaEnhancements();
-    for (const type of ["pointerover", "pointerdown", "keydown", "focusin"])
+    for (const type of enhancementEvents)
       window.removeEventListener(type, loadQaEnhancements);
   }).catch(() => { enhancementsPromise = null; });
 }
@@ -87,7 +86,7 @@ function initQa() {
   ensureHeroBalanceStyles();
   scheduleHeroPlayback();
   applyImmediateA11yFixes();
-  for (const type of ["pointerover", "pointerdown", "keydown", "focusin"])
+  for (const type of enhancementEvents)
     window.addEventListener(type, loadQaEnhancements, { passive: type.startsWith("pointer") });
 }
 

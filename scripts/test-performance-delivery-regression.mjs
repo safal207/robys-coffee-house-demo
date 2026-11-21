@@ -25,6 +25,10 @@ test("hero remains eager while interaction-only QA enhancements load from a vers
   const enhancements = read("qa-enhancements.js");
   const revision = createHash("sha256").update(enhancements).digest("hex").slice(0, 12);
   assert.ok(source.includes("function enableHeroVideo()"));
+  assert.ok(source.includes('document.querySelectorAll(".brand")'), "Immediate brand labels must be corrected");
+  assert.ok(source.includes('const enhancementEvents = ["pointerover", "pointerdown", "keydown", "focusin"]'));
+  assert.equal((source.match(/for \(const type of enhancementEvents\)/g) ?? []).length, 2,
+    "Lazy activation and cleanup must cover the same pointer and keyboard events");
   assert.ok(main.includes("src/robys-ambience-clean.mp4"));
   const expected = transformSync(source.replace(
     /(import\("\.\/qa-enhancements\.js)(?:\?v=[^"]*)?("\))/, `$1?v=${revision}$2`),
