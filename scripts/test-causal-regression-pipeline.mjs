@@ -182,7 +182,7 @@ test('planning refuses missing ownership before publishing its execution matrix'
 });
 
 test('Lighthouse prerequisites select source contracts and their existing mobile and desktop consumers', () => {
-  const inputs = ['scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs',
+  const inputs = ['scripts/run-lighthouse-profile.mjs', 'scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs',
     '.github/workflows/lighthouse-build-smoke.yml', '.github/workflows/lighthouse-profile.yml'];
   for (const path of inputs) {
     const result = impactPlan(graph, [path]);

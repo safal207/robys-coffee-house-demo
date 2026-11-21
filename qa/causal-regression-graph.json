@@ -747,6 +747,7 @@
         "scripts/test-menu-responsiveness-gate.mjs",
         ".github/workflows/menu-responsiveness.yml",
         "scripts/lighthouse-comment.mjs",
+        "scripts/run-lighthouse-profile.mjs",
         "scripts/ensure-lighthouse-ffprobe.mjs",
         "scripts/signed-ubuntu-packages.mjs",
         "scripts/test-lighthouse-ffprobe.mjs",
