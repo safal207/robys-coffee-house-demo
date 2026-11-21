@@ -249,9 +249,8 @@ function locateScript(html, fileName) {
   return { open, close };
 }
 
-// Discover the current view and its shared catalog before blocking CSS/bootstrap
-// and the body. These are already required modules: no speculative execution or
-// extra startup payload, and no serial entry -> catalog network round trip.
+// Discover the current menu view after the shared critical styles and before
+// deferred module execution. These are required modules, not extra payload.
 function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   html = html.replace(/\n\s*<!-- menu startup modules -->[\s\S]*?<!-- \/menu startup modules -->/, "");
   let hints = modules.map(([file, revision]) => `  <link rel="modulepreload" href="${file}?v=${revision}" />`).join("\n");
@@ -262,7 +261,7 @@ function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   // Discovery hints follow the already-required critical styles. This avoids
   // competing with CSS on slow mobile links, while preserving deferred module
   // execution and the existing order of all stylesheet cascade layers.
-  const criticalStyle = [...html.matchAll(/<link\\b[^>]*\\brel="stylesheet"[^>]*\\bhref="(?:menu-runtime|menu-feed|my-feed)\\.css(?:\\?v=[^"]*)?"[^>]*>/g)].at(-1)?.[0];
+  const criticalStyle = [...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="(?:menu-runtime|menu-feed|my-feed)\.css(?:\?v=[^"]*)?"[^>]*>/g)].at(-1)?.[0];
   if (!criticalStyle) throw new Error("Menu startup requires a reviewed critical stylesheet");
   return html.replace(criticalStyle, `${criticalStyle}\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
 }
