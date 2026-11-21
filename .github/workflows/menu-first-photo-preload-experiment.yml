@@ -38,8 +38,6 @@ jobs:
         run: node scripts/experiment-menu-photo-route-risk.mjs
       - name: Compare staged first-section rendering with unchanged product selection
         run: node scripts/experiment-menu-first-section-render.mjs
-      - name: Verify search, category, language and cart transitions after staged render
-        run: node scripts/test-menu-first-section-state-transitions.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -71,5 +69,29 @@ jobs:
         with:
           name: first-section-confirmation
           path: .artifacts/menu-first-photo-experiment/first-section-confirmation.json
+          if-no-files-found: warn
+          retention-days: 14
+  menu-state-transition-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate state-machine syntax
+        run: node --check scripts/test-menu-first-section-state-transitions.mjs
+      - name: Compare control and staged UI transitions, product modal, locale and cart
+        run: node scripts/test-menu-first-section-state-transitions.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: menu-state-transition-qa
+          path: .artifacts/menu-first-photo-experiment/staged-render-state-machine.json
           if-no-files-found: warn
           retention-days: 14
