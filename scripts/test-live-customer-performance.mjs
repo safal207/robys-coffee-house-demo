@@ -6,6 +6,7 @@ import { ROUTES, REPETITIONS, percentile, summarize } from "./audit-live-custome
 test("mobile audit covers home, list, and photo feed without changing production", () => {
   assert.deepEqual(ROUTES.map(r => r.id), ["home", "menu-list", "photo-feed"]);
   assert.equal(REPETITIONS, 3);
+  assert.equal(ROUTES.find(route => route.id === "menu-list").path, "/menu.html?view=list", "Avoid intended first-navigation redirect to feed");
   const source = readFileSync(new URL("./audit-live-customer-performance.mjs", import.meta.url), "utf8");
   assert.match(source, /serviceWorkers: "block"/);
   assert.match(source, /published-GitHub-Pages/);

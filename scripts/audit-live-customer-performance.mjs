@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 
 export const ROUTES = Object.freeze([
   { id: "home", path: "/", selector: "#hero-title", imageSelector: null },
-  { id: "menu-list", path: "/menu.html", selector: "#menu-root [data-product-id]", imageSelector: "#menu-root img" },
+  { id: "menu-list", path: "/menu.html?view=list", selector: "#menu-root [data-product-id]", imageSelector: "#menu-root img" },
   { id: "photo-feed", path: "/menu-feed.html", selector: "#feed .feed-card", imageSelector: "#feed .feed-card img" }
 ]);
 export const REPETITIONS = 3;
