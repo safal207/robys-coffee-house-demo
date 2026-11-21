@@ -1,4 +1,5 @@
 import { readVerifiedMenuSource } from "./menu-runtime-source.mjs";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -9,6 +10,9 @@ const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
+const qaEnhancements = readFileSync("qa-enhancements.js", "utf8");
+const qaEnhancementsRevision = createHash("sha256").update(qaEnhancements).digest("hex").slice(0, 12);
+const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
@@ -120,7 +124,11 @@ assert(/class=["'][^"']*map-live-frame[^"']*["'][^>]*title=["'][^"']+/i.test(ind
 assert(indexHtml.includes('class="hero-video"') && indexHtml.includes('aria-hidden="true"'), "A11Y-001", "Hero accessibility changed");
 assert(finalQaCss.includes(":focus-visible"), "A11Y-001", "Focus styling disappeared");
 assert(menuCss.includes(".visually-hidden{"), "A11Y-001", "Visually-hidden utility disappeared");
-assert(qaRuntime.includes('event.key !== "Tab"') && qaRuntime.includes('setAttribute("inert", "")'), "A11Y-001", "Lightbox focus protection changed");
+assert(qaRuntime.includes(`import("./qa-enhancements.js?v=${qaEnhancementsRevision}")`)
+  && serviceWorker.includes(`"./qa-enhancements.js?v=${qaEnhancementsRevision}"`)
+  && qaEnhancements.includes("export function initQaEnhancements()")
+  && qaEnhancements.includes('event.key !== "Tab"')
+  && qaEnhancements.includes('setAttribute("inert", "")'), "A11Y-001", "Versioned lightbox focus protection changed");
 assert(menuRuntime.includes('aria-pressed'), "A11Y-001", "Dynamic pressed state disappeared");
 gate("A11Y-001");
 
@@ -139,6 +147,7 @@ const criticalFiles = [
   "conversion.js",
   "analytics.js",
   "qa.js",
+  "qa-enhancements.js",
   "menu-app.js",
   "menu-catalog.js",
   "menu-search-clear.js",
@@ -155,7 +164,7 @@ const criticalFiles = [
 criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
-assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
+assert(qaEnhancements.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
 assert(qaRuntime.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1'), "ASSET-001", "Hero asset changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
