@@ -185,8 +185,9 @@ export function runTakeawayEntry(scene = "day") {
 
     entranceFinished.finally(() => {
       if (exiting || done) return;
-      window.clearTimeout(fallbackFinish);
-      timers.delete(fallbackFinish);
+      // Keep the hard fallback armed until finish(). On a busy device the
+      // animation promise may settle after its original timer is already due;
+      // cancelling it here could let HARD_STOP_MS skip the handoff event.
       later(finish, stationaryHold);
     });
   }).catch(cleanup);
