@@ -66,7 +66,7 @@ test("both compilers reject deliberate TS2322 without depending on a specific ex
       const result = spawnSync(binary, [
         "--noEmit", "--pretty", "false", "--strict", "--skipLibCheck",
         "--target", "es2020", "--module", "esnext", bad
-      ], { cwd: root, encoding: "utf8", shell: process.platform === "win32" });
+      ], { cwd: temp, encoding: "utf8", shell: process.platform === "win32" });
       assert.ifError(result.error);
       assert.notEqual(result.status, null, name + ": compiler did not exit normally");
       assert.notEqual(result.status, 0, name + ": type errors must fail the CI gate");
