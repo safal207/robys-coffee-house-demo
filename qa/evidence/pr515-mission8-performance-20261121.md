@@ -38,3 +38,13 @@ No merge or approval is performed by this evidence file.
 - Measured shipped `qa.js`: **2,192 bytes**, compared with 2,339 bytes before these final optimizations (147 bytes saved).
 - On the previous Lighthouse report, total JS was 23,323 bytes against a 23,245.95-byte regression ceiling. The 147-byte delivered-runtime reduction is intended to close that gap; Lighthouse must still re-measure the exact final head before sign-off.
 - The original performance budgets remain unchanged. No brand assets, product photos or order state behavior were removed.
+
+
+## On-demand pairing: startup delivery follow-up (21 November 2026)
+
+- Reviewed the six-run mobile Lighthouse artifact from run 44873140448. Median first-party JavaScript 23,310.5 bytes against a 22,139-byte baseline and 5% allowance; mobile LCP median 2,119.9 ms against 1,803.7 ms baseline, with CSS/render delay dominant. The initial median spans home and menu Lighthouse runs, so optimizing a tiny home-only module has limited impact.
+- Detailed pairing story now lives in an on-demand `pairing-discovery.js` chunk. The first-load `pairing-posters.js` still paints the full branded featured cards immediately; pointerover/focusin starts prefetching the story, and clicking loads it with an accessible busy state. If loading fails, the ordinary product choice remains available.
+- The generated first-load pairing script shrank from 8,643 bytes to 5,715 bytes (2,928 bytes / 33.9% smaller). The 4,012-byte story chunk is not an eager menu script.
+- Authored and emitted runtime, the versioned import, service worker, manifest and causal owner map were synchronized by successful one-shot build run 44874741480. The temporary write-capable helper removed itself in generated commit `d80e17a`.
+- Targeted tests PASS: 3 performance delivery tests; hero playback; MOBILE-001/CTA-001/A11Y-001/ASSET-001; regression contracts including VIDEO-001 and approved brand/video; causal graph validate (38 components, 41 journeys, 39 checks). No performance budgets were weakened and no approved assets were replaced.
+- Release gate remains **PENDING** on this exact revision until Lighthouse, order integrity (Chromium/Firefox/WebKit), Causal regression evidence, and visual regression complete; never merge automatically.
