@@ -18,7 +18,7 @@ jobs:
       - run: npm run build
       - run: npm run integrity:generate
       - run: node scripts/ensure-lighthouse-ffprobe.mjs
-      - run: npm run check
+      - run: node scripts/causal-regression.mjs validate
       - run: node --test scripts/test-performance-delivery-regression.mjs
       - run: node scripts/test-hero-playback.mjs
       - run: node scripts/verify-p1-interface-contracts.mjs
