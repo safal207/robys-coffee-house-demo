@@ -43,3 +43,29 @@ jobs:
           path: .artifacts/menu-first-photo-experiment/
           if-no-files-found: warn
           retention-days: 14
+  default-list-confirmation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate confirmation syntax
+        run: node --check scripts/experiment-menu-first-section-render.mjs
+      - name: Confirm default-list-only versus control over eight cold pairs on every route
+        run: node scripts/experiment-menu-first-section-render.mjs
+        env:
+          ROBY_FIRST_SECTION_CONFIRM: "1"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: first-section-confirmation
+          path: .artifacts/menu-first-photo-experiment/first-section-confirmation.json
+          if-no-files-found: warn
+          retention-days: 14
