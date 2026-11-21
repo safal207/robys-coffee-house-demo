@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 
 // Only test code is committed. Candidate JS replaces the PUBLISHED compiled
@@ -100,7 +102,7 @@ function buildCandidate(eagerFirst, defaultListOnly = false) {
   return compileMenuRuntime(candidate);
 }
 
-const compiled = {
+export const compiled = {
   control: publishedBuild,
   "first-section": buildCandidate(false),
   "first-section-eager": buildCandidate(true),
@@ -315,4 +317,7 @@ async function main() {
   }
   console.log((CONFIRM ? "FIRST_SECTION_CONFIRMATION " : "FIRST_SECTION_SUMMARY ") + JSON.stringify(summary));
 }
-main().catch(error => { console.error(error); process.exitCode = 1; });
+// Importing candidates for state-machine QA must not launch 64 benchmark navigations.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(error => { console.error(error); process.exitCode = 1; });
+}
