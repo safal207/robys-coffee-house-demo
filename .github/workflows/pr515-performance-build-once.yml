@@ -1,4 +1,5 @@
 name: PR515 one-shot performance rebuild 2
+# Recheck the generated QA source and delivered runtime after ASSET-001 verifier repair
 on:
   push:
     branches: [feat/taste-memory-social-20261120]

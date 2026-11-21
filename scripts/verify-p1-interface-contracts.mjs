@@ -10,6 +10,7 @@ const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
+const qaSource = readFileSync("src/qa.js", "utf8");
 const qaEnhancements = readFileSync("qa-enhancements.js", "utf8");
 const qaEnhancementsRevision = createHash("sha256").update(qaEnhancements).digest("hex").slice(0, 12);
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
@@ -165,7 +166,8 @@ criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
 assert(qaEnhancements.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
-assert(qaRuntime.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1'), "ASSET-001", "Hero asset changed");
+assert(qaSource.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1')
+  && qaRuntime.includes("src/robys-ambience-clean.mp4?v=20260711-1"), "ASSET-001", "Hero asset changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");
 gate("ASSET-001");
