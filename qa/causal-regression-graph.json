@@ -140,7 +140,9 @@
         "scripts/verify-pairing-cta.mjs",
         "src/menu-actions-loader.js",
         "src/pairing-posters.js",
+        "src/pairing-discovery.js",
         "pairing-posters.js",
+        "pairing-discovery.js",
         "pairing-posters.css",
         "menu-premium.css",
         "menu-stability*.css",
@@ -500,6 +502,7 @@
         "src/discover-rotation.ts",
         "src/pairings-data/**",
         "src/pairing-posters.js",
+        "src/pairing-discovery.js",
         "scripts/verify-pairing-cta.mjs",
         "pairing-posters.js",
         "pairing-posters.css"
@@ -764,7 +767,8 @@
         "qa-enhancements.js",
         "qa/evidence/pr515-mission8-performance-20261121.md",
         "scripts/test-performance-delivery-regression.mjs",
-        "scripts/verify-p1-interface-contracts.mjs"
+        "scripts/verify-p1-interface-contracts.mjs",
+        "scripts/verify-regression-contracts.mjs"
       ],
       "dependsOn": [
         "build"

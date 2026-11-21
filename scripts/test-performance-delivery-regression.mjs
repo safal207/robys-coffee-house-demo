@@ -45,3 +45,26 @@ test("hero remains eager while interaction-only QA enhancements load from a vers
   assert.ok(enhancements.includes("function setupImageFallbacks()"));
   assert.ok(read("sw-core-v64.js").includes(`"./qa-enhancements.js?v=${revision}"`));
 });
+
+test("featured pairing artwork remains eager while its detailed story is an on-demand, versioned chunk", () => {
+  const html = read("menu.html");
+  const source = read("src/pairing-posters.js");
+  const runtime = read("pairing-posters.js");
+  const detail = read("src/pairing-discovery.js");
+  const chunk = read("pairing-discovery.js");
+  const revision = createHash("sha256").update(chunk).digest("hex").slice(0, 12);
+  assert.ok(source.includes("function enhancePairingCards()"));
+  assert.ok(source.includes("pairing-poster-overlay"));
+  assert.ok(source.includes('menuRoot.addEventListener("pointerover", warmOnIntent'));
+  assert.ok(source.includes('menuRoot.addEventListener("focusin", warmOnIntent'));
+  assert.ok(source.includes('trigger.setAttribute("aria-busy", "true")'));
+  assert.ok(source.includes('trigger.dataset.inlineChoiceBypass = "true"'), "Story load failure must preserve ordering");
+  assert.ok(source.includes('import("./pairing-discovery.js")'), "Story import must occur on demand");
+  assert.ok(runtime.includes(`import("./pairing-discovery.js?v=${revision}")`), "The loaded chunk must be cache versioned");
+  assert.ok(detail.includes("export function renderExperience"));
+  assert.ok(detail.includes("pairing-discovery-panel"));
+  assert.ok(chunk.includes("pairing-discovery-panel"));
+  assert.ok(!runtime.includes("pairing-discovery-panel"), "Detailed story must not increase first-load JS");
+  assert.ok(!html.includes('src="pairing-discovery.js'), "The detailed story must not be an eager module");
+  assert.ok(read("sw-core-v64.js").includes(`"./pairing-discovery.js?v=${revision}"`));
+});

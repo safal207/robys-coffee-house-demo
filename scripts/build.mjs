@@ -395,7 +395,12 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
-writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
+writeFileSync("pairing-discovery.js", compileMenuRuntime(readFileSync("src/pairing-discovery.js", "utf8")));
+const pairingDiscoveryRevision = revisionFor("pairing-discovery.js");
+const pairingPostersSource = readFileSync("src/pairing-posters.js", "utf8").replace(
+  /import\("\.\/pairing-discovery\.js(?:\?v=[^"]*)?"\)/, `import("./pairing-discovery.js?v=${pairingDiscoveryRevision}")`
+);
+writeFileSync("pairing-posters.js", compileMenuRuntime(pairingPostersSource));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuAppRevision = revisionFor("menu-app.js");
@@ -615,7 +620,7 @@ const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js"
 const storyCatalog = storyProducts(storyCategories);
 const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
-for (const asset of ["qa-enhancements.js", "menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["pairing-discovery.js", "qa-enhancements.js", "menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
@@ -710,6 +715,7 @@ for (const [filePath, revision] of [
   ["kids-menu.css", kidsMenuCssRevision],
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
+  ["pairing-discovery.js", pairingDiscoveryRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-feed.js", menuFeedRevision],
   ["menu-feedback.js", menuFeedbackRevision],
