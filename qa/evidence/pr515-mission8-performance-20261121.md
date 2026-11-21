@@ -30,3 +30,11 @@ No merge or approval is performed by this evidence file.
 - The one-shot run passed npm build, integrity generation, both performance-delivery contract tests, and P1 mobile/CTA/accessibility/asset contracts.
 - Shipped `qa.js` was reduced from 3,161 to 2,339 UTF-8 characters with the reviewed source retained in `src/qa.js`.
 - Previous baseline performance and browser failures are not marked resolved until checks complete on the final human-authored exact HEAD.
+
+## First-load JS budget follow-up
+
+- `b1f52f8` and `01688fc` share lazy-listener declarations and DOM access without removing hero, keyboard, pointer or accessibility behavior.
+- `434015b` is the generated source-paired runtime from one-shot GitHub Actions run `44873037101`, which completed SUCCESS, including `npm run build`, integrity generation, photo-hint regression, hero playback and P1 regression contracts.
+- Measured shipped `qa.js`: **2,192 bytes**, compared with 2,339 bytes before these final optimizations (147 bytes saved).
+- On the previous Lighthouse report, total JS was 23,323 bytes against a 23,245.95-byte regression ceiling. The 147-byte delivered-runtime reduction is intended to close that gap; Lighthouse must still re-measure the exact final head before sign-off.
+- The original performance budgets remain unchanged. No brand assets, product photos or order state behavior were removed.
