@@ -5,6 +5,7 @@ on:
       - "scripts/experiment-menu-first-photo-preload.mjs"
       - "scripts/experiment-menu-photo-route-risk.mjs"
       - "scripts/experiment-menu-first-section-render.mjs"
+      - "scripts/test-menu-first-section-state-transitions.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -30,12 +31,15 @@ jobs:
           node --check scripts/experiment-menu-first-photo-preload.mjs
           node --check scripts/experiment-menu-photo-route-risk.mjs
           node --check scripts/experiment-menu-first-section-render.mjs
+          node --check scripts/test-menu-first-section-state-transitions.mjs
       - name: Compare paired published-menu navigation
         run: node scripts/experiment-menu-first-photo-preload.mjs
       - name: Probe feed, search, product and category preload risks
         run: node scripts/experiment-menu-photo-route-risk.mjs
       - name: Compare staged first-section rendering with unchanged product selection
         run: node scripts/experiment-menu-first-section-render.mjs
+      - name: Verify search, category, language and cart transitions after staged render
+        run: node scripts/test-menu-first-section-state-transitions.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
