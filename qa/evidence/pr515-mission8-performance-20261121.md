@@ -1,10 +1,12 @@
 # PR #515 — mission 8 performance evidence (2026-11-21)
 
 ## Reproduced on 420b405
+
 - Lighthouse mobile/desktop: `total_js_bytes` 23,796.5 vs baseline 22,139, regression +7.49% > 5%. Performance scores 99 mobile / 100 desktop; other hard checks passed.
 - Causal regression: `menu-switch-feed` exceeded its 999 ms enforced budget in 11/12 tested profiles, with observed values near 1,004–1,037 ms. All other journeys reported PASS.
 
 ## Candidate fixes
+
 - Split first-interaction QA accessibility and image fallback enhancements into `qa-enhancements.js`, preserving eager hero/video setup in `qa.js`.
 - Give the default first feed photograph a matching responsive high-priority preload in `menu-feed.html`, ahead of the feed initialization.
 - Pin the QA lazy module revision in build output and service-worker precache so offline revisits do not depend on unversioned assets.
@@ -12,6 +14,7 @@
 - Do not alter Lighthouse or journey-latency budgets and do not modify approved branding assets.
 
 ## Verification
+
 - Source change: `c7a650caf19a189da68b95ceced22517abb7cf1a`.
 - Verified generated runtime: `b5f9c994f9aac4d6c35ea3370ac4f72894f1b2ac`.
 - One-shot GitHub Actions run `44842299912`: SUCCESS, including `npm ci`, `npm run build`, `npm run integrity:generate`, and new regression tests. The one-shot workflow was removed in its generated commit.
