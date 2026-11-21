@@ -39,7 +39,6 @@ No merge or approval is performed by this evidence file.
 - On the previous Lighthouse report, total JS was 23,323 bytes against a 23,245.95-byte regression ceiling. The 147-byte delivered-runtime reduction is intended to close that gap; Lighthouse must still re-measure the exact final head before sign-off.
 - The original performance budgets remain unchanged. No brand assets, product photos or order state behavior were removed.
 
-
 ## On-demand pairing: startup delivery follow-up (21 November 2026)
 
 - Reviewed the six-run mobile Lighthouse artifact from run 44873140448. Median first-party JavaScript 23,310.5 bytes against a 22,139-byte baseline and 5% allowance; mobile LCP median 2,119.9 ms against 1,803.7 ms baseline, with CSS/render delay dominant. The initial median spans home and menu Lighthouse runs, so optimizing a tiny home-only module has limited impact.
