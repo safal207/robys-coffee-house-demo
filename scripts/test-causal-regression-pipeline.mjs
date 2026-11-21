@@ -59,7 +59,7 @@ test('takeaway animation regressions stay mapped to home entry contracts', () =>
     assert.deepEqual(result.unmappedPaths, [], path);
     assert.ok(result.directComponents.includes('home'), path);
     assert.ok(result.selectedChecks.includes('source-contracts'), path);
-    assert.ok(result.selectedChecks.includes('contextual-entry-browser'), path);
+    assert.ok(result.externalChecks.includes('contextual-entry-browser'), path);
   }
 });
 
