@@ -86,6 +86,7 @@
         "src/seasonal-theme.ts",
         "seasonal-theme.js",
         "src/.parts/**",
+        "src/qa.js",
         "qa-enhancements.js"
       ],
       "dependsOn": [
@@ -752,6 +753,7 @@
         ".github/workflows/dependency-build-edges.yml",
         "scripts/visual-regression.mjs",
         "qa.js",
+        "src/qa.js",
         ".github/workflows/causal-regression.yml",
         "qa/journey-latency-budgets.json",
         "scripts/causal-regression.mjs",

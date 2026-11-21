@@ -671,3 +671,12 @@ test('Taste Memory, My Feed, visual basket, cashier and brand additions have exp
     assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
   }
 });
+
+test('versioned and minified home QA source remains owned by both home and QA contracts', () => {
+  const result = impactPlan(graph, ['src/qa.js']);
+  assert.deepEqual(result.unmappedPaths, []);
+  assert(result.directComponents.includes('home'));
+  assert(result.directComponents.includes('qa-registry'));
+  assert(result.selectedChecks.includes('source-contracts'));
+  assert.deepEqual(impactPlan(graph, ['src/qa-unregistered.js']).unmappedPaths, ['src/qa-unregistered.js']);
+});
