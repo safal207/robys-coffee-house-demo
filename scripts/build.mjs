@@ -258,9 +258,15 @@ function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   const [entry, revision] = modules.at(-1);
   const script = new RegExp(`\\s*<script\\b[^>]*src="${entry.replaceAll(".", "\\.")}\\?v=[^"]*"[^>]*><\\/script>`);
   html = html.replace(script, "");
-  // Discovery hints follow the already-required critical styles. This avoids
-  // competing with CSS on slow mobile links, while preserving deferred module
-  // execution and the existing order of all stylesheet cascade layers.
+  // The photo feed needs its bundled runtime early so the first photograph
+  // can start decoding while its CSS downloads. Module scripts remain deferred:
+  // this changes resource discovery only, never style order or execution order.
+  if (entry === "menu-feed.js") {
+    const firstStyle = html.match(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="menu-runtime\.css(?:\?v=[^"]*)?"[^>]*>/)?.[0];
+    if (!firstStyle) throw new Error("Photo feed is missing its reviewed base stylesheet");
+    return html.replace(firstStyle, `<!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->\n  ${firstStyle}`);
+  }
+  // List/grid keep all render-critical styles ahead of their module hints.
   const criticalStyle = [...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="(?:menu-runtime|menu-feed|my-feed)\.css(?:\?v=[^"]*)?"[^>]*>/g)].at(-1)?.[0];
   if (!criticalStyle) throw new Error("Menu startup requires a reviewed critical stylesheet");
   return html.replace(criticalStyle, `${criticalStyle}\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);

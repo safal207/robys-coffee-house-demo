@@ -86,16 +86,16 @@ test("below-fold home styles cannot block first paint and become active after de
   assert.ok(source.includes("activateDeferredHomeStyles();"), "Startup must register the CSS handoff");
 });
 
-test("render-critical CSS is discovered before menu module preloads", () => {
-  for (const [file, finalStyle] of [
-    ["menu.html", "menu-runtime.css"],
-    ["menu-feed.html", "my-feed.css"]
-  ]) {
-    const html = read(file);
-    const critical = html.indexOf(`<link rel="stylesheet" href="${finalStyle}?v=`);
-    const modules = html.indexOf('<link rel="modulepreload"');
-    assert.ok(critical > 0 && modules > critical, `${file}: critical CSS must precede module discovery`);
-  }
+test("list CSS wins first paint, while the feed discovers its photo runtime early", () => {
+  const list = read("menu.html"), feed = read("menu-feed.html");
+  assert.ok(list.indexOf('href="menu-runtime.css?v=') < list.indexOf('<link rel="modulepreload"'),
+    "The list's critical CSS must win over speculative JS");
+  assert.ok(feed.indexOf('href="menu-feed.js?v=') < feed.indexOf('href="menu-runtime.css?v='),
+    "The feed must discover its first-photo runtime before the CSS waterfall");
+  assert.ok(feed.indexOf('<script type="module" src="menu-feed.js?v=') < feed.indexOf('href="menu-runtime.css?v='),
+    "The photo runtime must be deferred but discovered before feed CSS");
+  assert.ok(feed.indexOf('href="menu-runtime.css?v=') < feed.indexOf('href="menu-feed.css?v='),
+    "Never reorder the reviewed photo-feed CSS cascade");
   const home = read("index.html");
   assert.ok(home.indexOf('href="combo-entry.css?v=') < home.indexOf('href="styles-v2.css?v='), "Preserve the authored home cascade");
   assert.ok(home.indexOf('href="styles-v2.css?v=') < home.indexOf('<link rel="preload" href="src/robys-hero-poster.jpg"'), "Load render-critical CSS before speculative hero artwork");
