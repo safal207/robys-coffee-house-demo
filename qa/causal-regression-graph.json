@@ -703,6 +703,7 @@
         "docs/codex-environment.md",
         "docs/qa/premium-repair-2026-09-05.md",
         "docs/qa/2026-10-28-pairing-video.md",
+        "docs/qa/typescript7-dual-compiler.md",
         "qa/causal-regression-graph.json",
         "qa/feature-traceability-matrix.json",
         "qa/traceability/*.json",

@@ -45,7 +45,8 @@ test("graph tracks compiler workflow, verifier and its tests without wildcard ow
   for (const path of [
     ".github/workflows/typescript-dual-compiler.yml",
     "scripts/verify-typescript-toolchain.mjs",
-    "scripts/test-typescript-toolchain.mjs"
+    "scripts/test-typescript-toolchain.mjs",
+    "docs/qa/typescript7-dual-compiler.md"
   ]) {
     assert.deepEqual(graph.components.filter(c => c.paths.includes(path)).map(c => c.id), ["qa-registry"]);
   }

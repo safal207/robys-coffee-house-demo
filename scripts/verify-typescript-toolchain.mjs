@@ -30,6 +30,6 @@ const ts = module.default ?? module;
 assert.match(ts.version, /^6\./, "Programmatic compiler API must remain on TypeScript 6");
 assert.equal(typeof ts.transpileModule, "function");
 assert.equal(typeof ts.createSourceFile, "function");
-const output = ts.transpileModule("export const value: number = 2;", { compilerOptions: { module: ts.ModuleKind.ESNext } });
+const output = ts.transpileModule("export const value: number = 2;", { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 } });
 assert.ok(output.outputText.includes("export const value = 2"), "Build API must actually transpile TypeScript");
 console.log(JSON.stringify({ checker: "7.0.2", compatCli: invoke("tsc6"), buildApi: ts.version, preservedEmit: true }));
