@@ -60,7 +60,7 @@ test("both compilers reject deliberate TS2322 without depending on a specific ex
   const temp = mkdtempSync(join(tmpdir(), "robys-ts7-negative-"));
   try {
     const bad = join(temp, "intentional-error.ts");
-    writeFileSync(bad, "const mustBeString: string = 123;\\n", "utf8");
+    writeFileSync(bad, "const mustBeString: string = 123;\n", "utf8");
     for (const name of ["tsc", "tsc6"]) {
       const binary = join(root, "node_modules", ".bin", process.platform === "win32" ? name + ".cmd" : name);
       const result = spawnSync(binary, [
