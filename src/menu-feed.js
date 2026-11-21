@@ -627,7 +627,7 @@ async function openTasteWaveOnDemand() {
   tasteWaveTrigger.disabled = true;
   tasteWaveTrigger.setAttribute("aria-busy", "true");
   try {
-    const { initTasteWave } = await import("./src/menu-taste-wave.js");
+    const { initTasteWave } = await import("./src/menu-taste-wave.js?v=548993e880be");
     tasteWave = initTasteWave({ productIndex, getLanguage: () => language, localized, formatPrice: money,
       addProduct: (product, trigger) => addProduct(product, undefined, trigger),
       openProduct: (id, trigger) => order.openProduct(id, trigger),
