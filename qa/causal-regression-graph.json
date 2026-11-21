@@ -611,7 +611,9 @@
         "scripts/verify-offline-browser.mjs",
         "scripts/test-menu-catalog-revision.mjs",
         "offline.css",
-        "refresh.html"
+        "refresh.html",
+        "scripts/audit-photo-cross-page-cache.mjs",
+        ".github/workflows/photo-cross-page-cache-audit.yml"
       ],
       "dependsOn": [
         "build"
