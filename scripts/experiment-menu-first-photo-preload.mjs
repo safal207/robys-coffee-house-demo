@@ -28,10 +28,10 @@ async function one(browser, variant, pair) {
     const response = await route.fetch();
     assert.equal(response.status(), 200, "Published page must be reachable");
     let html = await response.text();
-    if (variant === "preload") {
+    if (variant !== "control") {
       const viewport = /(<meta name="viewport"[^>]*>)/;
       assert.match(html, viewport);
-      html = html.replace(viewport, "$1\n  " + HINT);
+      html = html.replace(viewport, "$1\n  " + (variant === "preload-low" ? HINT.replace('fetchpriority="high"', 'fetchpriority="low"') : HINT));
     }
     await route.fulfill({ response, body: html });
   });
@@ -76,7 +76,7 @@ async function one(browser, variant, pair) {
     assert.equal(intercepted, 1, "One published list document must be intercepted");
     assert.ok(network.imagePath.endsWith("/" + PHOTO), "First photo identity changed");
     assert.ok(network.imageRequestStartMs !== null, "First photo request timing is missing");
-    assert.equal(network.hintCount, variant === "preload" ? 1 : 0, "Preload must be scoped to candidate");
+    assert.equal(network.hintCount, variant === "control" ? 0 : 1, "Preload must be scoped to candidate");
     assert.deepEqual(errors, [], "Browser JavaScript errors");
     return { pair, variant, readyMs, ...network, errors };
   } finally {
@@ -89,7 +89,13 @@ async function main() {
   try {
     // Alternate run order to reduce systematic cache/server drift.
     for (let pair = 1; pair <= RUNS_PER_VARIANT; pair++) {
-      const order = pair % 2 ? ["control", "preload"] : ["preload", "control"];
+      const orders = [
+        ["control", "preload", "preload-low"],
+        ["preload-low", "control", "preload"],
+        ["preload", "preload-low", "control"],
+        ["control", "preload-low", "preload"]
+      ];
+      const order = orders[pair - 1];
       for (const variant of order) {
         const result = await one(browser, variant, pair);
         samples.push(result);
@@ -101,6 +107,7 @@ async function main() {
   }
   const control = samples.filter(s => s.variant === "control");
   const preload = samples.filter(s => s.variant === "preload");
+  const preloadLow = samples.filter(s => s.variant === "preload-low");
   const stats = set => ({
     readyMs: median(set.map(s => s.readyMs)),
     requestStartMs: median(set.map(s => s.imageRequestStartMs)),
@@ -108,7 +115,9 @@ async function main() {
     totalImageBytes: median(set.map(s => s.totalImageTransferBytes)),
     fcpMs: median(set.map(s => s.fcpMs))
   });
-  const baseline = stats(control), candidate = stats(preload);
+  const baseline = stats(control), candidate = stats(preload), candidateLow = stats(preloadLow);
+  const improvementMsLow = baseline.readyMs - candidateLow.readyMs;
+  const fcpPenaltyMsLow = candidateLow.fcpMs - baseline.fcpMs;
   const report = {
     schema: "robys.first-photo-preload-experiment.v1",
     source: "published GitHub Pages; intercepted HTML only, no production changes",
@@ -119,7 +128,8 @@ async function main() {
       "Four controlled cold paired runs per variant; not production field data or proof of revenue impact"
     ],
     network: "150ms RTT / 1.6Mbps / 4x CPU / DPR 2 / 390x844",
-    baseline, candidate, improvementMs: baseline.readyMs - candidate.readyMs, samples
+    baseline, candidate, candidateLow, improvementMs: baseline.readyMs - candidate.readyMs,
+    improvementMsLow, fcpPenaltyMsHigh: candidate.fcpMs - baseline.fcpMs, fcpPenaltyMsLow, samples
   };
   mkdirSync(".artifacts/menu-first-photo-experiment", { recursive: true });
   writeFileSync(OUTPUT, JSON.stringify(report, null, 2) + "\n");
@@ -127,12 +137,13 @@ async function main() {
     const fs = await import("node:fs");
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
       "## First product-photo preload experiment\n\n" +
-      "| Metric | Control | With early preload |\n|---|---:|---:|\n" +
-      "| Decoded photo ready, ms | " + Math.round(baseline.readyMs) + " | " + Math.round(candidate.readyMs) + " |\n" +
-      "| Photo request start, ms | " + Math.round(baseline.requestStartMs) + " | " + Math.round(candidate.requestStartMs) + " |\n" +
-      "| Image transfer, KiB | " + Math.round(baseline.totalImageBytes / 1024) + " | " + Math.round(candidate.totalImageBytes / 1024) + " |\n\n" +
+      "| Metric | Control | High-priority preload | Low-priority preload |\n|---|---:|---:|---:|\n" +
+      "| Decoded photo ready, ms | " + Math.round(baseline.readyMs) + " | " + Math.round(candidate.readyMs) + " | " + Math.round(candidateLow.readyMs) + " |\n" +
+      "| Photo request start, ms | " + Math.round(baseline.requestStartMs) + " | " + Math.round(candidate.requestStartMs) + " | " + Math.round(candidateLow.requestStartMs) + " |\n" +
+      "| Image transfer, KiB | " + Math.round(baseline.totalImageBytes / 1024) + " | " + Math.round(candidate.totalImageBytes / 1024) + " | " + Math.round(candidateLow.totalImageBytes / 1024) + " |\n" +
+      "| First Contentful Paint, ms | " + Math.round(baseline.fcpMs) + " | " + Math.round(candidate.fcpMs) + " | " + Math.round(candidateLow.fcpMs) + " |\n\n" +
       "Synthetic paired, non-deployed experiment; inspect artifact before shipping.\n");
   }
-  console.log("SUMMARY " + JSON.stringify({ baseline, candidate, improvementMs: report.improvementMs }));
+  console.log("SUMMARY " + JSON.stringify({ baseline, candidate, candidateLow, improvementMs: report.improvementMs, improvementMsLow, fcpPenaltyMsLow }));
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
