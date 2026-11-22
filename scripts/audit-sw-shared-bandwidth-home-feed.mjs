@@ -137,19 +137,6 @@ async function measure(browser, mode, pair, proxy) {
       controlled: !!sw?.controller, cacheNames
     };
   });
-  const loadImage = async locator => {
-    await locator.scrollIntoViewIfNeeded({ timeout: WAIT_TIMEOUT_MS });
-    await locator.waitFor({ state: "visible", timeout: WAIT_TIMEOUT_MS });
-    await page.waitForFunction(image => {
-      const imgs = [...document.querySelectorAll("#feed .feed-card .feed-photo img")];
-      const el = imgs[image];
-      return !!el && el.complete && el.naturalWidth >= 256;
-    }, Number(await locator.getAttribute("data-sample-index")), { timeout: WAIT_TIMEOUT_MS });
-    await locator.evaluate(img => img.decode());
-    return locator.evaluate(img => ({
-      src: img.currentSrc || img.src, naturalWidth: img.naturalWidth
-    }));
-  };
   try {
     const homeResponse = await page.goto(HOME, { waitUntil: "domcontentloaded", timeout: WAIT_TIMEOUT_MS });
     assert.ok(homeResponse?.ok(), "Published homepage unavailable");
@@ -174,13 +161,13 @@ async function measure(browser, mode, pair, proxy) {
       null, { timeout: WAIT_TIMEOUT_MS });
     const images = page.locator("#feed .feed-card .feed-photo img");
     const first = images.nth(0);
+    await first.scrollIntoViewIfNeeded({ timeout: WAIT_TIMEOUT_MS });
+    await page.waitForFunction(() => {
+      const img = document.querySelectorAll("#feed .feed-card .feed-photo img")[0];
+      return !!img && img.complete && img.naturalWidth >= 256;
+    }, null, { timeout: WAIT_TIMEOUT_MS });
     const firstPhoto = await first.evaluate(async img => {
-      await img.scrollIntoView({ block: "center", behavior: "instant" });
-      await new Promise(resolve => {
-        if (img.complete && img.naturalWidth >= 256) resolve();
-        else { img.addEventListener("load", resolve, { once: true }); img.addEventListener("error", resolve, { once: true }); }
-      });
-      if (img.naturalWidth >= 256) await img.decode();
+      await img.decode();
       return { src: img.currentSrc || img.src, width: img.naturalWidth };
     });
     assert.equal(pathname(firstPhoto.src), PHOTO_PATH, "First actual photo changed");
