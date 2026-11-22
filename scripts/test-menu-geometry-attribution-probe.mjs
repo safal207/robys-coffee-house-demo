@@ -127,5 +127,5 @@ test("Geometry control triplets require identical source, cart and layout before
   assert.throws(()=>summarizeGeometryTriples(wrongCart),/Cart state differs/);
   const wrongLayout=samples();wrongLayout[1].passive.geometrySnapshot.controlsHeight=58;
   wrongLayout[1].passive.geometrySnapshot.cssVars["--menu-sticky-inset"]="100px";
-  assert.throws(()=>summarizeGeometryTriples(wrongLayout),/Bounding geometry differs/);
+  assert.throws(()=>summarizeGeometryTriples(wrongLayout),/CSS geometry differs across controls/);
 });
