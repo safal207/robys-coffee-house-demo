@@ -7,6 +7,8 @@ on:
       - "scripts/experiment-menu-first-section-render.mjs"
       - "scripts/test-menu-first-section-state-transitions.mjs"
       - "scripts/experiment-menu-fcp-attribution.mjs"
+      - "scripts/fuzzy-menu-root-cause.mjs"
+      - "scripts/test-fuzzy-menu-root-cause.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -118,5 +120,45 @@ jobs:
         with:
           name: fcp-negative-controls
           path: .artifacts/menu-first-photo-experiment/fcp-attribution.json
+          if-no-files-found: warn
+          retention-days: 14
+  fuzzy-root-cause-triage:
+    needs: [fcp-negative-controls, default-list-confirmation]
+    if: ${{ always() && needs.fcp-negative-controls.result == 'success' && needs.default-list-confirmation.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - name: Download passive FCP negative-control observations
+        uses: actions/download-artifact@v4
+        with:
+          name: fcp-negative-controls
+          path: .artifacts/fuzzy-inputs/fcp-negative-controls
+      - name: Download guarded first-photo confirmation observations
+        uses: actions/download-artifact@v4
+        with:
+          name: first-section-confirmation
+          path: .artifacts/fuzzy-inputs/first-section-confirmation
+      - name: Check fuzzy QA rules and counterfactual evidence
+        run: |
+          node --check scripts/fuzzy-menu-root-cause.mjs
+          node --test scripts/test-fuzzy-menu-root-cause.mjs
+      - name: Rank hypotheses with actual same-run reports
+        run: |
+          node scripts/fuzzy-menu-root-cause.mjs \
+            .artifacts/fuzzy-inputs/fcp-negative-controls/fcp-attribution.json \
+            .artifacts/fuzzy-inputs/first-section-confirmation/first-section-confirmation.json \
+            .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: fuzzy-root-cause-triage
+          path: .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json
           if-no-files-found: warn
           retention-days: 14
