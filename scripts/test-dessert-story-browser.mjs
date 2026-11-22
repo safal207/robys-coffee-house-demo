@@ -12,6 +12,7 @@ const csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 's
 const server = createServer((request,response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url,"http://localhost").pathname);
+    if (pathname === "/favicon.ico") return response.writeHead(204).end();
     if (pathname === "/_dessert_qa.html" || pathname === "/_dessert_qa.css") {
       const css = pathname.endsWith(".css");
       response.writeHead(200,{"content-type":css?"text/css":"text/html","content-security-policy":csp,"cache-control":"no-store"});
@@ -67,6 +68,7 @@ try {
   assert.match(await dialog.locator("img").getAttribute("src"),/03-en\.jpg$/);
   await page.keyboard.press("Escape");
   await dialog.waitFor({state:"hidden"});
+  await page.waitForFunction(()=>document.activeElement?.classList.contains("dessert-story-open"));
   assert.equal(await open.evaluate(el=>document.activeElement===el),true);
   assert.deepEqual(errors,[],errors.join(" | "));
   mkdirSync(".artifacts/dessert-story",{recursive:true});
