@@ -124,7 +124,7 @@ jobs:
           retention-days: 14
   fuzzy-root-cause-triage:
     needs: [fcp-negative-controls, default-list-confirmation]
-    if: ${{ always() && needs.fcp-negative-controls.result == 'success' && needs.default-list-confirmation.result == 'success' }}
+    if: ${{ always() && needs['fcp-negative-controls'].result == 'success' && needs['default-list-confirmation'].result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:
