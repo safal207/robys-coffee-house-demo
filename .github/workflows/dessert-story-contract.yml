@@ -1,0 +1,26 @@
+name: Dessert story contract
+on:
+  pull_request:
+    paths:
+      - "menu-feed.html"
+      - "menu-grid.html"
+      - "menu.html"
+      - "src/dessert-story.js"
+      - "dessert-story.css"
+      - "src/products/stories/chocolate-cake/**"
+      - "scripts/test-dessert-story.mjs"
+      - ".github/workflows/dessert-story-contract.yml"
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Parse story controller
+        run: node --check src/dessert-story.js
+      - name: Verify assets and three menu entrypoints
+        run: node --test scripts/test-dessert-story.mjs
