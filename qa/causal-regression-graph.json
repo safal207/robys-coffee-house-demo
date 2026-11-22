@@ -147,6 +147,8 @@
         "scripts/experiment-menu-first-section-render.mjs",
         "scripts/test-menu-first-section-state-transitions.mjs",
         "scripts/experiment-menu-fcp-attribution.mjs",
+        "scripts/fuzzy-menu-root-cause.mjs",
+        "scripts/test-fuzzy-menu-root-cause.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
