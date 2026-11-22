@@ -14,6 +14,8 @@ on:
       - "scripts/test-menu-local-fixed-fcp.mjs"
       - "scripts/menu-startup-attribution-probe.mjs"
       - "scripts/test-menu-startup-attribution-probe.mjs"
+      - "scripts/menu-geometry-attribution-probe.mjs"
+      - "scripts/test-menu-geometry-attribution-probe.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -285,5 +287,38 @@ jobs:
           path: |
             .artifacts/menu-first-photo-experiment/local-startup-function-attribution.json
             .artifacts/menu-first-photo-experiment/startup-function-traces/
+          if-no-files-found: warn
+          retention-days: 7
+  menu-geometry-operation-attribution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate test-only geometry instrumentation and strict invariants
+        run: |
+          node --check scripts/menu-geometry-attribution-probe.mjs
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-geometry-attribution-probe.mjs
+          node --test scripts/test-menu-startup-attribution-probe.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Measure geometry reads/writes with identical local control bundles
+        env:
+          ROBY_GEOMETRY_ATTRIBUTION: "1"
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: menu-geometry-operation-attribution
+          path: |
+            .artifacts/menu-first-photo-experiment/local-geometry-operation-attribution.json
+            .artifacts/menu-first-photo-experiment/geometry-operation-traces/
           if-no-files-found: warn
           retention-days: 7
