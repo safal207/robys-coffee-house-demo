@@ -48,7 +48,25 @@ function controller(img, progress, afterChange=()=>{}) {
 const modal=document.createElement("dialog");
 modal.className="dessert-story-modal";
 modal.id="dessert-story-modal";
-modal.innerHTML='<div class="dessert-story-top"><strong></strong><button class="dessert-story-close" type="button">×</button></div><div class="dessert-story-image"><img alt="" decoding="async" draggable="false"></div><div class="dessert-story-foot"><button type="button" class="dessert-story-prev">‹</button><div class="dessert-story-progress"></div><button type="button" class="dessert-story-next">›</button></div>';
+// Trusted Types CSP: create real nodes, never assign HTML strings.
+const makeNode=(tag,className,label)=>{
+  const node=document.createElement(tag);node.className=className;
+  if(label!==undefined)node.textContent=label;
+  return node;
+};
+const top=makeNode("div","dessert-story-top");
+const heading=makeNode("strong","");
+const dismiss=makeNode("button","dessert-story-close","×");dismiss.type="button";
+top.append(heading,dismiss);
+const frame=makeNode("div","dessert-story-image");
+const frameImage=document.createElement("img");frameImage.alt="";frameImage.decoding="async";frameImage.draggable=false;
+frame.append(frameImage);
+const foot=makeNode("div","dessert-story-foot");
+const previous=makeNode("button","dessert-story-prev","‹");previous.type="button";
+const pagination=makeNode("div","dessert-story-progress");
+const following=makeNode("button","dessert-story-next","›");following.type="button";
+foot.append(previous,pagination,following);
+modal.append(top,frame,foot);
 document.body.append(modal);
 const modalProgress=dots();
 $(".dessert-story-progress",modal).append(modalProgress);
