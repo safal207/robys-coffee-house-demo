@@ -12,7 +12,7 @@ const PHOTO_PATH = "/robys-coffee-house-demo/src/products/sets-v1/cool-lime-maca
 const OUT = ".artifacts/sw-deferred-second-photo/report.json";
 const BYTES_PER_SECOND = 200_000; // One 1.6 Mb/s downstream pipe shared by ALL browser and worker TCP tunnels.
 const INITIAL_CONNECT_DELAY_MS = 150;
-const PAIRS = 2;
+const PAIRS = 4;
 const WAIT_TIMEOUT_MS = 60000;
 const AFTER_DCL_MS = 500;
 const AFTER_IMAGES_MS = 3000;
@@ -438,7 +438,7 @@ async function main() {
       "Context-level Service Worker request events are incomplete; worker.evaluate Resource Timing and proxy total bytes are separate evidence, not per-resource attribution",
       "Navigation is triggered via a scripted click to remove locator auto-scroll variance; not a literal user's tap",
       "The first and second feed product photographs are decode-ready metrics; not verified visible paint or user conversion",
-      "Only two matched cold pairs with three conditions; do not treat this small sample as field-level proof",
+      "Four matched cold pairs with three conditions remain a small lab sample, not field-level proof",
       "Deferring registration uses a Playwright page-script override and an explicit after-image feed registration; this is a hypothetical strategy, NOT production behavior or a CSP-certified implementation",
       "The feed does NOT currently register a worker, so real deployment would require separately designed/approved feed fallback logic",
       "Offline test reloads the feed under simulated disconnection after SW is active and validates the original real product photo; it is not full offline regression coverage",
