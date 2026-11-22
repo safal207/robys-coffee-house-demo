@@ -118,7 +118,7 @@ const samples=()=>[1,2,3].flatMap(p=>["A1","A2","A3"]
   .map((mode,i)=>fakeSample(p,mode,1700+p*8+[0,120,12][i])));
 test("Geometry control triplets require identical source, cart and layout before reporting",()=>{
   const rows=samples(),r=summarizeGeometryTriples(rows);
-  assert.equal(r.samples,9);assert.equal(r.triples,3);
+  assert.equal(r.samples,9);assert.equal(r.triples.length,3);
   assert.equal(r.medianFcpRangeMs,120);
   assert.ok(r.metrics.find(x=>x.kind==="boundingRect").medianPerLoadWallMs>0);
   const wrong=samples();wrong[1].bundleSha256="b".repeat(64);
