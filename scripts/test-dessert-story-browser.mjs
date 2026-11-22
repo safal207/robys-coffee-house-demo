@@ -36,7 +36,16 @@ try {
   await page.goto("http://127.0.0.1:"+server.address().port+"/_dessert_qa.html",{waitUntil:"domcontentloaded"});
   const slide=page.locator(".dessert-story-feed");
   await slide.waitFor({timeout:12000});
-  await page.waitForFunction(()=>document.querySelector(".dessert-story-frame")?.naturalWidth>0);
+  const photoReady=()=>page.locator(".dessert-story-frame").evaluate(async image=>{
+    if(!image.complete)await new Promise(resolve=>{
+      image.addEventListener("load",resolve,{once:true});
+      image.addEventListener("error",resolve,{once:true});
+    });
+    assertBrowserImage(image);
+  });
+  // The browser evaluates this literal predicate; no waitForFunction string compilation under Trusted Types.
+  const assertBrowserImage=image=>{if(!image.naturalWidth)throw Error("Story photograph did not decode");};
+  await photoReady();
   assert.equal(await page.locator(".dessert-story-open").count(),1,"Only Chocolate Cake gets an entry");
   assert.match(await slide.getAttribute("aria-label"),/Çikolatalı Pasta/);
   const photo=page.locator(".dessert-story-frame");
@@ -47,17 +56,17 @@ try {
   await page.mouse.down();
   await page.mouse.move(box.x+box.width*.2,box.y+box.height*.55,{steps:6});
   await page.mouse.up();
-  await page.waitForFunction(()=>document.querySelector(".dessert-story-frame")?.getAttribute("src")?.endsWith("/02.jpg"));
+  await page.locator('.dessert-story-frame[src$="/02.jpg"]').waitFor();
   await slide.focus();await page.keyboard.press("ArrowLeft");
-  await page.waitForFunction(()=>document.querySelector(".dessert-story-frame")?.getAttribute("src")?.endsWith("/03-tr.jpg"));
+  await page.locator('.dessert-story-frame[src$="/03-tr.jpg"]').waitFor();
   for(const [lang,localeLabel,alt] of [["ru","Шоколадный торт","Хочешь?"],["en","Chocolate Cake","Want some?"]]){
     await page.evaluate(lang=>{
       document.querySelectorAll(".feed-languages [data-lang]").forEach(btn=>btn.setAttribute("aria-pressed",String(btn.dataset.lang===lang)));
       document.querySelector('.feed-languages [data-lang="'+lang+'"]').click();
     },lang);
-    await page.waitForFunction(({localeLabel})=>document.querySelector(".dessert-story-feed")?.getAttribute("aria-label")?.includes(localeLabel),{localeLabel});
+    await page.locator('.dessert-story-feed[aria-label*="'+localeLabel+'"]').waitFor();
     await slide.focus();await page.keyboard.press("ArrowLeft");await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction(lang=>document.querySelector(".dessert-story-frame")?.getAttribute("src")?.endsWith("/03-"+lang+".jpg"),lang);
+    await page.locator('.dessert-story-frame[src$="/03-'+lang+'.jpg"]').waitFor();
     assert.equal(await photo.getAttribute("alt"),alt);
   }
   const open=page.locator(".dessert-story-open");await open.click();
@@ -68,7 +77,7 @@ try {
   assert.match(await dialog.locator("img").getAttribute("src"),/03-en\.jpg$/);
   await page.keyboard.press("Escape");
   await dialog.waitFor({state:"hidden"});
-  await page.waitForFunction(()=>document.activeElement?.classList.contains("dessert-story-open"));
+  await page.locator(".dessert-story-open:focus").waitFor();
   assert.equal(await open.evaluate(el=>document.activeElement===el),true);
   assert.deepEqual(errors,[],errors.join(" | "));
   mkdirSync(".artifacts/dessert-story",{recursive:true});
