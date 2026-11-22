@@ -611,7 +611,9 @@
         "scripts/verify-offline-browser.mjs",
         "scripts/test-menu-catalog-revision.mjs",
         "offline.css",
-        "refresh.html"
+        "refresh.html",
+        "scripts/audit-sw-deferred-second-photo.mjs",
+        ".github/workflows/sw-deferred-second-photo-audit.yml"
       ],
       "dependsOn": [
         "build"
