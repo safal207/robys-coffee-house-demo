@@ -10,25 +10,34 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { gzipSync } from "node:zlib";
 import { compiled } from "./experiment-menu-first-section-render.mjs";
+import { compileMenuRuntime } from "./menu-runtime-source.mjs";
+import { instrumentMenuStartupSource, validateStartupMeasurement,
+  summarizeStartupTriples } from "./menu-startup-attribution-probe.mjs";
 
 // Fixed-repository HTTPS assets: no GitHub Pages, CDN, remote images or JS
 // interception. Identical A/A/A and bracketed A/B/A isolate scheduler/network
 // noise from a guarded staged-render candidate. QA-only; never deployed.
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..");
-const TRACE_MODE=process.env.ROBY_FCP_FRAME_TRACE==="1";
-const OUTPUT=TRACE_MODE
-  ? ".artifacts/menu-first-photo-experiment/local-frame-trace.json"
-  : ".artifacts/menu-first-photo-experiment/local-fcp-controls.json";
-const REPEATS=TRACE_MODE?2:4;
+const ATTRIBUTION_MODE=process.env.ROBY_STARTUP_ATTRIBUTION==="1";
+const TRACE_MODE=process.env.ROBY_FCP_FRAME_TRACE==="1" || ATTRIBUTION_MODE;
+const OUTPUT=ATTRIBUTION_MODE
+  ? ".artifacts/menu-first-photo-experiment/local-startup-function-attribution.json"
+  : TRACE_MODE
+    ? ".artifacts/menu-first-photo-experiment/local-frame-trace.json"
+    : ".artifacts/menu-first-photo-experiment/local-fcp-controls.json";
+const REPEATS=ATTRIBUTION_MODE?8:TRACE_MODE?2:4;
 const PROFILES=TRACE_MODE?[{id:"loopback-throttled",cpu:4,emulateNetwork:true}]:[
   {id:"loopback",cpu:4,emulateNetwork:false},
   {id:"loopback-throttled",cpu:4,emulateNetwork:true}
 ];
-const BLOCKS=[
-  {id:"A/A/A",modes:["A1","A2","A3"]},
-  {id:"A/B/A",modes:["A1","B","A3"]}
-];
-const bundles={A1:compiled.control,A2:compiled.control,A3:compiled.control,
+const BLOCKS=ATTRIBUTION_MODE
+  ? [{id:"A/A/A",modes:["A1","A2","A3"]}]
+  : [{id:"A/A/A",modes:["A1","A2","A3"]},{id:"A/B/A",modes:["A1","B","A3"]}];
+const startupBuild=ATTRIBUTION_MODE
+  ? compileMenuRuntime(instrumentMenuStartupSource(
+      readFileSync(resolve("src/menu-app.js"),"utf8")))
+  : compiled.control;
+const bundles={A1:startupBuild,A2:startupBuild,A3:startupBuild,
   B:compiled["default-list-only"]};
 assert.equal(bundles.A1,bundles.A2);
 assert.equal(bundles.A1,bundles.A3);
@@ -92,7 +101,8 @@ async function collectFrameTrace(cdp,passive,profile,block,pair,mode){
   const raw=Buffer.concat(chunks);
   const decoded=JSON.parse(raw.toString("utf8"));
   assert.ok(Array.isArray(decoded.traceEvents),"Chrome timeline trace events missing");
-  const outputDir=".artifacts/menu-first-photo-experiment/frame-traces";
+  const outputDir=".artifacts/menu-first-photo-experiment/"+
+    (ATTRIBUTION_MODE?"startup-function-traces":"frame-traces");
   mkdirSync(outputDir,{recursive:true});
   const filename=outputDir+"/trace-"+profile.id+"-"+block.id.replaceAll("/","")+
     "-"+pair+"-"+mode+".json.gz";
@@ -106,7 +116,7 @@ export function createFixtureServer(cert){
   const cache=new Map();
   const originalHtml=readFileSync(join(ROOT,"menu.html"));
   const originalRuntime=readFileSync(join(ROOT,"menu-app.js"));
-  assert.equal(originalRuntime.toString("utf8"),bundles.A1,"Local compiled JS changed");
+  assert.equal(originalRuntime.toString("utf8"),compiled.control,"Local compiled JS changed");
   const readAsset=relative=>{
     const file=resolve(ROOT,relative);
     if(!file.startsWith(ROOT+sep)||!existsSync(file)||!statSync(file).isFile()) return null;
@@ -226,9 +236,16 @@ async function measure(browser,fixture,origin,profile,block,pair,mode,slot){
         firstPhotoPath:first?.currentSrc?new URL(first.currentSrc).pathname:null,
         firstPhotoDeferred:first?.hasAttribute("data-menu-lazy-src")??null,
         viewport:innerWidth+"x"+innerHeight,
-        scrollY:scrollY
+        scrollY:scrollY,
+        startupMeasurements:window.__qaStartupWallV1??null,
+        startupComplete:window.__qaStartupWallCompleteV1===true
       };
     });
+    if(ATTRIBUTION_MODE) {
+      assert.equal(passive.startupComplete,true,
+        "Instrumented startup did not complete");
+      validateStartupMeasurement(passive.startupMeasurements);
+    }
     const trace=TRACE_MODE?await collectFrameTrace(
       cdp,passive,profile,block,pair,mode):null;
     traceCollected=TRACE_MODE;
@@ -342,10 +359,15 @@ async function main(){
       candidateSlowerThanBothPairs:block.id==="A/B/A"
         ?d.filter(x=>x.candidateSlowerThanBoth).length:null};
   }));
+  const startupAttribution=ATTRIBUTION_MODE?summarizeStartupTriples(samples):null;
   const report={
-    schema:TRACE_MODE?"robys.local-frame-trace.v1":"robys.local-fixed-asset-fcp.v1",synthetic:true,shipApproved:false,
+    schema:ATTRIBUTION_MODE
+      ?"robys.local-startup-function-attribution.v1"
+      :TRACE_MODE?"robys.local-frame-trace.v1":"robys.local-fixed-asset-fcp.v1",
+    synthetic:true,shipApproved:false,
     source:"Local verified repository assets over ephemeral loopback HTTPS, no remote resources",
-    traced:TRACE_MODE,
+    traced:TRACE_MODE,attributionProbe:ATTRIBUTION_MODE,
+    startupAttribution,
     htmlSHA256:fixture.originalHtmlHash,
     originalRuntimeSHA256:fixture.runtimeHash,
     candidateRuntimeSHA256:sha(Buffer.from(bundles.B)),
@@ -357,7 +379,8 @@ async function main(){
       "First-contentful-paint captured passively without forced photo scroll or image.decode()",
       "A/B/A still differs in runtime JS byte length and parsing; unchanged A/A/A controls estimate run-to-run variation",
       "No field LCP, real-user outcomes or shipping approval are inferred from local test data",
-      ...(TRACE_MODE?["Tracing instrumentation changes scheduler timing; compare only equally traced runs","CSS responseEnd is not CSSOM/style calculation/layout completion"]:[])
+      ...(TRACE_MODE?["Tracing instrumentation changes scheduler timing; compare only equally traced runs","CSS responseEnd is not CSSOM/style calculation/layout completion"]:[]),
+      ...(ATTRIBUTION_MODE?["Timing probes change bundle bytes and call overhead: comparisons must use only identical attributed A/A/A control bytes","Function wall time includes nested DOM and layout work, not exclusive self CPU time"]:[])
     ],summary,triplets,samples};
   mkdirSync(dirname(OUTPUT),{recursive:true});
   writeFileSync(OUTPUT,JSON.stringify(report,null,2)+"\n");
@@ -369,6 +392,8 @@ async function main(){
       "ms | "+x.controlBracketSpreadMedianMs+"ms | "+
       (x.candidateFcpPenaltyMedianMs===null?"—":x.candidateFcpPenaltyMedianMs+"ms")+" |").join("\n")+
     "\n\nA/A/A = identical-code controls; A/B/A = guarded experimental candidate. Lab data only. NO SHIP.\n");
+  if(ATTRIBUTION_MODE)console.log("STARTUP_ATTRIBUTION_SUMMARY "+JSON.stringify(
+    startupAttribution));
   if(TRACE_MODE)console.log("FRAME_TIMELINE_SUMMARY "+JSON.stringify({
     summary,frames:samples.map(x=>({profile:x.profile,block:x.block,
       pair:x.pair,mode:x.mode,fcp:x.passive.fcpMs,trace:x.trace}))
