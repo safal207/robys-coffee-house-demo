@@ -1,0 +1,36 @@
+name: SW shared bandwidth home feed audit
+on:
+  pull_request:
+    paths:
+      - "scripts/audit-sw-shared-bandwidth-home-feed.mjs"
+      - ".github/workflows/sw-shared-bandwidth-home-feed.yml"
+permissions:
+  contents: read
+concurrency:
+  group: sw-shared-bandwidth-home-feed-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  post-fcp-cold-journey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Verify read-only shared-network test syntax
+        run: node --check scripts/audit-sw-shared-bandwidth-home-feed.mjs
+      - name: Measure live home to feed with one bandwidth pool
+        run: node scripts/audit-sw-shared-bandwidth-home-feed.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sw-shared-bandwidth-home-feed
+          path: .artifacts/sw-shared-bandwidth/
+          if-no-files-found: warn
+          retention-days: 14
