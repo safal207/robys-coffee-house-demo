@@ -44,7 +44,10 @@ const interactionModule=readFileSync("qa-interactions.js","utf8");
 assert.match(qaEntry,/import\("\.\/qa-interactions\.js"\)/,"deferred helpers import on the first gesture");
 assert.match(qaEntry,/addEventListener\("pointerdown",\s*initQaEnhancements/);
 assert.match(qaEntry,/addEventListener\("keydown",\s*initQaEnhancements/);
-assert.ok(!qaEntry.includes("new MutationObserver("),"optional mutation observers must not load on the first paint");
-for(const required of ["setupExternalLinks();","setupImageFallbacks();","setupLightboxAccessibility();"])
+assert.match(qaEntry,/setupLightboxAccessibility\(\);/,"lightbox focus must be protected before first input");
+assert.match(qaEntry,/new MutationObserver\(attach\)/,"early focus protection must also cover late lightboxes");
+assert.ok(!qaEntry.includes("setupImageFallbacks();"),"image fallback mutations must remain deferred");
+for(const required of ["setupExternalLinks();","setupImageFallbacks();"])
   assert.ok(interactionModule.includes(required),"deferred module missing "+required);
+assert.ok(!interactionModule.includes("setupLightboxAccessibility"),"focus protection must not wait for a gesture");
 assert.ok(!interactionModule.includes("document.write")&&!interactionModule.includes("innerHTML"),"CSP-safe deferred helper");

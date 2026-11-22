@@ -40,57 +40,5 @@ function setupImageFallbacks() {
   }).observe(document.body, { childList: true, subtree: true });
 }
 
-function setupLightboxAccessibility() {
-  let lightbox;
-  const background = [".site-header", "main", ".site-footer", ".mobile-cta"];
-
-  const setInert = (value) => {
-    background.forEach((selector) => {
-      const node = q(selector);
-      if (!node) return;
-      if (value) node.setAttribute("inert", "");
-      else node.removeAttribute("inert");
-    });
-  };
-
-  const attach = (node) => {
-    if (!node || node.dataset.qaA11y === "true") return;
-    node.dataset.qaA11y = "true";
-    lightbox = node;
-
-    new MutationObserver(() => {
-      setInert(node.classList.contains("is-open"));
-    }).observe(node, { attributes: true, attributeFilter: ["class"] });
-  };
-
-  attach(q(".lightbox"));
-  new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (!(node instanceof Element)) return;
-        if (node.matches(".lightbox")) attach(node);
-        else attach(q(".lightbox", node));
-      });
-    });
-  }).observe(document.body, { childList: true, subtree: true });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Tab" || !lightbox?.classList.contains("is-open")) return;
-    const focusable = qa('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])', lightbox);
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  });
-}
-
 setupExternalLinks();
 setupImageFallbacks();
-setupLightboxAccessibility();

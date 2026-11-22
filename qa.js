@@ -28,13 +28,48 @@ function applyImmediateA11yFixes(){
  q(".map-live-link")?.removeAttribute("aria-label");
  const top=q(".back-top");if(top)top.setAttribute("aria-label","↑ Back to top");
 }
+function setupLightboxAccessibility() {
+ let lightbox = null;
+ const sync = () => {
+  const open = !!lightbox?.isConnected && lightbox.classList.contains("is-open");
+  for (const selector of [".site-header", "main", ".site-footer", ".mobile-cta"]) {
+   const node = q(selector);
+   if (!node) continue;
+   if (open) node.setAttribute("inert", "");
+   else node.removeAttribute("inert");
+  }
+ };
+ const attach = () => {
+  const next = q(".lightbox");
+  if (next === lightbox) return;
+  lightbox = next;
+  sync();
+  if (next) new MutationObserver(sync).observe(next, { attributes: true, attributeFilter: ["class"] });
+ };
+ attach();
+ new MutationObserver(attach).observe(document.body, { childList: true, subtree: true });
+ document.addEventListener("keydown", event => {
+  if (event.key !== "Tab" || !lightbox?.classList.contains("is-open")) return;
+  const focusable = qa('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])', lightbox);
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (!lightbox.contains(document.activeElement) || (event.shiftKey && document.activeElement === first)) {
+   event.preventDefault();
+   (event.shiftKey ? last : first).focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+   event.preventDefault();
+   first.focus();
+  }
+ });
+}
+
 let enhanced=false;
 function initQaEnhancements(){
  if(enhanced)return;enhanced=true;
  import("./qa-interactions.js").catch(error=>console.error("Optional QA enhancements failed",error));
 }
 function initQa(){
- ensureHeroBalanceStyles();scheduleHeroPlayback();applyImmediateA11yFixes();
+ ensureHeroBalanceStyles();scheduleHeroPlayback();applyImmediateA11yFixes();setupLightboxAccessibility();
  window.addEventListener("pointerdown",initQaEnhancements,{once:true,passive:true});
  window.addEventListener("keydown",initQaEnhancements,{once:true});
 }
