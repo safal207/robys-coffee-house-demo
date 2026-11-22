@@ -611,7 +611,9 @@
         "scripts/verify-offline-browser.mjs",
         "scripts/test-menu-catalog-revision.mjs",
         "offline.css",
-        "refresh.html"
+        "refresh.html",
+        "scripts/audit-sw-first-visit-contention.mjs",
+        ".github/workflows/sw-first-visit-contention.yml"
       ],
       "dependsOn": [
         "build"
