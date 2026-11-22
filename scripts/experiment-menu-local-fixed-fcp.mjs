@@ -8,15 +8,19 @@ import { dirname, extname, join, resolve, sep } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { gzipSync } from "node:zlib";
 import { compiled } from "./experiment-menu-first-section-render.mjs";
 
 // Fixed-repository HTTPS assets: no GitHub Pages, CDN, remote images or JS
 // interception. Identical A/A/A and bracketed A/B/A isolate scheduler/network
 // noise from a guarded staged-render candidate. QA-only; never deployed.
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..");
-const OUTPUT=".artifacts/menu-first-photo-experiment/local-fcp-controls.json";
-const REPEATS=4;
-const PROFILES=[
+const TRACE_MODE=process.env.ROBY_FCP_FRAME_TRACE==="1";
+const OUTPUT=TRACE_MODE
+  ? ".artifacts/menu-first-photo-experiment/local-frame-trace.json"
+  : ".artifacts/menu-first-photo-experiment/local-fcp-controls.json";
+const REPEATS=TRACE_MODE?2:4;
+const PROFILES=TRACE_MODE?[{id:"loopback-throttled",cpu:4,emulateNetwork:true}]:[
   {id:"loopback",cpu:4,emulateNetwork:false},
   {id:"loopback-throttled",cpu:4,emulateNetwork:true}
 ];
@@ -41,6 +45,61 @@ const mime={
   ".ico":"image/x-icon",".mp4":"video/mp4",".webm":"video/webm"
 };
 const failReason=error=>error?.stack||String(error);
+
+const frameNames=new Set(["Layout","UpdateLayoutTree","Paint","PrePaint","CompositeLayers",
+  "BeginMainThreadFrame","BeginFrame","DrawFrame","Commit","RunTask",
+  "EvaluateScript","ParseHTML","RecalculateStyles","firstContentfulPaint","firstPaint"]);
+export function summarizeFrameTimeline(events, fcpMs, cssEndMs) {
+  assert.ok(Array.isArray(events)&&Number.isFinite(fcpMs)&&Number.isFinite(cssEndMs));
+  const eventsWithTimes=events.filter(x=>Number.isFinite(x.ts)&&frameNames.has(x.name));
+  const fcpMarkers=eventsWithTimes.filter(x=>x.name==="firstContentfulPaint");
+  const fcpTraceUs=fcpMarkers[0]?.ts??null;
+  const aroundFcp=fcpTraceUs===null?[]:eventsWithTimes.filter(x=>
+    x.ts<=fcpTraceUs+20000&&x.ts+(Number.isFinite(x.dur)?x.dur:0)>=fcpTraceUs-300000)
+    .sort((a,b)=>a.ts-b.ts).slice(-100).map(x=>({
+      name:x.name,relativeToFcpMs:round((x.ts-fcpTraceUs)/1000),
+      durationMs:Number.isFinite(x.dur)?round(x.dur/1000):null,
+      pid:x.pid??null,tid:x.tid??null
+    }));
+  return {postCssToFcpMs:round(fcpMs-cssEndMs),
+    fcpTraceMarkerFound:fcpTraceUs!==null,
+    traceEventCount:events.length,
+    eventCounts:Object.fromEntries([...frameNames].map(name=>[
+      name,eventsWithTimes.filter(x=>x.name===name).length
+    ]).filter(([,count])=>count>0)),
+    aroundFcp};
+}
+async function collectFrameTrace(cdp,passive,profile,block,pair,mode){
+  const completed=new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(new Error("Chrome tracing completion timeout")),30000);
+    cdp.once("Tracing.tracingComplete",event=>{clearTimeout(timer);resolve(event);});
+  });
+  await cdp.send("Tracing.end");
+  const meta=await completed;
+  assert.ok(meta.stream,"Missing trace IO stream");
+  assert.notEqual(meta.dataLossOccurred,true,"Trace data loss detected");
+  let chunks=[],size=0,eof=false;
+  try{
+    while(!eof){
+      const result=await cdp.send("IO.read",{handle:meta.stream,size:1048576});
+      const data=result.base64Encoded
+        ?Buffer.from(result.data||"","base64"):Buffer.from(result.data||"","utf8");
+      size+=data.length;
+      assert.ok(size<96*1024*1024,"Chrome trace exceeds diagnostic memory budget");
+      chunks.push(data);eof=result.eof===true;
+    }
+  }finally{await cdp.send("IO.close",{handle:meta.stream}).catch(()=>{});}
+  const raw=Buffer.concat(chunks);
+  const decoded=JSON.parse(raw.toString("utf8"));
+  assert.ok(Array.isArray(decoded.traceEvents),"Chrome timeline trace events missing");
+  const outputDir=".artifacts/menu-first-photo-experiment/frame-traces";
+  mkdirSync(outputDir,{recursive:true});
+  const filename=outputDir+"/trace-"+profile.id+"-"+block.id.replaceAll("/","")+
+    "-"+pair+"-"+mode+".json.gz";
+  writeFileSync(filename,gzipSync(raw,{level:6}));
+  return {file:filename,rawBytes:raw.length,
+    ...summarizeFrameTimeline(decoded.traceEvents,passive.fcpMs,passive.cssEndMs)};
+}
 export function createFixtureServer(cert){
   let selected="A1";
   let requests=[];
@@ -122,7 +181,15 @@ async function measure(browser,fixture,origin,profile,block,pair,mode,slot){
     uploadThroughput:750000/8,connectionType:"cellular3g"
   });
   await cdp.send("Emulation.setCPUThrottlingRate",{rate:profile.cpu});
+  let traceStarted=false,traceCollected=false;
   try{
+    if(TRACE_MODE){
+      await cdp.send("Tracing.start",{
+        categories:"devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame,blink.user_timing,blink,cc,loading",
+        transferMode:"ReturnAsStream"
+      });
+      traceStarted=true;
+    }
     const res=await page.goto(origin+"/menu.html?view=list",{
       waitUntil:"domcontentloaded",timeout:60000
     });
@@ -162,6 +229,9 @@ async function measure(browser,fixture,origin,profile,block,pair,mode,slot){
         scrollY:scrollY
       };
     });
+    const trace=TRACE_MODE?await collectFrameTrace(
+      cdp,passive,profile,block,pair,mode):null;
+    traceCollected=TRACE_MODE;
     const served=fixture.requests();
     assert.equal(errors.length,0,"Browser errors: "+errors.join(" | "));
     assert.equal(failures.length,0,"Local asset request failures: "+JSON.stringify(failures));
@@ -179,9 +249,12 @@ async function measure(browser,fixture,origin,profile,block,pair,mode,slot){
       &&passive.cssEndMs!==null&&passive.catalogEndMs!==null,
       "FCP resource milestones missing");
     return {profile:profile.id,block:block.id,pair,mode,slot,
-      passive,served,requestUrls:requests,errors,
+      passive,served,requestUrls:requests,errors,trace,
       bundleSha256:sha(Buffer.from(bundles[mode]))};
-  }finally{await context.close();}
+  }finally{
+    if(traceStarted&&!traceCollected)await cdp.send("Tracing.end").catch(()=>{});
+    await context.close();
+  }
 }
 export function compareTriple(triple,block){
   assert.equal(triple.length,3);
@@ -270,8 +343,9 @@ async function main(){
         ?d.filter(x=>x.candidateSlowerThanBoth).length:null};
   }));
   const report={
-    schema:"robys.local-fixed-asset-fcp.v1",synthetic:true,shipApproved:false,
+    schema:TRACE_MODE?"robys.local-frame-trace.v1":"robys.local-fixed-asset-fcp.v1",synthetic:true,shipApproved:false,
     source:"Local verified repository assets over ephemeral loopback HTTPS, no remote resources",
+    traced:TRACE_MODE,
     htmlSHA256:fixture.originalHtmlHash,
     originalRuntimeSHA256:fixture.runtimeHash,
     candidateRuntimeSHA256:sha(Buffer.from(bundles.B)),
@@ -282,7 +356,8 @@ async function main(){
       "Browser DevTools network emulation still affects the loopback-throttled profile",
       "First-contentful-paint captured passively without forced photo scroll or image.decode()",
       "A/B/A still differs in runtime JS byte length and parsing; unchanged A/A/A controls estimate run-to-run variation",
-      "No field LCP, real-user outcomes or shipping approval are inferred from local test data"
+      "No field LCP, real-user outcomes or shipping approval are inferred from local test data",
+      ...(TRACE_MODE?["Tracing instrumentation changes scheduler timing; compare only equally traced runs","CSS responseEnd is not CSSOM/style calculation/layout completion"]:[])
     ],summary,triplets,samples};
   mkdirSync(dirname(OUTPUT),{recursive:true});
   writeFileSync(OUTPUT,JSON.stringify(report,null,2)+"\n");
@@ -294,6 +369,10 @@ async function main(){
       "ms | "+x.controlBracketSpreadMedianMs+"ms | "+
       (x.candidateFcpPenaltyMedianMs===null?"—":x.candidateFcpPenaltyMedianMs+"ms")+" |").join("\n")+
     "\n\nA/A/A = identical-code controls; A/B/A = guarded experimental candidate. Lab data only. NO SHIP.\n");
+  if(TRACE_MODE)console.log("FRAME_TIMELINE_SUMMARY "+JSON.stringify({
+    summary,frames:samples.map(x=>({profile:x.profile,block:x.block,
+      pair:x.pair,mode:x.mode,fcp:x.passive.fcpMs,trace:x.trace}))
+  }));
   console.log("LOCAL_FCP_SUMMARY "+JSON.stringify(summary));
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
