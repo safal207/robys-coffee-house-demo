@@ -8,7 +8,9 @@
 .dessert-story-dots{display:flex;align-items:center;justify-content:center;gap:6px}
 .dessert-story-dots i{width:20px;height:3px;display:block;background:#fff8;border-radius:10px;box-shadow:0 1px 3px #0008}
 .dessert-story-dots i.active{background:#fff;box-shadow:0 1px 8px #0006}
-.dessert-story-feed .dessert-story-dots{z-index:2;position:absolute;top:12px;left:0;right:0;pointer-events:none}
+.dessert-story-feed .dessert-story-dots{z-index:2;position:absolute;top:auto;bottom:56px;left:0;right:0;pointer-events:none}
+/* The emotional finale must show the whole headline without menu badges covering it. */
+.feed-card[data-dessert-frame="3"] .feed-photo>.feed-photo-tag,.feed-card[data-dessert-frame="3"] .feed-photo>.feed-photo-views,.dessert-story-hint[hidden]{display:none}
 .dessert-story-hint{z-index:2;position:absolute;bottom:19px;left:50%;transform:translateX(-50%);max-width:calc(100% - 128px);white-space:nowrap;border-radius:50px;background:#241c1bb0;color:#fff;padding:5px 10px;font:600 12px/1.5 Arial,sans-serif;pointer-events:none}
 .dessert-story-forward{z-index:2;position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;border:1px solid #fff8;border-radius:50%;color:#fff;background:#241c1bb0;font:27px/1 Arial,sans-serif;cursor:pointer}
 .feed-photo>.feed-photo-tag,.feed-photo>.feed-photo-views,.feed-photo>.feed-photo-prev,.feed-photo>.feed-photo-next {z-index:2}

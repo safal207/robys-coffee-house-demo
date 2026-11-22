@@ -104,20 +104,20 @@ function injectFeed(card){
   layer.className="dessert-story-feed";layer.tabIndex=0;layer.setAttribute("role","group");layer.setAttribute("aria-label",copy().title+" · "+copy().hint);
   const image=document.createElement("img");
   image.className="dessert-story-frame";image.loading="lazy";image.decoding="async";image.draggable=false;
-  const backdrop=document.createElement("img");backdrop.className="dessert-story-backdrop";backdrop.alt="";backdrop.setAttribute("aria-hidden","true");backdrop.decoding="async";backdrop.draggable=false;
+  const backdrop=document.createElement("img");backdrop.className="dessert-story-backdrop";backdrop.alt="";backdrop.setAttribute("aria-hidden","true");backdrop.decoding="async";backdrop.draggable=false;backdrop.loading="lazy";
   const progress=dots(),hint=document.createElement("span"),next=document.createElement("button");
   hint.className="dessert-story-hint";
   next.type="button";next.className="dessert-story-forward";next.textContent="›";next.setAttribute("aria-label",copy().next);
   layer.append(backdrop,image,progress,hint,next);
   target.append(layer);
-  const slider=controller(image,progress,i=>{next.hidden=i===2;hint.textContent=copy().hint;backdrop.src=image.src;});
+  const slider=controller(image,progress,i=>{card.dataset.dessertFrame=String(i+1);next.hidden=i===2;hint.hidden=i===2;hint.textContent=copy().hint;backdrop.src=image.src;});
   layer.addEventListener("pointerdown",slider.start);
   layer.addEventListener("pointerup",slider.end);
   layer.addEventListener("pointercancel",slider.cancel);
   layer.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")slider.show(slider.index+1);else if(e.key==="ArrowRight")slider.show(slider.index-1);});
   layer.addEventListener("dblclick",()=>$(".feed-photo > img",card)?.dispatchEvent(new MouseEvent("dblclick",{bubbles:true})));
   next.addEventListener("click",e=>{e.stopPropagation();slider.show(slider.index+1);});
-  image.addEventListener("error",()=>{layer.hidden=true;});
+  image.addEventListener("error",()=>{layer.hidden=true;delete card.dataset.dessertFrame;});
   card._dessertStory=slider;
   slider.show(0);
 }
