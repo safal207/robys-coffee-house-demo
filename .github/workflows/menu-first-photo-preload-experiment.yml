@@ -223,3 +223,33 @@ jobs:
           path: .artifacts/menu-first-photo-experiment/local-fcp-controls.json
           if-no-files-found: warn
           retention-days: 14
+  local-fcp-frame-tracing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate CDP frame trace module and timing invariants
+        run: |
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Trace frame scheduling after CSS response on local resources
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+        env:
+          ROBY_FCP_FRAME_TRACE: "1"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: local-fcp-frame-tracing
+          path: |
+            .artifacts/menu-first-photo-experiment/local-frame-trace.json
+            .artifacts/menu-first-photo-experiment/frame-traces/
+          if-no-files-found: warn
+          retention-days: 7
