@@ -41,10 +41,8 @@ try {
       image.addEventListener("load",resolve,{once:true});
       image.addEventListener("error",resolve,{once:true});
     });
-    assertBrowserImage(image);
+    if(!image.naturalWidth)throw Error("Story photograph did not decode");
   });
-  // The browser evaluates this literal predicate; no waitForFunction string compilation under Trusted Types.
-  const assertBrowserImage=image=>{if(!image.naturalWidth)throw Error("Story photograph did not decode");};
   await photoReady();
   assert.equal(await page.locator(".dessert-story-open").count(),1,"Only Chocolate Cake gets an entry");
   assert.match(await slide.getAttribute("aria-label"),/Çikolatalı Pasta/);
