@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compareTriple } from "./experiment-menu-local-fixed-fcp.mjs";
+import { compareTriple, summarizeFrameTimeline } from "./experiment-menu-local-fixed-fcp.mjs";
 
 const base={
   profile:"loopback",pair:1,
@@ -42,4 +42,25 @@ test("A/B/A rejects mistaken original JS and catalog mismatches",()=>{
   assert.throws(()=>compareTriple([
     sample("A1",760),mutated,sample("A3",780)
   ],{id:"A/B/A"}),/Product order changed/);
+});
+
+test("Chromium frame trace distinguishes CSS response from actual paint marker",()=>{
+  const events=[
+    {name:"Layout",ts:400000,dur:1100,ph:"X",pid:1,tid:2},
+    {name:"Paint",ts:450000,dur:3500,ph:"X",pid:1,tid:2},
+    {name:"firstContentfulPaint",ts:470000,ph:"I",pid:1,tid:2}
+  ];
+  const result=summarizeFrameTimeline(events,220,150);
+  assert.equal(result.postCssToFcpMs,70);
+  assert.equal(result.fcpTraceMarkerFound,true);
+  assert.equal(result.eventCounts.Layout,1);
+  assert.equal(result.eventCounts.Paint,1);
+  assert.ok(result.aroundFcp.find(e=>e.name==="Paint").relativeToFcpMs<0);
+});
+test("Absent native FCP trace marker is explicit, not fabricated",()=>{
+  const result=summarizeFrameTimeline([{name:"Layout",ts:1000,dur:200}],250,160);
+  assert.equal(result.postCssToFcpMs,90);
+  assert.equal(result.fcpTraceMarkerFound,false);
+  assert.deepEqual(result.aroundFcp,[]);
+  assert.throws(()=>summarizeFrameTimeline([],NaN,10),/Invalid|assertion/i);
 });
