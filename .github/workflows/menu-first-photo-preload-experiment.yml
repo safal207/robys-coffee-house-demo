@@ -373,8 +373,13 @@ jobs:
           node --check scripts/test-menu-early-geometry-candidate.mjs
           node --test scripts/test-menu-early-geometry-candidate.mjs
   early-geometry-browser-contract:
+    name: early-geometry-browser-contract (${{ matrix.scenario }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 18
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: ["360-tr", "360-ru", "390-tr", "390-ru"]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -391,12 +396,14 @@ jobs:
           node --check scripts/experiment-menu-early-geometry.mjs
           node --test scripts/test-menu-early-geometry-candidate.mjs
           node --test scripts/test-menu-local-fixed-fcp.mjs
-      - name: A/A/A and A/B/A 24 Chromium navigations, first-painted CSS, screenshots, CLS, FCP, trace, anchors, products and cart
+      - name: One isolated six-navigation A/A/A and A/B/A Chromium scenario with strict resources, FCP, CLS, PNG, traces, cart and scroll
+        env:
+          ROBY_EARLY_GEOMETRY_SCENARIO: ${{ matrix.scenario }}
         run: node scripts/experiment-menu-early-geometry.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: early-geometry-browser-contract
+          name: early-geometry-browser-${{ matrix.scenario }}
           path: .artifacts/menu-first-photo-experiment/geometry-early/
           if-no-files-found: warn
           retention-days: 7
