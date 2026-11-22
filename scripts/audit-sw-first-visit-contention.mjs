@@ -235,6 +235,10 @@ async function audit(browser, condition, pair) {
     if (condition === "sw-blocked") {
       assert.equal(workerRecords.length, 0, "Control must not initiate Service Worker network requests");
     }
+    if (condition === "sw-first-install" && afterWindow.sw.active) {
+      assert.ok(workerTimings.some(w => w.available && w.cacheBuckets.some(c => c.cachedEntries > 0)),
+        "An activated worker must provide independently inspectable Cache Storage evidence");
+    }
     assert.ok(Number.isFinite(justAfterFcp.fcpMs) && Number.isFinite(afterWindow.fcpMs),
       "First Contentful Paint must be measured");
     assert.deepEqual(errors, [], "Homepage JavaScript errors");
@@ -286,8 +290,11 @@ async function main() {
     {
       fcpMs: median(samples.filter(s=>s.condition===mode).map(s=>s.afterWindow.fcpMs)),
       domContentLoadedMs: median(samples.filter(s=>s.condition===mode).map(s=>s.afterWindow.domContentLoadedMs)),
-      workerRequests: median(samples.filter(s=>s.condition===mode).map(s=>s.network.workerRequestCount)),
-      workerObservedBodyBytes: median(samples.filter(s=>s.condition===mode).map(s=>s.network.workerObservedEncodedResponseBodyBytes))
+      contextWorkerRequestEvents: median(samples.filter(s=>s.condition===mode).map(s=>s.network.workerRequestCount)),
+      workerResourceTimingEntries: median(samples.filter(s=>s.condition===mode).map(s=>s.workerTimings.reduce((n,w)=>n+(w.resourceEntryCount||0),0))),
+      workerResourceTransferBytes: median(samples.filter(s=>s.condition===mode).map(s=>s.workerTimings.reduce((n,w)=>n+(w.resourceTransferBytes||0),0))),
+      workerImageResourceEntries: median(samples.filter(s=>s.condition===mode).map(s=>s.workerTimings.reduce((n,w)=>n+(w.imageResourceEntries||0),0))),
+      workerCacheStorageEntries: median(samples.filter(s=>s.condition===mode).map(s=>s.workerTimings.reduce((n,w)=>n+(w.cacheBuckets||[]).reduce((n,b)=>n+b.cachedEntries,0),0)))
     }
   ]));
   const paired = Array.from({length:PAIRS}, (_,n)=>{
@@ -326,13 +333,14 @@ async function main() {
   if (process.env.GITHUB_STEP_SUMMARY) {
     appendFileSync(process.env.GITHUB_STEP_SUMMARY,
       "## Cold-first-visit Service Worker installation diagnostic\n\n"+
-      "| Mode | Median FCP, ms | Median DCL, ms | Worker-owned requests | Observed worker body bytes |\n"+
-      "|---|---:|---:|---:|---:|\n"+
+      "| Mode | Median FCP, ms | DCL, ms | Worker resource entries | Worker ResourceTiming transfer, bytes | Cached entries |\n"+
+      "|---|---:|---:|---:|---:|---:|\n"+
       CONDITIONS.map(mode=>"| "+mode+" | "+Math.round(groups[mode].fcpMs)+" | "+
-        Math.round(groups[mode].domContentLoadedMs)+" | "+groups[mode].workerRequests+
-        " | "+groups[mode].workerObservedBodyBytes+" |").join("\n")+
+        Math.round(groups[mode].domContentLoadedMs)+" | "+groups[mode].workerResourceTimingEntries+
+        " | "+groups[mode].workerResourceTransferBytes+
+        " | "+groups[mode].workerCacheStorageEntries+" |").join("\n")+
       "\n\nPaired FCP deltas (worker minus blocked): "+paired.map(p=>Math.round(p.fcpPenaltyMs)+"ms").join(", ")+
-      ". This is page-level lab evidence; verify worker-owned traffic completeness and install state in raw artifact.\n");
+      ". These are page-level lab deltas. Worker timings come from worker.evaluate(); the page-only request monitor missed install traffic. Check raw artifact for traffic completeness and install state.\n");
   }
   console.log("SUMMARY "+JSON.stringify({groups,paired}));
 }
