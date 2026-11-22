@@ -92,8 +92,9 @@ export function evaluateVisualPairs(a,b,c) {
     "Missing PNG pixel comparisons");
   assert.equal(a.width,b.width);assert.equal(b.width,c.width);
   assert.equal(a.height,b.height);assert.equal(b.height,c.height);
-  const baselineNoise=Math.max(a.changedPixels,c.changedPixels);
-  const candidateDifference=b.changedPixels;
+  // a = A1↔A3 (baseline noise), b = B↔A1, c = B↔A3.
+  const baselineNoise=a.changedPixels;
+  const candidateDifference=Math.min(b.changedPixels,c.changedPixels);
   return {
     baselineNoise,candidateDifference,
     candidateWithinNoise:candidateDifference<=baselineNoise,
