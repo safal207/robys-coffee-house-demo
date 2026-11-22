@@ -6,6 +6,7 @@ on:
       - "scripts/experiment-menu-photo-route-risk.mjs"
       - "scripts/experiment-menu-first-section-render.mjs"
       - "scripts/test-menu-first-section-state-transitions.mjs"
+      - "scripts/experiment-menu-fcp-attribution.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -93,5 +94,29 @@ jobs:
         with:
           name: menu-state-transition-qa
           path: .artifacts/menu-first-photo-experiment/staged-render-state-machine.json
+          if-no-files-found: warn
+          retention-days: 14
+  fcp-negative-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate FCP attribution syntax
+        run: node --check scripts/experiment-menu-fcp-attribution.mjs
+      - name: Measure passive FCP with identical-bundle placebo controls
+        run: node scripts/experiment-menu-fcp-attribution.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: fcp-negative-controls
+          path: .artifacts/menu-first-photo-experiment/fcp-attribution.json
           if-no-files-found: warn
           retention-days: 14
