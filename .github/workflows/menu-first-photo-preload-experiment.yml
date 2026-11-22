@@ -21,6 +21,7 @@ on:
       - "scripts/experiment-menu-deferred-geometry.mjs"
       - "scripts/menu-early-geometry-candidate.mjs"
       - "scripts/test-menu-early-geometry-candidate.mjs"
+      - "scripts/experiment-menu-early-geometry.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -371,3 +372,31 @@ jobs:
           node --check scripts/menu-early-geometry-candidate.mjs
           node --check scripts/test-menu-early-geometry-candidate.mjs
           node --test scripts/test-menu-early-geometry-candidate.mjs
+  early-geometry-browser-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Test QA-only synchronous startup reorder and exact original compilation
+        run: |
+          node --check scripts/menu-early-geometry-candidate.mjs
+          node --check scripts/experiment-menu-early-geometry.mjs
+          node --test scripts/test-menu-early-geometry-candidate.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: A/A/A and A/B/A 24 Chromium navigations, first-painted CSS, screenshots, CLS, FCP, trace, anchors, products and cart
+        run: node scripts/experiment-menu-early-geometry.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: early-geometry-browser-contract
+          path: .artifacts/menu-first-photo-experiment/geometry-early/
+          if-no-files-found: warn
+          retention-days: 7
