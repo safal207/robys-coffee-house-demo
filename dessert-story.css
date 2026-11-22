@@ -2,14 +2,15 @@
 .feed-photo {position:relative}
 .dessert-story-feed {position:absolute;inset:0;z-index:1;overflow:hidden;touch-action:pan-y;cursor:grab}
 .dessert-story-feed:active{cursor:grabbing}
+.dessert-story-feed::before{content:"";position:absolute;inset:-20px;background-image:var(--dessert-frame-image);background-size:cover;background-position:center;filter:blur(18px) brightness(.66);transform:scale(1.06);z-index:0}
 .dessert-story-feed[hidden],.dessert-story-forward[hidden]{display:none}
-.dessert-story-frame{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 45%;pointer-events:none;user-select:none}
+.dessert-story-frame{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
 .dessert-story-dots{display:flex;align-items:center;justify-content:center;gap:6px}
 .dessert-story-dots i{width:20px;height:3px;display:block;background:#fff8;border-radius:10px;box-shadow:0 1px 3px #0008}
 .dessert-story-dots i.active{background:#fff;box-shadow:0 1px 8px #0006}
-.dessert-story-feed .dessert-story-dots{position:absolute;top:12px;left:0;right:0;pointer-events:none}
-.dessert-story-hint{position:absolute;bottom:14px;left:12px;border-radius:50px;background:#241c1bb0;color:#fff;padding:5px 10px;font:600 12px/1.5 Arial,sans-serif;pointer-events:none}
-.dessert-story-forward{position:absolute;bottom:12px;right:12px;width:34px;height:34px;border:1px solid #fff8;border-radius:50%;color:#fff;background:#241c1bb0;font:27px/1 Arial,sans-serif;cursor:pointer}
+.dessert-story-feed .dessert-story-dots{z-index:2;position:absolute;top:12px;left:0;right:0;pointer-events:none}
+.dessert-story-hint{z-index:2;position:absolute;bottom:14px;left:12px;border-radius:50px;background:#241c1bb0;color:#fff;padding:5px 10px;font:600 12px/1.5 Arial,sans-serif;pointer-events:none}
+.dessert-story-forward{z-index:2;position:absolute;bottom:12px;right:12px;width:34px;height:34px;border:1px solid #fff8;border-radius:50%;color:#fff;background:#241c1bb0;font:27px/1 Arial,sans-serif;cursor:pointer}
 .feed-photo>.feed-photo-tag,.feed-photo>.feed-photo-views,.feed-photo>.feed-photo-prev,.feed-photo>.feed-photo-next {z-index:2}
 .dessert-story-open{align-self:flex-start;margin-top:8px;padding:8px 12px;border:1px solid #E21B23;border-radius:30px;background:#fffaf7;color:#a31920;font:700 12px/1.3 Arial,sans-serif;cursor:pointer}
 .dessert-story-open:hover,.dessert-story-open:focus-visible{background:#E21B23;color:#fff}
