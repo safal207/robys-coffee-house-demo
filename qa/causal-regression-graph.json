@@ -149,6 +149,7 @@
         "scripts/experiment-menu-fcp-attribution.mjs",
         "scripts/fuzzy-menu-root-cause.mjs",
         "scripts/test-fuzzy-menu-root-cause.mjs",
+        "scripts/experiment-category-image-lifecycle.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
