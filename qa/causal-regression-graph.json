@@ -156,6 +156,12 @@
         "scripts/test-menu-startup-attribution-probe.mjs",
         "scripts/menu-geometry-attribution-probe.mjs",
         "scripts/test-menu-geometry-attribution-probe.mjs",
+        "scripts/menu-deferred-geometry-candidate.mjs",
+        "scripts/test-menu-deferred-geometry-candidate.mjs",
+        "scripts/experiment-menu-deferred-geometry.mjs",
+        "scripts/menu-early-geometry-candidate.mjs",
+        "scripts/test-menu-early-geometry-candidate.mjs",
+        "scripts/experiment-menu-early-geometry.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
