@@ -39,5 +39,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dessert-story-visual-${{ github.sha }}
-          path: .artifacts/dessert-story/qa-390.png
+          path: .artifacts/dessert-story/
           if-no-files-found: warn
