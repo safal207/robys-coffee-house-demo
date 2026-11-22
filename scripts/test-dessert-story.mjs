@@ -21,6 +21,8 @@ test("feature is scoped to the existing Chocolate Cake product and three localiz
   assert.ok(!source.includes('style.setProperty("--dessert-frame-image"'),"do not use inline styles under CSP");
   assert.ok(source.includes("dessert-story-backdrop"),"backdrop uses a real DOM image");
   assert.ok(!/\.innerHTML\s*=/.test(source),"Trusted Types: no unsafe innerHTML sink");
+  assert.ok(source.includes('modal.setAttribute("aria-labelledby",heading.id)'),"modal must have an accessible name");
+  assert.ok(source.includes('layer.setAttribute("aria-label",copy().title+" · "+copy().hint)'),"feed accessible name must update on language switch");
 });
 test("all five story photographs exist, fit the mobile budget and have JPEG signatures", () => {
   const base="src/products/stories/chocolate-cake/";

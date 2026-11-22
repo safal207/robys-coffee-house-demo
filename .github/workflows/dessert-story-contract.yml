@@ -9,6 +9,7 @@ on:
       - "dessert-story.css"
       - "src/products/stories/chocolate-cake/**"
       - "scripts/test-dessert-story.mjs"
+      - "scripts/test-dessert-story-browser.mjs"
       - ".github/workflows/dessert-story-contract.yml"
 permissions:
   contents: read
@@ -24,3 +25,16 @@ jobs:
         run: node --check src/dessert-story.js
       - name: Verify assets and three menu entrypoints
         run: node --test scripts/test-dessert-story.mjs
+      - name: Install Chromium for gesture regression
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify swipe, locales and accessible modal under CSP
+        run: node scripts/test-dessert-story-browser.mjs
+      - name: Attach mobile story screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dessert-story-visual-${{ github.sha }}
+          path: .artifacts/dessert-story/qa-390.png
+          if-no-files-found: warn

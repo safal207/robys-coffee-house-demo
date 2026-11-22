@@ -55,7 +55,7 @@ const makeNode=(tag,className,label)=>{
   return node;
 };
 const top=makeNode("div","dessert-story-top");
-const heading=makeNode("strong","");
+const heading=makeNode("strong","");heading.id="dessert-story-title";modal.setAttribute("aria-labelledby",heading.id);
 const dismiss=makeNode("button","dessert-story-close","×");dismiss.type="button";
 top.append(heading,dismiss);
 const frame=makeNode("div","dessert-story-image");
@@ -135,6 +135,7 @@ function scan(){
 function relocalize(){
   document.querySelectorAll(".dessert-story-open").forEach(button=>{button.textContent=copy().open});
   document.querySelectorAll(".dessert-story-feed").forEach(layer=>{
+    layer.setAttribute("aria-label",copy().title+" · "+copy().hint);
     layer.querySelector(".dessert-story-forward")?.setAttribute("aria-label",copy().next);
     layer.closest(".feed-card")?._dessertStory?.show(0);
   });
