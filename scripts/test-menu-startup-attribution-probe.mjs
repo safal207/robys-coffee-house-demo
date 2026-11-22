@@ -22,7 +22,7 @@ test("Probe is source-local, instruments each startup call exactly once and leav
   assert.match(result,/function elsewhere\(\)\{ renderMenu\(\); \}/);
   for(const name of STARTUP_STEPS)
     assert.match(result,new RegExp('__qaMeasureStartup\\("'+name+'",'));
-  assert.equal(result.split("__qaMeasureStartup(").length,5);
+  assert.equal(result.split("__qaMeasureStartup(").length,6);
   assert.equal(result.includes("function elsewhere(){ renderMenu(); }"),true);
 });
 test("Probe refuses missing, duplicated, or changed source anchors",()=>{
@@ -46,6 +46,7 @@ test("Function timing arithmetic and order are validated",()=>{
   const malformed=correctRows();malformed[2].durationMs=NaN;
   assert.throws(()=>validateStartupMeasurement(malformed),/Invalid startup function duration/);
   const overlap=correctRows();overlap[3].startedMs=202;
+  overlap[3].durationMs=overlap[3].endedMs-overlap[3].startedMs;
   assert.throws(()=>validateStartupMeasurement(overlap),/overlap/);
 });
 const sample=(pair,mode,fcp)=>{
