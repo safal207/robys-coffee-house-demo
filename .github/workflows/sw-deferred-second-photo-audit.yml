@@ -1,0 +1,36 @@
+name: SW deferred second-photo audit
+on:
+  pull_request:
+    paths:
+      - "scripts/audit-sw-deferred-second-photo.mjs"
+      - ".github/workflows/sw-deferred-second-photo-audit.yml"
+permissions:
+  contents: read
+concurrency:
+  group: sw-deferred-photo-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  shared-bandwidth-and-offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Verify read-only deferred-install experiment
+        run: node --check scripts/audit-sw-deferred-second-photo.mjs
+      - name: Compare matched home-to-feed journeys and offline recovery
+        run: node scripts/audit-sw-deferred-second-photo.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: sw-deferred-second-photo-evidence
+          path: .artifacts/sw-deferred-second-photo/
+          if-no-files-found: error
+          retention-days: 14
