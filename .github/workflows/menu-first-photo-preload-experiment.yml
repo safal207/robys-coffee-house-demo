@@ -176,8 +176,10 @@ jobs:
           node-version: "22"
       - run: npm ci --no-audit --no-fund
       - run: node scripts/ensure-playwright-browsers.mjs chromium
-      - name: Validate category network trace syntax
-        run: node --check scripts/experiment-category-image-lifecycle.mjs
+      - name: Validate category network trace syntax and module entry point
+        run: |
+          node --check scripts/experiment-category-image-lifecycle.mjs
+          node --input-type=module -e "import('./scripts/experiment-category-image-lifecycle.mjs').then(m => { if (!m.CATEGORY_URL.endsWith('/menu.html?view=list#desserts')) process.exitCode = 1; })"
       - name: Trace request, response and completion for category product images
         run: node scripts/experiment-category-image-lifecycle.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
