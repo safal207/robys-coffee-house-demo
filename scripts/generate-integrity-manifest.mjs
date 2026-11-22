@@ -113,6 +113,27 @@ if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
   if (committed !== serialized) {
+    // Diagnostics only: the strict check still fails without modifying the
+    // committed manifest or suppressing missing/unexpected public assets.
+    let differences = [];
+    try {
+      const expected = new Map(files.map(file => [file.path, file]));
+      const recorded = JSON.parse(committed);
+      const recordedFiles = new Map((recorded.files ?? []).map(file => [file.path, file]));
+      differences = [...new Set([...expected.keys(), ...recordedFiles.keys()])]
+        .filter(path => {
+          const current = expected.get(path), old = recordedFiles.get(path);
+          return !current || !old || current.bytes !== old.bytes || current.sha256 !== old.sha256;
+        }).slice(0, 20).map(path => ({
+          path, expected: expected.get(path) ?? null, committed: recordedFiles.get(path) ?? null
+        }));
+      if (!differences.length) differences = [{
+        reason: "metadata or serialization order differs", expectedBuild: build,
+        committedBuild: recorded.build, expectedCount: files.length,
+        committedCount: recorded.files?.length
+      }];
+    } catch (error) { differences = [{ error: String(error) }]; }
+    console.error("INTEGRITY-001 mismatch details:", JSON.stringify(differences));
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);

@@ -100,8 +100,18 @@ async function verifyPage(pathname) {
     const loadedStylesheetHrefs = await page.locator('link[rel="stylesheet"]').evaluateAll(
       links => links.map(link => link.getAttribute("href"))
     );
-    assert.deepEqual(loadedStylesheetHrefs, [menuStylesUrl, new URL("dessert-story.css", localUrl).href],
-      "menu must load one reviewed blocking bundle and only the approved optional dessert story stylesheet");
+    const storyStylesUrl = new URL("dessert-story.css", localUrl).href;
+    const initialStyles = loadedStylesheetHrefs.includes(storyStylesUrl)
+      ? [menuStylesUrl, storyStylesUrl] : [menuStylesUrl];
+    assert.deepEqual(loadedStylesheetHrefs, initialStyles,
+      "menu may load only the reviewed bundle and the optional on-visible story CSS");
+    const chocolateCake = page.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]');
+    await chocolateCake.scrollIntoViewIfNeeded();
+    await page.locator('.dessert-story-open').waitFor({state:"visible",timeout:12000});
+    assert.deepEqual(await page.locator('link[rel="stylesheet"]').evaluateAll(
+      links => links.map(link => link.getAttribute("href"))
+    ), [menuStylesUrl, storyStylesUrl],
+      "visible cake must load the optional stylesheet after intersection");
     assert.equal(await page.locator('link[rel="stylesheet"][href^="'+MENU_STYLESHEET_FILE+'"]').count(), 1,
       "menu must retain exactly one blocking reviewed bundle");
     const delivered = await page.request.get(new URL(menuStylesUrl, localUrl).href);
