@@ -46,6 +46,8 @@ assert.match(qaEntry,/addEventListener\("pointerdown",\s*initQaEnhancements/);
 assert.match(qaEntry,/addEventListener\("keydown",\s*initQaEnhancements/);
 assert.match(qaEntry,/setupLightboxAccessibility\(\);/,"lightbox focus must be protected before first input");
 assert.match(qaEntry,/new MutationObserver\(attach\)/,"early focus protection must also cover late lightboxes");
+assert.ok(qaEntry.includes("lightbox?.isConnected"),"removed lightboxes must release inert background");
+assert.ok(qaEntry.includes("event.shiftKey ? last : first"),"focus must return inside an open lightbox");
 assert.ok(!qaEntry.includes("setupImageFallbacks();"),"image fallback mutations must remain deferred");
 for(const required of ["setupExternalLinks();","setupImageFallbacks();"])
   assert.ok(interactionModule.includes(required),"deferred module missing "+required);
