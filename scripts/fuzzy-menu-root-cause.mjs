@@ -160,7 +160,6 @@ export function analyzeLocalFixedFcpEvidence(local) {
     "local triplets and paint/resource samples");
   const profiles = ["loopback", "loopback-throttled"];
   const categories = ["A/A/A", "A/B/A"];
-  const medianSpan = rows => median(rows.map(x => Math.max(...x) - Math.min(...x)));
   const evidence = profiles.map(profile => {
     const control = local.triplets.filter(x => x.profile === profile && x.block === "A/A/A");
     const staged = local.triplets.filter(x => x.profile === profile && x.block === "A/B/A");
@@ -273,7 +272,7 @@ function main() {
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY,
       "\n\n## Local fixed-asset fuzzy priorities (independent of remote scores)\n\n"+
       "| Hypothesis | Priority / 100 | Verification |\n|---|---:|---|\n"+
-      local.rankedHypotheses.map(x=>"| "+x.label+" | "+x.priority+" | "+x.nextTest.replace(/\\|/g,"/")+" |").join("\n")+
+      local.rankedHypotheses.map(x=>"| "+x.label+" | "+x.priority+" | "+x.nextTest.replace(/[|]/g,"/")+" |").join("\n")+
       "\n\nSource: local A/A/A and A/B/A, two profiles. Scores are not probabilities. NO SHIP.\n");
     console.log("FUZZY_MENU_LOCAL " + JSON.stringify({
       measurements:local.summary, ranked:local.rankedHypotheses.map(x=>({id:x.id,priority:x.priority,nextTest:x.nextTest}))
