@@ -611,7 +611,9 @@
         "scripts/verify-offline-browser.mjs",
         "scripts/test-menu-catalog-revision.mjs",
         "offline.css",
-        "refresh.html"
+        "refresh.html",
+        "scripts/audit-sw-shared-bandwidth-home-feed.mjs",
+        ".github/workflows/sw-shared-bandwidth-home-feed.yml"
       ],
       "dependsOn": [
         "build"
