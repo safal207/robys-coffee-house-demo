@@ -12,7 +12,7 @@ const language = () => {
   const value = (active?.dataset.lang || active?.textContent || document.documentElement.lang || "tr").trim().toLowerCase();
   return Object.hasOwn(COPY, value) ? value : "tr";
 };
-const paths = locale => ["01.webp", "02.webp", "03-" + locale + ".webp"].map(name => new URL(name, ASSETS).href);
+const paths = locale => ["01.jpg", "02.jpg", "03-" + locale + ".jpg"].map(name => new URL(name, ASSETS).href);
 const copy = () => COPY[language()];
 const dots = () => {
   const node = document.createElement("div");
