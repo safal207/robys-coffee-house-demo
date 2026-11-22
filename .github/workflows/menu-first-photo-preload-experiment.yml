@@ -16,6 +16,9 @@ on:
       - "scripts/test-menu-startup-attribution-probe.mjs"
       - "scripts/menu-geometry-attribution-probe.mjs"
       - "scripts/test-menu-geometry-attribution-probe.mjs"
+      - "scripts/menu-deferred-geometry-candidate.mjs"
+      - "scripts/test-menu-deferred-geometry-candidate.mjs"
+      - "scripts/experiment-menu-deferred-geometry.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -320,5 +323,32 @@ jobs:
           path: |
             .artifacts/menu-first-photo-experiment/local-geometry-operation-attribution.json
             .artifacts/menu-first-photo-experiment/geometry-operation-traces/
+          if-no-files-found: warn
+          retention-days: 7
+  deferred-header-first-paint-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Verify exact source patch and safety/rejection conditions
+        run: |
+          node --check scripts/menu-deferred-geometry-candidate.mjs
+          node --check scripts/experiment-menu-deferred-geometry.mjs
+          node --test scripts/test-menu-deferred-geometry-candidate.mjs
+      - name: Compare identical A/A/A to guarded A/B/A, retain first-painted snapshots and raw traces
+        run: node scripts/experiment-menu-deferred-geometry.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: deferred-header-first-paint-regression
+          path: .artifacts/menu-first-photo-experiment/geometry-defer/
           if-no-files-found: warn
           retention-days: 7
