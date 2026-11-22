@@ -126,8 +126,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   fuzzy-root-cause-triage:
-    needs: [fcp-negative-controls, default-list-confirmation]
-    if: ${{ always() && needs['fcp-negative-controls'].result == 'success' && needs['default-list-confirmation'].result == 'success' }}
+    needs: [fcp-negative-controls, default-list-confirmation, local-fixed-fcp-controls]
+    if: ${{ always() && needs['fcp-negative-controls'].result == 'success' && needs['default-list-confirmation'].result == 'success' && needs['local-fixed-fcp-controls'].result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 4
     steps:
@@ -148,6 +148,11 @@ jobs:
         with:
           name: first-section-confirmation
           path: .artifacts/fuzzy-inputs/first-section-confirmation
+      - name: Download verified local loopback FCP measurements
+        uses: actions/download-artifact@v4
+        with:
+          name: local-fixed-fcp-controls
+          path: .artifacts/fuzzy-inputs/local-fixed-fcp-controls
       - name: Check fuzzy QA rules and counterfactual evidence
         run: |
           node --check scripts/fuzzy-menu-root-cause.mjs
@@ -157,7 +162,8 @@ jobs:
           node scripts/fuzzy-menu-root-cause.mjs \
             .artifacts/fuzzy-inputs/fcp-negative-controls/fcp-attribution.json \
             .artifacts/fuzzy-inputs/first-section-confirmation/first-section-confirmation.json \
-            .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json
+            .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json \
+            .artifacts/fuzzy-inputs/local-fixed-fcp-controls/local-fcp-controls.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
