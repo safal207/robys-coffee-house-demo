@@ -19,6 +19,8 @@ on:
       - "scripts/menu-deferred-geometry-candidate.mjs"
       - "scripts/test-menu-deferred-geometry-candidate.mjs"
       - "scripts/experiment-menu-deferred-geometry.mjs"
+      - "scripts/menu-early-geometry-candidate.mjs"
+      - "scripts/test-menu-early-geometry-candidate.mjs"
       - ".github/workflows/menu-first-photo-preload-experiment.yml"
 permissions:
   contents: read
@@ -352,3 +354,20 @@ jobs:
           path: .artifacts/menu-first-photo-experiment/geometry-defer/
           if-no-files-found: warn
           retention-days: 7
+  early-geometry-source-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - name: Check synchronous early-geometry source-order candidate only
+        run: |
+          node --check scripts/menu-early-geometry-candidate.mjs
+          node --check scripts/test-menu-early-geometry-candidate.mjs
+          node --test scripts/test-menu-early-geometry-candidate.mjs
