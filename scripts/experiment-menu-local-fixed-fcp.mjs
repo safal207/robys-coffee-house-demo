@@ -120,7 +120,7 @@ async function collectFrameTrace(cdp,passive,profile,block,pair,mode){
     geometry:GEOMETRY_MODE?summarizeGeometryTraceEvents(
       decoded.traceEvents,passive.fcpMs,passive.geometryOperations):null};
 }
-export function createFixtureServer(cert){
+export function createFixtureServer(cert,variants=bundles){
   let selected="A1";
   let requests=[];
   const cache=new Map();
@@ -143,7 +143,7 @@ export function createFixtureServer(cert){
         response.writeHead(400).end();return;
       }
       const data=relative==="menu-app.js"
-        ?Buffer.from(bundles[selected],"utf8")
+        ?Buffer.from(variants[selected],"utf8")
         :readAsset(relative);
       const record={path:u.pathname,bytes:data?.length??0,
         sha256:data?sha(data):null,status:data?200:404,mode:selected,
@@ -163,7 +163,7 @@ export function createFixtureServer(cert){
     server,originalHtmlHash:sha(originalHtml),
     runtimeHash:sha(originalRuntime),
     staticAssetCache:cache,
-    select(mode){assert.ok(Object.hasOwn(bundles,mode));selected=mode;requests=[];},
+    select(mode){assert.ok(Object.hasOwn(variants,mode));selected=mode;requests=[];},
     requests(){return structuredClone(requests);}
   };
 }
