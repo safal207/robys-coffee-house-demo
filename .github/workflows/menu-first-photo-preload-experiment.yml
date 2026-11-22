@@ -1,0 +1,409 @@
+name: Menu first photo preload experiment
+on:
+  pull_request:
+    paths:
+      - "scripts/experiment-menu-first-photo-preload.mjs"
+      - "scripts/experiment-menu-photo-route-risk.mjs"
+      - "scripts/experiment-menu-first-section-render.mjs"
+      - "scripts/test-menu-first-section-state-transitions.mjs"
+      - "scripts/experiment-menu-fcp-attribution.mjs"
+      - "scripts/fuzzy-menu-root-cause.mjs"
+      - "scripts/test-fuzzy-menu-root-cause.mjs"
+      - "scripts/experiment-category-image-lifecycle.mjs"
+      - "scripts/experiment-menu-local-fixed-fcp.mjs"
+      - "scripts/test-menu-local-fixed-fcp.mjs"
+      - "scripts/menu-startup-attribution-probe.mjs"
+      - "scripts/test-menu-startup-attribution-probe.mjs"
+      - "scripts/menu-geometry-attribution-probe.mjs"
+      - "scripts/test-menu-geometry-attribution-probe.mjs"
+      - "scripts/menu-deferred-geometry-candidate.mjs"
+      - "scripts/test-menu-deferred-geometry-candidate.mjs"
+      - "scripts/experiment-menu-deferred-geometry.mjs"
+      - "scripts/menu-early-geometry-candidate.mjs"
+      - "scripts/test-menu-early-geometry-candidate.mjs"
+      - "scripts/experiment-menu-early-geometry.mjs"
+      - ".github/workflows/menu-first-photo-preload-experiment.yml"
+permissions:
+  contents: read
+concurrency:
+  group: menu-first-photo-experiment-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  paired-cold-mobile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate experiment syntax
+        run: |
+          node --check scripts/experiment-menu-first-photo-preload.mjs
+          node --check scripts/experiment-menu-photo-route-risk.mjs
+          node --check scripts/experiment-menu-first-section-render.mjs
+          node --check scripts/test-menu-first-section-state-transitions.mjs
+      - name: Compare paired published-menu navigation
+        run: node scripts/experiment-menu-first-photo-preload.mjs
+      - name: Probe feed, search, product and category preload risks
+        run: node scripts/experiment-menu-photo-route-risk.mjs
+      - name: Compare staged first-section rendering with unchanged product selection
+        run: node scripts/experiment-menu-first-section-render.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: first-photo-preload-experiment
+          path: .artifacts/menu-first-photo-experiment/
+          if-no-files-found: warn
+          retention-days: 14
+  default-list-confirmation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate confirmation syntax
+        run: node --check scripts/experiment-menu-first-section-render.mjs
+      - name: Confirm default-list-only versus control over eight cold pairs on every route
+        run: node scripts/experiment-menu-first-section-render.mjs
+        env:
+          ROBY_FIRST_SECTION_CONFIRM: "1"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: first-section-confirmation
+          path: .artifacts/menu-first-photo-experiment/first-section-confirmation.json
+          if-no-files-found: warn
+          retention-days: 14
+  menu-state-transition-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate state-machine syntax
+        run: node --check scripts/test-menu-first-section-state-transitions.mjs
+      - name: Compare control and staged UI transitions, product modal, locale and cart
+        run: node scripts/test-menu-first-section-state-transitions.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: menu-state-transition-qa
+          path: .artifacts/menu-first-photo-experiment/staged-render-state-machine.json
+          if-no-files-found: warn
+          retention-days: 14
+  fcp-negative-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate FCP attribution syntax
+        run: node --check scripts/experiment-menu-fcp-attribution.mjs
+      - name: Measure passive FCP with identical-bundle placebo controls
+        run: node scripts/experiment-menu-fcp-attribution.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: fcp-negative-controls
+          path: .artifacts/menu-first-photo-experiment/fcp-attribution.json
+          if-no-files-found: warn
+          retention-days: 14
+  fuzzy-root-cause-triage:
+    needs: [fcp-negative-controls, default-list-confirmation, local-fixed-fcp-controls]
+    if: ${{ always() && needs['fcp-negative-controls'].result == 'success' && needs['default-list-confirmation'].result == 'success' && needs['local-fixed-fcp-controls'].result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - name: Download passive FCP negative-control observations
+        uses: actions/download-artifact@v4
+        with:
+          name: fcp-negative-controls
+          path: .artifacts/fuzzy-inputs/fcp-negative-controls
+      - name: Download guarded first-photo confirmation observations
+        uses: actions/download-artifact@v4
+        with:
+          name: first-section-confirmation
+          path: .artifacts/fuzzy-inputs/first-section-confirmation
+      - name: Download verified local loopback FCP measurements
+        uses: actions/download-artifact@v4
+        with:
+          name: local-fixed-fcp-controls
+          path: .artifacts/fuzzy-inputs/local-fixed-fcp-controls
+      - name: Check fuzzy QA rules and counterfactual evidence
+        run: |
+          node --check scripts/fuzzy-menu-root-cause.mjs
+          node --test scripts/test-fuzzy-menu-root-cause.mjs
+      - name: Rank hypotheses with actual same-run reports
+        run: |
+          node scripts/fuzzy-menu-root-cause.mjs \
+            .artifacts/fuzzy-inputs/fcp-negative-controls/fcp-attribution.json \
+            .artifacts/fuzzy-inputs/first-section-confirmation/first-section-confirmation.json \
+            .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json \
+            .artifacts/fuzzy-inputs/local-fixed-fcp-controls/local-fcp-controls.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: fuzzy-root-cause-triage
+          path: .artifacts/menu-first-photo-experiment/fuzzy-root-cause-triage.json
+          if-no-files-found: warn
+          retention-days: 14
+  category-image-lifecycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate category network trace syntax and module entry point
+        run: |
+          node --check scripts/experiment-category-image-lifecycle.mjs
+          node --input-type=module -e "import('./scripts/experiment-category-image-lifecycle.mjs').then(m => { if (!m.CATEGORY_URL.endsWith('/menu.html?view=list#desserts')) process.exitCode = 1; })"
+      - name: Trace request, response and completion for category product images
+        run: node scripts/experiment-category-image-lifecycle.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: category-image-lifecycle
+          path: .artifacts/menu-first-photo-experiment/category-image-lifecycle.json
+          if-no-files-found: warn
+          retention-days: 14
+  local-fixed-fcp-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate local FCP diagnostic module and causal comparison rules
+        run: |
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Compare matched local HTTPS A/A/A and A/B/A FCP
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: local-fixed-fcp-controls
+          path: .artifacts/menu-first-photo-experiment/local-fcp-controls.json
+          if-no-files-found: warn
+          retention-days: 14
+  local-fcp-frame-tracing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate CDP frame trace module and timing invariants
+        run: |
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Trace frame scheduling after CSS response on local resources
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+        env:
+          ROBY_FCP_FRAME_TRACE: "1"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: local-fcp-frame-tracing
+          path: |
+            .artifacts/menu-first-photo-experiment/local-frame-trace.json
+            .artifacts/menu-first-photo-experiment/frame-traces/
+          if-no-files-found: warn
+          retention-days: 7
+  startup-function-attribution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Check test-only startup source instrumentation and fail-closed A/A/A logic
+        run: |
+          node --check scripts/menu-startup-attribution-probe.mjs
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-startup-attribution-probe.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Measure renderMenu and scroll metrics independently on 24 matched controls
+        env:
+          ROBY_STARTUP_ATTRIBUTION: "1"
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: startup-function-attribution
+          path: |
+            .artifacts/menu-first-photo-experiment/local-startup-function-attribution.json
+            .artifacts/menu-first-photo-experiment/startup-function-traces/
+          if-no-files-found: warn
+          retention-days: 7
+  menu-geometry-operation-attribution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Validate test-only geometry instrumentation and strict invariants
+        run: |
+          node --check scripts/menu-geometry-attribution-probe.mjs
+          node --check scripts/experiment-menu-local-fixed-fcp.mjs
+          node --test scripts/test-menu-geometry-attribution-probe.mjs
+          node --test scripts/test-menu-startup-attribution-probe.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: Measure geometry reads/writes with identical local control bundles
+        env:
+          ROBY_GEOMETRY_ATTRIBUTION: "1"
+        run: node scripts/experiment-menu-local-fixed-fcp.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: menu-geometry-operation-attribution
+          path: |
+            .artifacts/menu-first-photo-experiment/local-geometry-operation-attribution.json
+            .artifacts/menu-first-photo-experiment/geometry-operation-traces/
+          if-no-files-found: warn
+          retention-days: 7
+  deferred-header-first-paint-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Verify exact source patch and safety/rejection conditions
+        run: |
+          node --check scripts/menu-deferred-geometry-candidate.mjs
+          node --check scripts/experiment-menu-deferred-geometry.mjs
+          node --test scripts/test-menu-deferred-geometry-candidate.mjs
+      - name: Compare identical A/A/A to guarded A/B/A, retain first-painted snapshots and raw traces
+        run: node scripts/experiment-menu-deferred-geometry.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: deferred-header-first-paint-regression
+          path: .artifacts/menu-first-photo-experiment/geometry-defer/
+          if-no-files-found: warn
+          retention-days: 7
+  early-geometry-source-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - name: Check synchronous early-geometry source-order candidate only
+        run: |
+          node --check scripts/menu-early-geometry-candidate.mjs
+          node --check scripts/test-menu-early-geometry-candidate.mjs
+          node --test scripts/test-menu-early-geometry-candidate.mjs
+  early-geometry-browser-contract:
+    name: early-geometry-browser-contract (${{ matrix.scenario }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: ["360-tr", "360-ru", "390-tr", "390-ru"]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/ensure-playwright-browsers.mjs chromium
+      - name: Test QA-only synchronous startup reorder and exact original compilation
+        run: |
+          node --check scripts/menu-early-geometry-candidate.mjs
+          node --check scripts/experiment-menu-early-geometry.mjs
+          node --test scripts/test-menu-early-geometry-candidate.mjs
+          node --test scripts/test-menu-local-fixed-fcp.mjs
+      - name: One isolated six-navigation A/A/A and A/B/A Chromium scenario with strict resources, FCP, CLS, PNG, traces, cart and scroll
+        env:
+          ROBY_EARLY_GEOMETRY_SCENARIO: ${{ matrix.scenario }}
+        run: node scripts/experiment-menu-early-geometry.mjs
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: early-geometry-browser-${{ matrix.scenario }}
+          path: .artifacts/menu-first-photo-experiment/geometry-early/
+          if-no-files-found: warn
+          retention-days: 7
