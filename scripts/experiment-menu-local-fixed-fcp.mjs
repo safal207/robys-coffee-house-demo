@@ -41,7 +41,7 @@ const mime={
   ".ico":"image/x-icon",".mp4":"video/mp4",".webm":"video/webm"
 };
 const failReason=error=>error?.stack||String(error);
-function createFixtureServer(cert){
+export function createFixtureServer(cert){
   let selected="A1";
   let requests=[];
   const cache=new Map();
@@ -88,7 +88,7 @@ function createFixtureServer(cert){
     requests(){return structuredClone(requests);}
   };
 }
-async function startServer(server){
+export async function startServer(server){
   await new Promise((done,reject)=>{
     server.once("error",reject);
     server.listen(0,"127.0.0.1",()=>{
