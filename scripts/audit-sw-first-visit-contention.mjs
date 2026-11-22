@@ -158,6 +158,53 @@ async function audit(browser, condition, pair) {
     const justAfterFcp = await snapshot();
     await page.waitForTimeout(OBSERVATION_MS);
     const afterWindow = await snapshot();
+    // BrowserContext request events did not expose install-time cache.addAll traffic
+    // in the initial run. Inspect each Service Worker's OWN Resource Timing buffer
+    // without altering the fetched worker source or its caching behavior.
+    const workerTimings = [];
+    for (const worker of context.serviceWorkers()) {
+      let timer;
+      try {
+        const timing = await Promise.race([
+          worker.evaluate(async () => {
+            const entries = performance.getEntriesByType("resource").map(entry => ({
+              path: new URL(entry.name).pathname,
+              initiatorType: entry.initiatorType,
+              startTime: entry.startTime,
+              responseEnd: entry.responseEnd,
+              transferSize: entry.transferSize,
+              encodedBodySize: entry.encodedBodySize
+            }));
+            const cacheBuckets = [];
+            for (const name of await caches.keys()) {
+              const cache = await caches.open(name);
+              const keys = await cache.keys();
+              cacheBuckets.push({
+                name, cachedEntries: keys.length,
+                cachedImageEntries: keys.filter(key => /\\.(?:webp|png|jpe?g|avif|svg|gif)(?:\\?|$)/i.test(key.url)).length
+              });
+            }
+            return {
+              available: true,
+              resourceEntryCount: entries.length,
+              resourceTransferBytes: entries.reduce((n,r)=>n+r.transferSize,0),
+              resourceEncodedBodyBytes: entries.reduce((n,r)=>n+r.encodedBodySize,0),
+              imageResourceEntries: entries.filter(r=>/\\.(?:webp|png|jpe?g|avif|svg|gif)$/i.test(r.path)).length,
+              cacheBuckets,
+              entries
+            };
+          }),
+          new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error("worker-inspection-timeout")), 3000);
+          })
+        ]);
+        workerTimings.push({ url: worker.url(), ...timing });
+      } catch (error) {
+        workerTimings.push({ url: worker.url(), available: false, error: String(error.message) });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
     await Promise.allSettled(promises);
     const workerRecords = records.filter(r => r.workerOwned);
     const pageRecords = records.filter(r => !r.workerOwned);
@@ -193,7 +240,13 @@ async function audit(browser, condition, pair) {
     assert.deepEqual(errors, [], "Homepage JavaScript errors");
     return {
       pair, condition, justAfterFcp, afterWindow, network,
-      createdWorkers: workers, errors,
+      createdWorkers: workers, workerTimings, errors,
+      workerTimingCompleteness: {
+        serviceWorkerObjects: context.serviceWorkers().length,
+        successfulInspections: workerTimings.filter(w => w.available).length,
+        inspectableResourceEntries: workerTimings.filter(w => w.available).reduce((n,w) => n + w.resourceEntryCount, 0),
+        note: "Worker resource timing and cache keys are independent of page-target CDP network instrumentation"
+      },
       workerRequestEvidence: workerRecords.map(r => ({
         path: path(r.url), category: r.category, startObservedMs: r.startObservedMs,
         responseStatus: r.responseStatus, encodedResponseBodyBytes: r.encodedResponseBodyBytes,
@@ -218,7 +271,10 @@ async function main() {
           workerRequests: result.network.workerRequestCount,
           workerBodyBytes: result.network.workerObservedEncodedResponseBodyBytes,
           swActive: result.afterWindow.sw.active,
-          firstPhotoInCacheStorage: result.afterWindow.sw.firstPhotoInCacheStorage
+          firstPhotoInCacheStorage: result.afterWindow.sw.firstPhotoInCacheStorage,
+          workerResources: result.workerTimingCompleteness.inspectableResourceEntries,
+          workerCacheEntries: result.workerTimings.filter(w=>w.available)
+            .flatMap(w=>w.cacheBuckets.map(c=>c.cachedEntries))
         }));
       }
     }
@@ -255,6 +311,8 @@ async function main() {
     caveats:[
       "Page CDP throttling may not apply equally to requests originating in the Service Worker target",
       "Playwright browser-context events include worker-owned requests where supported, but do not guarantee completeness across all browser targets",
+      "Worker-side Resource Timing is read via worker.evaluate; entries may be limited by the worker buffer or unavailable if the worker was not yet running",
+      "Cache Storage entry counts demonstrate stored resources but not how many bytes crossed the network during this visit",
       "Playwright request.sizes().responseBodySize is encoded response payload evidence, not a complete on-wire transfer including all connection overhead",
       "An 8-second observation window cannot establish complete installation bytes if installation continues beyond that window",
       "LCP is the last observed candidate after 8 seconds, not a real-user field Core Web Vital",
