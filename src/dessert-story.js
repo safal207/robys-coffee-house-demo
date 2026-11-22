@@ -91,7 +91,7 @@ function injectFeed(card){
   next.type="button";next.className="dessert-story-forward";next.textContent="›";next.setAttribute("aria-label",copy().next);
   layer.append(image,progress,hint,next);
   target.append(layer);
-  const slider=controller(image,progress,i=>{next.hidden=i===2;hint.textContent=copy().hint;});
+  const slider=controller(image,progress,i=>{next.hidden=i===2;hint.textContent=copy().hint;layer.style.setProperty("--dessert-frame-image",'url("'+image.src+'")');});
   layer.addEventListener("pointerdown",slider.start);
   layer.addEventListener("pointerup",slider.end);
   layer.addEventListener("pointercancel",slider.cancel);
