@@ -152,6 +152,8 @@
         "scripts/experiment-category-image-lifecycle.mjs",
         "scripts/experiment-menu-local-fixed-fcp.mjs",
         "scripts/test-menu-local-fixed-fcp.mjs",
+        "scripts/menu-startup-attribution-probe.mjs",
+        "scripts/test-menu-startup-attribution-probe.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
