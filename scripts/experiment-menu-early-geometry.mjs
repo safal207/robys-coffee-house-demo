@@ -55,7 +55,8 @@ function diffPng(a,b) {
   return {changedPixels:changed,pixelCount:x.width*x.height,
     width:x.width,height:x.height};
 }
-async function stopTrace(cdp,name,passiveFcpMs){
+async function stopTrace(cdp,name,perf){
+  const passiveFcpMs=perf.fcpMs;
   const done=new Promise((resolve,reject)=>{
     const id=setTimeout(()=>reject(new Error("Tracing completion timeout")),30000);
     cdp.once("Tracing.tracingComplete",ev=>{clearTimeout(id);resolve(ev)});
@@ -84,12 +85,27 @@ async function stopTrace(cdp,name,passiveFcpMs){
   const marksBefore=data.traceEvents.filter(x=>
     ["qa-early-geometry:start","qa-early-geometry:end"].includes(x.name));
   const within=marks.filter(x=>Math.abs(x.ts-fcp.ts)<300000);
+  assert.ok(Number.isFinite(fcp.pid)&&Number.isFinite(fcp.tid),
+    "FCP trace renderer thread not identified");
+  const startUs=fcp.ts+(perf.geometryStartMs-passiveFcpMs)*1000;
+  const endUs=fcp.ts+(perf.geometryEndMs-passiveFcpMs)*1000;
+  assert.ok(endUs>=startUs,"Invalid geometry interval in browser trace");
+  const sameThread=e=>e.pid===fcp.pid&&e.tid===fcp.tid;
+  const overlap=(eventName)=>round(data.traceEvents
+    .filter(e=>e.name===eventName&&sameThread(e)&&
+      Number.isFinite(e.ts)&&Number.isFinite(e.dur)&&e.dur>=0)
+    .reduce((sum,e)=>sum+Math.max(0,Math.min(endUs,e.ts+e.dur)-
+      Math.max(startUs,e.ts)),0)/1000);
   writeFileSync(ROOT+"/"+name+".trace.json.gz",gzipSync(raw,{level:6}));
   return {nativeFcpFound:true,traceEvents:data.traceEvents.length,
     nearbyEventCount:within.length,
     layoutCount:within.filter(x=>x.name==="Layout").length,
     firstPaintTraceMs:round((marks.find(x=>x.name==="Paint")?.ts-fcp.ts)/1000),
     nativeGeometryMarkEvents:marksBefore.length,
+    rendererLayoutDuringGeometryMs:overlap("Layout"),
+    rendererStyleDuringGeometryMs:overlap("UpdateLayoutTree"),
+    geometryCallDurationMs:round(perf.geometryEndMs-perf.geometryStartMs),
+    geometryExecutedBeforeFcp:perf.geometryEndMs<=perf.fcpMs,
     browserFcpMs:passiveFcpMs};
 }
 async function snapshot(page) {
@@ -208,7 +224,7 @@ async function measure(browser,fixture,origin,sc,block,mode){
       return {open:dialog.open,shown:dialog.matches(":modal"),
         total:document.querySelector("#menu-cart-dialog-total")?.textContent?.trim()};
     });
-    const trace=await stopTrace(cdp,name,perf.fcpMs);
+    const trace=await stopTrace(cdp,name,perf);
     traceSaved=true;
     const served=fixture.requests(),failedAssets=served.filter(x=>x.status!==200);
     assert.equal(errors.length,0,"JS runtime errors: "+errors.join(" | "));
@@ -287,6 +303,8 @@ async function main(){
             shiftCount:r.layoutShifts.length,
             screenshotChanged:r.beforeAfterPixelDiff.changedPixels,
             geometryMs:round(r.geometryDurationMs),
+            traceLayoutMs:r.trace.rendererLayoutDuringGeometryMs,
+            traceStyleMs:r.trace.rendererStyleDuringGeometryMs,
             geometryBeforeFirstPaint:r.geometryBeforeFirstPaint
           }));
         }
@@ -312,6 +330,12 @@ async function main(){
       const awareChanged=!b.before.geometry.aware ||
         b.before.geometry.aware!==a.before.geometry.aware;
       const fcpRisk=matched.fcpPenaltyMs>Math.max(16,placebo.controlFcpRangeMs);
+      const controlLayoutMs=[a.trace.rendererLayoutDuringGeometryMs,
+        c.trace.rendererLayoutDuringGeometryMs];
+      const layoutDifferenceVsBracketMs=b.trace.rendererLayoutDuringGeometryMs-
+        (controlLayoutMs[0]+controlLayoutMs[1])/2;
+      const geometryDifferenceVsBracketMs=b.geometryDurationMs-
+        (a.geometryDurationMs+c.geometryDurationMs)/2;
       const rejects=[
         ...(preMeasureChanges.length?["first-painted-css-variable-mismatch"]:[]),
         ...(awareChanged?["first-painted-scroll-aware-class-mismatch"]:[]),
@@ -326,6 +350,7 @@ async function main(){
         firstFrameCssChanged:preMeasureChanges,
         firstFrameGeometryChanged:changedStickyGeometry,
         visualBefore,visualFinal,withinRunVisualRegression,awareChanged,
+        controlLayoutMs,layoutDifferenceVsBracketMs,geometryDifferenceVsBracketMs,
         clsRegression,fcpRisk,
         verdict:rejects.length?"REJECT":"INCONCLUSIVE",
         reasons:rejects};
