@@ -86,12 +86,13 @@ function injectFeed(card){
   layer.className="dessert-story-feed";layer.tabIndex=0;layer.setAttribute("role","group");layer.setAttribute("aria-label",copy().title+" · "+copy().hint);
   const image=document.createElement("img");
   image.className="dessert-story-frame";image.loading="lazy";image.decoding="async";image.draggable=false;
+  const backdrop=document.createElement("img");backdrop.className="dessert-story-backdrop";backdrop.alt="";backdrop.setAttribute("aria-hidden","true");backdrop.decoding="async";backdrop.draggable=false;
   const progress=dots(),hint=document.createElement("span"),next=document.createElement("button");
   hint.className="dessert-story-hint";
   next.type="button";next.className="dessert-story-forward";next.textContent="›";next.setAttribute("aria-label",copy().next);
-  layer.append(image,progress,hint,next);
+  layer.append(backdrop,image,progress,hint,next);
   target.append(layer);
-  const slider=controller(image,progress,i=>{next.hidden=i===2;hint.textContent=copy().hint;layer.style.setProperty("--dessert-frame-image",'url("'+image.src+'")');});
+  const slider=controller(image,progress,i=>{next.hidden=i===2;hint.textContent=copy().hint;backdrop.src=image.src;});
   layer.addEventListener("pointerdown",slider.start);
   layer.addEventListener("pointerup",slider.end);
   layer.addEventListener("pointercancel",slider.cancel);
@@ -127,8 +128,18 @@ const observer=new MutationObserver(()=>{
   scheduled=true;
   queueMicrotask(()=>{scheduled=false;scan();});
 });
-for(const root of [$("#feed"),$("#menu-root")].filter(Boolean)) observer.observe(root,{subtree:true,childList:true});
+
 document.addEventListener("click",e=>{
   if(e.target.closest(".lang-button,.feed-languages [data-lang]")) queueMicrotask(relocalize);
 });
-scan();
+
+// Optional non-blocking stylesheet must load before exposing story controls.
+// Keep original menu photography intact if the extra CSS cannot be fetched.
+const loadStyles=document.createElement("link");
+loadStyles.rel="stylesheet";
+loadStyles.href=new URL("../dessert-story.css",import.meta.url).href;
+loadStyles.addEventListener("load",()=>{
+  for(const root of [$("#feed"),$("#menu-root")].filter(Boolean)) observer.observe(root,{subtree:true,childList:true});
+  scan();
+},{once:true});
+document.head.append(loadStyles);

@@ -6,7 +6,7 @@ test("one shared story enhancement is wired into feed, grid and list", () => {
   for (const page of ["menu-feed.html", "menu-grid.html", "menu.html"]) {
     const html=read(page);
     assert.equal(html.split('src/dessert-story.js').length-1,1,page+" must load story once");
-    assert.equal(html.split('href="dessert-story.css"').length-1,1,page+" must load stylesheet once");
+    assert.equal(html.split('href="dessert-story.css"').length-1,0,page+" must not add a blocking CSS link");
   }
 });
 test("feature is scoped to the existing Chocolate Cake product and three localizations", () => {
@@ -16,6 +16,10 @@ test("feature is scoped to the existing Chocolate Cake product and three localiz
   assert.ok(source.includes("pointerdown") && source.includes("pointerup"),"gesture events");
   assert.ok(source.includes("ArrowLeft") && source.includes("ArrowRight"),"keyboard navigation");
   assert.ok(!source.includes("localStorage.setItem"),"story should not mutate the order/cart");
+  assert.ok(source.includes('loadStyles.addEventListener("load"'),"activate only after optional CSS loads");
+  assert.ok(source.includes('new URL("../dessert-story.css",import.meta.url)'),"resolve local stylesheet");
+  assert.ok(!source.includes('style.setProperty("--dessert-frame-image"'),"do not use inline styles under CSP");
+  assert.ok(source.includes("dessert-story-backdrop"),"backdrop uses a real DOM image");
 });
 test("all five story photographs exist, fit the mobile budget and have JPEG signatures", () => {
   const base="src/products/stories/chocolate-cake/";
