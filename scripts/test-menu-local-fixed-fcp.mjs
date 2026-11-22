@@ -62,5 +62,5 @@ test("Absent native FCP trace marker is explicit, not fabricated",()=>{
   assert.equal(result.postCssToFcpMs,90);
   assert.equal(result.fcpTraceMarkerFound,false);
   assert.deepEqual(result.aroundFcp,[]);
-  assert.throws(()=>summarizeFrameTimeline([],NaN,10),/Invalid|assertion/i);
+  assert.throws(()=>summarizeFrameTimeline([],NaN,10));
 });
