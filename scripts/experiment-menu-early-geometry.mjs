@@ -32,12 +32,21 @@ const hash=x=>createHash("sha256").update(x).digest("hex");
 const bundles={A1:original,A2:original,A3:original,B:candidate};
 assert.equal(hash(bundles.A1),hash(bundles.A2));
 assert.equal(hash(bundles.A1),hash(bundles.A3));
-const scenarios=[
+const allScenarios=[
   {id:"360-tr",width:360,lang:"tr"},
   {id:"360-ru",width:360,lang:"ru"},
   {id:"390-tr",width:390,lang:"tr"},
   {id:"390-ru",width:390,lang:"ru"}
 ];
+// Each CI matrix child runs one full matched six-navigation A/A/A+A/B/A
+// sequence in its own browser process and HTTPS fixture. Local all-scenarios
+// mode remains available; request-failure asserts stay fail-closed.
+const focusedScenario=process.env.ROBY_EARLY_GEOMETRY_SCENARIO||null;
+const scenarios=focusedScenario
+  ? allScenarios.filter(x=>x.id===focusedScenario)
+  : allScenarios;
+assert.equal(scenarios.length,focusedScenario?1:4,
+  "Unknown or missing early-geometry CI scenario");
 const blocks=[
   {name:"A/A/A",modes:["A1","A2","A3"]},
   {name:"A/B/A",modes:["A1","B","A3"]}
@@ -292,7 +301,7 @@ async function main(){
           samplesForBlock.push(r);samples.push(r);
           writeFileSync(ROOT+"/progress.partial.json",JSON.stringify({
             schema:"robys.qa-geometry-early-progress.v1",complete:false,
-            completedNavigations:samples.length,requiredNavigations:24,
+            completedNavigations:samples.length,requiredNavigations:scenarios.length*6,
             samples:samples.map(({firstScreenshot,finalScreenshot,...x})=>x),
             comparisons
           },null,2)+"\n");
@@ -357,7 +366,7 @@ async function main(){
       comparisons.push(record);
       writeFileSync(ROOT+"/progress.partial.json",JSON.stringify({
         schema:"robys.qa-geometry-early-progress.v1",complete:false,
-        completedNavigations:samples.length,requiredNavigations:24,
+        completedNavigations:samples.length,requiredNavigations:scenarios.length*6,
         samples:samples.map(({firstScreenshot,finalScreenshot,...x})=>x),
         comparisons
       },null,2)+"\n");
@@ -374,7 +383,7 @@ async function main(){
     productionApproved:false,shipApproved:false,
     candidateHash:hash(candidate),controlHash:hash(original),
     publishedControlHash:hash(compiled.control),
-    cases:scenarios,controlBlocks:blocks,
+    cases:scenarios,focusedScenario,controlBlocks:blocks,
     limitation:[
       "First-painted screenshot is taken after passive native FCP, not before browser first Paint; do not call this a pre-paint screenshot",
       "Both control and candidate have identical QA performance marks around the startup geometry call; instrumented FCP cannot be pooled with historical values",
