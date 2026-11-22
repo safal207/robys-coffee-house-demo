@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync, appendFileSync } from "node:fs";
 import { performance } from "node:perf_hooks";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { compiled } from "./experiment-menu-first-section-render.mjs";
 
 // Trace the category's natural lazy-loading lifecycle, comparing unchanged JS
 // against guarded staged-render candidate. No site/code/image is deployed.
 const BASE="https://safal207.github.io/robys-coffee-house-demo/";
-const URL=new URL("menu.html?view=list#desserts", BASE).href;
+export const CATEGORY_URL=new URL("menu.html?view=list#desserts", BASE).href;
 const FILE=".artifacts/menu-first-photo-experiment/category-image-lifecycle.json";
 const FIRST="#menu-root .full-menu-item-media img";
 const runs=5;
@@ -103,7 +105,7 @@ async function capture(browser, mode, pair){
   });
   await cdp.send("Emulation.setCPUThrottlingRate",{rate:4});
   try{
-    const res=await page.goto(URL,{waitUntil:"domcontentloaded",timeout:45000});
+    const res=await page.goto(CATEGORY_URL,{waitUntil:"domcontentloaded",timeout:45000});
     assert.ok(res?.ok(),"Category URL did not load");
     await page.waitForFunction(()=>
       document.querySelector("#menu-root")?.dataset.ready==="true" &&
@@ -224,4 +226,6 @@ async function main(){
     "\n\nImage request starts at different snapshot times do not establish duplicate downloads. NO SHIP.\n");
   console.log("CATEGORY_LIFECYCLE_SUMMARY "+JSON.stringify(summary));
 }
-main().catch(e=>{console.error(e);process.exitCode=1;});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch(e=>{console.error(e);process.exitCode=1;});
+}
