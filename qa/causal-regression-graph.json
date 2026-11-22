@@ -150,6 +150,8 @@
         "scripts/fuzzy-menu-root-cause.mjs",
         "scripts/test-fuzzy-menu-root-cause.mjs",
         "scripts/experiment-category-image-lifecycle.mjs",
+        "scripts/experiment-menu-local-fixed-fcp.mjs",
+        "scripts/test-menu-local-fixed-fcp.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
