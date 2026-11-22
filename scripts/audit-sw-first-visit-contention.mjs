@@ -181,7 +181,7 @@ async function audit(browser, condition, pair) {
               const keys = await cache.keys();
               cacheBuckets.push({
                 name, cachedEntries: keys.length,
-                cachedImageEntries: keys.filter(key => /\\.(?:webp|png|jpe?g|avif|svg|gif)(?:\\?|$)/i.test(key.url)).length
+                cachedImageEntries: keys.filter(key => /\.(?:webp|png|jpe?g|avif|svg|gif)(?:\?|$)/i.test(key.url)).length
               });
             }
             return {
@@ -189,7 +189,7 @@ async function audit(browser, condition, pair) {
               resourceEntryCount: entries.length,
               resourceTransferBytes: entries.reduce((n,r)=>n+r.transferSize,0),
               resourceEncodedBodyBytes: entries.reduce((n,r)=>n+r.encodedBodySize,0),
-              imageResourceEntries: entries.filter(r=>/\\.(?:webp|png|jpe?g|avif|svg|gif)$/i.test(r.path)).length,
+              imageResourceEntries: entries.filter(r=>/\.(?:webp|png|jpe?g|avif|svg|gif)$/i.test(r.path)).length,
               cacheBuckets,
               entries
             };
