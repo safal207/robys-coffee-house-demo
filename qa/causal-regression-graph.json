@@ -154,6 +154,8 @@
         "scripts/test-menu-local-fixed-fcp.mjs",
         "scripts/menu-startup-attribution-probe.mjs",
         "scripts/test-menu-startup-attribution-probe.mjs",
+        "scripts/menu-geometry-attribution-probe.mjs",
+        "scripts/test-menu-geometry-attribution-probe.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
