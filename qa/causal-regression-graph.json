@@ -14,7 +14,8 @@
         "scripts/menu-runtime-source.mjs",
         "scripts/menu-styles-bundle.mjs",
         "scripts/test-menu-runtime-contract.mjs",
-        "scripts/test-menu-styles-bundle.mjs"
+        "scripts/test-menu-styles-bundle.mjs",
+        "scripts/generate-integrity-manifest.mjs"
       ],
       "dependsOn": []
     },
@@ -83,7 +84,8 @@
         "src/amenities.ts",
         "src/seasonal-theme.ts",
         "seasonal-theme.js",
-        "src/.parts/**"
+        "src/.parts/**",
+        "scripts/test-hero-playback.mjs"
       ],
       "dependsOn": [
         "build",

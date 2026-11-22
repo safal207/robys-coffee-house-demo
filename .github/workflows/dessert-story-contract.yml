@@ -33,6 +33,16 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build
           npm run verify:integrity
+      - name: Preserve build diagnostics after a failed integrity gate
+        if: failure()
+        run: |
+          mkdir -p .artifacts/dessert-story/built
+          for file in sw-core-v64.js menu-app.js menu-feed.js menu.html menu-grid.html menu-feed.html index.html qa.js; do
+            cp "$file" ".artifacts/dessert-story/built/$file"
+          done
+          cp integrity-manifest.json .artifacts/dessert-story/built/committed-manifest.json
+          node scripts/generate-integrity-manifest.mjs
+          cp integrity-manifest.json .artifacts/dessert-story/built/expected-manifest.json
       - name: Install Chromium for gesture regression
         run: npx playwright install --with-deps chromium
       - name: Verify swipe, locales and accessible modal under CSP
