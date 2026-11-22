@@ -20,6 +20,9 @@ test("feature is scoped to the existing Chocolate Cake product and three localiz
   assert.ok(source.includes('new URL("../dessert-story.css",import.meta.url)'),"resolve local stylesheet");
   assert.ok(!source.includes('style.setProperty("--dessert-frame-image"'),"do not use inline styles under CSP");
   assert.ok(source.includes("dessert-story-backdrop"),"backdrop uses a real DOM image");
+  assert.ok(source.includes("row.append(button)"),"story action must stay out of product copy and price flow");
+  assert.ok(read("dessert-story.css").includes(".full-menu-item--product{position:relative}"),"story trigger anchored to card");
+  assert.ok(read("dessert-story.css").includes(".dessert-story-open{position:absolute"),"story trigger must not increase card height");
   assert.ok(source.includes('backdrop.loading="lazy"'),"blurred backdrop must not load offscreen eagerly");
   assert.ok(source.includes('card.dataset.dessertFrame=String(i+1)'),"finale state drives overlay clearance");
   assert.ok(source.includes('hint.hidden=i===2'),"finale cannot retain swipe hint");

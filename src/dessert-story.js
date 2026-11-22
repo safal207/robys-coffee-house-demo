@@ -126,7 +126,8 @@ function injectRow(row){
   const button=document.createElement("button");
   button.type="button";button.className="dessert-story-open";button.textContent=copy().open;
   button.addEventListener("click",e=>{e.stopPropagation();open(button);});
-  ($(".full-menu-item-details",row)||row).append(button);
+  // Separate sibling to the image button; a positioned overlay will not stretch the card.
+  row.append(button);
 }
 function scan(){
   document.querySelectorAll('.feed-card[data-product-id="'+PRODUCT_ID+'"]').forEach(injectFeed);
