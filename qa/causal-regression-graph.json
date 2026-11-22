@@ -146,6 +146,7 @@
         "scripts/experiment-menu-photo-route-risk.mjs",
         "scripts/experiment-menu-first-section-render.mjs",
         "scripts/test-menu-first-section-state-transitions.mjs",
+        "scripts/experiment-menu-fcp-attribution.mjs",
         ".github/workflows/menu-first-photo-preload-experiment.yml"
       ],
       "dependsOn": [
