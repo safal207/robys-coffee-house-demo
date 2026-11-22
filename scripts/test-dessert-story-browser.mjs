@@ -6,8 +6,8 @@ import { chromium } from "playwright";
 
 const root = process.cwd();
 const mime = { ".css":"text/css", ".js":"text/javascript", ".jpg":"image/jpeg", ".html":"text/html" };
-const fixture = '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/_dessert_qa.css"></head><body><div class="feed-languages"><button data-lang="tr" aria-pressed="true">TR</button><button data-lang="en" aria-pressed="false">EN</button><button data-lang="ru" aria-pressed="false">RU</button></div><main id="feed"><article class="feed-card" data-product-id="desserts:chocolate-cake"><div class="feed-photo"><img src="/src/products/stories/chocolate-cake/01.jpg" alt="original"></div></article></main><div id="menu-root"><article class="full-menu-item" data-product-id="desserts:chocolate-cake"><div class="full-menu-item-details"></div></article><article class="full-menu-item" data-product-id="desserts:brownie"><div class="full-menu-item-details"></div></article></div><script type="module" src="/src/dessert-story.js"></script></body></html>';
-const qaCss = 'body{font:16px system-ui;margin:20px;background:#faf4ec}.feed-photo{position:relative;width:min(390px,90vw);height:min(390px,90vw);overflow:hidden}.feed-photo>img{width:100%;height:100%;object-fit:cover}.feed-languages{display:flex;gap:6px;margin-bottom:16px}.full-menu-item{margin:12px 0}';
+const fixture = '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/_dessert_qa.css"></head><body><div class="feed-languages"><button data-lang="tr" aria-pressed="true">TR</button><button data-lang="en" aria-pressed="false">EN</button><button data-lang="ru" aria-pressed="false">RU</button></div><main id="feed"><article class="feed-card" data-product-id="desserts:chocolate-cake"><div class="feed-photo"><img src="/src/products/stories/chocolate-cake/01.jpg" alt="original"></div></article></main><div id="menu-root"><article class="full-menu-item full-menu-item--product" data-product-id="desserts:chocolate-cake"><button class="full-menu-item-media" type="button"><img src="/src/products/stories/chocolate-cake/01.jpg"></button><div class="full-menu-item-details"><span>Çikolatalı Pasta</span></div></article><article class="full-menu-item full-menu-item--product" data-product-id="desserts:brownie"><div class="full-menu-item-details"></div></article></div><script type="module" src="/src/dessert-story.js"></script></body></html>';
+const qaCss = 'body{font:16px system-ui;margin:20px;background:#faf4ec}.feed-photo{position:relative;width:min(390px,90vw);height:min(390px,90vw);overflow:hidden}.feed-photo>img{width:100%;height:100%;object-fit:cover}.feed-languages{display:flex;gap:6px;margin-bottom:16px} .full-menu-item{margin:12px 0}.full-menu-item--product{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;padding:8px;max-width:300px}.full-menu-item-media{width:88px;height:88px;padding:0;border:0}.full-menu-item-media img{width:100%;height:100%;object-fit:cover}.full-menu-item-details{min-width:0}';
 const csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types robys-pwa";
 const server = createServer((request,response) => {
   try {
@@ -67,7 +67,15 @@ try {
     await page.locator('.dessert-story-frame[src$="/03-'+lang+'.jpg"]').waitFor();
     assert.equal(await photo.getAttribute("alt"),alt);
   }
-  const open=page.locator(".dessert-story-open");await open.click();
+  const open=page.locator(".dessert-story-open");
+  assert.equal(await open.getAttribute("aria-label"),"3-frame taste story");
+  const placement=await open.evaluate(button=>{
+    const card=button.closest(".full-menu-item"),media=card.querySelector(".full-menu-item-media"),details=card.querySelector(".full-menu-item-details");
+    const b=button.getBoundingClientRect(),m=media.getBoundingClientRect(),d=details.getBoundingClientRect();
+    return {absolute:getComputedStyle(button).position==="absolute",overPhoto:b.left>=m.left&&b.right<=m.right&&b.top>=m.top&&b.bottom<=m.bottom,clearOfCopy:b.right<=d.left};
+  });
+  assert.deepEqual(placement,{absolute:true,overPhoto:true,clearOfCopy:true},"Story entry must not reflow the menu card or cover product copy");
+  await open.click();
   const dialog=page.locator("#dessert-story-modal[open]");await dialog.waitFor();
   assert.equal(await dialog.getAttribute("aria-labelledby"),"dessert-story-title");
   assert.equal(await page.locator("#dessert-story-title").textContent(),"Chocolate Cake");

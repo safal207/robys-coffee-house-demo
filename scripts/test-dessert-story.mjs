@@ -21,6 +21,7 @@ test("feature is scoped to the existing Chocolate Cake product and three localiz
   assert.ok(!source.includes('style.setProperty("--dessert-frame-image"'),"do not use inline styles under CSP");
   assert.ok(source.includes("dessert-story-backdrop"),"backdrop uses a real DOM image");
   assert.ok(source.includes("row.append(button)"),"story action must stay out of product copy and price flow");
+  assert.ok(source.includes('button.setAttribute("aria-label",copy().open)'),"floating story icon has localized accessible name");
   assert.ok(read("dessert-story.css").includes(".full-menu-item--product{position:relative}"),"story trigger anchored to card");
   assert.ok(read("dessert-story.css").includes(".dessert-story-open{position:absolute"),"story trigger must not increase card height");
   assert.ok(source.includes('backdrop.loading="lazy"'),"blurred backdrop must not load offscreen eagerly");

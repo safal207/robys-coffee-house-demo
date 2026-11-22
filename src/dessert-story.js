@@ -125,6 +125,7 @@ function injectRow(row){
   if(row.querySelector(".dessert-story-open")) return;
   const button=document.createElement("button");
   button.type="button";button.className="dessert-story-open";button.textContent=copy().open;
+  button.setAttribute("aria-label",copy().open);button.title=copy().open;
   button.addEventListener("click",e=>{e.stopPropagation();open(button);});
   // Separate sibling to the image button; a positioned overlay will not stretch the card.
   row.append(button);
@@ -134,7 +135,7 @@ function scan(){
   document.querySelectorAll('.full-menu-item[data-product-id="'+PRODUCT_ID+'"]').forEach(injectRow);
 }
 function relocalize(){
-  document.querySelectorAll(".dessert-story-open").forEach(button=>{button.textContent=copy().open});
+  document.querySelectorAll(".dessert-story-open").forEach(button=>{button.textContent=copy().open;button.setAttribute("aria-label",copy().open);button.title=copy().open;});
   document.querySelectorAll(".dessert-story-feed").forEach(layer=>{
     layer.setAttribute("aria-label",copy().title+" · "+copy().hint);
     layer.querySelector(".dessert-story-forward")?.setAttribute("aria-label",copy().next);
