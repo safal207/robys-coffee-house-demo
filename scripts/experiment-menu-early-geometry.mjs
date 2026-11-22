@@ -274,6 +274,12 @@ async function main(){
         for(const mode of block.modes){
           const r=await measure(browser,fixture,origin,sc,block,mode);
           samplesForBlock.push(r);samples.push(r);
+          writeFileSync(ROOT+"/progress.partial.json",JSON.stringify({
+            schema:"robys.qa-geometry-early-progress.v1",complete:false,
+            completedNavigations:samples.length,requiredNavigations:24,
+            samples:samples.map(({firstScreenshot,finalScreenshot,...x})=>x),
+            comparisons
+          },null,2)+"\n");
           console.log("GEOMETRY_EARLY_SAMPLE "+JSON.stringify({
             scenario:sc.id,block:block.name,mode,
             fcpMs:r.fcpMs,cls:r.cls,geometry:r.geometry.vars,
@@ -301,9 +307,15 @@ async function main(){
       const changedStickyGeometry=["headerTop","headerHeight","controlsTop","controlsHeight"]
         .filter(k=>Math.abs(b.before.geometry[k]-a.before.geometry[k])>2);
       const clsRegression=b.cls>Math.max(a.cls,c.cls)+0.001;
+      const withinRunVisualRegression=b.beforeAfterPixelDiff.changedPixels>
+        Math.max(a.beforeAfterPixelDiff.changedPixels,c.beforeAfterPixelDiff.changedPixels);
+      const awareChanged=!b.before.geometry.aware ||
+        b.before.geometry.aware!==a.before.geometry.aware;
       const fcpRisk=matched.fcpPenaltyMs>Math.max(16,placebo.controlFcpRangeMs);
       const rejects=[
         ...(preMeasureChanges.length?["first-painted-css-variable-mismatch"]:[]),
+        ...(awareChanged?["first-painted-scroll-aware-class-mismatch"]:[]),
+        ...(withinRunVisualRegression?["within-run-first-to-stable-pixel-shift"]:[]),
         ...(changedStickyGeometry.length?["first-painted-sticky-geometry-mismatch"]:[]),
         ...(!visualBefore.candidateWithinNoise?["first-painted-pixels-differ"]:[]),
         ...(!visualFinal.candidateWithinNoise?["final-pixels-differ"]:[]),
@@ -313,10 +325,17 @@ async function main(){
       const record={scenario:sc.id,placebo,...matched,
         firstFrameCssChanged:preMeasureChanges,
         firstFrameGeometryChanged:changedStickyGeometry,
-        visualBefore,visualFinal,clsRegression,fcpRisk,
+        visualBefore,visualFinal,withinRunVisualRegression,awareChanged,
+        clsRegression,fcpRisk,
         verdict:rejects.length?"REJECT":"INCONCLUSIVE",
         reasons:rejects};
       comparisons.push(record);
+      writeFileSync(ROOT+"/progress.partial.json",JSON.stringify({
+        schema:"robys.qa-geometry-early-progress.v1",complete:false,
+        completedNavigations:samples.length,requiredNavigations:24,
+        samples:samples.map(({firstScreenshot,finalScreenshot,...x})=>x),
+        comparisons
+      },null,2)+"\n");
       console.log("GEOMETRY_EARLY_COMPARISON "+JSON.stringify(record));
     }
   }finally{
@@ -328,12 +347,14 @@ async function main(){
   const report={
     schema:"robys.qa-geometry-early-no-ship.v1",synthetic:true,
     productionApproved:false,shipApproved:false,
-    candidateHash:hash(candidate),controlHash:hash(compiled.control),
+    candidateHash:hash(candidate),controlHash:hash(original),
+    publishedControlHash:hash(compiled.control),
     cases:scenarios,controlBlocks:blocks,
     limitation:[
       "First-painted screenshot is taken after passive native FCP, not before browser first Paint; do not call this a pre-paint screenshot",
       "Both control and candidate have identical QA performance marks around the startup geometry call; instrumented FCP cannot be pooled with historical values",
       "Only one placebo A/A/A and one A/B/A triplet per viewport/language; insufficient to establish a speed benefit",
+      "If any strict local asset request fails, full report.json is not produced; progress.partial.json is diagnostic only and never grants acceptance",
       "Chromium only: no Firefox/WebKit or real-device acceptance",
       "CLS from PerformanceObserver excludes recent user input and screenshots may affect subsequent shifts",
       "A candidate can be REJECTED on visual/geometry/CLS/FCP differences; a test PASS does NOT approve shipping"
