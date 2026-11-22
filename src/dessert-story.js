@@ -83,7 +83,7 @@ function injectFeed(card){
   const target=$(".feed-photo",card);
   if(!target) return;
   const layer=document.createElement("div");
-  layer.className="dessert-story-feed";
+  layer.className="dessert-story-feed";layer.tabIndex=0;layer.setAttribute("role","group");layer.setAttribute("aria-label",copy().title+" · "+copy().hint);
   const image=document.createElement("img");
   image.className="dessert-story-frame";image.loading="lazy";image.decoding="async";image.draggable=false;
   const progress=dots(),hint=document.createElement("span"),next=document.createElement("button");
