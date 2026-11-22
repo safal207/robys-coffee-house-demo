@@ -32,5 +32,5 @@ jobs:
         with:
           name: sw-shared-bandwidth-home-feed
           path: .artifacts/sw-shared-bandwidth/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 14
