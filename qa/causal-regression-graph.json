@@ -757,6 +757,25 @@
         "build",
         "catalog"
       ]
+    },
+    {
+      "id": "dessert-story",
+      "label": "Chocolate Cake three-frame swipe, localized finales, modal entry and CSP-safe media",
+      "paths": [
+        ".github/workflows/dessert-story-contract.yml",
+        "dessert-story.css",
+        "scripts/test-dessert-story-browser.mjs",
+        "scripts/test-dessert-story.mjs",
+        "src/dessert-story.js"
+      ],
+      "dependsOn": [
+        "menu-feed",
+        "menu-list",
+        "menu-view",
+        "feed-social",
+        "product-photos",
+        "i18n"
+      ]
     }
   ],
   "checks": [
@@ -804,7 +823,8 @@
         "browser-prerequisites",
         "browser-diagnostics",
         "experience",
-        "menu-nutrition"
+        "menu-nutrition",
+        "dessert-story"
       ],
       "execution": "pipeline",
       "always": true
@@ -821,7 +841,8 @@
         "analytics",
         "order-storage",
         "offline-cache",
-        "publication"
+        "publication",
+        "dessert-story"
       ],
       "execution": "pipeline",
       "always": true
@@ -868,7 +889,8 @@
         "order-ui",
         "share-links",
         "offline-cache",
-        "browser-prerequisites"
+        "browser-prerequisites",
+        "dessert-story"
       ],
       "execution": "pipeline",
       "browsers": [
@@ -1264,7 +1286,8 @@
         "shared-styles",
         "gallery",
         "families-combos",
-        "discover"
+        "discover",
+        "dessert-story"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -1398,7 +1421,8 @@
         "home",
         "menu-list",
         "business-profile",
-        "browser-prerequisites"
+        "browser-prerequisites",
+        "dessert-story"
       ],
       "execution": "existing-workflow",
       "browsers": [
@@ -1481,6 +1505,20 @@
         "browser-prerequisites"
       ],
       "execution": "pipeline",
+      "browsers": [
+        "chromium"
+      ]
+    },
+    {
+      "id": "dessert-story-browser",
+      "label": "Chocolate Cake story three languages, swipe, modal geometry and strict CSP (own workflow)",
+      "kind": "browser",
+      "execution": "existing-workflow",
+      "workflow": ".github/workflows/dessert-story-contract.yml",
+      "command": "node scripts/test-dessert-story-browser.mjs",
+      "components": [
+        "dessert-story"
+      ],
       "browsers": [
         "chromium"
       ]
@@ -2233,6 +2271,21 @@
       "checks": [
         "source-contracts",
         "menu-nutrition-browser"
+      ],
+      "metrics": []
+    },
+    {
+      "id": "dessert-story-three-views",
+      "label": "Chocolate Cake three-frame TR/EN/RU journey in feed, grid and list",
+      "components": [
+        "dessert-story"
+      ],
+      "checks": [
+        "source-contracts",
+        "dessert-story-browser",
+        "menu-feed-browser",
+        "visual-baseline",
+        "ios-route-webkit"
       ],
       "metrics": []
     }

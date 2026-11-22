@@ -157,6 +157,68 @@ test('combined app inputs have narrow owners and preserve their actual menu and 
   assert.deepEqual(impactPlan(graph, [...Object.keys(combinedAppOwnership), unknown]).unmappedPaths, [unknown]);
 });
 
+
+test('Dessert Stories ownership maps exact source and CI paths to real browser and visual evidence', () => {
+  const storyInputs = [
+    '.github/workflows/dessert-story-contract.yml',
+    'dessert-story.css',
+    'scripts/test-dessert-story-browser.mjs',
+    'scripts/test-dessert-story.mjs',
+    'src/dessert-story.js'
+  ];
+  for (const path of storyInputs) {
+    const plan = impactPlan(graph, [path]);
+    assert.deepEqual(plan.directComponents, ['dessert-story'], path);
+    assert.deepEqual(plan.unmappedPaths, [], path);
+    assert.doesNotThrow(() => assertMappedPlan(plan), path);
+    for (const checkId of ['source-contracts', 'security-contracts', 'menu-feed-browser']) {
+      assert.ok(plan.selectedChecks.includes(checkId), path + ': ' + checkId);
+    }
+    for (const checkId of ['dessert-story-browser', 'visual-baseline', 'ios-route-webkit']) {
+      assert.ok(plan.externalChecks.includes(checkId), path + ': ' + checkId);
+    }
+    assert.ok(plan.impactedJourneys.includes('dessert-story-three-views'), path);
+  }
+  // Reviewed PR #527 paths and this registry repair. The list is intentionally
+  // explicit: an unknown sibling must remain unmapped rather than pass by glob.
+  const reviewedPrPaths = [
+    '.github/workflows/dessert-story-contract.yml', 'dessert-story.css',
+    'integrity-manifest.json', 'menu-feed.html', 'menu-grid.html', 'menu.html',
+    'scripts/test-dessert-story-browser.mjs', 'scripts/test-dessert-story.mjs',
+    'scripts/verify-ios-route-webkit.mjs', 'src/dessert-story.js',
+    'src/products/stories/chocolate-cake/01.jpg',
+    'src/products/stories/chocolate-cake/02.jpg',
+    'src/products/stories/chocolate-cake/03-en.jpg',
+    'src/products/stories/chocolate-cake/03-ru.jpg',
+    'src/products/stories/chocolate-cake/03-tr.jpg',
+    'sw-core-v64.js', 'qa/causal-regression-graph.json',
+    'scripts/test-causal-regression-pipeline.mjs'
+  ];
+  const wholePr = impactPlan(graph, reviewedPrPaths);
+  assert.deepEqual(wholePr.unmappedPaths, []);
+  assert.doesNotThrow(() => assertMappedPlan(wholePr));
+  for (const checkId of ['dessert-story-browser', 'visual-baseline', 'ios-route-webkit']) {
+    assert.ok(wholePr.externalChecks.includes(checkId), checkId);
+  }
+  const check = graph.checks.find(item => item.id === 'dessert-story-browser');
+  assert.equal(check.execution, 'existing-workflow');
+  assert.equal(check.workflow, '.github/workflows/dessert-story-contract.yml');
+  assert.equal(check.command, 'node scripts/test-dessert-story-browser.mjs');
+  assert.deepEqual(check.browsers, ['chromium']);
+  const workflow = readFileSync(new URL('../.github/workflows/dessert-story-contract.yml', import.meta.url), 'utf8');
+  assert.match(workflow, /run: node --test scripts\/test-dessert-story\.mjs/);
+  assert.match(workflow, /run: node scripts\/test-dessert-story-browser\.mjs/);
+  for (const unknown of [
+    'src/dessert-story-unregistered.js',
+    'scripts/test-dessert-story-unregistered.mjs',
+    '.github/workflows/dessert-story-unregistered.yml'
+  ]) {
+    const rejected = impactPlan(graph, [unknown]);
+    assert.deepEqual(rejected.unmappedPaths, [unknown], unknown);
+    assert.throws(() => assertMappedPlan(rejected), /unmapped changed paths/);
+  }
+});
+
 test('planning refuses missing ownership before publishing its execution matrix', () => {
   const failedCombinedPlan = { unmappedPaths: Object.keys(combinedAppOwnership) };
   assert.throws(() => assertMappedPlan(failedCombinedPlan), /Plan has unmapped changed paths/);
