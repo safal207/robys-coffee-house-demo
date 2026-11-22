@@ -13,19 +13,25 @@ import { compiled } from "./experiment-menu-first-section-render.mjs";
 import { compileMenuRuntime } from "./menu-runtime-source.mjs";
 import { instrumentMenuStartupSource, validateStartupMeasurement,
   summarizeStartupTriples } from "./menu-startup-attribution-probe.mjs";
+import { instrumentMenuGeometrySource, validateGeometryOperations,
+  validateGeometrySnapshot, summarizeGeometryTraceEvents,
+  summarizeGeometryTriples } from "./menu-geometry-attribution-probe.mjs";
 
 // Fixed-repository HTTPS assets: no GitHub Pages, CDN, remote images or JS
 // interception. Identical A/A/A and bracketed A/B/A isolate scheduler/network
 // noise from a guarded staged-render candidate. QA-only; never deployed.
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..");
-const ATTRIBUTION_MODE=process.env.ROBY_STARTUP_ATTRIBUTION==="1";
+const GEOMETRY_MODE=process.env.ROBY_GEOMETRY_ATTRIBUTION==="1";
+const ATTRIBUTION_MODE=process.env.ROBY_STARTUP_ATTRIBUTION==="1" || GEOMETRY_MODE;
 const TRACE_MODE=process.env.ROBY_FCP_FRAME_TRACE==="1" || ATTRIBUTION_MODE;
-const OUTPUT=ATTRIBUTION_MODE
+const OUTPUT=GEOMETRY_MODE
+  ? ".artifacts/menu-first-photo-experiment/local-geometry-operation-attribution.json"
+  : ATTRIBUTION_MODE
   ? ".artifacts/menu-first-photo-experiment/local-startup-function-attribution.json"
   : TRACE_MODE
     ? ".artifacts/menu-first-photo-experiment/local-frame-trace.json"
     : ".artifacts/menu-first-photo-experiment/local-fcp-controls.json";
-const REPEATS=ATTRIBUTION_MODE?8:TRACE_MODE?2:4;
+const REPEATS=GEOMETRY_MODE?4:ATTRIBUTION_MODE?8:TRACE_MODE?2:4;
 const PROFILES=TRACE_MODE?[{id:"loopback-throttled",cpu:4,emulateNetwork:true}]:[
   {id:"loopback",cpu:4,emulateNetwork:false},
   {id:"loopback-throttled",cpu:4,emulateNetwork:true}
@@ -35,7 +41,9 @@ const BLOCKS=ATTRIBUTION_MODE
   : [{id:"A/A/A",modes:["A1","A2","A3"]},{id:"A/B/A",modes:["A1","B","A3"]}];
 const startupBuild=ATTRIBUTION_MODE
   ? compileMenuRuntime(instrumentMenuStartupSource(
-      readFileSync(resolve("src/menu-app.js"),"utf8")))
+      GEOMETRY_MODE
+        ? instrumentMenuGeometrySource(readFileSync(resolve("src/menu-app.js"),"utf8"))
+        : readFileSync(resolve("src/menu-app.js"),"utf8")))
   : compiled.control;
 const bundles={A1:startupBuild,A2:startupBuild,A3:startupBuild,
   B:compiled["default-list-only"]};
@@ -102,13 +110,15 @@ async function collectFrameTrace(cdp,passive,profile,block,pair,mode){
   const decoded=JSON.parse(raw.toString("utf8"));
   assert.ok(Array.isArray(decoded.traceEvents),"Chrome timeline trace events missing");
   const outputDir=".artifacts/menu-first-photo-experiment/"+
-    (ATTRIBUTION_MODE?"startup-function-traces":"frame-traces");
+    (GEOMETRY_MODE?"geometry-operation-traces":ATTRIBUTION_MODE?"startup-function-traces":"frame-traces");
   mkdirSync(outputDir,{recursive:true});
   const filename=outputDir+"/trace-"+profile.id+"-"+block.id.replaceAll("/","")+
     "-"+pair+"-"+mode+".json.gz";
   writeFileSync(filename,gzipSync(raw,{level:6}));
   return {file:filename,rawBytes:raw.length,
-    ...summarizeFrameTimeline(decoded.traceEvents,passive.fcpMs,passive.cssEndMs)};
+    ...summarizeFrameTimeline(decoded.traceEvents,passive.fcpMs,passive.cssEndMs),
+    geometry:GEOMETRY_MODE?summarizeGeometryTraceEvents(
+      decoded.traceEvents,passive.fcpMs,passive.geometryOperations):null};
 }
 export function createFixtureServer(cert){
   let selected="A1";
@@ -246,6 +256,40 @@ async function measure(browser,fixture,origin,profile,block,pair,mode,slot){
         "Instrumented startup did not complete");
       validateStartupMeasurement(passive.startupMeasurements);
     }
+    if(GEOMETRY_MODE){
+      // AFTER passive FCP capture: these invariant reads cannot move the FCP.
+      await page.evaluate(async()=>{await document.fonts.ready;});
+      const snap=await page.evaluate(()=>{
+        const root=document.documentElement;
+        const header=document.querySelector(".site-header");
+        const controls=document.querySelector(".menu-controls");
+        const count=document.querySelector("#menu-cart-count");
+        const total=document.querySelector("#menu-cart-total");
+        const cart=document.querySelector("#menu-cart-trigger");
+        const vars=["--menu-header-height","--menu-sticky-inset","--menu-anchor-gap"];
+        return {
+          geometryComplete:window.__qaGeometryInitialCompleteV1===true,
+          geometryOperations:window.__qaGeometryOpsV1??null,
+          geometryMarkNames:performance.getEntriesByType("mark")
+            .filter(x=>x.name.startsWith("qa-geometry-v1:")).map(x=>x.name),
+          geometrySnapshot:{
+            headerHeight:header.getBoundingClientRect().height,
+            controlsHeight:controls.getBoundingClientRect().height,
+            headerPosition:getComputedStyle(header).position,
+            controlsPosition:getComputedStyle(controls).position,
+            cssVars:Object.fromEntries(vars.map(name=>[name,root.style.getPropertyValue(name).trim()])),
+            aware:root.classList.contains("menu-scroll-aware"),
+            scrollY:window.scrollY,
+            cart:{count:count.textContent.trim(),total:total.textContent.trim(),
+              label:cart.getAttribute("aria-label")}
+          }
+        };
+      });
+      Object.assign(passive,snap);
+      assert.equal(passive.geometryComplete,true,"QA geometry hooks did not run");
+      validateGeometryOperations(passive.geometryOperations,passive.geometryMarkNames);
+      validateGeometrySnapshot(passive.geometrySnapshot);
+    }
     const trace=TRACE_MODE?await collectFrameTrace(
       cdp,passive,profile,block,pair,mode):null;
     traceCollected=TRACE_MODE;
@@ -360,14 +404,17 @@ async function main(){
         ?d.filter(x=>x.candidateSlowerThanBoth).length:null};
   }));
   const startupAttribution=ATTRIBUTION_MODE?summarizeStartupTriples(samples):null;
+  const geometryAttribution=GEOMETRY_MODE?summarizeGeometryTriples(samples):null;
   const report={
-    schema:ATTRIBUTION_MODE
+    schema:GEOMETRY_MODE
+      ?"robys.local-geometry-operation-attribution.v1"
+      :ATTRIBUTION_MODE
       ?"robys.local-startup-function-attribution.v1"
       :TRACE_MODE?"robys.local-frame-trace.v1":"robys.local-fixed-asset-fcp.v1",
     synthetic:true,shipApproved:false,
     source:"Local verified repository assets over ephemeral loopback HTTPS, no remote resources",
     traced:TRACE_MODE,attributionProbe:ATTRIBUTION_MODE,
-    startupAttribution,
+    geometryProbe:GEOMETRY_MODE,startupAttribution,geometryAttribution,
     htmlSHA256:fixture.originalHtmlHash,
     originalRuntimeSHA256:fixture.runtimeHash,
     candidateRuntimeSHA256:sha(Buffer.from(bundles.B)),
@@ -380,7 +427,8 @@ async function main(){
       "A/B/A still differs in runtime JS byte length and parsing; unchanged A/A/A controls estimate run-to-run variation",
       "No field LCP, real-user outcomes or shipping approval are inferred from local test data",
       ...(TRACE_MODE?["Tracing instrumentation changes scheduler timing; compare only equally traced runs","CSS responseEnd is not CSSOM/style calculation/layout completion"]:[]),
-      ...(ATTRIBUTION_MODE?["Timing probes change bundle bytes and call overhead: comparisons must use only identical attributed A/A/A control bytes","Function wall time includes nested DOM and layout work, not exclusive self CPU time"]:[])
+      ...(ATTRIBUTION_MODE?["Timing probes change bundle bytes and call overhead: comparisons must use only identical attributed A/A/A control bytes","Function wall time includes nested DOM and layout work, not exclusive self CPU time"]:[]),
+      ...(GEOMETRY_MODE?["Geometry operations are wrapped without altering return values; performance marks and tracing affect timings","A Layout trace overlap indicates an event inside an operation, not proof of exclusive causal responsibility","Snapshot of CSS geometry and empty cart is collected after passive FCP, and checked within each identical A/A/A triple"]:[])
     ],summary,triplets,samples};
   mkdirSync(dirname(OUTPUT),{recursive:true});
   writeFileSync(OUTPUT,JSON.stringify(report,null,2)+"\n");
@@ -394,6 +442,8 @@ async function main(){
     "\n\nA/A/A = identical-code controls; A/B/A = guarded experimental candidate. Lab data only. NO SHIP.\n");
   if(ATTRIBUTION_MODE)console.log("STARTUP_ATTRIBUTION_SUMMARY "+JSON.stringify(
     startupAttribution));
+  if(GEOMETRY_MODE)console.log("GEOMETRY_ATTRIBUTION_SUMMARY "+JSON.stringify(
+    geometryAttribution));
   if(TRACE_MODE)console.log("FRAME_TIMELINE_SUMMARY "+JSON.stringify({
     summary,frames:samples.map(x=>({profile:x.profile,block:x.block,
       pair:x.pair,mode:x.mode,fcp:x.passive.fcpMs,trace:x.trace}))
