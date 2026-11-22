@@ -12,7 +12,7 @@ const PHOTO_PATH = "/robys-coffee-house-demo/src/products/sets-v1/cool-lime-maca
 const OUT = ".artifacts/sw-shared-bandwidth/report.json";
 const BYTES_PER_SECOND = 200_000; // One 1.6 Mb/s downstream pipe shared by ALL browser and worker TCP tunnels.
 const INITIAL_CONNECT_DELAY_MS = 150;
-const PAIRS = 2;
+const PAIRS = 4;
 const WAIT_TIMEOUT_MS = 60000;
 const AFTER_DCL_MS = 500;
 const AFTER_IMAGES_MS = 3000;
@@ -220,6 +220,10 @@ async function measure(browser, mode, pair, proxy) {
     assert.deepEqual(errors, [], "Browser JavaScript errors");
     if (mode === "worker-blocked")
       assert.equal(workerStarts.length, 0, "Blocked control cannot install worker");
+    if (mode === "worker-allowed") {
+      assert.ok(workerStarts.length > 0 && workerTimings.some(w => Number.isFinite(w.entries) && w.entries > 0),
+        "Allowed first-install condition must actually start a worker and observe background resources");
+    }
     return {
       mode, pair, homePaint, feedPaint, workerAtClick, feedState, afterWorker,
       workerStarts, workerTimings, firstPhoto, secondPhoto,
