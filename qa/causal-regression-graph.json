@@ -766,7 +766,8 @@
         "dessert-story.css",
         "scripts/test-dessert-story-browser.mjs",
         "scripts/test-dessert-story.mjs",
-        "src/dessert-story.js"
+        "src/dessert-story.js",
+        "src/dessert-story-loader.js"
       ],
       "dependsOn": [
         "menu-feed",

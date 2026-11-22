@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 
 const root = process.cwd();
 const mime = { ".css":"text/css", ".js":"text/javascript", ".jpg":"image/jpeg", ".html":"text/html" };
-const fixture = '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/_dessert_qa.css"></head><body><div class="feed-languages"><button data-lang="tr" aria-pressed="true">TR</button><button data-lang="en" aria-pressed="false">EN</button><button data-lang="ru" aria-pressed="false">RU</button></div><main id="feed"><article class="feed-card" data-product-id="desserts:chocolate-cake"><div class="feed-photo"><img src="/src/products/stories/chocolate-cake/01.jpg" alt="original"></div></article></main><div id="menu-root"><article class="full-menu-item full-menu-item--product" data-product-id="desserts:chocolate-cake"><button class="full-menu-item-media" type="button"><img src="/src/products/stories/chocolate-cake/01.jpg"></button><div class="full-menu-item-details"><span>Çikolatalı Pasta</span></div></article><article class="full-menu-item full-menu-item--product" data-product-id="desserts:brownie"><div class="full-menu-item-details"></div></article></div><script type="module" src="/src/dessert-story.js"></script></body></html>';
+const fixture = '<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/_dessert_qa.css"></head><body><div class="feed-languages"><button data-lang="tr" aria-pressed="true">TR</button><button data-lang="en" aria-pressed="false">EN</button><button data-lang="ru" aria-pressed="false">RU</button></div><main id="feed"><article class="feed-card" data-product-id="desserts:chocolate-cake"><div class="feed-photo"><img src="/src/products/stories/chocolate-cake/01.jpg" alt="original"></div></article></main><div id="menu-root"><article class="full-menu-item full-menu-item--product" data-product-id="desserts:chocolate-cake"><button class="full-menu-item-media" type="button"><img src="/src/products/stories/chocolate-cake/01.jpg"></button><div class="full-menu-item-details"><span>Çikolatalı Pasta</span></div></article><article class="full-menu-item full-menu-item--product" data-product-id="desserts:brownie"><div class="full-menu-item-details"></div></article></div><script type="module" src="/src/dessert-story-loader.js"></script></body></html>';
 const qaCss = 'body{font:16px system-ui;margin:20px;background:#faf4ec}.feed-photo{position:relative;width:min(390px,90vw);height:min(390px,90vw);overflow:hidden}.feed-photo>img{width:100%;height:100%;object-fit:cover}.feed-languages{display:flex;gap:6px;margin-bottom:16px} .full-menu-item{margin:12px 0}.full-menu-item--product{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;padding:8px;max-width:300px}.full-menu-item-media{width:88px;height:88px;padding:0;border:0}.full-menu-item-media img{width:100%;height:100%;object-fit:cover}.full-menu-item-details{min-width:0}.menu-photo-grid .full-menu-item--product{display:flex;flex-direction:column;width:188px}.menu-photo-grid .full-menu-item-media{width:100%;height:auto;aspect-ratio:1}.menu-photo-grid .full-menu-item-details{width:100%;box-sizing:border-box;padding:12px}';
 const csp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; require-trusted-types-for 'script'; trusted-types robys-pwa";
 const server = createServer((request,response) => {
@@ -14,9 +14,17 @@ const server = createServer((request,response) => {
     const pathname = decodeURIComponent(new URL(request.url,"http://localhost").pathname);
     if (pathname === "/favicon.ico") return response.writeHead(204).end();
     if (pathname === "/_dessert_qa.html" || pathname === "/_dessert_qa.css") {
-      const css = pathname.endsWith(".css");
+      const css=pathname.endsWith(".css"),url=new URL(request.url,"http://localhost");
       response.writeHead(200,{"content-type":css?"text/css":"text/html","content-security-policy":csp,"cache-control":"no-store"});
-      response.end(css?qaCss:fixture);
+      let html=fixture;
+      const mode=url.searchParams.get("mode");
+      if(mode==="list"||mode==="grid"){
+        html=html.replace(/<main id="feed">[\s\S]*?<\/main>/,'<main id="feed"></main>');
+        if(mode==="grid")html=html.replace("<body>","<body class=\"menu-photo-grid\">");
+      }
+      if(url.searchParams.has("offscreen"))html=html.replace("<body>","<body><div style=\"height:1800px\"></div>")
+        .replace('<body class="menu-photo-grid">','<body class="menu-photo-grid"><div style="height:1800px"></div>');
+      response.end(css?qaCss:html);
       return;
     }
     const file = resolve(root,"."+pathname);
@@ -29,6 +37,35 @@ await new Promise(done=>server.listen(0,"127.0.0.1",done));
 let browser;
 try {
   browser = await chromium.launch({headless:true});
+  // Verify no full module/CSS fetch before cake is visible, in all menu modes.
+  for(const mode of ["feed","list","grid"]){
+    const lazyPage=await browser.newPage({viewport:{width:390,height:844},serviceWorkers:"block"});
+    const heavyRequests=[];
+    const javascriptErrors=[];
+    lazyPage.on("pageerror",err=>javascriptErrors.push(err.message));
+    lazyPage.on("request",request=>{
+      if(/\/(?:dessert-story\.js|dessert-story\.css)(?:\?|$)/.test(request.url()))heavyRequests.push(request.url());
+    });
+    await lazyPage.goto("http://127.0.0.1:"+server.address().port+"/_dessert_qa.html?offscreen=1&mode="+mode,{waitUntil:"networkidle"});
+    assert.deepEqual(heavyRequests,[],mode+": no controller or CSS requested while cake is offscreen");
+    assert.equal(await lazyPage.locator("#dessert-story-modal").count(),0,mode+": no premature modal");
+    const card=lazyPage.locator(mode==="feed"?".feed-card[data-product-id='desserts:chocolate-cake']":".full-menu-item[data-product-id='desserts:chocolate-cake']");
+    await card.scrollIntoViewIfNeeded();
+    await lazyPage.locator(mode==="feed"?".dessert-story-feed":".dessert-story-open").waitFor({timeout:12000});
+    assert.equal(heavyRequests.filter(url=>url.endsWith("/dessert-story.js")).length,1,mode+": load controller once");
+    assert.equal(heavyRequests.filter(url=>url.endsWith("/dessert-story.css")).length,1,mode+": load stylesheet only after visibility");
+    if(mode!=="feed"){
+      const trigger=lazyPage.locator(".dessert-story-open");
+      assert.ok((await trigger.getAttribute("aria-label"))?.length>0,mode+": accessible name");
+      await trigger.click();
+      await lazyPage.locator("#dessert-story-modal[open]").waitFor();
+      await lazyPage.keyboard.press("Escape");
+      await lazyPage.locator("#dessert-story-modal[open]").waitFor({state:"hidden"});
+      assert.equal(await trigger.evaluate(el=>el===document.activeElement),true,mode+": focus return");
+    }
+    assert.deepEqual(javascriptErrors,[],mode+": no JavaScript errors");
+    await lazyPage.close();
+  }
   const page=await browser.newPage({viewport:{width:390,height:844},serviceWorkers:"block"});
   const errors=[];
   page.on("pageerror",error=>errors.push(error.message));

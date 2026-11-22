@@ -164,7 +164,8 @@ test('Dessert Stories ownership maps exact source and CI paths to real browser a
     'dessert-story.css',
     'scripts/test-dessert-story-browser.mjs',
     'scripts/test-dessert-story.mjs',
-    'src/dessert-story.js'
+    'src/dessert-story.js',
+    'src/dessert-story-loader.js'
   ];
   for (const path of storyInputs) {
     const plan = impactPlan(graph, [path]);
@@ -186,6 +187,7 @@ test('Dessert Stories ownership maps exact source and CI paths to real browser a
     'integrity-manifest.json', 'menu-feed.html', 'menu-grid.html', 'menu.html',
     'scripts/test-dessert-story-browser.mjs', 'scripts/test-dessert-story.mjs',
     'scripts/verify-ios-route-webkit.mjs', 'src/dessert-story.js',
+    'src/dessert-story-loader.js',
     'src/products/stories/chocolate-cake/01.jpg',
     'src/products/stories/chocolate-cake/02.jpg',
     'src/products/stories/chocolate-cake/03-en.jpg',

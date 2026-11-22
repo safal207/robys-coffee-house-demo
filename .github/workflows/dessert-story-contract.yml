@@ -6,6 +6,7 @@ on:
       - "menu-grid.html"
       - "menu.html"
       - "src/dessert-story.js"
+      - "src/dessert-story-loader.js"
       - "dessert-story.css"
       - "src/products/stories/chocolate-cake/**"
       - "scripts/test-dessert-story.mjs"
@@ -21,8 +22,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Parse story controller
-        run: node --check src/dessert-story.js
+      - name: Parse story controller and lazy loader
+        run: |
+          node --check src/dessert-story.js
+          node --check src/dessert-story-loader.js
       - name: Verify assets and three menu entrypoints
         run: node --test scripts/test-dessert-story.mjs
       - name: Verify deterministic build and integrity manifest

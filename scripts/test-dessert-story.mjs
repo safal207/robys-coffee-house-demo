@@ -5,9 +5,15 @@ const read = name => readFileSync(new URL("../" + name, import.meta.url), "utf8"
 test("one shared story enhancement is wired into feed, grid and list", () => {
   for (const page of ["menu-feed.html", "menu-grid.html", "menu.html"]) {
     const html=read(page);
-    assert.equal(html.split('src/dessert-story.js').length-1,1,page+" must load story once");
+    assert.equal(html.split('src/dessert-story-loader.js').length-1,1,page+" must attach visibility loader once");
+    assert.equal(html.split('src/dessert-story.js').length-1,0,page+" must not eagerly fetch the controller");
     assert.equal(html.split('href="dessert-story.css"').length-1,0,page+" must not add a blocking CSS link");
   }
+});
+test("lazy loader requires intersection, disconnects and preserves strict CSP", () => {
+  const loader=read("src/dessert-story-loader.js");
+  for(const pattern of [/IntersectionObserver/,/entry\.isIntersecting/,/MutationObserver/,/desserts:chocolate-cake/,/import\("\.\/dessert-story\.js"\)/,/visible\.disconnect\(\)/,/changes\.disconnect\(\)/]) assert.match(loader,pattern);
+  assert.ok(!loader.includes("innerHTML") && !loader.includes("localStorage"),"no CSP-unsafe HTML or order state");
 });
 test("feature is scoped to the existing Chocolate Cake product and three localizations", () => {
   const source=read("src/dessert-story.js");
