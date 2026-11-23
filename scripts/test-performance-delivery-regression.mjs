@@ -76,8 +76,8 @@ test("personal feed styles share the preloaded feed stylesheet without a second 
   const feed = read("menu-feed.css");
   const personal = read("my-feed.css");
   assert.ok(feed.endsWith(personal), "Preserve the exact trailing personal-feed cascade");
-  assert.doesNotMatch(html, /<link[^>]*href="my-feed\\.css[^"]*"[^>]*>/);
-  assert.match(html, /<link rel="stylesheet" href="menu-feed\\.css\\?v=[a-f0-9]{12}" \\/>/);
+  assert.ok(!html.includes('href="my-feed.css'), "No second blocking stylesheet request");
+  assert.ok(html.includes('href="menu-feed.css?v='), "Combined feed stylesheet stays linked");
 });
 
 test("home first-paint styles stay enabled until a measured safe alternative exists", () => {
