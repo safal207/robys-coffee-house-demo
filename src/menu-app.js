@@ -875,7 +875,7 @@ function translateStaticPage() {
 
   document.querySelectorAll("[data-menu-copy]").forEach((element) => {
     const key = element.dataset.menuCopy;
-    if (copy[key]) element.textContent = copy[key];
+    if (copy[key] && element.textContent !== copy[key]) element.textContent = copy[key];
   });
 
   searchInput.setAttribute("aria-label", copy.searchLabel);

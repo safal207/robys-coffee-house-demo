@@ -80,6 +80,13 @@ test("personal feed styles share the preloaded feed stylesheet without a second 
   assert.ok(html.includes('href="menu-feed.css?v='), "Combined feed stylesheet stays linked");
 });
 
+test("default menu heading is not repainted when its localized text is already correct", () => {
+  const html = read("menu.html");
+  const source = read("src/menu-app.js");
+  assert.match(html, /<h1 data-menu-copy="pageTitle">Tam Menü<\/h1>/);
+  assert.ok(source.includes('if (copy[key] && element.textContent !== copy[key]) element.textContent = copy[key];'));
+});
+
 test("home first-paint styles stay enabled until a measured safe alternative exists", () => {
   const home = read("index.html"), source = read("src/qa.js");
   for (const name of ["gallery-clean.css", "map-live.css", "menu-preview.css", "featured-strip.css", "social-offer.css", "community-reel-v2.css"]) {
