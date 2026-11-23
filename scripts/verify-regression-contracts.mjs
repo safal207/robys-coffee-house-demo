@@ -94,14 +94,25 @@ for (const attribute of ["muted", "loop", "playsinline"]) {
   assert(new RegExp(`\\b${attribute}(?:\\s|>|=)`, "i").test(heroVideo), "VIDEO-001", `Hero video must keep the ${attribute} attribute`);
 }
 assert(!/\bautoplay(?:\s|>|=)/i.test(heroVideo) && /preload="none"/.test(heroVideo), "VIDEO-001", "Hero decoder must wait for the playback scheduler");
-assert(qaRuntime.includes("video.autoplay = true") && qaRuntime.includes("scheduleHeroPlayback"), "VIDEO-001", "Scheduled hero autoplay must remain available");
+assert(
+  (qaRuntime.includes("video.autoplay = true")
+    || /\bv\.autoplay\s*=\s*v\.loop\s*=\s*v\.muted\s*=\s*v\.defaultMuted\s*=\s*v\.playsInline\s*=\s*true/.test(qaRuntime))
+  && qaRuntime.includes("scheduleHeroPlayback"),
+  "VIDEO-001", "Scheduled, muted and looping hero playback must remain available"
+);
 const heroSource = heroVideo.match(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
 assert(/^src\/[\w./-]+\.mp4(?:\?[^"']*)?$/i.test(heroSource), "VIDEO-001", "Hero video must use a local MP4 source");
-assert(/\bvideo\.play\s*\(/.test(qaRuntime), "VIDEO-001", "Hero runtime must explicitly call video.play()");
+assert(/\b(?:video|v)\.play\s*\(/.test(qaRuntime), "VIDEO-001", "Hero runtime must explicitly call video.play()");
 for (const eventName of ["canplay", "visibilitychange", "pointerdown", "pause"]) {
   assert(qaRuntime.includes(`"${eventName}"`), "VIDEO-001", `Hero playback recovery must handle ${eventName}`);
 }
-assert(qaRuntime.includes("HERO_BALANCE_STYLES"), "VIDEO-001", "Hero runtime must load the visual-balance stylesheet");
+assert(
+  qaRuntime.includes("HERO_BALANCE_STYLES")
+  || (qaRuntime.includes('l.href="hero-balance.css?v=20260622-1"')
+    && qaRuntime.includes('l.dataset.heroBalance="true"')
+    && qaRuntime.includes("ensureHeroBalanceStyles")),
+  "VIDEO-001", "Hero runtime must load the visual-balance stylesheet"
+);
 dashboardContract("VIDEO-001", 5);
 
 const heroOverlayRules = cssRules(heroCss, ".hero-overlay", "THEME-001");

@@ -730,6 +730,8 @@
         ".github/workflows/visual-regression.yml",
         ".github/workflows/dependency-build-edges.yml",
         "scripts/visual-regression.mjs",
+        "scripts/verify-regression-contracts.mjs",
+        "scripts/verify-p1-interface-contracts.mjs",
         "qa.js",
         ".github/workflows/causal-regression.yml",
         "qa/journey-latency-budgets.json",
