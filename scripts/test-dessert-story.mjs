@@ -30,7 +30,10 @@ test("feature is scoped to the existing Chocolate Cake product and three localiz
   assert.ok(source.includes("dessert-story-backdrop"),"backdrop uses a real DOM image");
   assert.ok(source.includes("row.append(button)"),"story action must stay out of product copy and price flow");
   assert.ok(source.includes('button.setAttribute("aria-label",copy().open)'),"floating story icon has localized accessible name");
-  assert.ok(read("dessert-story.css").includes(".full-menu-item--product{position:relative}"),"story trigger anchored to card");
+  const storyCss=read("dessert-story.css");
+  assert.ok(storyCss.includes('.full-menu-item--product[data-product-id="desserts:chocolate-cake"]{position:relative}'),"only cake card acts as story anchor");
+  assert.ok(storyCss.includes('.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo{position:relative}'),"only cake feed photo gets new positioning");
+  assert.ok(!storyCss.includes(".full-menu-item--product{position:relative}")&&!storyCss.includes(".feed-photo {position:relative}"),"lazy story cannot restyle unrelated cards");
   assert.ok(read("dessert-story.css").includes(".dessert-story-open{position:absolute"),"story trigger must not increase card height");
   assert.ok(source.includes('backdrop.loading="lazy"'),"blurred backdrop must not load offscreen eagerly");
   assert.ok(source.includes('card.dataset.dessertFrame=String(i+1)'),"finale state drives overlay clearance");

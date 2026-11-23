@@ -1,5 +1,5 @@
 /* Chocolate Cake Stories: intentionally isolated from menu/product/order styles. */
-.feed-photo {position:relative}
+.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo{position:relative}
 .dessert-story-feed {position:absolute;inset:0;z-index:1;overflow:hidden;touch-action:pan-y;cursor:grab}
 .dessert-story-feed:active{cursor:grabbing}
 .dessert-story-backdrop{position:absolute;inset:-20px;width:calc(100% + 40px);height:calc(100% + 40px);object-fit:cover;filter:blur(18px) brightness(.66);transform:scale(1.06);z-index:0;pointer-events:none}
@@ -13,8 +13,8 @@
 .feed-card[data-dessert-frame="3"] .feed-photo>.feed-photo-tag,.feed-card[data-dessert-frame="3"] .feed-photo>.feed-photo-views,.dessert-story-hint[hidden]{display:none}
 .dessert-story-hint{z-index:2;position:absolute;bottom:19px;left:50%;transform:translateX(-50%);max-width:calc(100% - 128px);white-space:nowrap;border-radius:50px;background:#241c1bb0;color:#fff;padding:5px 10px;font:600 12px/1.5 Arial,sans-serif;pointer-events:none}
 .dessert-story-forward{z-index:2;position:absolute;top:50%;right:12px;transform:translateY(-50%);width:34px;height:34px;border:1px solid #fff8;border-radius:50%;color:#fff;background:#241c1bb0;font:27px/1 Arial,sans-serif;cursor:pointer}
-.feed-photo>.feed-photo-tag,.feed-photo>.feed-photo-views,.feed-photo>.feed-photo-prev,.feed-photo>.feed-photo-next {z-index:2}
-.full-menu-item--product{position:relative}
+.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo>.feed-photo-tag,.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo>.feed-photo-views,.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo>.feed-photo-prev,.feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo>.feed-photo-next{z-index:2}
+.full-menu-item--product[data-product-id="desserts:chocolate-cake"]{position:relative}
 .full-menu-item--product .dessert-story-open{position:absolute;top:14px;left:14px;z-index:3;display:grid;place-items:center;width:38px;height:38px;min-width:38px;min-height:38px;margin:0;padding:0;border:1px solid #ffffffba;border-radius:50%;background:#e21b23ed;color:#fff;font-size:0;line-height:1;box-shadow:0 3px 12px #241c1b50;cursor:pointer}
 .full-menu-item--product .dessert-story-open::before{content:"▶";font:700 15px/1 Arial,sans-serif;padding-left:2px}
 .full-menu-item--product .dessert-story-open:hover,.full-menu-item--product .dessert-story-open:focus-visible{background:#a31920;color:#fff;outline:2px solid #fff;outline-offset:2px}
