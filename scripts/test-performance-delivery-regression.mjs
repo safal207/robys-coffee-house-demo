@@ -87,6 +87,19 @@ test("default menu heading is not repainted when its localized text is already c
   assert.ok(source.includes('if (copy[key] && element.textContent !== copy[key]) element.textContent = copy[key];'));
 });
 
+test("menu batches all catalog rows before an atomic ready-state DOM commit", () => {
+  const source = read("src/menu-app.js");
+  const start = source.indexOf("function renderMenu() {");
+  const end = source.indexOf("const menuActions = ", start);
+  assert.ok(start >= 0 && end > start);
+  const render = source.slice(start, end);
+  assert.ok(render.includes("document.createDocumentFragment()"));
+  assert.ok(render.includes("fragment.append(section)"));
+  assert.ok(render.includes("menuRoot.replaceChildren(fragment)"));
+  assert.doesNotMatch(render, /menuRoot\\.append\\(section\\)/);
+  assert.ok(render.indexOf("menuRoot.replaceChildren(fragment)") < render.indexOf('menuRoot.dataset.ready = "true"'));
+});
+
 test("home first-paint styles stay enabled until a measured safe alternative exists", () => {
   const home = read("index.html"), source = read("src/qa.js");
   for (const name of ["gallery-clean.css", "map-live.css", "menu-preview.css", "featured-strip.css", "social-offer.css", "community-reel-v2.css"]) {

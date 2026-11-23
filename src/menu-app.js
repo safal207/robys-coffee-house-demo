@@ -830,7 +830,7 @@ function renderCategoryNav(focusId = null) {
 function renderMenu() {
   productImageObserver?.takeRecords();
   productImageObserver?.disconnect();
-  menuRoot.replaceChildren();
+  const fragment = document.createDocumentFragment();
   const categories = menuCategories.filter((category) => {
     const matchesCategory = activeCategory === "all" || activeCategory === category.id;
     return matchesCategory && matchesSearch(category);
@@ -840,10 +840,12 @@ function renderMenu() {
   categories.forEach((category) => {
     const section = createCategory(category);
     if (!section) return;
-    menuRoot.append(section);
+    fragment.append(section);
     rendered += 1;
   });
 
+  // One atomic DOM commit avoids intermediate live-tree layout invalidations.
+  menuRoot.replaceChildren(fragment);
   emptyState.hidden = rendered > 0;
   menuRoot.dataset.ready = "true";
   syncMenuCartState();
