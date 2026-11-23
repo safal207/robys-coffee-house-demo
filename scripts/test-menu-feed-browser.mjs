@@ -234,6 +234,126 @@ async function startMacWebKitGroup(name) {
 }
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+
+  // DES-001: real generated menu, not the dessert fixture. Native sharing is
+  // exercised at its API boundary; no message or payment leaves the test.
+  if (engine === "chromium") {
+    const id = "desserts:chocolate-cake", cake = catalog.find(p => p.id === id);
+    assert.ok(cake);
+    const alt = { tr: "İster misin?", ru: "Хочешь?", en: "Want some?" };
+    const center = locator => locator.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    const frameReady = (page, selector, suffix) => page.waitForFunction(({selector,suffix}) => {
+      const img = document.querySelector(selector);
+      return img?.src.endsWith(suffix) && img.complete && img.naturalWidth > 0;
+    }, {selector,suffix});
+    async function touchSwipe(page, locator, dx, dy) {
+      const b = await locator.boundingBox(); assert.ok(b);
+      const x = b.x + b.width * .65, y = b.y + b.height * .38;
+      assert.ok(x > 0 && x < page.viewportSize().width && y > 0 && y < page.viewportSize().height);
+      const session = await page.context().newCDPSession(page);
+      try {
+        await session.send("Input.dispatchTouchEvent", {type:"touchStart", touchPoints:[{x,y}]});
+        for (let i=1; i<=8; i++) {
+          await session.send("Input.dispatchTouchEvent", {type:"touchMove",touchPoints:[{x:x+dx*i/8,y:y+dy*i/8}]});
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        await session.send("Input.dispatchTouchEvent", {type:"touchEnd",touchPoints:[]});
+      } finally { await session.detach(); }
+    }
+    for (const width of [320,390,768]) for (const language of ["ru","tr","en"]) {
+      const context = await browser.newContext({ viewport:{width,height:844}, isMobile:true, hasTouch:true,
+        deviceScaleFactor:1, reducedMotion:"reduce", ignoreHTTPSErrors:true, serviceWorkers:"block" });
+      try {
+        await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+        await context.addInitScript(() => {
+          window.__dessertShares=[]; window.__dessertCopies=[]; window.__dessertShareFailure=false;
+          Object.defineProperty(navigator,"share",{configurable:true,value:async data=>{
+            window.__dessertShares.push(data);
+            if(window.__dessertShareFailure) throw Error("controlled native sharing failure");
+          }});
+          Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async value=>window.__dessertCopies.push(value)}});
+        });
+        const page = await context.newPage(); page.setDefaultTimeout(15000);
+        const errors=[]; observeErrors(page,errors);
+        await page.goto(origin+"/menu-feed.html?view=feed&lang="+language+"&item="+encodeURIComponent(id));
+        await waitForMenuMode(page,"feed");
+        assert.equal(await page.locator("html").getAttribute("lang"),language);
+        const card=page.locator('.feed-card[data-product-id="'+id+'"]');
+        await center(card.locator(".feed-photo"));
+        const story=card.locator(".dessert-story-feed"); await story.waitFor();
+        const frameSelector='.feed-card[data-product-id="'+id+'"] .dessert-story-frame';
+        await frameReady(page,frameSelector,"/01.jpg");
+        assert.deepEqual((await storedOrder(page)).lines,[]);
+        for (const name of [".feed-like",".feed-share"]) {
+          const control=card.locator(name); await control.scrollIntoViewIfNeeded();
+          assert.ok(await control.evaluate(el=>{
+            const b=el.getBoundingClientRect();
+            return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));
+          }),"DES-001: social hit target "+name);
+        }
+        await center(story); await touchSwipe(page,story,-85,0);
+        await frameReady(page,frameSelector,"/02.jpg");
+        const y=await page.evaluate(()=>scrollY);
+        await touchSwipe(page,story,0,-100);
+        await page.waitForFunction(y=>Math.abs(scrollY-y)>15,y);
+        assert.match(await card.locator(".dessert-story-frame").getAttribute("src"),/02\.jpg$/);
+        await center(story); await touchSwipe(page,story,-85,0);
+        await frameReady(page,frameSelector,"/03-"+language+".jpg");
+        assert.equal(await card.locator(".dessert-story-frame").getAttribute("alt"),alt[language]);
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        await captureScreenshot(page,{path:output+"/dessert-feed-"+width+"-"+language+".png"});
+        const like=card.locator(".feed-like"), share=card.locator(".feed-share");
+        assert.equal(await like.getAttribute("aria-pressed"),"false");
+        await like.tap(); await card.locator('.feed-like[aria-pressed="true"]').waitFor();
+        await like.tap(); await card.locator('.feed-like[aria-pressed="false"]').waitFor();
+        await share.tap(); await page.waitForFunction(()=>window.__dessertShares.length===1);
+        const url=origin+"/share/"+language+"/desserts--chocolate-cake.html";
+        assert.equal(await page.evaluate(()=>window.__dessertShares[0].url),url);
+        await page.evaluate(()=>{window.__dessertShareFailure=true;});
+        await share.tap(); await page.locator("#feed-share[open]").waitFor();
+        assert.equal(await page.locator("#feed-share-url").inputValue(),url);
+        await page.locator("#feed-share-copy").tap();
+        await page.waitForFunction(url=>window.__dessertCopies.includes(url),url);
+        await page.locator("#feed-share-close").tap();
+        await page.locator("#feed-share[open]").waitFor({state:"hidden"});
+        assert.deepEqual((await storedOrder(page)).lines,[],"social actions do not add an order");
+        await card.locator(".feed-add").tap();
+        await page.waitForFunction(()=>document.querySelector("#menu-cart-count").textContent==="1");
+        assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:1}]);
+        assert.equal(moneyValue(await page.locator("#menu-cart-total").textContent()),cake.item.price);
+        if(!await page.locator("#menu-cart-dialog").evaluate(el=>el.open)) await page.locator("#menu-cart-trigger").tap();
+        await page.locator("#menu-cart-dialog[open]").waitFor();
+        await page.locator("#menu-checkout-trigger").tap();
+        const checkout=page.locator(".order-checkout-dialog[open]"); await checkout.waitFor();
+        assert.equal(await checkout.locator(".order-ticket-qr").count(),1);
+        assert.ok(await checkout.locator(".order-ticket-qr").isVisible());
+        assert.equal(moneyValue(await checkout.locator(".order-ticket-total").textContent()),cake.item.price);
+        assert.ok((await checkout.locator(".order-ticket-lines").textContent()).includes(cake.item.name[language]));
+        report.cases.push({case:"DES-001-feed-funnel",width,language,result:"PASS",touch:true,shareBoundary:true,qr:true});
+        for (const mode of ["list","grid"]) {
+          await page.goto(origin+(mode==="grid"?"/menu-grid.html":"/menu.html")+"?view="+mode+"&lang="+language+"#desserts");
+          await waitForMenuMode(page,mode);
+          const row=page.locator('.full-menu-item[data-product-id="'+id+'"]');
+          await center(row);
+          const trigger=row.locator(".dessert-story-open"); await trigger.waitFor();
+          await trigger.tap();
+          const dialog=page.locator("#dessert-story-modal[open]"); await dialog.waitFor();
+          assert.equal(await dialog.locator("#dessert-story-title").textContent(),cake.item.name[language]);
+          await dialog.locator(".dessert-story-next").tap(); await dialog.locator(".dessert-story-next").tap();
+          await frameReady(page,"#dessert-story-modal img","/03-"+language+".jpg");
+          assert.equal(await dialog.locator("img").getAttribute("alt"),alt[language]);
+          const b=await dialog.boundingBox();
+          assert.ok(b && b.x>=-1 && b.y>=-1 && b.x+b.width<=width+1 && b.y+b.height<=845);
+          await captureScreenshot(page,{path:output+"/dessert-"+mode+"-"+width+"-"+language+".png"});
+          await dialog.locator(".dessert-story-close").tap(); await dialog.waitFor({state:"hidden"});
+          assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:1}]);
+          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS"});
+        }
+        assert.deepEqual(errors,[]);
+      } finally { await context.close(); }
+    }
+  }
+
   for (const [width, height, language] of [[320, 568, "tr"], [390, 844, "ru"], [760, 900, "en"]]) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
