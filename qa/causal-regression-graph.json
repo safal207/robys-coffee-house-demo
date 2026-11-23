@@ -770,7 +770,8 @@
         "qa/evidence/pr515-mission8-performance-20261121.md",
         "scripts/test-performance-delivery-regression.mjs",
         "scripts/verify-p1-interface-contracts.mjs",
-        "scripts/verify-regression-contracts.mjs"
+        "scripts/verify-regression-contracts.mjs",
+        "scripts/generate-integrity-manifest.mjs"
       ],
       "dependsOn": [
         "build"
