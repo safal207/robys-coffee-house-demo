@@ -42,8 +42,7 @@ console.log("Hero playback: normal web autoplay, visible-tab recovery, missing-s
 const qaEntry=readFileSync("qa.js","utf8");
 const interactionModule=readFileSync("qa-interactions.js","utf8");
 assert.match(qaEntry,/import\("\.\/qa-interactions\.js"\)/,"deferred helpers import on the first gesture");
-assert.match(qaEntry,/addEventListener\("pointerdown",\s*initQaEnhancements/);
-assert.match(qaEntry,/addEventListener\("keydown",\s*initQaEnhancements/);
+assert.match(qaEntry,/for\(const e of\["pointerdown","keydown"\]\)window\.addEventListener\(e,initQaEnhancements,\{once:true\}\)/,"both gesture types load optional helpers once");
 assert.match(qaEntry,/setupLightboxAccessibility\(\);/,"lightbox focus must be protected before first input");
 assert.match(qaEntry,/new MutationObserver\(attach\)/,"early focus protection must also cover late lightboxes");
 assert.ok(qaEntry.includes("lightbox?.isConnected"),"removed lightboxes must release inert background");
