@@ -136,3 +136,88 @@ html.taste-wave-open,html.taste-wave-open body{overflow:hidden}
 .taste-wave-kicker{margin:0 0 5px;color:#9d2933;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.taste-wave-product h3{margin:0 0 7px;font:700 18px/1.2 Arial,sans-serif;overflow-wrap:anywhere}.taste-wave-product strong{font-size:16px}
 .taste-wave-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.taste-wave-actions button{flex:1 1 145px;min-height:44px;padding:10px 12px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.3}.taste-wave-primary{border:1px solid var(--accent);background:var(--accent);color:#fff}.taste-wave-secondary{border:1px solid #c8b9ab;background:#fff;color:var(--ink)}.taste-wave-status{margin:10px 0 0;color:#285f3c;font-size:12px;line-height:1.4}.taste-wave-status:empty{display:none}
 @media(max-width:360px){.taste-wave-shell{padding:15px}.taste-wave-theme{gap:6px}.taste-wave-theme img{width:48px;height:48px;flex-basis:48px}.taste-wave-theme span{font-size:11px}.taste-wave-product img{width:86px;height:86px;flex-basis:86px}.feed-cart-preview{width:36px;height:36px;flex-basis:36px}}
+
+/* First-fold mobile feed: preserve full-size product photos and touch targets
+   while keeping Stories, collections, choice help and My Feed discoverable. */
+@media(max-width:760px){
+  .feed-page .feed-tools{padding-block:2px}
+  .feed-page .feed-formats{padding-block:0;gap:5px}
+  .feed-page .feed-reel-entry,.feed-page .feed-story{gap:2px}
+  .feed-page .feed-reel-ring,.feed-page .feed-story-ring{width:44px;height:44px}
+  .feed-page .feed-story-ring img{width:38px;height:38px}
+  .feed-page .feed-reel-entry>span:last-child,.feed-page .feed-story-label{height:22px;min-height:22px;line-height:1.1}
+  .feed-page .feed-collections{padding-top:0}
+  .feed-page .feed-choice-links{padding-block:0}
+  .feed-page .my-feed-entry{margin:4px 12px 6px}
+  .feed-page .my-feed-toggle{min-height:44px;padding:4px 10px;gap:8px}
+  .feed-page .my-feed-toggle-symbol{width:34px;height:34px;flex-basis:34px;font-size:20px}
+  .feed-page .my-feed-toggle-title{font-size:13px}
+  .feed-page .my-feed-toggle-sub{font-size:10px}
+  .feed-page .feed-card-header{padding-block:6px}
+}
+
+/* Mobile photo-first toolbar: keep the normal row compact, but allow it to
+   reflow when 200% text can no longer fit beside the 44px actions. */
+@media(max-width:760px){
+  .feed-page .feed-tools{flex-wrap:wrap;gap:5px;padding:2px 9px 3px}
+  .feed-page .feed-view-switch{flex:1 1 auto;min-width:190px;width:auto;max-width:100%;flex-wrap:nowrap;overflow:visible}
+  .feed-page .feed-view-switch a{flex:0 1 auto;min-width:44px;white-space:normal;overflow-wrap:anywhere;text-align:center;line-height:1.15;padding-inline:6px}
+  .feed-page .feed-view-switch .menu-sound-toggle{flex:0 0 44px;min-width:44px}
+  .feed-page .feed-tool-actions{flex:0 0 auto;gap:5px;margin-left:auto}
+  .feed-page .feed-tool-button{min-width:44px;padding:7px}
+  .feed-page .my-feed-entry{margin:2px 12px}
+  .feed-page .feed-card-header{padding-block:4px}
+}
+
+/* On ordinary mobile widths keep the approved photo-first single row. At 320px
+   the flexible, wrapping controls above still support genuine 200% text. */
+@media(min-width:361px) and (max-width:760px){
+  .feed-page .feed-tools{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center}
+  .feed-page .feed-view-switch{width:100%;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+  .feed-page .feed-tool-actions{margin-left:0;min-width:0}
+  .feed-page .feed-view-switch::-webkit-scrollbar{display:none}
+  .feed-page .feed-view-switch a{flex:0 0 auto;white-space:nowrap;padding-inline:10px}
+}
+
+
+/* The button is present in HTML before optional Taste Memory JS arrives. */
+.feed-page .taste-memory-trigger{min-height:44px;padding:9px 12px;border:1px solid #cdb9a4;border-radius:999px;background:#fffaf5;color:#342820;font:600 13px/1.2 system-ui,sans-serif;cursor:pointer}
+.feed-page .taste-memory-trigger:focus-visible{outline:3px solid #a92842;outline-offset:3px}
+@media(max-width:480px){.feed-page .taste-memory-trigger{font-size:12px;padding:8px 10px}}
+/* My Feed: an optional photo-led discovery layer, never a second order engine. */
+.my-feed-entry{margin:10px 0 20px;min-width:0}
+.my-feed-toggle{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:11px 16px;background:#2b2221;color:#fff7ee;border:1px solid #725249;border-radius:18px;text-align:left;box-shadow:0 6px 20px #241c1b15;cursor:pointer}
+.my-feed-toggle-symbol{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border:1px solid #f0c6b6;border-radius:14px;color:#f5d3bb;font-size:24px;background:#523231}
+.my-feed-toggle-copy{display:grid;gap:3px;min-width:0;flex:1}
+.my-feed-toggle-title{font:750 16px/1.2 system-ui,sans-serif;letter-spacing:-.02em}
+.my-feed-toggle-sub{font:500 11px/1.3 system-ui,sans-serif;color:#e6cdbf;overflow-wrap:anywhere}
+.my-feed-toggle-chevron{font:600 22px/1 system-ui,sans-serif;color:#fff1e5}
+.my-feed-toggle[aria-expanded=true] .my-feed-toggle-chevron{transform:rotate(180deg)}
+.my-feed-toggle:focus-visible,.my-feed-stage button:focus-visible,.my-feed-stage a:focus-visible{outline:3px solid #ac374a;outline-offset:3px}
+.my-feed-stage{min-width:0;overflow:hidden;background:#241c1b;border:1px solid #57423e;border-radius:21px;margin-top:10px;color:#fffaf2;box-shadow:0 12px 28px #241c1b1c}
+.my-feed-stage[hidden]{display:none!important}
+.my-feed-head{padding:18px 18px 0}
+.my-feed-eyebrow{margin:0 0 6px;font:800 10px/1.5 system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#e2b2a5}
+.my-feed-head h3{font:750 clamp(22px,5vw,27px)/1.22 system-ui,sans-serif;letter-spacing:-.03em;margin:0}
+.my-feed-intro{font:400 12px/1.6 system-ui,sans-serif;color:#eadbd4;max-width:45ch;margin:9px 0 14px}
+.my-feed-track{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;padding:2px 16px 18px;scrollbar-width:thin;scrollbar-color:#a58b80 transparent;min-width:0}
+.my-feed-card{flex:0 0 clamp(205px,62vw,260px);min-width:0;scroll-snap-align:start;overflow:hidden;border:1px solid #e9d3bd;border-radius:16px;background:#fffaf3;color:#302722}
+.my-feed-image{display:block;aspect-ratio:1;width:100%;height:auto;object-fit:cover;background:#efe4d9}
+.my-feed-details{display:flex;flex-direction:column;gap:8px;min-height:169px;padding:13px}
+.my-feed-kind{align-self:flex-start;padding:5px 8px;border-radius:999px;background:#f4e4da;color:#8f3041;font:700 11px/1.2 system-ui,sans-serif}
+.my-feed-name{font:750 16px/1.25 system-ui,sans-serif;overflow-wrap:anywhere}
+.my-feed-context{font:500 11px/1.45 system-ui,sans-serif;color:#736055;overflow-wrap:anywhere}
+.my-feed-context[hidden]{display:none!important}
+.my-feed-price{font:750 16px/1.25 system-ui,sans-serif;color:#92263c}
+.my-feed-open{display:grid;place-items:center;min-height:44px;margin-top:auto;padding:10px 12px;border-radius:11px;background:#a42e40;color:white;text-decoration:none;font:750 12px/1.3 system-ui,sans-serif;text-align:center}
+.my-feed-open:hover{background:#842334;color:white}
+.my-feed-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:0 16px 16px}
+.my-feed-status{color:#e4cbbb;font:500 11px/1.4 system-ui,sans-serif;margin:0;min-width:60px}
+.my-feed-controls{display:flex;gap:8px;flex-wrap:wrap}
+.my-feed-controls button{min-height:44px;padding:9px 12px;border-radius:999px;border:1px solid #ad8e82;color:#fff9f1;background:transparent;font:700 12px/1.35 system-ui,sans-serif}
+.my-feed-controls button:hover{background:#47312d}
+.my-feed-note{padding:0 16px 15px;margin:0;color:#d9c4b9;font:400 11px/1.5 system-ui,sans-serif}
+@media(max-width:760px){.my-feed-entry{margin:10px 12px 18px}.my-feed-track{gap:10px}.my-feed-card{flex-basis:min(65vw,250px)}}
+@media(max-width:360px){.my-feed-entry{margin:8px 9px 16px}.my-feed-toggle{padding:10px 12px;min-height:58px}.my-feed-toggle-symbol{width:39px;height:39px;flex-basis:39px}.my-feed-toggle-title{font-size:15px}.my-feed-card{flex-basis:75vw}.my-feed-foot{align-items:stretch}.my-feed-controls{width:100%}.my-feed-controls button{flex:1}}
+@media(prefers-reduced-motion:reduce){.my-feed-toggle-chevron{transition:none}.my-feed-track{scroll-behavior:auto!important}}
+@media(forced-colors:active){.my-feed-toggle,.my-feed-stage,.my-feed-card,.my-feed-open{background:Canvas;color:CanvasText;border-color:CanvasText}.my-feed-kind,.my-feed-context,.my-feed-status,.my-feed-note{color:CanvasText}.my-feed-open{outline:2px solid Highlight}}

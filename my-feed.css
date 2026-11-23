@@ -1,0 +1,37 @@
+/* My Feed: an optional photo-led discovery layer, never a second order engine. */
+.my-feed-entry{margin:10px 0 20px;min-width:0}
+.my-feed-toggle{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:11px 16px;background:#2b2221;color:#fff7ee;border:1px solid #725249;border-radius:18px;text-align:left;box-shadow:0 6px 20px #241c1b15;cursor:pointer}
+.my-feed-toggle-symbol{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border:1px solid #f0c6b6;border-radius:14px;color:#f5d3bb;font-size:24px;background:#523231}
+.my-feed-toggle-copy{display:grid;gap:3px;min-width:0;flex:1}
+.my-feed-toggle-title{font:750 16px/1.2 system-ui,sans-serif;letter-spacing:-.02em}
+.my-feed-toggle-sub{font:500 11px/1.3 system-ui,sans-serif;color:#e6cdbf;overflow-wrap:anywhere}
+.my-feed-toggle-chevron{font:600 22px/1 system-ui,sans-serif;color:#fff1e5}
+.my-feed-toggle[aria-expanded=true] .my-feed-toggle-chevron{transform:rotate(180deg)}
+.my-feed-toggle:focus-visible,.my-feed-stage button:focus-visible,.my-feed-stage a:focus-visible{outline:3px solid #ac374a;outline-offset:3px}
+.my-feed-stage{min-width:0;overflow:hidden;background:#241c1b;border:1px solid #57423e;border-radius:21px;margin-top:10px;color:#fffaf2;box-shadow:0 12px 28px #241c1b1c}
+.my-feed-stage[hidden]{display:none!important}
+.my-feed-head{padding:18px 18px 0}
+.my-feed-eyebrow{margin:0 0 6px;font:800 10px/1.5 system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:#e2b2a5}
+.my-feed-head h3{font:750 clamp(22px,5vw,27px)/1.22 system-ui,sans-serif;letter-spacing:-.03em;margin:0}
+.my-feed-intro{font:400 12px/1.6 system-ui,sans-serif;color:#eadbd4;max-width:45ch;margin:9px 0 14px}
+.my-feed-track{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scroll-padding-inline:16px;-webkit-overflow-scrolling:touch;padding:2px 16px 18px;scrollbar-width:thin;scrollbar-color:#a58b80 transparent;min-width:0}
+.my-feed-card{flex:0 0 clamp(205px,62vw,260px);min-width:0;scroll-snap-align:start;overflow:hidden;border:1px solid #e9d3bd;border-radius:16px;background:#fffaf3;color:#302722}
+.my-feed-image{display:block;aspect-ratio:1;width:100%;height:auto;object-fit:cover;background:#efe4d9}
+.my-feed-details{display:flex;flex-direction:column;gap:8px;min-height:169px;padding:13px}
+.my-feed-kind{align-self:flex-start;padding:5px 8px;border-radius:999px;background:#f4e4da;color:#8f3041;font:700 11px/1.2 system-ui,sans-serif}
+.my-feed-name{font:750 16px/1.25 system-ui,sans-serif;overflow-wrap:anywhere}
+.my-feed-context{font:500 11px/1.45 system-ui,sans-serif;color:#736055;overflow-wrap:anywhere}
+.my-feed-context[hidden]{display:none!important}
+.my-feed-price{font:750 16px/1.25 system-ui,sans-serif;color:#92263c}
+.my-feed-open{display:grid;place-items:center;min-height:44px;margin-top:auto;padding:10px 12px;border-radius:11px;background:#a42e40;color:white;text-decoration:none;font:750 12px/1.3 system-ui,sans-serif;text-align:center}
+.my-feed-open:hover{background:#842334;color:white}
+.my-feed-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:0 16px 16px}
+.my-feed-status{color:#e4cbbb;font:500 11px/1.4 system-ui,sans-serif;margin:0;min-width:60px}
+.my-feed-controls{display:flex;gap:8px;flex-wrap:wrap}
+.my-feed-controls button{min-height:44px;padding:9px 12px;border-radius:999px;border:1px solid #ad8e82;color:#fff9f1;background:transparent;font:700 12px/1.35 system-ui,sans-serif}
+.my-feed-controls button:hover{background:#47312d}
+.my-feed-note{padding:0 16px 15px;margin:0;color:#d9c4b9;font:400 11px/1.5 system-ui,sans-serif}
+@media(max-width:760px){.my-feed-entry{margin:10px 12px 18px}.my-feed-track{gap:10px}.my-feed-card{flex-basis:min(65vw,250px)}}
+@media(max-width:360px){.my-feed-entry{margin:8px 9px 16px}.my-feed-toggle{padding:10px 12px;min-height:58px}.my-feed-toggle-symbol{width:39px;height:39px;flex-basis:39px}.my-feed-toggle-title{font-size:15px}.my-feed-card{flex-basis:75vw}.my-feed-foot{align-items:stretch}.my-feed-controls{width:100%}.my-feed-controls button{flex:1}}
+@media(prefers-reduced-motion:reduce){.my-feed-toggle-chevron{transition:none}.my-feed-track{scroll-behavior:auto!important}}
+@media(forced-colors:active){.my-feed-toggle,.my-feed-stage,.my-feed-card,.my-feed-open{background:Canvas;color:CanvasText;border-color:CanvasText}.my-feed-kind,.my-feed-context,.my-feed-status,.my-feed-note{color:CanvasText}.my-feed-open{outline:2px solid Highlight}}

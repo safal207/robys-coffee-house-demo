@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <!-- menu startup modules -->
-  <link rel="modulepreload" href="menu-catalog.js?v=3132b4dc1273" />
-  <link rel="modulepreload" href="menu-feed.js?v=c25c1ac558ce" />
-  <script type="module" src="menu-feed.js?v=c25c1ac558ce"></script>
-  <!-- /menu startup modules -->
   <meta name="description" content="Roby's menüsünü bir akış gibi keşfet. Kahve, tatlı ve eşleşmeleri kaydır, seç ve siparişine ekle." />
   <meta name="theme-color" content="#241c1b" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types robys-pwa" />
   <link rel="canonical" href="https://safal207.github.io/robys-coffee-house-demo/menu-feed.html" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="menu-runtime.css?v=4ba3cebf5c09" />
-  <link rel="stylesheet" href="menu-feed.css?v=05335301d165" />
+  <!-- menu startup modules -->
+  <link rel="modulepreload" href="menu-catalog.js?v=3132b4dc1273" />
+  <link rel="modulepreload" href="menu-feed.js?v=6e8e6ef81fa1" />
+  <script type="module" src="menu-feed.js?v=6e8e6ef81fa1"></script>
+  <!-- /menu startup modules -->
+  <link rel="stylesheet" href="menu-runtime.css?v=102e729b9428" />
+  <link rel="stylesheet" href="menu-feed.css?v=25c29a11a19c" />
   <title>Fotoğraflı Menü · Roby's Coffee House</title>
 </head>
 <body class="feed-page">
@@ -44,6 +44,7 @@
         <nav class="feed-view-switch" aria-label="Menu view / Menü görünümü / Вид меню"><a href="menu-feed.html?view=feed" data-menu-view="feed" aria-current="page" data-copy="photoView">Akış</a><a href="menu-grid.html?view=grid" data-menu-view="grid" data-copy="gridView">Fotoğraf</a><a href="menu.html?view=list" data-menu-view="list" data-copy="listView">Liste</a><button type="button" class="menu-sound-toggle" aria-label="Ses / Sound / Звук" title="Ses / Sound / Звук" aria-pressed="false">♪</button></nav>
         <div class="feed-heading"><h2 id="feed-title" data-copy="feedTitle">Fotoğraflı menü</h2><span id="feed-counter"></span></div>
         <div class="feed-tool-actions">
+          <button type="button" class="taste-memory-trigger" aria-controls="taste-memory-panel" aria-expanded="false">Benim lezzetim</button>
           <button type="button" id="feed-liked-filter" class="feed-tool-button" aria-pressed="false" aria-controls="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" /></svg><span id="feed-liked-count" aria-hidden="true">0</span><span id="feed-liked-label" class="sr-only">Beğendiklerim</span></button>
           <button type="button" id="feed-discover-open" class="feed-tool-button" aria-haspopup="dialog" aria-controls="feed-discover"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><span class="sr-only" data-copy="discover">Ara ve keşfet</span></button>
         </div>
@@ -66,6 +67,32 @@
         <div data-choice-help><button type="button" class="choice-help-entry"><span lang="tr">Bir fikir ister misiniz?</span><span lang="en">Need an idea?</span><span lang="ru">Помочь с выбором?</span></button></div>
         <a href="smart-choice/" class="feed-smart-choice" data-menu-copy="smartChoice">Akıllı seçim</a>
       </div>
+      <section class="my-feed-entry" aria-label="Kişisel akış / My feed / Моя лента">
+        <button id="my-feed-toggle" class="my-feed-toggle" type="button" aria-controls="my-feed-stage" aria-expanded="false" aria-pressed="false">
+          <span class="my-feed-toggle-symbol" aria-hidden="true">♥</span>
+          <span class="my-feed-toggle-copy">
+            <span class="my-feed-toggle-title" data-localized data-tr="Benim akışım" data-en="My feed" data-ru="Моя лента">Benim akışım</span>
+            <span class="my-feed-toggle-sub" data-localized data-tr="Sevdiklerin · Yeni tatlar" data-en="Favorites · New tastes" data-ru="Любимое · Открытия">Sevdiklerin · Yeni tatlar</span>
+          </span>
+          <span class="my-feed-toggle-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <section id="my-feed-stage" class="my-feed-stage" aria-labelledby="my-feed-title" hidden>
+          <header class="my-feed-head">
+            <p id="my-feed-label" class="my-feed-eyebrow">Benim akışım · Roby's</p>
+            <h3 id="my-feed-title">Senin için seçtiklerin</h3>
+            <p id="my-feed-intro" class="my-feed-intro">Sevdiklerin, yeni tatlar ve menüden gerçek eşleşmeler.</p>
+          </header>
+          <div id="my-feed-track" class="my-feed-track" role="list" aria-label="Kişisel ürünler / Personal discoveries / Личные открытия"></div>
+          <div class="my-feed-foot">
+            <p id="my-feed-status" class="my-feed-status" role="status" aria-live="polite"></p>
+            <div class="my-feed-controls">
+              <button type="button" id="my-feed-refresh">Başka tatlar</button>
+              <button type="button" id="my-feed-all">Tüm akışa dön</button>
+            </div>
+          </div>
+          <p id="my-feed-hint" class="my-feed-note">Beğendiklerin burada yerini bulur. Kalbe dokun, sonra yenile.</p>
+        </section>
+      </section>
       <section class="menu-combos-section" id="menu-combos" hidden><span id="menu-combos-takeaway" aria-hidden="true"></span><div id="menu-combos-content"></div></section>
       <section class="menu-family-section" id="menu-family" hidden><div id="menu-family-content"></div></section>
       <p id="feed-results" class="sr-only" role="status" aria-live="polite"></p>
@@ -171,6 +198,8 @@
       </footer>
     </div>
   </dialog>
+  <script type="module" src="taste-cart-entry.js?v=1"></script>
+  <script type="module" src="my-feed-entry.js?v=e050720bc7e6"></script>
   <script type="module" src="menu-view-mode.js?v=b6da8e94eb94"></script>
 </body>
 </html>

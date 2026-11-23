@@ -52,6 +52,17 @@ function timingReport() {
       evidence: { id: `transition-${i}`, start: RUN_START + i * 1000 + 1, end: RUN_START + i * 1000 + 101, correct: true, url: `${ORIGIN}/${sample.journeyId === 'menu-switch-feed' ? 'menu-feed.html' : 'menu.html'}` } })) };
 }
 
+test('takeaway animation regressions stay mapped to home entry contracts', () => {
+  const checks = ['takeaway-entry.js', 'scripts/test-takeaway-entry.mjs'];
+  for (const path of checks) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.directComponents.includes('home'), path);
+    assert.ok(result.selectedChecks.includes('source-contracts'), path);
+    assert.ok(result.externalChecks.includes('contextual-entry-browser'), path);
+  }
+});
+
 test('paths stay inside the repository and slash-aware globs do not overselect siblings', () => {
   for (const path of ['../secret', '/etc/passwd', 'src/../secret', 'src\\a.js', 'src//a.js']) assert.equal(safePath(path), false);
   assert.equal(safePath('.github/workflows/causal-regression.yml'), true);
@@ -171,7 +182,7 @@ test('planning refuses missing ownership before publishing its execution matrix'
 });
 
 test('Lighthouse prerequisites select source contracts and their existing mobile and desktop consumers', () => {
-  const inputs = ['scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs',
+  const inputs = ['scripts/run-lighthouse-profile.mjs', 'scripts/ensure-lighthouse-ffprobe.mjs', 'scripts/test-lighthouse-ffprobe.mjs',
     '.github/workflows/lighthouse-build-smoke.yml', '.github/workflows/lighthouse-profile.yml'];
   for (const path of inputs) {
     const result = impactPlan(graph, [path]);
@@ -583,4 +594,100 @@ test('transition URLs must match the declared local HTTPS origin and the journey
     const changed = timingReport(); mutate(changed); assert.equal(evaluateTimings(changed, plan(), graph).status, 'INCOMPLETE');
   }
   assert.equal(evaluateTimings(timingReport(), plan(), graph).status, 'PASS');
+});
+
+test('Taste Memory, My Feed, visual basket, cashier and brand additions have explicit causal owners', () => {
+  const ownership = {
+    "cashier-visual.css": [
+      "ticket-qr"
+    ],
+    "cashier-visual.js": [
+      "ticket-qr"
+    ],
+    "docs/taste-memory-release-qa.md": [
+      "feed-social"
+    ],
+    "my-feed-entry.js": [
+      "feed-social"
+    ],
+    "my-feed.css": [
+      "feed-social"
+    ],
+    "my-feed.js": [
+      "feed-social"
+    ],
+    "src/my-feed-policy.js": [
+      "feed-social"
+    ],
+    "scripts/test-my-feed.mjs": [
+      "feed-social"
+    ],
+    "taste-memory-policy.js": [
+      "feed-social",
+      "order-ui"
+    ],
+    "taste-memory.css": [
+      "feed-social"
+    ],
+    "taste-memory.js": [
+      "feed-social"
+    ],
+    "scripts/test-taste-memory.mjs": [
+      "feed-social"
+    ],
+    "taste-cart-entry.js": [
+      "order-ui"
+    ],
+    "taste-cart-policy.js": [
+      "order-ui"
+    ],
+    "taste-cart.css": [
+      "order-ui"
+    ],
+    "taste-cart.js": [
+      "order-ui"
+    ],
+    "scripts/test-taste-cart.mjs": [
+      "order-ui"
+    ],
+    "scripts/test-brand-wordmark.mjs": [
+      "media",
+      "shared-styles"
+    ],
+    "scripts/verify-brand-identity-assets.mjs": [
+      "media",
+      "shared-styles"
+    ]
+  };
+  for (const [path, owners] of Object.entries(ownership)) {
+    const result = impactPlan(graph, [path]);
+    assert.deepEqual([...result.directComponents].sort(), owners, path);
+    assert.deepEqual(result.unmappedPaths, [], path);
+    assert.ok(result.selectedChecks.includes('source-contracts'), path);
+    if (owners.includes('feed-social')) {
+      assert.ok(result.selectedChecks.includes('menu-feed-browser'), path);
+      assert.ok(result.impactedJourneys.includes('feed-likes-views'), path);
+    }
+    if (owners.includes('order-ui')) {
+      assert.ok(result.impactedJourneys.includes('cart-edit-remove'), path);
+    }
+    if (owners.includes('ticket-qr')) {
+      assert.ok(result.impactedJourneys.includes('cashier-static-ticket'), path);
+      assert.ok(result.selectedChecks.includes('counter-contracts'), path);
+    }
+  }
+  // Do not silently accept unregistered siblings when a new feature is added.
+  for (const path of ['taste-memory-unregistered.js', 'my-feed-unregistered.js',
+    'taste-cart-unregistered.js', 'cashier-visual-unregistered.js']) {
+    assert.deepEqual(impactPlan(graph, [path]).unmappedPaths, [path]);
+  }
+});
+
+test('versioned and minified home QA source remains owned by both home and QA contracts', () => {
+  const result = impactPlan(graph, ['src/qa.js']);
+  assert.deepEqual(result.unmappedPaths, []);
+  assert(result.directComponents.includes('home'));
+  assert(result.directComponents.includes('qa-registry'));
+  assert(result.selectedChecks.includes('source-contracts'));
+  assert.deepEqual(impactPlan(graph, ['src/qa-unregistered.js']).unmappedPaths, ['src/qa-unregistered.js']);
 });

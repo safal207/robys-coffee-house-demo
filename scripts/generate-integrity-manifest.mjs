@@ -113,6 +113,24 @@ if (CHECK_MODE) {
   if (!existsSync(OUTPUT)) throw new Error(`INTEGRITY-001: ${OUTPUT} is missing`);
   const committed = readFileSync(OUTPUT, "utf8");
   if (committed !== serialized) {
+    // Preserve strict failure while reporting the exact differing public files.
+    try {
+      const previous = JSON.parse(committed);
+      const known = new Map((previous.files ?? []).map(item => [item.path, item]));
+      const current = new Set(files.map(item => item.path));
+      const changed = files.filter(item => {
+        const old = known.get(item.path);
+        return !old || old.bytes !== item.bytes || old.sha256 !== item.sha256;
+      }).map(item => ({ path: item.path, committed: known.get(item.path)?.sha256 ?? null,
+        actual: item.sha256 }));
+      const removed = [...known.keys()].filter(item => !current.has(item));
+      console.error("INTEGRITY-001 public diff", JSON.stringify({
+        changedCount: changed.length, removedCount: removed.length,
+        changed: changed.slice(0, 20), removed: removed.slice(0, 20)
+      }));
+    } catch (error) {
+      console.error("INTEGRITY-001: committed manifest cannot be compared:", error.message);
+    }
     throw new Error(`INTEGRITY-001: ${OUTPUT} is stale. Run npm run integrity:generate and commit the result.`);
   }
   console.log(`✅ INTEGRITY-001 manifest is current: ${files.length} public files, build ${build}.`);

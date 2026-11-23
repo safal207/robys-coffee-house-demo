@@ -87,8 +87,10 @@ for (const [file, dependencies] of [
   }
   writeFileSync(file, source);
 }
+const tasteWaveRevision = revisionFor("src/menu-taste-wave.js");
 let feedSource = readFileSync("src/menu-feed.js", "utf8");
 feedSource = feedSource.replace(/from "\.\/menu-catalog\.js(?:\?v=[^"]*)?"/, `from "./menu-catalog.js?v=${menuCatalogRevision}"`);
+feedSource = synchronizeModuleImport(feedSource, "src/menu-taste-wave.js", tasteWaveRevision);
 writeFileSync("src/menu-feed.js", feedSource);
 writeFileSync("menu-feed.js", compileMenuRuntime(feedSource));
 const menuFeedRevision = revisionFor("menu-feed.js");
@@ -249,9 +251,8 @@ function locateScript(html, fileName) {
   return { open, close };
 }
 
-// Discover the current view and its shared catalog before blocking CSS/bootstrap
-// and the body. These are already required modules: no speculative execution or
-// extra startup payload, and no serial entry -> catalog network round trip.
+// Discover the current menu view after the shared critical styles and before
+// deferred module execution. These are required modules, not extra payload.
 function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   html = html.replace(/\n\s*<!-- menu startup modules -->[\s\S]*?<!-- \/menu startup modules -->/, "");
   let hints = modules.map(([file, revision]) => `  <link rel="modulepreload" href="${file}?v=${revision}" />`).join("\n");
@@ -259,9 +260,18 @@ function synchronizeMenuPreloads(html, modules, alternateStyle = null) {
   const [entry, revision] = modules.at(-1);
   const script = new RegExp(`\\s*<script\\b[^>]*src="${entry.replaceAll(".", "\\.")}\\?v=[^"]*"[^>]*><\\/script>`);
   html = html.replace(script, "");
-  // Keep normal deferred execution and incremental painting; no render-blocking
-  // snapshots or timers stand between a tap and the next document.
-  return html.replace(/(<meta name="viewport"[^>]*>)/, `$1\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
+  // The photo feed needs its bundled runtime early so the first photograph
+  // can start decoding while its CSS downloads. Module scripts remain deferred:
+  // this changes resource discovery only, never style order or execution order.
+  if (entry === "menu-feed.js") {
+    const firstStyle = html.match(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="menu-runtime\.css(?:\?v=[^"]*)?"[^>]*>/)?.[0];
+    if (!firstStyle) throw new Error("Photo feed is missing its reviewed base stylesheet");
+    return html.replace(firstStyle, `<!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->\n  ${firstStyle}`);
+  }
+  // List/grid keep all render-critical styles ahead of their module hints.
+  const criticalStyle = [...html.matchAll(/<link\b[^>]*\brel="stylesheet"[^>]*\bhref="(?:menu-runtime|menu-feed|my-feed)\.css(?:\?v=[^"]*)?"[^>]*>/g)].at(-1)?.[0];
+  if (!criticalStyle) throw new Error("Menu startup requires a reviewed critical stylesheet");
+  return html.replace(criticalStyle, `${criticalStyle}\n  <!-- menu startup modules -->\n${hints}\n  <script type="module" src="${entry}?v=${revision}"></script>\n  <!-- /menu startup modules -->`);
 }
 
 function synchronizeScript(html, fileName, revision) {
@@ -350,6 +360,10 @@ function synchronizeServiceWorkerAsset(serviceWorker, filePath, revision) {
 
 const takeawayEntryRevision = revisionFor("takeaway-entry.js");
 const morningEntryRevision = revisionFor("morning-entry-v2.js");
+const qaEnhancementsRevision = revisionFor("qa-enhancements.js");
+let qaRuntime = readFileSync("src/qa.js", "utf8");
+qaRuntime = qaRuntime.replace(/(import\("\.\/qa-enhancements\.js)(?:\?v=[^"]*)?("\))/, `$1?v=${qaEnhancementsRevision}$2`);
+writeFileSync("qa.js", transformSync(qaRuntime, { minify: true, charset: "utf8", target: "es2020", legalComments: "none" }).code);
 const qaRevision = revisionFor("qa.js");
 let bootstrapSource = readFileSync("src/bootstrap-v2.js", "utf8");
 bootstrapSource = synchronizeModuleImport(bootstrapSource, "takeaway-entry.js", takeawayEntryRevision);
@@ -391,7 +405,12 @@ const landingCacheStyles = ["final-qa", "community-reel"].map((name) => {
   return { name, target, revision: revisionFor(target) };
 });
 const menuPremiumRevision = revisionFor("menu-premium.css");
-writeFileSync("pairing-posters.js", compileMenuRuntime(readFileSync("src/pairing-posters.js", "utf8")));
+writeFileSync("pairing-discovery.js", compileMenuRuntime(readFileSync("src/pairing-discovery.js", "utf8")));
+const pairingDiscoveryRevision = revisionFor("pairing-discovery.js");
+const pairingPostersSource = readFileSync("src/pairing-posters.js", "utf8").replace(
+  /import\("\.\/pairing-discovery\.js(?:\?v=[^"]*)?"\)/, `import("./pairing-discovery.js?v=${pairingDiscoveryRevision}")`
+);
+writeFileSync("pairing-posters.js", compileMenuRuntime(pairingPostersSource));
 const pairingPostersRevision = revisionFor("pairing-posters.js");
 const pairingPostersCssRevision = revisionFor("pairing-posters.css");
 const menuAppRevision = revisionFor("menu-app.js");
@@ -611,13 +630,13 @@ const { feedProducts: storyProducts } = await import("../src/menu-feed-model.js"
 const storyCatalog = storyProducts(storyCategories);
 const storyCoverAssets = storyCategories.map(category => storyCatalog.find(product => product.category.id === category.id)?.image)
   .filter(Boolean).map(source => source.replace("/products/", "/products/quick-v1/").replace(/\.webp$/, "-256.webp"));
-for (const asset of ["menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
+for (const asset of ["pairing-discovery.js", "qa-enhancements.js", "menu-grid.html", "menu-grid.css", "menu-grid-prepaint.js", "menu-grid-merchandising.js", "menu-feed-viewer.js", "menu-feedback.js", "menu-share-entry.js", "menu-share-entry.css", "menu-feed.html", "menu-feed.js", "menu-feed.css", "menu-view-mode.js", "kids-menu.css", "smart-choice/photo-previews.js", "smart-choice/catalog.js", MENU_STYLESHEET_FILE, "seasonal-theme.js", "seasonal.css", "cashier.html", "cashier.js", "order-checkout.js", "order-checkout.css", "order-storage.js", "menu-order-ui.js", "menu-family-ui.js", "menu-family.css",
   "menu-combos-ui.js", "menu-combos.css", "combo-entry.css", "choice-help-entry.js", "choice-help.js", "choice-help.css", "discover-copy.js", ...comboPhotoAssets,
   "src/products/quick-choice-v1/coffee.webp", "src/products/quick-choice-v1/tea.webp", "src/products/quick-choice-v1/cold.webp", ...familyPhotoAssets, ...storyCoverAssets]) {
   if (!serviceWorker.includes(`"./${asset}`)) serviceWorker = serviceWorker.replace('"./menu.html"', `"./${asset}",\n  "./menu.html"`);
 }
 const orderFlowRevision = createHash("sha256").update(`${orderCheckoutRevision}:${cashierRevision}:${smartChoiceAppRevision}:${smartChoiceCartRevision}:${orderCheckoutCssRevision}`).digest("hex").slice(0, 12);
-const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
+const feedCacheRevision = createHash("sha256").update(`${menuFeedRevision}:${menuFeedCssRevision}:${tasteWaveRevision}:${revisionFor("menu-feed.html")}:${revisionFor("menu.html")}:${revisionFor("menu-grid.html")}:${revisionFor("menu-grid.css")}:${revisionFor("index.html")}`).digest("hex").slice(0, 12);
 const shareCacheRevision = createHash("sha256").update(`${menuShareEntryRevision}:${menuShareStyleRevision}:${JSON.stringify(menuShareProducts)}`).digest("hex").slice(0, 12);
 serviceWorker = serviceWorker.replace(/-menu-share-[a-f0-9]{12}/, "");
 serviceWorker = serviceWorker.replace("-shared-order-", `-menu-share-${shareCacheRevision}-shared-order-`);
@@ -697,6 +716,7 @@ for (const [filePath, revision] of [
   ["mobile.css", mobileStylesRevision],
   ["menu-preview.css", menuPreviewRevision],
   ["app.js", appRevision],
+  ["qa-enhancements.js", qaEnhancementsRevision],
   ["seasonal-theme.js", seasonalThemeRevision],
   ["seasonal.css", seasonalCssRevision],
   ["menu-security-v2.css", menuSecurityRevision],
@@ -705,8 +725,10 @@ for (const [filePath, revision] of [
   ["kids-menu.css", kidsMenuCssRevision],
   ["pairing-posters.css", pairingPostersCssRevision],
   ["pairing-posters.js", pairingPostersRevision],
+  ["pairing-discovery.js", pairingDiscoveryRevision],
   ["menu-app.js", menuAppRevision],
   ["menu-feed.js", menuFeedRevision],
+  ["src/menu-taste-wave.js", tasteWaveRevision],
   ["menu-feedback.js", menuFeedbackRevision],
   ["menu-feed-viewer.js", menuFeedViewerRevision],
   ["menu-view-mode.js", menuViewModeRevision],

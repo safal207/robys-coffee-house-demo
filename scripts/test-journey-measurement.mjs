@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createJourneyProxy, defaultProfiles, expectedJourneyIDs, makeSample, measureJourney, sampleKey, validCacheProof, validateJourneyReport } from "./measure-journey-responsiveness.mjs";
+import { createJourneyProxy, defaultProfiles, expectedJourneyIDs, makeSample, measureJourney, clickJourneyNavigation, sampleKey, validCacheProof, validateJourneyReport } from "./measure-journey-responsiveness.mjs";
 import { createServer as createTcpServer } from "node:net";
 import { request } from "node:http";
 const identity = { journeyId: "menu-search", profile: "mobile390-en-normal", attempt: 1 };
@@ -44,6 +44,41 @@ test("measurement waits for an asynchronous semantic outcome and rejects a stale
   await new Promise(resolve => setImmediate(resolve)); assert.equal(finished, false);
   release(); const sample = await pending;
   assert.equal(sample.value, 150); assert.equal(sample.correctnessStatus, "FAIL"); assert.equal(sample.status, "FAIL");
+});
+
+test("trusted navigation measurement waits for document commit, not full page load", async () => {
+  const events = [];
+  let resolveCommit;
+  const page = {
+    locator: selector => {
+      assert.equal(selector, "#feed-link");
+      return {
+        hover: async () => { events.push("actionability"); },
+        boundingBox: async () => { events.push("box"); return { x: 10, y: 20, width: 80, height: 40 }; }
+      };
+    },
+    waitForURL: (predicate, options) => {
+      events.push("wait-for-commit");
+      assert.equal(predicate(new URL("https://example.test/menu-feed.html?view=feed")), true);
+      assert.equal(predicate(new URL("https://example.test/menu.html")), false);
+      assert.equal(options.waitUntil, "commit");
+      return new Promise(resolve => { resolveCommit = resolve; });
+    },
+    mouse: { click: async (x, y) => {
+      events.push("trusted-mouse-click");
+      assert.equal(x, 50);
+      assert.equal(y, 40);
+      resolveCommit();
+    } }
+  };
+  await clickJourneyNavigation(page, "#feed-link", "/menu-feed.html");
+  assert.deepEqual(events, ["actionability", "box", "wait-for-commit", "trusted-mouse-click"]);
+});
+test("unavailable navigation target cannot create passing timing evidence", async () => {
+  const page = { locator: () => ({ hover: async () => {}, boundingBox: async () => null }),
+    mouse: { click: () => assert.fail("No click without a visible target") },
+    waitForURL: () => assert.fail("No navigation wait without a visible target") };
+  await assert.rejects(() => clickJourneyNavigation(page, "#missing", "/menu-feed.html"), /not visible/);
 });
 
 test("an asserted PASS cannot waive an enforced timing budget", () => {

@@ -156,6 +156,17 @@ test("delayed cold entrance preserves a 350 ms stationary hold after settle", as
   await h.tick(480); h.released();
 });
 
+test("late entrance settling keeps the bounded handoff fallback armed", async () => {
+  const h = harness({ animationDelay: 800 }); h.start(); await h.tick();
+  await h.tick(1700);
+  assert.deepEqual(h.events.map((event) => event.state), ["loading", "brand-frame", "handoff"]);
+  assert.equal(h.events.at(-1).at, 1700);
+  await h.tick(480);
+  h.released();
+  assert.deepEqual(h.events.map((event) => event.state), ["loading", "brand-frame", "handoff", "done"]);
+  assert.equal(h.events.at(-1).at, 2180);
+});
+
 test("warm entry closes in 600 ms", async () => {
   const h = harness({ warm: true }); h.start(); await h.tick(600); h.released();
   assert.equal(h.events.at(-1).at, 600);

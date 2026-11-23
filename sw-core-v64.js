@@ -1,4 +1,4 @@
-const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-4fc1610c3f10-pairing-css-882faab929d1-menu-share-4f662e6b236a-menu-feed-0f3e01f052a3-quick-order-74261c25cbc9-coffee-paths-e0e89349a2f4-halloween-e3045e5201bf-home-navigation-7bb013338abc-family-menu-75947c63bb80-occasion-combos-5c3e95ee4d41-custom-pair-fcc465499c1a-menu-css-4ba3cebf5c09-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-f9eabd6dd869-b7b8c4df73db-96b566c9731e";
+const CACHE_VERSION = "robys-offline-v64-20260910-menu-truth-e5807aabe54b-pairing-css-882faab929d1-menu-share-4f662e6b236a-menu-feed-4141ac4e06df-quick-order-74261c25cbc9-coffee-paths-e0e89349a2f4-halloween-a4409c9e6351-home-navigation-7bb013338abc-family-menu-75947c63bb80-occasion-combos-91b4354cb872-custom-pair-ec427343bd86-menu-css-102e729b9428-shared-order-social-offer-cf339e8c8777-20260922-web-only-20260923-share-v4-f9eabd6dd869-b7b8c4df73db-96b566c9731e";
 const MENU_SHARE_PRODUCTS = {"pairing-offers--cool-lime-macaron-pairing":"pairing-offers:cool-lime-macaron-pairing","hot-coffee--espresso":"hot-coffee:espresso","brew-hot--filter-coffee":"brew-hot:filter-coffee","cold-coffee--iced-filter-coffee":"cold-coffee:iced-filter-coffee","refreshers--cool-lime":"refreshers:cool-lime","herbal-tea--beauty-tea-floral-white-tea":"herbal-tea:beauty-tea-floral-white-tea","desserts--san-sebastian-cheesecake":"desserts:san-sebastian-cheesecake","food--three-cheese-croissant":"food:three-cheese-croissant","pairing-offers--iced-san-sebastian-pairing":"pairing-offers:iced-san-sebastian-pairing","hot-coffee--americano":"hot-coffee:americano","brew-hot--turkish-coffee":"brew-hot:turkish-coffee","cold-coffee--iced-americano":"cold-coffee:iced-americano","refreshers--berry-hibiscus":"refreshers:berry-hibiscus","herbal-tea--tahiti-tea-hibiscus-lemongrass":"herbal-tea:tahiti-tea-hibiscus-lemongrass","desserts--lotus-cheesecake":"desserts:lotus-cheesecake","food--nutella-croissant":"food:nutella-croissant","hot-coffee--espresso-macchiato":"hot-coffee:espresso-macchiato","brew-hot--black-tea":"brew-hot:black-tea","cold-coffee--iced-caffe-latte":"cold-coffee:iced-caffe-latte","refreshers--mango-passionfruit":"refreshers:mango-passionfruit","herbal-tea--maroc-tea-mint-green-tea":"herbal-tea:maroc-tea-mint-green-tea","desserts--raspberry-cheesecake":"desserts:raspberry-cheesecake","food--white-cheese-baguette-sandwich":"food:white-cheese-baguette-sandwich","hot-coffee--cortado":"hot-coffee:cortado","brew-hot--hot-chocolate":"brew-hot:hot-chocolate","cold-coffee--flavoured-iced-caffe-latte":"cold-coffee:flavoured-iced-caffe-latte","refreshers--berry-lemonade":"refreshers:berry-lemonade","herbal-tea--relax-tea-lavender-rooibos":"herbal-tea:relax-tea-lavender-rooibos","desserts--chocolate-cake":"desserts:chocolate-cake","food--beef-sirloin-baguette-sandwich":"food:beef-sirloin-baguette-sandwich","hot-coffee--flat-white":"hot-coffee:flat-white","brew-hot--milk":"brew-hot:milk","cold-coffee--iced-mocha":"cold-coffee:iced-mocha","refreshers--pineapple-berry":"refreshers:pineapple-berry","herbal-tea--balance-tea-detox-green-tea":"herbal-tea:balance-tea-detox-green-tea","desserts--almond-tart":"desserts:almond-tart","food--sesame-simit":"food:sesame-simit","hot-coffee--cappuccino":"hot-coffee:cappuccino","brew-hot--salep":"brew-hot:salep","cold-coffee--white-chocolate-mocha":"cold-coffee:white-chocolate-mocha","refreshers--summer-pine":"refreshers:summer-pine","desserts--cake-roll":"desserts:cake-roll","hot-coffee--caramel-cappuccino":"hot-coffee:caramel-cappuccino","brew-hot--chai-tea-latte":"brew-hot:chai-tea-latte","cold-coffee--caffe-latte-frappe":"cold-coffee:caffe-latte-frappe","refreshers--tropical-mango":"refreshers:tropical-mango","desserts--mosaic-cake":"desserts:mosaic-cake","hot-coffee--caffe-latte":"hot-coffee:caffe-latte","cold-coffee--milkshake":"cold-coffee:milkshake","refreshers--strawberry-lime":"refreshers:strawberry-lime","desserts--tiramisu":"desserts:tiramisu","hot-coffee--chocolate-cookie-latte":"hot-coffee:chocolate-cookie-latte","refreshers--yuzu-popcorn":"refreshers:yuzu-popcorn","desserts--brownie":"desserts:brownie","hot-coffee--cinnamon-latte":"hot-coffee:cinnamon-latte","desserts--savoury-cookie":"desserts:savoury-cookie","hot-coffee--caramel-latte":"hot-coffee:caramel-latte","desserts--cookie":"desserts:cookie","hot-coffee--vanilla-latte":"hot-coffee:vanilla-latte","desserts--macaron":"desserts:macaron","hot-coffee--hazelnut-latte":"hot-coffee:hazelnut-latte","hot-coffee--caffe-mocha":"hot-coffee:caffe-mocha","hot-coffee--white-chocolate-mocha":"hot-coffee:white-chocolate-mocha"};
 const MENU_IMAGE_ASSETS = [
   "./src/products/menu-v1/brew-hot--black-tea.webp",
@@ -82,7 +82,7 @@ const CORE_ASSETS = [
   "./src/products/family-sets-v1/simit-break.webp",
   "./src/products/family-sets-v1/milk-roll.webp",
   "./src/products/family-sets-v1/kids-box.webp",
-  "./menu-runtime.css?v=4ba3cebf5c09",
+  "./menu-runtime.css?v=102e729b9428",
   "./menu-combos-ui.js?v=7ceff359f5a2",
   "./menu-combos.css?v=088aee6de356",
   "./combo-entry.css?v=da624d45b4d6",
@@ -106,8 +106,9 @@ const CORE_ASSETS = [
   "./smart-choice/photo-previews.js?v=a8f51a54c367",
   "./smart-choice/catalog.js?v=528b93ac0a04",
   "./menu-feed.html",
-  "./menu-feed.js?v=c25c1ac558ce",
-  "./menu-feed.css?v=05335301d165",
+  "./menu-feed.js?v=6e8e6ef81fa1",
+  "./src/menu-taste-wave.js?v=548993e880be",
+  "./menu-feed.css?v=25c29a11a19c",
   "./menu-view-mode.js?v=b6da8e94eb94",
   "./menu-share-entry.js?v=a7a7ede8582e",
   "./menu-share-entry.css?v=5be22dbb9b83",
@@ -126,6 +127,8 @@ const CORE_ASSETS = [
   "./menu-grid.css",
   "./menu-grid-merchandising.js?v=8b17ef6b6534",
   "./menu-grid-prepaint.js?v=ce7b3f7dbe68",
+  "./qa-enhancements.js?v=8df5423c5835",
+  "./pairing-discovery.js?v=3534f00f4ef7",
   "./menu.html",
   "./discover.html",
   "./404.html",
@@ -155,19 +158,19 @@ const CORE_ASSETS = [
   "./src/brand/robys-header-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-compact-master-v1.svg?v=20260917-approved-v4-restore",
   "./src/brand/robys-mark-master-v1.svg?v=20260917-approved-v4-restore",
-  "./bootstrap-v2.js?v=b4984fb63ba2",
+  "./bootstrap-v2.js?v=7521441eb571",
   "./morning-entry-v2.js?v=8a158515f4de",
-  "./takeaway-entry.js?v=e42f8fe96069",
+  "./takeaway-entry.js?v=74b541168234",
   "./src/brand/robys-takeaway-cup-v1.webp",
   "./day-night-entry.js?v=20260904-compositor-v25",
   "./app.js?v=4358395df0b0",
   "./conversion.js?v=a0e1928a38c0",
   "./menu-ready.js",
-  "./menu-app.js?v=c4f58d338679",
+  "./menu-app.js?v=53f66e1ddce9",
   "./menu-pairing.js?v=bd8dad93ebae",
   "./menu-product-reveal.js?v=380bf5e9897b",
   "./menu-product-reveal-runtime.js?v=d96af1f2de0c",
-  "./pairing-posters.js?v=4fc1610c3f10",
+  "./pairing-posters.js?v=e5807aabe54b",
   "./menu-pwa.js?v=pairing-video-fix-20260916-2",
   "./menu-catalog.js?v=3132b4dc1273",
   "./menu-search-clear.js",
@@ -279,6 +282,7 @@ async function cachedResponse(request) {
     url.pathname.endsWith("/day-night-entry.js") ||
     url.pathname.endsWith("/menu-app.js") ||
     url.pathname.endsWith("/menu-feed.js") ||
+    url.pathname.endsWith("/src/menu-taste-wave.js") ||
     url.pathname.endsWith("/menu-feedback.js") ||
     url.pathname.endsWith("/menu-feed-viewer.js") ||
     url.pathname.endsWith("/menu-view-mode.js") ||

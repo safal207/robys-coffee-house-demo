@@ -6,6 +6,8 @@ import "./verify-performance-contract.mjs";
 import "./verify-live-contract.mjs";
 import "./verify-security-contracts.mjs";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { transformSync } from "esbuild";
 
 const html = readFileSync("index.html", "utf8");
 const mapCss = readFileSync("map-live.css", "utf8");
@@ -15,6 +17,12 @@ const brandCss = readFileSync("brand-photo-logo.css", "utf8");
 const featuredRuntime = readFileSync("featured-gallery.js", "utf8");
 const featuredSource = readFileSync("src/featured-gallery.ts", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
+const qaSource = readFileSync("src/qa.js", "utf8");
+const qaEnhancements = readFileSync("qa-enhancements.js", "utf8");
+const qaEnhancementsRevision = createHash("sha256").update(qaEnhancements).digest("hex").slice(0, 12);
+const compiledQa = transformSync(qaSource.replace(
+  /(import\("\.\/qa-enhancements\.js)(?:\?v=[^"]*)?("\))/, `$1?v=${qaEnhancementsRevision}$2`),
+  { minify: true, charset: "utf8", target: "es2020", legalComments: "none" }).code;
 const bootstrapRuntime = readFileSync("bootstrap-v2.js", "utf8");
 const serviceWorker = readFileSync("sw-core-v64.js", "utf8");
 const dashboard = JSON.parse(readFileSync("qa/regression-dashboard.json", "utf8"));
@@ -94,12 +102,14 @@ for (const attribute of ["muted", "loop", "playsinline"]) {
   assert(new RegExp(`\\b${attribute}(?:\\s|>|=)`, "i").test(heroVideo), "VIDEO-001", `Hero video must keep the ${attribute} attribute`);
 }
 assert(!/\bautoplay(?:\s|>|=)/i.test(heroVideo) && /preload="none"/.test(heroVideo), "VIDEO-001", "Hero decoder must wait for the playback scheduler");
-assert(qaRuntime.includes("video.autoplay = true") && qaRuntime.includes("scheduleHeroPlayback"), "VIDEO-001", "Scheduled hero autoplay must remain available");
+assert(qaRuntime === compiledQa, "VIDEO-001", "Shipped QA runtime must equal compiled, versioned source");
+assert(qaSource.includes("video.autoplay = true") && qaSource.includes("scheduleHeroPlayback")
+  && qaRuntime.includes("scheduleHeroPlayback"), "VIDEO-001", "Scheduled hero autoplay must remain available");
 const heroSource = heroVideo.match(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i)?.[1] ?? "";
 assert(/^src\/[\w./-]+\.mp4(?:\?[^"']*)?$/i.test(heroSource), "VIDEO-001", "Hero video must use a local MP4 source");
-assert(/\bvideo\.play\s*\(/.test(qaRuntime), "VIDEO-001", "Hero runtime must explicitly call video.play()");
+assert(/\bvideo\.play\s*\(/.test(qaSource), "VIDEO-001", "Hero runtime must explicitly call video.play()");
 for (const eventName of ["canplay", "visibilitychange", "pointerdown", "pause"]) {
-  assert(qaRuntime.includes(`"${eventName}"`), "VIDEO-001", `Hero playback recovery must handle ${eventName}`);
+  assert(qaSource.includes(`"${eventName}"`), "VIDEO-001", `Hero playback recovery must handle ${eventName}`);
 }
 assert(qaRuntime.includes("HERO_BALANCE_STYLES"), "VIDEO-001", "Hero runtime must load the visual-balance stylesheet");
 dashboardContract("VIDEO-001", 5);
