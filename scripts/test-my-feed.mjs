@@ -72,7 +72,9 @@ test("My Feed is opt-in, mounted only on intent, and cannot mutate the core scro
   assert.match(entry, /photo\.decode\(\)/);
   assert.match(entry, /requestIdleCallback/);
   assert.match(entry, /import\("\.\/taste-memory\.js\?v=[a-f0-9]{12}"\)/);
-  assert.match(html, /my-feed\.css\?v=1/);
+  const feedCss = readFileSync("menu-feed.css", "utf8");
+  assert.ok(feedCss.endsWith(stylesheet), "Personal feed CSS must retain its original last-in-cascade position");
+  assert.doesNotMatch(html, /href="my-feed\\.css\\?v=/, "Personal CSS must not delay the first feed photograph");
   assert.match(entry, /import\(url\.href\)/);
   assert.match(entry, /retry \+= 1/);
   assert.match(entry, /Could not open\. Tap to retry\./);

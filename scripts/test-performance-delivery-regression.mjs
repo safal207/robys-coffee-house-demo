@@ -71,6 +71,15 @@ test("featured pairing artwork remains eager while its detailed story is an on-d
   assert.ok(read("sw-core-v64.js").includes(`"./pairing-discovery.js?v=${revision}"`));
 });
 
+test("personal feed styles share the preloaded feed stylesheet without a second render blocker", () => {
+  const html = read("menu-feed.html");
+  const feed = read("menu-feed.css");
+  const personal = read("my-feed.css");
+  assert.ok(feed.endsWith(personal), "Preserve the exact trailing personal-feed cascade");
+  assert.doesNotMatch(html, /<link[^>]*href="my-feed\\.css[^"]*"[^>]*>/);
+  assert.match(html, /<link rel="stylesheet" href="menu-feed\\.css\\?v=[a-f0-9]{12}" \\/>/);
+});
+
 test("home first-paint styles stay enabled until a measured safe alternative exists", () => {
   const home = read("index.html"), source = read("src/qa.js");
   for (const name of ["gallery-clean.css", "map-live.css", "menu-preview.css", "featured-strip.css", "social-offer.css", "community-reel-v2.css"]) {
