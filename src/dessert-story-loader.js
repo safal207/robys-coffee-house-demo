@@ -1,18 +1,1 @@
-// Optional enhancement: missing/broken observer APIs must never block ordinary menu.
-const selector='.feed-card[data-product-id="desserts:chocolate-cake"],.full-menu-item[data-product-id="desserts:chocolate-cake"]';
-if(typeof IntersectionObserver==="function"&&typeof MutationObserver==="function"){
- let visible,changes;
- try{
-  const seen=new WeakSet();let requested=false;
-  visible=new IntersectionObserver(entries=>{
-   if(requested||!entries.some(entry=>entry.isIntersecting))return;
-   requested=true;visible.disconnect();changes.disconnect();
-   import("./dessert-story.js").catch(error=>console.error("Dessert story failed to load",error));
-  });
-  function scan(){for(const card of document.querySelectorAll(selector)){
-   if(seen.has(card))continue;seen.add(card);visible.observe(card);
-  }}
-  changes=new MutationObserver(scan);
-  changes.observe(document.body,{childList:true,subtree:true});scan();
- }catch{visible?.disconnect();changes?.disconnect();}
-}
+try{const v=new IntersectionObserver(e=>{if(e.some(x=>x.isIntersecting)){v.disconnect();m.disconnect();import("./dessert-story.js").catch(console.error)}}),s=()=>document.querySelectorAll('[data-product-id="desserts:chocolate-cake"]').forEach(x=>v.observe(x)),m=new MutationObserver(s);m.observe(document.body,{childList:true,subtree:true});s()}catch{}

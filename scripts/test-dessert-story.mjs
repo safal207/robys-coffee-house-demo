@@ -12,8 +12,9 @@ test("one shared story enhancement is wired into feed, grid and list", () => {
 });
 test("lazy loader requires intersection, disconnects and preserves strict CSP", () => {
   const loader=read("src/dessert-story-loader.js");
-  for(const pattern of [/IntersectionObserver/,/entry\.isIntersecting/,/MutationObserver/,/desserts:chocolate-cake/,/import\("\.\/dessert-story\.js"\)/,/visible\.disconnect\(\)/,/changes\.disconnect\(\)/]) assert.match(loader,pattern);
-  assert.match(loader,/typeof IntersectionObserver/,"feature must skip browsers without the observer API");
+  for(const pattern of [/new IntersectionObserver/,/\.isIntersecting/,/new MutationObserver/,/desserts:chocolate-cake/,/import\("\.\/dessert-story\.js"\)/,/v\.disconnect\(\)/,/m\.disconnect\(\)/]) assert.match(loader,pattern);
+  assert.match(loader,/^try\{const v=new IntersectionObserver/,"unsupported native observers must be safely caught");
+  assert.ok(Buffer.byteLength(loader,"utf8")<=370,"visibility loader must stay within the Lighthouse transfer budget");
   assert.match(loader,/catch\s*\{/,"constructor failures must be contained");
   assert.ok(!loader.includes("innerHTML") && !loader.includes("localStorage"),"no CSP-unsafe HTML or order state");
 });
