@@ -1915,32 +1915,56 @@ try {
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    // Keep navigation races observable: capture exact resource, phase and failure
+    // without suppressing console errors or changing application timing.
+    let semanticPhase = "cold-coffee";
+    const semanticTrace = [];
+    const record = (event, detail) => semanticTrace.push({ phase: semanticPhase, event, ...detail });
+    page.on("requestfailed", request => {
+      if (request.resourceType() === "script") record("script-request-failed", { url: request.url(), error: request.failure()?.errorText });
+    });
+    page.on("response", response => {
+      if (response.request().resourceType() === "script" && response.status() >= 400) record("script-http-error", { url: response.url(), status: response.status() });
+    });
+    page.on("console", message => {
+      if (message.type() === "error") record("console-error", { message: message.text(), location: message.location() });
+    });
+    page.on("pageerror", error => record("page-error", { message: error.message, stack: error.stack }));
     await page.goto(`${origin}/menu.html#cold-coffee`);
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="cold-coffee"]').getAttribute("aria-pressed"), "true");
+    semanticPhase = "espresso-deep-link";
     await page.goto(`${origin}/menu.html?product=${encodeURIComponent("hot-coffee:espresso")}&lang=en#hot-coffee`);
     await waitForMenuMode(page, "list");
     await page.locator("#menu-product-dialog[open]").waitFor();
     assert.match(await page.locator("#menu-product-title").textContent(), /Espresso/);
     await page.keyboard.press("Escape");
+    semanticPhase = "desserts-click";
     await page.locator('#menu-category-nav [data-category="desserts"]').click();
     const changedCategoryUrl = new URL(page.url());
     assert.equal(changedCategoryUrl.hash, "#desserts");
     assert.equal(changedCategoryUrl.searchParams.has("product"), false, "A new category replaces the shared product intent");
     assert.equal(changedCategoryUrl.searchParams.has("item"), false);
+    semanticPhase = "desserts-reload";
     await page.reload();
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="desserts"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#menu-product-dialog[open]").count(), 0, "Reload must not reopen a superseded product");
+    semanticPhase = "combos-navigation";
     await page.goto(`${origin}/menu.html#menu-combos`);
     await waitForMenuMode(page, "list");
     await page.locator(".menu-combos-card").first().waitFor();
     assert.equal(await page.locator("#menu-combos").isVisible(), true);
+    semanticPhase = "family-navigation";
     await page.goto(`${origin}/menu.html#menu-family`);
     await waitForMenuMode(page, "list");
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-family").isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
+    if (errors.length) {
+      console.error("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(semanticTrace));
+      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(semanticTrace, null, 2) + "\n");
+    }
     assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
       productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
