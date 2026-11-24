@@ -2023,42 +2023,36 @@ try {
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-family").isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
-    // WebKit can report an import rejection from the departing document when
-    // native reload cancels its in-flight story dependencies. Attribute only
-    // that exact event; never ignore a failure originating in the new document.
-    const cancelledPaths = new Set(["/src/menu-feed-navigation.js", "/src/menu-feed-engagement.js"]);
-    const failedScripts = semanticTrace.filter(item => item.event === "script-request-failed");
-    const consoleFailures = semanticTrace.filter(item => item.event === "console-error");
-    const departedImport = engine === "webkit" && errors.length === 1
-      && errors[0] === "console.error: TypeError: Importing a module script failed."
-      && consoleFailures.length === 1 && consoleFailures[0].phase === "desserts-reload"
-      && !consoleFailures[0].location.url
-      && failedScripts.length > 0 && failedScripts.every(item =>
-        item.started === "desserts-click" && item.phase === "desserts-reload"
-        && item.error === "cancelled" && new URL(item.url).origin === origin
-        && cancelledPaths.has(new URL(item.url).pathname))
-      && !semanticTrace.some(item => item.event === "script-http-error" || item.event === "page-error");
+    // All application console errors remain failures; never infer that an
+    // unlabelled error came from a discarded document based on its wording.
     if (semanticTrace.length) {
-      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify({ departedImport, semanticTrace }));
-      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify({ departedImport, semanticTrace }, null, 2) + "\n");
+      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(semanticTrace));
+      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(semanticTrace, null, 2) + "\n");
     }
-    if (!departedImport) assert.deepEqual(errors, []);
+    assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
       productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true,
-      storyRecoveredAfterNativeReload: true, departedImport });
-    // Negative control: failing the same dependency in an active document must
-    // still emit a module import error and must not create a working story.
+      storyRecoveredAfterNativeReload: true });
+    // Negative control: a deliberate HTTP failure while the document stays
+    // active must be reported by the loader, independently of engine wording.
     const broken = await context.newPage(); broken.setDefaultTimeout(15000);
     const brokenErrors = []; observeErrors(broken, brokenErrors);
-    await broken.route("**/src/menu-feed-engagement.js", route => route.fulfill({ status: 503, contentType: "text/javascript", body: "" }));
-    const rejection = broken.waitForEvent("console", { predicate: message => message.type() === "error" &&
-      /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/i.test(message.text()) });
+    const dependency = origin + "/src/menu-feed-engagement.js";
+    let injected = 0;
+    await broken.route(dependency, route => { injected++; return route.fulfill({ status: 503, contentType: "text/javascript", body: "" }); });
     await broken.goto(`${origin}/menu.html?view=list&lang=en#desserts`);
     await waitForMenuMode(broken, "list");
     await broken.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]').scrollIntoViewIfNeeded();
-    await rejection;
-    assert.ok(brokenErrors.length > 0, "An active-document import failure remains an observed error");
+    // Attach the listener before navigation via observeErrors above, then use
+    // a bounded poll of its retained evidence to avoid a missed event.
+    const deadline = Date.now() + 15000;
+    while (!brokenErrors.some(error => error.startsWith("console.error: Dessert")) && Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.equal(injected, 1, "The controlled dependency failure must actually execute");
+    assert.ok(brokenErrors.some(error => error.startsWith("console.error: Dessert")), JSON.stringify(brokenErrors));
     assert.equal(await broken.locator("#dessert-story-modal").count(), 0);
+    assert.equal(await broken.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"] .full-menu-item-media').isVisible(), true);
     report.cases.push({ case: "dessert-active-import-negative-control", result: "PASS", activeDependencyFailureObserved: true });
     await broken.close();
     await context.close();
