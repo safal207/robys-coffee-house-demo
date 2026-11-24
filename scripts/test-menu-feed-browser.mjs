@@ -325,6 +325,9 @@ try {
         await page.locator("#menu-cart-dialog[open]").waitFor();
         await page.locator("#menu-checkout-trigger").tap();
         const checkout=page.locator(".order-checkout-dialog[open]"); await checkout.waitFor();
+        // Opening the dialog precedes the asynchronous authoritative draft read.
+        // Wait for the actual rendered QR, not merely the loading shell.
+        await checkout.locator(".order-ticket-qr").waitFor();
         assert.equal(await checkout.locator(".order-ticket-qr").count(),1);
         assert.ok(await checkout.locator(".order-ticket-qr").isVisible());
         assert.equal(moneyValue(await checkout.locator(".order-ticket-total").textContent()),cake.item.price);
