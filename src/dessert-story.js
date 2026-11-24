@@ -154,7 +154,7 @@ const copyLink=action("dessert-story-copy"), shareStatus=makeNode("span","desser
 fallback.append(link,copyLink,shareStatus);
 finale.append(price,buy,socials,fallback);
 modal.append(top,frame,foot,finale);
-let modalSeen={}, modalRow=null, modalPurchase=null;
+let modalSeen={}, modalRow=null, modalPurchase=null, delegatingModal=false;
 const engagement=createFeedEngagement({validIds:[PRODUCT_ID],onChange:syncLike});
 function syncLike(){
   const liked=engagement.hasLiked(PRODUCT_ID);
@@ -193,15 +193,17 @@ buy.addEventListener("click",()=>{
   const media=modalRow&&$(".full-menu-item-media",modalRow);
   if(!modal.open||modalSlide.index!==2||!media||media.disabled||!media.isConnected)return;
   count("story_buy_intent");modalPurchase=modalRow;
-  modal._returnFocus=null;modal.close();media.click();
+  modal._returnFocus=null;modal.close();
+  delegatingModal=true;try{media.click();}finally{delegatingModal=false;}
 });
 document.addEventListener("click",e=>{
-  if(e.target.closest(".full-menu-item-media")&&e.target.closest(".full-menu-item")!==modalPurchase)modalPurchase=null;
+  if(e.target.closest(".full-menu-item-media")&&!delegatingModal)modalPurchase=null;
   if(e.target.closest("#menu-add-to-cart")&&modalPurchase){
     if($("#menu-product-dialog[open]")&&$("#menu-product-title")?.textContent.trim()===copy().title)armPurchase(modalPurchase);
     modalPurchase=null;
   }
 },true);
+document.addEventListener("close",e=>{if(e.target.id==="menu-product-dialog")modalPurchase=null;},true);
 document.body.append(modal);
 const modalProgress=dots();
 $(".dessert-story-progress",modal).append(modalProgress);

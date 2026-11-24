@@ -283,6 +283,7 @@ try {
         const story=card.locator(".dessert-story-feed"); await story.waitFor();
         const frameSelector='.feed-card[data-product-id="'+id+'"] .dessert-story-frame';
         await frameReady(page,frameSelector,"/01.jpg");
+        assert.equal(await card.locator(".dessert-story-feed-buy").isVisible(),false);
         assert.deepEqual((await storedOrder(page)).lines,[]);
         for (const name of [".feed-like",".feed-share"]) {
           const control=card.locator(name); await control.scrollIntoViewIfNeeded();
@@ -369,13 +370,17 @@ try {
           assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
           await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"true");
           await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
+          await captureScreenshot(page,{path:output+"/dessert-"+mode+"-"+width+"-"+language+".png"});
+          await dialog.locator(".dessert-story-share").tap();
+          await page.waitForFunction(()=>window.__dessertShares.length===1);
+          assert.equal(await page.evaluate(()=>window.__dessertShares[0].url),url);
           await page.evaluate(()=>{window.__dessertShareFailure=true;});
           await dialog.locator(".dessert-story-share").tap();
           await dialog.locator(".dessert-story-share-fallback:not([hidden])").waitFor();
           assert.equal(await dialog.locator(".dessert-story-share-fallback input").inputValue(),url);
           await dialog.locator(".dessert-story-copy").tap();
           await page.waitForFunction(url=>window.__dessertCopies.includes(url),url);
-          await captureScreenshot(page,{path:output+"/dessert-"+mode+"-"+width+"-"+language+".png"});
+          await captureScreenshot(page,{path:output+"/dessert-share-"+mode+"-"+width+"-"+language+".png"});
           await dialog.locator(".dessert-story-close").tap(); await dialog.waitFor({state:"hidden"});
           const before=(await storedOrder(page)).lines.find(line=>line.id===id).quantity;
           await trigger.tap();await dialog.waitFor();
@@ -389,7 +394,13 @@ try {
           await page.locator("#menu-cart-dialog[open]").waitFor();
           assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:before+1}]);
           await page.waitForFunction(({mode,language})=>window.robysDessertStoryAnalytics.snapshot()[mode+":"+language+":story_add_to_cart"]===1,{mode,language});
-          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS",finaleCta:true,modalSocial:true});
+          await page.locator("#menu-checkout-trigger").tap();
+          const modalCheckout=page.locator(".order-checkout-dialog[open]");
+          await modalCheckout.locator(".order-ticket-qr").waitFor();
+          assert.equal(await modalCheckout.locator(".order-ticket-qr").count(),1);
+          assert.ok((await modalCheckout.locator(".order-ticket-lines").textContent()).includes(cake.item.name[language]));
+          await page.waitForFunction(({mode,language})=>window.robysDessertStoryAnalytics.snapshot()[mode+":"+language+":story_qr_created"]===1,{mode,language});
+          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS",finaleCta:true,modalSocial:true,qr:true});
         }
         assert.deepEqual(errors,[]);
       } finally { await context.close(); }
