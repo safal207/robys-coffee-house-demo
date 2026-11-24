@@ -34,3 +34,23 @@
 /* DES-001: preserve social hit targets above the story. */
 .feed-card[data-product-id="desserts:chocolate-cake"] .feed-photo>.feed-social{z-index:3}
 .feed-card[data-dessert-frame="3"] .dessert-story-dots{bottom:68px}
+
+/* DES-002/003: a visible finale CTA, independent of the fixed cart dock. */
+.dessert-story-feed-finale[hidden],.dessert-story-modal-finale[hidden],.dessert-story-share-fallback[hidden]{display:none}
+.dessert-story-feed-finale{display:flex;justify-content:center;padding:8px 12px 4px;background:#fff}
+.dessert-story-buy{border:1px solid #b8131a;border-radius:999px;background:#d71920;color:#fff;font:700 15px/1.25 Arial,sans-serif;min-height:44px;padding:11px 18px;cursor:pointer}
+.dessert-story-buy:disabled{opacity:.55;cursor:default}
+.dessert-story-buy:focus-visible,.dessert-story-modal-finale button:focus-visible,.dessert-story-modal-finale input:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.feed-card[data-dessert-buy="true"][data-dessert-frame="3"] .feed-card-bottom .feed-add{display:none}
+.feed-card[data-dessert-buy="true"][data-dessert-frame="3"] .feed-card-bottom:has(.feed-selected:empty){display:none}
+.dessert-story-modal{overflow-y:auto;overscroll-behavior:contain}
+.dessert-story-modal:has(.dessert-story-modal-finale:not([hidden])) .dessert-story-image{max-height:calc(95dvh - 255px)}
+.dessert-story-modal-finale{display:grid;gap:8px;padding:0 14px 12px;text-align:center}
+.dessert-story-price{font:600 15px/1.3 Arial,sans-serif;color:#fff}
+.dessert-story-price:empty{display:none}
+.dessert-story-socials{display:flex;justify-content:center;gap:8px}
+.dessert-story-socials button,.dessert-story-copy{min-height:44px;border:1px solid #fff9;border-radius:999px;padding:8px 12px;background:#382725;color:#fff;font:600 13px/1.2 Arial,sans-serif;cursor:pointer}
+.dessert-story-like[aria-pressed="true"]{background:#a31920}
+.dessert-story-share-fallback{display:grid;gap:6px;min-width:0}
+.dessert-story-share-fallback input{width:100%;min-width:0;box-sizing:border-box;font:14px Arial,sans-serif;padding:8px;color:#241c1b;background:#fff;border-radius:6px;border:0}
+.dessert-story-share-status:empty{display:none}

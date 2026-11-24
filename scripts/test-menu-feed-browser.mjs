@@ -317,7 +317,13 @@ try {
         await page.locator("#feed-share-close").tap();
         await page.locator("#feed-share[open]").waitFor({state:"hidden"});
         assert.deepEqual((await storedOrder(page)).lines,[],"social actions do not add an order");
-        await card.locator(".feed-add").tap();
+        const cta=card.locator(".dessert-story-feed-buy");
+        assert.equal(await cta.isVisible(),true);
+        assert.equal(await cta.evaluate(el=>{
+          const b=el.getBoundingClientRect(), cart=document.querySelector("#menu-cart-trigger").getBoundingClientRect();
+          return b.bottom<=cart.top && el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));
+        }),true,"DES-002: finale CTA clear of cart without scrolling");
+        await cta.tap();
         await page.waitForFunction(()=>document.querySelector("#menu-cart-count").textContent==="1");
         assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:1}]);
         assert.equal(moneyValue(await page.locator("#menu-cart-total").textContent()),cake.item.price);
@@ -332,7 +338,16 @@ try {
         assert.ok(await checkout.locator(".order-ticket-qr").isVisible());
         assert.equal(moneyValue(await checkout.locator(".order-ticket-total").textContent()),cake.item.price);
         assert.ok((await checkout.locator(".order-ticket-lines").textContent()).includes(cake.item.name[language]));
-        report.cases.push({case:"DES-001-feed-funnel",width,language,result:"PASS",touch:true,shareBoundary:true,qr:true});
+        await page.waitForFunction(lang=>window.robysDessertStoryAnalytics.snapshot()["feed:"+lang+":story_qr_created"]===1,language);
+        const metrics=await page.evaluate(()=>window.robysDessertStoryAnalytics.snapshot());
+        assert.equal(metrics["feed:"+language+":story_add_to_cart"],1);
+        assert.equal(metrics["feed:"+language+":story_completed"],1);
+        assert.equal(metrics["feed:"+language+":story_like"],1);
+        assert.equal(metrics["feed:"+language+":story_share"],2);
+        assert.equal(metrics["feed:"+language+":story_buy_intent"],1);
+        assert.equal(metrics["feed:"+language+":story_swipe"],2);
+        assert.ok(Object.entries(metrics).every(([key,value])=>/^(feed|list|grid):(tr|en|ru):story_(impression|swipe|advance|completed|like|share|buy_intent|add_to_cart|qr_created)$/.test(key)&&Number.isSafeInteger(value)));
+        report.cases.push({case:"DES-001-feed-funnel",width,language,result:"PASS",touch:true,shareBoundary:true,qr:true,finaleCta:true,localMetrics:metrics});
         for (const mode of ["list","grid"]) {
           await page.goto(origin+(mode==="grid"?"/menu-grid.html":"/menu.html")+"?view="+mode+"&lang="+language+"#desserts");
           await waitForMenuMode(page,mode);
@@ -347,10 +362,34 @@ try {
           assert.equal(await dialog.locator("img").getAttribute("alt"),alt[language]);
           const b=await dialog.boundingBox();
           assert.ok(b && b.x>=-1 && b.y>=-1 && b.x+b.width<=width+1 && b.y+b.height<=845);
+          const modalBuy=dialog.locator(".dessert-story-buy");
+          assert.equal(await modalBuy.isVisible(),true);
+          assert.equal(await modalBuy.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),true,"DES-003: modal CTA reachable");
+          const modalLike=dialog.locator(".dessert-story-like");
+          assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
+          await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"true");
+          await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
+          await page.evaluate(()=>{window.__dessertShareFailure=true;});
+          await dialog.locator(".dessert-story-share").tap();
+          await dialog.locator(".dessert-story-share-fallback:not([hidden])").waitFor();
+          assert.equal(await dialog.locator(".dessert-story-share-fallback input").inputValue(),url);
+          await dialog.locator(".dessert-story-copy").tap();
+          await page.waitForFunction(url=>window.__dessertCopies.includes(url),url);
           await captureScreenshot(page,{path:output+"/dessert-"+mode+"-"+width+"-"+language+".png"});
           await dialog.locator(".dessert-story-close").tap(); await dialog.waitFor({state:"hidden"});
-          assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:1}]);
-          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS"});
+          const before=(await storedOrder(page)).lines.find(line=>line.id===id).quantity;
+          await trigger.tap();await dialog.waitFor();
+          assert.equal(await modalBuy.isVisible(),false,"purchase is gated by the third frame");
+          await dialog.locator(".dessert-story-next").tap(); await dialog.locator(".dessert-story-next").tap();
+          await modalBuy.tap();
+          await dialog.waitFor({state:"hidden"});
+          await page.locator("#menu-product-dialog[open]").waitFor();
+          assert.equal(await page.locator("#menu-product-title").textContent(),cake.item.name[language]);
+          await page.locator("#menu-add-to-cart").tap();
+          await page.locator("#menu-cart-dialog[open]").waitFor();
+          assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:before+1}]);
+          await page.waitForFunction(({mode,language})=>window.robysDessertStoryAnalytics.snapshot()[mode+":"+language+":story_add_to_cart"]===1,{mode,language});
+          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS",finaleCta:true,modalSocial:true});
         }
         assert.deepEqual(errors,[]);
       } finally { await context.close(); }
