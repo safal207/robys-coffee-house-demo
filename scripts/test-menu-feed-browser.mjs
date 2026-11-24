@@ -1973,8 +1973,12 @@ try {
     let semanticPhase = "cold-coffee";
     const semanticTrace = [];
     const record = (event, detail) => semanticTrace.push({ phase: semanticPhase, event, ...detail });
+    const scriptStarts = new WeakMap();
+    page.on("request", request => {
+      if (request.resourceType() === "script") scriptStarts.set(request, semanticPhase);
+    });
     page.on("requestfailed", request => {
-      if (request.resourceType() === "script") record("script-request-failed", { url: request.url(), error: request.failure()?.errorText });
+      if (request.resourceType() === "script") record("script-request-failed", { url: request.url(), error: request.failure()?.errorText, started: scriptStarts.get(request) });
     });
     page.on("response", response => {
       if (response.request().resourceType() === "script" && response.status() >= 400) record("script-http-error", { url: response.url(), status: response.status() });
@@ -2003,6 +2007,11 @@ try {
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="desserts"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#menu-product-dialog[open]").count(), 0, "Reload must not reopen a superseded product");
+    semanticPhase = "desserts-recovery";
+    const recoveredCake = page.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]');
+    await recoveredCake.scrollIntoViewIfNeeded();
+    await recoveredCake.locator(".dessert-story-open").waitFor();
+    assert.equal(await page.locator("#dessert-story-modal").count(), 1, "The current document must load the complete story after reload");
     semanticPhase = "combos-navigation";
     await page.goto(`${origin}/menu.html#menu-combos`);
     await waitForMenuMode(page, "list");
@@ -2014,13 +2023,44 @@ try {
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-family").isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
-    if (errors.length) {
-      console.error("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(semanticTrace));
-      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(semanticTrace, null, 2) + "\n");
+    // WebKit can report an import rejection from the departing document when
+    // native reload cancels its in-flight story dependencies. Attribute only
+    // that exact event; never ignore a failure originating in the new document.
+    const cancelledPaths = new Set(["/src/menu-feed-navigation.js", "/src/menu-feed-engagement.js"]);
+    const failedScripts = semanticTrace.filter(item => item.event === "script-request-failed");
+    const consoleFailures = semanticTrace.filter(item => item.event === "console-error");
+    const departedImport = engine === "webkit" && errors.length === 1
+      && errors[0] === "console.error: TypeError: Importing a module script failed."
+      && consoleFailures.length === 1 && consoleFailures[0].phase === "desserts-reload"
+      && !consoleFailures[0].location.url
+      && failedScripts.length > 0 && failedScripts.every(item =>
+        item.started === "desserts-click" && item.phase === "desserts-reload"
+        && item.error === "cancelled" && new URL(item.url).origin === origin
+        && cancelledPaths.has(new URL(item.url).pathname))
+      && !semanticTrace.some(item => item.event === "script-http-error" || item.event === "page-error");
+    if (semanticTrace.length) {
+      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify({ departedImport, semanticTrace }));
+      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify({ departedImport, semanticTrace }, null, 2) + "\n");
     }
-    assert.deepEqual(errors, []);
+    if (!departedImport) assert.deepEqual(errors, []);
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
-      productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
+      productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true,
+      storyRecoveredAfterNativeReload: true, departedImport });
+    // Negative control: failing the same dependency in an active document must
+    // still emit a module import error and must not create a working story.
+    const broken = await context.newPage(); broken.setDefaultTimeout(15000);
+    const brokenErrors = []; observeErrors(broken, brokenErrors);
+    await broken.route("**/src/menu-feed-engagement.js", route => route.fulfill({ status: 503, contentType: "text/javascript", body: "" }));
+    const rejection = broken.waitForEvent("console", { predicate: message => message.type() === "error" &&
+      /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/i.test(message.text()) });
+    await broken.goto(`${origin}/menu.html?view=list&lang=en#desserts`);
+    await waitForMenuMode(broken, "list");
+    await broken.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]').scrollIntoViewIfNeeded();
+    await rejection;
+    assert.ok(brokenErrors.length > 0, "An active-document import failure remains an observed error");
+    assert.equal(await broken.locator("#dessert-story-modal").count(), 0);
+    report.cases.push({ case: "dessert-active-import-negative-control", result: "PASS", activeDependencyFailureObserved: true });
+    await broken.close();
     await context.close();
   }
   {
