@@ -93,9 +93,27 @@ async function verifyPage(pathname) {
     assert(loaded, `${pathname}: required stylesheet did not load: ${stylesheet}`);
   }
   if (pathname === "menu.html") {
-    assert.equal(await page.locator('link[rel="stylesheet"]').count(), 1, "menu must load its sole reviewed blocking CSS bundle");
-    assert.equal(await page.locator('link[rel="stylesheet"]').getAttribute("href"), menuStylesUrl,
-      "menu must load the exact revision of all nine ordered source stylesheets");
+    // The source still has exactly one parser-blocking stylesheet, proven by
+    // verifyMenuStylesBundle above. Dessert Stories appends its optional CSS
+    // from an ES module. Match that single reviewed enhancement explicitly:
+    // unknown, duplicate or unexpected stylesheets must keep failing closed.
+    const loadedStylesheetHrefs = await page.locator('link[rel="stylesheet"]').evaluateAll(
+      links => links.map(link => link.getAttribute("href"))
+    );
+    const storyStylesUrl = new URL("dessert-story.css", localUrl).href;
+    const initialStyles = loadedStylesheetHrefs.includes(storyStylesUrl)
+      ? [menuStylesUrl, storyStylesUrl] : [menuStylesUrl];
+    assert.deepEqual(loadedStylesheetHrefs, initialStyles,
+      "menu may load only the reviewed bundle and the optional on-visible story CSS");
+    const chocolateCake = page.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]');
+    await chocolateCake.scrollIntoViewIfNeeded();
+    await page.locator('.dessert-story-open').waitFor({state:"visible",timeout:12000});
+    assert.deepEqual(await page.locator('link[rel="stylesheet"]').evaluateAll(
+      links => links.map(link => link.getAttribute("href"))
+    ), [menuStylesUrl, storyStylesUrl],
+      "visible cake must load the optional stylesheet after intersection");
+    assert.equal(await page.locator('link[rel="stylesheet"][href^="'+MENU_STYLESHEET_FILE+'"]').count(), 1,
+      "menu must retain exactly one blocking reviewed bundle");
     const delivered = await page.request.get(new URL(menuStylesUrl, localUrl).href);
     assert.equal(delivered.status(), 200, "menu stylesheet response must succeed");
     assert.deepEqual(await delivered.body(), menuStylesInputs.bundleBytes, "WebKit must receive the byte-identical reviewed menu cascade");

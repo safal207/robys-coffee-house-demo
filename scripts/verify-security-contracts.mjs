@@ -12,6 +12,7 @@ const RUNTIME_FILES = [
   "conversion.js",
   "analytics.js",
   "qa.js",
+  "qa-interactions.js",
   "menu-app.js",
   "menu-feed.js",
   "menu-feed-viewer.js",

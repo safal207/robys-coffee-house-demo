@@ -38,3 +38,17 @@ assert.equal(reduced.video.loads, 0, "Reduced motion keeps the poster without st
 assert.equal(reduced.video.plays, 0);
 assert.equal(setup({ hasSource: false }).video.loads, 0, "Missing video source must fail gracefully");
 console.log("Hero playback: normal web autoplay, visible-tab recovery, missing-source fallback and reduced motion PASS");
+
+const qaEntry=readFileSync("qa.js","utf8");
+const interactionModule=readFileSync("qa-interactions.js","utf8");
+assert.match(qaEntry,/import\("\.\/qa-interactions\.js"\)/,"deferred helpers import on the first gesture");
+assert.match(qaEntry,/for\(const e of\["pointerdown","keydown"\]\)window\.addEventListener\(e,initQaEnhancements,\{once:true\}\)/,"both gesture types load optional helpers once");
+assert.match(qaEntry,/setupLightboxAccessibility\(\);/,"lightbox focus must be protected before first input");
+assert.match(qaEntry,/new MutationObserver\(attach\)/,"early focus protection must also cover late lightboxes");
+assert.ok(qaEntry.includes("lightbox?.isConnected"),"removed lightboxes must release inert background");
+assert.ok(qaEntry.includes("event.shiftKey ? last : first"),"focus must return inside an open lightbox");
+assert.ok(!qaEntry.includes("setupImageFallbacks();"),"image fallback mutations must remain deferred");
+for(const required of ["setupExternalLinks();","setupImageFallbacks();"])
+  assert.ok(interactionModule.includes(required),"deferred module missing "+required);
+assert.ok(!interactionModule.includes("setupLightboxAccessibility"),"focus protection must not wait for a gesture");
+assert.ok(!interactionModule.includes("document.write")&&!interactionModule.includes("innerHTML"),"CSP-safe deferred helper");

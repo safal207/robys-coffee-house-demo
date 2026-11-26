@@ -1,0 +1,56 @@
+name: Dessert story contract
+on:
+  pull_request:
+    paths:
+      - "menu-feed.html"
+      - "menu-grid.html"
+      - "menu.html"
+      - "src/dessert-story.js"
+      - "src/dessert-story-loader.js"
+      - "dessert-story.css"
+      - "src/products/stories/chocolate-cake/**"
+      - "scripts/test-dessert-story.mjs"
+      - "scripts/test-dessert-story-browser.mjs"
+      - ".github/workflows/dessert-story-contract.yml"
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Parse story controller and lazy loader
+        run: |
+          node --check src/dessert-story.js
+          node --check src/dessert-story-loader.js
+      - name: Verify assets and three menu entrypoints
+        run: node --test scripts/test-dessert-story.mjs
+      - name: Verify deterministic build and integrity manifest
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run verify:integrity
+      - name: Preserve build diagnostics after a failed integrity gate
+        if: failure()
+        run: |
+          mkdir -p .artifacts/dessert-story/built
+          for file in sw-core-v64.js menu-app.js menu-feed.js menu.html menu-grid.html menu-feed.html index.html qa.js; do
+            cp "$file" ".artifacts/dessert-story/built/$file"
+          done
+          cp integrity-manifest.json .artifacts/dessert-story/built/committed-manifest.json
+          node scripts/generate-integrity-manifest.mjs
+          cp integrity-manifest.json .artifacts/dessert-story/built/expected-manifest.json
+      - name: Install Chromium for gesture regression
+        run: npx playwright install --with-deps chromium
+      - name: Verify swipe, locales and accessible modal under CSP
+        run: node scripts/test-dessert-story-browser.mjs
+      - name: Attach mobile story screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dessert-story-visual-${{ github.sha }}
+          path: .artifacts/dessert-story/
+          if-no-files-found: warn

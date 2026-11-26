@@ -234,6 +234,179 @@ async function startMacWebKitGroup(name) {
 }
 try {
   browser = await ({ chromium, firefox, webkit })[engine].launch({ headless: true });
+
+  // DES-001: real generated menu, not the dessert fixture. Native sharing is
+  // exercised at its API boundary; no message or payment leaves the test.
+  if (engine === "chromium") {
+    const id = "desserts:chocolate-cake", cake = catalog.find(p => p.id === id);
+    assert.ok(cake);
+    const alt = { tr: "İster misin?", ru: "Хочешь?", en: "Want some?" };
+    const center = locator => locator.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    const frameReady = (page, selector, suffix) => page.waitForFunction(({selector,suffix}) => {
+      const img = document.querySelector(selector);
+      return img?.src.endsWith(suffix) && img.complete && img.naturalWidth > 0;
+    }, {selector,suffix});
+    async function touchSwipe(page, locator, dx, dy) {
+      const b = await locator.boundingBox(); assert.ok(b);
+      const x = b.x + b.width * .65, y = b.y + b.height * .38;
+      assert.ok(x > 0 && x < page.viewportSize().width && y > 0 && y < page.viewportSize().height);
+      const session = await page.context().newCDPSession(page);
+      try {
+        await session.send("Input.dispatchTouchEvent", {type:"touchStart", touchPoints:[{x,y}]});
+        for (let i=1; i<=8; i++) {
+          await session.send("Input.dispatchTouchEvent", {type:"touchMove",touchPoints:[{x:x+dx*i/8,y:y+dy*i/8}]});
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        await session.send("Input.dispatchTouchEvent", {type:"touchEnd",touchPoints:[]});
+      } finally { await session.detach(); }
+    }
+    for (const width of [320,390,768]) for (const language of ["ru","tr","en"]) {
+      const context = await browser.newContext({ viewport:{width,height:844}, isMobile:true, hasTouch:true,
+        deviceScaleFactor:1, reducedMotion:"reduce", ignoreHTTPSErrors:true, serviceWorkers:"block" });
+      try {
+        await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+        await context.addInitScript(() => {
+          window.__dessertShares=[]; window.__dessertCopies=[]; window.__dessertShareFailure=false;
+          Object.defineProperty(navigator,"share",{configurable:true,value:async data=>{
+            window.__dessertShares.push(data);
+            if(window.__dessertShareFailure) throw Error("controlled native sharing failure");
+          }});
+          Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async value=>window.__dessertCopies.push(value)}});
+        });
+        const page = await context.newPage(); page.setDefaultTimeout(15000);
+        const errors=[]; observeErrors(page,errors);
+        await page.goto(origin+"/menu-feed.html?view=feed&lang="+language+"&item="+encodeURIComponent(id));
+        await waitForMenuMode(page,"feed");
+        assert.equal(await page.locator("html").getAttribute("lang"),language);
+        const card=page.locator('.feed-card[data-product-id="'+id+'"]');
+        await center(card.locator(".feed-photo"));
+        const story=card.locator(".dessert-story-feed"); await story.waitFor();
+        const frameSelector='.feed-card[data-product-id="'+id+'"] .dessert-story-frame';
+        await frameReady(page,frameSelector,"/01.jpg");
+        assert.equal(await card.locator(".dessert-story-feed-buy").isVisible(),false);
+        assert.deepEqual((await storedOrder(page)).lines,[]);
+        for (const name of [".feed-like",".feed-share"]) {
+          const control=card.locator(name); await control.scrollIntoViewIfNeeded();
+          assert.ok(await control.evaluate(el=>{
+            const b=el.getBoundingClientRect();
+            return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));
+          }),"DES-001: social hit target "+name);
+        }
+        await center(story); await touchSwipe(page,story,-85,0);
+        await frameReady(page,frameSelector,"/02.jpg");
+        const y=await page.evaluate(()=>scrollY);
+        await touchSwipe(page,story,0,-100);
+        await page.waitForFunction(y=>Math.abs(scrollY-y)>15,y);
+        assert.match(await card.locator(".dessert-story-frame").getAttribute("src"),/02\.jpg$/);
+        await center(story); await touchSwipe(page,story,-85,0);
+        await frameReady(page,frameSelector,"/03-"+language+".jpg");
+        assert.equal(await card.locator(".dessert-story-frame").getAttribute("alt"),alt[language]);
+        assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+        await captureScreenshot(page,{path:output+"/dessert-feed-"+width+"-"+language+".png"});
+        const like=card.locator(".feed-like"), share=card.locator(".feed-share");
+        assert.equal(await like.getAttribute("aria-pressed"),"false");
+        await like.tap(); await card.locator('.feed-like[aria-pressed="true"]').waitFor();
+        await like.tap(); await card.locator('.feed-like[aria-pressed="false"]').waitFor();
+        await share.tap(); await page.waitForFunction(()=>window.__dessertShares.length===1);
+        const url=origin+"/share/"+language+"/desserts--chocolate-cake.html";
+        assert.equal(await page.evaluate(()=>window.__dessertShares[0].url),url);
+        await page.evaluate(()=>{window.__dessertShareFailure=true;});
+        await share.tap(); await page.locator("#feed-share[open]").waitFor();
+        assert.equal(await page.locator("#feed-share-url").inputValue(),url);
+        await page.locator("#feed-share-copy").tap();
+        await page.waitForFunction(url=>window.__dessertCopies.includes(url),url);
+        await page.locator("#feed-share-close").tap();
+        await page.locator("#feed-share[open]").waitFor({state:"hidden"});
+        assert.deepEqual((await storedOrder(page)).lines,[],"social actions do not add an order");
+        const cta=card.locator(".dessert-story-feed-buy");
+        assert.equal(await cta.isVisible(),true);
+        assert.equal(await cta.evaluate(el=>{
+          const b=el.getBoundingClientRect(), cart=document.querySelector("#menu-cart-trigger").getBoundingClientRect();
+          return b.bottom<=cart.top && el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));
+        }),true,"DES-002: finale CTA clear of cart without scrolling");
+        await cta.tap();
+        await page.waitForFunction(()=>document.querySelector("#menu-cart-count").textContent==="1");
+        assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:1}]);
+        assert.equal(moneyValue(await page.locator("#menu-cart-total").textContent()),cake.item.price);
+        if(!await page.locator("#menu-cart-dialog").evaluate(el=>el.open)) await page.locator("#menu-cart-trigger").tap();
+        await page.locator("#menu-cart-dialog[open]").waitFor();
+        await page.locator("#menu-checkout-trigger").tap();
+        const checkout=page.locator(".order-checkout-dialog[open]"); await checkout.waitFor();
+        // Opening the dialog precedes the asynchronous authoritative draft read.
+        // Wait for the actual rendered QR, not merely the loading shell.
+        await checkout.locator(".order-ticket-qr").waitFor();
+        assert.equal(await checkout.locator(".order-ticket-qr").count(),1);
+        assert.ok(await checkout.locator(".order-ticket-qr").isVisible());
+        assert.equal(moneyValue(await checkout.locator(".order-ticket-total").textContent()),cake.item.price);
+        assert.ok((await checkout.locator(".order-ticket-lines").textContent()).includes(cake.item.name[language]));
+        await page.waitForFunction(lang=>window.robysDessertStoryAnalytics.snapshot()["feed:"+lang+":story_qr_created"]===1,language);
+        const metrics=await page.evaluate(()=>window.robysDessertStoryAnalytics.snapshot());
+        assert.equal(metrics["feed:"+language+":story_add_to_cart"],1);
+        assert.equal(metrics["feed:"+language+":story_completed"],1);
+        assert.equal(metrics["feed:"+language+":story_like"],1);
+        assert.equal(metrics["feed:"+language+":story_share"],2);
+        assert.equal(metrics["feed:"+language+":story_buy_intent"],1);
+        assert.equal(metrics["feed:"+language+":story_swipe"],2);
+        assert.ok(Object.entries(metrics).every(([key,value])=>/^(feed|list|grid):(tr|en|ru):story_(impression|swipe|advance|completed|like|share|buy_intent|add_to_cart|qr_created)$/.test(key)&&Number.isSafeInteger(value)));
+        report.cases.push({case:"DES-001-feed-funnel",width,language,result:"PASS",touch:true,shareBoundary:true,qr:true,finaleCta:true,localMetrics:metrics});
+        for (const mode of ["list","grid"]) {
+          await page.goto(origin+(mode==="grid"?"/menu-grid.html":"/menu.html")+"?view="+mode+"&lang="+language+"#desserts");
+          await waitForMenuMode(page,mode);
+          const row=page.locator('.full-menu-item[data-product-id="'+id+'"]');
+          await center(row);
+          const trigger=row.locator(".dessert-story-open"); await trigger.waitFor();
+          await trigger.tap();
+          const dialog=page.locator("#dessert-story-modal[open]"); await dialog.waitFor();
+          assert.equal(await dialog.locator("#dessert-story-title").textContent(),cake.item.name[language]);
+          await dialog.locator(".dessert-story-next").tap(); await dialog.locator(".dessert-story-next").tap();
+          await frameReady(page,"#dessert-story-modal img","/03-"+language+".jpg");
+          assert.equal(await dialog.locator("img").getAttribute("alt"),alt[language]);
+          const b=await dialog.boundingBox();
+          assert.ok(b && b.x>=-1 && b.y>=-1 && b.x+b.width<=width+1 && b.y+b.height<=845);
+          const modalBuy=dialog.locator(".dessert-story-buy");
+          assert.equal(await modalBuy.isVisible(),true);
+          assert.equal(await modalBuy.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),true,"DES-003: modal CTA reachable");
+          const modalLike=dialog.locator(".dessert-story-like");
+          assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
+          await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"true");
+          await modalLike.tap(); assert.equal(await modalLike.getAttribute("aria-pressed"),"false");
+          await captureScreenshot(page,{path:output+"/dessert-"+mode+"-"+width+"-"+language+".png"});
+          await dialog.locator(".dessert-story-share").tap();
+          await page.waitForFunction(()=>window.__dessertShares.length===1);
+          assert.equal(await page.evaluate(()=>window.__dessertShares[0].url),url);
+          await page.evaluate(()=>{window.__dessertShareFailure=true;});
+          await dialog.locator(".dessert-story-share").tap();
+          await dialog.locator(".dessert-story-share-fallback:not([hidden])").waitFor();
+          assert.equal(await dialog.locator(".dessert-story-share-fallback input").inputValue(),url);
+          await dialog.locator(".dessert-story-copy").tap();
+          await page.waitForFunction(url=>window.__dessertCopies.includes(url),url);
+          await captureScreenshot(page,{path:output+"/dessert-share-"+mode+"-"+width+"-"+language+".png"});
+          await dialog.locator(".dessert-story-close").tap(); await dialog.waitFor({state:"hidden"});
+          const before=(await storedOrder(page)).lines.find(line=>line.id===id).quantity;
+          await trigger.tap();await dialog.waitFor();
+          assert.equal(await modalBuy.isVisible(),false,"purchase is gated by the third frame");
+          await dialog.locator(".dessert-story-next").tap(); await dialog.locator(".dessert-story-next").tap();
+          await modalBuy.tap();
+          await dialog.waitFor({state:"hidden"});
+          await page.locator("#menu-product-dialog[open]").waitFor();
+          assert.equal(await page.locator("#menu-product-title").textContent(),cake.item.name[language]);
+          await page.locator("#menu-add-to-cart").tap();
+          await page.locator("#menu-cart-dialog[open]").waitFor();
+          assert.deepEqual((await storedOrder(page)).lines,[{id,quantity:before+1}]);
+          await page.waitForFunction(({mode,language})=>window.robysDessertStoryAnalytics.snapshot()[mode+":"+language+":story_add_to_cart"]===1,{mode,language});
+          await page.locator("#menu-checkout-trigger").tap();
+          const modalCheckout=page.locator(".order-checkout-dialog[open]");
+          await modalCheckout.locator(".order-ticket-qr").waitFor();
+          assert.equal(await modalCheckout.locator(".order-ticket-qr").count(),1);
+          assert.ok((await modalCheckout.locator(".order-ticket-lines").textContent()).includes(cake.item.name[language]));
+          await page.waitForFunction(({mode,language})=>window.robysDessertStoryAnalytics.snapshot()[mode+":"+language+":story_qr_created"]===1,{mode,language});
+          report.cases.push({case:"DES-001-modal",mode,width,language,result:"PASS",finaleCta:true,modalSocial:true,qr:true});
+        }
+        assert.deepEqual(errors,[]);
+      } finally { await context.close(); }
+    }
+  }
+
   for (const [width, height, language] of [[320, 568, "tr"], [390, 844, "ru"], [760, 900, "en"]]) {
     const context = await browser.newContext({ viewport: { width, height }, reducedMotion: "reduce", ignoreHTTPSErrors: true, serviceWorkers: "block" });
     await context.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
@@ -1795,35 +1968,140 @@ try {
     });
     const page = await context.newPage(); page.setDefaultTimeout(15000);
     const errors = []; observeErrors(page, errors);
+    // Keep navigation races observable: capture exact resource, phase and failure
+    // without suppressing console errors or changing application timing.
+    // Identify each actual document, rather than assigning a late console
+    // event to whichever Playwright navigation happens to be in progress.
+    await page.addInitScript(() => {
+      const id = crypto.randomUUID();
+      let leaving = false;
+      window.__qaSemanticDocument = id;
+      window.addEventListener("pagehide", () => { leaving = true; }, { capture: true });
+      window.addEventListener("pageshow", () => { leaving = false; }, { capture: true });
+      const original = console.error;
+      console.error = function (...args) {
+        if (args[0] === "Dessert") original.call(this, ...args, "qa-doc:" + id, "qa-pagehide:" + Number(leaving));
+        else original.apply(this, args);
+      };
+    });
+    let semanticPhase = "cold-coffee";
+    const semanticTrace = [];
+    const record = (event, detail) => semanticTrace.push({ phase: semanticPhase, event, ...detail });
+    const scriptStarts = new WeakMap();
+    page.on("request", request => {
+      if (request.resourceType() === "script") scriptStarts.set(request, semanticPhase);
+    });
+    page.on("requestfailed", request => {
+      if (request.resourceType() === "script") record("script-request-failed", { url: request.url(), error: request.failure()?.errorText, started: scriptStarts.get(request) });
+    });
+    page.on("response", response => {
+      if (response.request().resourceType() === "script" && response.status() >= 400) record("script-http-error", { url: response.url(), status: response.status() });
+    });
+    page.on("console", message => {
+      if (message.type() === "error") record("console-error", { message: message.text(), location: message.location() });
+    });
+    page.on("pageerror", error => record("page-error", { message: error.message, stack: error.stack }));
     await page.goto(`${origin}/menu.html#cold-coffee`);
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="cold-coffee"]').getAttribute("aria-pressed"), "true");
+    semanticPhase = "espresso-deep-link";
     await page.goto(`${origin}/menu.html?product=${encodeURIComponent("hot-coffee:espresso")}&lang=en#hot-coffee`);
     await waitForMenuMode(page, "list");
     await page.locator("#menu-product-dialog[open]").waitFor();
     assert.match(await page.locator("#menu-product-title").textContent(), /Espresso/);
     await page.keyboard.press("Escape");
+    const outgoingDocument = await page.evaluate(() => window.__qaSemanticDocument);
+    assert.ok(outgoingDocument, "Identify the document before starting the dessert import");
+    semanticPhase = "desserts-click";
     await page.locator('#menu-category-nav [data-category="desserts"]').click();
     const changedCategoryUrl = new URL(page.url());
     assert.equal(changedCategoryUrl.hash, "#desserts");
     assert.equal(changedCategoryUrl.searchParams.has("product"), false, "A new category replaces the shared product intent");
     assert.equal(changedCategoryUrl.searchParams.has("item"), false);
+    semanticPhase = "desserts-reload";
     await page.reload();
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="desserts"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#menu-product-dialog[open]").count(), 0, "Reload must not reopen a superseded product");
+    const incomingDocument = await page.evaluate(() => window.__qaSemanticDocument);
+    assert.ok(incomingDocument && incomingDocument !== outgoingDocument, "Native reload replaces the document");
+    semanticPhase = "desserts-recovery";
+    const recoveredCake = page.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]');
+    await recoveredCake.scrollIntoViewIfNeeded();
+    await recoveredCake.locator(".dessert-story-open").waitFor();
+    assert.equal(await page.locator("#dessert-story-modal").count(), 1, "The current document must load the complete story after reload");
+    await recoveredCake.locator(".dessert-story-open").click();
+    const recoveredStory = page.locator("#dessert-story-modal[open]");
+    await recoveredStory.waitFor();
+    await recoveredStory.locator(".dessert-story-next").click();
+    await recoveredStory.locator(".dessert-story-next").click();
+    await recoveredStory.locator('img[src$="/03-en.jpg"]').waitFor();
+    await page.waitForFunction(() => {
+      const image = document.querySelector('#dessert-story-modal[open] img');
+      return image?.complete && image.naturalWidth > 0;
+    });
+    await recoveredStory.locator(".dessert-story-close").click();
+    await recoveredStory.waitFor({ state: "hidden" });
+    semanticPhase = "combos-navigation";
     await page.goto(`${origin}/menu.html#menu-combos`);
     await waitForMenuMode(page, "list");
     await page.locator(".menu-combos-card").first().waitFor();
     assert.equal(await page.locator("#menu-combos").isVisible(), true);
+    semanticPhase = "family-navigation";
     await page.goto(`${origin}/menu.html#menu-family`);
     await waitForMenuMode(page, "list");
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-family").isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
-    assert.deepEqual(errors, []);
+    // An error in a discarded document is not a failure of the replacement
+    // document, but only when the lifecycle evidence proves that attribution.
+    // Preserve every raw error and reject all unrelated or active-document errors.
+    const expectedDependencies = new Set(["/src/menu-feed-engagement.js", "/src/menu-feed-navigation.js"]);
+    const failedScripts = semanticTrace.filter(item => item.event === "script-request-failed");
+    const consoleFailures = semanticTrace.filter(item => item.event === "console-error");
+    const cancelledDependencies = failedScripts.length > 0 && failedScripts.every(item =>
+      item.phase === "desserts-reload" && item.error === "cancelled" &&
+      new URL(item.url).origin === origin && expectedDependencies.has(new URL(item.url).pathname));
+    const discardedImport = engine === "webkit" && errors.length === 1 &&
+      consoleFailures.length === 1 && consoleFailures[0].phase === "desserts-reload" &&
+      consoleFailures[0].message.startsWith("Dessert TypeError: Importing a module script failed.") &&
+      consoleFailures[0].message.includes("qa-doc:" + outgoingDocument) &&
+      !consoleFailures[0].message.includes("qa-doc:" + incomingDocument) &&
+      (consoleFailures[0].message.includes("qa-pagehide:1") || cancelledDependencies) &&
+      !semanticTrace.some(item => item.event === "script-http-error" || item.event === "page-error") &&
+      (failedScripts.length === 0 || cancelledDependencies);
+    if (semanticTrace.length) {
+      const evidence = { outgoingDocument, incomingDocument, discardedImport, semanticTrace, errors };
+      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(evidence));
+      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(evidence, null, 2) + "\n");
+    }
+    const activeErrors = discardedImport ? [] : errors;
+    assert.deepEqual(activeErrors, [], "Only a proven discarded-document cancellation is not an active-document error");
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
-      productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true });
+      productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true,
+      storyRecoveredAfterNativeReload: true, discardedImport });
+    // Negative control: a deliberate HTTP failure while the document stays
+    // active must be reported by the loader, independently of engine wording.
+    const broken = await context.newPage(); broken.setDefaultTimeout(15000);
+    const brokenErrors = []; observeErrors(broken, brokenErrors);
+    const dependency = origin + "/src/menu-feed-engagement.js";
+    let injected = 0;
+    await broken.route(dependency, route => { injected++; return route.fulfill({ status: 503, contentType: "text/javascript", body: "" }); });
+    await broken.goto(`${origin}/menu.html?view=list&lang=en#desserts`);
+    await waitForMenuMode(broken, "list");
+    await broken.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]').scrollIntoViewIfNeeded();
+    // Attach the listener before navigation via observeErrors above, then use
+    // a bounded poll of its retained evidence to avoid a missed event.
+    const deadline = Date.now() + 15000;
+    while (!brokenErrors.some(error => error.startsWith("console.error: Dessert")) && Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.equal(injected, 1, "The controlled dependency failure must actually execute");
+    assert.ok(brokenErrors.some(error => error.startsWith("console.error: Dessert")), JSON.stringify(brokenErrors));
+    assert.equal(await broken.locator("#dessert-story-modal").count(), 0);
+    assert.equal(await broken.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"] .full-menu-item-media').isVisible(), true);
+    report.cases.push({ case: "dessert-active-import-negative-control", result: "PASS", activeDependencyFailureObserved: true });
+    await broken.close();
     await context.close();
   }
   {

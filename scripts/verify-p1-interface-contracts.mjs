@@ -9,6 +9,7 @@ const conversionCss = readFileSync("conversion.css", "utf8");
 const finalQaCss = readFileSync("final-qa.css", "utf8");
 const menuCss = readFileSync("menu-premium.css", "utf8");
 const qaRuntime = readFileSync("qa.js", "utf8");
+const qaInteractions = readFileSync("qa-interactions.js", "utf8");
 const menuRuntime = readVerifiedMenuSource();
 const mediaVerifier = readFileSync("scripts/verify-media.mjs", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
@@ -155,7 +156,7 @@ const criticalFiles = [
 criticalFiles.forEach((file) => fileExists(file, "ASSET-001"));
 const iconMappings = Array.from(finalQaCss.matchAll(/background-image:url\(["'](src\/menu-icons\/[^"']+)["']\)/gi), (match) => match[1]);
 assert(iconMappings.length === 6 && new Set(iconMappings).size === 6, "ASSET-001", "Menu icon mapping changed");
-assert(qaRuntime.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"'), "ASSET-001", "Fallback image changed");
+assert(qaInteractions.includes('FALLBACK_IMAGE = "src/robys-hero-poster.jpg"') && qaRuntime.includes('import("./qa-interactions.js")'), "ASSET-001", "Deferred fallback asset or its wiring changed");
 assert(qaRuntime.includes('HERO_VIDEO = "src/robys-ambience-clean.mp4?v=20260711-1'), "ASSET-001", "Hero asset changed");
 assert(mediaVerifier.includes("ffprobe") && mediaVerifier.includes("codec_name!=='h264'"), "ASSET-001", "Video verification changed");
 assert(packageJson.scripts?.["verify:media"] === "node scripts/verify-media.mjs", "ASSET-001", "verify:media wiring changed");

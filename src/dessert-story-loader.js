@@ -1,0 +1,1 @@
+try{const v=new IntersectionObserver(e=>{if(e.some(x=>x.isIntersecting)){v.disconnect();m.disconnect();import("./dessert-story.js").catch(e=>setTimeout(console.error,0,"Dessert",e))}}),s=()=>document.querySelectorAll('[data-product-id="desserts:chocolate-cake"]').forEach(v.observe,v),m=new MutationObserver(s);m.observe(document,{childList:1,subtree:1});s()}catch{}
