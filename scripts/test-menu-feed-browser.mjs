@@ -1970,6 +1970,20 @@ try {
     const errors = []; observeErrors(page, errors);
     // Keep navigation races observable: capture exact resource, phase and failure
     // without suppressing console errors or changing application timing.
+    // Identify each actual document, rather than assigning a late console
+    // event to whichever Playwright navigation happens to be in progress.
+    await page.addInitScript(() => {
+      const id = crypto.randomUUID();
+      let leaving = false;
+      window.__qaSemanticDocument = id;
+      window.addEventListener("pagehide", () => { leaving = true; }, { capture: true });
+      window.addEventListener("pageshow", () => { leaving = false; }, { capture: true });
+      const original = console.error;
+      console.error = function (...args) {
+        if (args[0] === "Dessert") original.call(this, ...args, "qa-doc:" + id, "qa-pagehide:" + Number(leaving));
+        else original.apply(this, args);
+      };
+    });
     let semanticPhase = "cold-coffee";
     const semanticTrace = [];
     const record = (event, detail) => semanticTrace.push({ phase: semanticPhase, event, ...detail });
@@ -1996,6 +2010,8 @@ try {
     await page.locator("#menu-product-dialog[open]").waitFor();
     assert.match(await page.locator("#menu-product-title").textContent(), /Espresso/);
     await page.keyboard.press("Escape");
+    const outgoingDocument = await page.evaluate(() => window.__qaSemanticDocument);
+    assert.ok(outgoingDocument, "Identify the document before starting the dessert import");
     semanticPhase = "desserts-click";
     await page.locator('#menu-category-nav [data-category="desserts"]').click();
     const changedCategoryUrl = new URL(page.url());
@@ -2007,11 +2023,25 @@ try {
     await waitForMenuMode(page, "list");
     assert.equal(await page.locator('#menu-category-nav [data-category="desserts"]').getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator("#menu-product-dialog[open]").count(), 0, "Reload must not reopen a superseded product");
+    const incomingDocument = await page.evaluate(() => window.__qaSemanticDocument);
+    assert.ok(incomingDocument && incomingDocument !== outgoingDocument, "Native reload replaces the document");
     semanticPhase = "desserts-recovery";
     const recoveredCake = page.locator('.full-menu-item[data-product-id="desserts:chocolate-cake"]');
     await recoveredCake.scrollIntoViewIfNeeded();
     await recoveredCake.locator(".dessert-story-open").waitFor();
     assert.equal(await page.locator("#dessert-story-modal").count(), 1, "The current document must load the complete story after reload");
+    await recoveredCake.locator(".dessert-story-open").click();
+    const recoveredStory = page.locator("#dessert-story-modal[open]");
+    await recoveredStory.waitFor();
+    await recoveredStory.locator(".dessert-story-next").click();
+    await recoveredStory.locator(".dessert-story-next").click();
+    await recoveredStory.locator('img[src$="/03-en.jpg"]').waitFor();
+    await page.waitForFunction(() => {
+      const image = document.querySelector('#dessert-story-modal[open] img');
+      return image?.complete && image.naturalWidth > 0;
+    });
+    await recoveredStory.locator(".dessert-story-close").click();
+    await recoveredStory.waitFor({ state: "hidden" });
     semanticPhase = "combos-navigation";
     await page.goto(`${origin}/menu.html#menu-combos`);
     await waitForMenuMode(page, "list");
@@ -2023,16 +2053,33 @@ try {
     await page.locator(".menu-family-card").first().waitFor();
     assert.equal(await page.locator("#menu-family").isVisible(), true);
     assert.equal(await page.evaluate(() => localStorage.getItem("robys-menu-view")), "feed");
-    // All application console errors remain failures; never infer that an
-    // unlabelled error came from a discarded document based on its wording.
+    // An error in a discarded document is not a failure of the replacement
+    // document, but only when the lifecycle evidence proves that attribution.
+    // Preserve every raw error and reject all unrelated or active-document errors.
+    const expectedDependencies = new Set(["/src/menu-feed-engagement.js", "/src/menu-feed-navigation.js"]);
+    const failedScripts = semanticTrace.filter(item => item.event === "script-request-failed");
+    const consoleFailures = semanticTrace.filter(item => item.event === "console-error");
+    const cancelledDependencies = failedScripts.length > 0 && failedScripts.every(item =>
+      item.phase === "desserts-reload" && item.error === "cancelled" &&
+      new URL(item.url).origin === origin && expectedDependencies.has(new URL(item.url).pathname));
+    const discardedImport = engine === "webkit" && errors.length === 1 &&
+      consoleFailures.length === 1 && consoleFailures[0].phase === "desserts-reload" &&
+      consoleFailures[0].message.startsWith("Dessert TypeError: Importing a module script failed.") &&
+      consoleFailures[0].message.includes("qa-doc:" + outgoingDocument) &&
+      !consoleFailures[0].message.includes("qa-doc:" + incomingDocument) &&
+      (consoleFailures[0].message.includes("qa-pagehide:1") || cancelledDependencies) &&
+      !semanticTrace.some(item => item.event === "script-http-error" || item.event === "page-error") &&
+      (failedScripts.length === 0 || cancelledDependencies);
     if (semanticTrace.length) {
-      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(semanticTrace));
-      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(semanticTrace, null, 2) + "\n");
+      const evidence = { outgoingDocument, incomingDocument, discardedImport, semanticTrace, errors };
+      console.log("SEMANTIC-DEEP-LINKS import diagnostics:", JSON.stringify(evidence));
+      writeFileSync(`${output}/${engine}-semantic-import-diagnostics.json`, JSON.stringify(evidence, null, 2) + "\n");
     }
-    assert.deepEqual(errors, []);
+    const activeErrors = discardedImport ? [] : errors;
+    assert.deepEqual(activeErrors, [], "Only a proven discarded-document cancellation is not an active-document error");
     report.cases.push({ case: "menu-mode-semantic-deep-links", result: "PASS", feedPreferenceCannotHijackCategory: true,
       productDialogOpens: true, categoryReplacesProductIntentAcrossReload: true, comboAndFamilySectionsOpen: true, preferenceUnchanged: true,
-      storyRecoveredAfterNativeReload: true });
+      storyRecoveredAfterNativeReload: true, discardedImport });
     // Negative control: a deliberate HTTP failure while the document stays
     // active must be reported by the loader, independently of engine wording.
     const broken = await context.newPage(); broken.setDefaultTimeout(15000);
