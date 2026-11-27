@@ -1,0 +1,130 @@
+{
+  "masterSeed": 20261127,
+  "summary": {
+    "scenarios": 1000,
+    "sessions": 1702554,
+    "A": {
+      "wins": 0,
+      "losses": 0,
+      "ties": 1000,
+      "mean": 0,
+      "p05": 0,
+      "median": 0,
+      "p95": 0,
+      "worst": 0,
+      "best": 0,
+      "totalMargin": 29109915.91
+    },
+    "B": {
+      "wins": 196,
+      "losses": 804,
+      "ties": 0,
+      "mean": -811.6302113168948,
+      "p05": -2863.2519920318728,
+      "median": -916.8164794007491,
+      "p95": 1719.6153846153845,
+      "worst": -7887.440592130893,
+      "best": 7883.9293598234,
+      "totalMargin": 27718927.1
+    },
+    "adaptive": {
+      "wins": 188,
+      "losses": 812,
+      "ties": 0,
+      "mean": -170.3168985349005,
+      "p05": -743.0382595648912,
+      "median": -239.0379746835443,
+      "p95": 398.7758775877587,
+      "worst": -2463.030775223997,
+      "best": 6537.253863134658,
+      "totalMargin": 28840219.92
+    },
+    "switchB": 46,
+    "adaptiveBeatsB": 802,
+    "adaptiveWorseB": 198,
+    "moreCakeLessMargin": 442
+  },
+  "stress": [
+    {
+      "name": "zero traffic",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "zero cake demand",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "identical arms",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "100% refunds",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "negative cake uplift",
+      "deltaB": -9500000,
+      "deltaAdaptive": -1900000
+    },
+    {
+      "name": "pure cannibalization",
+      "deltaB": -2500000,
+      "deltaAdaptive": -500000
+    },
+    {
+      "name": "cost exceeds price",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "treatment fee only",
+      "deltaB": -165000,
+      "deltaAdaptive": -45000
+    },
+    {
+      "name": "strong profitable uplift",
+      "deltaB": 9500000,
+      "deltaAdaptive": 7600000
+    },
+    {
+      "name": "tiny pilot",
+      "deltaB": -2500,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "zero margin",
+      "deltaB": 0,
+      "deltaAdaptive": 0
+    },
+    {
+      "name": "refund asymmetry",
+      "deltaB": -19000000,
+      "deltaAdaptive": -3800000
+    },
+    {
+      "name": "reject n"
+    },
+    {
+      "name": "reject cakeA"
+    },
+    {
+      "name": "reject cakeCost"
+    },
+    {
+      "name": "reject refundB"
+    },
+    {
+      "name": "reject storyCost"
+    },
+    {
+      "name": "reject cakePrice"
+    },
+    {
+      "name": "reproducible seed"
+    }
+  ]
+}
