@@ -1,0 +1,71 @@
+{
+  "summary": {
+    "scenarios": 1000,
+    "sessions": 1982240,
+    "seed": 20261205,
+    "oldSeedsExcluded": 1000,
+    "B": {
+      "mean": -238.81777975557327,
+      "p05": -2134.090909090909,
+      "median": -418.4107669616519,
+      "p95": 2459.531680440771,
+      "worst": -5351.633221850614,
+      "best": 8567.360406091371,
+      "wins": 356,
+      "losses": 644,
+      "ties": 0
+    },
+    "adaptiveAB": {
+      "mean": -68.55715048998825,
+      "p05": -565.3380588876772,
+      "median": -115.58315334773218,
+      "p95": 629.3218570683359,
+      "worst": -2430.9625,
+      "best": 7164.822335025381,
+      "wins": 328,
+      "losses": 672,
+      "ties": 0
+    },
+    "profitGraph": {
+      "mean": -167.87434125340476,
+      "p05": -920.0418410041841,
+      "median": -199.71147943523633,
+      "p95": 591.5462569467146,
+      "worst": -1859.671592775041,
+      "best": 6064.896103896103,
+      "wins": 295,
+      "losses": 705,
+      "ties": 0
+    },
+    "graphBeatsAB": 383,
+    "graphBeatsB": 584,
+    "graphSelectsOther": 65,
+    "graphDifferentContexts": 99,
+    "moreCakeLessMargin": 402
+  },
+  "stress": [
+    "zero traffic",
+    "identical arms",
+    "all stockouts",
+    "single unavailable target",
+    "100% refunds",
+    "coffee-only",
+    "joint basket exact accounting",
+    "partial line refund retains both costs",
+    "substitution mass exact",
+    "complement raises margin",
+    "negative margin",
+    "fee and fixed activation accounting",
+    "small pilot defaults control",
+    "strong context-dependent complement",
+    "reject n",
+    "reject base",
+    "reject refund",
+    "reject saving",
+    "reject cost",
+    "reject fee",
+    "reject available",
+    "reject mix",
+    "reproducible"
+  ]
+}
